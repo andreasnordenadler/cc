@@ -13,6 +13,12 @@ export type ActiveChallenge = {
   status?: string;
   startedAt?: string;
   verifiedAt?: string;
+  customQuestSnapshot?: {
+    id: string;
+    title: string;
+    config: string;
+    lifecycle: "published";
+  };
 };
 
 export type ChallengeFailureDiagnostic = {
@@ -114,11 +120,19 @@ export function getActiveChallenge(metadata: UserMetadataRecord): ActiveChalleng
           typeof candidate.startedAt === "string" ? candidate.startedAt : undefined,
         verifiedAt:
           typeof candidate.verifiedAt === "string" ? candidate.verifiedAt : undefined,
+        customQuestSnapshot: parseActiveCustomQuestSnapshot(candidate.customQuestSnapshot),
       };
     }
   }
 
   return null;
+}
+
+function parseActiveCustomQuestSnapshot(value: unknown): ActiveChallenge["customQuestSnapshot"] {
+  if (!value || typeof value !== "object") return undefined;
+  const snapshot = value as Record<string, unknown>;
+  if (typeof snapshot.id !== "string" || typeof snapshot.title !== "string" || typeof snapshot.config !== "string" || snapshot.lifecycle !== "published") return undefined;
+  return { id: snapshot.id, title: snapshot.title, config: snapshot.config, lifecycle: "published" };
 }
 
 

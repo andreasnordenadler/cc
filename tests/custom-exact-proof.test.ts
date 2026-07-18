@@ -1,10 +1,9 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { readFile } from "node:fs/promises";
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import CustomSideQuestProofControls from "../src/components/custom-side-quest-proof-controls";
-import { verifySubmittedChallengeAttempt } from "../src/app/api/mobile/quest/route";
+import { POST, submitMobileChallengeAttempt, verifySubmittedChallengeAttempt, withMobileQuestRouteTestDependencies } from "../src/app/api/mobile/quest/route";
 import { checkSubmittedCustomSideQuestForProvider, type CustomSideQuest } from "../src/lib/custom-side-quests";
 
 const winQuest: CustomSideQuest = {
@@ -17,6 +16,15 @@ const winQuest: CustomSideQuest = {
   createdAt: "2026-07-18T00:00:00.000Z",
   updatedAt: "2026-07-18T00:00:00.000Z",
 };
+
+function validConfigWithUtf8Bytes(byteLength: number) {
+  const base = JSON.stringify({ version: 2, logic: "all", blocks: [{ type: "gameResult", result: "win" }], padding: "" });
+  const paddingBytes = byteLength - Buffer.byteLength(base);
+  assert.ok(paddingBytes >= 0);
+  const config = JSON.stringify({ version: 2, logic: "all", blocks: [{ type: "gameResult", result: "win" }], padding: "é".repeat(Math.floor(paddingBytes / 2)) + "a".repeat(paddingBytes % 2) });
+  assert.equal(Buffer.byteLength(config), byteLength);
+  return config;
+}
 
 test("submitted Lichess custom proof evaluates the exact owned public game", async (t) => {
   const originalFetch = globalThis.fetch;
@@ -47,7 +55,7 @@ test("submitted Lichess custom proof evaluates the exact owned public game", asy
   assert.deepEqual(requested, ["https://lichess.org/game/export/Exact123"]);
 });
 
-test("submitted Chess.com custom proof finds and evaluates the exact owned archive game", async (t) => {
+test("submitted Chess.com custom proof skips pre-activation archives and finds the target in the current archive", async (t) => {
   const originalFetch = globalThis.fetch;
   const requested: string[] = [];
   globalThis.fetch = async (input) => {
@@ -61,7 +69,7 @@ test("submitted Chess.com custom proof finds and evaluates the exact owned archi
         "https://api.chess.com/pub/player/alice/games/2026/07",
       ] });
     }
-    if (!url.endsWith("/2026/04")) return Response.json({ games: [] });
+    if (!url.endsWith("/2026/07")) return Response.json({ games: [] });
     return Response.json({ games: [{
       url: "https://www.chess.com/game/live/123456",
       pgn: "[UTCDate \"2026.07.18\"]\n[UTCTime \"10:00:00\"]\n\n1. e4 e5 2. Qh5 Nc6 3. Bc4 Nf6 4. Qxf7# 1-0",
@@ -77,6 +85,7 @@ test("submitted Chess.com custom proof finds and evaluates the exact owned archi
     provider: "chesscom",
     username: "alice",
     gameId: "https://www.chess.com/game/live/123456",
+    activatedAfter: "2026-06-15T12:00:00.000Z",
   });
 
   assert.equal(result.status, "passed");
@@ -84,9 +93,74 @@ test("submitted Chess.com custom proof finds and evaluates the exact owned archi
   assert.deepEqual(requested, [
     "https://api.chess.com/pub/player/alice/games/archives",
     "https://api.chess.com/pub/player/alice/games/2026/07",
+  ]);
+});
+
+test("submitted Chess.com custom proof never fetches an archive month older than activation", async (t) => {
+  const originalFetch = globalThis.fetch;
+  const requested: string[] = [];
+  globalThis.fetch = async (input) => {
+    const url = String(input);
+    requested.push(url);
+    if (url.endsWith("/games/archives")) return Response.json({ archives: [
+      "https://api.chess.com/pub/player/alice/games/2026/04",
+      "https://api.chess.com/pub/player/alice/games/2026/05",
+      "https://api.chess.com/pub/player/alice/games/2026/06",
+      "https://api.chess.com/pub/player/alice/games/2026/07",
+    ] });
+    return Response.json({ games: url.endsWith("/2026/05") ? [{
+      url: "https://www.chess.com/game/live/555123",
+      pgn: "[UTCDate \"2026.05.20\"]\n[UTCTime \"10:00:00\"]\n\n1. e4 e5 1-0",
+      end_time: 1779271800,
+      white: { username: "Alice", result: "win" },
+      black: { username: "Bob", result: "checkmated" },
+    }] : [] });
+  };
+  t.after(() => { globalThis.fetch = originalFetch; });
+
+  const result = await checkSubmittedCustomSideQuestForProvider({
+    quest: winQuest,
+    provider: "chesscom",
+    username: "alice",
+    gameId: "https://www.chess.com/game/live/555123",
+    activatedAfter: "2026-06-15T12:00:00.000Z",
+  });
+
+  assert.equal(result.status, "pending");
+  assert.deepEqual(requested, [
+    "https://api.chess.com/pub/player/alice/games/archives",
+    "https://api.chess.com/pub/player/alice/games/2026/07",
     "https://api.chess.com/pub/player/alice/games/2026/06",
-    "https://api.chess.com/pub/player/alice/games/2026/05",
-    "https://api.chess.com/pub/player/alice/games/2026/04",
+  ]);
+});
+
+test("submitted Chess.com custom proof ignores malicious and malformed archive URLs", async (t) => {
+  const originalFetch = globalThis.fetch;
+  const requested: string[] = [];
+  globalThis.fetch = async (input) => {
+    const url = String(input);
+    requested.push(url);
+    if (url.endsWith("/games/archives")) return Response.json({ archives: [
+      "https://evil.example/pub/player/alice/games/2026/07",
+      "http://api.chess.com/pub/player/alice/games/2026/07",
+      "https://api.chess.com/pub/player/bob/games/2026/07",
+      "https://api.chess.com/pub/player/alice/games/2026/07/extra",
+      "https://api.chess.com/pub/player/alice/games/2026/07",
+    ] });
+    return Response.json({ games: [] });
+  };
+  t.after(() => { globalThis.fetch = originalFetch; });
+
+  await checkSubmittedCustomSideQuestForProvider({
+    quest: winQuest,
+    provider: "chesscom",
+    username: "Alice",
+    gameId: "https://www.chess.com/game/live/123456",
+  });
+
+  assert.deepEqual(requested, [
+    "https://api.chess.com/pub/player/Alice/games/archives",
+    "https://api.chess.com/pub/player/alice/games/2026/07",
   ]);
 });
 
@@ -102,7 +176,7 @@ test("active custom proof controls expose Android exact-game submission", () => 
   assert.match(html, />Submit game\/link</);
 });
 
-test("production submit verifier routes a custom quest through its exact-game rules", async (t) => {
+test("production submit verifier evaluates the immutable active custom quest snapshot", async (t) => {
   const originalFetch = globalThis.fetch;
   globalThis.fetch = async () => Response.json({
     id: "Exact123",
@@ -118,14 +192,79 @@ test("production submit verifier routes a custom quest through its exact-game ru
   const result = await verifySubmittedChallengeAttempt(
     "custom-win",
     { provider: "lichess", gameId: "Exact123" },
-    { lichessUsername: "alice", customSideQuests: [winQuest] },
+    {
+      lichessUsername: "alice",
+      activeChallenge: {
+        id: "custom-win",
+        startedAt: "2026-07-18T09:00:00.000Z",
+        customQuestSnapshot: winQuest,
+      },
+      customSideQuests: [{ ...winQuest, title: "Mutated title", config: JSON.stringify({ version: 2, logic: "all", blocks: [{ type: "gameResult", result: "lose" }] }) }],
+    },
   );
 
   assert.equal(result.status, "passed");
   assert.equal(result.gameId, "Exact123");
 });
 
-test("production submit verifier rejects draft custom quests before provider lookup", async (t) => {
+test("latest custom checks keep active snapshot rules after mutable edit, delete, or ID collision", async (t) => {
+  const previousNodeEnv = process.env.NODE_ENV;
+  Object.defineProperty(process.env, "NODE_ENV", { value: "test", configurable: true, writable: true, enumerable: true });
+  t.after(() => Object.defineProperty(process.env, "NODE_ENV", { value: previousNodeEnv, configurable: true, writable: true, enumerable: true }));
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async () => new Response(`${JSON.stringify({
+    id: "Latest123",
+    status: "mate",
+    winner: "white",
+    createdAt: Date.parse("2026-07-18T10:00:00.000Z"),
+    lastMoveAt: Date.parse("2026-07-18T10:10:00.000Z"),
+    moves: "e2e4 e7e5 d1h5 b8c6 f1c4 g8f6 h5f7",
+    players: { white: { user: { name: "Alice" } }, black: { user: { name: "Bob" } } },
+  })}\n`, { status: 200 });
+  t.after(() => { globalThis.fetch = originalFetch; });
+
+  const loseQuest = { ...winQuest, config: JSON.stringify({ version: 2, logic: "all", blocks: [{ type: "gameResult", result: "lose" }] }) };
+  for (const customSideQuests of [[loseQuest], [], [{ ...loseQuest, id: "custom-win", lifecycle: "draft" as const }]]) {
+    let written: unknown;
+    const metadata = {
+      lichessUsername: "alice",
+      activeChallenge: { id: "custom-win", status: "accepted", startedAt: "2026-07-18T09:00:00.000Z", customQuestSnapshot: winQuest },
+      customSideQuests,
+    };
+    const response = await withMobileQuestRouteTestDependencies({
+      authenticate: async () => "server-user",
+      getClient: async () => ({ users: {
+        getUser: async () => ({ publicMetadata: metadata, privateMetadata: { customSideQuests } }),
+        updateUserMetadata: async (_userId: string, value: unknown) => { written = value; },
+      } }) as never,
+    }, () => POST(new Request("https://sidequestchess.com/api/mobile/quest", { method: "POST", body: JSON.stringify({ action: "check" }) })));
+    assert.equal(response.status, 200);
+    assert.equal((written as { publicMetadata: { activeChallenge: { status: string } } }).publicMetadata.activeChallenge.status, "verified");
+  }
+});
+
+test("legacy active custom submission without a snapshot fails safely before provider lookup", async (t) => {
+  const originalFetch = globalThis.fetch;
+  let calls = 0;
+  globalThis.fetch = async () => { calls += 1; return Response.json({}); };
+  t.after(() => { globalThis.fetch = originalFetch; });
+
+  const result = await verifySubmittedChallengeAttempt(
+    "custom-win",
+    { provider: "lichess", gameId: "Exact123" },
+    {
+      lichessUsername: "alice",
+      activeChallenge: { id: "custom-win", startedAt: "2026-07-18T09:00:00.000Z" },
+      customSideQuests: [winQuest],
+    },
+  );
+
+  assert.equal(result.status, "pending");
+  assert.match(result.summary, /restart/i);
+  assert.equal(calls, 0);
+});
+
+test("production submit verifier never falls back to a mutable draft custom quest", async (t) => {
   const originalFetch = globalThis.fetch;
   let calls = 0;
   globalThis.fetch = async () => { calls += 1; return Response.json({}); };
@@ -138,17 +277,171 @@ test("production submit verifier rejects draft custom quests before provider loo
   );
 
   assert.equal(result.status, "pending");
-  assert.match(result.summary, /publish/i);
+  assert.match(result.summary, /restart/i);
   assert.equal(calls, 0);
 });
 
-test("production custom submit requires the active target and uses the custom title", async () => {
-  const source = await readFile(new URL("../src/app/api/mobile/quest/route.ts", import.meta.url), "utf8");
-  const body = source.slice(source.indexOf("async function submitMobileChallengeAttempt"), source.indexOf("function normalizeSubmittedGameReference"));
-  const guard = body.indexOf("assertActiveSoloSubmissionTarget");
-  const verification = body.indexOf("verifySubmittedChallengeAttempt");
+test("immutable custom snapshot accepts exact title/config limits without truncation", async () => {
+  const snapshot = { ...winQuest, title: "T".repeat(80), config: validConfigWithUtf8Bytes(1200) };
+  let persisted: unknown;
+  const result = await submitMobileChallengeAttempt(
+    "user-1",
+    { lichessUsername: "alice", activeChallenge: { id: snapshot.id, startedAt: "2026-07-18T09:00:00.000Z", customQuestSnapshot: snapshot } },
+    {},
+    snapshot.id,
+    "Exact123",
+    {
+      now: () => "2026-07-18T11:00:00.000Z",
+      verifySubmitted: async () => ({ status: "failed", gameId: "Exact123", summary: "completed evaluation", startedGameAt: "2026-07-18T10:00:00.000Z" }),
+      persistPublicMetadata: async (_userId, _metadata, patch) => { persisted = patch; },
+    },
+  );
 
-  assert.ok(guard > 0 && guard < verification);
-  assert.match(body, /challenge\?\.title\s*\?\?\s*customQuest!\.title/);
-  assert.doesNotMatch(body, /challenge!\.title/);
+  assert.deepEqual(result, { challengeId: snapshot.id, completed: false });
+  assert.deepEqual((persisted as { activeChallenge: { customQuestSnapshot: unknown } }).activeChallenge.customQuestSnapshot, {
+    id: snapshot.id,
+    title: snapshot.title,
+    config: snapshot.config,
+    lifecycle: "published",
+  });
+});
+
+test("immutable custom snapshot rejects title/config limit plus one before provider or persistence", async () => {
+  for (const snapshot of [
+    { ...winQuest, title: "T".repeat(81) },
+    { ...winQuest, config: validConfigWithUtf8Bytes(1201) },
+  ]) {
+    let providerCalls = 0;
+    let persistenceCalls = 0;
+    await assert.rejects(() => submitMobileChallengeAttempt(
+      "user-1",
+      { lichessUsername: "alice", activeChallenge: { id: snapshot.id, startedAt: "2026-07-18T09:00:00.000Z", customQuestSnapshot: snapshot } },
+      {},
+      snapshot.id,
+      "Exact123",
+      {
+        now: () => "2026-07-18T11:00:00.000Z",
+        verifySubmitted: async () => { providerCalls += 1; return { status: "failed", gameId: "Exact123", summary: "completed evaluation" }; },
+        persistPublicMetadata: async () => { persistenceCalls += 1; },
+      },
+    ), /restart/i);
+    assert.equal(providerCalls, 0);
+    assert.equal(persistenceCalls, 0);
+  }
+});
+
+test("production custom submit rejects the wrong active target without provider or persistence calls", async () => {
+  let providerCalls = 0;
+  let persistenceCalls = 0;
+  await assert.rejects(() => submitMobileChallengeAttempt(
+    "user-1",
+    { lichessUsername: "alice", activeChallenge: { id: "different", startedAt: "2026-07-18T09:00:00.000Z" } },
+    {},
+    "custom-win",
+    "Exact123",
+    {
+      now: () => "2026-07-18T11:00:00.000Z",
+      verifySubmitted: async () => { providerCalls += 1; return { status: "passed", gameId: "Exact123", summary: "passed", startedGameAt: "2026-07-18T10:00:00.000Z" }; },
+      persistPublicMetadata: async () => { persistenceCalls += 1; },
+    },
+  ), /Start this Side Quest/);
+  assert.equal(providerCalls, 0);
+  assert.equal(persistenceCalls, 0);
+});
+
+test("production custom submit rejects proof started before server activation without persistence", async () => {
+  let persistenceCalls = 0;
+  const activeChallenge = { id: "custom-win", status: "accepted", startedAt: "2026-07-18T09:00:00.000Z", customQuestSnapshot: winQuest };
+  await assert.rejects(() => submitMobileChallengeAttempt(
+    "user-1",
+    { lichessUsername: "alice", activeChallenge },
+    {},
+    "custom-win",
+    "Exact123",
+    {
+      now: () => "2026-07-18T11:00:00.000Z",
+      verifySubmitted: async () => ({ status: "passed", gameId: "Exact123", summary: "passed", startedGameAt: "2026-07-18T08:59:59.000Z" }),
+      persistPublicMetadata: async () => { persistenceCalls += 1; },
+    },
+  ), /fresh public game after starting/i);
+  assert.equal(persistenceCalls, 0);
+});
+
+test("production submit treats every pending exact-game result as rejection with zero persistence", async () => {
+  const activeChallenge = { id: "custom-win", status: "accepted", startedAt: "2026-07-18T09:00:00.000Z", customQuestSnapshot: winQuest };
+  for (const summary of [
+    "Add your Lichess username before submitting proof.",
+    "Could not load public Lichess game for this user.",
+    "Restart this custom Side Quest because its rules are invalid.",
+  ]) {
+    let persistenceCalls = 0;
+    await assert.rejects(() => submitMobileChallengeAttempt(
+      "user-1",
+      { lichessUsername: "alice", activeChallenge },
+      {},
+      "custom-win",
+      "Exact123",
+      {
+        now: () => "2026-07-18T11:00:00.000Z",
+        verifySubmitted: async () => ({ status: "pending", gameId: "Exact123", summary }),
+        persistPublicMetadata: async () => { persistenceCalls += 1; },
+      },
+    ), new RegExp(summary.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i"));
+    assert.equal(persistenceCalls, 0);
+  }
+});
+
+test("production custom submit persists the exact successful patch", async () => {
+  const activeChallenge = { id: "custom-win", status: "accepted", startedAt: "2026-07-18T09:00:00.000Z", customQuestSnapshot: winQuest };
+  const metadata = { lichessUsername: "alice", activeChallenge, challengeAttempts: [], challengeProgress: { completedChallengeIds: [], totalCompletedChallenges: 0, totalRewardPoints: 0 } };
+  let persisted: unknown;
+  const result = await submitMobileChallengeAttempt("user-1", metadata, {}, "custom-win", "Exact123", {
+    now: () => "2026-07-18T11:00:00.000Z",
+    verifySubmitted: async () => ({ status: "passed", gameId: "Exact123", summary: "Exact pass", startedGameAt: "2026-07-18T10:00:00.000Z", completedGameAt: "2026-07-18T10:10:00.000Z", playerColor: "white" }),
+    persistPublicMetadata: async (_userId, _metadata, patch) => { persisted = patch; },
+  });
+
+  assert.deepEqual(result, { challengeId: "custom-win", completed: true });
+  assert.deepEqual(persisted, {
+    activeChallenge: { id: "custom-win", status: "verified", startedAt: "2026-07-18T09:00:00.000Z", verifiedAt: "2026-07-18T11:00:00.000Z", customQuestSnapshot: { id: "custom-win", title: "Win exactly this game", config: winQuest.config, lifecycle: "published" } },
+    challengeAttempts: [{ id: "custom-win:lichess:submitted:2026-07-18T11:00:00.000Z", challengeId: "custom-win", gameId: "Exact123", provider: "lichess", status: "passed", summary: "Exact pass", checkedAt: "2026-07-18T11:00:00.000Z", startedGameAt: "2026-07-18T10:00:00.000Z", completedGameAt: "2026-07-18T10:10:00.000Z", finalPositionFen: undefined, lastMoveUci: undefined, lastMoveSan: undefined, playerColor: "white", failureDiagnostic: undefined }],
+    challengeProgress: { completedChallengeIds: ["custom-win"], totalCompletedChallenges: 1, totalRewardPoints: 100 },
+  });
+});
+
+test("exported mobile quest POST derives the user server-side and writes the exact submit patch", async (t) => {
+  const previousNodeEnv = process.env.NODE_ENV;
+  Object.defineProperty(process.env, "NODE_ENV", { value: "test", configurable: true, writable: true, enumerable: true });
+  t.after(() => Object.defineProperty(process.env, "NODE_ENV", { value: previousNodeEnv, configurable: true, writable: true, enumerable: true }));
+  const activeChallenge = { id: "custom-win", status: "accepted", startedAt: "2026-07-18T09:00:00.000Z", customQuestSnapshot: winQuest };
+  const metadata = { lichessUsername: "alice", activeChallenge, challengeAttempts: [], challengeProgress: { completedChallengeIds: [], totalCompletedChallenges: 0, totalRewardPoints: 0 } };
+  const writes: Array<{ userId: string; patch: unknown }> = [];
+  const dependencies = {
+    authenticate: async () => "server-user",
+    getClient: async () => ({ users: { getUser: async () => ({ publicMetadata: metadata, privateMetadata: {} }) } }) as never,
+    submitAttemptDependencies: {
+      now: () => "2026-07-18T11:00:00.000Z",
+      verifySubmitted: async () => ({ status: "failed" as const, gameId: "Exact123", summary: "Exact fail", startedGameAt: "2026-07-18T10:00:00.000Z" }),
+      persistPublicMetadata: async (userId: string, _metadata: unknown, patch: unknown) => { writes.push({ userId, patch }); },
+    },
+  };
+  const response = await withMobileQuestRouteTestDependencies(dependencies, () => POST(new Request("https://sidequestchess.com/api/mobile/quest", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ action: "submit", challengeId: "custom-win", gameId: "Exact123", userId: "attacker" }),
+  })));
+  assert.equal(response.status, 200);
+  assert.equal(writes[0]?.userId, "server-user");
+  assert.deepEqual(writes[0]?.patch, {
+    activeChallenge: { id: "custom-win", status: "failed", startedAt: "2026-07-18T09:00:00.000Z", verifiedAt: undefined, customQuestSnapshot: { id: "custom-win", title: winQuest.title, config: winQuest.config, lifecycle: "published" } },
+    challengeAttempts: [{ id: "custom-win:lichess:submitted:2026-07-18T11:00:00.000Z", challengeId: "custom-win", gameId: "Exact123", provider: "lichess", status: "failed", summary: "Exact fail", checkedAt: "2026-07-18T11:00:00.000Z", startedGameAt: "2026-07-18T10:00:00.000Z", completedGameAt: undefined, finalPositionFen: undefined, lastMoveUci: undefined, lastMoveSan: undefined, playerColor: undefined, failureDiagnostic: undefined }],
+    challengeProgress: { completedChallengeIds: [], totalCompletedChallenges: 0, totalRewardPoints: 0 },
+  });
+
+  for (const [authenticate, body, expectedStatus] of [[async () => null, "{}", 401], [async () => "server-user", "{", 400]] as const) {
+    const before = writes.length;
+    const rejected = await withMobileQuestRouteTestDependencies({ ...dependencies, authenticate }, () => POST(new Request("https://sidequestchess.com/api/mobile/quest", { method: "POST", body })));
+    assert.equal(rejected.status, expectedStatus);
+    assert.equal(writes.length, before);
+  }
 });

@@ -1,5 +1,6 @@
 import { clerkClient } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
+import { AsyncLocalStorage } from "node:async_hooks";
 import { getChallengeById } from "@/lib/challenges";
 import { checkLatestChallengeForProvider, type LatestChallengeVerdict } from "@/lib/challenge-latest-verifiers";
 import { getMobileRequestUserId } from "@/lib/mobile-auth";
@@ -17,7 +18,7 @@ import {
   verifyChessComWinAsBlackAttempt,
   verifyChessComWinAsWhiteAttempt,
 } from "@/lib/chesscom";
-import { checkLatestCustomSideQuestForProvider, checkSubmittedCustomSideQuestForProvider, getCustomSideQuestById, getCustomSideQuests } from "@/lib/custom-side-quests";
+import { checkLatestCustomSideQuestForProvider, checkSubmittedCustomSideQuestForProvider, getCustomSideQuestById, getCustomSideQuests, parseCustomRuleConfig, type CustomSideQuest } from "@/lib/custom-side-quests";
 import {
   verifyDrawAnyGameAttempt,
   verifyDrawAsBlackAttempt,
@@ -41,8 +42,28 @@ import {
   type UserMetadataRecord,
 } from "@/lib/user-metadata";
 
+type MobileQuestRouteDependencies = {
+  authenticate: (request: Request) => Promise<string | null>;
+  getClient: () => ReturnType<typeof clerkClient>;
+  submitAttemptDependencies?: SubmitMobileChallengeDependencies;
+};
+
+const mobileQuestRouteTestDependencies = new AsyncLocalStorage<MobileQuestRouteDependencies>();
+
+export function withMobileQuestRouteTestDependencies<Result>(dependencies: MobileQuestRouteDependencies, callback: () => Result): Result {
+  if (process.env.NODE_ENV !== "test") throw new Error("Mobile quest route dependency overrides are test-only.");
+  return mobileQuestRouteTestDependencies.run(dependencies, callback);
+}
+
+function createMobileQuestRouteDependencies(): MobileQuestRouteDependencies {
+  return { authenticate: getMobileRequestUserId, getClient: clerkClient };
+}
+
 export async function POST(request: Request) {
-  const userId = await getMobileRequestUserId(request);
+  const dependencies = process.env.NODE_ENV === "test"
+    ? mobileQuestRouteTestDependencies.getStore() ?? createMobileQuestRouteDependencies()
+    : createMobileQuestRouteDependencies();
+  const userId = await dependencies.authenticate(request);
 
   if (!userId) {
     return NextResponse.json(
@@ -74,7 +95,7 @@ export async function POST(request: Request) {
 
   const record = payload && typeof payload === "object" ? (payload as Record<string, unknown>) : {};
   const action = typeof record.action === "string" ? record.action : "";
-  const client = await clerkClient();
+  const client = await dependencies.getClient();
   const user = await client.users.getUser(userId);
   const metadata = user.publicMetadata ? (user.publicMetadata as UserMetadataRecord) : {};
   const privateMetadata = user.privateMetadata && typeof user.privateMetadata === "object" ? (user.privateMetadata as UserMetadataRecord) : {};
@@ -101,8 +122,6 @@ export async function POST(request: Request) {
     }
 
     if (action === "check") {
-      const activeChallenge = metadata.activeChallenge && typeof metadata.activeChallenge === "object" ? (metadata.activeChallenge as { id?: string }) : null;
-      readMetadata = await withPublicCustomSideQuest(client, readMetadata, activeChallenge?.id ?? "");
       const result = await checkMobileActiveChallenge(userId, metadata, readMetadata);
 
       return NextResponse.json({
@@ -147,8 +166,7 @@ export async function POST(request: Request) {
     if (action === "submit") {
       const challengeId = typeof record.challengeId === "string" ? record.challengeId : "";
       const gameId = typeof record.gameId === "string" ? record.gameId : "";
-      readMetadata = await withPublicCustomSideQuest(client, readMetadata, challengeId);
-      const result = await submitMobileChallengeAttempt(userId, metadata, readMetadata, challengeId, gameId);
+      const result = await submitMobileChallengeAttempt(userId, metadata, readMetadata, challengeId, gameId, dependencies.submitAttemptDependencies);
 
       return NextResponse.json({
         apiVersion: 1,
@@ -259,6 +277,9 @@ async function startMobileChallenge(userId: string, metadata: UserMetadataRecord
   if (customQuest && (customQuest.lifecycle ?? "published") !== "published") {
     throw new Error("Publish this custom Side Quest before starting it.");
   }
+  if (customQuest && !parseActiveCustomQuestSnapshot({ ...customQuest, lifecycle: "published" }, challengeId)) {
+    throw new Error("Restart this custom Side Quest after fixing its snapshot title and launch-ready rules.");
+  }
 
   const existingAttempts = getExistingAttempts(metadata);
   const now = new Date().toISOString();
@@ -277,6 +298,7 @@ async function startMobileChallenge(userId: string, metadata: UserMetadataRecord
       status: passedCheck ? "verified" : (latestCheck?.status ?? "accepted"),
       startedAt: now,
       verifiedAt: passedCheck ? now : undefined,
+      customQuestSnapshot: customQuest ? buildActiveCustomQuestSnapshot(customQuest) : undefined,
     },
     challengeAttempts: compactChallengeAttempts([
       ...existingAttempts,
@@ -290,7 +312,7 @@ async function startMobileChallenge(userId: string, metadata: UserMetadataRecord
 
 async function checkMobileActiveChallenge(userId: string, metadata: UserMetadataRecord, readMetadata: UserMetadataRecord) {
   const activeChallenge = metadata.activeChallenge && typeof metadata.activeChallenge === "object"
-    ? (metadata.activeChallenge as { id?: string; startedAt?: string })
+    ? (metadata.activeChallenge as { id?: string; startedAt?: string; customQuestSnapshot?: ActiveCustomQuestSnapshot })
     : null;
 
   if (!activeChallenge?.id) {
@@ -298,19 +320,16 @@ async function checkMobileActiveChallenge(userId: string, metadata: UserMetadata
   }
 
   const challenge = getChallengeById(activeChallenge.id);
-  const customQuest = challenge ? null : getCustomSideQuestById(readMetadata, activeChallenge.id);
+  const customQuest = challenge ? null : getActiveCustomQuestSnapshot(activeChallenge, activeChallenge.id);
 
   if (!challenge && !customQuest) {
-    throw new Error("Unknown active quest.");
-  }
-  if (customQuest && (customQuest.lifecycle ?? "published") !== "published") {
-    throw new Error("Publish this custom Side Quest before checking it.");
+    throw new Error("Restart this custom Side Quest before checking proof so its rules can be locked safely.");
   }
   const questId = challenge?.id ?? customQuest!.id;
 
   const existingAttempts = getExistingAttempts(metadata);
   const now = new Date().toISOString();
-  const providerChecks = orderProviderChecksForReceipt(await safeBuildLatestGameChecks(questId, readMetadata, activeChallenge.startedAt ?? now));
+  const providerChecks = orderProviderChecksForReceipt(await safeBuildLatestGameChecks(questId, readMetadata, activeChallenge.startedAt ?? now, customQuest));
   const passedCheck = getPassedProviderCheck(providerChecks);
   const latestCheck = providerChecks.at(-1);
   const progress = getChallengeProgress(metadata);
@@ -324,6 +343,7 @@ async function checkMobileActiveChallenge(userId: string, metadata: UserMetadata
       status: passedCheck ? "verified" : (latestCheck?.status ?? "pending"),
       startedAt: activeChallenge.startedAt ?? now,
       verifiedAt: passedCheck ? now : undefined,
+      customQuestSnapshot: activeChallenge.customQuestSnapshot,
     },
     challengeAttempts: compactChallengeAttempts([
       ...existingAttempts,
@@ -335,12 +355,37 @@ async function checkMobileActiveChallenge(userId: string, metadata: UserMetadata
   return { challengeId: questId, completed: Boolean(passedCheck) };
 }
 
-async function submitMobileChallengeAttempt(userId: string, metadata: UserMetadataRecord, readMetadata: UserMetadataRecord, challengeId: string, rawGameId: string) {
+type SubmitMobileChallengeDependencies = {
+  now: () => string;
+  verifySubmitted: typeof verifySubmittedChallengeAttempt;
+  persistPublicMetadata: typeof updateUserPublicMetadata;
+};
+
+const submitMobileChallengeDependencies: SubmitMobileChallengeDependencies = {
+  now: () => new Date().toISOString(),
+  verifySubmitted: verifySubmittedChallengeAttempt,
+  persistPublicMetadata: updateUserPublicMetadata,
+};
+
+export async function submitMobileChallengeAttempt(
+  userId: string,
+  metadata: UserMetadataRecord,
+  _readMetadata: UserMetadataRecord,
+  challengeId: string,
+  rawGameId: string,
+  dependencies: SubmitMobileChallengeDependencies = submitMobileChallengeDependencies,
+) {
   const challenge = getChallengeById(challengeId);
-  const customQuest = challenge ? null : getCustomSideQuestById(readMetadata, challengeId);
+  const activeChallenge = metadata.activeChallenge && typeof metadata.activeChallenge === "object"
+    ? (metadata.activeChallenge as { id?: string; startedAt?: string; customQuestSnapshot?: ActiveCustomQuestSnapshot })
+    : null;
+  assertActiveSoloSubmissionTarget(activeChallenge, challengeId);
+  const customQuest = challenge ? null : getActiveCustomQuestSnapshot(activeChallenge, challengeId);
 
   if (!challenge && !customQuest) {
-    throw new Error("Unknown quest.");
+    throw new Error(activeChallenge?.id === challengeId
+      ? "Restart this custom Side Quest before submitting proof so its rules can be locked safely."
+      : "Unknown quest.");
   }
   if (customQuest && (customQuest.lifecycle ?? "published") !== "published") {
     throw new Error("Publish this custom Side Quest before submitting proof.");
@@ -349,15 +394,17 @@ async function submitMobileChallengeAttempt(userId: string, metadata: UserMetada
     throw new Error("Paste a Lichess game ID or Chess.com game URL first.");
   }
   const questId = challenge?.id ?? customQuest!.id;
-  const now = new Date().toISOString();
+  const now = dependencies.now();
   const existingAttempts = getExistingAttempts(metadata);
-  const activeChallenge = metadata.activeChallenge && typeof metadata.activeChallenge === "object"
-    ? (metadata.activeChallenge as { id?: string; startedAt?: string })
-    : null;
-  assertActiveSoloSubmissionTarget(activeChallenge, questId);
   const activatedAfter = activeChallenge?.id === questId ? activeChallenge.startedAt ?? now : now;
   const submittedGame = normalizeSubmittedGameReference(rawGameId);
-  const verdict = await verifySubmittedChallengeAttempt(questId, submittedGame, readMetadata);
+  const verdict = await dependencies.verifySubmitted(questId, submittedGame, metadata, activatedAfter);
+  if (verdict.status === "pending") {
+    throw new Error(verdict.summary || "That submitted game could not be verified. Check the game reference and connected username, then try again.");
+  }
+  if (!isAfterActivation(verdict.startedGameAt ?? verdict.completedGameAt, activatedAfter)) {
+    throw new Error(`No new eligible games were found since this ${challenge?.title ?? customQuest!.title} run was started. Play a fresh public game after starting the quest, then check again.`);
+  }
   const checkedVerification = buildLatestGameCheckPayload(verdict, challenge?.title ?? customQuest!.title, activatedAfter);
   const progress = getChallengeProgress(metadata);
   const completed = checkedVerification.status === "passed";
@@ -365,12 +412,13 @@ async function submitMobileChallengeAttempt(userId: string, metadata: UserMetada
     ? [...progress.completedChallengeIds, questId]
     : progress.completedChallengeIds;
 
-  await updateUserPublicMetadata(userId, metadata, {
+  await dependencies.persistPublicMetadata(userId, metadata, {
     activeChallenge: {
       id: questId,
       status: completed ? "verified" : checkedVerification.status,
       startedAt: activatedAfter,
       verifiedAt: completed ? now : undefined,
+      customQuestSnapshot: customQuest ? buildActiveCustomQuestSnapshot(customQuest) : undefined,
     },
     challengeAttempts: compactChallengeAttempts([
       ...existingAttempts,
@@ -399,8 +447,15 @@ function normalizeSubmittedGameReference(rawGameId: string): { provider: "liches
   return { provider: "lichess", gameId: lichessGameId };
 }
 
-export async function verifySubmittedChallengeAttempt(challengeId: string, submittedGame: { provider: "lichess" | "chess.com"; gameId: string }, metadata: UserMetadataRecord): Promise<LatestChallengeVerdict> {
-  const customQuest = getCustomSideQuestById(metadata, challengeId);
+export async function verifySubmittedChallengeAttempt(challengeId: string, submittedGame: { provider: "lichess" | "chess.com"; gameId: string }, metadata: UserMetadataRecord, activatedAfter?: string): Promise<LatestChallengeVerdict> {
+  const officialChallenge = getChallengeById(challengeId);
+  const activeChallenge = metadata.activeChallenge && typeof metadata.activeChallenge === "object"
+    ? (metadata.activeChallenge as { id?: string; customQuestSnapshot?: ActiveCustomQuestSnapshot })
+    : null;
+  const customQuest = officialChallenge ? null : getActiveCustomQuestSnapshot(activeChallenge, challengeId);
+  if (!officialChallenge && !customQuest) {
+    return { status: "pending", gameId: submittedGame.gameId, summary: "Restart this custom Side Quest before submitting proof so its rules can be locked safely." };
+  }
   if (customQuest) {
     if ((customQuest.lifecycle ?? "published") !== "published") {
       return { status: "pending", gameId: submittedGame.gameId, summary: "Publish this custom Side Quest before submitting proof." };
@@ -418,6 +473,7 @@ export async function verifySubmittedChallengeAttempt(challengeId: string, submi
       provider: submittedGame.provider === "lichess" ? "lichess" : "chesscom",
       username,
       gameId: submittedGame.gameId,
+      activatedAfter,
     });
   }
 
@@ -444,6 +500,30 @@ export async function verifySubmittedChallengeAttempt(challengeId: string, submi
   }
 
   return verifySubmittedLichessAttempt(challengeId, submittedGame.gameId, lichessUsername);
+}
+
+type ActiveCustomQuestSnapshot = Pick<CustomSideQuest, "id" | "title" | "config"> & { lifecycle: "published" };
+
+function buildActiveCustomQuestSnapshot(quest: Pick<CustomSideQuest, "id" | "title" | "config">): ActiveCustomQuestSnapshot {
+  const snapshot = parseActiveCustomQuestSnapshot({ ...quest, lifecycle: "published" }, quest.id);
+  if (!snapshot) throw new Error("Restart this custom Side Quest after fixing its snapshot title and launch-ready rules.");
+  return snapshot;
+}
+
+function getActiveCustomQuestSnapshot(activeChallenge: { id?: string; customQuestSnapshot?: ActiveCustomQuestSnapshot } | null, challengeId: string): ActiveCustomQuestSnapshot | null {
+  const snapshot = activeChallenge?.customQuestSnapshot;
+  if (activeChallenge?.id !== challengeId) return null;
+  return parseActiveCustomQuestSnapshot(snapshot, challengeId);
+}
+
+function parseActiveCustomQuestSnapshot(value: unknown, challengeId: string): ActiveCustomQuestSnapshot | null {
+  if (!value || typeof value !== "object") return null;
+  const snapshot = value as Record<string, unknown>;
+  if (snapshot.id !== challengeId || snapshot.lifecycle !== "published" || typeof snapshot.title !== "string" || typeof snapshot.config !== "string") return null;
+  if (Array.from(snapshot.title).length > 80 || new TextEncoder().encode(snapshot.config).byteLength > 1200) return null;
+  const config = parseCustomRuleConfig(snapshot.config);
+  if (!config?.blocks.length) return null;
+  return { id: snapshot.id, title: snapshot.title, config: snapshot.config, lifecycle: "published" };
 }
 
 type SubmittedVerificationVerdict = Omit<LatestChallengeVerdict, "gameId"> & { gameId?: string };
@@ -532,17 +612,17 @@ async function resetMobileCompletedChallenge(userId: string, metadata: UserMetad
   });
 }
 
-async function safeBuildLatestGameChecks(challengeId: string, metadata: UserMetadataRecord, activatedAfter: string): Promise<MobileProviderCheck[]> {
+async function safeBuildLatestGameChecks(challengeId: string, metadata: UserMetadataRecord, activatedAfter: string, customQuestSnapshot?: ActiveCustomQuestSnapshot | null): Promise<MobileProviderCheck[]> {
   const lichessUsername = getLichessUsername(metadata);
   const chessComUsername = getChessComUsername(metadata);
   const checks: MobileProviderCheck[] = [];
 
   if (lichessUsername) {
-    checks.push({ ...(await buildLatestGameCheck(challengeId, "lichess", lichessUsername, activatedAfter, metadata)), provider: "lichess" });
+    checks.push({ ...(await buildLatestGameCheck(challengeId, "lichess", lichessUsername, activatedAfter, metadata, customQuestSnapshot)), provider: "lichess" });
   }
 
   if (chessComUsername) {
-    checks.push({ ...(await buildLatestGameCheck(challengeId, "chesscom", chessComUsername, activatedAfter, metadata)), provider: "chess.com" });
+    checks.push({ ...(await buildLatestGameCheck(challengeId, "chesscom", chessComUsername, activatedAfter, metadata, customQuestSnapshot)), provider: "chess.com" });
   }
 
   if (checks.length) return checks;
@@ -557,9 +637,9 @@ async function safeBuildLatestGameChecks(challengeId: string, metadata: UserMeta
   ];
 }
 
-async function buildLatestGameCheck(challengeId: string, provider: "lichess" | "chesscom", username: string, activatedAfter: string, metadata?: UserMetadataRecord): Promise<Omit<MobileProviderCheck, "provider">> {
+async function buildLatestGameCheck(challengeId: string, provider: "lichess" | "chesscom", username: string, activatedAfter: string, metadata?: UserMetadataRecord, customQuestSnapshot?: ActiveCustomQuestSnapshot | null): Promise<Omit<MobileProviderCheck, "provider">> {
   try {
-    const customQuest = metadata ? getCustomSideQuestById(metadata, challengeId) : null;
+    const customQuest = customQuestSnapshot ?? (metadata ? getCustomSideQuestById(metadata, challengeId) : null);
     const verdict = customQuest
       ? await checkLatestCustomSideQuestForProvider({ quest: customQuest, provider, username })
       : await checkLatestChallengeForProvider({ challengeId, provider, username });
@@ -620,7 +700,9 @@ function buildAttempt(challengeId: string, check: MobileProviderCheck, id: strin
 }
 
 async function updateUserPublicMetadata(userId: string, metadata: UserMetadataRecord, patch: UserMetadataRecord) {
-  const client = await clerkClient();
+  const client = process.env.NODE_ENV === "test" && mobileQuestRouteTestDependencies.getStore()
+    ? await mobileQuestRouteTestDependencies.getStore()!.getClient()
+    : await clerkClient();
   const safeMetadata = { ...metadata };
   delete safeMetadata.customSideQuests;
   await client.users.updateUserMetadata(userId, {
