@@ -4,7 +4,7 @@ import test from "node:test";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import MobileMultiplayerCreateForm from "../src/components/mobile-multiplayer-create-form";
-import { buildMultiplayerCreateQuestChoices, loadMultiplayerCreateQuestChoices } from "../src/lib/multiplayer-create-quest-choices";
+import { buildMultiplayerCreateQuestChoices, getMultiplayerCreateQuestPicker, loadMultiplayerCreateQuestChoices, toggleMultiplayerCreateQuest } from "../src/lib/multiplayer-create-quest-choices";
 
 const official = [{ id: "official-1", title: "Official Fork", objective: "Win a fork." }];
 const owned = [
@@ -56,8 +56,10 @@ test("multiplayer create form renders each quest source instead of collapsing pr
   assert.match(html, /class="sqc-option-card-copy"/);
   assert.match(html, /class="sqc-option-source"/);
   assert.match(html, />SQC Official</);
-  assert.match(html, />Your private</);
-  assert.match(html, />Community · Ada</);
+  assert.match(html, />Official \(1\)</);
+  assert.match(html, />Community \(2\)</);
+  assert.match(html, /aria-pressed="true"[^>]*>Browse</);
+  assert.match(html, /aria-pressed="false"[^>]*>Selected \(0\)</);
 });
 
 test("multiplayer create form shows when optional community choices are unavailable", () => {
@@ -81,4 +83,47 @@ test("multiplayer create page loads owned and public community choices for the a
   assert.match(source, /listPublicCommunitySideQuests/);
   assert.match(source, /loadMultiplayerCreateQuestChoices/);
   assert.match(source, /privateMetadata/);
+});
+
+test("multiplayer create picker matches Android source, selected, search, and paging filters", () => {
+  const choices = buildMultiplayerCreateQuestChoices({ official, owned, community });
+
+  assert.deepEqual(getMultiplayerCreateQuestPicker({
+    choices,
+    source: "community",
+    selectedIds: ["owned-published", "community-1"],
+    selectedOnly: true,
+    search: "knight",
+    limit: 1,
+  }), {
+    visible: [{ id: "community-1", title: "Community Knight", summary: "Move both knights.", source: "community", sourceLabel: "Community · Ada" }],
+    hiddenCount: 0,
+    officialCount: 1,
+    communityCount: 2,
+  });
+
+  const paged = getMultiplayerCreateQuestPicker({
+    choices: [
+      ...choices,
+      { id: "official-2", title: "Second", summary: "Second quest", source: "official", sourceLabel: "SQC Official" },
+    ],
+    source: "official",
+    selectedIds: [],
+    selectedOnly: false,
+    search: "",
+    limit: 1,
+  });
+  assert.equal(paged.visible.length, 1);
+  assert.equal(paged.hiddenCount, 1);
+});
+
+test("multiplayer create picker explains the four-quest limit and permits removal", () => {
+  assert.deepEqual(toggleMultiplayerCreateQuest(["one", "two", "three", "four"], "five"), {
+    selectedIds: ["one", "two", "three", "four"],
+    error: "Choose up to 4 Side Quests. Remove one before adding another.",
+  });
+  assert.deepEqual(toggleMultiplayerCreateQuest(["one", "two"], "two"), {
+    selectedIds: ["one"],
+    error: null,
+  });
 });

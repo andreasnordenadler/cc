@@ -2,7 +2,7 @@
 
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { buildMultiplayerCreatePayload, getCreateErrorMessage, getMultiplayerCreateDestination, getMultiplayerLocalDateTimeDefaults } from "@/lib/mobile-create-forms";
-import type { MultiplayerCreateQuestChoice } from "@/lib/multiplayer-create-quest-choices";
+import { getMultiplayerCreateQuestPicker, toggleMultiplayerCreateQuest, type MultiplayerCreateQuestChoice, type MultiplayerCreateQuestSource } from "@/lib/multiplayer-create-quest-choices";
 
 export type MultiplayerCreateQuest = MultiplayerCreateQuestChoice;
 
@@ -13,6 +13,7 @@ export default function MobileMultiplayerCreateForm({ signedIn, quests, stableNo
   const [inviteMode, setInviteMode] = useState("public"); const [inviteKey, setInviteKey] = useState("");
   const [providerMode, setProviderMode] = useState("both"); const [startAt, setStartAt] = useState(""); const [endAt, setEndAt] = useState("");
   const [selected, setSelected] = useState<string[]>([]); const [search, setSearch] = useState("");
+  const [source, setSource] = useState<MultiplayerCreateQuestSource>("official"); const [selectedOnly, setSelectedOnly] = useState(false); const [questLimit, setQuestLimit] = useState(8); const [selectionError, setSelectionError] = useState("");
   const [timeControl, setTimeControl] = useState("Any time control"); const [rated, setRated] = useState("Any rated state"); const [color, setColor] = useState("Any color");
   const [saving, setSaving] = useState(false); const [error, setError] = useState("");
   useEffect(() => {
@@ -25,8 +26,9 @@ export default function MobileMultiplayerCreateForm({ signedIn, quests, stableNo
     });
     return () => { mounted = false; };
   }, [stableNow]);
-  const visible = useMemo(() => quests.filter((quest) => `${quest.title} ${quest.summary}`.toLowerCase().includes(search.trim().toLowerCase())), [quests, search]);
-  function toggle(id: string) { setSelected((current) => current.includes(id) ? current.filter((item) => item !== id) : current.length < 4 ? [...current, id] : current); }
+  const picker = useMemo(() => getMultiplayerCreateQuestPicker({ choices: quests, source, selectedIds: selected, selectedOnly, search, limit: questLimit }), [quests, source, selected, selectedOnly, search, questLimit]);
+  function resetPickerPage() { setQuestLimit(8); }
+  function toggle(id: string) { const result = toggleMultiplayerCreateQuest(selected, id); setSelected(result.selectedIds); setSelectionError(result.error ?? ""); }
   function duration(days: number) { const start = new Date(startAt); start.setDate(start.getDate() + days); setEndAt(localDateTime(start)); }
   async function submit(event: FormEvent) {
     event.preventDefault(); if (!signedIn) { setError("Sign in to create a Side Quest."); return; } setError("");
@@ -47,7 +49,14 @@ export default function MobileMultiplayerCreateForm({ signedIn, quests, stableNo
       <div className="sqc-filter-row">{[[1,"24h"],[3,"3 days"],[7,"1 week"],[14,"2 weeks"]].map(([days,label]) => <button key={label} onClick={() => duration(Number(days))} type="button">{label}</button>)}</div>
       <details><summary>Advanced: time, rated, color</summary><label className="sqc-form-row"><span>Time control</span><select onChange={(e) => setTimeControl(e.target.value)} value={timeControl}><option>Any time control</option><option>Rapid 10+0</option><option>Blitz 5+0</option></select></label><label className="sqc-form-row"><span>Rated</span><select onChange={(e) => setRated(e.target.value)} value={rated}><option>Any rated state</option><option>Rated only</option><option>Casual only</option></select></label><label className="sqc-form-row"><span>Color</span><select onChange={(e) => setColor(e.target.value)} value={color}><option>Any color</option><option>White only</option><option>Black only</option></select></label></details>
     </div></section>
-    <section className="sqc-native-card"><span className="sqc-card-eyebrow">Included Side Quests</span><h2>{selected.length}/4 selected</h2><label className="sqc-search-shell"><input aria-label="Search Side Quests" onChange={(e) => setSearch(e.target.value)} placeholder="Search Side Quests" value={search} /></label><div className="sqc-catalog">{visible.map((quest) => <button className={selected.includes(quest.id) ? "sqc-option-card selected" : "sqc-option-card"} key={quest.id} onClick={() => toggle(quest.id)} type="button"><span aria-hidden="true" /><div className="sqc-option-card-copy"><small className="sqc-option-source">{quest.sourceLabel}</small><strong>{quest.title}</strong><b>{selected.includes(quest.id) ? "Remove" : "Add"}</b><small className="sqc-option-summary">{quest.summary}</small></div></button>)}</div></section>
+    <section className="sqc-native-card"><span className="sqc-card-eyebrow">Included Side Quests</span><div className="sqc-create-selection-head"><h2>{selected.length}/4 selected</h2>{selected.length ? <button className="sqc-detail-quiet-button" onClick={() => { setSelected([]); setSelectionError(""); }} type="button">Clear</button> : null}</div>
+      <div className="sqc-search-shell"><input aria-label="Search Side Quests" onChange={(e) => { setSearch(e.target.value); resetPickerPage(); }} placeholder="Search Side Quests" value={search} />{search ? <button aria-label="Clear Side Quest search" className="sqc-detail-quiet-button" onClick={() => { setSearch(""); resetPickerPage(); }} type="button">×</button> : null}</div>
+      <div className="sqc-filter-row"><button aria-pressed={!selectedOnly} className={!selectedOnly ? "active" : ""} onClick={() => { setSelectedOnly(false); resetPickerPage(); }} type="button">Browse</button><button aria-pressed={selectedOnly} className={selectedOnly ? "active" : ""} onClick={() => { setSelectedOnly(true); resetPickerPage(); }} type="button">Selected ({selected.length})</button></div>
+      <div className="sqc-brand-tabs" role="tablist" aria-label="Choose Side Quest source"><button aria-selected={source === "official"} className={`sqc-brand-tab official${source === "official" ? " active" : ""}`} onClick={() => { setSource("official"); resetPickerPage(); }} role="tab" type="button">Official ({picker.officialCount})</button><button aria-label={source === "official" ? "Switch to Community Side Quests" : "Switch to Official Side Quests"} className="sqc-brand-switch" data-icon="swap-horizontal" onClick={() => { setSource(source === "official" ? "community" : "official"); resetPickerPage(); }} type="button"><span aria-hidden="true" /></button><button aria-selected={source === "community"} className={`sqc-brand-tab community${source === "community" ? " active" : ""}`} onClick={() => { setSource("community"); resetPickerPage(); }} role="tab" type="button">Community ({picker.communityCount})</button></div>
+      {picker.visible.length ? <div className="sqc-catalog">{picker.visible.map((quest) => { const included = selected.includes(quest.id); const maxed = !included && selected.length >= 4; return <button className={included ? "sqc-option-card selected" : "sqc-option-card"} key={quest.id} onClick={() => toggle(quest.id)} type="button"><span aria-hidden="true" /><div className="sqc-option-card-copy"><small className="sqc-option-source">{quest.sourceLabel}</small><strong>{quest.title}</strong><b>{included ? "Remove" : maxed ? "Max 4" : "Add"}</b><small className="sqc-option-summary">{quest.summary}</small></div></button>; })}</div> : <div className="sqc-selection-empty"><strong>No matching Side Quests</strong><span>Adjust search, switch source, or turn off Selected to browse the catalog.</span></div>}
+      {picker.hiddenCount ? <button className="sqc-detail-secondary-button" onClick={() => setQuestLimit((current) => current + 8)} type="button">Show more ({picker.hiddenCount})</button> : null}
+      {selectionError ? <p className="groupquest-join-error" role="alert">{selectionError}</p> : null}
+    </section>
     {error ? <p className="groupquest-join-error" role="alert">{error}</p> : null}<button className="sqc-create-footer-button" disabled={saving} type="submit">{saving ? "Creating…" : signedIn ? "Create Multiplayer Side Quest" : "Sign in to create"}</button>
   </form>;
 }
