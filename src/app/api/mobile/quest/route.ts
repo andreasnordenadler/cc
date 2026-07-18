@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { getChallengeById } from "@/lib/challenges";
 import { checkLatestChallengeForProvider, type LatestChallengeVerdict } from "@/lib/challenge-latest-verifiers";
 import { getMobileRequestUserId } from "@/lib/mobile-auth";
+import { assertActiveSoloSubmissionTarget } from "@/lib/official-solo-exact-game";
 import {
   verifyChessComDrawAnyGameAttempt,
   verifyChessComDrawAsBlackAttempt,
@@ -16,7 +17,7 @@ import {
   verifyChessComWinAsBlackAttempt,
   verifyChessComWinAsWhiteAttempt,
 } from "@/lib/chesscom";
-import { checkLatestCustomSideQuestForProvider, getCustomSideQuestById, getCustomSideQuests } from "@/lib/custom-side-quests";
+import { checkLatestCustomSideQuestForProvider, checkSubmittedCustomSideQuestForProvider, getCustomSideQuestById, getCustomSideQuests } from "@/lib/custom-side-quests";
 import {
   verifyDrawAnyGameAttempt,
   verifyDrawAsBlackAttempt,
@@ -341,23 +342,23 @@ async function submitMobileChallengeAttempt(userId: string, metadata: UserMetada
   if (!challenge && !customQuest) {
     throw new Error("Unknown quest.");
   }
+  if (customQuest && (customQuest.lifecycle ?? "published") !== "published") {
+    throw new Error("Publish this custom Side Quest before submitting proof.");
+  }
   if (!rawGameId.trim()) {
     throw new Error("Paste a Lichess game ID or Chess.com game URL first.");
   }
-  if (customQuest) {
-    throw new Error("Specific-game custom Side Quest proof is not available yet. Use latest-game check for this custom Side Quest.");
-  }
-
-  const questId = challenge!.id;
+  const questId = challenge?.id ?? customQuest!.id;
   const now = new Date().toISOString();
   const existingAttempts = getExistingAttempts(metadata);
   const activeChallenge = metadata.activeChallenge && typeof metadata.activeChallenge === "object"
     ? (metadata.activeChallenge as { id?: string; startedAt?: string })
     : null;
+  assertActiveSoloSubmissionTarget(activeChallenge, questId);
   const activatedAfter = activeChallenge?.id === questId ? activeChallenge.startedAt ?? now : now;
   const submittedGame = normalizeSubmittedGameReference(rawGameId);
   const verdict = await verifySubmittedChallengeAttempt(questId, submittedGame, readMetadata);
-  const checkedVerification = buildLatestGameCheckPayload(verdict, challenge!.title, activatedAfter);
+  const checkedVerification = buildLatestGameCheckPayload(verdict, challenge?.title ?? customQuest!.title, activatedAfter);
   const progress = getChallengeProgress(metadata);
   const completed = checkedVerification.status === "passed";
   const completedChallengeIds = completed && !progress.completedChallengeIds.includes(questId)
@@ -398,7 +399,28 @@ function normalizeSubmittedGameReference(rawGameId: string): { provider: "liches
   return { provider: "lichess", gameId: lichessGameId };
 }
 
-async function verifySubmittedChallengeAttempt(challengeId: string, submittedGame: { provider: "lichess" | "chess.com"; gameId: string }, metadata: UserMetadataRecord): Promise<LatestChallengeVerdict> {
+export async function verifySubmittedChallengeAttempt(challengeId: string, submittedGame: { provider: "lichess" | "chess.com"; gameId: string }, metadata: UserMetadataRecord): Promise<LatestChallengeVerdict> {
+  const customQuest = getCustomSideQuestById(metadata, challengeId);
+  if (customQuest) {
+    if ((customQuest.lifecycle ?? "published") !== "published") {
+      return { status: "pending", gameId: submittedGame.gameId, summary: "Publish this custom Side Quest before submitting proof." };
+    }
+    const username = submittedGame.provider === "lichess" ? getLichessUsername(metadata) : getChessComUsername(metadata);
+    if (!username) {
+      return {
+        status: "pending",
+        gameId: submittedGame.gameId,
+        summary: `Add your ${submittedGame.provider === "lichess" ? "Lichess" : "Chess.com"} username before submitting proof.`,
+      };
+    }
+    return checkSubmittedCustomSideQuestForProvider({
+      quest: customQuest,
+      provider: submittedGame.provider === "lichess" ? "lichess" : "chesscom",
+      username,
+      gameId: submittedGame.gameId,
+    });
+  }
+
   if (submittedGame.provider === "chess.com") {
     const chessComUsername = getChessComUsername(metadata);
     if (!chessComUsername) {

@@ -218,12 +218,26 @@ function isOptionalPositiveInteger(value: unknown) {
 }
 
 export async function checkLatestCustomSideQuestForProvider(input: { quest: CustomSideQuest; provider: "lichess" | "chesscom"; username: string }): Promise<LatestChallengeVerdict> {
-  const config = parseCustomRuleConfig(input.quest.config);
-  if (!config?.blocks.length) {
-    return { status: "pending", gameId: `${input.provider}-custom-rule-invalid`, summary: "This custom Side Quest needs at least one launch-ready rule block before it can be checked.", evidence: ["Rule config was empty or invalid."] };
-  }
   const game = input.provider === "lichess" ? await fetchLatestLichessGame(input.username) : await fetchLatestChessComGame(input.username);
   if (!game) return { status: "pending", gameId: `${input.provider}-custom-latest-unavailable`, summary: `Could not load a recent public ${input.provider === "lichess" ? "Lichess" : "Chess.com"} game for ${input.username}.`, evidence: ["Provider latest-game lookup returned no usable game."] };
+  return evaluateCustomSideQuestGame(input.quest, input.provider, game);
+}
+
+export async function checkSubmittedCustomSideQuestForProvider(input: { quest: CustomSideQuest; provider: "lichess" | "chesscom"; username: string; gameId: string }): Promise<LatestChallengeVerdict> {
+  const gameId = input.gameId.trim();
+  if (!gameId) return { status: "pending", gameId: `${input.provider}-custom-game-missing`, summary: `Paste a ${input.provider === "lichess" ? "Lichess game ID" : "Chess.com game URL"} first.` };
+  const game = input.provider === "lichess"
+    ? await fetchSubmittedLichessGame(input.username, gameId)
+    : await fetchSubmittedChessComGame(input.username, gameId);
+  if (!game) return { status: "pending", gameId, summary: `Could not load public ${input.provider === "lichess" ? "Lichess" : "Chess.com"} game ${gameId} for ${input.username}.`, evidence: ["The exact-game lookup returned no usable owned game."] };
+  return evaluateCustomSideQuestGame(input.quest, input.provider, game);
+}
+
+function evaluateCustomSideQuestGame(quest: CustomSideQuest, provider: "lichess" | "chesscom", game: LatestGame): LatestChallengeVerdict {
+  const config = parseCustomRuleConfig(quest.config);
+  if (!config?.blocks.length) {
+    return { status: "pending", gameId: `${provider}-custom-rule-invalid`, summary: "This custom Side Quest needs at least one launch-ready rule block before it can be checked.", evidence: ["Rule config was empty or invalid."] };
+  }
   if (game.status !== "finished") return { status: "pending", gameId: game.gameId, summary: `Found ${game.gameId}, but the game is not finished yet.`, startedGameAt: game.startedGameAt, completedGameAt: game.completedGameAt, evidence: ["Only finished public games can complete a custom Side Quest."] };
 
   const replay = replayGame(game);
@@ -236,7 +250,7 @@ export async function checkLatestCustomSideQuestForProvider(input: { quest: Cust
   return {
     status: passed ? "passed" : "failed",
     gameId: game.gameId,
-    summary: passed ? `Verified ${game.gameId}. ${input.quest.title} is complete.` : `Side Quest not completed in ${game.gameId}. ${firstFailed?.explanation ?? "One custom condition did not match."}`,
+    summary: passed ? `Verified ${game.gameId}. ${quest.title} is complete.` : `Side Quest not completed in ${game.gameId}. ${firstFailed?.explanation ?? "One custom condition did not match."}`,
     evidence: results.map((r, index) => `Condition ${index + 1}: ${r.passed ? "passed" : "not completed"}. ${r.explanation}`),
     startedGameAt: game.startedGameAt,
     completedGameAt: game.completedGameAt,
@@ -266,6 +280,24 @@ async function fetchLatestLichessGame(username: string): Promise<LatestGame | nu
   return { provider: "lichess", gameId: game.id ?? "lichess-latest-game", username, pgnMoves: extractSanMoveTokens(game.pgn ?? game.moves ?? ""), uciMoves, playerColor, status: game.status && !["created", "started"].includes(game.status) ? "finished" : "open", outcome: getLichessOutcome(game.status, game.winner, playerColor), startedGameAt: typeof game.createdAt === "number" ? new Date(game.createdAt).toISOString() : undefined, completedGameAt: typeof (game.lastMoveAt ?? game.createdAt) === "number" ? new Date((game.lastMoveAt ?? game.createdAt) as number).toISOString() : undefined };
 }
 
+async function fetchSubmittedLichessGame(username: string, gameId: string): Promise<LatestGame | null> {
+  if (!username.trim() || !/^[A-Za-z0-9]{8,12}$/.test(gameId)) return null;
+  const response = await fetch(`https://lichess.org/game/export/${encodeURIComponent(gameId)}`, {
+    headers: { Accept: "application/json", "User-Agent": "cc-verifier/0.1 (+https://sidequestchess.com)" },
+    cache: "no-store",
+  });
+  if (!response.ok) return null;
+  const game = await response.json() as { id?: string; status?: string; winner?: "white" | "black"; moves?: string; pgn?: string; createdAt?: number; lastMoveAt?: number; players?: { white?: { user?: { name?: string } }; black?: { user?: { name?: string } } } };
+  const normalized = username.trim().toLowerCase();
+  const white = game.players?.white?.user?.name?.toLowerCase();
+  const black = game.players?.black?.user?.name?.toLowerCase();
+  const playerColor = white === normalized ? "white" : black === normalized ? "black" : null;
+  if (!playerColor) return null;
+  const moveTokens = (game.moves ?? "").split(/\s+/).filter(Boolean);
+  const uciMoves = moveTokens.length && moveTokens.every((token) => /^[a-h][1-8][a-h][1-8][qrbn]?$/i.test(token)) ? moveTokens : undefined;
+  return { provider: "lichess", gameId: game.id ?? gameId, username, pgnMoves: extractSanMoveTokens(game.pgn ?? game.moves ?? ""), uciMoves, playerColor, status: game.status && !["created", "started"].includes(game.status) ? "finished" : "open", outcome: getLichessOutcome(game.status, game.winner, playerColor), startedGameAt: typeof game.createdAt === "number" ? new Date(game.createdAt).toISOString() : undefined, completedGameAt: typeof (game.lastMoveAt ?? game.createdAt) === "number" ? new Date((game.lastMoveAt ?? game.createdAt) as number).toISOString() : undefined };
+}
+
 async function fetchLatestChessComGame(username: string): Promise<LatestGame | null> {
   if (!username.trim()) return null;
   const archiveResponse = await fetch(`https://api.chess.com/pub/player/${encodeURIComponent(username.trim())}/games/archives`, { headers: { Accept: "application/json", "User-Agent": "cc-verifier/0.1 (+https://sidequestchess.com)" }, cache: "no-store" });
@@ -281,6 +313,31 @@ async function fetchLatestChessComGame(username: string): Promise<LatestGame | n
     return { provider: "chesscom", gameId: game.url ?? "chesscom-latest-game", username, pgnMoves: extractSanMoveTokens(game.pgn ?? ""), playerColor, status: game.end_time ? "finished" : "open", outcome: getChessComOutcome(playerColor === "white" ? game.white?.result : game.black?.result), startedGameAt: getChessComStartedGameAt(game.pgn), completedGameAt: game.end_time ? new Date(game.end_time * 1000).toISOString() : undefined };
   }
   return null;
+}
+
+async function fetchSubmittedChessComGame(username: string, gameUrl: string): Promise<LatestGame | null> {
+  if (!username.trim() || !/^https?:\/\/(?:www\.)?chess\.com\/game\/(?:live|daily)\/\d+/i.test(gameUrl)) return null;
+  const headers = { Accept: "application/json", "User-Agent": "cc-verifier/0.1 (+https://sidequestchess.com)" };
+  const archiveResponse = await fetch(`https://api.chess.com/pub/player/${encodeURIComponent(username.trim())}/games/archives`, { headers, cache: "no-store" });
+  if (!archiveResponse.ok) return null;
+  const archives = ((await archiveResponse.json()) as { archives?: string[] }).archives ?? [];
+  const normalizedTarget = normalizeChessComGameUrl(gameUrl);
+  for (const archive of [...archives].reverse()) {
+    const response = await fetch(archive, { headers, cache: "no-store" });
+    if (!response.ok) continue;
+    const games = ((await response.json()) as { games?: Array<{ url?: string; pgn?: string; end_time?: number; white?: { username?: string; result?: string }; black?: { username?: string; result?: string } }> }).games ?? [];
+    const game = games.find((item) => item.url && normalizeChessComGameUrl(item.url) === normalizedTarget);
+    if (!game) continue;
+    const normalizedUsername = username.trim().toLowerCase();
+    const playerColor = game.white?.username?.toLowerCase() === normalizedUsername ? "white" : game.black?.username?.toLowerCase() === normalizedUsername ? "black" : null;
+    if (!playerColor) return null;
+    return { provider: "chesscom", gameId: game.url ?? gameUrl, username, pgnMoves: extractSanMoveTokens(game.pgn ?? ""), playerColor, status: game.end_time ? "finished" : "open", outcome: getChessComOutcome(playerColor === "white" ? game.white?.result : game.black?.result), startedGameAt: getChessComStartedGameAt(game.pgn), completedGameAt: game.end_time ? new Date(game.end_time * 1000).toISOString() : undefined };
+  }
+  return null;
+}
+
+function normalizeChessComGameUrl(value: string) {
+  return value.trim().toLowerCase().replace(/^http:/, "https:").replace("https://chess.com/", "https://www.chess.com/").replace(/[?#].*$/, "").replace(/\/$/, "");
 }
 
 function getLichessOutcome(status: string | undefined, winner: "white" | "black" | undefined, playerColor: "white" | "black"): LatestGame["outcome"] {
