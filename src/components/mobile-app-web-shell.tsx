@@ -607,16 +607,7 @@ export function MobileCreateCustomScreen({ signedIn = false }: { signedIn?: bool
         <h1>Build your Side Quest.</h1>
         <p>Choose what should happen in a real game. SQC will check it after you play.</p>
       </section>
-      {signedIn ? (
-        <MobileCustomCreateForm signedIn />
-      ) : (
-        <section className="sqc-native-card sqc-simple-hero" aria-label="Sign in required">
-          <span className="sqc-card-eyebrow">Account required</span>
-          <h2>Sign in to create a Custom Side Quest.</h2>
-          <p>Custom Side Quests belong to your SQC account so drafts, ownership, and proof stay available across devices.</p>
-          <Link href="/sign-in?redirect_url=%2Fcreate-custom-side-quest" className="sqc-primary-action">Sign in to create</Link>
-        </section>
-      )}
+      <MobileCustomCreateForm signedIn={signedIn} />
     </div>
   );
 }
@@ -961,8 +952,10 @@ export function MobileCommunitySideQuestDetailScreen({
 
 export function MobileCustomSideQuestsScreen({
   rows,
+  localDrafts,
 }: {
   rows: CustomSideQuestLibraryRow[];
+  localDrafts?: ReactNode;
 }) {
   return (
     <div className="sqc-stack sqc-custom-library-screen">
@@ -975,7 +968,7 @@ export function MobileCustomSideQuestsScreen({
         <Link href="/side-quests" className="sqc-brand-tab official" role="tab" aria-selected="false">
           Official Side Quests
         </Link>
-        <Link href="/side-quests" className="sqc-brand-switch" data-icon="swap-horizontal" aria-label="Switch to Official Side Quests"><span aria-hidden="true" /></Link>
+        <Link href="/side-quests" className="sqc-brand-switch" data-icon="swap-horizontal" role="tab" aria-selected="false" aria-label="Switch to Official Side Quests"><span aria-hidden="true" /></Link>
         <Link href="/community-side-quests" className="sqc-brand-tab community active" role="tab" aria-selected="true">
           Community Side Quests
         </Link>
@@ -987,7 +980,7 @@ export function MobileCustomSideQuestsScreen({
           <Link href="/create-custom-side-quest">+ Create</Link>
         </div>
 
-        {!rows.length ? (
+        {!rows.length && !localDrafts ? (
           <Link href="/create-custom-side-quest" className="sqc-custom-create-card">
             <MobileAssetMark className="sqc-custom-create-mark" image={mobileAsset.coat} glow={mobileAsset.coatGlow} size={74} glowSize={96} />
             <span>
@@ -998,7 +991,8 @@ export function MobileCustomSideQuestsScreen({
           </Link>
         ) : null}
 
-        <CustomSoloCatalog rows={rows} />
+        {rows.length ? <CustomSoloCatalog rows={rows} /> : null}
+        {localDrafts}
       </section>
     </div>
   );

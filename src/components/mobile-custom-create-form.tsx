@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import type { CustomSideQuestRuleBlock } from "@/lib/custom-side-quests";
 import {
   buildCustomCreatePayload,
@@ -10,6 +10,12 @@ import {
   getCustomTemplateBlocks,
   type CustomTemplate,
 } from "@/lib/mobile-create-forms";
+import {
+  getLocalCustomDraftFormState,
+  getLocalCustomDraftIdFromSearch,
+  saveLocalCustomDraft,
+  tryRemoveLocalCustomDraft,
+} from "@/lib/local-custom-drafts";
 
 const templates: Array<{ id: CustomTemplate; title: string; helper: string }> = [
   { id: "knights-first", title: "Knight-only opening", helper: "Open Nf3, ...Nf6, Nc3, ...Nc6, then win." },
@@ -45,6 +51,21 @@ export default function MobileCustomCreateForm({ signedIn }: { signedIn: boolean
   const [lifecycle, setLifecycle] = useState<"draft" | "published">("published");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [editingLocalDraftId, setEditingLocalDraftId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const draftId = getLocalCustomDraftIdFromSearch(window.location.search);
+    if (!draftId) return;
+    const draft = getLocalCustomDraftFormState(window.localStorage, draftId);
+    if (!draft) return;
+    queueMicrotask(() => {
+      setEditingLocalDraftId(draft.id);
+      setTitle(draft.title);
+      setSummary(draft.summary);
+      setLogic(draft.logic);
+      setBlocks(draft.blocks);
+    });
+  }, []);
 
   function applyTemplate(template: CustomTemplate) {
     setBlocks(getCustomTemplateBlocks(template));
@@ -73,13 +94,35 @@ export default function MobileCustomCreateForm({ signedIn }: { signedIn: boolean
 
   async function submit(event: FormEvent) {
     event.preventDefault();
-    if (!signedIn) { setError("Sign in to create a Side Quest."); return; }
     setError("");
     let body;
     try {
-      body = buildCustomCreatePayload({ title, summary, logic, blocks, visibility, lifecycle });
+      body = buildCustomCreatePayload({
+        title,
+        summary,
+        logic,
+        blocks,
+        visibility: signedIn ? visibility : "private",
+        lifecycle: signedIn ? lifecycle : "draft",
+      });
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "Check the form and try again.");
+      return;
+    }
+    if (!signedIn) {
+      try {
+        const id = editingLocalDraftId ?? `local-custom-${crypto.randomUUID()}`;
+        saveLocalCustomDraft(window.localStorage, {
+          id,
+          title: body.title,
+          summary: body.summary,
+          config: body.config,
+          now: new Date().toISOString(),
+        });
+        window.location.assign(`/custom-side-quests?saved=${encodeURIComponent(id)}`);
+      } catch {
+        setError("Could not save this draft in your browser. Check browser storage and try again.");
+      }
       return;
     }
     setSaving(true);
@@ -88,6 +131,7 @@ export default function MobileCustomCreateForm({ signedIn }: { signedIn: boolean
       const result = await response.json().catch(() => null);
       const destination = response.ok ? getCustomCreateDestination(result) : null;
       if (!destination) { setError(getCreateErrorMessage(response.status, result)); setSaving(false); return; }
+      if (editingLocalDraftId) tryRemoveLocalCustomDraft(window.localStorage, editingLocalDraftId);
       window.location.assign(destination);
     } catch {
       setError("Could not create this Side Quest right now. Please try again.");
@@ -127,11 +171,13 @@ export default function MobileCustomCreateForm({ signedIn }: { signedIn: boolean
 
     <label className="sqc-form-row"><span>Side Quest name</span><input aria-label="Side Quest name" maxLength={80} onChange={(event) => setTitle(event.target.value)} placeholder="Name this custom Side Quest" required value={title} /></label>
     <label className="sqc-form-row"><span>Description / goal</span><textarea aria-label="Description or goal" maxLength={500} onChange={(event) => setSummary(event.target.value)} placeholder="Tell players what to accomplish" value={summary} /></label>
-    <span className="sqc-form-label">Visibility</span>
-    <div className="sqc-filter-row"><button className={visibility === "private" ? "active" : ""} onClick={() => setVisibility("private")} type="button">Private</button><button className={visibility === "public" ? "active" : ""} onClick={() => setVisibility("public")} type="button">Public</button></div>
-    <label className="sqc-form-row"><span>Save state</span><select aria-label="Save state" onChange={(event) => setLifecycle(event.target.value as "draft" | "published")} value={lifecycle}><option value="published">Ready to play</option><option value="draft">Draft</option></select></label>
-    <p>Identity and ownership come from your signed-in SQC session. Published quests require at least one supported condition.</p>
+    {signedIn ? <>
+      <span className="sqc-form-label">Visibility</span>
+      <div className="sqc-filter-row"><button className={visibility === "private" ? "active" : ""} onClick={() => setVisibility("private")} type="button">Private</button><button className={visibility === "public" ? "active" : ""} onClick={() => setVisibility("public")} type="button">Public</button></div>
+      <label className="sqc-form-row"><span>Save state</span><select aria-label="Save state" onChange={(event) => setLifecycle(event.target.value as "draft" | "published")} value={lifecycle}><option value="published">Ready to play</option><option value="draft">Draft</option></select></label>
+      <p>Identity and ownership come from your signed-in SQC session. Published quests require at least one supported condition.</p>
+    </> : <p className="sqc-local-draft-notice">This private draft is saved only in this browser. Sign in later to publish it or use proof.</p>}
     {error ? <p className="groupquest-join-error" role="alert">{error}</p> : null}
-    <button className="sqc-create-footer-button" disabled={saving} type="submit">{saving ? "Saving…" : signedIn ? "Save Custom Side Quest" : "Sign in to save"}</button>
+    <button className="sqc-create-footer-button" disabled={saving} type="submit">{saving ? "Saving…" : signedIn ? "Save Custom Side Quest" : "Save Draft Locally"}</button>
   </form>;
 }
