@@ -1,4 +1,13 @@
-import type { CustomSideQuestRuleBlock } from "./custom-side-quests";
+import { parseCustomRuleConfig, type CustomSideQuestRuleBlock } from "./custom-side-quests";
+
+export type CustomEditQuestInput = {
+  id: string;
+  title: string;
+  summary: string;
+  config: string;
+  visibility: "private" | "public";
+  lifecycle: "draft" | "published" | "archived";
+};
 
 export type CustomTemplate = "knights-first" | "no-castle" | "queen-trade" | "win";
 
@@ -8,7 +17,7 @@ type CustomCreateInput = {
   logic: "all" | "any";
   blocks: CustomSideQuestRuleBlock[];
   visibility: "private" | "public";
-  lifecycle: "draft" | "published";
+  lifecycle: "draft" | "published" | "archived";
 };
 
 const customBlocks: Record<CustomTemplate, CustomSideQuestRuleBlock[]> = {
@@ -46,15 +55,43 @@ export function buildCustomCreatePayload(input: CustomCreateInput) {
     title: title.slice(0, 80),
     summary: summary.slice(0, 500),
     config: JSON.stringify({ version: 2, logic: input.logic === "any" ? "any" : "all", blocks: input.blocks }),
-    visibility: input.lifecycle === "draft" ? "private" : input.visibility,
+    visibility: input.lifecycle === "published" ? input.visibility : "private",
     lifecycle: input.lifecycle,
   };
+}
+
+export function buildCustomEditConfig(originalConfig: string, logic: "all" | "any", blocks: CustomSideQuestRuleBlock[]) {
+  let original: Record<string, unknown>;
+  try {
+    const parsed = JSON.parse(originalConfig);
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed) || !Array.isArray(parsed.blocks)) throw new Error();
+    original = parsed as Record<string, unknown>;
+  } catch {
+    throw new Error("This Side Quest has invalid saved rules.");
+  }
+  if (blocks.length > 6) throw new Error("Custom Side Quests can use up to 6 conditions.");
+  return JSON.stringify({ ...original, logic: logic === "any" ? "any" : "all", blocks });
 }
 
 export function getCustomCreateDestination(payload: unknown) {
   const result = payload && typeof payload === "object" ? payload as { ok?: unknown; customQuest?: { id?: unknown } } : null;
   const id = result?.ok === true && typeof result.customQuest?.id === "string" ? result.customQuest.id : "";
   return /^custom-[a-z0-9-]+$/i.test(id) ? `/custom-side-quests?saved=${encodeURIComponent(id)}` : null;
+}
+
+export function getCustomEditFormState(quest: CustomEditQuestInput) {
+  if (!/^custom-[a-z0-9-]+$/i.test(quest.id)) return null;
+  const config = parseCustomRuleConfig(quest.config);
+  if (!config || config.blocks.length > 8) return null;
+  return {
+    id: quest.id,
+    title: quest.title,
+    summary: quest.summary,
+    logic: config.logic,
+    blocks: config.blocks,
+    visibility: quest.visibility,
+    lifecycle: quest.lifecycle,
+  };
 }
 
 type MultiplayerCreateInput = {
