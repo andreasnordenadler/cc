@@ -9,9 +9,11 @@ import { LocalCustomDraftList } from "../src/components/local-custom-draft-libra
 import type { CustomSideQuestRuleBlock } from "../src/lib/custom-side-quests";
 import {
   buildCustomCreatePayload,
+  buildCustomEditConfig,
   buildMultiplayerCreatePayload,
   getCreateErrorMessage,
   getCustomCreateDestination,
+  getCustomEditFormState,
   getCustomTemplateBlocks,
   getMultiplayerCreateDestination,
   getMultiplayerLocalDateTimeDefaults,
@@ -209,6 +211,88 @@ test("custom creator supports six independently editable Android-compatible cond
   assert.throws(() => buildCustomCreatePayload({ title: "Seven rules", summary: "", logic: "all", blocks: [...blocks, blocks[0]], visibility: "private", lifecycle: "draft" }), /up to 6/i);
 });
 
+test("owned custom Side Quest rules reopen in the exact editor state", () => {
+  const blocks: CustomSideQuestRuleBlock[] = [
+    { type: "gameResult", result: "win" },
+    { type: "pieceState", piece: "queen", owner: "my", condition: "gone", timing: { atGameEnd: true } },
+  ];
+
+  assert.deepEqual(getCustomEditFormState({
+    id: "custom-edit-safe",
+    title: "Queenless sprint",
+    summary: "Trade queens, then win.",
+    config: JSON.stringify({ version: 2, logic: "any", blocks }),
+    visibility: "public",
+    lifecycle: "published",
+  }), {
+    id: "custom-edit-safe",
+    title: "Queenless sprint",
+    summary: "Trade queens, then win.",
+    logic: "any",
+    blocks,
+    visibility: "public",
+    lifecycle: "published",
+  });
+
+  assert.equal(getCustomEditFormState({
+    id: "custom-edit-safe",
+    title: "Broken",
+    summary: "",
+    config: "not-json",
+    visibility: "private",
+    lifecycle: "draft",
+  }), null);
+
+  assert.equal(getCustomEditFormState({
+    id: "custom-archived",
+    title: "Archived rules",
+    summary: "",
+    config: JSON.stringify({ version: 2, logic: "all", blocks }),
+    visibility: "private",
+    lifecycle: "archived",
+  })?.lifecycle, "archived");
+});
+
+test("owned custom Side Quest editor can open legacy valid rules above Android's six-condition limit", () => {
+  const config = JSON.stringify({
+    version: 2,
+    logic: "all",
+    blocks: Array.from({ length: 7 }, () => ({ type: "gameResult", result: "win" })),
+  });
+  const quest = {
+    id: "custom-seven-rules",
+    title: "Legacy seven",
+    summary: "Reduce before saving.",
+    config,
+    visibility: "private" as const,
+    lifecycle: "draft" as const,
+  };
+
+  assert.equal(getCustomEditFormState(quest)?.blocks.length, 7);
+  const html = renderToStaticMarkup(React.createElement(MobileCustomCreateForm, { signedIn: true, initialQuest: quest }));
+  assert.match(html, /supports up to 6 conditions/i);
+  assert.match(html, /delete at least 1 condition/i);
+  assert.match(html, /Save Rule Changes/);
+});
+
+test("editing custom rules preserves supported advanced configuration fields", () => {
+  const original = JSON.stringify({
+    version: 7,
+    logic: "all",
+    customTopLevel: { mode: "legacy" },
+    blocks: [{ type: "moveSequence", sequence: "e4 e5", futureField: true }],
+  });
+  const blocks = [{ type: "moveSequence", sequence: "e4 e5", futureField: true }] as unknown as CustomSideQuestRuleBlock[];
+
+  assert.deepEqual(JSON.parse(buildCustomEditConfig(original, "any", blocks)), {
+    version: 7,
+    logic: "any",
+    customTopLevel: { mode: "legacy" },
+    blocks,
+  });
+  assert.throws(() => buildCustomEditConfig("not-json", "all", blocks), /rules/i);
+});
+
 test("queen-trade template round-trips through Android's my/opponent owner parser", () => {
   const blocks = getCustomTemplateBlocks("queen-trade");
   const owners = blocks.filter((block) => block.type === "pieceState").map((block) => block.owner);
@@ -226,6 +310,63 @@ test("custom builder renders the Android-style multi-condition command center", 
   assert.match(html, /Add Another Condition/);
   assert.match(html, /Duplicate/);
   assert.match(html, /Delete/);
+});
+
+test("owned custom Side Quest editor renders saved rules and exact-resource save intent", async () => {
+  const html = renderToStaticMarkup(React.createElement(MobileCustomCreateForm, {
+    signedIn: true,
+    initialQuest: {
+      id: "custom-edit-safe",
+      title: "Queenless sprint",
+      summary: "Trade queens, then win.",
+      config: JSON.stringify({ version: 2, logic: "any", blocks: [{ type: "gameResult", result: "win" }] }),
+      visibility: "public",
+      lifecycle: "published",
+    },
+  }));
+
+  assert.match(html, /value="Queenless sprint"/);
+  assert.match(html, /Complete any one condition/);
+  assert.match(html, /aria-pressed="true"[^>]*>Complete any one condition/);
+  assert.match(html, /Editing saved Side Quest/);
+  assert.match(html, /Save Rule Changes/);
+  const componentSource = await source("src/components/mobile-custom-create-form.tsx");
+  assert.match(componentSource, /useEffect\(\(\) => \{\s*if \(initialQuest\) return;/);
+});
+
+test("owned custom Side Quest editor remounts its form when exact quest identity changes", () => {
+  const quest = {
+    title: "Quest one",
+    summary: "First rules",
+    config: JSON.stringify({ version: 2, logic: "all", blocks: [{ type: "gameResult", result: "win" }] }),
+    visibility: "private" as const,
+    lifecycle: "published" as const,
+  };
+  const firstScreen = MobileCreateCustomScreen({ signedIn: true, initialQuest: { ...quest, id: "custom-one" } });
+  const secondScreen = MobileCreateCustomScreen({ signedIn: true, initialQuest: { ...quest, id: "custom-two" } });
+  const firstForm = (firstScreen.props.children as React.ReactElement[])[1];
+  const secondForm = (secondScreen.props.children as React.ReactElement[])[1];
+
+  assert.equal(firstForm.key, "custom-one");
+  assert.equal(secondForm.key, "custom-two");
+});
+
+test("invalid saved custom rules fail closed instead of rendering a create form", () => {
+  const html = renderToStaticMarkup(React.createElement(MobileCustomCreateForm, {
+    signedIn: true,
+    initialQuest: {
+      id: "custom-invalid-edit",
+      title: "Invalid saved quest",
+      summary: "",
+      config: JSON.stringify({ version: 2, logic: "all", blocks: [{ type: "gameResult", result: "win", negate: "false" }] }),
+      visibility: "private",
+      lifecycle: "draft",
+    },
+  }));
+
+  assert.match(html, /could not be opened safely/i);
+  assert.doesNotMatch(html, /Save Custom Side Quest|Save Rule Changes/);
+  assert.doesNotMatch(html, /<form/);
 });
 
 test("signed-out custom creator keeps Android's local-draft builder available", () => {

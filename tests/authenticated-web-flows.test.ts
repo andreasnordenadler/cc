@@ -256,12 +256,112 @@ test("custom quest update preserves its badge and creation timestamp", async () 
   assert.equal(saved[0]?.createdAt, existing.createdAt);
 });
 
+test("custom quest update preserves submitted advanced config through persistence", async () => {
+  const existing = {
+    id: "custom-advanced-target",
+    title: "Advanced target",
+    summary: "Advanced target",
+    config: validConfig,
+    visibility: "private" as const,
+    lifecycle: "published" as const,
+  };
+  const advancedConfig = JSON.stringify({
+    version: 7,
+    logic: "any",
+    customTopLevel: { mode: "legacy" },
+    blocks: [{ type: "moveSequence", sequence: "e4 e5", futureField: true }],
+  });
+  let savedConfig = "";
+
+  const response = await handleCustomQuestCreateRequest(jsonPost("https://sqc.test/api/mobile/custom-quests", {
+    id: existing.id,
+    title: existing.title,
+    config: advancedConfig,
+  }), customDependencies({
+    getMetadata: async () => ({ publicMetadata: {}, privateMetadata: { customSideQuests: [existing] } }),
+    saveCustomQuests: async (_id, quests) => { savedConfig = quests[0]?.config ?? ""; return quests; },
+  }));
+
+  assert.equal(response.status, 200);
+  assert.equal(savedConfig, advancedConfig);
+});
+
+test("custom quest update preserves unrelated advanced records byte-for-byte", async () => {
+  const target = {
+    id: "custom-target",
+    title: "Target",
+    summary: "Target",
+    config: validConfig,
+    visibility: "private" as const,
+    lifecycle: "published" as const,
+  };
+  const untouched = {
+    id: "custom-advanced",
+    title: "Advanced",
+    summary: "Keep this exact long summary and every advanced field unchanged.",
+    config: JSON.stringify({ version: 7, logic: "any", customTopLevel: { mode: "legacy" }, blocks: [{ type: "moveSequence", sequence: "e4 e5", futureField: true }] }),
+    visibility: "public" as const,
+    lifecycle: "published" as const,
+    createdAt: "2026-05-01T00:00:00.000Z",
+    updatedAt: "2026-05-02T00:00:00.000Z",
+    badgeImageUrl: "/badges/custom/community/community-coat-12.png",
+  };
+  let saved: unknown[] = [];
+
+  const response = await handleCustomQuestCreateRequest(jsonPost("https://sqc.test/api/mobile/custom-quests", {
+    id: target.id,
+    title: "Updated target",
+    config: validConfig,
+  }), customDependencies({
+    getMetadata: async () => ({ publicMetadata: {}, privateMetadata: { customSideQuests: [target, untouched] } }),
+    saveCustomQuests: async (_id, quests) => { saved = quests; return quests; },
+  }));
+
+  assert.equal(response.status, 200);
+  assert.deepEqual(saved[1], untouched);
+});
+
+test("custom quest update rejects an ID outside the authenticated owner's library", async () => {
+  let writes = 0;
+  const dependencies = customDependencies({
+    getMetadata: async () => ({ publicMetadata: {}, privateMetadata: { customSideQuests: [] } }),
+    saveCustomQuests: async () => { writes += 1; return []; },
+  });
+  const response = await handleCustomQuestCreateRequest(jsonPost("https://sqc.test/api/mobile/custom-quests", {
+    id: "custom-not-owned",
+    title: "Spoofed update",
+    config: validConfig,
+    visibility: "public",
+  }), dependencies);
+  const malformed = await handleCustomQuestCreateRequest(jsonPost("https://sqc.test/api/mobile/custom-quests", {
+    id: "../not-an-update",
+    title: "Spoofed create",
+    config: validConfig,
+    visibility: "public",
+  }), dependencies);
+
+  assert.equal(response.status, 404);
+  assert.equal(malformed.status, 400);
+  assert.equal(writes, 0);
+  assert.match(String((await body(response)).message), /not found/i);
+});
+
 test("custom quest create makes no write on auth/validation failure", async () => {
   let writes = 0;
   const unauthenticated = await handleCustomQuestCreateRequest(jsonPost("https://sqc.test/api/mobile/custom-quests", { config: validConfig }), customDependencies({ getAuthenticatedUserId: async () => null, saveCustomQuests: async () => { writes += 1; return []; } }));
   assert.equal(unauthenticated.status, 401);
   const invalid = await handleCustomQuestCreateRequest(jsonPost("https://sqc.test/api/mobile/custom-quests", { config: "{}" }), customDependencies({ saveCustomQuests: async () => { writes += 1; return []; } }));
   assert.equal(invalid.status, 400);
+  const malformedBlock = await handleCustomQuestCreateRequest(jsonPost("https://sqc.test/api/mobile/custom-quests", {
+    config: JSON.stringify({ version: 2, logic: "all", blocks: [{ type: "gameResult", result: "win", negate: "false" }] }),
+    lifecycle: "draft",
+  }), customDependencies({ saveCustomQuests: async () => { writes += 1; return []; } }));
+  assert.equal(malformedBlock.status, 400);
+  const tooManyBlocks = await handleCustomQuestCreateRequest(jsonPost("https://sqc.test/api/mobile/custom-quests", {
+    id: "custom-too-many",
+    config: JSON.stringify({ version: 2, logic: "all", blocks: Array.from({ length: 9 }, () => ({ type: "gameResult", result: "win" })) }),
+  }), customDependencies({ saveCustomQuests: async () => { writes += 1; return []; } }));
+  assert.equal(tooManyBlocks.status, 400);
   assert.equal(writes, 0);
 });
 

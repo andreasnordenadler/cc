@@ -4,12 +4,16 @@ import { FormEvent, useEffect, useState } from "react";
 import type { CustomSideQuestRuleBlock } from "@/lib/custom-side-quests";
 import {
   buildCustomCreatePayload,
+  buildCustomEditConfig,
   describeCustomRuleBlock,
   getCreateErrorMessage,
   getCustomCreateDestination,
+  getCustomEditFormState,
   getCustomTemplateBlocks,
+  type CustomEditQuestInput,
   type CustomTemplate,
 } from "@/lib/mobile-create-forms";
+import { getCustomOwnerDestination } from "@/lib/custom-owner-controls";
 import {
   getLocalCustomDraftFormState,
   getLocalCustomDraftIdFromSearch,
@@ -39,21 +43,23 @@ function cloneBlock(block: CustomSideQuestRuleBlock) {
 
 function choiceIdForBlock(block: CustomSideQuestRuleBlock) {
   const encoded = JSON.stringify(block);
-  return conditionChoices.find((choice) => JSON.stringify(choice.block) === encoded)?.id ?? "win";
+  return conditionChoices.find((choice) => JSON.stringify(choice.block) === encoded)?.id ?? "advanced";
 }
 
-export default function MobileCustomCreateForm({ signedIn }: { signedIn: boolean }) {
-  const [title, setTitle] = useState("");
-  const [summary, setSummary] = useState("");
-  const [logic, setLogic] = useState<"all" | "any">("all");
-  const [blocks, setBlocks] = useState<CustomSideQuestRuleBlock[]>(() => getCustomTemplateBlocks("no-castle"));
-  const [visibility, setVisibility] = useState<"private" | "public">("private");
-  const [lifecycle, setLifecycle] = useState<"draft" | "published">("published");
+export default function MobileCustomCreateForm({ signedIn, initialQuest = null }: { signedIn: boolean; initialQuest?: CustomEditQuestInput | null }) {
+  const initialState = initialQuest ? getCustomEditFormState(initialQuest) : null;
+  const [title, setTitle] = useState(initialState?.title ?? "");
+  const [summary, setSummary] = useState(initialState?.summary ?? "");
+  const [logic, setLogic] = useState<"all" | "any">(initialState?.logic ?? "all");
+  const [blocks, setBlocks] = useState<CustomSideQuestRuleBlock[]>(() => initialState?.blocks.map(cloneBlock) ?? getCustomTemplateBlocks("no-castle"));
+  const [visibility, setVisibility] = useState<"private" | "public">(initialState?.visibility ?? "private");
+  const [lifecycle, setLifecycle] = useState<"draft" | "published" | "archived">(initialState?.lifecycle ?? "published");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [editingLocalDraftId, setEditingLocalDraftId] = useState<string | null>(null);
 
   useEffect(() => {
+    if (initialQuest) return;
     const draftId = getLocalCustomDraftIdFromSearch(window.location.search);
     if (!draftId) return;
     const draft = getLocalCustomDraftFormState(window.localStorage, draftId);
@@ -65,7 +71,11 @@ export default function MobileCustomCreateForm({ signedIn }: { signedIn: boolean
       setLogic(draft.logic);
       setBlocks(draft.blocks);
     });
-  }, []);
+  }, [initialQuest]);
+
+  if (initialQuest && !initialState) {
+    return <div className="sqc-native-card groupquest-join-error" role="alert">This saved Side Quest could not be opened safely. Return to your library and try again.</div>;
+  }
 
   function applyTemplate(template: CustomTemplate) {
     setBlocks(getCustomTemplateBlocks(template));
@@ -105,6 +115,7 @@ export default function MobileCustomCreateForm({ signedIn }: { signedIn: boolean
         visibility: signedIn ? visibility : "private",
         lifecycle: signedIn ? lifecycle : "draft",
       });
+      if (initialState && initialQuest) body = { ...body, id: initialState.id, config: buildCustomEditConfig(initialQuest.config, logic, blocks) };
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "Check the form and try again.");
       return;
@@ -129,7 +140,7 @@ export default function MobileCustomCreateForm({ signedIn }: { signedIn: boolean
     try {
       const response = await fetch("/api/mobile/custom-quests", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
       const result = await response.json().catch(() => null);
-      const destination = response.ok ? getCustomCreateDestination(result) : null;
+      const destination = response.ok ? initialState ? getCustomOwnerDestination(result, initialState.id) : getCustomCreateDestination(result) : null;
       if (!destination) { setError(getCreateErrorMessage(response.status, result)); setSaving(false); return; }
       if (editingLocalDraftId) tryRemoveLocalCustomDraft(window.localStorage, editingLocalDraftId);
       window.location.assign(destination);
@@ -140,7 +151,7 @@ export default function MobileCustomCreateForm({ signedIn }: { signedIn: boolean
   }
 
   return <form className="sqc-native-card sqc-custom-builder-card" aria-label="Custom Side Quest builder" onSubmit={submit}>
-    <span className="sqc-card-eyebrow">Start from a template</span>
+    <span className="sqc-card-eyebrow">{initialState ? "Editing saved Side Quest" : "Start from a template"}</span>
     <div className="sqc-option-grid">
       {templates.map((item) => <button className="sqc-option-card sqc-template-card" key={item.id} onClick={() => applyTemplate(item.id)} type="button"><strong>{item.title}</strong><span>{item.helper}</span></button>)}
     </div>
@@ -152,11 +163,12 @@ export default function MobileCustomCreateForm({ signedIn }: { signedIn: boolean
     </div>
 
     <span className="sqc-form-label">Your conditions · {blocks.length}/6</span>
+    {blocks.length > 6 ? <p className="groupquest-join-error" role="alert">Android v338 supports up to 6 conditions. Delete at least {blocks.length - 6} condition{blocks.length - 6 === 1 ? "" : "s"} before saving rule changes.</p> : null}
     <div className="sqc-condition-list" aria-label="Saved conditions">
       {blocks.map((block, index) => <div className="sqc-condition-compact-row sqc-custom-condition-row" key={`${index}-${JSON.stringify(block)}`}>
         <span>{index + 1}</span>
         <div>
-          <label className="sqc-form-row"><span>Condition {index + 1}</span><select aria-label={`Condition ${index + 1}`} onChange={(event) => updateCondition(index, event.target.value)} value={choiceIdForBlock(block)}>{conditionChoices.map((choice) => <option key={choice.id} value={choice.id}>{choice.label}</option>)}</select></label>
+          <label className="sqc-form-row"><span>Condition {index + 1}</span><select aria-label={`Condition ${index + 1}`} onChange={(event) => updateCondition(index, event.target.value)} value={choiceIdForBlock(block)}>{choiceIdForBlock(block) === "advanced" ? <option value="advanced">Saved advanced condition</option> : null}{conditionChoices.map((choice) => <option key={choice.id} value={choice.id}>{choice.label}</option>)}</select></label>
           <p>{describeCustomRuleBlock(block)}</p>
           <div className="sqc-community-detail-actions">
             <button className="sqc-detail-quiet-button" disabled={blocks.length >= 6} onClick={() => duplicateCondition(index)} type="button">Duplicate</button>
@@ -174,10 +186,10 @@ export default function MobileCustomCreateForm({ signedIn }: { signedIn: boolean
     {signedIn ? <>
       <span className="sqc-form-label">Visibility</span>
       <div className="sqc-filter-row"><button className={visibility === "private" ? "active" : ""} onClick={() => setVisibility("private")} type="button">Private</button><button className={visibility === "public" ? "active" : ""} onClick={() => setVisibility("public")} type="button">Public</button></div>
-      <label className="sqc-form-row"><span>Save state</span><select aria-label="Save state" onChange={(event) => setLifecycle(event.target.value as "draft" | "published")} value={lifecycle}><option value="published">Ready to play</option><option value="draft">Draft</option></select></label>
+      <label className="sqc-form-row"><span>Save state</span><select aria-label="Save state" onChange={(event) => setLifecycle(event.target.value as "draft" | "published" | "archived")} value={lifecycle}><option value="published">Ready to play</option><option value="draft">Draft</option>{initialState?.lifecycle === "archived" ? <option value="archived">Archived</option> : null}</select></label>
       <p>Identity and ownership come from your signed-in SQC session. Published quests require at least one supported condition.</p>
     </> : <p className="sqc-local-draft-notice">This private draft is saved only in this browser. Sign in later to publish it or use proof.</p>}
     {error ? <p className="groupquest-join-error" role="alert">{error}</p> : null}
-    <button className="sqc-create-footer-button" disabled={saving} type="submit">{saving ? "Saving…" : signedIn ? "Save Custom Side Quest" : "Save Draft Locally"}</button>
+    <button className="sqc-create-footer-button" disabled={saving} type="submit">{saving ? "Saving…" : initialState ? "Save Rule Changes" : signedIn ? "Save Custom Side Quest" : "Save Draft Locally"}</button>
   </form>;
 }

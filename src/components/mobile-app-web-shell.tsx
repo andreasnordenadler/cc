@@ -25,6 +25,7 @@ import GroupQuestLeaveAction from "./group-quest-leave-action";
 import GroupQuestRemoveParticipantAction from "./group-quest-remove-participant-action";
 import CommunityMultiplayerReportControl from "./community-multiplayer-report-control";
 import GroupQuestInviteKeyControl from "./group-quest-invite-key-control";
+import type { CustomEditQuestInput } from "@/lib/mobile-create-forms";
 import type { WebSupportAccountContext } from "@/lib/web-support-diagnostics";
 
 type AppTab = "home" | "sideQuests" | "multiplayerSideQuests" | "coatOfArms" | "account";
@@ -598,16 +599,16 @@ export function MobileSimpleScreen({
   );
 }
 
-export function MobileCreateCustomScreen({ signedIn = false }: { signedIn?: boolean }) {
+export function MobileCreateCustomScreen({ signedIn = false, initialQuest = null }: { signedIn?: boolean; initialQuest?: CustomEditQuestInput | null }) {
   return (
     <div className="sqc-stack sqc-create-custom-screen">
       <section className="sqc-multiplayer-detail-hero sqc-custom-builder-hero">
         <MobileAssetMark className="sqc-section-mark custom" image={mobileAsset.customCrest} glow={mobileAsset.coatGlow} size={112} glowSize={152} />
         <span className="sqc-multiplayer-kicker">Custom Side Quest</span>
-        <h1>Build your Side Quest.</h1>
-        <p>Choose what should happen in a real game. SQC will check it after you play.</p>
+        <h1>{initialQuest ? "Edit your Side Quest." : "Build your Side Quest."}</h1>
+        <p>{initialQuest ? "Update the saved proof conditions without changing who owns this Side Quest." : "Choose what should happen in a real game. SQC will check it after you play."}</p>
       </section>
-      <MobileCustomCreateForm signedIn={signedIn} />
+      <MobileCustomCreateForm key={initialQuest?.id ?? "new-custom-side-quest"} signedIn={signedIn} initialQuest={initialQuest} />
     </div>
   );
 }

@@ -169,11 +169,52 @@ export function getCustomSideQuestById(metadata: Record<string, unknown>, id: st
 export function parseCustomRuleConfig(config: string): CustomSideQuestRuleConfig | null {
   try {
     const parsed = JSON.parse(config) as CustomSideQuestRuleConfig;
-    if (!parsed || typeof parsed !== "object" || !Array.isArray(parsed.blocks)) return null;
+    if (!parsed || typeof parsed !== "object" || !Array.isArray(parsed.blocks) || !parsed.blocks.every(isValidCustomRuleBlock)) return null;
     return { version: Number(parsed.version) || 2, logic: parsed.logic === "any" ? "any" : "all", blocks: parsed.blocks.slice(0, 8) };
   } catch {
     return null;
   }
+}
+
+function isValidCustomRuleBlock(block: unknown): block is CustomSideQuestRuleBlock {
+  if (!block || typeof block !== "object" || Array.isArray(block)) return false;
+  const value = block as Record<string, unknown>;
+  if (value.negate !== undefined && typeof value.negate !== "boolean") return false;
+  if (!isValidTiming(value.timing)) return false;
+  if (value.type === "gameResult") return value.result === "win" || value.result === "draw" || value.result === "lose";
+  if (value.type === "moveSequence") return typeof value.sequence === "string";
+  if (value.type === "openingSequence") return Array.isArray(value.moves)
+    && value.moves.every(move => typeof move === "string")
+    && (value.raw === undefined || typeof value.raw === "string")
+    && (value.anchor === undefined || value.anchor === "gameStart");
+  if (value.type !== "pieceState" || !isValidSelector(value.selector)) return false;
+  return ["king", "queen", "rook", "bishop", "knight", "pawn"].includes(String(value.piece))
+    && ["my", "opponent", "either"].includes(String(value.owner))
+    && ["gone", "still on board", "moved", "not moved", "captured", "on square"].includes(String(value.condition))
+    && (value.targetSquare === undefined || value.targetSquare === null || typeof value.targetSquare === "string");
+}
+
+function isValidTiming(value: unknown) {
+  if (value === undefined) return true;
+  if (!value || typeof value !== "object" || Array.isArray(value)) return false;
+  const timing = value as Record<string, unknown>;
+  return isOptionalPositiveInteger(timing.byMove)
+    && isOptionalPositiveInteger(timing.atMove)
+    && (timing.atGameEnd === undefined || timing.atGameEnd === true);
+}
+
+function isValidSelector(value: unknown) {
+  if (value === undefined) return true;
+  if (!value || typeof value !== "object" || Array.isArray(value)) return false;
+  const selector = value as Record<string, unknown>;
+  return (selector.quantifier === undefined || ["any one", "at least", "exactly", "all"].includes(String(selector.quantifier)))
+    && isOptionalPositiveInteger(selector.count)
+    && isOptionalPositiveInteger(selector.maxAvailable)
+    && (selector.identity === undefined || typeof selector.identity === "string");
+}
+
+function isOptionalPositiveInteger(value: unknown) {
+  return value === undefined || (typeof value === "number" && Number.isInteger(value) && value > 0);
 }
 
 export async function checkLatestCustomSideQuestForProvider(input: { quest: CustomSideQuest; provider: "lichess" | "chesscom"; username: string }): Promise<LatestChallengeVerdict> {
