@@ -2898,6 +2898,10 @@ body::after {
   box-shadow: 0 10px 24px rgba(0, 0, 0, .28);
 }
 
+.sqc-multiplayer-rule-detail[open] > summary > * {
+  visibility: hidden;
+}
+
 .sqc-multiplayer-rule-detail[open] > summary::before,
 .sqc-multiplayer-rule-detail[open] > summary::after {
   width: 20px;

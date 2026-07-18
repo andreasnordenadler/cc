@@ -1489,7 +1489,7 @@ export function MobileMultiplayerDetailScreen({
             ruleLines: ["Follow the saved Side Quest rules."],
           }))).map((detail, index) => (
             <details key={detail.id} className="sqc-multiplayer-rule-detail">
-              <summary className="sqc-condition-compact-row" aria-label={`Open or close rules for ${detail.title}`}>
+              <summary role="button" className="sqc-condition-compact-row" aria-label={`Open or close rules for ${detail.title}`}>
                 <span>{index + 1}</span>
                 <div>
                   <strong>{detail.title}</strong>

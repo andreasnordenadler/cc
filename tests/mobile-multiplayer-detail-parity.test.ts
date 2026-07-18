@@ -84,7 +84,7 @@ test("each included Multiplayer Side Quest opens its Android rule and proof deta
   const html = renderDetail(officialJoinedQuest);
 
   assert.match(html, /<details[^>]*class="sqc-multiplayer-rule-detail"/);
-  assert.match(html, /<summary[^>]*aria-label="Open or close rules for Any Game Counts"/);
+  assert.match(html, /<summary[^>]*role="button"[^>]*aria-label="Open or close rules for Any Game Counts"/);
   assert.match(html, />Multiplayer Side Quest rules</);
   assert.match(html, />Any Game Counts</);
   assert.match(html, />Finish one public game\.</);
@@ -103,6 +103,7 @@ test("included Multiplayer rule details preserve Android card geometry without b
   assert.match(css, /\.sqc-multiplayer-rule-detail\s*>\s*summary[\s\S]*list-style:\s*none/);
   assert.match(css, /\.sqc-multiplayer-rule-detail\[open\] \.sqc-multiplayer-rule-detail-body[\s\S]*position:\s*fixed/);
   assert.match(css, /\.sqc-multiplayer-rule-detail\[open\] \.sqc-multiplayer-rule-detail-body[\s\S]*inset:\s*0/);
+  assert.match(css, /\.sqc-multiplayer-rule-detail\[open\] > summary > \*[\s\S]*visibility:\s*hidden/);
   assert.match(css, /\.sqc-multiplayer-rule-detail\[open\] > summary[\s\S]*width:\s*46px[\s\S]*height:\s*46px/);
   assert.match(css, /\.sqc-multiplayer-rule-detail\[open\] \.sqc-multiplayer-rule-detail-body[\s\S]*padding:\s*max\(64px/);
   assert.doesNotMatch(css, /\.sqc-multiplayer-rule-detail-coat\s*\{[^}]*filter:/);
