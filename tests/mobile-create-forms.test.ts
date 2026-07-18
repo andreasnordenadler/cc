@@ -3,8 +3,9 @@ import { readFile } from "node:fs/promises";
 import test from "node:test";
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { MobileCreateCustomScreen } from "../src/components/mobile-app-web-shell";
+import { MobileCreateCustomScreen, MobileCustomSideQuestsScreen } from "../src/components/mobile-app-web-shell";
 import MobileCustomCreateForm from "../src/components/mobile-custom-create-form";
+import { LocalCustomDraftList } from "../src/components/local-custom-draft-library";
 import type { CustomSideQuestRuleBlock } from "../src/lib/custom-side-quests";
 import {
   buildCustomCreatePayload,
@@ -15,9 +16,146 @@ import {
   getMultiplayerCreateDestination,
   getMultiplayerLocalDateTimeDefaults,
 } from "../src/lib/mobile-create-forms";
+import { getLocalCustomDraftEditHref, getLocalCustomDraftFormState, getLocalCustomDraftIdFromSearch, readLocalCustomDrafts, removeLocalCustomDraft, saveLocalCustomDraft, tryRemoveLocalCustomDraft } from "../src/lib/local-custom-drafts";
 
 const root = new URL("../", import.meta.url);
 const source = (path: string) => readFile(new URL(path, root), "utf8");
+
+test("signed-out custom drafts are stored locally without account identity", () => {
+  const values = new Map<string, string>();
+  const storage = {
+    getItem: (key: string) => values.get(key) ?? null,
+    setItem: (key: string, value: string) => { values.set(key, value); },
+  };
+
+  const draft = saveLocalCustomDraft(storage, {
+    id: "local-custom-1",
+    title: "  Later Knights  ",
+    summary: "  Try this after sign-in. ",
+    config: JSON.stringify({ version: 2, logic: "all", blocks: [] }),
+    now: "2026-07-18T10:00:00.000Z",
+  });
+
+  assert.equal(draft.title, "Later Knights");
+  assert.equal(draft.lifecycle, "draft");
+  assert.equal(draft.visibility, "private");
+  assert.equal("userId" in draft, false);
+  assert.equal("ownerId" in draft, false);
+  assert.deepEqual(JSON.parse([...values.values()][0]!), [draft]);
+});
+
+test("local custom drafts keep the newest six and tolerate malformed saved data", () => {
+  const values = new Map<string, string>([["sqc.local-custom-drafts.v1", "not json"]]);
+  const storage = {
+    getItem: (key: string) => values.get(key) ?? null,
+    setItem: (key: string, value: string) => { values.set(key, value); },
+  };
+
+  for (let index = 1; index <= 7; index += 1) {
+    saveLocalCustomDraft(storage, {
+      id: `local-custom-${index}`,
+      title: `Draft ${index}`,
+      summary: "",
+      config: JSON.stringify({ version: 2, logic: "all", blocks: [] }),
+      now: `2026-07-18T10:00:0${index}.000Z`,
+    });
+  }
+
+  const saved = JSON.parse(values.get("sqc.local-custom-drafts.v1")!) as Array<{ id: string }>;
+  assert.deepEqual(saved.map((draft) => draft.id), [
+    "local-custom-7",
+    "local-custom-6",
+    "local-custom-5",
+    "local-custom-4",
+    "local-custom-3",
+    "local-custom-2",
+  ]);
+});
+
+test("local draft edit links resolve only exact browser-local draft IDs", () => {
+  assert.equal(
+    getLocalCustomDraftIdFromSearch("?draft=local-custom-safe%20id"),
+    "local-custom-safe id",
+  );
+  assert.equal(getLocalCustomDraftIdFromSearch("?draft=server-custom-1"), null);
+  assert.equal(getLocalCustomDraftIdFromSearch("?draft="), null);
+  assert.equal(getLocalCustomDraftIdFromSearch("?other=local-custom-safe"), null);
+});
+
+test("saving an edited local draft preserves its identity and creation time", () => {
+  const values = new Map<string, string>();
+  const storage = {
+    getItem: (key: string) => values.get(key) ?? null,
+    setItem: (key: string, value: string) => { values.set(key, value); },
+  };
+  saveLocalCustomDraft(storage, {
+    id: "local-custom-edit",
+    title: "First title",
+    summary: "",
+    config: JSON.stringify({ version: 2, logic: "all", blocks: [] }),
+    now: "2026-07-18T10:00:00.000Z",
+  });
+
+  const updated = saveLocalCustomDraft(storage, {
+    id: "local-custom-edit",
+    title: "Updated title",
+    summary: "Now complete",
+    config: JSON.stringify({ version: 2, logic: "all", blocks: [{ type: "gameResult", result: "win" }] }),
+    now: "2026-07-18T11:00:00.000Z",
+  });
+
+  assert.equal(updated.id, "local-custom-edit");
+  assert.equal(updated.createdAt, "2026-07-18T10:00:00.000Z");
+  assert.equal(updated.updatedAt, "2026-07-18T11:00:00.000Z");
+  assert.deepEqual(readLocalCustomDrafts(storage), [updated]);
+});
+
+test("local drafts can be continued safely and removed only after import", () => {
+  const values = new Map<string, string>();
+  const storage = {
+    getItem: (key: string) => values.get(key) ?? null,
+    setItem: (key: string, value: string) => { values.set(key, value); },
+  };
+  saveLocalCustomDraft(storage, {
+    id: "local-custom-safe id",
+    title: "Continue me",
+    summary: "",
+    config: JSON.stringify({ version: 2, logic: "all", blocks: [{ type: "gameResult", result: "win" }] }),
+    now: "2026-07-18T10:00:00.000Z",
+  });
+
+  assert.equal(getLocalCustomDraftEditHref("local-custom-safe id"), "/create-custom-side-quest?draft=local-custom-safe%20id");
+  assert.deepEqual(getLocalCustomDraftFormState(storage, "local-custom-safe id"), {
+    id: "local-custom-safe id",
+    title: "Continue me",
+    summary: "",
+    logic: "all",
+    blocks: [{ type: "gameResult", result: "win" }],
+  });
+  assert.equal(getLocalCustomDraftFormState(storage, "local-custom-missing"), null);
+  assert.equal(removeLocalCustomDraft(storage, "local-custom-safe id"), true);
+  assert.deepEqual(readLocalCustomDrafts(storage), []);
+  assert.equal(removeLocalCustomDraft(storage, "local-custom-missing"), false);
+});
+
+test("local draft cleanup cannot turn a successful account import into a retry", () => {
+  const storage = {
+    getItem: () => JSON.stringify([{
+      id: "local-custom-imported",
+      title: "Imported",
+      summary: "",
+      config: JSON.stringify({ version: 2, logic: "all", blocks: [] }),
+      lifecycle: "draft",
+      visibility: "private",
+      createdAt: "2026-07-18T10:00:00.000Z",
+      updatedAt: "2026-07-18T10:00:00.000Z",
+    }]),
+    setItem: () => { throw new Error("storage unavailable"); },
+  };
+
+  assert.doesNotThrow(() => tryRemoveLocalCustomDraft(storage, "local-custom-imported"));
+  assert.equal(tryRemoveLocalCustomDraft(storage, "local-custom-imported"), false);
+});
 
 test("custom creator builds a launch-ready rule without accepting owner identity", () => {
   const payload = buildCustomCreatePayload({
@@ -90,16 +228,64 @@ test("custom builder renders the Android-style multi-condition command center", 
   assert.match(html, /Delete/);
 });
 
-test("signed-out custom creator deep links show an exact-return sign-in gate instead of an unreachable builder", () => {
+test("signed-out custom creator keeps Android's local-draft builder available", () => {
   const signedOut = renderToStaticMarkup(React.createElement(MobileCreateCustomScreen, { signedIn: false }));
   const signedIn = renderToStaticMarkup(React.createElement(MobileCreateCustomScreen, { signedIn: true }));
 
-  assert.match(signedOut, /Sign in to create a Custom Side Quest/);
-  assert.match(signedOut, /href="\/sign-in\?redirect_url=%2Fcreate-custom-side-quest"/);
-  assert.doesNotMatch(signedOut, /Custom Side Quest builder|Save locally/);
+  assert.match(signedOut, /Custom Side Quest builder/);
+  assert.match(signedOut, /Save Draft Locally/);
+  assert.match(signedOut, /saved only in this browser/i);
+  assert.doesNotMatch(signedOut, /Sign in to create a Custom Side Quest/);
   assert.match(signedIn, /Custom Side Quest builder/);
-  assert.doesNotMatch(signedIn, /Sign in to create a Custom Side Quest/);
+  assert.match(signedIn, /Save Custom Side Quest/);
+  assert.doesNotMatch(signedIn, /Save Draft Locally/);
 });
+
+test("signed-out custom library renders locally saved drafts as private browser-only records", () => {
+  const html = renderToStaticMarkup(React.createElement(LocalCustomDraftList, {
+    drafts: [{
+      id: "local-custom-1",
+      title: "Later Knights",
+      summary: "Try this after sign-in.",
+      config: JSON.stringify({ version: 2, logic: "all", blocks: [] }),
+      lifecycle: "draft",
+      visibility: "private",
+      createdAt: "2026-07-18T10:00:00.000Z",
+      updatedAt: "2026-07-18T10:00:00.000Z",
+    }],
+  }));
+
+  assert.match(html, /Later Knights/);
+  assert.match(html, /Draft/);
+  assert.match(html, /Saved only in this browser/);
+  assert.match(html, /href="\/create-custom-side-quest\?draft=local-custom-1"/);
+  assert.match(html, /Continue draft/);
+});
+
+test("signed-out custom library slot replaces the account-backed empty state", () => {
+  const localDrafts = React.createElement("p", null, "Loading drafts saved in this browser…");
+  const html = renderToStaticMarkup(React.createElement(MobileCustomSideQuestsScreen, { rows: [], localDrafts }));
+
+  assert.match(html, /Loading drafts saved in this browser/);
+  assert.doesNotMatch(html, /Build your own Side Quest/);
+  assert.match(html, /class="sqc-brand-switch"[^>]*role="tab"[^>]*aria-selected="false"/);
+});
+
+test("signed-out custom library route loads browser-local drafts", async () => {
+  const route = await source("src/app/custom-side-quests/page.tsx");
+  assert.match(route, /LocalCustomDraftLibrary/);
+  assert.match(route, /localDrafts=\{<LocalCustomDraftLibrary \/>\}/);
+});
+
+test("custom builder restores and updates the exact local draft from its URL", async () => {
+  const form = await source("src/components/mobile-custom-create-form.tsx");
+
+  assert.match(form, /getLocalCustomDraftIdFromSearch\(window\.location\.search\)/);
+  assert.match(form, /getLocalCustomDraftFormState\(window\.localStorage, draftId\)/);
+  assert.match(form, /setEditingLocalDraftId\(draft\.id\)/);
+  assert.match(form, /editingLocalDraftId \?\? `local-custom-\$\{crypto\.randomUUID\(\)\}`/);
+});
+
 test("custom success navigates to the owned custom catalog", () => {
   assert.equal(getCustomCreateDestination({ ok: true, customQuest: { id: "custom-safe" } }), "/custom-side-quests?saved=custom-safe");
   assert.equal(getCustomCreateDestination({ ok: true, customQuest: { id: "../escape" } }), null);
@@ -172,4 +358,6 @@ test("mobile create screens use executable forms and never submit identity field
   assert.doesNotMatch(shell, /<Link href="\/multiplayer" className="sqc-create-footer-button">Create<\/Link>/);
   assert.match(css, /\.sqc-template-card\s*\{[\s\S]*?grid-template-columns:\s*minmax\(0, 1fr\)/);
   assert.match(css, /\.sqc-custom-condition-row \.sqc-detail-quiet-button\s*\{[\s\S]*?background:\s*rgba\(255, 247, 232, \.06\)/);
+  assert.match(css, /\.sqc-custom-builder-card select\s*\{[\s\S]*?background:\s*rgba\(13, 11, 14, \.92\)[\s\S]*?color:\s*var\(--paper\)/);
+  assert.match(css, /\.sqc-mobile-web\.signed-out \.sqc-local-custom-draft-row \.sqc-row-status\s*\{[\s\S]*?color:\s*var\(--gold\)/);
 });

@@ -901,6 +901,38 @@ body::after {
   grid-template-columns: minmax(0, 1fr) auto;
 }
 
+.sqc-local-draft-notice,
+.sqc-local-draft-loading,
+.sqc-local-custom-empty {
+  border: 1px solid rgba(245, 200, 106, .18);
+  border-radius: 16px;
+  background: rgba(245, 200, 106, .07);
+  color: var(--muted);
+  padding: 12px 14px;
+  font-size: .82rem;
+  font-weight: 800;
+  line-height: 1.45;
+}
+
+.sqc-local-custom-empty {
+  display: grid;
+  gap: 4px;
+}
+
+.sqc-local-custom-empty strong {
+  color: var(--paper);
+}
+
+.sqc-local-custom-draft-row {
+  cursor: default;
+}
+
+.sqc-mobile-web.signed-out .sqc-local-custom-draft-row .sqc-row-status {
+  border: 1px solid rgba(245, 200, 106, .34);
+  background: rgba(245, 200, 106, .12);
+  color: var(--gold);
+}
+
 .sqc-app-row.sqc-app-row-with-like {
   grid-template-columns: 32px minmax(0, 1fr) auto;
 }
@@ -3215,6 +3247,20 @@ body::after {
 
 .sqc-custom-builder-card .sqc-form-row input {
   background: rgba(6, 5, 7, .46);
+}
+
+.sqc-custom-builder-card select {
+  width: 100%;
+  min-height: 38px;
+  border: 1px solid rgba(255, 247, 232, .16);
+  border-radius: 12px;
+  background: rgba(13, 11, 14, .92);
+  color: var(--paper);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 850;
+  padding: 8px 10px;
+  color-scheme: dark;
 }
 
 .sqc-create-multiplayer-screen .sqc-native-card {

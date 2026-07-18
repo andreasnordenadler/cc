@@ -1,4 +1,5 @@
 import MobileAppWebShell, { MobileCustomSideQuestsScreen } from "@/components/mobile-app-web-shell";
+import LocalCustomDraftLibrary from "@/components/local-custom-draft-library";
 import { currentUser } from "@clerk/nextjs/server";
 import { unstable_noStore as noStore } from "next/cache";
 import { getCustomSideQuests, type CustomSideQuest } from "@/lib/custom-side-quests";
@@ -32,7 +33,10 @@ export default async function CustomSideQuestsPage() {
       lichessUsername={getLichessUsername(metadataRecord)}
       chessComUsername={getChessComUsername(metadataRecord)}
     >
-      <MobileCustomSideQuestsScreen rows={customSideQuests} />
+      <MobileCustomSideQuestsScreen
+        rows={customSideQuests}
+        localDrafts={<LocalCustomDraftLibrary />}
+      />
     </MobileAppWebShell>
   );
 }
