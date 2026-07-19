@@ -343,7 +343,7 @@ async function checkMobileActiveChallenge(userId: string, metadata: UserMetadata
       status: passedCheck ? "verified" : (latestCheck?.status ?? "pending"),
       startedAt: activeChallenge.startedAt ?? now,
       verifiedAt: passedCheck ? now : undefined,
-      customQuestSnapshot: activeChallenge.customQuestSnapshot,
+      customQuestSnapshot: customQuest ?? undefined,
     },
     challengeAttempts: compactChallengeAttempts([
       ...existingAttempts,

@@ -4,7 +4,7 @@ import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import CustomSideQuestProofControls from "../src/components/custom-side-quest-proof-controls";
 import { POST, submitMobileChallengeAttempt, verifySubmittedChallengeAttempt, withMobileQuestRouteTestDependencies } from "../src/app/api/mobile/quest/route";
-import { checkSubmittedCustomSideQuestForProvider, type CustomSideQuest } from "../src/lib/custom-side-quests";
+import { checkLatestCustomSideQuestForProvider, checkSubmittedCustomSideQuestForProvider, fetchBoundedProviderJson, type CustomSideQuest } from "../src/lib/custom-side-quests";
 
 const winQuest: CustomSideQuest = {
   id: "custom-win",
@@ -25,6 +25,89 @@ function validConfigWithUtf8Bytes(byteLength: number) {
   assert.equal(Buffer.byteLength(config), byteLength);
   return config;
 }
+
+test("provider JSON reads reject a response beyond the byte limit", async () => {
+  const response = new Response(JSON.stringify({ payload: "x".repeat(64) }), {
+    headers: { "content-type": "application/json" },
+  });
+
+  await assert.rejects(
+    () => fetchBoundedProviderJson("https://provider.example/game", {}, { maxBytes: 32, timeoutMs: 100, fetcher: async () => response }),
+    /response is too large/i,
+  );
+});
+
+test("provider JSON reads abort after the timeout", async () => {
+  await assert.rejects(
+    () => fetchBoundedProviderJson("https://provider.example/game", {}, {
+      maxBytes: 32,
+      timeoutMs: 5,
+      fetcher: async (_input, init) => new Promise<Response>((_resolve, reject) => {
+        const signal = init?.signal;
+        if (!signal) return reject(new Error("request signal missing"));
+        signal.addEventListener("abort", () => reject(new Error("provider request aborted")), { once: true });
+      }),
+    }),
+    /abort|timed out/i,
+  );
+});
+
+test("provider JSON reads enforce the timeout and cancel an uncooperative streaming body", async () => {
+  let cancelled = false;
+  const body = new ReadableStream<Uint8Array>({
+    start(controller) { controller.enqueue(new TextEncoder().encode("{")); },
+    cancel() { cancelled = true; return new Promise<void>(() => undefined); },
+  });
+
+  await assert.rejects(
+    () => Promise.race([
+      fetchBoundedProviderJson("https://provider.example/game", {}, {
+        maxBytes: 32,
+        timeoutMs: 5,
+        fetcher: async () => new Response(body, { headers: { "content-type": "application/json" } }),
+      }),
+      new Promise<never>((_resolve, reject) => setTimeout(() => reject(new Error("body timeout missing")), 50)),
+    ]),
+    /timed out/i,
+  );
+  assert.equal(cancelled, true);
+});
+
+test("latest Lichess proof rejects an oversized provider payload", async (t) => {
+  const originalFetch = globalThis.fetch;
+  const validGame = JSON.stringify({
+    id: "Latest123",
+    status: "mate",
+    winner: "white",
+    createdAt: Date.parse("2026-07-18T10:00:00.000Z"),
+    lastMoveAt: Date.parse("2026-07-18T10:10:00.000Z"),
+    moves: "e2e4 e7e5 d1h5 b8c6 f1c4 g8f6 h5f7",
+    players: { white: { user: { name: "Alice" } }, black: { user: { name: "Bob" } } },
+  });
+  globalThis.fetch = async () => new Response(`${validGame}\n${"x".repeat(2_000_001)}`);
+  t.after(() => { globalThis.fetch = originalFetch; });
+
+  const result = await checkLatestCustomSideQuestForProvider({ quest: winQuest, provider: "lichess", username: "alice" });
+  assert.equal(result.status, "pending");
+});
+
+test("submitted Lichess proof rejects an oversized provider payload", async (t) => {
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async () => Response.json({
+    id: "Exact123",
+    status: "mate",
+    winner: "white",
+    createdAt: Date.parse("2026-07-18T10:00:00.000Z"),
+    lastMoveAt: Date.parse("2026-07-18T10:10:00.000Z"),
+    moves: "e2e4 e7e5 d1h5 b8c6 f1c4 g8f6 h5f7",
+    players: { white: { user: { name: "Alice" } }, black: { user: { name: "Bob" } } },
+    padding: "x".repeat(2_000_001),
+  });
+  t.after(() => { globalThis.fetch = originalFetch; });
+
+  const result = await checkSubmittedCustomSideQuestForProvider({ quest: winQuest, provider: "lichess", username: "alice", gameId: "Exact123" });
+  assert.equal(result.status, "pending");
+});
 
 test("submitted Lichess custom proof evaluates the exact owned public game", async (t) => {
   const originalFetch = globalThis.fetch;
@@ -241,6 +324,45 @@ test("latest custom checks keep active snapshot rules after mutable edit, delete
     assert.equal(response.status, 200);
     assert.equal((written as { publicMetadata: { activeChallenge: { status: string } } }).publicMetadata.activeChallenge.status, "verified");
   }
+});
+
+test("latest custom checks persist only the canonical bounded active snapshot", async (t) => {
+  const previousNodeEnv = process.env.NODE_ENV;
+  Object.defineProperty(process.env, "NODE_ENV", { value: "test", configurable: true, writable: true, enumerable: true });
+  t.after(() => Object.defineProperty(process.env, "NODE_ENV", { value: previousNodeEnv, configurable: true, writable: true, enumerable: true }));
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async () => new Response(`${JSON.stringify({
+    id: "Latest123",
+    status: "mate",
+    winner: "white",
+    createdAt: Date.parse("2026-07-18T10:00:00.000Z"),
+    lastMoveAt: Date.parse("2026-07-18T10:10:00.000Z"),
+    moves: "e2e4 e7e5 d1h5 b8c6 f1c4 g8f6 h5f7",
+    players: { white: { user: { name: "Alice" } }, black: { user: { name: "Bob" } } },
+  })}\n`, { status: 200 });
+  t.after(() => { globalThis.fetch = originalFetch; });
+
+  let written: unknown;
+  const snapshotWithLegacyFields = { ...winQuest, summary: "legacy extra data", padding: "x".repeat(5_000) };
+  const metadata = {
+    lichessUsername: "alice",
+    activeChallenge: { id: "custom-win", status: "accepted", startedAt: "2026-07-18T09:00:00.000Z", customQuestSnapshot: snapshotWithLegacyFields },
+  };
+  const response = await withMobileQuestRouteTestDependencies({
+    authenticate: async () => "server-user",
+    getClient: async () => ({ users: {
+      getUser: async () => ({ publicMetadata: metadata, privateMetadata: {} }),
+      updateUserMetadata: async (_userId: string, value: unknown) => { written = value; },
+    } }) as never,
+  }, () => POST(new Request("https://sidequestchess.com/api/mobile/quest", { method: "POST", body: JSON.stringify({ action: "check" }) })));
+
+  assert.equal(response.status, 200);
+  assert.deepEqual((written as { publicMetadata: { activeChallenge: { customQuestSnapshot: unknown } } }).publicMetadata.activeChallenge.customQuestSnapshot, {
+    id: winQuest.id,
+    title: winQuest.title,
+    config: winQuest.config,
+    lifecycle: "published",
+  });
 });
 
 test("legacy active custom submission without a snapshot fails safely before provider lookup", async (t) => {
