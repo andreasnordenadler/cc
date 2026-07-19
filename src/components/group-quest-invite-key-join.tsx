@@ -90,7 +90,6 @@ export default function GroupQuestInviteKeyJoin({ isSignedIn }: { isSignedIn: bo
           autoComplete="off"
           autoCorrect="off"
           spellCheck={false}
-          pattern="[-A-Za-z0-9]+"
           value={inviteKey}
           onChange={(event) => setInviteKey(event.target.value)}
           placeholder="e.g. NO-CASTLE-42"

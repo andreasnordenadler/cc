@@ -81,8 +81,7 @@ test("signed-out Community Multiplayer keeps private invite joining reachable wi
   }));
 
   assert.match(html, /aria-label="Join private Multiplayer Side Quest"/);
-  assert.match(html, /pattern="\[-A-Za-z0-9\]\+"/);
-  assert.doesNotMatch(html, /maxLength=/);
+  assert.doesNotMatch(html, /pattern=|maxLength=/);
   assert.match(html, />Join with code<\/button>/);
   assert.doesNotMatch(html, /ROOK-42|Create a Community Multiplayer Side Quest/);
 });
