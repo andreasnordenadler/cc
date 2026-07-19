@@ -52,8 +52,8 @@ function deepMerge(target: Record<string, unknown>, patch: Record<string, unknow
   return merged;
 }
 
-function request() {
-  return new Request("https://sqc.test/api/groupquests/gq/refresh", {
+function request(groupQuestId = "gq") {
+  return new Request(`https://sqc.test/api/groupquests/${groupQuestId}/refresh`, {
     method: "POST",
     headers: { "content-type": "application/json" },
     body: JSON.stringify({ action: "refresh", participantUserId: "victim" }),
@@ -158,6 +158,7 @@ for (const variant of ["web", "mobile"] as const) {
     const writes: Array<{ userId: string; metadata: Record<string, unknown> }> = [];
     const client = fakeClient(writes);
     const officialQuest = getBuiltInOfficialGroupQuests(new Date("2026-07-06T12:00:00.000Z"))[0];
+    officialQuest.endAt = "2099-07-19T00:00:00.000Z";
     officialQuest.participants = [{
       userId: "current", provider: "chesscom", username: "CurrentChess", leaderboardName: "Current",
       joinedAt: "2026-07-01T00:00:00.000Z", completedQuestIds: [], questFinishedAt: {}, score: 0,
@@ -174,8 +175,8 @@ for (const variant of ["web", "mobile"] as const) {
       }),
     };
     const response = await (variant === "web"
-      ? webRoute.withWebRefreshRouteTestDependencies(dependencies as never, () => webRoute.POST(request(), { params: Promise.resolve({ id: "gq" }) }))
-      : mobileRoute.withMobileRefreshRouteTestDependencies(dependencies as never, () => mobileRoute.POST(request(), { params: Promise.resolve({ id: "gq" }) })));
+      ? webRoute.withWebRefreshRouteTestDependencies(dependencies as never, () => webRoute.POST(request(officialQuest.id), { params: Promise.resolve({ id: officialQuest.id }) }))
+      : mobileRoute.withMobileRefreshRouteTestDependencies(dependencies as never, () => mobileRoute.POST(request(officialQuest.id), { params: Promise.resolve({ id: officialQuest.id }) })));
 
     assert.equal(response.status, 200);
     assert.equal(writes.some((entry) => "privateMetadata" in entry.metadata), false);
