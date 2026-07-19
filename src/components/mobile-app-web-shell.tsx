@@ -537,6 +537,7 @@ export function MobileSoloSideQuestsScreen({
               href={`/challenges/${challenge.id}`}
               image={toMobileAssetPath(challenge.badgeIdentity.image) ?? mobileAsset.fallbackBadge}
               glow={getChallengeGlowPath(challenge.id)}
+              glowColor={challenge.badgeIdentity.colors.glow}
               likeSummary={likeSummaries?.[challenge.id]}
               likeAction={{
                 signedIn,
@@ -1601,6 +1602,7 @@ function AppRow({
   href,
   image,
   glow,
+  glowColor,
   statusImage,
   sourceBadge,
   likeSummary,
@@ -1612,6 +1614,7 @@ function AppRow({
   href: string;
   image?: string;
   glow?: string | null;
+  glowColor?: string | null;
   statusImage?: string | null;
   sourceBadge?: string | null;
   likeSummary?: CommunityLikeSummary | null;
@@ -1625,7 +1628,7 @@ function AppRow({
   const content = (
     <>
       <span className="sqc-row-icon" aria-hidden="true">
-        {glow ? <Image className="sqc-row-glow" alt="" src={glow} width={50} height={50} /> : null}
+        <RowGlow glow={glow} color={glowColor} />
         <Image className="sqc-row-image" alt="" src={image ?? getRowImage(title, href)} width={42} height={42} />
       </span>
       <span className="sqc-row-copy">
@@ -1649,7 +1652,7 @@ function AppRow({
       <div className="sqc-app-row sqc-app-row-with-like">
         <Link href={href} className="sqc-app-row-main" aria-label={`Open ${title}`} />
         <span className="sqc-row-icon" aria-hidden="true">
-          {glow ? <Image className="sqc-row-glow" alt="" src={glow} width={50} height={50} /> : null}
+          <RowGlow glow={glow} color={glowColor} />
           <Image className="sqc-row-image" alt="" src={image ?? getRowImage(title, href)} width={42} height={42} />
         </span>
         <span className="sqc-row-copy">
@@ -1678,6 +1681,21 @@ function AppRow({
   }
 
   return <Link href={href} className="sqc-app-row">{content}</Link>;
+}
+
+function RowGlow({ glow, color }: { glow?: string | null; color?: string | null }) {
+  if (!glow) return null;
+  if (!color) return <Image className="sqc-row-glow" alt="" src={glow} width={50} height={50} />;
+
+  return (
+    <span
+      className="sqc-row-glow tinted"
+      style={{
+        "--sqc-row-glow-image": `url("${glow}")`,
+        "--sqc-row-glow-color": color ?? "rgba(245,200,106,.38)",
+      } as CSSProperties}
+    />
+  );
 }
 
 function MobileRowLikeSummary({ summary, label }: { summary: CommunityLikeSummary; label: string }) {
