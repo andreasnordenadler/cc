@@ -2,7 +2,7 @@ import MobileAppWebShell from "@/components/mobile-app-web-shell";
 import AccountLogoutButton from "@/components/account-logout-button";
 import DeleteAccountControl from "@/components/delete-account-control";
 import { saveRunnerProfile } from "@/app/actions";
-import type { MobileWebAccountStats, MobileWebTrophyRow } from "@/lib/mobile-web-trophies";
+import type { ActiveMultiplayerAccountSummary, MobileWebAccountStats, MobileWebTrophyRow } from "@/lib/mobile-web-trophies";
 import Image from "next/image";
 import Link from "next/link";
 import type { ReactNode } from "react";
@@ -11,7 +11,7 @@ import { unstable_noStore as noStore } from "next/cache";
 import { CHALLENGES } from "@/lib/challenges";
 import { getChessRatingSnapshots } from "@/lib/chess-ratings";
 import { getCustomSideQuests, type CustomSideQuest } from "@/lib/custom-side-quests";
-import { getMobileWebAccountOverview } from "@/lib/mobile-web-trophies";
+import { getActiveMultiplayerAccountRow, getMobileWebAccountOverview } from "@/lib/mobile-web-trophies";
 import {
   getActiveChallenge,
   getChallengeAttempts,
@@ -81,6 +81,7 @@ export default async function AccountPage() {
           chessComUsername={chessComUsername}
           trophyRows={accountOverview?.trophyRows ?? []}
           accountStats={accountOverview?.stats ?? null}
+          activeMultiplayer={accountOverview?.activeMultiplayer ?? null}
           customSideQuests={customSideQuests}
         />
       ) : (
@@ -100,6 +101,7 @@ function SignedInAccountScreen({
   chessComUsername,
   trophyRows,
   accountStats,
+  activeMultiplayer,
   customSideQuests,
 }: {
   displayName: string;
@@ -111,12 +113,14 @@ function SignedInAccountScreen({
   chessComUsername: string;
   trophyRows: MobileWebTrophyRow[];
   accountStats: MobileWebAccountStats | null;
+  activeMultiplayer: ActiveMultiplayerAccountSummary | null;
   customSideQuests: CustomSideQuest[];
 }) {
   const activeChallenge = getActiveChallenge(metadata);
   const activeChallengeRecord = activeChallenge?.id ? CHALLENGES.find((challenge) => challenge.id === activeChallenge.id) ?? null : null;
   const activeAttempt = getLatestChallengeAttempt(metadata, activeChallenge?.id);
   const ratings = getChessRatingSnapshots(metadata);
+
 
   return (
     <div className="sqc-account-stack">
@@ -154,13 +158,7 @@ function SignedInAccountScreen({
           href={activeChallengeRecord ? `/challenges/${activeChallengeRecord.id}` : "/side-quests"}
           image={activeChallengeRecord?.badgeIdentity.image ? toMobileAssetPath(activeChallengeRecord.badgeIdentity.image) : mobileAsset.coat}
         />
-        <AccountRow
-          title="Multiplayer Side Quests"
-          meta="Join an official table, join a community table, or create one for friends."
-          status="Open"
-          href="/multiplayer"
-          image={mobileAsset.multiplayerSeal}
-        />
+        <AccountMultiplayerRow summary={activeMultiplayer} />
         <AccountRow
           title="Your Custom Side Quests"
           meta={customSideQuests.length ? `${customSideQuests.length} made · private by default` : "Build a private custom Side Quest for solo or multiplayer use."}
@@ -319,6 +317,25 @@ function ReadinessChip({ label, value, href }: { label: string; value: string; h
       <span>{label}</span>
       <strong>{value || "Add"}</strong>
     </Link>
+  );
+}
+
+export function AccountMultiplayerRow({ summary }: { summary: ActiveMultiplayerAccountSummary | null }) {
+  const row = getActiveMultiplayerAccountRow(summary ?? {
+    activeCount: 0,
+    hostedCount: 0,
+    joinedCount: 0,
+    firstTitle: null,
+  });
+
+  return (
+    <AccountRow
+      title={row.title}
+      meta={row.meta}
+      status={row.status}
+      href="/multiplayer"
+      image={mobileAsset.multiplayerSeal}
+    />
   );
 }
 

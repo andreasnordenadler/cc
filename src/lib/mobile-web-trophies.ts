@@ -33,6 +33,27 @@ type AccountStatsGroupQuest = {
   participants: Array<{ completedQuestIds?: string[] }>;
 };
 
+type AccountMultiplayerQuest = {
+  name: string;
+  hostUserId: string;
+  startAt: string;
+  endAt: string;
+  participants: Array<{ userId: string }>;
+};
+
+export type ActiveMultiplayerAccountSummary = {
+  activeCount: number;
+  hostedCount: number;
+  joinedCount: number;
+  firstTitle: string | null;
+};
+
+export type ActiveMultiplayerAccountRow = {
+  title: string;
+  meta: string;
+  status: string;
+};
+
 type ClerkClient = Awaited<ReturnType<typeof clerkClient>>;
 const MOBILE_MULTIPLAYER_TROPHY_LIMIT = 12;
 
@@ -60,7 +81,7 @@ export async function getMobileWebAccountOverview(
     customSideQuestIds: string[];
     limit?: number;
   },
-): Promise<{ trophyRows: MobileWebTrophyRow[]; stats: MobileWebAccountStats }> {
+): Promise<{ trophyRows: MobileWebTrophyRow[]; stats: MobileWebAccountStats; activeMultiplayer: ActiveMultiplayerAccountSummary }> {
   const [relatedGroupQuests, publicGroupQuests] = await Promise.all([
     listUserRelatedGroupQuests(client, userId),
     listPublicGroupQuests(client),
@@ -112,6 +133,7 @@ export async function getMobileWebAccountOverview(
       multiplayerTrophyCount: multiplayerRows.length,
       groupQuests: [...dedupedGroupQuests.values()],
     }),
+    activeMultiplayer: summarizeActiveMultiplayerAccount(userId, relatedGroupQuests),
   };
 }
 
@@ -156,6 +178,48 @@ export function summarizeMobileWebAccountStats(input: {
     customQuestCount: input.customSideQuestIds.length,
     customTries: customSoloAttempts + customMultiplayerAttempts,
     customWins: customSoloWins + customMultiplayerWins,
+  };
+}
+
+export function summarizeActiveMultiplayerAccount(
+  userId: string,
+  groupQuests: AccountMultiplayerQuest[],
+  now = new Date(),
+): ActiveMultiplayerAccountSummary {
+  const activeQuests = groupQuests
+    .filter((quest) => quest.hostUserId === userId || quest.participants.some((participant) => participant.userId === userId))
+    .filter((quest) => {
+      const end = Date.parse(quest.endAt);
+      return !Number.isFinite(end) || end >= now.getTime();
+    })
+    .sort((a, b) => {
+      const bTime = Date.parse(b.startAt || b.endAt);
+      const aTime = Date.parse(a.startAt || a.endAt);
+      return (Number.isFinite(bTime) ? bTime : 0) - (Number.isFinite(aTime) ? aTime : 0);
+    });
+  const hostedCount = activeQuests.filter((quest) => quest.hostUserId === userId).length;
+
+  return {
+    activeCount: activeQuests.length,
+    hostedCount,
+    joinedCount: activeQuests.length - hostedCount,
+    firstTitle: activeQuests[0]?.name ?? null,
+  };
+}
+
+export function getActiveMultiplayerAccountRow(summary: ActiveMultiplayerAccountSummary): ActiveMultiplayerAccountRow {
+  if (!summary.activeCount) {
+    return {
+      title: "Multiplayer Side Quests",
+      meta: "Join an official table, join a community table, or create one for friends.",
+      status: "Open",
+    };
+  }
+
+  return {
+    title: "Active Multiplayer Side Quests",
+    meta: `${summary.hostedCount} hosted · ${summary.joinedCount} joined · ${summary.firstTitle ?? "Open Multiplayer Side Quest"}`,
+    status: `${summary.activeCount} active`,
   };
 }
 
