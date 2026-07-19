@@ -6,9 +6,13 @@ import type { SoloCompletion } from "@/lib/solo-check-result";
 
 export function SoloCompletionCelebration({
   completion,
+  mode = "solo",
+  extraCompletedCount = 0,
   onClose,
 }: {
   completion: SoloCompletion;
+  mode?: "solo" | "multiplayer";
+  extraCompletedCount?: number;
   onClose: () => void;
 }) {
   useEffect(() => {
@@ -30,12 +34,12 @@ export function SoloCompletionCelebration({
         className="sqc-celebration-card"
         role="dialog"
         aria-modal="true"
-        aria-label={`Quest completed. ${completion.challengeTitle}. Coat of Arms unlocked.`}
+        aria-label={`${mode === "multiplayer" ? "Quest completed in Multiplayer" : "Quest completed"}. ${completion.challengeTitle}. ${mode === "multiplayer" ? "Solo Side Quest completion recorded too." : "Coat of Arms unlocked."}`}
         style={{ "--sqc-celebration-accent": completion.accentColor } as React.CSSProperties}
       >
-        <p className="sqc-celebration-kicker">Proof accepted</p>
-        <h2>Quest completed</h2>
-        <p className="sqc-celebration-subline">Coat of Arms unlocked.</p>
+        <p className="sqc-celebration-kicker">{mode === "multiplayer" ? "Multiplayer proof accepted" : "Proof accepted"}</p>
+        <h2>{mode === "multiplayer" ? "Quest completed in Multiplayer" : "Quest completed"}</h2>
+        <p className="sqc-celebration-subline">{mode === "multiplayer" ? "Solo Side Quest completion recorded too." : "Coat of Arms unlocked."}</p>
         <div className="sqc-celebration-coat-frame" aria-hidden="true">
           <span className="sqc-celebration-particles">✦　✧　✦　✧　✦　✧</span>
           <Image className="sqc-celebration-coat" src={completion.badgeImage} alt="" width={230} height={230} />
@@ -44,6 +48,7 @@ export function SoloCompletionCelebration({
         <h3>{completion.challengeTitle}</h3>
         <p className="sqc-celebration-badge">Coat of Arms: {completion.badgeName}</p>
         <p className="sqc-celebration-flavor">{completion.unlockCopy}</p>
+        {extraCompletedCount ? <p className="sqc-celebration-meta">+{extraCompletedCount} more Side Quest{extraCompletedCount === 1 ? "" : "s"} completed in this refresh.</p> : null}
         <button type="button" className="sqc-celebration-close" aria-label="Close celebration" onClick={onClose} autoFocus>×</button>
       </section>
     </div>

@@ -4,6 +4,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { readFile } from "node:fs/promises";
 import React from "react";
 import { buildSoloCheckResult } from "../src/lib/solo-check-result";
+import { buildMultiplayerCompletion } from "../src/lib/multiplayer-completion-celebration";
 import { SoloCompletionCelebration } from "../src/components/solo-completion-celebration";
 
 test("a newly passed Solo proof returns and renders the Android v338 completion celebration", () => {
@@ -64,4 +65,56 @@ test("completion celebration fills the viewport, layers the Android coat and sea
   assert.match(css, /\.sqc-celebration-coat-frame\s*\{[\s\S]*position:\s*relative;[\s\S]*aspect-ratio:\s*1/);
   assert.match(css, /\.sqc-celebration-seal\s*\{[\s\S]*position:\s*absolute;/);
   assert.match(css, /@media \(prefers-reduced-motion: reduce\)[\s\S]*\.sqc-celebration-particles/);
+});
+
+test("a server-reported Multiplayer completion renders the Android v338 Multiplayer celebration state", () => {
+  const built = buildMultiplayerCompletion({
+    newlyPassedQuestIds: ["new-quest", "another-new-quest"],
+    questDetails: [{
+      id: "new-quest",
+      title: "Knights Before Coffee",
+      summary: "Move only knights first.",
+      imageUrl: "/badges/knights-before-coffee.png",
+      glowColor: "#83d8ad",
+      ruleLines: [],
+    }],
+  });
+
+  assert.ok(built);
+  assert.equal(built.extraCompletedCount, 1);
+  const html = renderToStaticMarkup(React.createElement(SoloCompletionCelebration, {
+    completion: built.completion,
+    mode: "multiplayer",
+    extraCompletedCount: built.extraCompletedCount,
+    onClose: () => undefined,
+  }));
+
+  assert.match(html, />Multiplayer proof accepted</);
+  assert.match(html, />Quest completed in Multiplayer</);
+  assert.match(html, />Solo Side Quest completion recorded too\.</);
+  assert.match(html, /Knights Before Coffee/);
+  assert.match(html, /\+1 more Side Quest completed in this refresh\./);
+});
+
+test("Multiplayer completion accepts the legacy leaderboard quest summary call-site", () => {
+  const built = buildMultiplayerCompletion({
+    newlyPassedQuestIds: ["legacy-quest"],
+    questDetails: [{
+      id: "legacy-quest",
+      title: "Legacy Quest",
+      badgeImage: "/badges/legacy.png",
+      badgeName: "Legacy Crest",
+    }],
+  });
+
+  assert.ok(built);
+  assert.equal(built.completion.badgeImage, "/badges/legacy.png");
+  assert.equal(built.completion.badgeName, "Legacy Crest");
+});
+
+test("Multiplayer completion ignores IDs that were not returned by the refresh route", () => {
+  assert.equal(buildMultiplayerCompletion({
+    newlyPassedQuestIds: ["unknown-id"],
+    questDetails: [{ id: "known-id", title: "Known", summary: "Known", ruleLines: [] }],
+  }), null);
 });

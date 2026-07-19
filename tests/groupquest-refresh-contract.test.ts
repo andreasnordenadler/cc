@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import { buildGroupQuestRefreshChecks } from "../src/lib/groupquest-refresh-contract";
+import { createGroupQuestRefreshRouteHandler } from "../src/lib/groupquest-refresh-route-handler";
 
 const checks = [{
   questId: "finish-any-game",
@@ -34,4 +35,32 @@ test("web and mobile refresh contracts share stable mismatch diagnostics", () =>
     lastMoveUci: "e7e8",
     lastMoveSan: "e8=Q",
   });
+});
+
+test("web refresh returns only server-derived newly completed quest IDs", async () => {
+  const handler = createGroupQuestRefreshRouteHandler({
+    mode: "web",
+    authenticate: async () => "viewer-1",
+    findQuest: async () => ({
+      id: "group-1",
+      questIds: ["already-done", "newly-done"],
+      participants: [{
+        userId: "viewer-1",
+        provider: "lichess",
+        username: "alice",
+        completedQuestIds: ["already-done"],
+        score: 100,
+      }],
+    }),
+    isFinished: () => false,
+    reward: () => 100,
+    check: async ({ questId }) => ({ status: "passed", gameId: `game-${questId}`, summary: "passed" }),
+    persist: async () => undefined,
+  });
+
+  const response = await handler(new Request("https://sidequestchess.com/api/groupquests/group-1/refresh", { method: "POST" }), "group-1");
+  const payload = await response.json();
+
+  assert.equal(response.status, 200);
+  assert.deepEqual(payload.newlyPassedQuestIds, ["newly-done"]);
 });
