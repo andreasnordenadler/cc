@@ -28,6 +28,25 @@ test("signed-in official Solo catalog rows keep a full-row quest link beside the
   assert.doesNotMatch(html, /👍/);
 });
 
+test("official Solo catalog preserves Android difficulty-first ordering across active and completed states", () => {
+  assert.ok(challenge);
+
+  const easyCompleted = { ...challenge, id: "easy-completed", title: "Easy completed", difficulty: "Easy" as const };
+  const mediumAvailable = { ...challenge, id: "medium-available", title: "Medium available", difficulty: "Medium" as const };
+  const hardActive = { ...challenge, id: "hard-active", title: "Hard active", difficulty: "Hard" as const };
+  const html = renderToStaticMarkup(React.createElement(MobileSoloSideQuestsScreen, {
+    challenges: [hardActive, mediumAvailable, easyCompleted],
+    activeChallengeId: hardActive.id,
+    completedChallengeIds: [easyCompleted.id],
+  }));
+
+  const easyIndex = html.indexOf(`/challenges/${easyCompleted.id}`);
+  const mediumIndex = html.indexOf(`/challenges/${mediumAvailable.id}`);
+  const hardIndex = html.indexOf(`/challenges/${hardActive.id}`);
+  assert.ok(easyIndex >= 0 && mediumIndex >= 0 && hardIndex >= 0);
+  assert.ok(easyIndex < mediumIndex && mediumIndex < hardIndex, "difficulty must sort before active/completed status like Android v338");
+});
+
 test("signed-out official Solo likes preserve the exact detail sign-in return path", () => {
   const html = renderToStaticMarkup(React.createElement(OfficialSoloLikeControl, {
     targetId: "queen & rook",

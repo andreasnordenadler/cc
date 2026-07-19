@@ -496,13 +496,13 @@ export function MobileSoloSideQuestsScreen({
 }) {
   const completedSet = new Set(completedChallengeIds ?? []);
   const sortedChallenges = [...challenges].sort((a, b) => {
+    const difficultyDelta = difficultyRank(a.difficulty) - difficultyRank(b.difficulty);
+    if (difficultyDelta !== 0) return difficultyDelta;
     if (a.id === activeChallengeId) return -1;
     if (b.id === activeChallengeId) return 1;
     const aCompleted = completedSet.has(a.id);
     const bCompleted = completedSet.has(b.id);
     if (aCompleted !== bCompleted) return aCompleted ? 1 : -1;
-    const difficultyDelta = difficultyRank(a.difficulty) - difficultyRank(b.difficulty);
-    if (difficultyDelta !== 0) return difficultyDelta;
     if (a.reward !== b.reward) return a.reward - b.reward;
     return a.title.localeCompare(b.title);
   });
