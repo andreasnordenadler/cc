@@ -111,7 +111,7 @@ import {
   checkLatestLichessBackRankGoblin,
 } from "@/lib/back-rank-goblin";
 import { assertActiveSoloSubmissionTarget } from "@/lib/official-solo-exact-game";
-import { buildSoloCheckResult, type SoloCheckResult } from "@/lib/solo-check-result";
+import { buildSoloCheckResult, runSoloCheckAction, type SoloCheckActionResult } from "@/lib/solo-check-result";
 import {
   getChallengeProgress,
   getChessComUsername,
@@ -1157,8 +1157,8 @@ export async function checkActiveChallenge() {
   await runActiveChallengeCheck();
 }
 
-export async function checkActiveChallengeWithResult(previousState: SoloCheckResult, formData: FormData) {
+export async function checkActiveChallengeWithResult(previousState: SoloCheckActionResult, formData: FormData) {
   void previousState;
   void formData;
-  return runActiveChallengeCheck();
+  return runSoloCheckAction(runActiveChallengeCheck);
 }

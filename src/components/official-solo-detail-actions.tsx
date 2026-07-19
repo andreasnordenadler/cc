@@ -1,8 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useActionState, useState } from "react";
 import { useFormStatus } from "react-dom";
-import { checkActiveChallenge, startChallenge, submitChallengeAttempt } from "@/app/actions";
+import { checkActiveChallengeWithResult, startChallenge, submitChallengeAttempt } from "@/app/actions";
+import type { SoloCheckActionResult } from "@/lib/solo-check-result";
+import { SoloCheckFeedback } from "./solo-check-feedback";
+
+const initialCheckState: SoloCheckActionResult = { status: "idle", completion: null, message: null, error: null };
 
 type StartControlProps = {
   challengeId: string;
@@ -119,10 +123,15 @@ export function OfficialSoloStartControl({ challengeId, activeChallengeTitle }: 
 }
 
 export function OfficialSoloCheckControl() {
+  const [state, formAction] = useActionState(checkActiveChallengeWithResult, initialCheckState);
+
   return (
-    <form action={checkActiveChallenge}>
-      <CheckSubmit />
-    </form>
+    <>
+      <form action={formAction}>
+        <CheckSubmit />
+      </form>
+      <SoloCheckFeedback result={state} />
+    </>
   );
 }
 
