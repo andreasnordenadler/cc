@@ -3,10 +3,11 @@ import test from "node:test";
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 
-import { MobileCommunitySideQuestDetailScreen } from "../src/components/mobile-app-web-shell";
+import { MobileCommunitySideQuestDetailScreen, MobileMultiplayerSideQuestsScreen } from "../src/components/mobile-app-web-shell";
 import {
   getCommunitySoloPickState,
   getMultiplayerJoinState,
+  getPrivateInviteJoinState,
   normalizeInviteLookupError,
   validateCommunitySoloReport,
 } from "../src/lib/mobile-web-parity-actions";
@@ -47,6 +48,43 @@ test("multiplayer join state signs in to and joins the exact displayed quest whi
     href: "/groupquests/group-42?accepted=1",
     label: "Joined Side Quest",
   });
+});
+
+test("private invite join keeps the credential out of the auth return URL", () => {
+  assert.deepEqual(getPrivateInviteJoinState({ inviteKey: "  ROOK-42  ", signedIn: false }), {
+    kind: "signed-out",
+    inviteKey: "ROOK-42",
+    href: "/sign-in?redirect_url=%2Fmultiplayer-side-quests%3Ftab%3Dcommunity",
+  });
+  assert.deepEqual(getPrivateInviteJoinState({ inviteKey: "ROOK-42", signedIn: true }), {
+    kind: "join",
+    inviteKey: "ROOK-42",
+  });
+});
+
+test("private invite join rejects malformed and oversized credentials without truncating them", () => {
+  const fortyCharacters = "A".repeat(40);
+  assert.equal(getPrivateInviteJoinState({ inviteKey: fortyCharacters, signedIn: true }).kind, "join");
+  assert.deepEqual(getPrivateInviteJoinState({ inviteKey: `${fortyCharacters}A`, signedIn: true }), {
+    kind: "invalid",
+    error: "Use the invite code exactly as the host shared it.",
+  });
+  assert.equal(getPrivateInviteJoinState({ inviteKey: "ROOK & 42", signedIn: false }).kind, "invalid");
+});
+
+test("signed-out Community Multiplayer keeps private invite joining reachable without exposing a credential", () => {
+  const html = renderToStaticMarkup(React.createElement(MobileMultiplayerSideQuestsScreen, {
+    selectedTab: "community",
+    signedIn: false,
+    officialRows: [],
+    communityRows: [],
+  }));
+
+  assert.match(html, /aria-label="Join private Multiplayer Side Quest"/);
+  assert.match(html, /pattern="\[-A-Za-z0-9\]\+"/);
+  assert.doesNotMatch(html, /maxLength=/);
+  assert.match(html, />Join with code<\/button>/);
+  assert.doesNotMatch(html, /ROOK-42|Create a Community Multiplayer Side Quest/);
 });
 
 test("invite lookup errors give useful malformed, not-found, and finished messages", () => {
