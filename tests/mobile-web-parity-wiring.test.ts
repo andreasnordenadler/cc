@@ -33,14 +33,17 @@ test("multiplayer detail uses direct session-derived joining without identity/pr
 });
 
 test("community multiplayer panel embeds invite lookup and joins the resolved private quest", async () => {
-  const [screen, inviteJoin] = await Promise.all([
+  const [screen, inviteJoin, actions] = await Promise.all([
     source("src/components/mobile-app-web-shell.tsx"),
     source("src/components/group-quest-invite-key-join.tsx"),
+    source("src/lib/mobile-web-parity-actions.ts"),
   ]);
   assert.match(screen, /<GroupQuestInviteKeyJoin isSignedIn=\{signedIn\}/);
   assert.doesNotMatch(screen, /<input readOnly placeholder="e\.g\. nocastle-ab12cd"/);
-  assert.match(inviteJoin, /fetch\(`\/api\/groupquests\/\$\{encodeURIComponent\(groupQuestId\)\}\/join`/);
-  assert.match(inviteJoin, /normalizeInviteLookupError/);
+  assert.match(inviteJoin, /continuePrivateInviteJoin/);
+  assert.match(inviteJoin, /takePendingPrivateInvite\(window\.sessionStorage\)/);
+  assert.match(actions, /fetch\(`\/api\/groupquests\/\$\{encodeURIComponent\(groupQuestId\)\}\/join`/);
+  assert.match(actions, /normalizeInviteLookupError/);
 });
 
 test("official Solo catalog loads and renders real like summaries", async () => {

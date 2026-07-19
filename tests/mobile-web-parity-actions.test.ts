@@ -5,9 +5,11 @@ import { renderToStaticMarkup } from "react-dom/server";
 
 import { MobileCommunitySideQuestDetailScreen, MobileMultiplayerSideQuestsScreen } from "../src/components/mobile-app-web-shell";
 import {
+  continuePrivateInviteJoin,
   getCommunitySoloPickState,
   getMultiplayerJoinState,
   getPrivateInviteJoinState,
+  takePendingPrivateInvite,
   normalizeInviteLookupError,
   validateCommunitySoloReport,
 } from "../src/lib/mobile-web-parity-actions";
@@ -60,6 +62,55 @@ test("private invite join keeps the credential out of the auth return URL", () =
     kind: "join",
     inviteKey: "ROOK-42",
   });
+});
+
+test("restored private invite is consumed once before continuation", () => {
+  const values = new Map([["sqc.pendingPrivateInviteKey", "ROOK-42"]]);
+  const storage = {
+    getItem: (key: string) => values.get(key) ?? null,
+    removeItem: (key: string) => values.delete(key),
+  };
+
+  assert.equal(takePendingPrivateInvite(storage), "ROOK-42");
+  assert.equal(takePendingPrivateInvite(storage), null);
+});
+
+test("restored private invite continues through exact lookup and authenticated join", async () => {
+  const requests: Array<{ url: string; body: unknown }> = [];
+  const responses = [
+    { ok: true, json: async () => ({ href: "/groupquests/exact%2Fquest?inviteKey=ROOK-42" }) },
+    { ok: true, json: async () => ({ href: "/groupquests/exact%2Fquest?accepted=1" }) },
+  ];
+
+  const result = await continuePrivateInviteJoin({
+    inviteKey: "ROOK-42",
+    origin: "https://sidequestchess.com",
+    fetch: async (url, init) => {
+      requests.push({ url: String(url), body: JSON.parse(String(init?.body)) });
+      return responses.shift() as Response;
+    },
+  });
+
+  assert.deepEqual(requests, [
+    { url: "/api/groupquests/invite/lookup", body: { inviteKey: "ROOK-42" } },
+    { url: "/api/groupquests/exact%2Fquest/join", body: { inviteKey: "ROOK-42" } },
+  ]);
+  assert.deepEqual(result, { ok: true, destination: "/groupquests/exact%2Fquest?accepted=1" });
+});
+
+test("restored malformed private invite performs no lookup or join", async () => {
+  let requests = 0;
+  const result = await continuePrivateInviteJoin({
+    inviteKey: "ROOK & 42",
+    origin: "https://sidequestchess.com",
+    fetch: async () => {
+      requests += 1;
+      throw new Error("must not fetch");
+    },
+  });
+
+  assert.equal(requests, 0);
+  assert.deepEqual(result, { ok: false, error: "Use the invite code exactly as the host shared it." });
 });
 
 test("private invite join rejects malformed and oversized credentials without truncating them", () => {

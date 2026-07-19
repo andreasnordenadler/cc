@@ -59,6 +59,64 @@ export function safeGroupQuestHref(href: string, currentOrigin: string): string 
   return `${destination.pathname}${destination.search}${destination.hash}`;
 }
 
+export function takePendingPrivateInvite(storage: Pick<Storage, "getItem" | "removeItem">) {
+  const key = "sqc.pendingPrivateInviteKey";
+  const inviteKey = storage.getItem(key);
+  storage.removeItem(key);
+  return inviteKey;
+}
+
+export async function continuePrivateInviteJoin({
+  inviteKey,
+  origin,
+  fetch,
+}: {
+  inviteKey: string;
+  origin: string;
+  fetch: typeof globalThis.fetch;
+}) {
+  const state = getPrivateInviteJoinState({ inviteKey, signedIn: true });
+  if (state.kind === "invalid") return { ok: false as const, error: state.error };
+  const cleanInviteKey = state.inviteKey;
+
+  try {
+    const lookupResponse = await fetch("/api/groupquests/invite/lookup", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ inviteKey: cleanInviteKey }),
+    });
+    const lookup = await lookupResponse.json().catch(() => null) as { href?: string; error?: string } | null;
+    if (!lookupResponse.ok || !lookup?.href) {
+      return { ok: false as const, error: normalizeInviteLookupError(lookup?.error) };
+    }
+
+    const groupQuestId = groupQuestIdFromLookupHref(lookup.href, origin);
+    if (!groupQuestId) return { ok: false as const, error: normalizeInviteLookupError("invite_not_found") };
+
+    const joinResponse = await fetch(`/api/groupquests/${encodeURIComponent(groupQuestId)}/join`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ inviteKey: cleanInviteKey }),
+    });
+    const joined = await joinResponse.json().catch(() => null) as { href?: string; error?: string } | null;
+    if (!joinResponse.ok || !joined?.href) {
+      return {
+        ok: false as const,
+        error: joined?.error === "missing_participant"
+          ? "Add a public Lichess or Chess.com username before joining Multiplayer Side Quests."
+          : normalizeInviteLookupError(joined?.error),
+      };
+    }
+
+    const destination = safeGroupQuestHref(joined.href, origin);
+    return destination
+      ? { ok: true as const, destination }
+      : { ok: false as const, error: normalizeInviteLookupError("invite_not_found") };
+  } catch {
+    return { ok: false as const, error: "That invite code did not match an open Multiplayer Side Quest." };
+  }
+}
+
 export function validateCommunitySoloReport(questId: string, reason: string) {
   const cleanReason = reason.trim().replace(/\s+/g, " ").slice(0, 500);
   if (cleanReason.length < 3) return { ok: false as const, message: "Add a short reason before reporting this Side Quest." };
