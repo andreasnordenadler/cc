@@ -1047,6 +1047,65 @@ export function MobileMultiplayerSideQuestsScreen({
   );
 }
 
+export function MobileOfficialLeaderboardsScreen({
+  signedIn,
+  currentRows,
+  previousRows,
+  earlierWeeks,
+}: {
+  signedIn: boolean;
+  currentRows: MobileWebMultiplayerPreview[];
+  previousRows: MobileWebMultiplayerResult[];
+  earlierWeeks: MobileWebOfficialWeek[];
+}) {
+  if (!signedIn) {
+    return (
+      <div className="sqc-stack sqc-official-leaderboards-screen">
+        <section className="sqc-multiplayer-detail-hero">
+          <MobileAssetMark className="sqc-section-mark group" image={mobileAsset.multiplayerSeal} glow={mobileAsset.coatGlow} size={112} glowSize={156} />
+          <h1>Official Leaderboards.</h1>
+          <p>Sign in to see active official weekly leaderboards, final results, and the official archive.</p>
+          <Link href="/sign-in?redirect_url=/official-leaderboards" className="sqc-primary-action">Sign in</Link>
+        </section>
+      </div>
+    );
+  }
+
+  return (
+    <div className="sqc-stack sqc-official-leaderboards-screen">
+      <section className="sqc-multiplayer-detail-hero">
+        <MobileAssetMark className="sqc-section-mark group" image={mobileAsset.multiplayerSeal} glow={mobileAsset.coatGlow} size={112} glowSize={156} />
+        <h1>Official Leaderboards.</h1>
+        <p>Three official Multiplayer Side Quests run every week — easy, medium, and hard. Track the live race, then review final weekly results.</p>
+      </section>
+
+      <section className="sqc-panel list" aria-label="Current official Multiplayer Side Quest leaderboards">
+        <div className="sqc-list-head">
+          <span className="sqc-card-eyebrow">Current week</span>
+          <h2>Active official leaderboards.</h2>
+        </div>
+        {currentRows.length ? <div className="sqc-catalog">{currentRows.map((row) => (
+          <AppRow key={row.id} title={row.title} meta={row.meta} status={row.status} href={row.href} image={mobileAsset.multiplayerSeal} sourceBadge={row.sourceBadge} />
+        ))}</div> : <p>No official leaderboards are active right now.</p>}
+      </section>
+
+      <section className="sqc-native-card green" aria-label="Previous official Multiplayer Side Quest results">
+        <span className="sqc-card-eyebrow">Previous week</span>
+        <h2>Latest final results.</h2>
+        {previousRows.length ? <div className="sqc-official-results-stack">{previousRows.map((result) => <OfficialResultCard key={result.id} result={result} />)}</div> : <p>Final results will appear here after the first official weekly set closes.</p>}
+      </section>
+
+      <section className="sqc-native-card green" aria-label="Official Multiplayer Side Quest weekly archive">
+        <span className="sqc-card-eyebrow">Archive</span>
+        <h2>Browse older official weeks.</h2>
+        {earlierWeeks.length ? <div className="sqc-catalog">{earlierWeeks.map((week) => (
+          <AppRow key={week.id} title={week.title} meta={week.meta} status="Results" href={week.href} image={mobileAsset.multiplayerSeal} sourceBadge="Archive" />
+        ))}</div> : <p>Older weekly official sets will be listed here once they exist.</p>}
+      </section>
+    </div>
+  );
+}
+
 function OfficialMultiplayerPanel({
   signedIn,
   rows,

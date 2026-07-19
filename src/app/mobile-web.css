@@ -2422,6 +2422,15 @@ body::after {
     rgba(255, 247, 232, .06);
 }
 
+.sqc-official-leaderboards-screen .sqc-multiplayer-detail-hero > .sqc-section-mark.group {
+  position: relative;
+  top: auto;
+  left: auto;
+  margin: 0 auto 8px;
+  transform: none;
+  display: grid;
+}
+
 .sqc-multiplayer-detail-hero h1 {
   margin: 0;
   color: var(--paper);
