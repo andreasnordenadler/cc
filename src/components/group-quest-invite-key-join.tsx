@@ -1,7 +1,7 @@
 "use client";
 
 import { type FormEvent, useEffect, useState } from "react";
-import { groupQuestIdFromLookupHref, getPrivateInviteJoinState, normalizeInviteLookupError, safeGroupQuestHref } from "@/lib/mobile-web-parity-actions";
+import { continuePrivateInviteJoin, getPrivateInviteJoinState, takePendingPrivateInvite } from "@/lib/mobile-web-parity-actions";
 
 const pendingInviteStorageKey = "sqc.pendingPrivateInviteKey";
 
@@ -13,9 +13,18 @@ export default function GroupQuestInviteKeyJoin({ isSignedIn }: { isSignedIn: bo
   useEffect(() => {
     if (!isSignedIn) return;
     try {
-      const pendingInviteKey = window.sessionStorage.getItem(pendingInviteStorageKey);
-      if (pendingInviteKey) setInviteKey(pendingInviteKey);
-      window.sessionStorage.removeItem(pendingInviteStorageKey);
+      const pendingInviteKey = takePendingPrivateInvite(window.sessionStorage);
+      if (!pendingInviteKey) return;
+
+      void continuePrivateInviteJoin({ inviteKey: pendingInviteKey, origin: window.location.origin, fetch: window.fetch.bind(window) })
+        .then((result) => {
+          if (result.ok) {
+            window.location.href = result.destination;
+            return;
+          }
+          setInviteKey(pendingInviteKey);
+          setError(result.error);
+        });
     } catch {
       // The form remains usable when browser storage is unavailable.
     }
@@ -46,39 +55,13 @@ export default function GroupQuestInviteKeyJoin({ isSignedIn }: { isSignedIn: bo
 
     setBusy(true);
     setError("");
-    try {
-      const response = await fetch("/api/groupquests/invite/lookup", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ inviteKey: key }),
-      });
-      const result = await response.json().catch(() => null) as { href?: string; error?: string } | null;
-      if (!response.ok || !result?.href) {
-        throw new Error(normalizeInviteLookupError(result?.error));
-      }
-
-      const groupQuestId = groupQuestIdFromLookupHref(result.href, window.location.origin);
-      if (!groupQuestId) throw new Error(normalizeInviteLookupError("invite_not_found"));
-
-      const joinResponse = await fetch(`/api/groupquests/${encodeURIComponent(groupQuestId)}/join`, {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ inviteKey: key }),
-      });
-      const joined = await joinResponse.json().catch(() => null) as { href?: string; error?: string } | null;
-      if (!joinResponse.ok || !joined?.href) {
-        const message = joined?.error === "missing_participant"
-          ? "Add a public Lichess or Chess.com username before joining Multiplayer Side Quests."
-          : normalizeInviteLookupError(joined?.error);
-        throw new Error(message);
-      }
-      const destination = safeGroupQuestHref(joined.href, window.location.origin);
-      if (!destination) throw new Error(normalizeInviteLookupError("invite_not_found"));
-      window.location.href = destination;
-    } catch (error) {
-      setError(error instanceof Error ? error.message : "That invite code did not match an open Multiplayer Side Quest.");
-      setBusy(false);
+    const result = await continuePrivateInviteJoin({ inviteKey: key, origin: window.location.origin, fetch: window.fetch.bind(window) });
+    if (result.ok) {
+      window.location.href = result.destination;
+      return;
     }
+    setError(result.error);
+    setBusy(false);
   }
 
   return (
