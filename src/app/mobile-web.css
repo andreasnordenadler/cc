@@ -352,6 +352,34 @@ body::after {
   gap: 0;
 }
 
+.sqc-loading-screen {
+  min-height: min(62vh, 520px);
+  place-items: center;
+}
+
+.sqc-loading-card {
+  width: min(100%, 420px);
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+}
+
+.sqc-loading-spinner {
+  width: 30px;
+  height: 30px;
+  border: 3px solid rgba(245, 200, 106, .24);
+  border-top-color: #f5c86a;
+  border-radius: 50%;
+  animation: sqc-loading-spin .8s linear infinite;
+}
+
+@keyframes sqc-loading-spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sqc-loading-spinner { animation: none; }
+}
+
 .sqc-panel,
 .sqc-current-card,
 .sqc-home-section,
