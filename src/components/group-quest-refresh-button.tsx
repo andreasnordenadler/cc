@@ -2,21 +2,26 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { buildMultiplayerCompletion, type MultiplayerCompletionQuestDetail } from "@/lib/multiplayer-completion-celebration";
+import { SoloCompletionCelebration } from "./solo-completion-celebration";
 
 export default function GroupQuestRefreshButton({
   id,
   finished = false,
   className,
   label = "Check my latest games",
+  questDetails = [],
 }: {
   id: string;
   finished?: boolean;
   className?: string;
   label?: string;
+  questDetails?: MultiplayerCompletionQuestDetail[];
 }) {
   const router = useRouter();
   const [refreshing, setRefreshing] = useState(false);
   const [status, setStatus] = useState<string | null>(null);
+  const [completion, setCompletion] = useState<ReturnType<typeof buildMultiplayerCompletion>>(null);
 
   return (
     <>
@@ -46,6 +51,10 @@ export default function GroupQuestRefreshButton({
             } else if (Array.isArray(payload?.checks)) {
               const passed = payload.checks.filter((check: { status?: string }) => check.status === "passed").length;
               setStatus(`${passed} of ${payload.checks.length} Side Quests verified from your latest public games.`);
+              setCompletion(buildMultiplayerCompletion({
+                newlyPassedQuestIds: Array.isArray(payload.newlyPassedQuestIds) ? payload.newlyPassedQuestIds : [],
+                questDetails,
+              }));
             }
           } finally {
             router.refresh();
@@ -56,6 +65,14 @@ export default function GroupQuestRefreshButton({
         {finished ? "Final standings frozen" : refreshing ? "Checking…" : label}
       </button>
       {status ? <small role="status" aria-live="polite">{status}</small> : null}
+      {completion ? (
+        <SoloCompletionCelebration
+          completion={completion.completion}
+          mode="multiplayer"
+          extraCompletedCount={completion.extraCompletedCount}
+          onClose={() => setCompletion(null)}
+        />
+      ) : null}
     </>
   );
 }

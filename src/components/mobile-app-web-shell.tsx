@@ -1402,7 +1402,7 @@ export function MobileMultiplayerDetailScreen({
           />
         ) : participating ? (
           <>
-            <GroupQuestRefreshButton id={quest.id} className="sqc-primary-action" label="Check my latest game" />
+            <GroupQuestRefreshButton id={quest.id} className="sqc-primary-action" label="Check my latest game" questDetails={quest.questRuleDetails} />
             <GroupQuestLeaveAction id={quest.id} />
           </>
         ) : (

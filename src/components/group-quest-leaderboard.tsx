@@ -262,7 +262,7 @@ export default function GroupQuestLeaderboard({
           <h2>{finished ? "Final leaderboard." : "See the table, then open any player’s receipt."}</h2>
           <p>{finished ? finalResultCopy : "Rows start compact for scanning. Open a row for the Side Quest-by-Side Quest proof trail, final time, and host controls when you manage the table."}</p>
         </div>
-        <GroupQuestRefreshButton id={id} finished={finished} />
+        <GroupQuestRefreshButton id={id} finished={finished} questDetails={quests} />
       </div>
       {finished && currentPlayer ? (
         <div className="groupquest-podium-scroll" role="status" aria-live="polite">

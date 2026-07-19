@@ -64,6 +64,7 @@ export function createGroupQuestRefreshRouteHandler(dependencies: {
       ok: true,
       ...(dependencies.mode === "mobile" ? { apiVersion: 1, authenticated: true, action: "refresh", groupQuestId: quest.id } : {}),
       completedQuestIds: progress.completedQuestIds,
+      newlyPassedQuestIds: progress.newlyPassedQuestIds,
       score: progress.score,
       checks: buildGroupQuestRefreshChecks(checks),
       ...(dependencies.mode === "mobile" ? { message: `${progress.completedQuestIds.length} of ${uniqueQuestIds.length} Multiplayer Side Quest checks verified.` } : {}),
