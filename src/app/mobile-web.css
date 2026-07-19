@@ -146,15 +146,7 @@ body::after {
   z-index: 60;
 }
 
-.sqc-menu[open]::before {
-  position: fixed;
-  inset: 0;
-  z-index: 61;
-  background: rgba(14, 10, 7, .018);
-  content: "";
-}
-
-.sqc-menu summary,
+.sqc-menu-button,
 .sqc-account-dot,
 .sqc-close-screen,
 .sqc-refresh {
@@ -169,21 +161,17 @@ body::after {
   box-shadow: 0 10px 24px rgba(0, 0, 0, .18);
 }
 
-.sqc-menu summary {
+.sqc-menu-button {
   position: relative;
   z-index: 63;
+  padding: 0;
   color: var(--paper);
   cursor: pointer;
-  list-style: none;
 }
 
-.sqc-menu summary::-webkit-details-marker {
-  display: none;
-}
-
-.sqc-menu summary span,
-.sqc-menu summary span::before,
-.sqc-menu summary span::after {
+.sqc-menu-button span,
+.sqc-menu-button span::before,
+.sqc-menu-button span::after {
   width: 17px;
   height: 2px;
   display: block;
@@ -192,39 +180,75 @@ body::after {
   content: "";
 }
 
-.sqc-menu summary span {
+.sqc-menu-button span {
   position: relative;
 }
 
-.sqc-menu summary span::before,
-.sqc-menu summary span::after {
+.sqc-menu-button span::before,
+.sqc-menu-button span::after {
   position: absolute;
   left: 0;
 }
 
-.sqc-menu summary span::before {
+.sqc-menu-button span::before {
   top: -6px;
 }
 
-.sqc-menu summary span::after {
+.sqc-menu-button span::after {
   top: 6px;
+}
+
+.sqc-menu.open .sqc-menu-button {
+  background: rgba(245, 200, 106, .16);
+}
+
+.sqc-menu-overlay {
+  box-sizing: border-box;
+  position: fixed;
+  inset: 0;
+  z-index: 64;
+  padding-top: calc(var(--sqc-control-top) + 52px);
+  padding-bottom: max(14px, env(safe-area-inset-bottom));
+  overflow-y: auto;
+  animation: sqc-menu-fade 160ms ease-out;
+}
+
+.sqc-menu-backdrop {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  background: rgba(14, 10, 7, .28);
 }
 
 .sqc-menu-panel {
   box-sizing: border-box;
-  position: fixed;
-  top: calc(var(--sqc-control-top) + 52px);
+  position: relative;
   left: calc(50% - min(230px, 50vw - 14px) + 2px);
-  z-index: 62;
+  z-index: 1;
   width: min(232px, calc(100vw - 28px));
-  display: grid;
-  gap: 2px;
   padding: 4px;
   border: 1px solid var(--line);
   border-radius: 13px;
   background: rgba(78, 54, 33, .96);
   box-shadow: 0 18px 42px rgba(0, 0, 0, .34);
   backdrop-filter: blur(18px);
+}
+
+.sqc-menu-panel nav {
+  display: grid;
+  gap: 2px;
+}
+
+@keyframes sqc-menu-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sqc-menu-overlay { animation: none; }
 }
 
 .sqc-menu-row {

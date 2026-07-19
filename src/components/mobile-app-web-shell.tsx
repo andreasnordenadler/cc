@@ -27,6 +27,7 @@ import CommunityMultiplayerReportControl from "./community-multiplayer-report-co
 import GroupQuestInviteKeyControl from "./group-quest-invite-key-control";
 import type { CustomEditQuestInput } from "@/lib/mobile-create-forms";
 import type { WebSupportAccountContext } from "@/lib/web-support-diagnostics";
+import MobileWebHamburgerMenu from "./mobile-web-hamburger-menu";
 
 type AppTab = "home" | "sideQuests" | "multiplayerSideQuests" | "coatOfArms" | "account";
 
@@ -205,24 +206,12 @@ export default function MobileAppWebShell({
 
       {modalPresentation ? null : signedIn ? (
         <>
-          <details className="sqc-menu">
-            <summary aria-label="Open main menu">
-              <span />
-            </summary>
-            <nav aria-label="Main menu" className="sqc-menu-panel">
-              {menuItems.map((item) => (
-                <Link
-                  key={item.id}
-                  href={item.href}
-                  className={isActiveMenuItem(item.id, activeTab) ? "sqc-menu-row active" : "sqc-menu-row"}
-                  aria-current={isActiveMenuItem(item.id, activeTab) ? "page" : undefined}
-                >
-                  <span className={`sqc-menu-icon ${item.icon}`} aria-hidden="true" />
-                  <span>{item.label}</span>
-                </Link>
-              ))}
-            </nav>
-          </details>
+          <MobileWebHamburgerMenu
+            items={menuItems.map((item) => ({
+              ...item,
+              active: isActiveMenuItem(item.id, activeTab),
+            }))}
+          />
 
           {immersivePresentation || controlsOnlyHeader ? null : (
             <header className="sqc-app-header">
