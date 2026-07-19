@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import OfficialSoloLikeControl from "./official-solo-like-control";
@@ -16,9 +17,13 @@ export type CustomCatalogClientRow = SoloCatalogClientRow & {
   updatedAt: string;
 };
 
-function CatalogRow({ row, status }: { row: SoloCatalogClientRow; status: string }) {
+function CatalogRow({ row, status, showImage = false }: { row: SoloCatalogClientRow; status: string; showImage?: boolean }) {
   return (
-    <Link href={row.href} className="sqc-app-row text-only">
+    <Link href={row.href} className={showImage ? "sqc-app-row" : "sqc-app-row text-only"}>
+      {showImage ? <span className="sqc-row-icon" aria-hidden="true">
+        <Image className="sqc-row-glow generic" alt="" src="/mobile-source/badges/glow/sqc-coat-generic-glow.png" width={50} height={50} />
+        <Image className="sqc-row-image" alt="" src={row.image ?? "/mobile-source/badges/custom-side-quest-crest.png"} width={42} height={42} />
+      </span> : null}
       <span className="sqc-row-copy">
         {row.sourceBadge ? <span className="sqc-row-badge">{row.sourceBadge}</span> : null}
         <strong className="sqc-row-title-line"><span>{row.title}</span></strong>
@@ -93,7 +98,7 @@ export function CommunitySoloCatalog({ rows, signedIn }: { rows: CommunitySoloCa
         </div>
       </div>
       <span>{page.total} result{page.total === 1 ? "" : "s"}</span>
-      {page.rows.length ? <div className="sqc-catalog">{page.rows.map(row => <CatalogRow key={row.id} row={row} status={row.status ?? "Ready"} />)}</div> : (
+      {page.rows.length ? <div className="sqc-catalog">{page.rows.map(row => <CatalogRow key={row.id} row={row} status={row.status ?? "Ready"} showImage />)}</div> : (
         <div className="sqc-empty-panel standalone"><strong>No Community Side Quests match these filters.</strong><span>{rows.length ? "Try another search or filter." : signedIn ? "Create the first public Side Quest from My Custom Side Quests." : "Public player-made Side Quests will appear here."}</span></div>
       )}
       {page.hasMore ? <button type="button" className="sqc-detail-secondary-button" onClick={() => setLimit(value => value + 10)}>Load more</button> : null}

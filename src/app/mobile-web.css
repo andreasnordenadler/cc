@@ -1149,6 +1149,23 @@ body::after {
   transform: translateY(3px);
 }
 
+.sqc-row-glow.tinted {
+  display: block;
+  background: var(--sqc-row-glow-color, rgba(245, 200, 106, .38));
+  -webkit-mask-image: var(--sqc-row-glow-image);
+  mask-image: var(--sqc-row-glow-image);
+  -webkit-mask-position: center;
+  mask-position: center;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+}
+
+.sqc-row-glow.generic {
+  opacity: .9;
+}
+
 .sqc-row-image {
   width: 30px;
   height: 34px;

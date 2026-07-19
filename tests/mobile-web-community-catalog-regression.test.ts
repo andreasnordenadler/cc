@@ -3,7 +3,9 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { MobileCommunitySideQuestsScreen, MobileMultiplayerSideQuestsScreen } from "@/components/mobile-app-web-shell";
+import { CustomSoloCatalog } from "@/components/catalog-clients";
+import { MobileCommunitySideQuestsScreen, MobileMultiplayerSideQuestsScreen, MobileSimpleScreen, MobileSoloSideQuestsScreen } from "@/components/mobile-app-web-shell";
+import { CHALLENGES } from "@/lib/challenges";
 import type { MobileWebMultiplayerPreview } from "@/lib/mobile-web-multiplayer";
 
 const row: MobileWebMultiplayerPreview = {
@@ -51,7 +53,96 @@ test("Community Solo browse exposes every Android filter and sort choice", () =>
   }
 });
 
-test("text-only community quest rows receive the full copy column", () => {
+test("Community Solo rows show their Coat of Arms like Android v338", () => {
+  const solo = renderToStaticMarkup(createElement(MobileCommunitySideQuestsScreen, {
+    signedIn: true,
+    rows: [{
+      id: "community-solo",
+      title: "Castle? Never Heard Of It",
+      meta: "By Nora Skewer · Finish without castling.",
+      href: "/challenges/community/community-solo",
+      image: "/badges/custom/community/community-coat-28.png",
+      sourceBadge: "Community",
+      status: "Ready",
+      updatedAtMs: 1,
+      popularityScore: 1,
+      likeCount: 1,
+      completedByViewer: false,
+      isNew: false,
+    }],
+  }));
+
+  assert.match(solo, /class="sqc-row-icon"/);
+  assert.match(solo, /community-coat-28\.png/);
+  assert.match(solo, /class="sqc-row-glow generic"/);
+  assert.doesNotMatch(solo, /sqc-app-row text-only/);
+});
+
+test("official row glows use Android badge tint instead of the raw white mask", () => {
+  const challenge = CHALLENGES.find(item => item.id === "bishop-field-trip");
+  assert.ok(challenge);
+  const solo = renderToStaticMarkup(createElement(MobileSoloSideQuestsScreen, {
+    challenges: [challenge],
+    signedIn: true,
+  }));
+
+  assert.match(solo, /class="sqc-row-glow tinted"/);
+  assert.match(solo, /--sqc-row-glow-color:rgba\(45,212,191,\.36\)/);
+  assert.match(solo, /--sqc-row-glow-image:url\(&quot;\/mobile-source\/badges\/glow\/bishop-field-trip-glow\.png&quot;\)/);
+  assert.doesNotMatch(solo, /<img[^>]*class="sqc-row-glow"/);
+});
+
+test("unrelated AppRow consumers do not gain a generic glow", () => {
+  const simple = renderToStaticMarkup(createElement(MobileSimpleScreen, {
+    eyebrow: "Archive",
+    title: "Past Side Quests",
+    body: "Browse prior records.",
+    rows: [{ title: "Archived row", meta: "No explicit glow", status: "View", href: "/archive" }],
+  }));
+
+  assert.doesNotMatch(simple, /class="sqc-row-glow/);
+});
+
+test("unrelated explicit AppRow glows preserve their original image rendering", () => {
+  const simple = renderToStaticMarkup(createElement(MobileSimpleScreen, {
+    eyebrow: "Archive",
+    title: "Past Side Quests",
+    body: "Browse prior records.",
+    rows: [{
+      title: "Archived trophy",
+      meta: "Existing explicit glow",
+      status: "View",
+      href: "/archive/trophy",
+      image: "/mobile-source/badges/v6/proof-loop-test-badge.png",
+      glow: "/mobile-source/badges/glow/finish-any-game-glow.png",
+    }],
+  }));
+
+  assert.match(simple, /<img[^>]*class="sqc-row-glow"/);
+  assert.doesNotMatch(simple, /class="sqc-row-glow tinted"/);
+  assert.doesNotMatch(simple, /--sqc-row-glow-color/);
+});
+
+test("custom-library rows remain text-only", () => {
+  const custom = renderToStaticMarkup(createElement(CustomSoloCatalog, {
+    rows: [{
+      id: "custom-solo",
+      title: "Private draft",
+      meta: "Owner-only rule",
+      href: "/custom-side-quests/custom-solo",
+      image: "/badges/custom/community/community-coat-28.png",
+      lifecycle: "draft",
+      visibility: "private",
+      updatedAt: "2026-07-19T00:00:00.000Z",
+    }],
+  }));
+
+  assert.match(custom, /class="sqc-app-row text-only"/);
+  assert.doesNotMatch(custom, /class="sqc-row-icon"/);
+  assert.doesNotMatch(custom, /class="sqc-row-glow/);
+});
+
+test("text-only community Multiplayer rows receive the full copy column", () => {
   const multiplayer = renderToStaticMarkup(createElement(MobileMultiplayerSideQuestsScreen, { selectedTab: "community", signedIn: true, officialRows: [], communityRows: [row] }));
   assert.match(multiplayer, /class="sqc-app-row sqc-app-row-with-like text-only"/);
   assert.match(multiplayer, /A complete community Multiplayer title/);
