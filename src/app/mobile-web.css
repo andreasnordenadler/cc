@@ -2548,6 +2548,16 @@ body::after {
   box-shadow: none;
 }
 
+.sqc-community-detail-screen .sqc-community-detail-hero > .sqc-section-mark {
+  position: relative;
+  top: auto;
+  left: auto;
+  width: 138px;
+  height: 136px;
+  min-height: 136px;
+  transform: none;
+}
+
 .sqc-section-mark.community {
   width: 138px;
   min-height: 122px;
