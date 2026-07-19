@@ -73,6 +73,23 @@ test("provider JSON reads enforce the timeout and cancel an uncooperative stream
   assert.equal(cancelled, true);
 });
 
+test("provider JSON reads do not fall back to an unbounded bodyless text read", async () => {
+  const bodylessResponse = {
+    ok: true,
+    body: null,
+    headers: new Headers(),
+    text: () => new Promise<string>(() => undefined),
+  } as Response;
+
+  await assert.rejects(
+    () => Promise.race([
+      fetchBoundedProviderJson("https://provider.example/game", {}, { maxBytes: 32, timeoutMs: 5, fetcher: async () => bodylessResponse }),
+      new Promise<never>((_resolve, reject) => setTimeout(() => reject(new Error("bodyless text fallback hung")), 50)),
+    ]),
+    (error: unknown) => error instanceof SyntaxError,
+  );
+});
+
 test("latest Lichess proof rejects an oversized provider payload", async (t) => {
   const originalFetch = globalThis.fetch;
   const validGame = JSON.stringify({

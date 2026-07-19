@@ -106,7 +106,7 @@ async function fetchBoundedProviderText(input: string | URL, init: RequestInit =
     if (!response.ok) return null;
     const declaredBytes = Number(response.headers.get("content-length"));
     if (Number.isFinite(declaredBytes) && declaredBytes > maxBytes) throw new Error("Provider response is too large.");
-    if (!response.body) return response.text();
+    if (!response.body) return "";
 
     reader = response.body.getReader();
     const decoder = new TextDecoder();
