@@ -107,3 +107,9 @@ test("Community Solo detail exposes Android share and copy actions instead of a 
   assert.doesNotMatch(html, /%2Fmobile-source%2Fbadges%2Fcustom%2Fcommunity%2Fcommunity-coat-28\.png/);
   assert.doesNotMatch(html, /<a[^>]*href="\/challenges\/community\/quest%2F42"[^>]*>Share public link<\/a>/);
 });
+
+test("Community Solo detail keeps its Coat of Arms in flow instead of clipping it above the viewport", async () => {
+  const css = await import("node:fs/promises").then(fs => fs.readFile(new URL("../src/app/mobile-web.css", import.meta.url), "utf8"));
+
+  assert.match(css, /\.sqc-community-detail-screen \.sqc-community-detail-hero > \.sqc-section-mark\s*\{[\s\S]*?position:\s*relative;[\s\S]*?top:\s*auto;[\s\S]*?left:\s*auto;[\s\S]*?transform:\s*none;/);
+});
