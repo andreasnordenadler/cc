@@ -380,6 +380,38 @@ body::after {
   .sqc-loading-spinner { animation: none; }
 }
 
+.sqc-offline-screen {
+  min-height: min(72vh, 620px);
+  place-items: center;
+  padding: 24px 0;
+}
+
+.sqc-native-card.sqc-offline-card {
+  width: min(100%, 420px);
+  gap: 12px;
+  border-color: rgba(96, 240, 175, .34);
+  background: rgba(96, 240, 175, .09);
+}
+
+.sqc-offline-card h1,
+.sqc-offline-card p {
+  margin: 0;
+}
+
+.sqc-offline-card h1 {
+  font-size: clamp(24px, 7vw, 32px);
+  line-height: 1.05;
+}
+
+.sqc-offline-card p {
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.sqc-offline-card .sqc-primary-action {
+  margin-top: 4px;
+}
+
 .sqc-panel,
 .sqc-current-card,
 .sqc-home-section,
