@@ -117,8 +117,8 @@ for (const variant of ["web", "mobile"] as const) {
 
     const officialPatch = (writes[0].publicMetadata as Record<string, unknown>)[OFFICIAL_GROUP_QUEST_METADATA_KEY] as Record<string, unknown>;
     assert.deepEqual(officialPatch[quest.id], { active: false });
-    assert.equal((await findGroupQuestById(client as never, quest.id))?.groupQuest.participants.some(({ userId }) => userId === "joiner"), false);
-    assert.equal((await listPublicGroupQuests(client as never)).find(({ id }) => id === quest.id)?.participants.some(({ userId }) => userId === "joiner"), false);
+    assert.equal(Boolean((await findGroupQuestById(client as never, quest.id))?.groupQuest.participants.some(({ userId }) => userId === "joiner")), false);
+    assert.equal(Boolean((await listPublicGroupQuests(client as never)).find(({ id }) => id === quest.id)?.participants.some(({ userId }) => userId === "joiner")), false);
     assert.equal((await listUserRelatedGroupQuests(client as never, "joiner")).some(({ id }) => id === quest.id), false);
 
     if (variant === "web") await saveWebJoinedQuest(client as never, { authenticatedUserId: "joiner", hostUserId: "official-sqc", joinedQuest: quest });
