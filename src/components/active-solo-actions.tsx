@@ -1,10 +1,13 @@
 "use client";
 
-import { useFormStatus } from "react-dom";
-import { checkActiveChallenge } from "@/app/actions";
+import { useActionState, useState } from "react";
+import { checkActiveChallengeWithResult } from "@/app/actions";
+import type { SoloCheckResult } from "@/lib/solo-check-result";
+import { SoloCompletionCelebration } from "./solo-completion-celebration";
 
-function Submit() {
-  const { pending } = useFormStatus();
+const initialState: SoloCheckResult = { status: "checked", completion: null };
+
+function Submit({ pending }: { pending: boolean }) {
   return (
     <button className={pending ? "sqc-refresh spinning" : "sqc-refresh"} type="submit" disabled={pending} aria-label="Refresh active Solo Side Quest">
       <svg className="sqc-refresh-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
@@ -15,5 +18,21 @@ function Submit() {
 }
 
 export default function ActiveSoloActions() {
-  return <form className="sqc-refresh-form" action={checkActiveChallenge}><Submit /></form>;
+  const [state, formAction, pending] = useActionState(checkActiveChallengeWithResult, initialState);
+  const [dismissedCompletionId, setDismissedCompletionId] = useState<string | null>(null);
+  const completion = state.status === "completed" && state.completion.challengeId !== dismissedCompletionId
+    ? state.completion
+    : null;
+
+  return (
+    <>
+      <form className="sqc-refresh-form" action={formAction}><Submit pending={pending} /></form>
+      {completion ? (
+        <SoloCompletionCelebration
+          completion={completion}
+          onClose={() => setDismissedCompletionId(completion.challengeId)}
+        />
+      ) : null}
+    </>
+  );
 }

@@ -111,6 +111,7 @@ import {
   checkLatestLichessBackRankGoblin,
 } from "@/lib/back-rank-goblin";
 import { assertActiveSoloSubmissionTarget } from "@/lib/official-solo-exact-game";
+import { buildSoloCheckResult, type SoloCheckResult } from "@/lib/solo-check-result";
 import {
   getChallengeProgress,
   getChessComUsername,
@@ -1049,7 +1050,7 @@ export async function submitChallengeAttempt(formData: FormData) {
   revalidatePath(`/challenges/${challenge.id}`);
 }
 
-export async function checkActiveChallenge() {
+async function runActiveChallengeCheck() {
   const { userId, metadata } = await getUserContext();
   const activeChallenge =
     metadata.activeChallenge && typeof metadata.activeChallenge === "object"
@@ -1137,4 +1138,27 @@ export async function checkActiveChallenge() {
   revalidatePath("/challenges");
   revalidatePath(`/challenges/${challenge.id}`);
   revalidatePath("/result");
+
+  return buildSoloCheckResult({
+    challenge: {
+      id: challenge.id,
+      title: challenge.title,
+      badgeName: challenge.badgeIdentity.name,
+      badgeImage: challenge.badgeIdentity.image ?? "/mobile-source/badges/v6/proof-loop-test-badge.png",
+      unlockCopy: challenge.badgeIdentity.unlockCopy,
+      accentColor: challenge.badgeIdentity.colors.glow,
+    },
+    passed: Boolean(passedCheck),
+    alreadyCompleted: progress.completedChallengeIds.includes(challenge.id),
+  });
+}
+
+export async function checkActiveChallenge() {
+  await runActiveChallengeCheck();
+}
+
+export async function checkActiveChallengeWithResult(previousState: SoloCheckResult, formData: FormData) {
+  void previousState;
+  void formData;
+  return runActiveChallengeCheck();
 }
