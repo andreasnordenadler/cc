@@ -1,12 +1,25 @@
 "use client";
 
-import { type FormEvent, useState } from "react";
-import { groupQuestIdFromLookupHref, normalizeInviteLookupError, safeGroupQuestHref } from "@/lib/mobile-web-parity-actions";
+import { type FormEvent, useEffect, useState } from "react";
+import { groupQuestIdFromLookupHref, getPrivateInviteJoinState, normalizeInviteLookupError, safeGroupQuestHref } from "@/lib/mobile-web-parity-actions";
 
-export default function GroupQuestInviteKeyJoin({ isSignedIn, initialInviteKey = "" }: { isSignedIn: boolean; initialInviteKey?: string }) {
-  const [inviteKey, setInviteKey] = useState(initialInviteKey);
+const pendingInviteStorageKey = "sqc.pendingPrivateInviteKey";
+
+export default function GroupQuestInviteKeyJoin({ isSignedIn }: { isSignedIn: boolean }) {
+  const [inviteKey, setInviteKey] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    if (!isSignedIn) return;
+    try {
+      const pendingInviteKey = window.sessionStorage.getItem(pendingInviteStorageKey);
+      if (pendingInviteKey) setInviteKey(pendingInviteKey);
+      window.sessionStorage.removeItem(pendingInviteStorageKey);
+    } catch {
+      // The form remains usable when browser storage is unavailable.
+    }
+  }, [isSignedIn]);
 
   async function submitInvite(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -15,8 +28,19 @@ export default function GroupQuestInviteKeyJoin({ isSignedIn, initialInviteKey =
       setError("Paste the invite code from the host first.");
       return;
     }
-    if (!isSignedIn) {
-      window.location.href = `/sign-in?redirect_url=${encodeURIComponent(`/groupquests?inviteKey=${encodeURIComponent(key)}`)}`;
+    const joinState = getPrivateInviteJoinState({ inviteKey: key, signedIn: isSignedIn });
+    if (joinState.kind === "invalid") {
+      setError(joinState.error);
+      return;
+    }
+    if (joinState.kind === "signed-out") {
+      try {
+        window.sessionStorage.setItem(pendingInviteStorageKey, joinState.inviteKey);
+      } catch {
+        setError("Sign in first, then paste the invite code again.");
+        return;
+      }
+      window.location.href = joinState.href;
       return;
     }
 

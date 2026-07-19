@@ -1188,22 +1188,20 @@ function CommunityMultiplayerPanel({ signedIn, rows, initialHost }: { signedIn: 
       <CommunityMultiplayerCatalog rows={rows} signedIn={signedIn} initialHost={initialHost} />
 
       {signedIn ? (
-        <>
-          <section className="sqc-native-card green" aria-label="Create Multiplayer Side Quest fast action">
-            <span className="sqc-card-eyebrow">Create</span>
-            <h2>Create a Community Multiplayer Side Quest.</h2>
-            <p>Pick up to four Side Quests, set the time window, then share the table with players.</p>
-            <Link href="/create-multiplayer-side-quest" className="sqc-primary-action">Create Multiplayer Side Quest</Link>
-          </section>
-
-          <section className="sqc-native-card green" aria-label="Join private Multiplayer Side Quest">
-            <span className="sqc-card-eyebrow">Invite Code</span>
-            <h2>Join private Multiplayer Side Quest.</h2>
-            <p>Paste an invite code from the host to join a private Multiplayer Side Quest.</p>
-            <GroupQuestInviteKeyJoin isSignedIn={signedIn} />
-          </section>
-        </>
+        <section className="sqc-native-card green" aria-label="Create Multiplayer Side Quest fast action">
+          <span className="sqc-card-eyebrow">Create</span>
+          <h2>Create a Community Multiplayer Side Quest.</h2>
+          <p>Pick up to four Side Quests, set the time window, then share the table with players.</p>
+          <Link href="/create-multiplayer-side-quest" className="sqc-primary-action">Create Multiplayer Side Quest</Link>
+        </section>
       ) : null}
+
+      <section className="sqc-native-card green" aria-label="Join private Multiplayer Side Quest">
+        <span className="sqc-card-eyebrow">Invite Code</span>
+        <h2>Join private Multiplayer Side Quest.</h2>
+        <p>Paste an invite code from the host to join a private Multiplayer Side Quest.</p>
+        <GroupQuestInviteKeyJoin isSignedIn={signedIn} />
+      </section>
     </>
   );
 }

@@ -33,6 +33,19 @@ export function getMultiplayerJoinState({ questId, signedIn, status }: Multiplay
   return { kind: "join" as const, label: "Join Side Quest" };
 }
 
+export function getPrivateInviteJoinState({ inviteKey, signedIn }: { inviteKey: string; signedIn: boolean }) {
+  const cleanInviteKey = inviteKey.trim();
+  if (!cleanInviteKey || cleanInviteKey.length > 40 || !/^[a-z0-9-]+$/i.test(cleanInviteKey)) {
+    return { kind: "invalid" as const, error: "Use the invite code exactly as the host shared it." };
+  }
+  if (signedIn) return { kind: "join" as const, inviteKey: cleanInviteKey };
+  return {
+    kind: "signed-out" as const,
+    inviteKey: cleanInviteKey,
+    href: signInPath("/multiplayer-side-quests?tab=community"),
+  };
+}
+
 export function groupQuestIdFromLookupHref(href: string, currentOrigin: string): string | null {
   const destination = new URL(href, currentOrigin);
   if (destination.origin !== currentOrigin) return null;
