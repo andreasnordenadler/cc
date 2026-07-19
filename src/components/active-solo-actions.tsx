@@ -2,10 +2,11 @@
 
 import { useActionState, useState } from "react";
 import { checkActiveChallengeWithResult } from "@/app/actions";
-import type { SoloCheckResult } from "@/lib/solo-check-result";
+import type { SoloCheckActionResult } from "@/lib/solo-check-result";
 import { SoloCompletionCelebration } from "./solo-completion-celebration";
+import { SoloCheckFeedback } from "./solo-check-feedback";
 
-const initialState: SoloCheckResult = { status: "checked", completion: null };
+const initialState: SoloCheckActionResult = { status: "idle", completion: null, message: null, error: null };
 
 function Submit({ pending }: { pending: boolean }) {
   return (
@@ -27,6 +28,7 @@ export default function ActiveSoloActions() {
   return (
     <>
       <form className="sqc-refresh-form" action={formAction}><Submit pending={pending} /></form>
+      <SoloCheckFeedback result={state} />
       {completion ? (
         <SoloCompletionCelebration
           completion={completion}

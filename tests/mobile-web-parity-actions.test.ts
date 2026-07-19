@@ -80,7 +80,8 @@ test("official Solo detail CTAs execute start and proof-check actions instead of
   assert.doesNotMatch(page, /<Link href="\/account" className="sqc-(?:primary|secondary)-action">(?:Start this Side Quest|Check my latest game)<\/Link>/);
   assert.match(controls, /action={startChallenge}/);
   assert.match(controls, /name="challengeId"/);
-  assert.match(controls, /action={checkActiveChallenge}/);
+  assert.match(controls, /useActionState\(checkActiveChallengeWithResult/);
+  assert.match(controls, /<SoloCheckFeedback result=\{state\}/);
   assert.match(controls, /pending \? "Checking latest game…" : "Check my latest game"/);
   assert.match(controls, /Switch active Side Quest\?/);
 });

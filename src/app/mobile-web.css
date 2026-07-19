@@ -671,6 +671,21 @@ body::after {
   animation: sqc-refresh-spin .8s linear infinite;
 }
 
+.sqc-mobile-web .sqc-solo-check-feedback {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.sqc-solo-check-feedback.success {
+  color: #60f0af;
+}
+
+.sqc-solo-check-feedback.error {
+  color: #ff9aa7;
+}
+
 @keyframes sqc-refresh-spin {
   to { transform: rotate(360deg); }
 }
