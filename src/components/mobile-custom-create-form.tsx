@@ -13,11 +13,13 @@ import {
   getCustomConditionEditorRow,
   getCustomCreateDestination,
   getCustomEditFormState,
+  getCustomPieceIdentityChoices,
   getCustomRuleBlockChoiceId,
   getCustomTemplateBlocks,
   setCustomRuleBlockNegated,
   updateCustomMoveSequenceEditor,
   updateCustomOpeningSequenceBlock,
+  updateCustomPieceIdentityChoice,
   updateCustomPieceStateEditor,
   finalizeCustomOpeningSequenceInput,
   type CustomEditQuestInput,
@@ -131,6 +133,12 @@ export default function MobileCustomCreateForm({ signedIn, initialQuest = null }
     }));
   }
 
+  function updatePieceIdentityChoice(index: number, choice: Parameters<typeof updateCustomPieceIdentityChoice>[1]) {
+    setConditionRows((current) => current.map((row, rowIndex) => rowIndex === index && row.block.type === "pieceState"
+      ? { ...row, block: updateCustomPieceIdentityChoice(row.block, choice) }
+      : row));
+  }
+
   function updatePieceTargetSquareInput(index: number, targetSquare: string) {
     const cleaned = targetSquare.toLowerCase().replace(/[^a-h1-8]/g, "").slice(0, 2);
     setConditionRows((current) => current.map((row, rowIndex) => rowIndex === index && row.block.type === "pieceState"
@@ -236,6 +244,20 @@ export default function MobileCustomCreateForm({ signedIn, initialQuest = null }
             <div className="sqc-option-grid" role="group" aria-label={`Condition ${index + 1} piece`}>
               {(["king", "queen", "rook", "bishop", "knight", "pawn"] as const).map((piece) => <button aria-pressed={block.piece === piece} className={`sqc-option-card${block.piece === piece ? " selected" : ""}`} key={piece} onClick={() => updatePieceStateCondition(index, { piece })} type="button"><span aria-hidden="true" /><div className="sqc-option-card-copy"><strong>{piece.slice(0, 1).toUpperCase() + piece.slice(1)}</strong>{piece === "king" || piece === "queen" ? <small>Only one exists, so there is no “which one” choice.</small> : null}</div></button>)}
             </div>
+            {getCustomPieceIdentityChoices(block.piece).length ? <>
+              <span className="sqc-card-eyebrow">Which {block.piece}</span>
+              <div className="sqc-option-grid" role="group" aria-label={`Condition ${index + 1} piece identity`}>
+                {getCustomPieceIdentityChoices(block.piece).map((choice) => {
+                  const identity = block.selector?.identity ?? "any";
+                  const selected = choice.id === "all"
+                    ? identity === "any" && block.selector?.quantifier === "all"
+                    : choice.id === "any"
+                      ? identity === "any" && block.selector?.quantifier !== "all"
+                      : identity === choice.id;
+                  return <button aria-pressed={selected} className={`sqc-option-card${selected ? " selected" : ""}`} key={choice.id} onClick={() => updatePieceIdentityChoice(index, choice.id)} type="button"><span aria-hidden="true" /><div className="sqc-option-card-copy"><strong>{choice.label}</strong><small>{choice.helper}</small></div></button>;
+                })}
+              </div>
+            </> : null}
             <span className="sqc-card-eyebrow">Whose piece</span>
             <div className="sqc-option-grid" role="group" aria-label={`Condition ${index + 1} owner`}>
               {([{"id":"my","label":"Mine"},{"id":"opponent","label":"Opponent's"}] as const).map((owner) => <button aria-pressed={(block.owner === "either" ? "my" : block.owner) === owner.id} className={`sqc-option-card${(block.owner === "either" ? "my" : block.owner) === owner.id ? " selected" : ""}`} key={owner.id} onClick={() => updatePieceStateCondition(index, { owner: owner.id })} type="button"><span aria-hidden="true" /><div className="sqc-option-card-copy"><strong>{owner.label}</strong></div></button>)}
