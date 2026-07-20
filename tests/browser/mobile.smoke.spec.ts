@@ -126,7 +126,7 @@ test("custom builder asks before discarding unsaved changes", async ({ page }) =
       resolve(observed);
     });
   });
-  await page.goBack();
+  await page.evaluate(() => window.history.back());
   const backConfirmation = await backDialog;
   expect(backConfirmation).toEqual({
     type: "beforeunload",
