@@ -113,6 +113,18 @@ test("Community Solo detail shares and copies its exact public link", async ({ p
   expect(await noHorizontalOverflow(page)).toBe(true);
 });
 
+test("custom builder describes exact Android piece selector semantics", async ({ page }) => {
+  const response = await page.goto("/create-custom-side-quest", { waitUntil: "domcontentloaded" });
+  expect(response?.status()).toBeLessThan(400);
+
+  await page.getByRole("combobox", { name: "Condition 1" }).selectOption("piece-state");
+  await page.getByRole("group", { name: "Condition 1 piece" }).getByRole("button", { name: /Rook/ }).click();
+  await page.getByRole("group", { name: "Condition 1 piece identity" }).getByRole("button", { name: /Both rooks/ }).click();
+
+  await expect(page.getByText("Both of your rooks must be moved at game end.", { exact: true })).toBeVisible();
+  expect(await noHorizontalOverflow(page)).toBe(true);
+});
+
 test("custom builder asks before discarding unsaved changes", async ({ page }) => {
   await page.goto("/", { waitUntil: "domcontentloaded" });
   const response = await page.goto("/create-custom-side-quest", { waitUntil: "domcontentloaded" });

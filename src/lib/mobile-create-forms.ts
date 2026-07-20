@@ -306,9 +306,23 @@ export function describeCustomRuleBlock(block: CustomSideQuestRuleBlock) {
   if (block.type === "openingSequence") return `${block.negate ? "Do not play" : "Play"} ${block.moves.join(" ")} from move 1.`;
   if (block.type === "moveSequence") return `${block.negate ? "Do not play" : "Play"} the sequence ${block.sequence}.`;
   if (block.owner === "either" && block.selector?.quantifier === "all" && block.piece === "queen" && block.condition === "gone") return `${block.negate ? "Both queens must not be gone" : "Both queens are gone"} at game end.`;
-  const owner = block.owner === "my" ? "Your" : block.owner === "opponent" ? "Your opponent's" : "Either player's";
+  const owner = block.owner === "my" ? "your" : block.owner === "opponent" ? "your opponent's" : "either player's";
   const timing = block.timing?.byMove ? ` by move ${block.timing.byMove}` : block.timing?.atMove ? ` at move ${block.timing.atMove}` : " at game end";
-  return `${block.negate ? "It must not be true that " : ""}${owner} ${block.piece} is ${block.condition}${block.targetSquare ? ` ${block.targetSquare}` : ""}${timing}.`;
+  const identity = block.selector?.identity ?? "any";
+  const quantifier = block.selector?.quantifier ?? "any one";
+  const count = Math.max(1, block.selector?.count ?? 1);
+  const maxAvailable = Math.max(count, block.selector?.maxAvailable ?? (block.piece === "pawn" ? 8 : block.piece === "king" || block.piece === "queen" ? 1 : 2));
+  const pluralPiece = block.piece === "pawn" ? "pawns" : `${block.piece}s`;
+  const subject = identity !== "any" && identity !== "original"
+    ? `${owner} ${identity.endsWith("-pawn") ? identity : `${identity} ${block.piece}`}`
+    : quantifier === "all" && maxAvailable > 1
+      ? `${maxAvailable === 2 ? "both" : `all ${maxAvailable}`} of ${owner} ${pluralPiece}`
+      : quantifier === "at least" || quantifier === "exactly"
+        ? `${quantifier} ${count} of ${owner} ${count === 1 ? block.piece : pluralPiece}`
+        : `${owner} ${block.piece}`;
+  const condition = block.condition === "on square" && block.targetSquare ? `on square ${block.targetSquare}` : block.condition;
+  const positive = `${subject.slice(0, 1).toUpperCase()}${subject.slice(1)} must be ${condition}${timing}.`;
+  return block.negate ? `It must not be true that ${positive.slice(0, 1).toLowerCase()}${positive.slice(1)}` : positive;
 }
 
 function normalizeCustomRuleBlock(block: CustomSideQuestRuleBlock): CustomSideQuestRuleBlock {
