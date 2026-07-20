@@ -105,6 +105,40 @@ function normalizeCustomMoveSequence(value: string) {
     .slice(0, 180);
 }
 
+function normalizeCustomOpeningSequence(value: string) {
+  return value
+    .replace(/\{[^}]*\}/g, " ")
+    .replace(/\([^)]*\)/g, " ")
+    .replace(/\$\d+/g, " ")
+    .replace(/\b(?:1-0|0-1|1\/2-1\/2|\*)\b/g, " ")
+    .replace(/\d+\.{1,3}/g, " ")
+    .replace(/[!?]+/g, "")
+    .replace(/[^a-zA-Z0-9+#=xXO\-–—.\s]/g, " ")
+    .replace(/[–—]/g, "-")
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, 240);
+}
+
+export function finalizeCustomOpeningSequenceInput(raw: string) {
+  return normalizeCustomOpeningSequence(raw) || "1.e4 e5 2.f4";
+}
+
+export function updateCustomOpeningSequenceBlock(
+  block: Extract<CustomSideQuestRuleBlock, { type: "openingSequence" }>,
+  raw: string,
+): Extract<CustomSideQuestRuleBlock, { type: "openingSequence" }> {
+  const limitedRaw = raw.slice(0, 260);
+  const moves = normalizeCustomOpeningSequence(limitedRaw).split(/\s+/).filter(Boolean).slice(0, 40);
+  return {
+    type: "openingSequence",
+    raw: limitedRaw,
+    moves,
+    anchor: "gameStart",
+    ...(block.negate === true ? { negate: true } : {}),
+  };
+}
+
 export function updateCustomMoveSequenceBlock(
   block: CustomMoveSequenceBlock,
   input: { sequence: string; timing: CustomMoveSequenceTiming; moveNumber: number },
@@ -166,16 +200,21 @@ export function describeCustomRuleBlock(block: CustomSideQuestRuleBlock) {
   return `${block.negate ? "It must not be true that " : ""}${owner} ${block.piece} is ${block.condition}${block.targetSquare ? ` ${block.targetSquare}` : ""}${timing}.`;
 }
 
+function normalizeCustomRuleBlock(block: CustomSideQuestRuleBlock): CustomSideQuestRuleBlock {
+  if (block.type === "moveSequence") return { ...block, sequence: normalizeCustomMoveSequence(block.sequence) };
+  if (block.type === "openingSequence") return updateCustomOpeningSequenceBlock(block, finalizeCustomOpeningSequenceInput(block.raw ?? block.moves.join(" ")));
+  return block;
+}
+
 export function buildCustomCreatePayload(input: CustomCreateInput) {
   const title = input.title.replace(/\s+/g, " ").trim();
   const summary = input.summary.replace(/\s+/g, " ").trim();
   if (!title) throw new Error("Name this custom Side Quest before saving.");
   if (!input.blocks.length && input.lifecycle === "published") throw new Error("Choose at least one condition before saving.");
   if (input.blocks.some((block) => block.type === "moveSequence" && !normalizeCustomMoveSequence(block.sequence))) throw new Error("Add at least one algebraic move to the move sequence.");
+  if (input.blocks.some((block) => block.type === "openingSequence" && !updateCustomOpeningSequenceBlock(block, block.raw ?? block.moves.join(" ")).moves.length)) throw new Error("Add an opening line from move 1, for example 1.e4 e5 2.f4.");
   if (input.blocks.length > 6) throw new Error("Custom Side Quests can use up to 6 conditions.");
-  const blocks = input.blocks.map((block) => block.type === "moveSequence"
-    ? { ...block, sequence: normalizeCustomMoveSequence(block.sequence) }
-    : block);
+  const blocks = input.blocks.map(normalizeCustomRuleBlock);
   return {
     title: title.slice(0, 80),
     summary: summary.slice(0, 500),
@@ -195,9 +234,7 @@ export function buildCustomEditConfig(originalConfig: string, logic: "all" | "an
     throw new Error("This Side Quest has invalid saved rules.");
   }
   if (blocks.length > 6) throw new Error("Custom Side Quests can use up to 6 conditions.");
-  const normalizedBlocks = blocks.map((block) => block.type === "moveSequence"
-    ? { ...block, sequence: normalizeCustomMoveSequence(block.sequence) }
-    : block);
+  const normalizedBlocks = blocks.map(normalizeCustomRuleBlock);
   return JSON.stringify({ ...original, logic: logic === "any" ? "any" : "all", blocks: normalizedBlocks });
 }
 

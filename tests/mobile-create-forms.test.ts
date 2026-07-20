@@ -24,6 +24,8 @@ import {
   setCustomRuleBlockNegated,
   updateCustomMoveSequenceEditor,
   updateCustomMoveSequenceBlock,
+  updateCustomOpeningSequenceBlock,
+  finalizeCustomOpeningSequenceInput,
   getMultiplayerCreateDestination,
   getMultiplayerLocalDateTimeDefaults,
 } from "../src/lib/mobile-create-forms";
@@ -428,6 +430,93 @@ test("custom builder creates and edits Android-compatible move-sequence conditio
   assert.match(html, /aria-label="Condition 1 move sequence"[^>]*>e4 e5<\/textarea>/);
   assert.match(html, /aria-label="Condition 1 timing"/);
   assert.match(html, /aria-label="Condition 1 move number"/);
+});
+
+test("custom opening-sequence editor matches Android PGN cleanup semantics", () => {
+  const original: CustomSideQuestRuleBlock = {
+    type: "openingSequence",
+    raw: "1.e4 e5",
+    moves: ["e4", "e5"],
+    anchor: "gameStart",
+    negate: true,
+  };
+
+  assert.deepEqual(updateCustomOpeningSequenceBlock(original, "1.e4 {King pawn} e5 2.Nf3?! Nc6 1-0"), {
+    type: "openingSequence",
+    raw: "1.e4 {King pawn} e5 2.Nf3?! Nc6 1-0",
+    moves: ["e4", "e5", "Nf3", "Nc6"],
+    anchor: "gameStart",
+    negate: true,
+  });
+});
+
+test("editing opening notation persists Android-parsed moves without dropping advanced fields", () => {
+  const original = JSON.stringify({
+    version: 7,
+    logic: "all",
+    customTopLevel: { mode: "legacy" },
+    blocks: [{ type: "openingSequence", raw: "1.e4 e5", moves: ["e4", "e5"], anchor: "gameStart", negate: true }],
+  });
+  const editedBlock = {
+    type: "openingSequence" as const,
+    raw: "1.d4 {Queen pawn} d5 2.c4?!",
+    moves: ["stale"],
+    anchor: "gameStart" as const,
+    negate: true,
+  };
+
+  assert.deepEqual(JSON.parse(buildCustomEditConfig(original, "any", [editedBlock])), {
+    version: 7,
+    logic: "any",
+    customTopLevel: { mode: "legacy" },
+    blocks: [{
+      type: "openingSequence",
+      raw: "d4 d5 c4",
+      moves: ["d4", "d5", "c4"],
+      anchor: "gameStart",
+      negate: true,
+    }],
+  });
+});
+
+test("opening notation finalizes like Android when editing ends", () => {
+  assert.equal(finalizeCustomOpeningSequenceInput("1.e4 {comment} e5 2.f4?!"), "e4 e5 f4");
+  assert.equal(finalizeCustomOpeningSequenceInput(" 1-0 {done} "), "1.e4 e5 2.f4");
+  assert.equal(finalizeCustomOpeningSequenceInput("x".repeat(300)).length, 240);
+});
+
+test("custom opening-sequence editor renders Android's editable notation and parsed preview", () => {
+  const html = renderToStaticMarkup(React.createElement(MobileCustomCreateForm, {
+    signedIn: true,
+    initialQuest: {
+      id: "custom-opening-sequence",
+      title: "Gambit line",
+      summary: "Follow the opening.",
+      config: JSON.stringify({ version: 2, logic: "all", blocks: [{
+        type: "openingSequence",
+        raw: "1.e4 e5 2.f4",
+        moves: ["e4", "e5", "f4"],
+        anchor: "gameStart",
+      }] }),
+      visibility: "private",
+      lifecycle: "published",
+    },
+  }));
+
+  assert.match(html, /aria-label="Condition 1 opening sequence"[^>]*maxLength="260"[^>]*>1\.e4 e5 2\.f4<\/textarea>/);
+  assert.match(html, /Paste opening notation with move numbers\. SQC cleans it into: e4 → e5 → f4/);
+  assert.match(html, /Opening sequence is always checked from move 1, so no timing is needed\./);
+});
+
+test("custom opening-sequence editor rejects notation with no parsed moves", () => {
+  assert.throws(() => buildCustomCreatePayload({
+    title: "Empty opening",
+    summary: "",
+    logic: "all",
+    blocks: [{ type: "openingSequence", raw: "1-0 {done}", moves: [], anchor: "gameStart" }],
+    visibility: "private",
+    lifecycle: "published",
+  }), /opening line from move 1/i);
 });
 
 test("custom move-sequence editor rejects an empty condition like Android v338", () => {
