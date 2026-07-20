@@ -14,33 +14,51 @@ export function installSoloCoatDialogHistory(
   events: CoatDialogPopStateTarget,
   entryId: string,
   onBack: () => void,
+  onForward: () => void = () => undefined,
 ) {
-  let closeRequested = false;
-  let popped = false;
+  let open = true;
+  let traversalPending = false;
   let disposed = false;
-  const closeOnBack = () => {
-    if (history.state?.sqcCoat === entryId || popped) return;
-    popped = true;
-    onBack();
+  const syncFromHistory = () => {
+    const entryIsCurrent = history.state?.sqcCoat === entryId;
+    if (entryIsCurrent && !open) {
+      open = true;
+      traversalPending = false;
+      onForward();
+      return;
+    }
+    if (!entryIsCurrent && open) {
+      open = false;
+      traversalPending = false;
+      onBack();
+    }
   };
-  events.addEventListener("popstate", closeOnBack);
+  events.addEventListener("popstate", syncFromHistory);
   const currentState = history.state && typeof history.state === "object" ? history.state : {};
   history.pushState({ ...currentState, sqcCoat: entryId }, "");
 
   return {
     close(beforeBack?: () => void) {
-      if (closeRequested || popped || disposed) return false;
-      closeRequested = true;
+      if (!open || traversalPending || disposed) return false;
       beforeBack?.();
-      if (history.state?.sqcCoat === entryId) history.back();
-      else closeOnBack();
+      if (history.state?.sqcCoat === entryId) {
+        traversalPending = true;
+        history.back();
+      }
+      else {
+        open = false;
+        onBack();
+      }
       return true;
+    },
+    readyForNewEntry() {
+      return !open && !traversalPending && !disposed;
     },
     dispose() {
       if (disposed) return;
       disposed = true;
-      events.removeEventListener("popstate", closeOnBack);
-      if (!closeRequested && !popped && history.state?.sqcCoat === entryId) history.back();
+      events.removeEventListener("popstate", syncFromHistory);
+      if (open && !traversalPending && history.state?.sqcCoat === entryId) history.back();
     },
   };
 }
@@ -87,12 +105,17 @@ export default function SoloCoatLightbox({
   function showDialog() {
     const dialog = dialogRef.current;
     if (!dialog || dialog.open) return;
+    if (historyRef.current && !historyRef.current.readyForNewEntry()) return;
+    historyRef.current?.dispose();
+    historyRef.current = null;
     openSoloCoatDialog(dialog);
-    const installedHistory = installSoloCoatDialogHistory(window.history, window, historyEntryId, () => {
-      closeSoloCoatDialog(dialog);
-      installedHistory.dispose();
-      if (historyRef.current === installedHistory) historyRef.current = null;
-    });
+    const installedHistory = installSoloCoatDialogHistory(
+      window.history,
+      window,
+      historyEntryId,
+      () => closeSoloCoatDialog(dialog),
+      () => openSoloCoatDialog(dialog),
+    );
     historyRef.current = installedHistory;
   }
 
