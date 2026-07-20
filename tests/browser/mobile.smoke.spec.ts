@@ -113,6 +113,48 @@ test("Community Solo detail shares and copies its exact public link", async ({ p
   expect(await noHorizontalOverflow(page)).toBe(true);
 });
 
+test("custom builder asks before discarding unsaved changes", async ({ page }) => {
+  await page.goto("/", { waitUntil: "domcontentloaded" });
+  const response = await page.goto("/create-custom-side-quest", { waitUntil: "domcontentloaded" });
+  expect(response?.status()).toBeLessThan(400);
+
+  await page.getByRole("textbox", { name: "Side Quest name" }).fill("Unfinished pawn adventure");
+  const backDialog = new Promise<{ type: string; message: string }>((resolve) => {
+    page.once("dialog", async (confirmation) => {
+      const observed = { type: confirmation.type(), message: confirmation.message() };
+      await confirmation.dismiss();
+      resolve(observed);
+    });
+  });
+  await page.evaluate(() => window.history.back());
+  const backConfirmation = await backDialog;
+  expect(backConfirmation).toEqual({
+    type: "beforeunload",
+    message: "",
+  });
+  await expect(page).toHaveURL(/\/create-custom-side-quest$/);
+
+  const close = page.getByRole("link", { name: "Close screen" });
+  const dialog = new Promise<{ type: string; message: string }>((resolve) => {
+    page.once("dialog", async (confirmation) => {
+      const observed = { type: confirmation.type(), message: confirmation.message() };
+      await confirmation.dismiss();
+      resolve(observed);
+    });
+  });
+  await close.click();
+  const confirmation = await dialog;
+  expect(confirmation.type).toBe("confirm");
+  expect(confirmation.message).toBe("Discard custom Side Quest? You have unsaved custom Side Quest changes.");
+  await expect(page).toHaveURL(/\/create-custom-side-quest$/);
+  await expect(page.getByRole("textbox", { name: "Side Quest name" })).toHaveValue("Unfinished pawn adventure");
+
+  const homeUrl = new URL("/", page.url()).href;
+  page.once("dialog", (next) => next.accept());
+  await close.click();
+  await expect(page).toHaveURL(homeUrl);
+});
+
 test("multiplayer catalog opens Official by default and Community stays app-styled", async ({ page }) => {
   await page.goto("/multiplayer-side-quests", { waitUntil: "domcontentloaded" });
   await expect(page.getByRole("tab", { name: "Official Side Quests" })).toHaveAttribute("aria-selected", "true");

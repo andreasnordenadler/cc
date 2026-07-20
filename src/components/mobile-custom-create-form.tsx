@@ -14,6 +14,8 @@ import {
   getCustomConditionEditorRow,
   getCustomCreateDestination,
   getCustomEditFormState,
+  getCustomBuilderSnapshot,
+  hasUnsavedCustomBuilderChanges,
   getCustomPieceIdentityChoices,
   getCustomRuleBlockChoiceId,
   getCustomTemplateBlocks,
@@ -64,6 +66,15 @@ export default function MobileCustomCreateForm({ signedIn, initialQuest = null }
   const blocks = conditionRows.map((row) => row.block);
   const [visibility, setVisibility] = useState<"private" | "public">(initialState?.visibility ?? "private");
   const [lifecycle, setLifecycle] = useState<"draft" | "published" | "archived">(initialState?.lifecycle ?? "published");
+  const baselineSnapshot = useRef(getCustomBuilderSnapshot({
+    title: initialState?.title ?? "",
+    summary: initialState?.summary ?? "",
+    logic: initialState?.logic ?? "all",
+    blocks: initialBlocks,
+    visibility: initialState?.visibility ?? "private",
+    lifecycle: initialState?.lifecycle ?? "published",
+  }));
+  const allowNavigation = useRef(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [editingLocalDraftId, setEditingLocalDraftId] = useState<string | null>(initialQuest?.id.startsWith("local-custom-") ? initialQuest.id : null);
@@ -72,7 +83,7 @@ export default function MobileCustomCreateForm({ signedIn, initialQuest = null }
     const id = `condition-row-${rowIdCounter.current}`;
     rowIdCounter.current += 1;
     return id;
-  }, []);
+  }, [rowIdCounter]);
 
   const createConditionRows = useCallback((nextBlocks: CustomSideQuestRuleBlock[]) => {
     return nextBlocks.map((block) => getCustomConditionEditorRow(block, nextConditionRowId()));
@@ -84,6 +95,14 @@ export default function MobileCustomCreateForm({ signedIn, initialQuest = null }
     if (!draftId) return;
     const draft = getLocalCustomDraftFormState(window.localStorage, draftId);
     if (!draft) return;
+    baselineSnapshot.current = getCustomBuilderSnapshot({
+      title: draft.title,
+      summary: draft.summary,
+      logic: draft.logic,
+      blocks: draft.blocks,
+      visibility: "private",
+      lifecycle: "published",
+    });
     queueMicrotask(() => {
       setEditingLocalDraftId(draft.id);
       setTitle(draft.title);
@@ -92,6 +111,33 @@ export default function MobileCustomCreateForm({ signedIn, initialQuest = null }
       setConditionRows(createConditionRows(draft.blocks));
     });
   }, [createConditionRows, initialQuest]);
+
+  useEffect(() => {
+    const input = { title, summary, logic, blocks, visibility, lifecycle };
+    if (!hasUnsavedCustomBuilderChanges(baselineSnapshot.current, input)) return;
+
+    const message = "Discard custom Side Quest? You have unsaved custom Side Quest changes.";
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      if (allowNavigation.current) return;
+      event.preventDefault();
+    };
+    const handleDocumentClick = (event: MouseEvent) => {
+      if (allowNavigation.current || event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+      const target = event.target instanceof Element ? event.target.closest<HTMLAnchorElement>("a[href]") : null;
+      if (!target || target.target === "_blank" || target.hasAttribute("download")) return;
+      event.preventDefault();
+      if (!window.confirm(message)) return;
+      allowNavigation.current = true;
+      window.location.assign(target.href);
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    window.addEventListener("click", handleDocumentClick, true);
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+      window.removeEventListener("click", handleDocumentClick, true);
+    };
+  }, [blocks, lifecycle, logic, summary, title, visibility]);
 
   if (initialQuest && !initialState) {
     return <div className="sqc-native-card groupquest-join-error" role="alert">This saved Side Quest could not be opened safely. Return to your library and try again.</div>;
@@ -189,6 +235,7 @@ export default function MobileCustomCreateForm({ signedIn, initialQuest = null }
           config: body.config,
           now: new Date().toISOString(),
         });
+        allowNavigation.current = true;
         window.location.assign(`/custom-side-quests?saved=${encodeURIComponent(id)}`);
       } catch {
         setError("Could not save this draft in your browser. Check browser storage and try again.");
@@ -202,6 +249,7 @@ export default function MobileCustomCreateForm({ signedIn, initialQuest = null }
       const destination = response.ok ? initialState ? getCustomOwnerDestination(result, initialState.id) : getCustomCreateDestination(result) : null;
       if (!destination) { setError(getCreateErrorMessage(response.status, result)); setSaving(false); return; }
       if (editingLocalDraftId) tryRemoveLocalCustomDraft(window.localStorage, editingLocalDraftId);
+      allowNavigation.current = true;
       window.location.assign(destination);
     } catch {
       setError("Could not create this Side Quest right now. Please try again.");

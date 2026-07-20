@@ -17,6 +17,8 @@ import {
   getCreateErrorMessage,
   getCustomCreateDestination,
   getCustomEditFormState,
+  getCustomBuilderSnapshot,
+  hasUnsavedCustomBuilderChanges,
   getCustomConditionRowKey,
   getCustomMoveSequenceEditorState,
   getCustomRuleBlockChoiceId,
@@ -171,6 +173,42 @@ test("local draft cleanup cannot turn a successful account import into a retry",
 
   assert.doesNotThrow(() => tryRemoveLocalCustomDraft(storage, "local-custom-imported"));
   assert.equal(tryRemoveLocalCustomDraft(storage, "local-custom-imported"), false);
+});
+
+test("custom builder detects unsaved changes without treating its loaded state as dirty", () => {
+  const loaded = getCustomBuilderSnapshot({
+    title: "No Castle Night",
+    summary: "Win without castling.",
+    logic: "all",
+    blocks: getCustomTemplateBlocks("no-castle"),
+    visibility: "private",
+    lifecycle: "draft",
+  });
+
+  assert.equal(hasUnsavedCustomBuilderChanges(loaded, {
+    title: "No Castle Night",
+    summary: "Win without castling.",
+    logic: "all",
+    blocks: getCustomTemplateBlocks("no-castle"),
+    visibility: "private",
+    lifecycle: "draft",
+  }), false);
+  assert.equal(hasUnsavedCustomBuilderChanges(loaded, {
+    title: "No Castle Night renamed",
+    summary: "Win without castling.",
+    logic: "all",
+    blocks: getCustomTemplateBlocks("no-castle"),
+    visibility: "private",
+    lifecycle: "draft",
+  }), true);
+  assert.equal(hasUnsavedCustomBuilderChanges(loaded, {
+    title: "No Castle Night",
+    summary: "Win without castling.",
+    logic: "any",
+    blocks: getCustomTemplateBlocks("no-castle"),
+    visibility: "private",
+    lifecycle: "draft",
+  }), true);
 });
 
 test("custom creator builds a launch-ready rule without accepting owner identity", () => {
