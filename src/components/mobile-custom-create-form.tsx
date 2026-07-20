@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useCallback, useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import type { CustomSideQuestRuleBlock } from "@/lib/custom-side-quests";
 import {
   buildCustomCreatePayload,
@@ -286,6 +287,13 @@ export default function MobileCustomCreateForm({ signedIn, initialQuest = null }
     <p>{logic === "all" ? "Every saved condition must pass." : "Any one saved condition can complete the Side Quest."} Conditions can happen in any order.</p>
 
     <label className="sqc-form-row"><span>Side Quest name</span><input aria-label="Side Quest name" maxLength={80} onChange={(event) => setTitle(event.target.value)} placeholder="Name this custom Side Quest" required value={title} /></label>
+    <div className="sqc-custom-coat-preview">
+      <Image alt="" aria-hidden="true" height={66} src="/badges/custom/community/community-coat-01.png" width={66} />
+      <div>
+        <strong>Side Quest Coat of Arms</strong>
+        <small>This is the Coat of Arms players unlock when this Side Quest is completed.</small>
+      </div>
+    </div>
     <label className="sqc-form-row"><span>Description / goal</span><textarea aria-label="Description or goal" maxLength={500} onChange={(event) => setSummary(event.target.value)} placeholder="Tell players what to accomplish" value={summary} /></label>
     {signedIn ? <>
       <span className="sqc-form-label">Visibility</span>

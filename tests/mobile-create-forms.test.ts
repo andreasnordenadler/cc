@@ -282,6 +282,15 @@ test("piece-state editor resets an all-pieces selector when switching to a singl
   });
 });
 
+test("custom builder shows Android's completion Coat of Arms preview", () => {
+  const html = renderToStaticMarkup(React.createElement(MobileCustomCreateForm, { signedIn: true }));
+
+  assert.match(html, /class="sqc-custom-coat-preview"/);
+  assert.match(html, /community-coat-01\.png/);
+  assert.match(html, /Side Quest Coat of Arms/);
+  assert.match(html, /players unlock when this Side Quest is completed/);
+});
+
 test("piece-state editor renders Android's identity choices for a saved rook condition", () => {
   const html = renderToStaticMarkup(React.createElement(MobileCustomCreateForm, {
     signedIn: true,
