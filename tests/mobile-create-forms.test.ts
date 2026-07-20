@@ -13,6 +13,7 @@ import {
   buildMultiplayerCreatePayload,
   appendCustomConditionEditorRow,
   deleteCustomConditionEditorRow,
+  describeCustomRuleBlock,
   duplicateCustomConditionEditorRow,
   getCreateErrorMessage,
   getCustomCreateDestination,
@@ -280,6 +281,35 @@ test("custom creator can mark any Android-compatible condition as something that
     { type: "pieceState", piece: "rook", owner: "my", condition: "on square", targetSquare: "e4", timing: { atGameEnd: true } },
   ]);
   assert.deepEqual(negated.map((condition) => setCustomRuleBlockNegated(condition, false)), conditions);
+});
+
+test("piece selector summaries match Android quantity and starting-piece semantics", () => {
+  assert.equal(describeCustomRuleBlock({
+    type: "pieceState",
+    piece: "rook",
+    owner: "my",
+    selector: { quantifier: "all", count: 2, maxAvailable: 2, identity: "any" },
+    condition: "gone",
+    timing: { atGameEnd: true },
+  }), "Both of your rooks must be gone at game end.");
+  assert.equal(describeCustomRuleBlock({
+    type: "pieceState",
+    piece: "pawn",
+    owner: "opponent",
+    selector: { quantifier: "exactly", count: 3, maxAvailable: 8, identity: "any" },
+    condition: "moved",
+    timing: { byMove: 20 },
+    negate: true,
+  }), "It must not be true that exactly 3 of your opponent's pawns must be moved by move 20.");
+  assert.equal(describeCustomRuleBlock({
+    type: "pieceState",
+    piece: "knight",
+    owner: "my",
+    selector: { quantifier: "any one", count: 1, maxAvailable: 2, identity: "queenside" },
+    condition: "on square",
+    targetSquare: "c3",
+    timing: { atMove: 12 },
+  }), "Your queenside knight must be on square c3 at move 12.");
 });
 
 test("piece identity choices preserve Android's either, both, and specific-piece semantics", () => {
