@@ -26,6 +26,7 @@ import {
   updateCustomMoveSequenceBlock,
   updateCustomOpeningSequenceBlock,
   updateCustomPieceStateEditor,
+  updateCustomPieceIdentityChoice,
   updateCustomPieceStateBlock,
   finalizeCustomOpeningSequenceInput,
   getMultiplayerCreateDestination,
@@ -241,6 +242,75 @@ test("custom creator can mark any Android-compatible condition as something that
     { type: "pieceState", piece: "rook", owner: "my", condition: "on square", targetSquare: "e4", timing: { atGameEnd: true } },
   ]);
   assert.deepEqual(negated.map((condition) => setCustomRuleBlockNegated(condition, false)), conditions);
+});
+
+test("piece identity choices preserve Android's either, both, and specific-piece semantics", () => {
+  const rook = {
+    type: "pieceState" as const,
+    piece: "rook" as const,
+    owner: "my" as const,
+    selector: { quantifier: "any one" as const, count: 1, maxAvailable: 2, identity: "any" },
+    condition: "moved" as const,
+    timing: { atGameEnd: true as const },
+  };
+
+  assert.deepEqual(updateCustomPieceIdentityChoice(rook, "all"), {
+    ...rook,
+    selector: { quantifier: "all", count: 2, maxAvailable: 2, identity: "any" },
+  });
+  assert.deepEqual(updateCustomPieceIdentityChoice(rook, "queenside"), {
+    ...rook,
+    selector: { quantifier: "any one", count: 1, maxAvailable: 2, identity: "queenside" },
+  });
+});
+
+test("piece-state editor resets an all-pieces selector when switching to a single king", () => {
+  const rook = {
+    type: "pieceState" as const,
+    piece: "rook" as const,
+    owner: "my" as const,
+    selector: { quantifier: "all" as const, count: 2, maxAvailable: 2, identity: "any" },
+    condition: "moved" as const,
+    timing: { atGameEnd: true as const },
+  };
+
+  assert.deepEqual(updateCustomPieceStateBlock(rook, { piece: "king" }).selector, {
+    quantifier: "any one",
+    count: 1,
+    maxAvailable: 1,
+    identity: "original",
+  });
+});
+
+test("piece-state editor renders Android's identity choices for a saved rook condition", () => {
+  const html = renderToStaticMarkup(React.createElement(MobileCustomCreateForm, {
+    signedIn: true,
+    initialQuest: {
+      id: "custom-rook-identity",
+      title: "Choose the rook",
+      summary: "",
+      config: JSON.stringify({
+        version: 2,
+        logic: "all",
+        blocks: [{
+          type: "pieceState",
+          piece: "rook",
+          owner: "my",
+          selector: { quantifier: "any one", count: 1, maxAvailable: 2, identity: "any" },
+          condition: "moved",
+          timing: { atGameEnd: true },
+        }],
+      }),
+      visibility: "private",
+      lifecycle: "draft",
+    },
+  }));
+
+  assert.match(html, /Which rook/);
+  assert.match(html, /Either rook/);
+  assert.match(html, /Both rooks/);
+  assert.match(html, /Queenside rook/);
+  assert.match(html, /Kingside rook/);
 });
 
 test("negation keeps preset and move-sequence conditions editable without collapsing richer piece rules", () => {

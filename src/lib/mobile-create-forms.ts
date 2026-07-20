@@ -179,6 +179,41 @@ export function updateCustomMoveSequenceEditor(
   };
 }
 
+export type CustomPieceIdentityChoice = "any" | "all" | "queenside" | "kingside" | `${string}-pawn`;
+
+export function updateCustomPieceIdentityChoice(
+  block: CustomPieceStateBlock,
+  choice: CustomPieceIdentityChoice,
+): CustomPieceStateBlock {
+  const maxAvailable = block.piece === "pawn" ? 8 : block.piece === "king" || block.piece === "queen" ? 1 : 2;
+  const identityOptions = block.piece === "pawn"
+    ? ["any", ..."abcdefgh".split("").map((file) => `${file}-pawn`)]
+    : block.piece === "rook" || block.piece === "bishop" || block.piece === "knight"
+      ? ["any", "queenside", "kingside"]
+      : ["original"];
+  const identity = choice === "all" ? "any" : identityOptions.includes(choice) ? choice : identityOptions[0];
+  const quantifier = choice === "all" ? "all" : "any one";
+  return {
+    ...block,
+    selector: { ...block.selector, quantifier, count: quantifier === "all" ? maxAvailable : 1, maxAvailable, identity },
+  };
+}
+
+export function getCustomPieceIdentityChoices(piece: CustomPieceStateBlock["piece"]): Array<{ id: CustomPieceIdentityChoice; label: string; helper: string }> {
+  if (piece === "pawn") return [
+    { id: "any" as const, label: "Any pawn", helper: "One pawn is enough." },
+    { id: "all" as const, label: "All pawns", helper: "Every pawn for that side." },
+    ..."abcdefgh".split("").map((file) => ({ id: `${file}-pawn` as `${string}-pawn`, label: `${file}-pawn`, helper: "A specific starting pawn." })),
+  ];
+  if (piece === "rook" || piece === "bishop" || piece === "knight") return [
+    { id: "any" as const, label: `Either ${piece}`, helper: "One of the two is enough." },
+    { id: "all" as const, label: `Both ${piece}s`, helper: "Both starting pieces must match." },
+    { id: "queenside" as const, label: `Queenside ${piece}`, helper: "The starting piece on the queen side." },
+    { id: "kingside" as const, label: `Kingside ${piece}`, helper: "The starting piece on the king side." },
+  ];
+  return [];
+}
+
 export function updateCustomPieceStateBlock(
   block: CustomPieceStateBlock,
   input: Partial<Pick<CustomPieceStateBlock, "piece" | "owner" | "condition">> & {
@@ -190,7 +225,7 @@ export function updateCustomPieceStateBlock(
   const piece = input.piece ?? block.piece;
   const maxAvailable = piece === "pawn" ? 8 : piece === "king" || piece === "queen" ? 1 : 2;
   const previousSelector = block.selector;
-  const quantifier = previousSelector?.quantifier ?? "any one";
+  const quantifier = maxAvailable === 1 ? "any one" : previousSelector?.quantifier ?? "any one";
   const count = Math.min(previousSelector?.count ?? 1, maxAvailable);
   const identityOptions = piece === "pawn"
     ? ["any", ..."abcdefgh".split("").map((file) => `${file}-pawn`)]
