@@ -18,6 +18,7 @@ import {
   setCustomRuleBlockNegated,
   updateCustomMoveSequenceEditor,
   updateCustomOpeningSequenceBlock,
+  updateCustomPieceStateEditor,
   finalizeCustomOpeningSequenceInput,
   type CustomEditQuestInput,
   type CustomTemplate,
@@ -43,6 +44,7 @@ const conditionChoices: Array<{ id: string; label: string; helper: string; block
   { id: "lose", label: "Finish with a loss", helper: "The linked player must lose.", block: { type: "gameResult", result: "lose" } },
   { id: "queen-gone", label: "Your queen is gone", helper: "Your queen is captured by game end.", block: { type: "pieceState", piece: "queen", owner: "my", condition: "gone", timing: { atGameEnd: true } } },
   { id: "king-still", label: "Do not move your king", helper: "Your king stays on its starting square.", block: { type: "pieceState", piece: "king", owner: "my", condition: "not moved", timing: { atGameEnd: true } } },
+  { id: "piece-state", label: "Piece state", helper: "Choose a piece, owner, board state, and timing.", block: { type: "pieceState", piece: "queen", owner: "my", selector: { quantifier: "any one", count: 1, maxAvailable: 1, identity: "original" }, condition: "moved", targetSquare: null, timing: { atGameEnd: true } } },
   { id: "move-sequence", label: "Move sequence", helper: "Require algebraic moves in order by a chosen time.", block: { type: "moveSequence", sequence: "e4 e5 Nf3", timing: { byMove: 15 } } },
   { id: "knights-first", label: "Knight-only opening", helper: "Play Nf3, ...Nf6, Nc3, ...Nc6 from move 1.", block: { type: "openingSequence", raw: "Nf3 Nf6 Nc3 Nc6", moves: ["Nf3", "Nf6", "Nc3", "Nc6"], anchor: "gameStart" } },
 ];
@@ -119,6 +121,20 @@ export default function MobileCustomCreateForm({ signedIn, initialQuest = null }
   function updateOpeningSequenceCondition(index: number, raw: string) {
     setConditionRows((current) => current.map((row, rowIndex) => rowIndex === index && row.block.type === "openingSequence"
       ? { ...row, block: updateCustomOpeningSequenceBlock(row.block, raw) }
+      : row));
+  }
+
+  function updatePieceStateCondition(index: number, input: Parameters<typeof updateCustomPieceStateEditor>[1]) {
+    setConditionRows((current) => current.map((row, rowIndex) => {
+      if (rowIndex !== index || row.block.type !== "pieceState") return row;
+      return { ...row, ...updateCustomPieceStateEditor({ block: row.block, moveNumberInput: row.moveNumberInput }, input) };
+    }));
+  }
+
+  function updatePieceTargetSquareInput(index: number, targetSquare: string) {
+    const cleaned = targetSquare.toLowerCase().replace(/[^a-h1-8]/g, "").slice(0, 2);
+    setConditionRows((current) => current.map((row, rowIndex) => rowIndex === index && row.block.type === "pieceState"
+      ? { ...row, block: { ...row.block, targetSquare: cleaned } }
       : row));
   }
 
@@ -215,6 +231,25 @@ export default function MobileCustomCreateForm({ signedIn, initialQuest = null }
             <label className="sqc-form-row"><span>Opening notation</span><textarea aria-label={`Condition ${index + 1} opening sequence`} maxLength={260} onBlur={(event) => updateOpeningSequenceCondition(index, finalizeCustomOpeningSequenceInput(event.target.value))} onChange={(event) => updateOpeningSequenceCondition(index, event.target.value)} placeholder="1.e4 e5 2.f4" value={block.raw ?? block.moves.join(" ")} /></label>
             <p>Paste opening notation with move numbers. SQC cleans it into: {block.moves.length ? block.moves.join(" → ") : "No moves parsed yet."}</p>
             <p>Opening sequence is always checked from move 1, so no timing is needed.</p>
+          </div> : block.type === "pieceState" && block.owner !== "either" ? <div className="sqc-condition-editor-fields">
+            <span className="sqc-card-eyebrow">Piece</span>
+            <div className="sqc-option-grid" role="group" aria-label={`Condition ${index + 1} piece`}>
+              {(["king", "queen", "rook", "bishop", "knight", "pawn"] as const).map((piece) => <button aria-pressed={block.piece === piece} className={`sqc-option-card${block.piece === piece ? " selected" : ""}`} key={piece} onClick={() => updatePieceStateCondition(index, { piece })} type="button"><span aria-hidden="true" /><div className="sqc-option-card-copy"><strong>{piece.slice(0, 1).toUpperCase() + piece.slice(1)}</strong>{piece === "king" || piece === "queen" ? <small>Only one exists, so there is no “which one” choice.</small> : null}</div></button>)}
+            </div>
+            <span className="sqc-card-eyebrow">Whose piece</span>
+            <div className="sqc-option-grid" role="group" aria-label={`Condition ${index + 1} owner`}>
+              {([{"id":"my","label":"Mine"},{"id":"opponent","label":"Opponent's"}] as const).map((owner) => <button aria-pressed={(block.owner === "either" ? "my" : block.owner) === owner.id} className={`sqc-option-card${(block.owner === "either" ? "my" : block.owner) === owner.id ? " selected" : ""}`} key={owner.id} onClick={() => updatePieceStateCondition(index, { owner: owner.id })} type="button"><span aria-hidden="true" /><div className="sqc-option-card-copy"><strong>{owner.label}</strong></div></button>)}
+            </div>
+            <span className="sqc-card-eyebrow">State</span>
+            <div className="sqc-option-grid" role="group" aria-label={`Condition ${index + 1} piece condition`}>
+              {([{"id":"gone","label":"Gone"},{"id":"still on board","label":"Still on board"},{"id":"moved","label":"Moved"},{"id":"not moved","label":"Not moved"},{"id":"on square","label":"On square"}] as const).map((condition) => <button aria-pressed={block.condition === condition.id} className={`sqc-option-card${block.condition === condition.id ? " selected" : ""}`} key={condition.id} onClick={() => updatePieceStateCondition(index, { condition: condition.id })} type="button"><span aria-hidden="true" /><div className="sqc-option-card-copy"><strong>{condition.label}</strong><small>A piece-based condition.</small></div></button>)}
+            </div>
+            {block.condition === "on square" ? <label className="sqc-form-row"><span>Target square</span><input aria-label={`Condition ${index + 1} target square`} maxLength={2} onBlur={(event) => updatePieceStateCondition(index, { targetSquare: event.target.value })} onChange={(event) => updatePieceTargetSquareInput(index, event.target.value)} placeholder="e4" value={block.targetSquare ?? ""} /></label> : null}
+            <span className="sqc-card-eyebrow">Timing</span>
+            <div className="sqc-option-grid" role="group" aria-label={`Condition ${index + 1} timing`}>
+              {([{"id":"byMove","label":"By move"},{"id":"atMove","label":"At move"},{"id":"atGameEnd","label":"At game end"}] as const).map((timing) => { const selected = timing.id === (block.timing?.atMove ? "atMove" : block.timing?.byMove ? "byMove" : "atGameEnd"); return <button aria-pressed={selected} className={`sqc-option-card${selected ? " selected" : ""}`} key={timing.id} onClick={() => updatePieceStateCondition(index, { timing: timing.id })} type="button"><span aria-hidden="true" /><div className="sqc-option-card-copy"><strong>{timing.label}</strong>{timing.id !== "atGameEnd" ? <small>Choose the move number for this timing.</small> : null}</div></button>; })}
+            </div>
+            {block.timing?.byMove || block.timing?.atMove ? <label className="sqc-form-row"><span>Move number</span><input aria-label={`Condition ${index + 1} move number`} inputMode="numeric" max={300} min={1} onChange={(event) => updatePieceStateCondition(index, { moveNumberInput: event.target.value })} type="number" value={moveNumberInput} /></label> : null}
           </div> : null}
           <p>{describeCustomRuleBlock(block)}</p>
           <div className="sqc-community-detail-actions">

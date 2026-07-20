@@ -44,9 +44,16 @@ export function setCustomRuleBlockNegated(block: CustomSideQuestRuleBlock, negat
 
 type CustomMoveSequenceTiming = "byMove" | "atMove" | "atGameEnd";
 type CustomMoveSequenceBlock = Extract<CustomSideQuestRuleBlock, { type: "moveSequence" }>;
+type CustomPieceStateBlock = Extract<CustomSideQuestRuleBlock, { type: "pieceState" }>;
+type CustomPieceStateTiming = "byMove" | "atMove" | "atGameEnd";
 
 export type CustomMoveSequenceEditorState = {
   block: CustomMoveSequenceBlock;
+  moveNumberInput: string;
+};
+
+export type CustomPieceStateEditorState = {
+  block: CustomPieceStateBlock;
   moveNumberInput: string;
 };
 
@@ -61,7 +68,7 @@ export function getCustomConditionEditorRow(block: CustomSideQuestRuleBlock, id:
   return {
     id,
     block: next,
-    moveNumberInput: next.type === "moveSequence" ? String(next.timing?.atMove ?? next.timing?.byMove ?? 15) : "",
+    moveNumberInput: next.type === "moveSequence" || next.type === "pieceState" ? String(next.timing?.atMove ?? next.timing?.byMove ?? 15) : "",
   };
 }
 
@@ -172,6 +179,66 @@ export function updateCustomMoveSequenceEditor(
   };
 }
 
+export function updateCustomPieceStateBlock(
+  block: CustomPieceStateBlock,
+  input: Partial<Pick<CustomPieceStateBlock, "piece" | "owner" | "condition">> & {
+    targetSquare?: string;
+    timing?: CustomPieceStateTiming;
+    moveNumber?: number;
+  },
+): CustomPieceStateBlock {
+  const piece = input.piece ?? block.piece;
+  const maxAvailable = piece === "pawn" ? 8 : piece === "king" || piece === "queen" ? 1 : 2;
+  const previousSelector = block.selector;
+  const quantifier = previousSelector?.quantifier ?? "any one";
+  const count = Math.min(previousSelector?.count ?? 1, maxAvailable);
+  const identityOptions = piece === "pawn"
+    ? ["any", ..."abcdefgh".split("").map((file) => `${file}-pawn`)]
+    : piece === "rook" || piece === "bishop" || piece === "knight"
+      ? ["any", "queenside", "kingside"]
+      : ["original"];
+  const identity = identityOptions.includes(previousSelector?.identity ?? "")
+    ? previousSelector?.identity
+    : identityOptions[0];
+  const condition = input.condition ?? block.condition;
+  const timingChoice = input.timing
+    ?? (block.timing?.atMove ? "atMove" : block.timing?.byMove ? "byMove" : "atGameEnd");
+  const moveNumber = normalizeCustomMoveNumber(input.moveNumber ?? block.timing?.atMove ?? block.timing?.byMove ?? 15);
+  const timing = timingChoice === "byMove"
+    ? { byMove: moveNumber }
+    : timingChoice === "atMove"
+      ? { atMove: moveNumber }
+      : { atGameEnd: true as const };
+  const targetSquare = condition === "on square"
+    ? /^[a-h][1-8]$/i.test(input.targetSquare ?? block.targetSquare ?? "")
+      ? (input.targetSquare ?? block.targetSquare ?? "e4").toLowerCase()
+      : "e4"
+    : null;
+
+  return {
+    ...block,
+    piece,
+    owner: input.owner ?? block.owner,
+    selector: { ...previousSelector, quantifier, count, maxAvailable, identity },
+    condition,
+    targetSquare,
+    timing,
+  };
+}
+
+export function updateCustomPieceStateEditor(
+  state: CustomPieceStateEditorState,
+  input: Parameters<typeof updateCustomPieceStateBlock>[1] & { moveNumberInput?: string },
+): CustomPieceStateEditorState {
+  const moveNumberInput = input.moveNumberInput === undefined
+    ? state.moveNumberInput
+    : formatCustomMoveNumberInput(input.moveNumberInput);
+  return {
+    block: updateCustomPieceStateBlock(state.block, { ...input, moveNumber: Number(moveNumberInput) }),
+    moveNumberInput,
+  };
+}
+
 export function getCustomConditionRowKey(index: number) {
   return `custom-condition-${index}`;
 }
@@ -187,7 +254,8 @@ export function getCustomRuleBlockChoiceId(block: CustomSideQuestRuleBlock) {
     ["king-still", { type: "pieceState", piece: "king", owner: "my", condition: "not moved", timing: { atGameEnd: true } }],
     ["knights-first", { type: "openingSequence", raw: "Nf3 Nf6 Nc3 Nc6", moves: ["Nf3", "Nf6", "Nc3", "Nc6"], anchor: "gameStart" }],
   ];
-  return presets.find(([, preset]) => JSON.stringify(preset) === comparable)?.[0] ?? "advanced";
+  return presets.find(([, preset]) => JSON.stringify(preset) === comparable)?.[0]
+    ?? (block.type === "pieceState" && block.owner !== "either" ? "piece-state" : "advanced");
 }
 
 export function describeCustomRuleBlock(block: CustomSideQuestRuleBlock) {
