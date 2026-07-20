@@ -14,7 +14,10 @@ export type MultiplayerCatalogRow = {
   status: "Not joined" | "Joined" | "Hosted";
   lifecycle: "open" | "finished";
   createdAt: string;
+  startAt: string;
   endAt: string;
+  likeSummary: { count: number };
+  playerCount: number;
 };
 
 export function filterSoloCatalog<T extends SoloCatalogRow>(
@@ -94,7 +97,7 @@ export function paginateCatalog<T>(rows: T[], limit: number) {
 
 export function filterMultiplayerCatalog<T extends MultiplayerCatalogRow>(
   rows: T[],
-  options: { query: string; filter: "all" | "open" | "joined" | "hosted" | "finished"; sort: "closing" | "newest" | "name" },
+  options: { query: string; filter: "all" | "open" | "joined" | "hosted" | "finished"; sort: "closing" | "liked" | "newest" | "players" | "name" },
 ): T[] {
   const query = options.query.trim().toLocaleLowerCase();
   return rows
@@ -106,8 +109,13 @@ export function filterMultiplayerCatalog<T extends MultiplayerCatalogRow>(
     })
     .sort((a, b) => {
       if (options.sort === "name") return a.title.localeCompare(b.title);
-      const left = Date.parse(options.sort === "closing" ? a.endAt : a.createdAt) || 0;
-      const right = Date.parse(options.sort === "closing" ? b.endAt : b.createdAt) || 0;
+      if (options.sort === "players") return b.playerCount - a.playerCount;
+      if (options.sort === "liked") {
+        return b.likeSummary.count - a.likeSummary.count
+          || (Date.parse(b.startAt) || 0) - (Date.parse(a.startAt) || 0);
+      }
+      const left = Date.parse(options.sort === "closing" ? a.endAt : options.sort === "newest" ? a.startAt : a.createdAt) || 0;
+      const right = Date.parse(options.sort === "closing" ? b.endAt : options.sort === "newest" ? b.startAt : b.createdAt) || 0;
       return options.sort === "closing" ? left - right : right - left;
     });
 }

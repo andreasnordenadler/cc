@@ -11,8 +11,8 @@ function multiplayerRow(overrides: Record<string, unknown> = {}) {
   return {
     id: "row-1", title: "Friday Forks", meta: "Community public · 2 players", href: "/groupquests/row-1",
     sourceBadge: "Community" as const, inviteCopy: "Fork practice", quests: ["Knight Fork"], rules: [],
-    status: "Not joined" as const, playersLabel: "2 players", timeLeftLabel: "2d left", likeSummary,
-    lifecycle: "open" as const, createdAt: "2026-07-10T00:00:00.000Z", endAt: "2026-07-20T00:00:00.000Z",
+    status: "Not joined" as const, playerCount: 2, playersLabel: "2 players", timeLeftLabel: "2d left", likeSummary,
+    lifecycle: "open" as const, createdAt: "2026-07-10T00:00:00.000Z", startAt: "2026-07-11T00:00:00.000Z", endAt: "2026-07-20T00:00:00.000Z",
     ...overrides,
   };
 }
@@ -166,6 +166,44 @@ test("multiplayer catalog searches quests and filters joined, hosted, finished, 
     assert.deepEqual(filterMultiplayerCatalog(rows, { query: "", filter, sort: "closing" }).map(row => row.id), [filter]);
   }
   assert.deepEqual(filterMultiplayerCatalog(rows, { query: "", filter: "open", sort: "closing" }).map(row => row.id), ["open", "joined", "hosted"]);
+});
+
+test("multiplayer community catalog matches Android liked sorting", () => {
+  const rows = [
+    multiplayerRow({ id: "older-liked", likeSummary: { count: 7, likedByViewer: false }, createdAt: "2026-07-10T00:00:00.000Z", startAt: "2026-07-08T00:00:00.000Z" }),
+    multiplayerRow({ id: "newer-liked", likeSummary: { count: 7, likedByViewer: true }, createdAt: "2026-07-08T00:00:00.000Z", startAt: "2026-07-09T00:00:00.000Z" }),
+    multiplayerRow({ id: "less-liked", likeSummary: { count: 2, likedByViewer: false }, createdAt: "2026-07-11T00:00:00.000Z", startAt: "2026-07-10T00:00:00.000Z" }),
+  ];
+
+  assert.deepEqual(
+    filterMultiplayerCatalog(rows, { query: "", filter: "all", sort: "liked" }).map(row => row.id),
+    ["newer-liked", "older-liked", "less-liked"],
+  );
+});
+
+test("multiplayer community catalog matches Android player-count sorting", () => {
+  const rows = [
+    multiplayerRow({ id: "two-players", playerCount: 2 }),
+    multiplayerRow({ id: "twelve-players", playerCount: 12 }),
+    multiplayerRow({ id: "seven-players", playerCount: 7 }),
+  ];
+
+  assert.deepEqual(
+    filterMultiplayerCatalog(rows, { query: "", filter: "all", sort: "players" }).map(row => row.id),
+    ["twelve-players", "seven-players", "two-players"],
+  );
+});
+
+test("multiplayer community catalog matches Android new sorting by start time", () => {
+  const rows = [
+    multiplayerRow({ id: "created-later", createdAt: "2026-07-12T00:00:00.000Z", startAt: "2026-07-13T00:00:00.000Z" }),
+    multiplayerRow({ id: "starts-later", createdAt: "2026-07-10T00:00:00.000Z", startAt: "2026-07-15T00:00:00.000Z" }),
+  ];
+
+  assert.deepEqual(
+    filterMultiplayerCatalog(rows, { query: "", filter: "all", sort: "newest" }).map(row => row.id),
+    ["starts-later", "created-later"],
+  );
 });
 
 test("signed-in related quests are classified as hosted, joined, or finished while signed-out gets no private rows", () => {
