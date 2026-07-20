@@ -20,6 +20,14 @@ type CustomCreateInput = {
   lifecycle: "draft" | "published" | "archived";
 };
 
+export function getCustomBuilderSnapshot(input: CustomCreateInput) {
+  return JSON.stringify(input);
+}
+
+export function hasUnsavedCustomBuilderChanges(baseline: string, input: CustomCreateInput) {
+  return getCustomBuilderSnapshot(input) !== baseline;
+}
+
 const customBlocks: Record<CustomTemplate, CustomSideQuestRuleBlock[]> = {
   "knights-first": [{ type: "openingSequence", raw: "Nf3 Nf6 Nc3 Nc6", moves: ["Nf3", "Nf6", "Nc3", "Nc6"], anchor: "gameStart" }, { type: "gameResult", result: "win" }],
   "no-castle": [{ type: "gameResult", result: "win" }, { type: "pieceState", piece: "king", owner: "my", condition: "not moved", timing: { atGameEnd: true } }],
