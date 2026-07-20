@@ -9,6 +9,7 @@ import DeactivateQuestControl from "@/components/deactivate-quest-control";
 import { MobileWebRelativeTime } from "@/components/mobile-web-relative-time";
 import OfficialSoloDetailActions, { OfficialSoloExactGameControl } from "@/components/official-solo-detail-actions";
 import OfficialSoloLikeControl from "@/components/official-solo-like-control";
+import SoloCoatLightbox from "@/components/solo-coat-lightbox";
 import { CHALLENGES, getChallengeById } from "@/lib/challenges";
 import { getCommunityLikeSummaries } from "@/lib/community-likes";
 import { getChallengeGlowPath } from "@/lib/mobile-web-trophies";
@@ -112,10 +113,12 @@ export default async function ChallengeDetailPage({
       <div className={isActiveChallenge ? "sqc-stack sqc-active-solo-detail-screen" : "sqc-stack sqc-official-solo-detail-screen"}>
         {isActiveChallenge ? (
           <section className="sqc-active-detail-hero">
-            <span className="sqc-detail-coat-frame" aria-hidden="true">
-              {glowPath ? <Image className="sqc-detail-coat-glow" alt="" src={glowPath} width={152} height={164} priority /> : null}
-              <Image className="sqc-detail-coat-image" alt="" src={badgePath} width={108} height={118} priority />
-            </span>
+            <SoloCoatLightbox
+              challengeId={challenge.id}
+              badgeName={challenge.badgeIdentity.name}
+              badgePath={badgePath}
+              glowPath={glowPath}
+            />
             <span className="sqc-pill">{activePassed ? "Completed Solo Side Quest" : "Active Solo Side Quest"}</span>
             <div className="sqc-active-detail-title-row">
               <h1>{challenge.title}</h1>
