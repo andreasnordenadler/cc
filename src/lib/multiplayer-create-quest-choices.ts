@@ -61,6 +61,13 @@ type CommunityQuestChoice = CustomSideQuest & {
   creatorName?: string;
 };
 
+export function selectCommunityCreateChoices(quests: CommunityQuestChoice[], requestedId: string | undefined, limit = 80) {
+  const browse = quests.slice(0, Math.max(0, limit));
+  if (!requestedId || browse.some((quest) => quest.id === requestedId)) return browse;
+  const requested = quests.find((quest) => quest.id === requestedId);
+  return requested ? [...browse, requested] : browse;
+}
+
 export async function loadMultiplayerCreateQuestChoices({
   official,
   owned,

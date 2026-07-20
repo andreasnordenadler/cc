@@ -197,6 +197,25 @@ test("Community Solo detail exposes Android share and copy actions instead of a 
   assert.doesNotMatch(html, /<a[^>]*href="\/challenges\/community\/quest%2F42"[^>]*>Share public link<\/a>/);
 });
 
+test("signed-in Community Solo detail can start an exact preselected Multiplayer draft", () => {
+  const html = renderToStaticMarkup(React.createElement(MobileCommunitySideQuestDetailScreen, {
+    signedIn: true,
+    quest: {
+      id: "quest/42",
+      title: "Ada's Fork",
+      summary: "Win a fork.",
+      creatorName: "Ada",
+      creatorBrowsePath: "/community-side-quests?creator=ada",
+      ruleLabel: "Fork",
+      ruleDetails: ["Create a fork."],
+      stats: { soloAttempts: 0, soloSelections: 0, soloCompletions: 0, multiplayerLineups: 0, multiplayerAttempts: 0, multiplayerFulfillments: 0 },
+    },
+  }));
+
+  assert.match(html, /href="\/create-multiplayer-side-quest\?quest=quest%2F42"[^>]*>Use in Multiplayer<\/a>/);
+  assert.doesNotMatch(html, /userId=|creatorUserId=/);
+});
+
 test("Community Solo detail keeps its Coat of Arms in flow instead of clipping it above the viewport", async () => {
   const css = await import("node:fs/promises").then(fs => fs.readFile(new URL("../src/app/mobile-web.css", import.meta.url), "utf8"));
 

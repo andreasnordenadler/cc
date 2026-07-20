@@ -5,10 +5,15 @@ import { getChessComUsername, getLichessUsername, getPreferredRunnerName, type U
 import { CHALLENGES } from "@/lib/challenges";
 import { listPublicCommunitySideQuests } from "@/lib/community-side-quests";
 import { getCustomSideQuests } from "@/lib/custom-side-quests";
-import { loadMultiplayerCreateQuestChoices } from "@/lib/multiplayer-create-quest-choices";
+import { loadMultiplayerCreateQuestChoices, selectCommunityCreateChoices } from "@/lib/multiplayer-create-quest-choices";
 
-export default async function CreateMultiplayerSideQuestPage() {
+export default async function CreateMultiplayerSideQuestPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ quest?: string | string[] }>;
+}) {
   noStore();
+  const { quest } = await searchParams;
   const user = await currentUser();
   const metadata = user?.publicMetadata ? (user.publicMetadata as UserMetadataRecord) : {};
   const privateMetadata = user?.privateMetadata ? (user.privateMetadata as UserMetadataRecord) : {};
@@ -17,7 +22,10 @@ export default async function CreateMultiplayerSideQuestPage() {
     official: CHALLENGES,
     owned: getCustomSideQuests(ownedMetadata),
     loadCommunity: async () => user
-      ? listPublicCommunitySideQuests(await clerkClient(), { limit: 80 })
+      ? selectCommunityCreateChoices(
+          await listPublicCommunitySideQuests(await clerkClient(), { limit: 200 }),
+          typeof quest === "string" ? quest : undefined,
+        )
       : [],
   });
   const displayName = user
@@ -50,6 +58,7 @@ export default async function CreateMultiplayerSideQuestPage() {
         signedIn={Boolean(user)}
         quests={quests}
         communityUnavailable={communityUnavailable}
+        initialQuestId={typeof quest === "string" ? quest : undefined}
       />
     </MobileAppWebShell>
   );

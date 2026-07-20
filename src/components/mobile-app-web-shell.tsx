@@ -935,6 +935,7 @@ export function MobileCommunitySideQuestDetailScreen({
         <CommunitySoloSocialActions questId={quest.id} title={quest.title} signedIn={signedIn} initialCount={likeSummary.count} initiallyLiked={likeSummary.likedByViewer} />
         <Link href="/community-side-quests" className="sqc-detail-quiet-button">Back to list</Link>
         <Link href={quest.creatorBrowsePath} className="sqc-detail-secondary-button">More by {quest.creatorName}</Link>
+        {signedIn ? <Link href={`/create-multiplayer-side-quest?quest=${encodeURIComponent(quest.id)}`} className="sqc-detail-secondary-button">Use in Multiplayer</Link> : null}
         <CommunitySoloShareControls id={quest.id} title={quest.title} />
       </div>
     </div>
@@ -1206,7 +1207,7 @@ function CommunityMultiplayerPanel({ signedIn, rows, initialHost }: { signedIn: 
   );
 }
 
-export function MobileCreateMultiplayerScreen({ signedIn = false, quests = [], communityUnavailable = false }: { signedIn?: boolean; quests?: MultiplayerCreateQuest[]; communityUnavailable?: boolean }) {
+export function MobileCreateMultiplayerScreen({ signedIn = false, quests = [], communityUnavailable = false, initialQuestId }: { signedIn?: boolean; quests?: MultiplayerCreateQuest[]; communityUnavailable?: boolean; initialQuestId?: string }) {
   return (
     <div className="sqc-stack sqc-create-multiplayer-screen">
       <section className="sqc-multiplayer-detail-hero sqc-create-multiplayer-hero">
@@ -1216,7 +1217,7 @@ export function MobileCreateMultiplayerScreen({ signedIn = false, quests = [], c
         <p>Choose the rules, create the Multiplayer Side Quest, then share the invite with players.</p>
       </section>
 
-      <MobileMultiplayerCreateForm signedIn={signedIn} quests={quests} stableNow={new Date().toISOString()} communityUnavailable={communityUnavailable} />
+      <MobileMultiplayerCreateForm signedIn={signedIn} quests={quests} stableNow={new Date().toISOString()} communityUnavailable={communityUnavailable} initialQuestId={initialQuestId} />
 
       <div hidden aria-hidden="true">
       <section className="sqc-native-card">
