@@ -11,12 +11,19 @@ import {
   buildCustomCreatePayload,
   buildCustomEditConfig,
   buildMultiplayerCreatePayload,
+  appendCustomConditionEditorRow,
+  deleteCustomConditionEditorRow,
+  duplicateCustomConditionEditorRow,
   getCreateErrorMessage,
   getCustomCreateDestination,
   getCustomEditFormState,
+  getCustomConditionRowKey,
+  getCustomMoveSequenceEditorState,
   getCustomRuleBlockChoiceId,
   getCustomTemplateBlocks,
   setCustomRuleBlockNegated,
+  updateCustomMoveSequenceEditor,
+  updateCustomMoveSequenceBlock,
   getMultiplayerCreateDestination,
   getMultiplayerLocalDateTimeDefaults,
 } from "../src/lib/mobile-create-forms";
@@ -232,10 +239,10 @@ test("custom creator can mark any Android-compatible condition as something that
   assert.deepEqual(negated.map((condition) => setCustomRuleBlockNegated(condition, false)), conditions);
 });
 
-test("negating a preset condition keeps its Android condition type selected without collapsing richer rules", () => {
+test("negation keeps preset and move-sequence conditions editable without collapsing richer piece rules", () => {
   assert.equal(getCustomRuleBlockChoiceId({ type: "gameResult", result: "win", negate: true }), "win");
   assert.equal(getCustomRuleBlockChoiceId({ type: "pieceState", piece: "king", owner: "my", condition: "not moved", timing: { atGameEnd: true }, negate: true }), "king-still");
-  assert.equal(getCustomRuleBlockChoiceId({ type: "moveSequence", sequence: "e4 e5", negate: true }), "advanced");
+  assert.equal(getCustomRuleBlockChoiceId({ type: "moveSequence", sequence: "e4 e5", negate: true }), "move-sequence");
   assert.equal(getCustomRuleBlockChoiceId({
     type: "pieceState",
     piece: "queen",
@@ -355,6 +362,152 @@ test("custom builder exposes Android's true or must-not-happen control for each 
   assert.equal((html.match(/aria-label="Condition \d truth"/g) ?? []).length, 2);
   assert.match(html, /aria-pressed="true"[^>]*>Must happen/);
   assert.match(html, /aria-pressed="false"[^>]*>Must not happen/);
+});
+
+test("custom builder creates and edits Android-compatible move-sequence conditions", () => {
+  assert.equal(getCustomConditionRowKey(0), "custom-condition-0");
+  const original: CustomSideQuestRuleBlock = {
+    type: "moveSequence",
+    sequence: "e4 e5",
+    timing: { atMove: 12 },
+    negate: true,
+  };
+
+  assert.deepEqual(updateCustomMoveSequenceBlock(original, {
+    sequence: "  e4   e5 Nf3?!  ",
+    timing: "byMove",
+    moveNumber: 18,
+  }), {
+    type: "moveSequence",
+    sequence: "  e4   e5 Nf3?!  ",
+    timing: { byMove: 18 },
+    negate: true,
+  });
+  assert.equal(updateCustomMoveSequenceBlock(original, {
+    sequence: "e4 ",
+    timing: "atMove",
+    moveNumber: 12,
+  }).sequence, "e4 ");
+  const saved = buildCustomCreatePayload({
+    title: "Develop in order",
+    summary: "",
+    logic: "all",
+    blocks: [updateCustomMoveSequenceBlock(original, {
+      sequence: "  e4   e5 Nf3?!  ",
+      timing: "byMove",
+      moveNumber: 18,
+    })],
+    visibility: "private",
+    lifecycle: "published",
+  });
+  assert.equal(JSON.parse(saved.config).blocks[0].sequence, "e4 e5 Nf3");
+  const edited = JSON.parse(buildCustomEditConfig(
+    JSON.stringify({ version: 7, logic: "any", customTopLevel: true, blocks: [original] }),
+    "all",
+    [updateCustomMoveSequenceBlock(original, {
+      sequence: " e4   e5 ",
+      timing: "atMove",
+      moveNumber: 12,
+    })],
+  ));
+  assert.equal(edited.blocks[0].sequence, "e4 e5");
+  assert.equal(edited.customTopLevel, true);
+
+  const html = renderToStaticMarkup(React.createElement(MobileCustomCreateForm, {
+    signedIn: true,
+    initialQuest: {
+      id: "custom-move-sequence",
+      title: "Develop in order",
+      summary: "Play the sequence before move 18.",
+      config: JSON.stringify({ version: 2, logic: "all", blocks: [original] }),
+      visibility: "private",
+      lifecycle: "published",
+    },
+  }));
+  assert.match(html, /<option value="move-sequence" selected="">Move sequence<\/option>/);
+  assert.match(html, /aria-label="Condition 1 move sequence"[^>]*>e4 e5<\/textarea>/);
+  assert.match(html, /aria-label="Condition 1 timing"/);
+  assert.match(html, /aria-label="Condition 1 move number"/);
+});
+
+test("custom move-sequence editor rejects an empty condition like Android v338", () => {
+  assert.throws(() => buildCustomCreatePayload({
+    title: "Empty sequence",
+    summary: "",
+    logic: "all",
+    blocks: [{ type: "moveSequence", sequence: " ?! ", timing: { atGameEnd: true } }],
+    visibility: "private",
+    lifecycle: "published",
+  }), /algebraic move/i);
+});
+
+test("custom move-sequence move number can be cleared and retyped without losing the next value", () => {
+  const original = {
+    block: { type: "moveSequence" as const, sequence: "e4 e5", timing: { byMove: 18 } },
+    moveNumberInput: "18",
+  };
+  const cleared = updateCustomMoveSequenceEditor(original, { moveNumberInput: "" });
+  assert.equal(cleared.moveNumberInput, "");
+  assert.deepEqual(cleared.block.timing, { byMove: 1 });
+
+  const retyped = updateCustomMoveSequenceEditor(cleared, { moveNumberInput: "27" });
+  assert.equal(retyped.moveNumberInput, "27");
+  assert.deepEqual(retyped.block.timing, { byMove: 27 });
+});
+
+test("custom move-sequence timing keeps the last move number through the game-end choice", () => {
+  const original = {
+    block: { type: "moveSequence" as const, sequence: "e4 e5", timing: { atMove: 18 } },
+    moveNumberInput: "18",
+  };
+  const atGameEnd = updateCustomMoveSequenceEditor(original, { timing: "atGameEnd" });
+  assert.equal(atGameEnd.moveNumberInput, "18");
+  assert.deepEqual(atGameEnd.block.timing, { atGameEnd: true });
+
+  const restored = updateCustomMoveSequenceEditor(atGameEnd, { timing: "byMove" });
+  assert.equal(restored.moveNumberInput, "18");
+  assert.deepEqual(restored.block.timing, { byMove: 18 });
+});
+
+test("custom move-sequence editor matches Android when saved timing fields are ambiguous", () => {
+  const state = getCustomMoveSequenceEditorState({
+    type: "moveSequence",
+    sequence: "e4 e5",
+    timing: { byMove: 12, atMove: 18 },
+  });
+  assert.equal(state.moveNumberInput, "18");
+  assert.deepEqual(updateCustomMoveSequenceEditor(state, {}).block.timing, { atMove: 18 });
+});
+
+test("custom condition rows enforce the six-condition limit from current state", () => {
+  const row = { id: "row-1", block: { type: "gameResult" as const, result: "win" as const }, moveNumberInput: "" };
+  const five = Array.from({ length: 5 }, (_, index) => ({ ...structuredClone(row), id: `row-${index + 1}` }));
+  const six = appendCustomConditionEditorRow(five, row.block, "row-6");
+  const stillSix = appendCustomConditionEditorRow(six, row.block, "row-7");
+  assert.equal(six.length, 6);
+  assert.equal(stillSix.length, 6);
+});
+
+test("custom condition duplicate and delete keep stable row identity aligned with move-number state", () => {
+  const rows = [{
+    id: "move-row",
+    block: { type: "moveSequence" as const, sequence: "e4 e5", timing: { byMove: 27 } },
+    moveNumberInput: "27",
+  }, {
+    id: "result-row",
+    block: { type: "gameResult" as const, result: "win" as const },
+    moveNumberInput: "",
+  }];
+  const duplicated = duplicateCustomConditionEditorRow(rows, 0, "duplicate-row");
+  assert.equal(duplicated[0]?.id, "move-row");
+  assert.equal(duplicated[1]?.id, "duplicate-row");
+  assert.deepEqual(duplicated[1]?.block, rows[0]?.block);
+  assert.notEqual(duplicated[1]?.block, rows[0]?.block);
+
+  const deleted = deleteCustomConditionEditorRow(duplicated, 0);
+  assert.equal(deleted[0]?.id, "duplicate-row");
+  assert.equal(deleted[0]?.moveNumberInput, "27");
+  assert.deepEqual(deleted[0]?.block, rows[0]?.block);
 });
 
 test("owned custom Side Quest editor renders saved rules and exact-resource save intent", async () => {

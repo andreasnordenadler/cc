@@ -42,7 +42,108 @@ export function setCustomRuleBlockNegated(block: CustomSideQuestRuleBlock, negat
   return next;
 }
 
+type CustomMoveSequenceTiming = "byMove" | "atMove" | "atGameEnd";
+type CustomMoveSequenceBlock = Extract<CustomSideQuestRuleBlock, { type: "moveSequence" }>;
+
+export type CustomMoveSequenceEditorState = {
+  block: CustomMoveSequenceBlock;
+  moveNumberInput: string;
+};
+
+export type CustomConditionEditorRow = {
+  id: string;
+  block: CustomSideQuestRuleBlock;
+  moveNumberInput: string;
+};
+
+export function getCustomConditionEditorRow(block: CustomSideQuestRuleBlock, id: string): CustomConditionEditorRow {
+  const next = structuredClone(block);
+  return {
+    id,
+    block: next,
+    moveNumberInput: next.type === "moveSequence" ? String(next.timing?.atMove ?? next.timing?.byMove ?? 15) : "",
+  };
+}
+
+export function appendCustomConditionEditorRow(rows: CustomConditionEditorRow[], block: CustomSideQuestRuleBlock, id: string) {
+  return rows.length >= 6 ? rows : [...rows, getCustomConditionEditorRow(block, id)];
+}
+
+export function duplicateCustomConditionEditorRow(rows: CustomConditionEditorRow[], index: number, id: string) {
+  if (rows.length >= 6 || !rows[index]) return rows;
+  const duplicate = getCustomConditionEditorRow(rows[index].block, id);
+  duplicate.moveNumberInput = rows[index].moveNumberInput;
+  return [...rows.slice(0, index + 1), duplicate, ...rows.slice(index + 1)];
+}
+
+export function deleteCustomConditionEditorRow(rows: CustomConditionEditorRow[], index: number) {
+  return rows.filter((_, rowIndex) => rowIndex !== index);
+}
+
+function normalizeCustomMoveNumber(value: number) {
+  return Math.min(Math.max(1, Math.trunc(value) || 1), 300);
+}
+
+function formatCustomMoveNumberInput(value: string) {
+  const digits = value.replace(/[^0-9]/g, "").slice(0, 3);
+  return digits ? String(normalizeCustomMoveNumber(Number(digits))) : "";
+}
+
+export function getCustomMoveSequenceEditorState(block: CustomMoveSequenceBlock): CustomMoveSequenceEditorState {
+  return {
+    block,
+    moveNumberInput: String(block.timing?.atMove ?? block.timing?.byMove ?? 15),
+  };
+}
+
+function normalizeCustomMoveSequence(value: string) {
+  return value
+    .replace(/[^a-zA-Z0-9+#=xXO\-–—.\s]/g, " ")
+    .replace(/[–—]/g, "-")
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, 180);
+}
+
+export function updateCustomMoveSequenceBlock(
+  block: CustomMoveSequenceBlock,
+  input: { sequence: string; timing: CustomMoveSequenceTiming; moveNumber: number },
+): CustomMoveSequenceBlock {
+  const sequence = input.sequence.slice(0, 180);
+  const moveNumber = normalizeCustomMoveNumber(input.moveNumber);
+  const timing = input.timing === "byMove"
+    ? { byMove: moveNumber }
+    : input.timing === "atMove"
+      ? { atMove: moveNumber }
+      : { atGameEnd: true as const };
+  return { ...block, sequence, timing };
+}
+
+export function updateCustomMoveSequenceEditor(
+  state: CustomMoveSequenceEditorState,
+  input: { sequence?: string; timing?: CustomMoveSequenceTiming; moveNumberInput?: string },
+): CustomMoveSequenceEditorState {
+  const timing = input.timing
+    ?? (state.block.timing?.atMove ? "atMove" : state.block.timing?.byMove ? "byMove" : "atGameEnd");
+  const moveNumberInput = input.moveNumberInput === undefined
+    ? state.moveNumberInput
+    : formatCustomMoveNumberInput(input.moveNumberInput);
+  return {
+    block: updateCustomMoveSequenceBlock(state.block, {
+      sequence: input.sequence ?? state.block.sequence,
+      timing,
+      moveNumber: Number(moveNumberInput),
+    }),
+    moveNumberInput,
+  };
+}
+
+export function getCustomConditionRowKey(index: number) {
+  return `custom-condition-${index}`;
+}
+
 export function getCustomRuleBlockChoiceId(block: CustomSideQuestRuleBlock) {
+  if (block.type === "moveSequence") return "move-sequence";
   const comparable = JSON.stringify(setCustomRuleBlockNegated(block, false));
   const presets: Array<[string, CustomSideQuestRuleBlock]> = [
     ["win", { type: "gameResult", result: "win" }],
@@ -70,11 +171,15 @@ export function buildCustomCreatePayload(input: CustomCreateInput) {
   const summary = input.summary.replace(/\s+/g, " ").trim();
   if (!title) throw new Error("Name this custom Side Quest before saving.");
   if (!input.blocks.length && input.lifecycle === "published") throw new Error("Choose at least one condition before saving.");
+  if (input.blocks.some((block) => block.type === "moveSequence" && !normalizeCustomMoveSequence(block.sequence))) throw new Error("Add at least one algebraic move to the move sequence.");
   if (input.blocks.length > 6) throw new Error("Custom Side Quests can use up to 6 conditions.");
+  const blocks = input.blocks.map((block) => block.type === "moveSequence"
+    ? { ...block, sequence: normalizeCustomMoveSequence(block.sequence) }
+    : block);
   return {
     title: title.slice(0, 80),
     summary: summary.slice(0, 500),
-    config: JSON.stringify({ version: 2, logic: input.logic === "any" ? "any" : "all", blocks: input.blocks }),
+    config: JSON.stringify({ version: 2, logic: input.logic === "any" ? "any" : "all", blocks }),
     visibility: input.lifecycle === "published" ? input.visibility : "private",
     lifecycle: input.lifecycle,
   };
@@ -90,7 +195,10 @@ export function buildCustomEditConfig(originalConfig: string, logic: "all" | "an
     throw new Error("This Side Quest has invalid saved rules.");
   }
   if (blocks.length > 6) throw new Error("Custom Side Quests can use up to 6 conditions.");
-  return JSON.stringify({ ...original, logic: logic === "any" ? "any" : "all", blocks });
+  const normalizedBlocks = blocks.map((block) => block.type === "moveSequence"
+    ? { ...block, sequence: normalizeCustomMoveSequence(block.sequence) }
+    : block);
+  return JSON.stringify({ ...original, logic: logic === "any" ? "any" : "all", blocks: normalizedBlocks });
 }
 
 export function getCustomCreateDestination(payload: unknown) {
