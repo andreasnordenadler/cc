@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { listPublicCommunitySideQuests } from "../src/lib/community-side-quests";
+import { findPublicCommunitySideQuestById, listPublicCommunitySideQuests } from "../src/lib/community-side-quests";
 
 function questOwner(id: string, likes: unknown[] = [], customQuestId: string | null = id === "owner" ? "community-quest" : null) {
   return {
@@ -63,4 +63,19 @@ test("Community catalog can return every public quest before client-side popular
   const rows = await listPublicCommunitySideQuests(client, { limit: null });
 
   assert.equal(rows.length, 81);
+});
+
+test("exact Community Side Quest lookup finds public quests beyond the browse cap", async () => {
+  const users = Array.from({ length: 201 }, (_, index) => questOwner(`owner-${index}`, [], `community-${index}`));
+  const client = {
+    users: {
+      async getUserList({ offset = 0 }: { limit: number; offset?: number }) {
+        return { data: users.slice(offset, offset + 100) };
+      },
+    },
+  };
+
+  const quest = await findPublicCommunitySideQuestById(client, "community-200");
+
+  assert.equal(quest?.id, "community-200");
 });
