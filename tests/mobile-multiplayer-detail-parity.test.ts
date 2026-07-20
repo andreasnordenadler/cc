@@ -39,6 +39,7 @@ const officialJoinedQuest: MobileWebMultiplayerPreview = {
   ],
   rules: [["Games allowed", "Lichess or Chess.com"]],
   status: "Joined",
+  playerCount: 1,
   playersLabel: "1 player",
   timeLeftLabel: "6d left",
   positionLabel: "#1",
@@ -46,6 +47,7 @@ const officialJoinedQuest: MobileWebMultiplayerPreview = {
   likeSummary: { count: 0, likedByViewer: false },
   lifecycle: "open",
   createdAt: "2026-07-01T00:00:00.000Z",
+  startAt: "2026-07-06T00:00:00.000Z",
   endAt: "2026-07-20T00:00:00.000Z",
 };
 

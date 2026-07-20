@@ -19,12 +19,14 @@ const row: MobileWebMultiplayerPreview = {
   quests: ["finish-any-game"],
   rules: [["Mode", "Any"]],
   status: "Joined",
+  playerCount: 4,
   playersLabel: "4 players",
   timeLeftLabel: "Final",
   leaderboardRows: [],
   likeSummary: { count: 0, likedByViewer: false },
   lifecycle: "finished",
   createdAt: "2026-07-01T00:00:00.000Z",
+  startAt: "2026-07-01T12:00:00.000Z",
   endAt: "2026-07-02T00:00:00.000Z",
 };
 
@@ -49,6 +51,19 @@ test("Community Solo browse exposes every Android filter and sort choice", () =>
     assert.match(html, new RegExp(`>${label}<`));
   }
   for (const label of ["Top", "Liked", "Newest", "A–Z"]) {
+    assert.match(html, new RegExp(`>${label}<`));
+  }
+});
+
+test("Community Multiplayer browse exposes every Android sort choice", () => {
+  const html = renderToStaticMarkup(createElement(MobileMultiplayerSideQuestsScreen, {
+    selectedTab: "community",
+    signedIn: true,
+    officialRows: [],
+    communityRows: [row],
+  }));
+
+  for (const label of ["Closing", "Liked", "New", "Players"]) {
     assert.match(html, new RegExp(`>${label}<`));
   }
 });

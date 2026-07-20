@@ -19,6 +19,7 @@ export type MobileWebMultiplayerPreview = {
   rules: Array<[string, string]>;
   status: "Not joined" | "Joined" | "Hosted";
   viewerJoined?: boolean;
+  playerCount: number;
   playersLabel: string;
   timeLeftLabel: string;
   positionLabel?: string | null;
@@ -26,6 +27,7 @@ export type MobileWebMultiplayerPreview = {
   likeSummary: CommunityLikeSummary;
   lifecycle: "open" | "finished";
   createdAt: string;
+  startAt: string;
   endAt: string;
 };
 
@@ -187,6 +189,7 @@ export function buildMobileWebMultiplayerPreview(
     rules: buildRuleRows(quest),
     status: isOwner ? "Hosted" : joined ? "Joined" : "Not joined",
     viewerJoined: joined,
+    playerCount: quest.participants.length,
     playersLabel,
     timeLeftLabel,
     positionLabel,
@@ -194,6 +197,7 @@ export function buildMobileWebMultiplayerPreview(
     likeSummary,
     lifecycle: status === "Finished" ? "finished" : "open",
     createdAt: quest.createdAt,
+    startAt: quest.startAt,
     endAt: quest.endAt,
   };
 }
