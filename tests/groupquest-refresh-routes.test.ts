@@ -23,7 +23,7 @@ const baseQuest = {
     { id: "new", title: "New", summary: "New", config: "{}", reward: 50 },
   ],
   startAt: "2026-07-01T00:00:00.000Z",
-  endAt: "2026-07-20T00:00:00.000Z",
+  endAt: "2099-07-20T00:00:00.000Z",
   rules: {},
   participants: [
     { userId: "victim", provider: "lichess" as const, username: "Victim", leaderboardName: "Victim", joinedAt: "2026-07-01T00:00:00.000Z", completedQuestIds: [], questFinishedAt: {}, score: 0 },
