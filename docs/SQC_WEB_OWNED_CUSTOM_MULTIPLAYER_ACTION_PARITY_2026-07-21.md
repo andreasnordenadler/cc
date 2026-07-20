@@ -19,4 +19,4 @@
 
 **NEEDS USER INPUT**
 
-- None for this slice.
+- Provide or authorize a safe disposable non-production authenticated browser identity before merge. The changed owner-only detail cannot receive the required matched-viewport visual gate from this environment without one; production identities and fabricated account/quest data will not be used.
