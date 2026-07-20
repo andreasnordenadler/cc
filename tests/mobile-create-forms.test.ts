@@ -25,6 +25,8 @@ import {
   updateCustomMoveSequenceEditor,
   updateCustomMoveSequenceBlock,
   updateCustomOpeningSequenceBlock,
+  updateCustomPieceStateEditor,
+  updateCustomPieceStateBlock,
   finalizeCustomOpeningSequenceInput,
   getMultiplayerCreateDestination,
   getMultiplayerLocalDateTimeDefaults,
@@ -253,7 +255,7 @@ test("negation keeps preset and move-sequence conditions editable without collap
     condition: "gone",
     timing: { atGameEnd: true },
     negate: true,
-  }), "advanced");
+  }), "piece-state");
 });
 
 test("owned custom Side Quest rules reopen in the exact editor state", () => {
@@ -717,6 +719,90 @@ test("custom builder restores and updates the exact local draft from its URL", a
 test("custom success navigates to the owned custom catalog", () => {
   assert.equal(getCustomCreateDestination({ ok: true, customQuest: { id: "custom-safe" } }), "/custom-side-quests?saved=custom-safe");
   assert.equal(getCustomCreateDestination({ ok: true, customQuest: { id: "../escape" } }), null);
+});
+
+test("custom piece-state editor preserves Android piece, owner, condition, square, and timing semantics", () => {
+  const original: CustomSideQuestRuleBlock = {
+    type: "pieceState",
+    piece: "rook",
+    owner: "my",
+    selector: { quantifier: "all", count: 2, maxAvailable: 2, identity: "any" },
+    condition: "gone",
+    timing: { atGameEnd: true },
+    negate: true,
+  };
+
+  assert.deepEqual(updateCustomPieceStateBlock(original, {
+    piece: "knight",
+    owner: "opponent",
+    condition: "on square",
+    targetSquare: "F6",
+    timing: "atMove",
+    moveNumber: 23,
+  }), {
+    type: "pieceState",
+    piece: "knight",
+    owner: "opponent",
+    selector: { quantifier: "all", count: 2, maxAvailable: 2, identity: "any" },
+    condition: "on square",
+    targetSquare: "f6",
+    timing: { atMove: 23 },
+    negate: true,
+  });
+
+  const html = renderToStaticMarkup(React.createElement(MobileCustomCreateForm, {
+    signedIn: true,
+    initialQuest: {
+      id: "custom-piece-state",
+      title: "Knight landing",
+      summary: "Land both knights on the target square.",
+      config: JSON.stringify({ version: 2, logic: "all", blocks: [original] }),
+      visibility: "private",
+      lifecycle: "published",
+    },
+  }));
+  assert.match(html, /<option value="piece-state" selected="">Piece state<\/option>/);
+  assert.match(html, /role="group" aria-label="Condition 1 piece"/);
+  assert.match(html, /role="group" aria-label="Condition 1 owner"/);
+  assert.match(html, /role="group" aria-label="Condition 1 piece condition"/);
+  assert.match(html, /role="group" aria-label="Condition 1 timing"/);
+  assert.match(html, /aria-pressed="true" class="sqc-option-card selected"[^>]*><span aria-hidden="true"><\/span><div class="sqc-option-card-copy"><strong>Rook<\/strong>/);
+});
+
+test("legacy either-owner piece rules stay lossless and fail closed outside Android's editor", () => {
+  const original: CustomSideQuestRuleBlock = {
+    type: "pieceState",
+    piece: "rook",
+    owner: "either",
+    selector: { quantifier: "all", count: 2, maxAvailable: 2, identity: "any" },
+    condition: "moved",
+    timing: { byMove: 23 },
+    negate: true,
+  };
+  assert.equal(getCustomRuleBlockChoiceId(original), "advanced");
+  const cleared = updateCustomPieceStateEditor({ block: original, moveNumberInput: "23" }, { moveNumberInput: "" });
+  assert.equal(cleared.moveNumberInput, "");
+  const retyped = updateCustomPieceStateEditor(cleared, { moveNumberInput: "42" });
+  assert.equal(retyped.moveNumberInput, "42");
+  assert.deepEqual(retyped.block, {
+    ...original,
+    targetSquare: null,
+    timing: { byMove: 42 },
+  });
+
+  const html = renderToStaticMarkup(React.createElement(MobileCustomCreateForm, {
+    signedIn: true,
+    initialQuest: {
+      id: "custom-either-owner",
+      title: "Either rook",
+      summary: "Legacy rule",
+      config: JSON.stringify({ version: 2, logic: "all", blocks: [original] }),
+      visibility: "private",
+      lifecycle: "draft",
+    },
+  }));
+  assert.match(html, /<option value="advanced" selected="">Saved advanced condition<\/option>/);
+  assert.doesNotMatch(html, /aria-label="Condition 1 owner"/);
 });
 
 test("multiplayer creator validates and sends supported fields without client identity", () => {
