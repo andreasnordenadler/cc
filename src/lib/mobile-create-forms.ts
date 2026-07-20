@@ -35,6 +35,26 @@ export function getCustomTemplateBlocks(template: CustomTemplate) {
   return customBlocks[template].map((block) => structuredClone(block));
 }
 
+export function setCustomRuleBlockNegated(block: CustomSideQuestRuleBlock, negated: boolean): CustomSideQuestRuleBlock {
+  const next = structuredClone(block);
+  if (negated) return { ...next, negate: true };
+  delete next.negate;
+  return next;
+}
+
+export function getCustomRuleBlockChoiceId(block: CustomSideQuestRuleBlock) {
+  const comparable = JSON.stringify(setCustomRuleBlockNegated(block, false));
+  const presets: Array<[string, CustomSideQuestRuleBlock]> = [
+    ["win", { type: "gameResult", result: "win" }],
+    ["draw", { type: "gameResult", result: "draw" }],
+    ["lose", { type: "gameResult", result: "lose" }],
+    ["queen-gone", { type: "pieceState", piece: "queen", owner: "my", condition: "gone", timing: { atGameEnd: true } }],
+    ["king-still", { type: "pieceState", piece: "king", owner: "my", condition: "not moved", timing: { atGameEnd: true } }],
+    ["knights-first", { type: "openingSequence", raw: "Nf3 Nf6 Nc3 Nc6", moves: ["Nf3", "Nf6", "Nc3", "Nc6"], anchor: "gameStart" }],
+  ];
+  return presets.find(([, preset]) => JSON.stringify(preset) === comparable)?.[0] ?? "advanced";
+}
+
 export function describeCustomRuleBlock(block: CustomSideQuestRuleBlock) {
   if (block.type === "gameResult") return `${block.negate ? "Do not " : ""}${block.result === "lose" ? "finish with a loss" : `${block.result} the game`}.`;
   if (block.type === "openingSequence") return `${block.negate ? "Do not play" : "Play"} ${block.moves.join(" ")} from move 1.`;

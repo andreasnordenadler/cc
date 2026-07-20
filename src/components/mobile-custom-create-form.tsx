@@ -9,7 +9,9 @@ import {
   getCreateErrorMessage,
   getCustomCreateDestination,
   getCustomEditFormState,
+  getCustomRuleBlockChoiceId,
   getCustomTemplateBlocks,
+  setCustomRuleBlockNegated,
   type CustomEditQuestInput,
   type CustomTemplate,
 } from "@/lib/mobile-create-forms";
@@ -39,11 +41,6 @@ const conditionChoices: Array<{ id: string; label: string; helper: string; block
 
 function cloneBlock(block: CustomSideQuestRuleBlock) {
   return structuredClone(block);
-}
-
-function choiceIdForBlock(block: CustomSideQuestRuleBlock) {
-  const encoded = JSON.stringify(block);
-  return conditionChoices.find((choice) => JSON.stringify(choice.block) === encoded)?.id ?? "advanced";
 }
 
 export default function MobileCustomCreateForm({ signedIn, initialQuest = null }: { signedIn: boolean; initialQuest?: CustomEditQuestInput | null }) {
@@ -86,6 +83,10 @@ export default function MobileCustomCreateForm({ signedIn, initialQuest = null }
     const choice = conditionChoices.find((item) => item.id === choiceId);
     if (!choice) return;
     setBlocks((current) => current.map((block, blockIndex) => blockIndex === index ? cloneBlock(choice.block) : block));
+  }
+
+  function updateConditionTruth(index: number, negated: boolean) {
+    setBlocks((current) => current.map((block, blockIndex) => blockIndex === index ? setCustomRuleBlockNegated(block, negated) : block));
   }
 
   function addCondition() {
@@ -168,7 +169,11 @@ export default function MobileCustomCreateForm({ signedIn, initialQuest = null }
       {blocks.map((block, index) => <div className="sqc-condition-compact-row sqc-custom-condition-row" key={`${index}-${JSON.stringify(block)}`}>
         <span>{index + 1}</span>
         <div>
-          <label className="sqc-form-row"><span>Condition {index + 1}</span><select aria-label={`Condition ${index + 1}`} onChange={(event) => updateCondition(index, event.target.value)} value={choiceIdForBlock(block)}>{choiceIdForBlock(block) === "advanced" ? <option value="advanced">Saved advanced condition</option> : null}{conditionChoices.map((choice) => <option key={choice.id} value={choice.id}>{choice.label}</option>)}</select></label>
+          <label className="sqc-form-row"><span>Condition {index + 1}</span><select aria-label={`Condition ${index + 1}`} onChange={(event) => updateCondition(index, event.target.value)} value={getCustomRuleBlockChoiceId(block)}>{getCustomRuleBlockChoiceId(block) === "advanced" ? <option value="advanced">Saved advanced condition</option> : null}{conditionChoices.map((choice) => <option key={choice.id} value={choice.id}>{choice.label}</option>)}</select></label>
+          <div aria-label={`Condition ${index + 1} truth`} className="sqc-filter-row" role="group">
+            <button aria-pressed={!block.negate} className={!block.negate ? "active" : ""} onClick={() => updateConditionTruth(index, false)} type="button">Must happen</button>
+            <button aria-pressed={block.negate === true} className={block.negate ? "active" : ""} onClick={() => updateConditionTruth(index, true)} type="button">Must not happen</button>
+          </div>
           <p>{describeCustomRuleBlock(block)}</p>
           <div className="sqc-community-detail-actions">
             <button className="sqc-detail-quiet-button" disabled={blocks.length >= 6} onClick={() => duplicateCondition(index)} type="button">Duplicate</button>

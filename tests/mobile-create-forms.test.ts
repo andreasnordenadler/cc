@@ -14,7 +14,9 @@ import {
   getCreateErrorMessage,
   getCustomCreateDestination,
   getCustomEditFormState,
+  getCustomRuleBlockChoiceId,
   getCustomTemplateBlocks,
+  setCustomRuleBlockNegated,
   getMultiplayerCreateDestination,
   getMultiplayerLocalDateTimeDefaults,
 } from "../src/lib/mobile-create-forms";
@@ -211,6 +213,40 @@ test("custom creator supports six independently editable Android-compatible cond
   assert.throws(() => buildCustomCreatePayload({ title: "Seven rules", summary: "", logic: "all", blocks: [...blocks, blocks[0]], visibility: "private", lifecycle: "draft" }), /up to 6/i);
 });
 
+test("custom creator can mark any Android-compatible condition as something that must not happen", () => {
+  const conditions: CustomSideQuestRuleBlock[] = [
+    { type: "gameResult", result: "win" },
+    { type: "moveSequence", sequence: "e4 e5" },
+    { type: "openingSequence", raw: "e4 e5", moves: ["e4", "e5"], anchor: "gameStart" },
+    { type: "pieceState", piece: "rook", owner: "my", condition: "on square", targetSquare: "e4", timing: { atGameEnd: true } },
+  ];
+
+  const negated = conditions.map((condition) => setCustomRuleBlockNegated(condition, true));
+  assert.equal(negated.every((condition) => condition.negate === true), true);
+  assert.deepEqual(conditions, [
+    { type: "gameResult", result: "win" },
+    { type: "moveSequence", sequence: "e4 e5" },
+    { type: "openingSequence", raw: "e4 e5", moves: ["e4", "e5"], anchor: "gameStart" },
+    { type: "pieceState", piece: "rook", owner: "my", condition: "on square", targetSquare: "e4", timing: { atGameEnd: true } },
+  ]);
+  assert.deepEqual(negated.map((condition) => setCustomRuleBlockNegated(condition, false)), conditions);
+});
+
+test("negating a preset condition keeps its Android condition type selected without collapsing richer rules", () => {
+  assert.equal(getCustomRuleBlockChoiceId({ type: "gameResult", result: "win", negate: true }), "win");
+  assert.equal(getCustomRuleBlockChoiceId({ type: "pieceState", piece: "king", owner: "my", condition: "not moved", timing: { atGameEnd: true }, negate: true }), "king-still");
+  assert.equal(getCustomRuleBlockChoiceId({ type: "moveSequence", sequence: "e4 e5", negate: true }), "advanced");
+  assert.equal(getCustomRuleBlockChoiceId({
+    type: "pieceState",
+    piece: "queen",
+    owner: "my",
+    selector: { quantifier: "all", count: 1 },
+    condition: "gone",
+    timing: { atGameEnd: true },
+    negate: true,
+  }), "advanced");
+});
+
 test("owned custom Side Quest rules reopen in the exact editor state", () => {
   const blocks: CustomSideQuestRuleBlock[] = [
     { type: "gameResult", result: "win" },
@@ -310,6 +346,15 @@ test("custom builder renders the Android-style multi-condition command center", 
   assert.match(html, /Add Another Condition/);
   assert.match(html, /Duplicate/);
   assert.match(html, /Delete/);
+});
+
+test("custom builder exposes Android's true or must-not-happen control for each condition", () => {
+  const html = renderToStaticMarkup(React.createElement(MobileCustomCreateForm, { signedIn: true }));
+  assert.equal((html.match(/Must happen/g) ?? []).length, 2);
+  assert.equal((html.match(/Must not happen/g) ?? []).length, 2);
+  assert.equal((html.match(/aria-label="Condition \d truth"/g) ?? []).length, 2);
+  assert.match(html, /aria-pressed="true"[^>]*>Must happen/);
+  assert.match(html, /aria-pressed="false"[^>]*>Must not happen/);
 });
 
 test("owned custom Side Quest editor renders saved rules and exact-resource save intent", async () => {
