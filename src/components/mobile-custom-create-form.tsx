@@ -17,6 +17,8 @@ import {
   getCustomTemplateBlocks,
   setCustomRuleBlockNegated,
   updateCustomMoveSequenceEditor,
+  updateCustomOpeningSequenceBlock,
+  finalizeCustomOpeningSequenceInput,
   type CustomEditQuestInput,
   type CustomTemplate,
 } from "@/lib/mobile-create-forms";
@@ -114,6 +116,12 @@ export default function MobileCustomCreateForm({ signedIn, initialQuest = null }
     }));
   }
 
+  function updateOpeningSequenceCondition(index: number, raw: string) {
+    setConditionRows((current) => current.map((row, rowIndex) => rowIndex === index && row.block.type === "openingSequence"
+      ? { ...row, block: updateCustomOpeningSequenceBlock(row.block, raw) }
+      : row));
+  }
+
   function addCondition() {
     const id = nextConditionRowId();
     setConditionRows((current) => appendCustomConditionEditorRow(current, conditionChoices[0].block, id));
@@ -203,6 +211,10 @@ export default function MobileCustomCreateForm({ signedIn, initialQuest = null }
             <label className="sqc-form-row"><span>Move sequence</span><textarea aria-label={`Condition ${index + 1} move sequence`} maxLength={180} onChange={(event) => updateMoveSequenceCondition(index, { sequence: event.target.value })} placeholder="e4 e5 Nf3 Nc6" value={block.sequence} /></label>
             <label className="sqc-form-row"><span>Timing</span><select aria-label={`Condition ${index + 1} timing`} onChange={(event) => updateMoveSequenceCondition(index, { timing: event.target.value as "byMove" | "atMove" | "atGameEnd" })} value={block.timing?.atMove ? "atMove" : block.timing?.byMove ? "byMove" : "atGameEnd"}><option value="byMove">By move</option><option value="atMove">At move</option><option value="atGameEnd">At game end</option></select></label>
             {block.timing?.byMove || block.timing?.atMove ? <label className="sqc-form-row"><span>Move number</span><input aria-label={`Condition ${index + 1} move number`} inputMode="numeric" max={300} min={1} onChange={(event) => updateMoveSequenceCondition(index, { moveNumberInput: event.target.value })} type="number" value={moveNumberInput} /></label> : null}
+          </div> : block.type === "openingSequence" ? <div className="sqc-condition-editor-fields">
+            <label className="sqc-form-row"><span>Opening notation</span><textarea aria-label={`Condition ${index + 1} opening sequence`} maxLength={260} onBlur={(event) => updateOpeningSequenceCondition(index, finalizeCustomOpeningSequenceInput(event.target.value))} onChange={(event) => updateOpeningSequenceCondition(index, event.target.value)} placeholder="1.e4 e5 2.f4" value={block.raw ?? block.moves.join(" ")} /></label>
+            <p>Paste opening notation with move numbers. SQC cleans it into: {block.moves.length ? block.moves.join(" → ") : "No moves parsed yet."}</p>
+            <p>Opening sequence is always checked from move 1, so no timing is needed.</p>
           </div> : null}
           <p>{describeCustomRuleBlock(block)}</p>
           <div className="sqc-community-detail-actions">
