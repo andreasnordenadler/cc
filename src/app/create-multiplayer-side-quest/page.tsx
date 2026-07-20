@@ -23,7 +23,7 @@ export default async function CreateMultiplayerSideQuestPage({
     owned: getCustomSideQuests(ownedMetadata),
     loadCommunity: async () => user
       ? selectCommunityCreateChoices(
-          await listPublicCommunitySideQuests(await clerkClient(), { limit: 200 }),
+          await listPublicCommunitySideQuests(await clerkClient(), { limit: null }),
           typeof quest === "string" ? quest : undefined,
         )
       : [],

@@ -105,7 +105,7 @@ export async function listPublicCommunitySideQuests(client: ClerkUserListClient,
 }
 
 export async function findPublicCommunitySideQuestById(client: ClerkUserListClient, id: string) {
-  const quests = await listPublicCommunitySideQuests(client, { limit: 200 });
+  const quests = await listPublicCommunitySideQuests(client, { limit: null });
   return quests.find((quest) => quest.id === id) ?? null;
 }
 

@@ -113,7 +113,7 @@ test("multiplayer create page loads owned and public community choices for the a
   assert.match(source, /getCustomSideQuests/);
   assert.match(source, /listPublicCommunitySideQuests/);
   assert.match(source, /selectCommunityCreateChoices/);
-  assert.match(source, /limit: 200/);
+  assert.match(source, /listPublicCommunitySideQuests\(await clerkClient\(\), \{ limit: null \}\)/);
   assert.match(source, /loadMultiplayerCreateQuestChoices/);
   assert.match(source, /privateMetadata/);
   assert.match(source, /const \{ quest \} = await searchParams/);
