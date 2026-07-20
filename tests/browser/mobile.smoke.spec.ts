@@ -117,11 +117,33 @@ test("custom builder describes exact Android piece selector semantics", async ({
   const response = await page.goto("/create-custom-side-quest", { waitUntil: "domcontentloaded" });
   expect(response?.status()).toBeLessThan(400);
 
+  await page.getByRole("button", { name: "Add Condition", exact: true }).click();
   await page.getByRole("combobox", { name: "Condition 1" }).selectOption("piece-state");
   await page.getByRole("group", { name: "Condition 1 piece" }).getByRole("button", { name: /Rook/ }).click();
   await page.getByRole("group", { name: "Condition 1 piece identity" }).getByRole("button", { name: /Both rooks/ }).click();
 
   await expect(page.getByText("Both of your rooks must be moved at game end.", { exact: true })).toBeVisible();
+  expect(await noHorizontalOverflow(page)).toBe(true);
+});
+
+test("fresh custom builder applies Android v338 templates to the name and sole condition", async ({ page }) => {
+  const response = await page.goto("/create-custom-side-quest", { waitUntil: "domcontentloaded" });
+  expect(response?.status()).toBeLessThan(400);
+
+  await expect(page.getByText("Your conditions · 0/6", { exact: true })).toBeVisible();
+  await page.getByRole("button", { name: /^Queen adventure/ }).click();
+
+  await expect(page.getByRole("textbox", { name: "Side Quest name" })).toHaveValue("Queen adventure");
+  await expect(page.getByText("Your conditions · 1/6", { exact: true })).toBeVisible();
+  await expect(page.getByRole("combobox", { name: "Condition 1" })).toHaveValue("piece-state");
+  await expect(page.getByText("Your queen must be moved by move 15.", { exact: true })).toBeVisible();
+  await expect(page.getByRole("combobox", { name: "Condition 2" })).toHaveCount(0);
+
+  await page.getByRole("button", { name: /^Knight dare/ }).click();
+  await expect(page.getByRole("textbox", { name: "Side Quest name" })).toHaveValue("Knight dare");
+  await expect(page.getByText("Your conditions · 1/6", { exact: true })).toBeVisible();
+  await expect(page.getByRole("group", { name: "Condition 1 piece identity" }).getByRole("button", { name: /Either knight/ })).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByRole("combobox", { name: "Condition 2" })).toHaveCount(0);
   expect(await noHorizontalOverflow(page)).toBe(true);
 });
 
