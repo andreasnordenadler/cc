@@ -24,6 +24,7 @@ import {
   getCustomMoveSequenceEditorState,
   getCustomRuleBlockChoiceId,
   getCustomTemplateBlocks,
+  getCustomTemplateState,
   setCustomRuleBlockNegated,
   updateCustomMoveSequenceEditor,
   updateCustomMoveSequenceBlock,
@@ -181,7 +182,7 @@ test("custom builder detects unsaved changes without treating its loaded state a
     title: "No Castle Night",
     summary: "Win without castling.",
     logic: "all",
-    blocks: getCustomTemplateBlocks("no-castle"),
+    blocks: getCustomTemplateBlocks("win"),
     visibility: "private",
     lifecycle: "draft",
   });
@@ -190,7 +191,7 @@ test("custom builder detects unsaved changes without treating its loaded state a
     title: "No Castle Night",
     summary: "Win without castling.",
     logic: "all",
-    blocks: getCustomTemplateBlocks("no-castle"),
+    blocks: getCustomTemplateBlocks("win"),
     visibility: "private",
     lifecycle: "draft",
   }), false);
@@ -198,7 +199,7 @@ test("custom builder detects unsaved changes without treating its loaded state a
     title: "No Castle Night renamed",
     summary: "Win without castling.",
     logic: "all",
-    blocks: getCustomTemplateBlocks("no-castle"),
+    blocks: getCustomTemplateBlocks("win"),
     visibility: "private",
     lifecycle: "draft",
   }), true);
@@ -206,7 +207,7 @@ test("custom builder detects unsaved changes without treating its loaded state a
     title: "No Castle Night",
     summary: "Win without castling.",
     logic: "any",
-    blocks: getCustomTemplateBlocks("no-castle"),
+    blocks: getCustomTemplateBlocks("win"),
     visibility: "private",
     lifecycle: "draft",
   }), true);
@@ -487,27 +488,53 @@ test("editing custom rules preserves supported advanced configuration fields", (
   assert.throws(() => buildCustomEditConfig("not-json", "all", blocks), /rules/i);
 });
 
-test("queen-trade template round-trips through Android's my/opponent owner parser", () => {
-  const blocks = getCustomTemplateBlocks("queen-trade");
-  const owners = blocks.filter((block) => block.type === "pieceState").map((block) => block.owner);
-  assert.deepEqual(owners, ["my", "opponent"]);
-  assert.equal(blocks.every((block) => block.type !== "pieceState" || block.owner !== "either"), true);
+test("custom templates carry Android v338 names and exact single-condition state", () => {
+  assert.deepEqual([
+    getCustomTemplateState("win"),
+    getCustomTemplateState("draw"),
+    getCustomTemplateState("queen-adventure"),
+    getCustomTemplateState("knight-dare"),
+  ], [{
+    title: "Win the game",
+    blocks: [{ type: "gameResult", result: "win" }],
+  }, {
+    title: "Draw the game",
+    blocks: [{ type: "gameResult", result: "draw" }],
+  }, {
+    title: "Queen adventure",
+    blocks: [{ type: "pieceState", piece: "queen", owner: "my", selector: { quantifier: "any one", count: 1, maxAvailable: 1, identity: "original" }, condition: "moved", targetSquare: null, timing: { byMove: 15 } }],
+  }, {
+    title: "Knight dare",
+    blocks: [{ type: "pieceState", piece: "knight", owner: "my", selector: { quantifier: "any one", count: 1, maxAvailable: 2, identity: "any" }, condition: "moved", targetSquare: null, timing: { byMove: 15 } }],
+  }]);
 });
 
-test("custom builder renders the Android-style multi-condition command center", () => {
+test("fresh custom builder starts with no conditions like Android v338", () => {
   const html = renderToStaticMarkup(React.createElement(MobileCustomCreateForm, { signedIn: true }));
   assert.match(html, /sqc-template-card/);
+  for (const template of ["Win the game", "Draw the game", "Queen adventure", "Knight dare"]) assert.match(html, new RegExp(`<strong>${template}</strong>`));
+  assert.doesNotMatch(html, /Knight-only opening|No-castle game|Queen trade challenge|Win a game/);
   assert.match(html, /How conditions count/);
   assert.match(html, /Complete every condition/);
   assert.match(html, /Complete any one condition/);
-  assert.match(html, /Your conditions · 2\/6/);
-  assert.match(html, /Add Another Condition/);
-  assert.match(html, /Duplicate/);
-  assert.match(html, /Delete/);
+  assert.match(html, /Your conditions · 0\/6/);
+  assert.match(html, /No conditions yet\. Add the first thing players must do\./);
+  assert.match(html, />Add Condition<\/button>/);
+  assert.doesNotMatch(html, /Duplicate|Delete|Condition 1 truth/);
 });
 
 test("custom builder exposes Android's true or must-not-happen control for each condition", () => {
-  const html = renderToStaticMarkup(React.createElement(MobileCustomCreateForm, { signedIn: true }));
+  const html = renderToStaticMarkup(React.createElement(MobileCustomCreateForm, {
+    signedIn: true,
+    initialQuest: {
+      id: "custom-two-conditions",
+      title: "Two conditions",
+      summary: "",
+      config: JSON.stringify({ version: 2, logic: "all", blocks: [{ type: "gameResult", result: "win" }, { type: "gameResult", result: "draw" }] }),
+      visibility: "private",
+      lifecycle: "draft",
+    },
+  }));
   assert.equal((html.match(/Must happen/g) ?? []).length, 2);
   assert.equal((html.match(/Must not happen/g) ?? []).length, 2);
   assert.equal((html.match(/aria-label="Condition \d truth"/g) ?? []).length, 2);

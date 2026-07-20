@@ -9,7 +9,7 @@ export type CustomEditQuestInput = {
   lifecycle: "draft" | "published" | "archived";
 };
 
-export type CustomTemplate = "knights-first" | "no-castle" | "queen-trade" | "win";
+export type CustomTemplate = "win" | "draw" | "queen-adventure" | "knight-dare";
 
 type CustomCreateInput = {
   title: string;
@@ -28,19 +28,25 @@ export function hasUnsavedCustomBuilderChanges(baseline: string, input: CustomCr
   return getCustomBuilderSnapshot(input) !== baseline;
 }
 
-const customBlocks: Record<CustomTemplate, CustomSideQuestRuleBlock[]> = {
-  "knights-first": [{ type: "openingSequence", raw: "Nf3 Nf6 Nc3 Nc6", moves: ["Nf3", "Nf6", "Nc3", "Nc6"], anchor: "gameStart" }, { type: "gameResult", result: "win" }],
-  "no-castle": [{ type: "gameResult", result: "win" }, { type: "pieceState", piece: "king", owner: "my", condition: "not moved", timing: { atGameEnd: true } }],
-  "queen-trade": [
-    { type: "pieceState", piece: "queen", owner: "my", condition: "gone", timing: { atGameEnd: true } },
-    { type: "pieceState", piece: "queen", owner: "opponent", condition: "gone", timing: { atGameEnd: true } },
-    { type: "gameResult", result: "win" },
-  ],
-  win: [{ type: "gameResult", result: "win" }],
+const customTemplates: Record<CustomTemplate, { title: string; blocks: CustomSideQuestRuleBlock[] }> = {
+  win: { title: "Win the game", blocks: [{ type: "gameResult", result: "win" }] },
+  draw: { title: "Draw the game", blocks: [{ type: "gameResult", result: "draw" }] },
+  "queen-adventure": {
+    title: "Queen adventure",
+    blocks: [{ type: "pieceState", piece: "queen", owner: "my", selector: { quantifier: "any one", count: 1, maxAvailable: 1, identity: "original" }, condition: "moved", targetSquare: null, timing: { byMove: 15 } }],
+  },
+  "knight-dare": {
+    title: "Knight dare",
+    blocks: [{ type: "pieceState", piece: "knight", owner: "my", selector: { quantifier: "any one", count: 1, maxAvailable: 2, identity: "any" }, condition: "moved", targetSquare: null, timing: { byMove: 15 } }],
+  },
 };
 
+export function getCustomTemplateState(template: CustomTemplate) {
+  return structuredClone(customTemplates[template]);
+}
+
 export function getCustomTemplateBlocks(template: CustomTemplate) {
-  return customBlocks[template].map((block) => structuredClone(block));
+  return getCustomTemplateState(template).blocks;
 }
 
 export function setCustomRuleBlockNegated(block: CustomSideQuestRuleBlock, negated: boolean): CustomSideQuestRuleBlock {

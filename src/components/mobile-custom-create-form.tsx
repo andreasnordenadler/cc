@@ -18,7 +18,7 @@ import {
   hasUnsavedCustomBuilderChanges,
   getCustomPieceIdentityChoices,
   getCustomRuleBlockChoiceId,
-  getCustomTemplateBlocks,
+  getCustomTemplateState,
   setCustomRuleBlockNegated,
   updateCustomMoveSequenceEditor,
   updateCustomOpeningSequenceBlock,
@@ -37,10 +37,10 @@ import {
 } from "@/lib/local-custom-drafts";
 
 const templates: Array<{ id: CustomTemplate; title: string; helper: string }> = [
-  { id: "knights-first", title: "Knight-only opening", helper: "Open Nf3, ...Nf6, Nc3, ...Nc6, then win." },
-  { id: "no-castle", title: "No-castle game", helper: "Win without moving your king." },
-  { id: "queen-trade", title: "Queen trade challenge", helper: "Remove the queens, then win." },
-  { id: "win", title: "Win a game", helper: "Complete the quest by winning." },
+  { id: "win", title: "Win the game", helper: "Default friendly template: complete the Side Quest by winning your next public game." },
+  { id: "draw", title: "Draw the game", helper: "For stubborn escape artists: hold the game to a draw." },
+  { id: "queen-adventure", title: "Queen adventure", helper: "Build a piece-story challenge around your queen moving, vanishing, or landing somewhere weird." },
+  { id: "knight-dare", title: "Knight dare", helper: "Start from a horse-crime idea and tune the exact condition after selecting it." },
 ];
 
 const conditionChoices: Array<{ id: string; label: string; helper: string; block: CustomSideQuestRuleBlock }> = [
@@ -56,7 +56,7 @@ const conditionChoices: Array<{ id: string; label: string; helper: string; block
 
 export default function MobileCustomCreateForm({ signedIn, initialQuest = null }: { signedIn: boolean; initialQuest?: CustomEditQuestInput | null }) {
   const initialState = initialQuest ? getCustomEditFormState(initialQuest) : null;
-  const initialBlocks = initialState?.blocks ?? getCustomTemplateBlocks("no-castle");
+  const initialBlocks = initialState?.blocks ?? [];
   const initialRows = initialBlocks.map((block, index) => getCustomConditionEditorRow(block, `initial-condition-${index}`));
   const rowIdCounter = useRef(initialRows.length);
   const [title, setTitle] = useState(initialState?.title ?? "");
@@ -144,7 +144,9 @@ export default function MobileCustomCreateForm({ signedIn, initialQuest = null }
   }
 
   function applyTemplate(template: CustomTemplate) {
-    setConditionRows(createConditionRows(getCustomTemplateBlocks(template)));
+    const next = getCustomTemplateState(template);
+    setTitle(next.title);
+    setConditionRows(createConditionRows(next.blocks));
     setError("");
   }
 
@@ -329,9 +331,9 @@ export default function MobileCustomCreateForm({ signedIn, initialQuest = null }
           </div>
         </div>
       </div>)}
-      {!blocks.length ? <p>Add at least one condition before publishing.</p> : null}
+      {!blocks.length ? <p>No conditions yet. Add the first thing players must do.</p> : null}
     </div>
-    <button className="sqc-detail-secondary-button" disabled={blocks.length >= 6} onClick={addCondition} type="button">{blocks.length >= 6 ? "Six-condition limit reached" : "Add Another Condition"}</button>
+    <button className="sqc-detail-secondary-button" disabled={blocks.length >= 6} onClick={addCondition} type="button">{blocks.length >= 6 ? "Six-condition limit reached" : blocks.length ? "Add Another Condition" : "Add Condition"}</button>
     <p>{logic === "all" ? "Every saved condition must pass." : "Any one saved condition can complete the Side Quest."} Conditions can happen in any order.</p>
 
     <label className="sqc-form-row"><span>Side Quest name</span><input aria-label="Side Quest name" maxLength={80} onChange={(event) => setTitle(event.target.value)} placeholder="Name this custom Side Quest" required value={title} /></label>
