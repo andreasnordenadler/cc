@@ -8,7 +8,7 @@ import CustomSideQuestOwnerControls from "@/components/custom-side-quest-owner-c
 import CustomSideQuestProofControls from "@/components/custom-side-quest-proof-controls";
 import { describeCustomSideQuestRuleDetails } from "@/lib/community-side-quests";
 import { getCustomSideQuestBadgeUrl, getCustomSideQuestById, getCustomSideQuests } from "@/lib/custom-side-quests";
-import { buildCustomPublicProofPath } from "@/lib/proof-share";
+import { buildCompletedCustomPublicProofPath } from "@/lib/proof-share";
 import { getChallengeProgress, getChessComUsername, getLatestPassedChallengeAttempt, getLichessUsername, getPreferredRunnerName, type UserMetadataRecord } from "@/lib/user-metadata";
 
 export const dynamic = "force-dynamic";
@@ -36,9 +36,7 @@ export default async function CustomSideQuestOwnerPage({ params }: { params: Pro
     || (sourceMetadata !== publicMetadata && getChallengeProgress(sourceMetadata).completedChallengeIds.includes(quest.id));
   const latestPassedAttempt = getLatestPassedChallengeAttempt(publicMetadata, quest.id)
     ?? (sourceMetadata !== publicMetadata ? getLatestPassedChallengeAttempt(sourceMetadata, quest.id) : null);
-  const resultHref = completed && latestPassedAttempt
-    ? await buildCustomPublicProofPath({ attempt: latestPassedAttempt, quest, runnerName: displayName })
-    : null;
+  const resultHref = await buildCompletedCustomPublicProofPath({ completed, attempt: latestPassedAttempt, quest });
 
   return <MobileAppWebShell
     activeTab="sideQuests"

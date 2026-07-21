@@ -5,6 +5,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import CustomSideQuestProofControls from "../src/components/custom-side-quest-proof-controls";
 import { POST, submitMobileChallengeAttempt, verifySubmittedChallengeAttempt, withMobileQuestRouteTestDependencies } from "../src/app/api/mobile/quest/route";
 import { checkLatestCustomSideQuestForProvider, checkSubmittedCustomSideQuestForProvider, fetchBoundedProviderJson, type CustomSideQuest } from "../src/lib/custom-side-quests";
+import { buildCompletedCustomPublicProofPath, buildCustomPublicProofPath, decodePublicProof } from "../src/lib/proof-share";
 import { getLatestPassedChallengeAttempt } from "../src/lib/user-metadata";
 
 const winQuest: CustomSideQuest = {
@@ -294,17 +295,49 @@ test("completed custom proof controls expose the Android result action instead o
   assert.doesNotMatch(html, />Start this Side Quest</);
 });
 
-test("completed custom proof controls never offer restart when a legacy receipt is unavailable", () => {
+test("completed custom proof controls keep the Android result action when a legacy receipt has no game details", () => {
   const html = renderToStaticMarkup(React.createElement(CustomSideQuestProofControls, {
     questId: "custom-win",
     active: false,
     playable: true,
     completed: true,
+    resultHref: "/proof/signed-legacy-result",
   }));
 
   assert.match(html, />Completed Side Quest\.</);
   assert.match(html, /Your completion is saved/);
+  assert.match(html, /href="\/proof\/signed-legacy-result"/);
+  assert.match(html, />View result</);
   assert.doesNotMatch(html, />Start this Side Quest</);
+});
+
+test("completed legacy custom progress builds a truthful result path without a retained attempt", async () => {
+  const path = await buildCompletedCustomPublicProofPath({
+    completed: true,
+    attempt: null,
+    quest: winQuest,
+  });
+  const decoded = await decodePublicProof(path?.slice("/proof/".length));
+
+  assert.ok(path);
+  assert.ok(decoded);
+  assert.equal(decoded.payload.challengeId, winQuest.id);
+  assert.equal(decoded.payload.summary, "Completion saved by Side Quest Chess.");
+  assert.equal(decoded.payload.gameId, undefined);
+});
+
+test("custom public proof paths never disclose a supplied account email", async () => {
+  const legacyOptions = {
+    attempt: null,
+    quest: winQuest,
+    runnerName: "private@example.com",
+  };
+  const path = await buildCustomPublicProofPath(legacyOptions);
+  const decoded = await decodePublicProof(path.slice("/proof/".length));
+
+  assert.ok(decoded);
+  assert.equal(decoded.payload.runnerName, undefined);
+  assert.doesNotMatch(path, /private|example/);
 });
 
 test("completed custom result selects the latest passed receipt even after a later failed check", () => {

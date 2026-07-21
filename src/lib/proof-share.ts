@@ -60,11 +60,9 @@ export async function buildPublicProofPath({
 export async function buildCustomPublicProofPath({
   attempt,
   quest,
-  runnerName,
 }: {
   attempt: ChallengeAttempt | null;
   quest: CustomSideQuest;
-  runnerName?: string;
 }) {
   const payload: PublicProofPayload = {
     v: 1,
@@ -74,7 +72,7 @@ export async function buildCustomPublicProofPath({
     badgeMotif: "SQC",
     badgeImageUrl: getCustomSideQuestBadgeUrl(quest),
     reward: 100,
-    summary: sanitizeAttemptSummary(attempt?.summary),
+    summary: attempt ? sanitizeAttemptSummary(attempt.summary) : "Completion saved by Side Quest Chess.",
     checkedAt: attempt?.checkedAt,
     completedGameAt: attempt?.completedGameAt,
     gameId: attempt?.gameId,
@@ -82,10 +80,21 @@ export async function buildCustomPublicProofPath({
     finalPositionFen: attempt?.finalPositionFen,
     lastMoveUci: attempt?.lastMoveUci,
     lastMoveSan: attempt?.lastMoveSan,
-    runnerName: normalizeRunnerName(runnerName),
   };
 
   return `/proof/${await encodePublicProof(payload)}`;
+}
+
+export async function buildCompletedCustomPublicProofPath({
+  completed,
+  attempt,
+  quest,
+}: {
+  completed: boolean;
+  attempt: ChallengeAttempt | null;
+  quest: CustomSideQuest;
+}) {
+  return completed ? buildCustomPublicProofPath({ attempt, quest }) : null;
 }
 
 export async function decodePublicProof(token: string | null | undefined): Promise<DecodedPublicProof | null> {

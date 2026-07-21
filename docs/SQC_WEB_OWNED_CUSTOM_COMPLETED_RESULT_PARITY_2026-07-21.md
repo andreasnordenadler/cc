@@ -12,13 +12,15 @@
 
 - The authenticated owned Custom Side Quest detail now classifies completion from server-loaded account metadata.
 - It selects the latest passed exact-quest receipt even if a later check failed, creates the existing signed public proof URL server-side, shows the saved completion date, and exposes `View result`.
-- Completed legacy records without a retained passed receipt remain truthfully completed and never regress to `Start this Side Quest`.
+- Completed legacy records without retained game details still open a truthful completion receipt, matching Android's always-reachable `View result`; the receipt does not invent provider, game, move, or timestamp data and never regresses to `Start this Side Quest`.
+- Custom proof URLs no longer serialize account display identity. In particular, a Clerk email fallback cannot leak into the decodable public proof token for a private owned quest.
 - Draft, archived, ready, active, active exact-game submission, and owner-management behavior remains unchanged.
 
 ## VERIFIED
 
-- Strict vertical RED/GREEN tests cover completed result rendering, unavailable legacy receipts, and latest-passed selection after a later failed attempt.
+- Strict vertical RED/GREEN tests cover completed result rendering, legacy receipts without game details, latest-passed selection after a later failed attempt, and exclusion of supplied account email from custom proof tokens.
 - The production client component is rendered directly in tests. The production server route derives identity from Clerk and passes only server-derived completion/receipt props; no client identity or owner field was added.
+- A fresh independent review found the legacy-result and proof-token privacy defects; both were reproduced test-first and fixed narrowly. A new exact-HEAD review is required after commit before this PR can pass its code-review gate.
 - Android matched-state source evidence is recorded above. No fabricated user, quest, progress, or receipt data is used in runtime claims.
 
 ## NEXT
