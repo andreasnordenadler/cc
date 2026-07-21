@@ -10,6 +10,7 @@ test("Terms of Use has a dedicated public launch-draft destination", () => {
 
   assert.equal(metadata.title, "Terms of Use — Side Quest Chess");
   assert.match(html, /<h1[^>]*>Terms of Use<\/h1>/);
+  assert.match(html, /class="terms-brand-row"/);
   assert.match(html, /Launch draft updated:/);
   assert.match(html, /not legal advice/i);
   assert.match(html, /owner\/legal review/i);

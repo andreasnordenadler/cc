@@ -13,8 +13,10 @@ export default function TermsPage() {
     <main className="privacy-page">
       <article className="privacy-policy" aria-labelledby="terms-title">
         <header className="privacy-hero">
-          <Link className="privacy-back" href="/">← Side Quest Chess</Link>
-          <span className="privacy-kicker">Side Quest Chess</span>
+          <div className="terms-brand-row">
+            <Link className="privacy-back" href="/">← Side Quest Chess</Link>
+            <span className="privacy-kicker">Side Quest Chess</span>
+          </div>
           <h1 id="terms-title">Terms of Use</h1>
           <p className="privacy-lede">These launch-draft terms describe the current Side Quest Chess (SQC) product and the basic expectations for using its website and mobile app.</p>
           <p className="privacy-effective"><strong>Launch draft updated:</strong> {LAST_UPDATED}</p>

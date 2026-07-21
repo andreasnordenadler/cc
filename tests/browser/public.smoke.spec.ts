@@ -96,6 +96,11 @@ test("Terms of Use has a public dedicated launch-draft destination", async ({ pa
   await expect(page.getByRole("heading", { name: "Draft status" })).toBeVisible();
   await expect(page.getByRole("link", { name: "Privacy Policy" })).toHaveAttribute("href", "/privacy");
   await expect(page.getByRole("link", { name: "Open Help & Support" })).toHaveAttribute("href", "/support");
+  const brandItemsOverlap = await page.locator(".terms-brand-row").evaluate((row) => {
+    const [back, kicker] = Array.from(row.children).map((element) => element.getBoundingClientRect());
+    return back.left < kicker.right && back.right > kicker.left && back.top < kicker.bottom && back.bottom > kicker.top;
+  });
+  expect(brandItemsOverlap).toBe(false);
 });
 
 test("auth entry renders without requiring credentials", async ({ page }) => {

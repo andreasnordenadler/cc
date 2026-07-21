@@ -3016,6 +3016,8 @@ p { color: var(--muted); line-height: 1.5; }
 .privacy-kicker, .privacy-effective { color: #e0b864; font-size: .78rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
 .privacy-back, .privacy-policy a { color: #f1cd78; }
 .privacy-back { display: inline-block; margin-bottom: 28px; font-weight: 750; text-decoration: none; }
+.terms-brand-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; margin-bottom: 28px; }
+.terms-brand-row .privacy-back { margin-bottom: 0; }
 .privacy-lede { max-width: 68ch; color: rgba(255, 247, 232, .82); font-size: 1.1rem; }
 .privacy-contents { display: flex; flex-wrap: wrap; gap: 9px; margin: 18px 0; }
 .privacy-contents a { padding: 7px 13px; border: 1px solid rgba(255, 247, 232, .16); border-radius: 999px; background: rgba(255, 255, 255, .05); color: #fff7e8; font-size: .84rem; font-weight: 700; text-decoration: none; }
