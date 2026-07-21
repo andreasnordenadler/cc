@@ -88,6 +88,16 @@ test("privacy policy is public, dedicated, and links to privacy support", async 
   );
 });
 
+test("Terms of Use has a public dedicated launch-draft destination", async ({ page }) => {
+  await expectHealthyNavigation(page, "/terms");
+
+  await expect(page).toHaveURL(/\/terms$/);
+  await expect(page.getByRole("heading", { name: "Terms of Use" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Draft status" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Privacy Policy" })).toHaveAttribute("href", "/privacy");
+  await expect(page.getByRole("link", { name: "Open Help & Support" })).toHaveAttribute("href", "/support");
+});
+
 test("auth entry renders without requiring credentials", async ({ page }) => {
   await expectHealthyNavigation(page, "/sign-in");
 
