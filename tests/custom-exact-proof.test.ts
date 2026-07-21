@@ -5,6 +5,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import CustomSideQuestProofControls from "../src/components/custom-side-quest-proof-controls";
 import { POST, submitMobileChallengeAttempt, verifySubmittedChallengeAttempt, withMobileQuestRouteTestDependencies } from "../src/app/api/mobile/quest/route";
 import { checkLatestCustomSideQuestForProvider, checkSubmittedCustomSideQuestForProvider, fetchBoundedProviderJson, type CustomSideQuest } from "../src/lib/custom-side-quests";
+import { getLatestPassedChallengeAttempt } from "../src/lib/user-metadata";
 
 const winQuest: CustomSideQuest = {
   id: "custom-win",
@@ -274,6 +275,50 @@ test("active custom proof controls expose Android exact-game submission", () => 
   assert.match(html, /aria-label="Specific proof game"/);
   assert.match(html, /Lichess game ID or Chess\.com URL/);
   assert.match(html, />Submit game\/link</);
+});
+
+test("completed custom proof controls expose the Android result action instead of restart", () => {
+  const html = renderToStaticMarkup(React.createElement(CustomSideQuestProofControls, {
+    questId: "custom-win",
+    active: false,
+    playable: true,
+    completed: true,
+    completedAt: "2026-07-18T10:10:00.000Z",
+    resultHref: "/proof/signed-custom-result",
+  }));
+
+  assert.match(html, />Completed Side Quest\.</);
+  assert.match(html, /Completed Jul 18, 2026/);
+  assert.match(html, /href="\/proof\/signed-custom-result"/);
+  assert.match(html, />View result</);
+  assert.doesNotMatch(html, />Start this Side Quest</);
+});
+
+test("completed custom proof controls never offer restart when a legacy receipt is unavailable", () => {
+  const html = renderToStaticMarkup(React.createElement(CustomSideQuestProofControls, {
+    questId: "custom-win",
+    active: false,
+    playable: true,
+    completed: true,
+  }));
+
+  assert.match(html, />Completed Side Quest\.</);
+  assert.match(html, /Your completion is saved/);
+  assert.doesNotMatch(html, />Start this Side Quest</);
+});
+
+test("completed custom result selects the latest passed receipt even after a later failed check", () => {
+  const latestPassed = getLatestPassedChallengeAttempt({
+    challengeAttempts: [
+      { id: "custom-win:1", challengeId: "custom-win", status: "passed", summary: "Passed first", checkedAt: "2026-07-17T10:00:00.000Z" },
+      { id: "custom-win:2", challengeId: "custom-win", status: "passed", summary: "Passed latest", checkedAt: "2026-07-18T10:00:00.000Z", completedGameAt: "2026-07-18T09:58:00.000Z" },
+      { id: "custom-win:3", challengeId: "custom-win", status: "failed", summary: "Failed later", checkedAt: "2026-07-19T10:00:00.000Z" },
+      { id: "other:1", challengeId: "other", status: "passed", summary: "Other", checkedAt: "2026-07-20T10:00:00.000Z" },
+    ],
+  }, "custom-win");
+
+  assert.equal(latestPassed?.id, "custom-win:2");
+  assert.equal(latestPassed?.completedGameAt, "2026-07-18T09:58:00.000Z");
 });
 
 test("production submit verifier evaluates the immutable active custom quest snapshot", async (t) => {

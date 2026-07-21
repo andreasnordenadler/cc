@@ -204,6 +204,15 @@ export function getLatestChallengeAttempt(
   return getChallengeAttempts(metadata, challengeId).at(-1) ?? null;
 }
 
+export function getLatestPassedChallengeAttempt(
+  metadata: UserMetadataRecord,
+  challengeId: string,
+): ChallengeAttempt | null {
+  return getChallengeAttempts(metadata, challengeId)
+    .filter((attempt) => attempt.status === "passed")
+    .at(-1) ?? null;
+}
+
 export function buildChallengeProgressRecord(completedChallengeIds: string[]): ChallengeProgress {
   return {
     completedChallengeIds,
