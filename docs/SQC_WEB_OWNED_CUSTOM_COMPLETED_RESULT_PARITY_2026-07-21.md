@@ -20,7 +20,8 @@
 
 - Strict vertical RED/GREEN tests cover completed result rendering, legacy receipts without game details, latest-passed selection after a later failed attempt, and exclusion of supplied account email from custom proof tokens.
 - The production client component is rendered directly in tests. The production server route derives identity from Clerk and passes only server-derived completion/receipt props; no client identity or owner field was added.
-- A fresh independent review found the legacy-result and proof-token privacy defects; both were reproduced test-first and fixed narrowly. A new exact-HEAD review is required after commit before this PR can pass its code-review gate.
+- A fresh independent review found the legacy-result and proof-token privacy defects; both were reproduced test-first and fixed narrowly. Independent review of exact commit `54335508f5e0cc6270fe118615bd8c34e0449c50` returned PASS with no code blockers.
+- Exact-SHA CI and Vercel preview checks passed. The preview's public desktop/mobile Playwright suite passed 18/18, and a separate 1440×900 / 390×844 audit found no console/page errors, horizontal overflow, or serious/critical axe violations. These signed-out checks are regression evidence only, not authenticated matched-state proof.
 - Android matched-state source evidence is recorded above. No fabricated user, quest, progress, or receipt data is used in runtime claims.
 
 ## NEXT
