@@ -50,8 +50,8 @@ test("mobile solo catalog matches the app catalog hierarchy", async ({ page }) =
   await expect(easy).toHaveCSS("color", "rgb(10, 18, 14)");
   const [rowBox, officialTabBox, communityTabBox, swapBox] = await Promise.all([
     page.getByRole("link", { name: "Open Any Game Counts", exact: true }).boundingBox(),
-    page.getByRole("tab", { name: "Official Side Quests" }).boundingBox(),
-    page.getByRole("tab", { name: "Community Side Quests" }).boundingBox(),
+    page.getByRole("link", { name: "Official Side Quests", exact: true }).boundingBox(),
+    page.getByRole("link", { name: "Community Side Quests", exact: true }).boundingBox(),
     page.getByRole("link", { name: "Switch to Community Side Quests" }).boundingBox(),
   ]);
   expect(rowBox!.height).toBeLessThanOrEqual(70);
@@ -214,7 +214,7 @@ test("custom builder asks before discarding unsaved changes", async ({ page }) =
 
 test("multiplayer catalog opens Official by default and Community stays app-styled", async ({ page }) => {
   await page.goto("/multiplayer-side-quests", { waitUntil: "domcontentloaded" });
-  await expect(page.getByRole("tab", { name: "Official Side Quests" })).toHaveAttribute("aria-selected", "true");
+  await expect(page.getByRole("navigation", { name: "Multiplayer Side Quest catalog" }).getByRole("link", { name: "Official Side Quests" })).toHaveAttribute("aria-current", "page");
   await expect(page.getByRole("heading", { name: "Official Multiplayer Side Quests" })).toBeVisible();
   await expect(page.getByText("3 official", { exact: true })).toBeVisible();
   const officialLike = page.locator(".sqc-like-pill").first();
@@ -229,9 +229,9 @@ test("multiplayer catalog opens Official by default and Community stays app-styl
   expect(officialLikeBox!.x + officialLikeBox!.width).toBeLessThanOrEqual(officialRowBox!.x + officialRowBox!.width);
   await expectGuestMenu(page);
 
-  await page.getByRole("tab", { name: "Community Side Quests" }).click();
+  await page.getByRole("navigation", { name: "Multiplayer Side Quest catalog" }).getByRole("link", { name: "Community Side Quests" }).click();
   await expect(page).toHaveURL(/tab=community/);
-  await expect(page.getByRole("tab", { name: "Community Side Quests" })).toHaveAttribute("aria-selected", "true");
+  await expect(page.getByRole("navigation", { name: "Multiplayer Side Quest catalog" }).getByRole("link", { name: "Community Side Quests" })).toHaveAttribute("aria-current", "page");
   const controls = page.locator("select, button");
   const count = await controls.count();
   for (let index = 0; index < count; index += 1) {
