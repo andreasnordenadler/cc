@@ -44,6 +44,15 @@ test("Solo and Multiplayer swap controls are real links with the Android swap ic
   assert.doesNotMatch(multiplayer, /role="separator"/);
 });
 
+test("Community Solo intro matches Android without claiming web actions require mobile", () => {
+  const html = renderToStaticMarkup(createElement(MobileCommunitySideQuestsScreen, { rows: [], signedIn: true }));
+
+  assert.match(html, /<h1>Community Side Quests<\/h1>/);
+  assert.match(html, /These are Side Quests created by the Side Quest Chess community\./);
+  assert.doesNotMatch(html, /Use mobile to pick, check, prove, and collect\./);
+  assert.doesNotMatch(html, /full tavern-wall browse/);
+});
+
 test("Community Solo browse exposes every Android filter and sort choice", () => {
   const html = renderToStaticMarkup(createElement(MobileCommunitySideQuestsScreen, { rows: [], signedIn: true }));
 

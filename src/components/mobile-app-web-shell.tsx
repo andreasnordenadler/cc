@@ -833,8 +833,8 @@ export function MobileCommunitySideQuestsScreen({
       </div>
 
       <section className="sqc-community-intro" aria-label="Community Side Quests">
-        <h1>Pocket tracker for borrowed bad ideas.</h1>
-        <p>Use mobile to pick, check, prove, and collect. Use the website when you want the full tavern-wall browse, public detail pages, and report links.</p>
+        <h1>Community Side Quests</h1>
+        <p>These are Side Quests created by the Side Quest Chess community.</p>
       </section>
 
       <div className="sqc-community-subtabs" role="tablist" aria-label="Community Solo views">
