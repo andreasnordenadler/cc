@@ -506,13 +506,13 @@ export function MobileSoloSideQuestsScreen({
         <Image className="sqc-screen-emblem-image" alt="" src={mobileAsset.coat} width={132} height={148} priority />
       </div>
 
-      <div className="sqc-brand-tabs sqc-solo-brand-tabs" role="tablist" aria-label="Solo Side Quest catalog">
-        <Link href="/side-quests" className="sqc-brand-tab official active" role="tab" aria-selected="true">Official Side Quests</Link>
+      <nav className="sqc-brand-tabs sqc-solo-brand-tabs" aria-label="Solo Side Quest catalog">
+        <Link href="/side-quests" className="sqc-brand-tab official active" aria-current="page">Official Side Quests</Link>
         <Link href="/community-side-quests" className="sqc-brand-switch" data-icon="swap-horizontal" aria-label="Switch to Community Side Quests">
           <span aria-hidden="true" />
         </Link>
-        <Link href="/community-side-quests" className="sqc-brand-tab community" role="tab" aria-selected="false">Community Side Quests</Link>
-      </div>
+        <Link href="/community-side-quests" className="sqc-brand-tab community">Community Side Quests</Link>
+      </nav>
 
       <section className="sqc-panel list">
         <div className="sqc-list-head inline">
@@ -831,25 +831,25 @@ export function MobileCommunitySideQuestsScreen({
         <Image className="sqc-screen-emblem-image" alt="" src={mobileAsset.coat} width={132} height={148} priority />
       </div>
 
-      <div className="sqc-brand-tabs sqc-solo-brand-tabs" role="tablist" aria-label="Solo Side Quest catalog">
-        <Link href="/side-quests" className="sqc-brand-tab official" role="tab" aria-selected="false">
+      <nav className="sqc-brand-tabs sqc-solo-brand-tabs" aria-label="Solo Side Quest catalog">
+        <Link href="/side-quests" className="sqc-brand-tab official">
           Official Side Quests
         </Link>
         <Link href="/side-quests" className="sqc-brand-switch" data-icon="swap-horizontal" aria-label="Switch to Official Side Quests"><span aria-hidden="true" /></Link>
-        <Link href="/community-side-quests" className="sqc-brand-tab community active" role="tab" aria-selected="true">
+        <Link href="/community-side-quests" className="sqc-brand-tab community active" aria-current="page">
           Community Side Quests
         </Link>
-      </div>
+      </nav>
 
       <section className="sqc-community-intro" aria-label="Community Side Quests">
         <h1>Community Side Quests</h1>
         <p>These are Side Quests created by the Side Quest Chess community.</p>
       </section>
 
-      <div className="sqc-community-subtabs" role="tablist" aria-label="Community Solo views">
-        <span className="active" role="tab" aria-selected="true">Discover</span>
-        <Link href="/custom-side-quests" role="tab" aria-selected="false">My Library</Link>
-      </div>
+      <nav className="sqc-community-subtabs" aria-label="Community Solo views">
+        <span className="active" aria-current="page">Discover</span>
+        <Link href="/custom-side-quests">My Library</Link>
+      </nav>
 
       <section className="sqc-community-catalog-section" aria-label="Community Solo Discover">
         <div className="sqc-community-section-header">
@@ -965,15 +965,15 @@ export function MobileCustomSideQuestsScreen({
         <Image className="sqc-screen-emblem-image" alt="" src={mobileAsset.coat} width={132} height={148} priority />
       </div>
 
-      <div className="sqc-brand-tabs sqc-solo-brand-tabs" role="tablist" aria-label="Solo Side Quest catalog">
-        <Link href="/side-quests" className="sqc-brand-tab official" role="tab" aria-selected="false">
+      <nav className="sqc-brand-tabs sqc-solo-brand-tabs" aria-label="Solo Side Quest catalog">
+        <Link href="/side-quests" className="sqc-brand-tab official">
           Official Side Quests
         </Link>
-        <Link href="/side-quests" className="sqc-brand-switch" data-icon="swap-horizontal" role="tab" aria-selected="false" aria-label="Switch to Official Side Quests"><span aria-hidden="true" /></Link>
-        <Link href="/community-side-quests" className="sqc-brand-tab community active" role="tab" aria-selected="true">
+        <Link href="/side-quests" className="sqc-brand-switch" data-icon="swap-horizontal" aria-label="Switch to Official Side Quests"><span aria-hidden="true" /></Link>
+        <Link href="/community-side-quests" className="sqc-brand-tab community active">
           Community Side Quests
         </Link>
-      </div>
+      </nav>
 
       <section className="sqc-community-catalog-section" aria-label="My Custom Side Quests">
         <div className="sqc-community-section-header">
@@ -1023,12 +1023,11 @@ export function MobileMultiplayerSideQuestsScreen({
         <Image className="sqc-screen-emblem-image multiplayer" alt="" src={mobileAsset.multiplayerSeal} width={118} height={118} priority />
       </div>
 
-      <div className="sqc-brand-tabs sqc-multiplayer-brand-tabs" role="tablist" aria-label="Multiplayer Side Quest catalog">
+      <nav className="sqc-brand-tabs sqc-multiplayer-brand-tabs" aria-label="Multiplayer Side Quest catalog">
         <Link
           href="/multiplayer-side-quests"
           className={selectedTab === "official" ? "sqc-brand-tab official active" : "sqc-brand-tab official"}
-          role="tab"
-          aria-selected={selectedTab === "official"}
+          aria-current={selectedTab === "official" ? "page" : undefined}
         >
           Official Side Quests
         </Link>
@@ -1043,12 +1042,11 @@ export function MobileMultiplayerSideQuestsScreen({
         <Link
           href="/multiplayer-side-quests?tab=community"
           className={selectedTab === "community" ? "sqc-brand-tab community active" : "sqc-brand-tab community"}
-          role="tab"
-          aria-selected={selectedTab === "community"}
+          aria-current={selectedTab === "community" ? "page" : undefined}
         >
           Community Side Quests
         </Link>
-      </div>
+      </nav>
 
       {selectedTab === "official"
         ? <OfficialMultiplayerPanel signedIn={signedIn} rows={officialRows} previousOfficialRows={previousOfficialRows ?? []} earlierOfficialWeeks={earlierOfficialWeeks ?? []} />

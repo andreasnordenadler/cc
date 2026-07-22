@@ -872,7 +872,9 @@ test("signed-out custom library slot replaces the account-backed empty state", (
 
   assert.match(html, /Loading drafts saved in this browser/);
   assert.doesNotMatch(html, /Build your own Side Quest/);
-  assert.match(html, /class="sqc-brand-switch"[^>]*role="tab"[^>]*aria-selected="false"/);
+  assert.match(html, /<nav class="sqc-brand-tabs sqc-solo-brand-tabs" aria-label="Solo Side Quest catalog">/);
+  assert.match(html, /class="sqc-brand-switch"[^>]*href="\/side-quests"/);
+  assert.doesNotMatch(html, /role="(?:tablist|tab)"|aria-selected=/);
 });
 
 test("signed-out custom library route loads browser-local drafts", async () => {

@@ -4,7 +4,7 @@ import test from "node:test";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { CommunityMultiplayerCatalog, CustomSoloCatalog } from "@/components/catalog-clients";
-import { MobileCommunitySideQuestsScreen, MobileMultiplayerSideQuestsScreen, MobileSimpleScreen, MobileSoloSideQuestsScreen } from "@/components/mobile-app-web-shell";
+import { MobileCommunitySideQuestsScreen, MobileCustomSideQuestsScreen, MobileMultiplayerSideQuestsScreen, MobileSimpleScreen, MobileSoloSideQuestsScreen } from "@/components/mobile-app-web-shell";
 import { CHALLENGES } from "@/lib/challenges";
 import type { MobileWebMultiplayerPreview } from "@/lib/mobile-web-multiplayer";
 
@@ -30,18 +30,23 @@ const row: MobileWebMultiplayerPreview = {
   endAt: "2026-07-02T00:00:00.000Z",
 };
 
-test("Solo and Multiplayer swap controls are real links with the Android swap icon", () => {
+test("Solo and Multiplayer catalog switches are route navigation without invalid tab semantics", () => {
   const solo = renderToStaticMarkup(createElement(MobileCommunitySideQuestsScreen, { rows: [], signedIn: true }));
-  assert.match(solo, /class="sqc-brand-tabs sqc-solo-brand-tabs"/);
+  assert.match(solo, /<nav class="sqc-brand-tabs sqc-solo-brand-tabs" aria-label="Solo Side Quest catalog">/);
   assert.match(solo, /aria-label="Switch to Official Side Quests"/);
   assert.match(solo, /data-icon="swap-horizontal"/);
-  assert.match(solo, /href="\/side-quests"/);
-  assert.doesNotMatch(solo, /role="separator"/);
+  assert.match(solo, /<a[^>]*aria-current="page"[^>]*href="\/community-side-quests"/);
+  assert.doesNotMatch(solo, /role="(?:tablist|tab|separator)"|aria-selected=/);
 
   const multiplayer = renderToStaticMarkup(createElement(MobileMultiplayerSideQuestsScreen, { selectedTab: "community", signedIn: true, officialRows: [], communityRows: [row] }));
+  assert.match(multiplayer, /<nav class="sqc-brand-tabs sqc-multiplayer-brand-tabs" aria-label="Multiplayer Side Quest catalog">/);
   assert.match(multiplayer, /aria-label="Switch to Official Multiplayer Side Quests"/);
-  assert.match(multiplayer, /href="\/multiplayer-side-quests"/);
-  assert.doesNotMatch(multiplayer, /role="separator"/);
+  assert.match(multiplayer, /<a[^>]*aria-current="page"[^>]*href="\/multiplayer-side-quests\?tab=community"/);
+  assert.doesNotMatch(multiplayer, /role="(?:tablist|tab|separator)"|aria-selected=/);
+
+  const library = renderToStaticMarkup(createElement(MobileCustomSideQuestsScreen, { rows: [] }));
+  assert.match(library, /<nav class="sqc-brand-tabs sqc-solo-brand-tabs" aria-label="Solo Side Quest catalog">/);
+  assert.doesNotMatch(library, /role="(?:tablist|tab|separator)"|aria-selected=/);
 });
 
 test("Community Solo intro matches Android without claiming web actions require mobile", () => {
