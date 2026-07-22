@@ -84,6 +84,27 @@ test("Community Multiplayer browse exposes every Android sort choice", () => {
   }
 });
 
+test("Community Multiplayer likes feed optimistic state back into like-derived sorting", () => {
+  const source = readFileSync(new URL("../src/components/catalog-clients.tsx", import.meta.url), "utf8");
+
+  assert.match(source, /const \[liveRows, setLiveRows\] = useState\(rows\)/);
+  assert.match(source, /const \[previousRows, setPreviousRows\] = useState\(rows\)/);
+  assert.match(source, /if \(rows !== previousRows\) \{\s*setPreviousRows\(rows\);\s*setLiveRows\(rows\);\s*setRowsGeneration\(\(current\) => current \+ 1\);\s*\}/);
+  assert.match(source, /filterMultiplayerCatalog\(hostRows/);
+  assert.match(source, /const \[pendingLikeIds, setPendingLikeIds\] = useState<Set<string>>/);
+  assert.match(source, /const \[rowsGeneration, setRowsGeneration\] = useState\(0\)/);
+  assert.match(source, /setRowsGeneration\(\(current\) => current \+ 1\)/);
+  assert.match(source, /stateGeneration=\{rowsGeneration\}/);
+  assert.match(source, /const rowsGenerationRef = useRef\(rowsGeneration\)/);
+  assert.match(source, /useLayoutEffect\(\(\) => \{\s*rowsGenerationRef\.current = rowsGeneration;\s*\}, \[rowsGeneration\]\)/);
+  assert.match(source, /if \(rowsGenerationRef\.current === rowsGeneration\) \{\s*setLiveRows/);
+  assert.match(source, /externallyBusy=\{pendingLikeIds\.has\(row\.id\)\}/);
+  assert.match(source, /onLikeStateChange=\{\(liked\) => \{/);
+  assert.match(source, /setPendingLikeIds\(\(current\) => new Set\(current\)\.add\(row\.id\)\)/);
+  assert.match(source, /onMutationSettled=\{\(\) => setPendingLikeIds/);
+  assert.match(source, /applyMultiplayerLikeState\(current, row\.id, liked\)/);
+});
+
 test("Community Multiplayer discovery initially shows four rows and a real Android-sized load-more action", () => {
   const rows = Array.from({ length: 6 }, (_, index) => ({
     ...row,

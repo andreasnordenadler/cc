@@ -108,6 +108,21 @@ export function paginateCatalog<T>(rows: T[], limit: number) {
   return { rows: rows.slice(0, safeLimit), hasMore: rows.length > safeLimit, total: rows.length };
 }
 
+export function applyMultiplayerLikeState<
+  T extends { id: string; likeSummary: { count: number; likedByViewer: boolean } },
+>(rows: T[], targetId: string, likedByViewer: boolean): T[] {
+  return rows.map((row) => row.id === targetId
+    ? {
+        ...row,
+        likeSummary: {
+          ...row.likeSummary,
+          count: Math.max(0, row.likeSummary.count + (likedByViewer === row.likeSummary.likedByViewer ? 0 : likedByViewer ? 1 : -1)),
+          likedByViewer,
+        },
+      }
+    : row);
+}
+
 export function filterMultiplayerCatalog<T extends MultiplayerCatalogRow>(
   rows: T[],
   options: { query: string; filter: "all" | "open" | "joined" | "hosted" | "finished"; sort: "closing" | "liked" | "newest" | "players" | "name" },

@@ -2,9 +2,9 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useLayoutEffect, useMemo, useRef, useState } from "react";
 import OfficialSoloLikeControl from "./official-solo-like-control";
-import { applyCommunitySoloLikeState, filterCommunitySoloCatalog, filterCustomCatalog, filterMultiplayerCatalog, paginateCatalog, type CommunitySoloCatalogFilter, type CommunitySoloCatalogSort } from "@/lib/catalog-models";
+import { applyCommunitySoloLikeState, applyMultiplayerLikeState, filterCommunitySoloCatalog, filterCustomCatalog, filterMultiplayerCatalog, paginateCatalog, type CommunitySoloCatalogFilter, type CommunitySoloCatalogSort } from "@/lib/catalog-models";
 import type { MobileWebMultiplayerPreview } from "@/lib/mobile-web-multiplayer";
 
 export type SoloCatalogClientRow = {
@@ -63,7 +63,7 @@ function CommunitySoloCatalogRow({ row, signedIn, onLikeStateChange }: { row: Co
   );
 }
 
-function MultiplayerCatalogRow({ row, status, signedIn }: { row: MobileWebMultiplayerPreview; status: string; signedIn: boolean }) {
+function MultiplayerCatalogRow({ row, status, signedIn, externallyBusy, stateGeneration, onLikeStateChange, onMutationSettled }: { row: MobileWebMultiplayerPreview; status: string; signedIn: boolean; externallyBusy: boolean; stateGeneration: number; onLikeStateChange: (liked: boolean) => void; onMutationSettled: () => void }) {
   return (
     <div className="sqc-app-row sqc-app-row-with-like text-only">
       <Link href={row.href} className="sqc-app-row-main" aria-label={`Open ${row.title}`} />
@@ -79,6 +79,10 @@ function MultiplayerCatalogRow({ row, status, signedIn }: { row: MobileWebMultip
             signedIn={signedIn}
             returnTo="/multiplayer-side-quests?tab=community"
             label={row.title}
+            onLikeStateChange={onLikeStateChange}
+            externallyBusy={externallyBusy}
+            onMutationSettled={onMutationSettled}
+            stateGeneration={stateGeneration}
           />
         </span>
         <small>{row.meta}</small>
@@ -163,22 +167,35 @@ export function CustomSoloCatalog({ rows }: { rows: CustomCatalogClientRow[] }) 
 }
 
 export function CommunityMultiplayerCatalog({ rows, signedIn, initialHost = null }: { rows: MobileWebMultiplayerPreview[]; signedIn: boolean; initialHost?: string | null }) {
+  const [liveRows, setLiveRows] = useState(rows);
+  const [previousRows, setPreviousRows] = useState(rows);
+  const [pendingLikeIds, setPendingLikeIds] = useState<Set<string>>(() => new Set());
+  const [rowsGeneration, setRowsGeneration] = useState(0);
+  const rowsGenerationRef = useRef(rowsGeneration);
+  useLayoutEffect(() => {
+    rowsGenerationRef.current = rowsGeneration;
+  }, [rowsGeneration]);
   const [query, setQuery] = useState("");
   const host = initialHost;
   const [filter, setFilter] = useState<"all" | "open" | "joined" | "hosted" | "finished">(() => initialHost ? "all" : "open");
   const [sort, setSort] = useState<"closing" | "liked" | "newest" | "players">("closing");
   const [limit, setLimit] = useState(4);
-  const hostRows = useMemo(() => host ? rows.filter(row => row.publiclyListed && row.hostName === host) : rows, [rows, host]);
+  if (rows !== previousRows) {
+    setPreviousRows(rows);
+    setLiveRows(rows);
+    setRowsGeneration((current) => current + 1);
+  }
+  const hostRows = useMemo(() => host ? liveRows.filter(row => row.publiclyListed && row.hostName === host) : liveRows, [liveRows, host]);
   const filtered = useMemo(() => filterMultiplayerCatalog(hostRows, { query, filter, sort }), [hostRows, query, filter, sort]);
   const page = paginateCatalog(filtered, limit);
-  const activeMine = rows.filter(row => row.lifecycle === "open" && (row.status === "Hosted" || row.status === "Joined"));
-  const finishedMine = rows.filter(row => row.lifecycle === "finished" && (row.status === "Hosted" || row.status === "Joined"));
+  const activeMine = liveRows.filter(row => row.lifecycle === "open" && (row.status === "Hosted" || row.status === "Joined"));
+  const finishedMine = liveRows.filter(row => row.lifecycle === "finished" && (row.status === "Hosted" || row.status === "Joined"));
 
   return (
     <>
       {signedIn ? <>
-        <section className="sqc-native-card green" aria-label="Your Multiplayer Side Quests"><span className="sqc-card-eyebrow">Active · {activeMine.length}</span><h2>Your active Multiplayer Side Quests.</h2>{activeMine.length ? <div className="sqc-catalog">{activeMine.map(row => <MultiplayerCatalogRow key={row.id} row={row} status={row.status} signedIn={signedIn} />)}</div> : <div className="sqc-empty-panel"><strong>No active Multiplayer Side Quests yet.</strong><span>Join an open quest, use an invite code, or create your own.</span></div>}</section>
-        <section className="sqc-native-card green" aria-label="Finished Multiplayer Side Quests"><span className="sqc-card-eyebrow">Recently finished · {finishedMine.length}</span><h2>Recently finished Multiplayer Side Quests.</h2>{finishedMine.length ? <div className="sqc-catalog">{finishedMine.map(row => <MultiplayerCatalogRow key={row.id} row={row} status="Finished" signedIn={signedIn} />)}</div> : <p>No finished Multiplayer Side Quests yet.</p>}</section>
+        <section className="sqc-native-card green" aria-label="Your Multiplayer Side Quests"><span className="sqc-card-eyebrow">Active · {activeMine.length}</span><h2>Your active Multiplayer Side Quests.</h2>{activeMine.length ? <div className="sqc-catalog">{activeMine.map(row => <MultiplayerCatalogRow key={row.id} row={row} status={row.status} signedIn={signedIn} stateGeneration={rowsGeneration} externallyBusy={pendingLikeIds.has(row.id)} onLikeStateChange={(liked) => { setPendingLikeIds((current) => new Set(current).add(row.id)); if (rowsGenerationRef.current === rowsGeneration) { setLiveRows((current) => applyMultiplayerLikeState(current, row.id, liked)); } }} onMutationSettled={() => setPendingLikeIds((current) => { const next = new Set(current); next.delete(row.id); return next; })} />)}</div> : <div className="sqc-empty-panel"><strong>No active Multiplayer Side Quests yet.</strong><span>Join an open quest, use an invite code, or create your own.</span></div>}</section>
+        <section className="sqc-native-card green" aria-label="Finished Multiplayer Side Quests"><span className="sqc-card-eyebrow">Recently finished · {finishedMine.length}</span><h2>Recently finished Multiplayer Side Quests.</h2>{finishedMine.length ? <div className="sqc-catalog">{finishedMine.map(row => <MultiplayerCatalogRow key={row.id} row={row} status="Finished" signedIn={signedIn} stateGeneration={rowsGeneration} externallyBusy={pendingLikeIds.has(row.id)} onLikeStateChange={(liked) => { setPendingLikeIds((current) => new Set(current).add(row.id)); if (rowsGenerationRef.current === rowsGeneration) { setLiveRows((current) => applyMultiplayerLikeState(current, row.id, liked)); } }} onMutationSettled={() => setPendingLikeIds((current) => { const next = new Set(current); next.delete(row.id); return next; })} />)}</div> : <p>No finished Multiplayer Side Quests yet.</p>}</section>
       </> : null}
       <section className="sqc-native-card green" aria-label="Community Multiplayer Side Quests">
         <span className="sqc-card-eyebrow">Community catalog</span><h2>Community Multiplayer Side Quests.</h2>
@@ -188,7 +205,7 @@ export function CommunityMultiplayerCatalog({ rows, signedIn, initialHost = null
           <div className="sqc-community-controls"><div className="sqc-filter-row" aria-label="Filter multiplayer community">{(["open", "all", ...(signedIn ? ["joined", "hosted", "finished"] : [])] as typeof filter[]).map(value => <button type="button" key={value} className={filter === value ? "active" : ""} onClick={() => { setFilter(value); setLimit(4); }}>{value[0].toUpperCase() + value.slice(1)}</button>)}</div>
           <label className="sqc-sort-pill">Sort <select aria-label="Sort multiplayer community" value={sort} onChange={event => { setSort(event.target.value as typeof sort); setLimit(4); }}><option value="closing">Closing</option><option value="liked">Liked</option><option value="newest">New</option><option value="players">Players</option></select></label></div>
         </div>
-        {page.rows.length ? <div className="sqc-catalog">{page.rows.map(row => <MultiplayerCatalogRow key={row.id} row={row} signedIn={signedIn} status={signedIn ? row.lifecycle === "finished" ? "Finished" : row.status : "View"} />)}</div> : <div className="sqc-empty-panel"><strong>No Multiplayer Side Quests match these filters.</strong><span>{rows.length ? "Try another search or filter." : "No public Community Multiplayer Side Quests yet."}</span></div>}
+        {page.rows.length ? <div className="sqc-catalog">{page.rows.map(row => <MultiplayerCatalogRow key={row.id} row={row} signedIn={signedIn} status={signedIn ? row.lifecycle === "finished" ? "Finished" : row.status : "View"} stateGeneration={rowsGeneration} externallyBusy={pendingLikeIds.has(row.id)} onLikeStateChange={(liked) => { setPendingLikeIds((current) => new Set(current).add(row.id)); if (rowsGenerationRef.current === rowsGeneration) { setLiveRows((current) => applyMultiplayerLikeState(current, row.id, liked)); } }} onMutationSettled={() => setPendingLikeIds((current) => { const next = new Set(current); next.delete(row.id); return next; })} />)}</div> : <div className="sqc-empty-panel"><strong>No Multiplayer Side Quests match these filters.</strong><span>{liveRows.length ? "Try another search or filter." : "No public Community Multiplayer Side Quests yet."}</span></div>}
         {page.hasMore ? <button type="button" className="sqc-detail-secondary-button" onClick={() => setLimit(value => value + 4)}>More community Side Quests ({page.total - page.rows.length})</button> : null}
       </section>
     </>

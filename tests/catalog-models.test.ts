@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { applyCommunitySoloLikeState, filterCommunitySoloCatalog, filterCustomCatalog, filterMultiplayerCatalog, filterSoloCatalog, paginateCatalog } from "../src/lib/catalog-models";
+import { applyCommunitySoloLikeState, applyMultiplayerLikeState, filterCommunitySoloCatalog, filterCustomCatalog, filterMultiplayerCatalog, filterSoloCatalog, paginateCatalog } from "../src/lib/catalog-models";
 import { buildMobileWebMultiplayerLeaderboardRows, buildMobileWebMultiplayerPreview, buildUserMultiplayerRows, getMobileWebMultiplayerDetail, getMultiplayerHostFilter, mergeCommunityCatalogQuests } from "../src/lib/mobile-web-multiplayer";
 import type { ServerGroupQuest } from "../src/lib/groupquests";
 
@@ -199,6 +199,28 @@ test("multiplayer community catalog matches Android liked sorting", () => {
     filterMultiplayerCatalog(rows, { query: "", filter: "all", sort: "liked" }).map(row => row.id),
     ["newer-liked", "older-liked", "less-liked"],
   );
+});
+
+test("multiplayer community catalog reorders liked results immediately after a successful optimistic toggle", () => {
+  const rows = [
+    multiplayerRow({ id: "target", likeSummary: { count: 2, likedByViewer: false }, startAt: "2026-07-08T00:00:00.000Z" }),
+    multiplayerRow({ id: "leader", likeSummary: { count: 2, likedByViewer: false }, startAt: "2026-07-09T00:00:00.000Z" }),
+  ];
+
+  const liked = applyMultiplayerLikeState(rows, "target", true);
+
+  assert.deepEqual(liked.map((row) => [row.id, row.likeSummary.count, row.likeSummary.likedByViewer]), [
+    ["target", 3, true],
+    ["leader", 2, false],
+  ]);
+  assert.deepEqual(
+    filterMultiplayerCatalog(liked, { query: "", filter: "all", sort: "liked" }).map((row) => row.id),
+    ["target", "leader"],
+  );
+  assert.deepEqual(applyMultiplayerLikeState(liked, "target", false)[0]?.likeSummary, {
+    count: 2,
+    likedByViewer: false,
+  });
 });
 
 test("multiplayer community catalog matches Android player-count sorting", () => {

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 type OfficialSoloLikeControlProps = {
   targetType?: "solo" | "multiplayer";
@@ -12,6 +12,9 @@ type OfficialSoloLikeControlProps = {
   returnTo: string;
   label: string;
   onLikeStateChange?: (liked: boolean) => void;
+  externallyBusy?: boolean;
+  onMutationSettled?: () => void;
+  stateGeneration?: number;
 };
 
 export default function OfficialSoloLikeControl({
@@ -23,14 +26,24 @@ export default function OfficialSoloLikeControl({
   returnTo,
   label,
   onLikeStateChange,
+  externallyBusy = false,
+  onMutationSettled,
+  stateGeneration = 0,
 }: OfficialSoloLikeControlProps) {
   const [liked, setLiked] = useState(initiallyLiked);
   const [count, setCount] = useState(initialCount);
   const [busy, setBusy] = useState(false);
   const [status, setStatus] = useState("");
+  const latestStateGeneration = useRef(stateGeneration);
+  latestStateGeneration.current = stateGeneration;
   const countLabel = `${count} like${count === 1 ? "" : "s"}`;
   const actionLabel = signedIn ? (liked ? "Unlike" : "Like") : "Sign in to like";
   const className = `sqc-like-pill${liked ? " liked" : ""}${busy ? " busy" : ""}`;
+
+  useEffect(() => {
+    setLiked(initiallyLiked);
+    setCount(initialCount);
+  }, [initialCount, initiallyLiked]);
 
   if (!signedIn) {
     return (
@@ -46,7 +59,8 @@ export default function OfficialSoloLikeControl({
   }
 
   async function toggleLike() {
-    if (busy) return;
+    if (busy || externallyBusy) return;
+    const mutationGeneration = latestStateGeneration.current;
     const previous = { liked, count };
     const nextLiked = !liked;
     setLiked(nextLiked);
@@ -69,12 +83,15 @@ export default function OfficialSoloLikeControl({
       if (!response.ok) throw new Error("like_update_failed");
       setStatus(nextLiked ? "Side Quest liked." : "Like removed.");
     } catch {
-      setLiked(previous.liked);
-      setCount(previous.count);
-      onLikeStateChange?.(previous.liked);
+      if (mutationGeneration === latestStateGeneration.current) {
+        setLiked(previous.liked);
+        setCount(previous.count);
+        onLikeStateChange?.(previous.liked);
+      }
       setStatus("Could not update your like. Try again.");
     } finally {
       setBusy(false);
+      onMutationSettled?.();
     }
   }
 
@@ -85,7 +102,7 @@ export default function OfficialSoloLikeControl({
         className={className}
         aria-pressed={liked}
         aria-label={`${liked ? "Unlike" : "Like"} ${label}. ${countLabel}.`}
-        disabled={busy}
+        disabled={busy || externallyBusy}
         onClick={toggleLike}
       >
         <span className="sqc-like-pill-icon" data-icon={liked ? "thumb-up" : "thumb-up-outline"} aria-hidden="true" />
