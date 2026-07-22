@@ -18,6 +18,7 @@ import MobileMultiplayerCreateForm, { type MultiplayerCreateQuest } from "./mobi
 import { CommunityMultiplayerCatalog, CommunitySoloCatalog, CustomSoloCatalog } from "./catalog-clients";
 import CommunitySoloSocialActions from "./community-solo-social-actions";
 import CommunitySoloShareControls from "./community-solo-share-controls";
+import SupportDiagnosticsCopy from "./support-diagnostics-copy";
 import ActiveSoloActions from "./active-solo-actions";
 import GroupQuestRefreshButton from "./group-quest-refresh-button";
 import GroupQuestShareControls from "./group-quest-share-controls";
@@ -708,6 +709,7 @@ export function MobileSupportScreen({
         <p>{accountContext ? `Signed in as ${accountContext.displayName ?? "SQC player"}.` : "Not signed in."}</p>
         <p>Lichess: {accountContext?.lichessUsername ?? "not connected"} · Chess.com: {accountContext?.chessComUsername ?? "not connected"}</p>
         <p>Active Solo: {accountContext?.activeSoloQuestTitle ?? "none"} · Active Multiplayer: {accountContext?.activeMultiplayerQuestCount ?? 0} · Public hosted: {accountContext?.publicHostedMultiplayerQuestCount ?? 0}</p>
+        {!signedIn ? <SupportDiagnosticsCopy accountContext={accountContext} /> : null}
       </details>
 
       <section className="sqc-support-row-list" aria-label="Help topics">

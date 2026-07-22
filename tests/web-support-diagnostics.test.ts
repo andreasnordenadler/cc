@@ -1,8 +1,19 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
+import React from "react";
+import { renderToStaticMarkup } from "react-dom/server";
+import { MobileSupportScreen } from "../src/components/mobile-app-web-shell";
 import { buildWebSupportAccountContext, buildWebSupportDiagnostics, loadWebSupportGroupQuestContext } from "../src/lib/web-support-diagnostics";
 import { buildGroupQuest } from "../src/lib/groupquests";
+
+test("signed-out support keeps Android v338 copy diagnostics action reachable", () => {
+  const html = renderToStaticMarkup(React.createElement(MobileSupportScreen, { signedIn: false }));
+
+  assert.match(html, /App diagnostics/);
+  assert.match(html, /Copy support details/);
+  assert.match(html, /Sign in to message support/);
+});
 
 test("web support diagnostics include the same account and quest context as Android", () => {
   const diagnostics = buildWebSupportDiagnostics({
