@@ -62,14 +62,37 @@ test("mobile solo catalog matches the app catalog hierarchy", async ({ page }) =
   expect(await noHorizontalOverflow(page)).toBe(true);
 });
 
-test("mobile official Solo detail keeps the like control in a bounded hero", async ({ page }) => {
-  const response = await page.goto("/challenges/finish-any-game", { waitUntil: "domcontentloaded" });
+test("mobile official Solo detail keeps the like and sharing controls in a bounded hero", async ({ page }) => {
+  await page.addInitScript(() => {
+    const state = window as unknown as { __shared?: ShareData; __copied?: string };
+    Object.defineProperty(navigator, "share", {
+      configurable: true,
+      value: async (payload: ShareData) => { state.__shared = payload; },
+    });
+    Object.defineProperty(navigator, "clipboard", {
+      configurable: true,
+      value: { writeText: async (value: string) => { state.__copied = value; } },
+    });
+  });
+  const path = "/challenges/finish-any-game";
+  const response = await page.goto(path, { waitUntil: "domcontentloaded" });
   expect(response?.status()).toBeLessThan(400);
 
   const likeControl = page.getByRole("link", { name: "Sign in to like Any Game Counts. 0 likes." });
   await expect(likeControl).toBeVisible();
   const iconBox = await likeControl.locator(".sqc-like-pill-icon").boundingBox();
   expect(iconBox?.width).toBeGreaterThanOrEqual(15);
+
+  const share = page.getByRole("button", { name: "Share Solo Side Quest public link" });
+  const copy = page.getByRole("button", { name: "Copy Solo Side Quest public link" });
+  await expect(share).toBeVisible();
+  await expect(copy).toBeVisible();
+  const origin = await page.evaluate(() => window.location.origin);
+  await share.click();
+  await expect.poll(() => page.evaluate(() => (window as unknown as { __shared?: ShareData }).__shared?.url)).toBe(`${origin}${path}`);
+  await copy.click();
+  await expect.poll(() => page.evaluate(() => (window as unknown as { __copied?: string }).__copied)).toBe(`${origin}${path}`);
+  await expect(page.getByRole("status")).toHaveText("Public link copied.");
 
   const [detailBox, guestMenuBox] = await Promise.all([
     page.getByRole("region", { name: "Current screen" }).boundingBox(),

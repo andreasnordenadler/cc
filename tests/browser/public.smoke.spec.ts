@@ -110,11 +110,18 @@ test("auth entry renders without requiring credentials", async ({ page }) => {
   await expect(page.getByRole("region", { name: "Sign in form" })).toBeVisible();
 });
 
-test("public challenge share route keeps rules and sign-in boundary available", async ({ page }) => {
+test("public challenge sharing copies the exact route and keeps the sign-in boundary available", async ({ page, context }) => {
+  await context.grantPermissions(["clipboard-read", "clipboard-write"]);
   await expectHealthyNavigation(page, "/challenges/finish-any-game");
 
   await expect(page.getByRole("heading", { name: "Any Game Counts", exact: true })).toBeVisible();
-  await expect(page.getByRole("link", { name: "Share public link" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Share public link" })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Share Solo Side Quest public link" })).toBeVisible();
+  await page.getByRole("button", { name: "Copy Solo Side Quest public link" }).click();
+  await expect(page.getByRole("status")).toHaveText("Public link copied.");
+  await expect.poll(() => page.evaluate(() => navigator.clipboard.readText())).toBe(
+    new URL("/challenges/finish-any-game", page.url()).toString(),
+  );
   await expect(page.getByLabel("Current screen").getByRole("link", { name: "Sign in", exact: true })).toHaveAttribute(
     "href",
     "/sign-in?redirect_url=/challenges/finish-any-game",
