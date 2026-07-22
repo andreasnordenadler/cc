@@ -11,6 +11,7 @@ type OfficialSoloLikeControlProps = {
   signedIn: boolean;
   returnTo: string;
   label: string;
+  onLikeStateChange?: (liked: boolean) => void;
 };
 
 export default function OfficialSoloLikeControl({
@@ -21,6 +22,7 @@ export default function OfficialSoloLikeControl({
   signedIn,
   returnTo,
   label,
+  onLikeStateChange,
 }: OfficialSoloLikeControlProps) {
   const [liked, setLiked] = useState(initiallyLiked);
   const [count, setCount] = useState(initialCount);
@@ -49,6 +51,7 @@ export default function OfficialSoloLikeControl({
     const nextLiked = !liked;
     setLiked(nextLiked);
     setCount((value) => Math.max(0, value + (nextLiked ? 1 : -1)));
+    onLikeStateChange?.(nextLiked);
     setBusy(true);
     setStatus("");
 
@@ -68,6 +71,7 @@ export default function OfficialSoloLikeControl({
     } catch {
       setLiked(previous.liked);
       setCount(previous.count);
+      onLikeStateChange?.(previous.liked);
       setStatus("Could not update your like. Try again.");
     } finally {
       setBusy(false);

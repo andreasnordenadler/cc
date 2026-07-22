@@ -102,6 +102,7 @@ type CommunitySideQuestRow = {
   updatedAtMs: number;
   popularityScore: number;
   likeCount: number;
+  likedByViewer: boolean;
   completedByViewer: boolean;
   isNew: boolean;
 };

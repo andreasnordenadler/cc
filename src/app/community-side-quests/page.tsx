@@ -56,7 +56,7 @@ export default async function CommunitySideQuestsPage({
           return {
             id: quest.id,
             title: quest.title,
-            meta: `${quest.creatorName ? `By ${quest.creatorName} · ` : ""}${quest.summary} · ${formatCommunityStats(quest.stats)} · ${likeSummary.count} like${likeSummary.count === 1 ? "" : "s"}`,
+            meta: `${quest.creatorName ? `By ${quest.creatorName} · ` : ""}${quest.summary} · ${formatCommunityStats(quest.stats)}`,
             href: quest.detailPath,
             image: quest.badgeImageUrl,
             sourceBadge: quest.creatorUserId === user?.id ? "Yours" : "Community",
@@ -66,6 +66,7 @@ export default async function CommunitySideQuestsPage({
             updatedAtMs: quest.updatedAtMs,
             popularityScore: quest.popularityScore,
             likeCount: likeSummary.count,
+            likedByViewer: likeSummary.likedByViewer,
             completedByViewer: completedIds.has(quest.id),
             isNew: quest.updatedAtMs > newQuestCutoffMs,
           };

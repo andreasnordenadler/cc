@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { filterCommunitySoloCatalog, filterCustomCatalog, filterMultiplayerCatalog, filterSoloCatalog, paginateCatalog } from "../src/lib/catalog-models";
+import { applyCommunitySoloLikeState, filterCommunitySoloCatalog, filterCustomCatalog, filterMultiplayerCatalog, filterSoloCatalog, paginateCatalog } from "../src/lib/catalog-models";
 import { buildMobileWebMultiplayerLeaderboardRows, buildMobileWebMultiplayerPreview, buildUserMultiplayerRows, getMobileWebMultiplayerDetail, getMultiplayerHostFilter, mergeCommunityCatalogQuests } from "../src/lib/mobile-web-multiplayer";
 import type { ServerGroupQuest } from "../src/lib/groupquests";
 
@@ -134,6 +134,25 @@ test("Community Solo catalog matches Android filters and deterministic sort choi
   assert.deepEqual(filterCommunitySoloCatalog(rows, { query: "rook", filter: "all", sort: "liked" }).map(row => row.id), ["old"]);
   assert.deepEqual(filterCommunitySoloCatalog(rows, { query: "", filter: "all", sort: "name" }).map(row => row.id), ["old", "new", "done"]);
   assert.deepEqual(filterCommunitySoloCatalog(rows, { query: "", filter: "all", sort: "newest", creator: "ada-1" }).map(row => row.id), ["done", "old"]);
+});
+
+test("Community Solo catalog updates like-derived filters and sorting after a toggle", () => {
+  const rows = [
+    { id: "liked", title: "Liked Rook", meta: "rule", href: "/liked", updatedAtMs: 100, popularityScore: 0, likeCount: 2, likedByViewer: false, completedByViewer: false, isNew: false },
+    { id: "leader", title: "Leading Bishop", meta: "rule", href: "/leader", updatedAtMs: 200, popularityScore: 0, likeCount: 3, likedByViewer: false, completedByViewer: false, isNew: false },
+  ];
+
+  const next = applyCommunitySoloLikeState(rows, "liked", true);
+
+  assert.deepEqual(next.map((row) => [row.id, row.likeCount, row.likedByViewer]), [
+    ["liked", 3, true],
+    ["leader", 3, false],
+  ]);
+  assert.deepEqual(filterCommunitySoloCatalog(next, { query: "", filter: "all", sort: "liked" }).map((row) => row.id), ["leader", "liked"]);
+  assert.deepEqual(applyCommunitySoloLikeState(next, "liked", false).map((row) => [row.id, row.likeCount, row.likedByViewer]), [
+    ["liked", 2, false],
+    ["leader", 3, false],
+  ]);
 });
 
 test("catalog pagination exposes every row at the load-more boundary", () => {

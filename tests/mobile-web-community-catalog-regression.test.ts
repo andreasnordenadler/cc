@@ -83,6 +83,7 @@ test("Community Solo route carries the creator shelf key from public data into t
   assert.match(page, /const \{ creator \} = await searchParams/);
   assert.match(page, /creatorKey: quest\.creatorKey/);
   assert.match(page, /creatorName: quest\.creatorName/);
+  assert.match(page, /likedByViewer: likeSummary\.likedByViewer/);
   assert.match(page, /initialCreator=\{creator \?\? null\}/);
 });
 
@@ -95,6 +96,7 @@ test("Community Solo creator shelf shows only that creator and keeps a real clea
     updatedAtMs: 100,
     popularityScore: 1,
     likeCount: 0,
+    likedByViewer: false,
     completedByViewer: false,
     isNew: false,
   };
@@ -129,6 +131,7 @@ test("Community Solo rows show their Coat of Arms like Android v338", () => {
       updatedAtMs: 1,
       popularityScore: 1,
       likeCount: 1,
+      likedByViewer: false,
       completedByViewer: false,
       isNew: false,
     }],
@@ -138,6 +141,32 @@ test("Community Solo rows show their Coat of Arms like Android v338", () => {
   assert.match(solo, /community-coat-28\.png/);
   assert.match(solo, /class="sqc-row-glow generic"/);
   assert.doesNotMatch(solo, /sqc-app-row text-only/);
+});
+
+test("Community Solo catalog keeps the exact row link beside the Android like action", () => {
+  const solo = renderToStaticMarkup(createElement(MobileCommunitySideQuestsScreen, {
+    signedIn: true,
+    rows: [{
+      id: "community-solo",
+      title: "Castle? Never Heard Of It",
+      meta: "By Nora Skewer · Finish without castling.",
+      href: "/challenges/community/community-solo",
+      image: "/badges/custom/community/community-coat-28.png",
+      sourceBadge: "Community",
+      status: "Ready",
+      updatedAtMs: 1,
+      popularityScore: 1,
+      likeCount: 7,
+      likedByViewer: true,
+      completedByViewer: false,
+      isNew: false,
+    }],
+  }));
+
+  assert.match(solo, /class="sqc-app-row sqc-app-row-with-like"/);
+  assert.match(solo, /aria-label="Open Castle\? Never Heard Of It"[^>]*href="\/challenges\/community\/community-solo"/);
+  assert.match(solo, /aria-label="Unlike Castle\? Never Heard Of It\. 7 likes\."/);
+  assert.match(solo, /data-icon="thumb-up"/);
 });
 
 test("official row glows use Android badge tint instead of the raw white mask", () => {

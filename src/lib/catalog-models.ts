@@ -45,6 +45,16 @@ export type CommunitySoloCatalogRow = SoloCatalogRow & {
 export type CommunitySoloCatalogFilter = "all" | "popular" | "new" | "completed";
 export type CommunitySoloCatalogSort = "popular" | "liked" | "newest" | "name";
 
+export function applyCommunitySoloLikeState<T extends { id: string; likeCount: number; likedByViewer: boolean }>(
+  rows: T[],
+  targetId: string,
+  likedByViewer: boolean,
+): T[] {
+  return rows.map((row) => row.id === targetId
+    ? { ...row, likedByViewer, likeCount: Math.max(0, row.likeCount + (likedByViewer === row.likedByViewer ? 0 : likedByViewer ? 1 : -1)) }
+    : row);
+}
+
 export function filterCommunitySoloCatalog<T extends CommunitySoloCatalogRow>(
   rows: T[],
   options: { query: string; filter: CommunitySoloCatalogFilter; sort: CommunitySoloCatalogSort; creator?: string | null },

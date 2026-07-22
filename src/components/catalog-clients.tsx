@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import OfficialSoloLikeControl from "./official-solo-like-control";
-import { filterCommunitySoloCatalog, filterCustomCatalog, filterMultiplayerCatalog, paginateCatalog, type CommunitySoloCatalogFilter, type CommunitySoloCatalogSort } from "@/lib/catalog-models";
+import { applyCommunitySoloLikeState, filterCommunitySoloCatalog, filterCustomCatalog, filterMultiplayerCatalog, paginateCatalog, type CommunitySoloCatalogFilter, type CommunitySoloCatalogSort } from "@/lib/catalog-models";
 import type { MobileWebMultiplayerPreview } from "@/lib/mobile-web-multiplayer";
 
 export type SoloCatalogClientRow = {
@@ -31,6 +31,35 @@ function CatalogRow({ row, status, showImage = false }: { row: SoloCatalogClient
       </span>
       <span className="sqc-row-status">{status}</span>
     </Link>
+  );
+}
+
+function CommunitySoloCatalogRow({ row, signedIn, onLikeStateChange }: { row: CommunitySoloCatalogClientRow; signedIn: boolean; onLikeStateChange: (liked: boolean) => void }) {
+  return (
+    <div className="sqc-app-row sqc-app-row-with-like">
+      <Link href={row.href} className="sqc-app-row-main" aria-label={`Open ${row.title}`} />
+      <span className="sqc-row-icon" aria-hidden="true">
+        <Image className="sqc-row-glow generic" alt="" src="/mobile-source/badges/glow/sqc-coat-generic-glow.png" width={50} height={50} />
+        <Image className="sqc-row-image" alt="" src={row.image ?? "/mobile-source/badges/custom-side-quest-crest.png"} width={42} height={42} />
+      </span>
+      <span className="sqc-row-copy">
+        {row.sourceBadge ? <span className="sqc-row-badge">{row.sourceBadge}</span> : null}
+        <span className="sqc-row-title-line">
+          <strong><span>{row.title}</span></strong>
+          <OfficialSoloLikeControl
+            targetId={row.id}
+            count={row.likeCount}
+            likedByViewer={row.likedByViewer}
+            signedIn={signedIn}
+            returnTo="/community-side-quests"
+            label={row.title}
+            onLikeStateChange={onLikeStateChange}
+          />
+        </span>
+        <small>{row.meta}</small>
+      </span>
+      <span className="sqc-row-status">{row.status ?? "Ready"}</span>
+    </div>
   );
 }
 
@@ -65,18 +94,20 @@ export type CommunitySoloCatalogClientRow = SoloCatalogClientRow & {
   updatedAtMs: number;
   popularityScore: number;
   likeCount: number;
+  likedByViewer: boolean;
   completedByViewer: boolean;
   isNew: boolean;
 };
 
 export function CommunitySoloCatalog({ rows, signedIn, initialCreator = null }: { rows: CommunitySoloCatalogClientRow[]; signedIn: boolean; initialCreator?: string | null }) {
+  const [liveRows, setLiveRows] = useState(rows);
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<CommunitySoloCatalogFilter>("all");
   const [sort, setSort] = useState<CommunitySoloCatalogSort>("popular");
   const [limit, setLimit] = useState(10);
-  const creatorRow = initialCreator ? rows.find((row) => row.creatorKey === initialCreator) : null;
+  const creatorRow = initialCreator ? liveRows.find((row) => row.creatorKey === initialCreator) : null;
   const creator = creatorRow?.creatorKey ?? null;
-  const filtered = useMemo(() => filterCommunitySoloCatalog(rows, { query, filter, sort, creator }), [rows, query, filter, sort, creator]);
+  const filtered = useMemo(() => filterCommunitySoloCatalog(liveRows, { query, filter, sort, creator }), [liveRows, query, filter, sort, creator]);
   const page = paginateCatalog(filtered, limit);
   const filters: Array<{ value: CommunitySoloCatalogFilter; label: string }> = [
     { value: "all", label: "All" },
@@ -103,8 +134,8 @@ export function CommunitySoloCatalog({ rows, signedIn, initialCreator = null }: 
         </div>
       </div>
       <span>{page.total} result{page.total === 1 ? "" : "s"}</span>
-      {page.rows.length ? <div className="sqc-catalog">{page.rows.map(row => <CatalogRow key={row.id} row={row} status={row.status ?? "Ready"} showImage />)}</div> : (
-        <div className="sqc-empty-panel standalone"><strong>No Community Side Quests match these filters.</strong><span>{rows.length ? "Try another search or filter." : signedIn ? "Create the first public Side Quest from My Custom Side Quests." : "Public player-made Side Quests will appear here."}</span></div>
+      {page.rows.length ? <div className="sqc-catalog">{page.rows.map(row => <CommunitySoloCatalogRow key={row.id} row={row} signedIn={signedIn} onLikeStateChange={(liked) => setLiveRows((current) => applyCommunitySoloLikeState(current, row.id, liked))} />)}</div> : (
+        <div className="sqc-empty-panel standalone"><strong>No Community Side Quests match these filters.</strong><span>{liveRows.length ? "Try another search or filter." : signedIn ? "Create the first public Side Quest from My Custom Side Quests." : "Public player-made Side Quests will appear here."}</span></div>
       )}
       {page.hasMore ? <button type="button" className="sqc-detail-secondary-button" onClick={() => setLimit(value => value + 10)}>Load more</button> : null}
     </>
