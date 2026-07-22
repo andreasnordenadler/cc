@@ -819,6 +819,10 @@ export function MobileCommunitySideQuestsScreen({
   signedIn: boolean;
   initialCreator?: string | null;
 }) {
+  const creatorRowCount = initialCreator && rows.some((row) => row.creatorKey === initialCreator)
+    ? rows.filter((row) => row.creatorKey === initialCreator).length
+    : rows.length;
+
   return (
     <div className="sqc-stack sqc-community-solo-screen">
       <div className="sqc-screen-emblem" aria-hidden="true">
@@ -849,7 +853,7 @@ export function MobileCommunitySideQuestsScreen({
       <section className="sqc-community-catalog-section" aria-label="Community Solo Discover">
         <div className="sqc-community-section-header">
           <h2>Community Solo Discover</h2>
-          <span>{rows.length ? `${rows.length}/${rows.length}` : "0 public"}</span>
+          <span>{creatorRowCount ? `${creatorRowCount}/${creatorRowCount}` : "0 public"}</span>
         </div>
 
         <CommunitySoloCatalog rows={rows} signedIn={signedIn} initialCreator={initialCreator} />
