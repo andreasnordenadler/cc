@@ -46,6 +46,8 @@ test("Solo and Multiplayer catalog switches are route navigation without invalid
 
   const library = renderToStaticMarkup(createElement(MobileCustomSideQuestsScreen, { rows: [] }));
   assert.match(library, /<nav class="sqc-brand-tabs sqc-solo-brand-tabs" aria-label="Solo Side Quest catalog">/);
+  assert.match(library, /<nav class="sqc-community-subtabs" aria-label="Community Solo views"><a href="\/community-side-quests">Discover<\/a><span class="active" aria-current="page">My Library<\/span><\/nav>/);
+  assert.equal((library.match(/aria-current="page"/g) ?? []).length, 1);
   assert.doesNotMatch(library, /role="(?:tablist|tab|separator)"|aria-selected=/);
 });
 

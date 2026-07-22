@@ -975,6 +975,11 @@ export function MobileCustomSideQuestsScreen({
         </Link>
       </nav>
 
+      <nav className="sqc-community-subtabs" aria-label="Community Solo views">
+        <Link href="/community-side-quests">Discover</Link>
+        <span className="active" aria-current="page">My Library</span>
+      </nav>
+
       <section className="sqc-community-catalog-section" aria-label="My Custom Side Quests">
         <div className="sqc-community-section-header">
           <h2>My Custom Side Quests</h2>
