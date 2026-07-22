@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { CustomSoloCatalog } from "@/components/catalog-clients";
+import { CommunityMultiplayerCatalog, CustomSoloCatalog } from "@/components/catalog-clients";
 import { MobileCommunitySideQuestsScreen, MobileMultiplayerSideQuestsScreen, MobileSimpleScreen, MobileSoloSideQuestsScreen } from "@/components/mobile-app-web-shell";
 import { CHALLENGES } from "@/lib/challenges";
 import type { MobileWebMultiplayerPreview } from "@/lib/mobile-web-multiplayer";
@@ -75,6 +75,26 @@ test("Community Multiplayer browse exposes every Android sort choice", () => {
   for (const label of ["Closing", "Liked", "New", "Players"]) {
     assert.match(html, new RegExp(`>${label}<`));
   }
+});
+
+test("Community Multiplayer discovery initially shows four rows and a real Android-sized load-more action", () => {
+  const rows = Array.from({ length: 6 }, (_, index) => ({
+    ...row,
+    id: `open-${index + 1}`,
+    title: `Open table ${index + 1}`,
+    href: `/groupquests/open-${index + 1}`,
+    status: "Not joined" as const,
+    lifecycle: "open" as const,
+    endAt: `2026-08-0${index + 1}T00:00:00.000Z`,
+  }));
+  const html = renderToStaticMarkup(createElement(CommunityMultiplayerCatalog, {
+    rows,
+    signedIn: false,
+  }));
+
+  for (const visible of [1, 2, 3, 4]) assert.match(html, new RegExp(`>Open table ${visible}<`));
+  assert.doesNotMatch(html, />Open table 5<|>Open table 6</);
+  assert.match(html, /<button[^>]*>More community Side Quests \(2\)<\/button>/);
 });
 
 test("Community Solo route carries the creator shelf key from public data into the rendered catalog", () => {

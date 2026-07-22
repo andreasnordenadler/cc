@@ -167,8 +167,10 @@ export function CommunityMultiplayerCatalog({ rows, signedIn, initialHost = null
   const host = initialHost;
   const [filter, setFilter] = useState<"all" | "open" | "joined" | "hosted" | "finished">(() => initialHost ? "all" : "open");
   const [sort, setSort] = useState<"closing" | "liked" | "newest" | "players">("closing");
+  const [limit, setLimit] = useState(4);
   const hostRows = useMemo(() => host ? rows.filter(row => row.publiclyListed && row.hostName === host) : rows, [rows, host]);
   const filtered = useMemo(() => filterMultiplayerCatalog(hostRows, { query, filter, sort }), [hostRows, query, filter, sort]);
+  const page = paginateCatalog(filtered, limit);
   const activeMine = rows.filter(row => row.lifecycle === "open" && (row.status === "Hosted" || row.status === "Joined"));
   const finishedMine = rows.filter(row => row.lifecycle === "finished" && (row.status === "Hosted" || row.status === "Joined"));
 
@@ -182,11 +184,12 @@ export function CommunityMultiplayerCatalog({ rows, signedIn, initialHost = null
         <span className="sqc-card-eyebrow">Community catalog</span><h2>Community Multiplayer Side Quests.</h2>
         <div className="sqc-community-browse-panel">
           {host ? <div className="sqc-empty-panel"><strong>Host shelf: {host}</strong><span>Showing public Community Multiplayer Side Quests from this host.</span><Link href="/multiplayer-side-quests?tab=community" className="sqc-detail-secondary-button">Show all hosts</Link></div> : null}
-          <label className="sqc-search-shell"><input value={query} onChange={event => setQuery(event.target.value)} placeholder={host ? "Search this host shelf" : "Search multiplayer community"} aria-label="Search multiplayer community" /></label>
-          <div className="sqc-community-controls"><div className="sqc-filter-row" aria-label="Filter multiplayer community">{(["open", "all", ...(signedIn ? ["joined", "hosted", "finished"] : [])] as typeof filter[]).map(value => <button type="button" key={value} className={filter === value ? "active" : ""} onClick={() => setFilter(value)}>{value[0].toUpperCase() + value.slice(1)}</button>)}</div>
-          <label className="sqc-sort-pill">Sort <select aria-label="Sort multiplayer community" value={sort} onChange={event => setSort(event.target.value as typeof sort)}><option value="closing">Closing</option><option value="liked">Liked</option><option value="newest">New</option><option value="players">Players</option></select></label></div>
+          <label className="sqc-search-shell"><input value={query} onChange={event => { setQuery(event.target.value); setLimit(4); }} placeholder={host ? "Search this host shelf" : "Search multiplayer community"} aria-label="Search multiplayer community" /></label>
+          <div className="sqc-community-controls"><div className="sqc-filter-row" aria-label="Filter multiplayer community">{(["open", "all", ...(signedIn ? ["joined", "hosted", "finished"] : [])] as typeof filter[]).map(value => <button type="button" key={value} className={filter === value ? "active" : ""} onClick={() => { setFilter(value); setLimit(4); }}>{value[0].toUpperCase() + value.slice(1)}</button>)}</div>
+          <label className="sqc-sort-pill">Sort <select aria-label="Sort multiplayer community" value={sort} onChange={event => { setSort(event.target.value as typeof sort); setLimit(4); }}><option value="closing">Closing</option><option value="liked">Liked</option><option value="newest">New</option><option value="players">Players</option></select></label></div>
         </div>
-        {filtered.length ? <div className="sqc-catalog">{filtered.map(row => <MultiplayerCatalogRow key={row.id} row={row} signedIn={signedIn} status={signedIn ? row.lifecycle === "finished" ? "Finished" : row.status : "View"} />)}</div> : <div className="sqc-empty-panel"><strong>No Multiplayer Side Quests match these filters.</strong><span>{rows.length ? "Try another search or filter." : "No public Community Multiplayer Side Quests yet."}</span></div>}
+        {page.rows.length ? <div className="sqc-catalog">{page.rows.map(row => <MultiplayerCatalogRow key={row.id} row={row} signedIn={signedIn} status={signedIn ? row.lifecycle === "finished" ? "Finished" : row.status : "View"} />)}</div> : <div className="sqc-empty-panel"><strong>No Multiplayer Side Quests match these filters.</strong><span>{rows.length ? "Try another search or filter." : "No public Community Multiplayer Side Quests yet."}</span></div>}
+        {page.hasMore ? <button type="button" className="sqc-detail-secondary-button" onClick={() => setLimit(value => value + 4)}>More community Side Quests ({page.total - page.rows.length})</button> : null}
       </section>
     </>
   );
