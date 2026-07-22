@@ -22,7 +22,9 @@ test("mobile homepage matches the signed-out app hierarchy", async ({ page }) =>
   await expect(page.getByRole("heading", { name: "Sign in to continue." })).toBeVisible();
   await expect(page.getByRole("link", { name: "Browse Solo Side Quests" })).toBeVisible();
   await expect(page.getByRole("link", { name: "Browse Multiplayer Side Quests" })).toBeVisible();
-  await expectGuestMenu(page);
+  await expect(page.getByRole("link", { name: "Choose sign-in method" })).toBeVisible();
+  await expect(page.getByRole("navigation", { name: "Guest menu" })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Open main menu" })).toHaveCount(0);
   await expect(page.locator(".sqc-mobile-web")).toHaveClass(/signed-out/);
 
   const [soloBox, multiplayerBox] = await Promise.all([

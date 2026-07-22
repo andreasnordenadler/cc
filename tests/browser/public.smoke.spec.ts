@@ -15,10 +15,13 @@ test("signed-out homepage exposes the two public browsing paths and auth entry",
   await expect(page.getByRole("link", { name: "Choose sign-in method" })).toHaveAttribute("href", "/sign-in");
 });
 
-test("signed-out shell exposes a visible guest menu without a top hamburger", async ({ page }) => {
+test("signed-out Home omits the web-only guest menu while non-Home routes preserve it", async ({ page }) => {
   await expectHealthyNavigation(page, "/");
 
   await expect(page.getByLabel("Open main menu")).toHaveCount(0);
+  await expect(page.getByRole("navigation", { name: "Guest menu" })).toHaveCount(0);
+
+  await expectHealthyNavigation(page, "/side-quests");
   const menu = page.getByRole("navigation", { name: "Guest menu" });
   await expect(menu).toBeVisible();
   await expect(menu.getByRole("link", { name: "Home" })).toHaveAttribute("href", "/");
