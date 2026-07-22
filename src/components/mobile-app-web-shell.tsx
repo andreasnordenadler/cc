@@ -293,7 +293,15 @@ function GuestNavigation({ activeTab }: { activeTab: AppTab }) {
   );
 }
 
-function GuestHome() {
+export function GuestHome({
+  onBrowseSolo,
+  onBrowseMultiplayer,
+  onSignIn,
+}: {
+  onBrowseSolo?: () => void;
+  onBrowseMultiplayer?: () => void;
+  onSignIn?: () => void;
+} = {}) {
   return (
     <div className="sqc-fresh-shell">
       <div className="sqc-fresh-guest-coat-wrap" aria-hidden="true">
@@ -307,10 +315,10 @@ function GuestHome() {
           sign in when you want SQC to save progress, verify proof, or join a table.
         </p>
         <div className="sqc-action-pair">
-          <Link href="/side-quests" className="sqc-secondary-action">Browse Solo Side Quests</Link>
-          <Link href="/multiplayer" className="sqc-secondary-action">Browse Multiplayer Side Quests</Link>
+          {onBrowseSolo ? <button type="button" className="sqc-secondary-action" onClick={onBrowseSolo}>Browse Solo Side Quests</button> : <Link href="/side-quests" className="sqc-secondary-action">Browse Solo Side Quests</Link>}
+          {onBrowseMultiplayer ? <button type="button" className="sqc-secondary-action" onClick={onBrowseMultiplayer}>Browse Multiplayer Side Quests</button> : <Link href="/multiplayer" className="sqc-secondary-action">Browse Multiplayer Side Quests</Link>}
         </div>
-        <Link href="/sign-in" className="sqc-primary-action">Choose sign-in method</Link>
+        {onSignIn ? <button type="button" className="sqc-primary-action" onClick={onSignIn}>Choose sign-in method</button> : <Link href="/sign-in" className="sqc-primary-action">Choose sign-in method</Link>}
       </section>
     </div>
   );

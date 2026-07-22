@@ -431,33 +431,62 @@ body::after {
 .sqc-offline-screen {
   min-height: min(72vh, 620px);
   place-items: center;
-  padding: 24px 0;
+  padding: 0;
 }
 
-.sqc-native-card.sqc-offline-card {
-  width: min(100%, 420px);
-  gap: 12px;
-  border-color: rgba(96, 240, 175, .34);
-  background: rgba(96, 240, 175, .09);
+.sqc-offline-notice {
+  box-sizing: border-box;
+  width: min(100%, 460px);
+  display: grid;
+  gap: 6px;
+  padding: 14px 16px;
+  border: 1px solid rgba(245, 200, 106, .28);
+  border-radius: 18px;
+  background: rgba(245, 200, 106, .09);
+  color: var(--paper);
 }
 
-.sqc-offline-card h1,
-.sqc-offline-card p {
-  margin: 0;
+.sqc-offline-notice strong {
+  color: var(--gold);
+  font-size: 11px;
+  font-weight: 950;
+  letter-spacing: .06em;
 }
 
-.sqc-offline-card h1 {
-  font-size: clamp(24px, 7vw, 32px);
-  line-height: 1.05;
-}
-
-.sqc-offline-card p {
+.sqc-offline-notice span {
   color: var(--muted);
-  line-height: 1.5;
+  font-size: 13px;
+  font-weight: 720;
+  line-height: 1.35;
 }
 
-.sqc-offline-card .sqc-primary-action {
-  margin-top: 4px;
+.sqc-offline-notice button {
+  width: fit-content;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--gold);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.sqc-offline-screen .sqc-secondary-action,
+.sqc-offline-screen .sqc-primary-action {
+  appearance: none;
+  border: 0;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.sqc-offline-message {
+  width: min(100%, 420px);
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 800;
+  text-align: center;
 }
 
 .sqc-native-card.sqc-offline-catalog {
