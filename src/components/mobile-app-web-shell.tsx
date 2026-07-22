@@ -63,6 +63,7 @@ type ActiveSoloHome = {
   pickedAt?: string | null;
   verifiedAt?: string | null;
   completed?: boolean;
+  proofHref?: string | null;
   theme?: MobileWebShellTheme | null;
   latestAttempt?: {
     status?: string | null;
@@ -354,7 +355,7 @@ export function SignedInHome({
             glowSize={170}
           />
         ) : null}
-        {activeSolo ? <ActiveSoloActions /> : null}
+        {activeSolo && !activeSolo.completed ? <ActiveSoloActions /> : null}
         <div className="sqc-current-body">
           {!activeSolo?.badgeImage ? <MobileAssetMark className="sqc-current-mark" image={mobileAsset.coat} glow={mobileAsset.coatGlow} size={82} glowSize={104} /> : null}
           <div>
@@ -367,6 +368,9 @@ export function SignedInHome({
             )}
           </div>
         </div>
+        {activeSolo?.completed && activeSolo.proofHref ? (
+          <Link href={activeSolo.proofHref} className="sqc-primary-action full">View victory proof</Link>
+        ) : null}
         <Link href="/side-quests" className="sqc-secondary-action full">{hasActiveSolo ? "Explore More Solo Side Quests" : "Explore Solo Side Quests"}</Link>
       </section>
 

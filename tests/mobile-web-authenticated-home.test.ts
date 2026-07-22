@@ -44,6 +44,27 @@ test("authenticated Home keeps Active Solo compact with one refresh control and 
   assert.doesNotMatch(html, /Check latest game|Reset active selection|Choose another Side Quest/);
 });
 
+test("completed Solo Home opens its accepted proof instead of offering another refresh", () => {
+  const html = renderToStaticMarkup(React.createElement(SignedInHome, {
+    hasChessAccount: true,
+    activeSolo: {
+      ...failedSolo,
+      completed: true,
+      proofHref: "/proof/accepted-home-proof",
+      latestAttempt: { ...failedSolo.latestAttempt, status: "passed" },
+    },
+    activeSoloTitle: null,
+    activeMultiplayerRows: [],
+    trophyRows: [],
+    completedSoloCount: 1,
+    proofReceiptCount: 1,
+  }));
+
+  assert.match(html, /href="\/proof\/accepted-home-proof"/);
+  assert.match(html, />View victory proof</);
+  assert.doesNotMatch(html, /aria-label="Refresh active Solo Side Quest"/);
+});
+
 test("authenticated Home does not claim unsupported pull-to-refresh behavior", () => {
   const html = renderToStaticMarkup(React.createElement(SignedInHome, {
     hasChessAccount: true,

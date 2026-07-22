@@ -13,10 +13,12 @@ import {
   getChallengeProgress,
   getChessComUsername,
   getLatestChallengeAttempt,
+  getLatestPassedChallengeAttempt,
   getLichessUsername,
   getPreferredRunnerName,
   type UserMetadataRecord,
 } from "@/lib/user-metadata";
+import { buildCompletedOfficialPublicProofPath } from "@/lib/proof-share";
 
 export default async function Home() {
   noStore();
@@ -29,6 +31,7 @@ export default async function Home() {
   const activeChallengeAttempt = activeChallenge?.id ? getLatestChallengeAttempt(metadata, activeChallenge.id) : null;
   const activeChallengeSummary = buildAttemptSummary(activeChallengeAttempt);
   const progress = getChallengeProgress(metadata);
+  const activeChallengeCompleted = Boolean(activeChallengeRecord && progress.completedChallengeIds.includes(activeChallengeRecord.id));
   const proofReceiptCount = getChallengeAttempts(metadata).length;
   const displayName = user
     ? getPreferredRunnerName(metadata, {
@@ -38,6 +41,12 @@ export default async function Home() {
         emailAddress: user.primaryEmailAddress?.emailAddress,
       }) || "Side Quest Chess"
     : null;
+  const activeChallengeProofPath = activeChallengeRecord ? await buildCompletedOfficialPublicProofPath({
+    completed: activeChallengeCompleted,
+    attempt: getLatestPassedChallengeAttempt(metadata, activeChallengeRecord.id),
+    challenge: activeChallengeRecord,
+    runnerName: displayName ?? undefined,
+  }) : null;
   const client = user ? await clerkClient() : null;
   const [trophyRows, relatedGroupQuests] = user && client
     ? await Promise.all([
@@ -66,7 +75,8 @@ export default async function Home() {
         theme: getMobileWebTheme(activeChallengeRecord.badgeIdentity.colors),
         pickedAt: activeChallenge?.startedAt ?? null,
         verifiedAt: activeChallenge?.verifiedAt ?? null,
-        completed: progress.completedChallengeIds.includes(activeChallengeRecord.id),
+        completed: activeChallengeCompleted,
+        proofHref: activeChallengeProofPath,
         latestAttempt: activeChallengeAttempt ? {
           status: activeChallengeAttempt.status ?? null,
           checkedAt: activeChallengeAttempt.checkedAt ?? null,
