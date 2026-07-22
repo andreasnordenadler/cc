@@ -6,6 +6,7 @@ import { unstable_noStore as noStore } from "next/cache";
 import { notFound } from "next/navigation";
 import MobileAppWebShell, { MiniChessBoard } from "@/components/mobile-app-web-shell";
 import DeactivateQuestControl from "@/components/deactivate-quest-control";
+import ResetQuestControl from "@/components/reset-quest-control";
 import { MobileWebRelativeTime } from "@/components/mobile-web-relative-time";
 import OfficialSoloDetailActions, { OfficialSoloExactGameControl } from "@/components/official-solo-detail-actions";
 import OfficialSoloLikeControl from "@/components/official-solo-like-control";
@@ -262,6 +263,17 @@ export default async function ChallengeDetailPage({
             </div>
             <div className="sqc-active-detail-management" aria-label="Active Solo Side Quest management">
               <DeactivateQuestControl challenge={challenge} />
+            </div>
+          </section>
+        ) : null}
+
+        {completed && user ? (
+          <section className="sqc-native-card sqc-proof-action-card" aria-label="Completed Solo Side Quest management">
+            <span className="sqc-card-eyebrow">Completed Side Quest</span>
+            <h2>Run this Side Quest again.</h2>
+            <p>Reset removes this saved completion, proof receipt, and Coat of Arms unlock so you can start it again.</p>
+            <div className="sqc-active-detail-management">
+              <ResetQuestControl challenge={challenge} />
             </div>
           </section>
         ) : null}
