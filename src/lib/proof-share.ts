@@ -57,6 +57,21 @@ export async function buildPublicProofPath({
   return `/proof/${await encodePublicProof(payload)}`;
 }
 
+export async function buildCompletedOfficialPublicProofPath({
+  completed,
+  attempt,
+  challenge,
+  runnerName,
+}: {
+  completed: boolean;
+  attempt: ChallengeAttempt | null;
+  challenge: Challenge;
+  runnerName?: string;
+}) {
+  if (!completed || attempt?.status !== "passed") return null;
+  return buildPublicProofPath({ attempt, challenge, runnerName });
+}
+
 export async function buildCustomPublicProofPath({
   attempt,
   quest,
