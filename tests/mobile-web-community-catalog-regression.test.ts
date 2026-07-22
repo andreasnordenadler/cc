@@ -77,6 +77,42 @@ test("Community Multiplayer browse exposes every Android sort choice", () => {
   }
 });
 
+test("Community Solo route carries the creator shelf key from public data into the rendered catalog", () => {
+  const page = readFileSync(new URL("../src/app/community-side-quests/page.tsx", import.meta.url), "utf8");
+  assert.match(page, /searchParams:\s*Promise<\{ creator\?: string \}>/);
+  assert.match(page, /const \{ creator \} = await searchParams/);
+  assert.match(page, /creatorKey: quest\.creatorKey/);
+  assert.match(page, /creatorName: quest\.creatorName/);
+  assert.match(page, /initialCreator=\{creator \?\? null\}/);
+});
+
+test("Community Solo creator shelf shows only that creator and keeps a real clear action", () => {
+  const base = {
+    meta: "Community rule",
+    image: "/badges/custom/community/community-coat-28.png",
+    sourceBadge: "Community",
+    status: "Ready",
+    updatedAtMs: 100,
+    popularityScore: 1,
+    likeCount: 0,
+    completedByViewer: false,
+    isNew: false,
+  };
+  const html = renderToStaticMarkup(createElement(MobileCommunitySideQuestsScreen, {
+    signedIn: true,
+    initialCreator: "ada-1",
+    rows: [
+      { ...base, id: "ada-quest", title: "Ada Fork", href: "/challenges/community/ada-quest", creatorKey: "ada-1", creatorName: "Ada" },
+      { ...base, id: "nora-quest", title: "Nora Pin", href: "/challenges/community/nora-quest", creatorKey: "nora-2", creatorName: "Nora" },
+    ],
+  }));
+
+  assert.match(html, /Creator shelf: Ada/);
+  assert.match(html, /href="\/community-side-quests"[^>]*>Show all creators/);
+  assert.match(html, /Ada Fork/);
+  assert.doesNotMatch(html, /Nora Pin/);
+});
+
 test("Community Solo rows show their Coat of Arms like Android v338", () => {
   const solo = renderToStaticMarkup(createElement(MobileCommunitySideQuestsScreen, {
     signedIn: true,

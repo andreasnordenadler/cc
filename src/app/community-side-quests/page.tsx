@@ -11,8 +11,13 @@ export const metadata = {
   description: "Community Side Quests in the Side Quest Chess mobile app shell.",
 };
 
-export default async function CommunitySideQuestsPage() {
+export default async function CommunitySideQuestsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ creator?: string }>;
+}) {
   noStore();
+  const { creator } = await searchParams;
   const client = await clerkClient();
   const user = await currentUser();
   const communityQuests = await listPublicCommunitySideQuests(client, { limit: null, viewerUserId: user?.id ?? null });
@@ -45,6 +50,7 @@ export default async function CommunitySideQuestsPage() {
     >
       <MobileCommunitySideQuestsScreen
         signedIn={Boolean(user)}
+        initialCreator={creator ?? null}
         rows={communityQuests.map((quest) => {
           const likeSummary = quest.likeSummary;
           return {
@@ -55,6 +61,8 @@ export default async function CommunitySideQuestsPage() {
             image: quest.badgeImageUrl,
             sourceBadge: quest.creatorUserId === user?.id ? "Yours" : "Community",
             status: completedIds.has(quest.id) ? "Completed" : "Ready",
+            creatorKey: quest.creatorKey,
+            creatorName: quest.creatorName,
             updatedAtMs: quest.updatedAtMs,
             popularityScore: quest.popularityScore,
             likeCount: likeSummary.count,

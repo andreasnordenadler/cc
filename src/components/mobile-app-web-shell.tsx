@@ -97,6 +97,8 @@ type CommunitySideQuestRow = {
   image?: string | null;
   sourceBadge?: string | null;
   status?: string | null;
+  creatorKey?: string;
+  creatorName?: string;
   updatedAtMs: number;
   popularityScore: number;
   likeCount: number;
@@ -811,9 +813,11 @@ export function MobileTrophyCabinetScreen({
 export function MobileCommunitySideQuestsScreen({
   rows,
   signedIn,
+  initialCreator = null,
 }: {
   rows: CommunitySideQuestRow[];
   signedIn: boolean;
+  initialCreator?: string | null;
 }) {
   return (
     <div className="sqc-stack sqc-community-solo-screen">
@@ -848,7 +852,7 @@ export function MobileCommunitySideQuestsScreen({
           <span>{rows.length ? `${rows.length}/${rows.length}` : "0 public"}</span>
         </div>
 
-        <CommunitySoloCatalog rows={rows} signedIn={signedIn} />
+        <CommunitySoloCatalog rows={rows} signedIn={signedIn} initialCreator={initialCreator} />
       </section>
     </div>
   );

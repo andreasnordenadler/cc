@@ -123,9 +123,9 @@ test("solo catalog matches title and rule text, filters status, and sorts by nam
 
 test("Community Solo catalog matches Android filters and deterministic sort choices", () => {
   const rows = [
-    { id: "old", title: "Ancient Rook", meta: "quiet rule", href: "/old", updatedAtMs: 100, popularityScore: 2, likeCount: 8, completedByViewer: false, isNew: false },
-    { id: "new", title: "Bold Bishop", meta: "fast rule", href: "/new", updatedAtMs: 300, popularityScore: 50, likeCount: 1, completedByViewer: false, isNew: true },
-    { id: "done", title: "Calm Castle", meta: "finish rule", href: "/done", updatedAtMs: 200, popularityScore: 4, likeCount: 3, completedByViewer: true, isNew: false },
+    { id: "old", title: "Ancient Rook", meta: "quiet rule", href: "/old", creatorKey: "ada-1", updatedAtMs: 100, popularityScore: 2, likeCount: 8, completedByViewer: false, isNew: false },
+    { id: "new", title: "Bold Bishop", meta: "fast rule", href: "/new", creatorKey: "nora-2", updatedAtMs: 300, popularityScore: 50, likeCount: 1, completedByViewer: false, isNew: true },
+    { id: "done", title: "Calm Castle", meta: "finish rule", href: "/done", creatorKey: "ada-1", updatedAtMs: 200, popularityScore: 4, likeCount: 3, completedByViewer: true, isNew: false },
   ];
 
   assert.deepEqual(filterCommunitySoloCatalog(rows, { query: "", filter: "popular", sort: "popular" }).map(row => row.id), ["new", "old", "done"]);
@@ -133,6 +133,7 @@ test("Community Solo catalog matches Android filters and deterministic sort choi
   assert.deepEqual(filterCommunitySoloCatalog(rows, { query: "", filter: "completed", sort: "newest" }).map(row => row.id), ["done"]);
   assert.deepEqual(filterCommunitySoloCatalog(rows, { query: "rook", filter: "all", sort: "liked" }).map(row => row.id), ["old"]);
   assert.deepEqual(filterCommunitySoloCatalog(rows, { query: "", filter: "all", sort: "name" }).map(row => row.id), ["old", "new", "done"]);
+  assert.deepEqual(filterCommunitySoloCatalog(rows, { query: "", filter: "all", sort: "newest", creator: "ada-1" }).map(row => row.id), ["done", "old"]);
 });
 
 test("catalog pagination exposes every row at the load-more boundary", () => {

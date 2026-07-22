@@ -60,6 +60,8 @@ function MultiplayerCatalogRow({ row, status, signedIn }: { row: MobileWebMultip
 }
 
 export type CommunitySoloCatalogClientRow = SoloCatalogClientRow & {
+  creatorKey?: string;
+  creatorName?: string;
   updatedAtMs: number;
   popularityScore: number;
   likeCount: number;
@@ -67,12 +69,14 @@ export type CommunitySoloCatalogClientRow = SoloCatalogClientRow & {
   isNew: boolean;
 };
 
-export function CommunitySoloCatalog({ rows, signedIn }: { rows: CommunitySoloCatalogClientRow[]; signedIn: boolean }) {
+export function CommunitySoloCatalog({ rows, signedIn, initialCreator = null }: { rows: CommunitySoloCatalogClientRow[]; signedIn: boolean; initialCreator?: string | null }) {
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<CommunitySoloCatalogFilter>("all");
   const [sort, setSort] = useState<CommunitySoloCatalogSort>("popular");
   const [limit, setLimit] = useState(10);
-  const filtered = useMemo(() => filterCommunitySoloCatalog(rows, { query, filter, sort }), [rows, query, filter, sort]);
+  const creatorRow = initialCreator ? rows.find((row) => row.creatorKey === initialCreator) : null;
+  const creator = creatorRow?.creatorKey ?? null;
+  const filtered = useMemo(() => filterCommunitySoloCatalog(rows, { query, filter, sort, creator }), [rows, query, filter, sort, creator]);
   const page = paginateCatalog(filtered, limit);
   const filters: Array<{ value: CommunitySoloCatalogFilter; label: string }> = [
     { value: "all", label: "All" },
@@ -84,6 +88,7 @@ export function CommunitySoloCatalog({ rows, signedIn }: { rows: CommunitySoloCa
   return (
     <>
       <div className="sqc-community-browse-panel" aria-label="Community Side Quest filters">
+        {creatorRow ? <div className="sqc-empty-panel"><strong>Creator shelf: {creatorRow.creatorName ?? "SQC player"}</strong><span>Showing public Community Solo Side Quests from this creator.</span><Link href="/community-side-quests" className="sqc-detail-secondary-button">Show all creators</Link></div> : null}
         <label className="sqc-search-shell">
           <span className="sr-only">Search Community Side Quests</span>
           <input value={query} onChange={(event) => { setQuery(event.target.value); setLimit(10); }} placeholder="Search by name or rule" aria-label="Search Community Side Quests" />

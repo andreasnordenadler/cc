@@ -34,6 +34,7 @@ export function filterSoloCatalog<T extends SoloCatalogRow>(
 }
 
 export type CommunitySoloCatalogRow = SoloCatalogRow & {
+  creatorKey?: string;
   updatedAtMs: number;
   popularityScore: number;
   likeCount: number;
@@ -46,10 +47,12 @@ export type CommunitySoloCatalogSort = "popular" | "liked" | "newest" | "name";
 
 export function filterCommunitySoloCatalog<T extends CommunitySoloCatalogRow>(
   rows: T[],
-  options: { query: string; filter: CommunitySoloCatalogFilter; sort: CommunitySoloCatalogSort },
+  options: { query: string; filter: CommunitySoloCatalogFilter; sort: CommunitySoloCatalogSort; creator?: string | null },
 ): T[] {
   const query = options.query.trim().toLocaleLowerCase();
+  const creator = options.creator?.trim() ?? "";
   return rows
+    .filter((row) => !creator || row.creatorKey === creator)
     .filter((row) => !query || `${row.title} ${row.meta}`.toLocaleLowerCase().includes(query))
     .filter((row) => {
       if (options.filter === "popular") return row.popularityScore + row.likeCount * 5 > 0;
