@@ -49,6 +49,7 @@ type MobileAppWebShellProps = {
   modalPresentation?: boolean;
   immersivePresentation?: boolean;
   controlsOnlyHeader?: boolean;
+  loadingPresentation?: boolean;
   closeHref?: string;
   children?: ReactNode;
 };
@@ -183,6 +184,7 @@ export default function MobileAppWebShell({
   modalPresentation = false,
   immersivePresentation = false,
   controlsOnlyHeader = false,
+  loadingPresentation = false,
   closeHref = "/",
   children,
 }: MobileAppWebShellProps) {
@@ -234,7 +236,7 @@ export default function MobileAppWebShell({
             </header>
           )}
         </>
-      ) : immersivePresentation ? null : activeTab === "home" ? (
+      ) : immersivePresentation || loadingPresentation ? null : activeTab === "home" ? (
         <header className="sqc-app-header guest">
           <h1>Side Quest Chess</h1>
         </header>
@@ -263,7 +265,7 @@ export default function MobileAppWebShell({
           )
         )}
       </section>
-      {!signedIn && !(activeTab === "home" && children == null) && !modalPresentation && !immersivePresentation ? (
+      {!signedIn && !(activeTab === "home" && children == null) && !modalPresentation && !immersivePresentation && !loadingPresentation ? (
         <GuestNavigation activeTab={activeTab} />
       ) : null}
     </main>

@@ -30,14 +30,19 @@ test("signed-out support and privacy remain reachable after leaving Home", () =>
   assert.match(html, /href="\/privacy"[^>]*>Privacy</);
 });
 
-test("signed-out loading and not-found surfaces keep their existing guest navigation", () => {
-  for (const html of [
-    renderToStaticMarkup(React.createElement(Loading)),
-    renderToStaticMarkup(React.createElement(NotFound)),
-  ]) {
-    assert.match(html, /aria-label="Guest menu"/);
-    assert.match(html, /href="\/support"[^>]*>Help &amp; Support</);
-  }
+test("route loading matches Android v338 without navigation before data is ready", () => {
+  const html = renderToStaticMarkup(React.createElement(Loading));
+
+  assert.match(html, /Loading the live quest board/);
+  assert.doesNotMatch(html, /sqc-app-header/);
+  assert.doesNotMatch(html, /aria-label="Guest menu"/);
+});
+
+test("signed-out not-found keeps support navigation reachable", () => {
+  const html = renderToStaticMarkup(React.createElement(NotFound));
+
+  assert.match(html, /aria-label="Guest menu"/);
+  assert.match(html, /href="\/support"[^>]*>Help &amp; Support</);
 });
 
 test("guest Home navigation change leaves signed-in, modal, and immersive shells unchanged", () => {
