@@ -86,4 +86,7 @@ test("public proof receipt renders real share and copy controls instead of an im
   const source = await import("node:fs/promises").then((fs) => fs.readFile(new URL("../src/app/proof/[token]/page.tsx", import.meta.url), "utf8"));
   assert.match(source, /<PublicProofShareControls[\s\S]*?token=\{token\}[\s\S]*?challengeTitle=\{payload\.challengeTitle\}[\s\S]*?badgeName=\{payload\.badgeName\}/);
   assert.doesNotMatch(source, /<Link href=\{publicProofImagePath\(token\)\}[^>]*>Share proof<\/Link>/);
+
+  const css = await import("node:fs/promises").then((fs) => fs.readFile(new URL("../src/app/mobile-web.css", import.meta.url), "utf8"));
+  assert.match(css, /\.sqc-proof-image\s*\{[\s\S]*?display:\s*block;[\s\S]*?width:\s*100%;[\s\S]*?max-width:\s*100%;[\s\S]*?height:\s*auto;/);
 });

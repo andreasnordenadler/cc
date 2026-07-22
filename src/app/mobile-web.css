@@ -372,8 +372,16 @@ body::after {
 }
 
 .sqc-stack {
+  min-width: 0;
   display: grid;
   gap: 0;
+}
+
+.sqc-proof-image {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  height: auto;
 }
 
 .sqc-loading-screen {
