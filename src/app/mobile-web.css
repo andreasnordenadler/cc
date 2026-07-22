@@ -444,6 +444,106 @@ body::after {
   margin-top: 4px;
 }
 
+.sqc-native-card.sqc-offline-catalog {
+  width: min(100%, 460px);
+  gap: 10px;
+}
+
+.sqc-offline-catalog h2,
+.sqc-offline-catalog p {
+  margin: 0;
+}
+
+.sqc-offline-catalog p {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.sqc-offline-quest-list {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 7px;
+}
+
+.sqc-offline-quest-list details {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  border: 1px solid rgba(255, 247, 232, .11);
+  border-radius: 14px;
+  background: rgba(0, 0, 0, .18);
+  color: var(--paper);
+}
+
+.sqc-offline-quest-list summary {
+  min-width: 0;
+  position: relative;
+  display: grid;
+  gap: 3px;
+  padding: 10px 30px 10px 12px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.sqc-offline-quest-list summary::-webkit-details-marker {
+  display: none;
+}
+
+.sqc-offline-quest-list summary::after {
+  position: absolute;
+  top: 50%;
+  right: 11px;
+  color: var(--gold);
+  content: "＋";
+  font-size: 16px;
+  transform: translateY(-50%);
+}
+
+.sqc-offline-quest-list details[open] summary::after {
+  content: "−";
+}
+
+.sqc-offline-quest-list strong,
+.sqc-offline-quest-list span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.sqc-offline-quest-list strong {
+  font-size: 14px;
+}
+
+.sqc-offline-quest-list span {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.sqc-offline-quest-rules {
+  display: grid;
+  gap: 8px;
+  padding: 0 12px 12px;
+  border-top: 1px solid rgba(255, 247, 232, .08);
+}
+
+.sqc-offline-quest-rules p,
+.sqc-offline-quest-rules ul {
+  margin: 10px 0 0;
+}
+
+.sqc-offline-quest-rules ul {
+  display: grid;
+  gap: 5px;
+  padding-left: 18px;
+}
+
+.sqc-offline-quest-rules li {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
 .sqc-panel,
 .sqc-current-card,
 .sqc-home-section,
