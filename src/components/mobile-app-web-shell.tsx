@@ -263,7 +263,7 @@ export default function MobileAppWebShell({
           )
         )}
       </section>
-      {!signedIn && !modalPresentation && !immersivePresentation ? (
+      {!signedIn && !(activeTab === "home" && children == null) && !modalPresentation && !immersivePresentation ? (
         <GuestNavigation activeTab={activeTab} />
       ) : null}
     </main>
