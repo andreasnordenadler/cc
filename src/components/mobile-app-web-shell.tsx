@@ -378,9 +378,21 @@ export function SignedInHome({
         </Link>
         {activeMultiplayerRows.length ? (
           <div className="sqc-row-list trophy-preview">
-            {activeMultiplayerRows.map((row) => (
+            {activeMultiplayerRows.slice(0, 5).map((row) => (
               <AppRow key={row.id} title={row.title} meta={row.meta} status={row.status} sourceBadge={row.sourceBadge} href={row.href} />
             ))}
+            {activeMultiplayerRows.length > 5 ? (
+              <details className="sqc-home-row-disclosure">
+                <summary>
+                  <span className="sqc-home-row-expand">Show all active Multiplayer Side Quests</span>
+                  <span className="sqc-home-row-collapse">Show fewer active Multiplayer Side Quests</span>
+                  <small>{activeMultiplayerRows.length - 5} more active Multiplayer Side Quest{activeMultiplayerRows.length - 5 === 1 ? "" : "s"}.</small>
+                </summary>
+                {activeMultiplayerRows.slice(5).map((row) => (
+                  <AppRow key={row.id} title={row.title} meta={row.meta} status={row.status} sourceBadge={row.sourceBadge} href={row.href} />
+                ))}
+              </details>
+            ) : null}
           </div>
         ) : (
           <div className="sqc-row-list trophy-preview">

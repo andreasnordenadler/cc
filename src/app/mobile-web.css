@@ -1133,8 +1133,42 @@ body::after {
 }
 
 .sqc-row-list.trophy-preview .sqc-app-row + .sqc-app-row,
+.sqc-row-list.trophy-preview .sqc-home-row-disclosure,
+.sqc-home-row-disclosure .sqc-app-row,
 .sqc-catalog .sqc-app-row + .sqc-app-row {
   border-top: 1px solid rgba(255, 255, 255, .065);
+}
+
+.sqc-home-row-disclosure summary {
+  min-height: 54px;
+  display: grid;
+  align-content: center;
+  gap: 3px;
+  padding: 9px 12px;
+  color: var(--paper);
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 900;
+  list-style-position: inside;
+}
+
+.sqc-home-row-disclosure summary small {
+  display: block;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 760;
+}
+
+.sqc-home-row-collapse {
+  display: none;
+}
+
+.sqc-home-row-disclosure[open] .sqc-home-row-expand {
+  display: none;
+}
+
+.sqc-home-row-disclosure[open] .sqc-home-row-collapse {
+  display: inline;
 }
 
 .sqc-app-row {
