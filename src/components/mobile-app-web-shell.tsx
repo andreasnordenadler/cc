@@ -414,18 +414,43 @@ export function SignedInHome({
           <p className="sqc-pill">Trophy Cabinet</p>
         </div>
         <div className="sqc-row-list">
-          {trophyRows.length ? trophyRows.map((row) => (
-            <AppRow
-              key={row.id}
-              title={row.title}
-              meta={formatHomeTrophyMeta(row.meta, row.source)}
-              status="Open"
-              href={row.href}
-              image={row.image ?? undefined}
-              glow={row.glow}
-              statusImage={row.statusImage}
-            />
-          )) : (
+          {trophyRows.length ? (
+            <>
+              {trophyRows.slice(0, 5).map((row) => (
+                <AppRow
+                  key={row.id}
+                  title={row.title}
+                  meta={formatHomeTrophyMeta(row.meta, row.source)}
+                  status="Open"
+                  href={row.href}
+                  image={row.image ?? undefined}
+                  glow={row.glow}
+                  statusImage={row.statusImage}
+                />
+              ))}
+              {trophyRows.length > 5 ? (
+                <details className="sqc-home-row-disclosure">
+                  <summary>
+                    <span className="sqc-home-row-expand">Show all Trophy Cabinet items</span>
+                    <span className="sqc-home-row-collapse">Show fewer Trophy Cabinet items</span>
+                    <small>{trophyRows.length - 5} more unlocked item{trophyRows.length - 5 === 1 ? "" : "s"}.</small>
+                  </summary>
+                  {trophyRows.slice(5).map((row) => (
+                    <AppRow
+                      key={row.id}
+                      title={row.title}
+                      meta={formatHomeTrophyMeta(row.meta, row.source)}
+                      status="Open"
+                      href={row.href}
+                      image={row.image ?? undefined}
+                      glow={row.glow}
+                      statusImage={row.statusImage}
+                    />
+                  ))}
+                </details>
+              ) : null}
+            </>
+          ) : (
             <AppRow
               title={completedSoloCount ? `${completedSoloCount} Coat of Arms unlocked` : "No Coat of Arms yet"}
               meta={completedSoloCount ? `${proofReceiptCount} proof receipt${proofReceiptCount === 1 ? "" : "s"} recorded.` : "Complete a Side Quest to unlock your first trophy."}

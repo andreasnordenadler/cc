@@ -3,8 +3,8 @@ import { clerkClient, currentUser } from "@clerk/nextjs/server";
 import { unstable_noStore as noStore } from "next/cache";
 import { CHALLENGES } from "@/lib/challenges";
 import { getMobileWebTheme } from "@/lib/mobile-web-theme";
-import { getChallengeGlowPath, getMobileWebTrophyRows } from "@/lib/mobile-web-trophies";
-import { buildActiveMultiplayerHomeRows } from "@/lib/mobile-web-home";
+import { getChallengeGlowPath } from "@/lib/mobile-web-trophies";
+import { buildActiveMultiplayerHomeRows, loadHomeTrophyRows } from "@/lib/mobile-web-home";
 import { listUserRelatedGroupQuests } from "@/lib/groupquests";
 import {
   buildAttemptSummary,
@@ -41,7 +41,7 @@ export default async function Home() {
   const client = user ? await clerkClient() : null;
   const [trophyRows, relatedGroupQuests] = user && client
     ? await Promise.all([
-        getMobileWebTrophyRows(client, user.id, progress.completedChallengeIds, 5),
+        loadHomeTrophyRows(client, user.id, progress.completedChallengeIds),
         listUserRelatedGroupQuests(client, user.id),
       ])
     : [[], []];

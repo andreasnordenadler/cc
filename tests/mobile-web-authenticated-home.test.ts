@@ -103,6 +103,34 @@ test("authenticated Home previews five active Multiplayer rows and exposes the r
   assert.match(html, /1 more active Multiplayer Side Quest\./);
 });
 
+test("authenticated Home previews five Trophy Cabinet rows and exposes every remaining trophy", () => {
+  const trophyRows = Array.from({ length: 6 }, (_, index) => ({
+    id: `trophy-${index + 1}`,
+    title: `Unlocked trophy ${index + 1}`,
+    meta: index % 2 === 0 ? "Solo completion" : "Community Multiplayer placement",
+    href: `/proof/trophy-${index + 1}`,
+    source: index % 2 === 0 ? "solo" as const : "communityMultiplayer" as const,
+  }));
+  const html = renderToStaticMarkup(React.createElement(SignedInHome, {
+    hasChessAccount: true,
+    activeSolo: failedSolo,
+    activeSoloTitle: null,
+    activeMultiplayerRows: [],
+    trophyRows,
+    completedSoloCount: 3,
+    proofReceiptCount: 3,
+  }));
+
+  for (const title of trophyRows.slice(0, 5).map((row) => row.title)) {
+    assert.ok(html.indexOf(title) < html.indexOf("Show all Trophy Cabinet items"), `${title} must remain in the five-row preview`);
+  }
+  assert.ok(html.indexOf("Unlocked trophy 6") > html.indexOf("Show all Trophy Cabinet items"), "the sixth trophy must be inside the expandable disclosure");
+  assert.match(html, />Show all Trophy Cabinet items</);
+  assert.match(html, />Show fewer Trophy Cabinet items</);
+  assert.match(html, /1 more unlocked item\./);
+  assert.equal((html.match(/href="\/proof\/trophy-/g) ?? []).length, 6, "every proof destination must remain reachable");
+});
+
 test("mini board assigns piece colors from FEN rather than square color", () => {
   const html = renderToStaticMarkup(React.createElement(MiniChessBoard, {
     fen: "8/8/8/3pP3/8/8/8/8 w - - 0 1",

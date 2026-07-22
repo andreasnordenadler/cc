@@ -1,4 +1,7 @@
 import type { ServerGroupQuest } from "./groupquests";
+import { getMobileWebTrophyRows } from "./mobile-web-trophies";
+
+const HOME_TROPHY_ROW_LIMIT = 12;
 
 export type ActiveMultiplayerHomeRow = {
   id: string;
@@ -48,6 +51,14 @@ export function buildActiveMultiplayerHomeRows(
         sourceBadge: hosted ? "Hosted" : "Joined",
       };
     });
+}
+
+export function loadHomeTrophyRows(
+  client: Parameters<typeof getMobileWebTrophyRows>[0],
+  userId: string,
+  completedChallengeIds: string[],
+) {
+  return getMobileWebTrophyRows(client, userId, completedChallengeIds, HOME_TROPHY_ROW_LIMIT);
 }
 
 export function buildSoloProofHomeStatus(

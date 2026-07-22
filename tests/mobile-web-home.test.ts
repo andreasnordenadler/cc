@@ -5,7 +5,9 @@ import {
   buildActiveMultiplayerHomeRows,
   buildSoloProofHomeStatus,
   formatHomeTrophyMeta,
+  loadHomeTrophyRows,
 } from "../src/lib/mobile-web-home";
+import { CHALLENGES } from "../src/lib/challenges";
 import type { ServerGroupQuest } from "../src/lib/groupquests";
 
 function quest(overrides: Partial<ServerGroupQuest> = {}): ServerGroupQuest {
@@ -68,6 +70,20 @@ test("excludes finished multiplayer quests without hiding active rows beyond the
 
   assert.equal(rows.some((row) => row.id === "quest-0"), false);
   assert.deepEqual(rows.map((row) => row.id), ["quest-6", "quest-5", "quest-4", "quest-3", "quest-2", "quest-1"]);
+});
+
+test("Home trophy loader keeps rows beyond Android's five-item preview boundary", async () => {
+  const client = {
+    users: {
+      getUserList: async () => ({ data: [], totalCount: 0 }),
+    },
+  };
+  const completedChallengeIds = CHALLENGES.slice(0, 6).map((challenge) => challenge.id);
+
+  const rows = await loadHomeTrophyRows(client, "viewer", completedChallengeIds);
+
+  assert.equal(rows.length, 6);
+  assert.deepEqual(rows.map((row) => row.href), completedChallengeIds.map((id) => `/challenges/${id}`));
 });
 
 test("distinguishes an unchecked solo quest from a check with no eligible game", () => {
