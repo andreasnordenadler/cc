@@ -23,8 +23,8 @@ test("public proof sharing targets the exact canonical receipt and opens native 
   });
 
   assert.deepEqual(payload, {
-    title: "Side Quest Chess proof: Ada's Fork",
-    text: "I completed “Ada's Fork” on Side Quest Chess. Forked Crown unlocked.",
+    title: "Side Quest Chess: Ada's Fork",
+    text: "I completed “Ada's Fork” in the Side Quest Chess app. Forked Crown unlocked. https://sidequestchess.com/proof/proof%2F42",
     url: "https://sidequestchess.com/proof/proof%2F42",
   });
   assert.deepEqual(shared, [payload]);

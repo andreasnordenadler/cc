@@ -21,10 +21,11 @@ export function buildPublicProofSharePayload({
   origin: string;
 }): PublicProofSharePayload {
   const base = new URL(origin);
+  const url = new URL(`/proof/${encodeURIComponent(token)}`, base.origin).toString();
   return {
-    title: `Side Quest Chess proof: ${challengeTitle}`,
-    text: `I completed “${challengeTitle}” on Side Quest Chess. ${badgeName} unlocked.`,
-    url: new URL(`/proof/${encodeURIComponent(token)}`, base.origin).toString(),
+    title: `Side Quest Chess: ${challengeTitle}`,
+    text: `I completed “${challengeTitle}” in the Side Quest Chess app. ${badgeName} unlocked. ${url}`,
+    url,
   };
 }
 
