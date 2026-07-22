@@ -9,6 +9,7 @@ import DeactivateQuestControl from "@/components/deactivate-quest-control";
 import { MobileWebRelativeTime } from "@/components/mobile-web-relative-time";
 import OfficialSoloDetailActions, { OfficialSoloExactGameControl } from "@/components/official-solo-detail-actions";
 import OfficialSoloLikeControl from "@/components/official-solo-like-control";
+import OfficialSoloShareControls from "@/components/official-solo-share-controls";
 import SoloCoatLightbox from "@/components/solo-coat-lightbox";
 import { CHALLENGES, getChallengeById } from "@/lib/challenges";
 import { getCommunityLikeSummaries } from "@/lib/community-likes";
@@ -217,7 +218,7 @@ export default async function ChallengeDetailPage({
               <p className="sqc-opening-hint">{challenge.openingHint}</p>
             </section>
 
-            <Link href={`/challenges/${challenge.id}`} className="sqc-secondary-action full sqc-share-action">Share public link</Link>
+            <OfficialSoloShareControls id={challenge.id} title={challenge.title} />
 
             {completed ? null : (
               <section className="sqc-native-card sqc-proof-action-card">
