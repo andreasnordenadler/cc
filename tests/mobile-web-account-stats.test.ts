@@ -105,6 +105,41 @@ test("authenticated Account row renders the server-derived Multiplayer summary",
   assert.match(html, />3 active</);
 });
 
+test("authenticated Account summarizes playable and draft Custom Side Quests like Android v338", async () => {
+  const accountPage = await import("../src/app/account/page");
+  assert.equal(typeof accountPage.getAccountCustomQuestSummary, "function");
+
+  assert.deepEqual(accountPage.getAccountCustomQuestSummary([
+    { id: "published", title: "Knight Errand", summary: "Playable", config: "{}", lifecycle: "published" as const, visibility: "private" as const, createdAt: "2026-07-01T00:00:00.000Z", updatedAt: "2026-07-01T00:00:00.000Z" },
+    { id: "draft", title: "Pawn Room", summary: "Draft", config: "{}", lifecycle: "draft" as const, visibility: "private" as const, createdAt: "2026-07-02T00:00:00.000Z", updatedAt: "2026-07-02T00:00:00.000Z" },
+    { id: "archived", title: "Old experiment", summary: "Archived", config: "{}", lifecycle: "archived" as const, visibility: "private" as const, createdAt: "2026-07-03T00:00:00.000Z", updatedAt: "2026-07-03T00:00:00.000Z" },
+  ]), {
+    meta: "1 playable · 1 draft · private by default",
+    status: "3 made",
+  });
+
+  assert.deepEqual(accountPage.getAccountCustomQuestSummary([]), {
+    meta: "Build a private custom Side Quest for solo or multiplayer use.",
+    status: "Create",
+  });
+});
+
+test("authenticated Account renders the Android Custom Side Quest summary from canonical lifecycle data", async () => {
+  const accountPage = await import("../src/app/account/page");
+  assert.equal(typeof accountPage.AccountCustomQuestSummaryRow, "function");
+  const html = renderToStaticMarkup(createElement(accountPage.AccountCustomQuestSummaryRow, {
+    customSideQuests: [
+      { id: "published", title: "Knight Errand", summary: "Playable", config: "{}", lifecycle: "published" as const, visibility: "private" as const, createdAt: "2026-07-01T00:00:00.000Z", updatedAt: "2026-07-01T00:00:00.000Z" },
+      { id: "draft", title: "Pawn Room", summary: "Draft", config: "{}", lifecycle: "draft" as const, visibility: "private" as const, createdAt: "2026-07-02T00:00:00.000Z", updatedAt: "2026-07-02T00:00:00.000Z" },
+      { id: "archived", title: "Old experiment", summary: "Archived", config: "{}", lifecycle: "archived" as const, visibility: "private" as const, createdAt: "2026-07-03T00:00:00.000Z", updatedAt: "2026-07-03T00:00:00.000Z" },
+    ],
+  }));
+
+  assert.match(html, /1 playable · 1 draft · private by default/);
+  assert.match(html, />3 made</);
+  assert.match(html, /href="\/custom-side-quests"/);
+});
+
 test("authenticated Account previews the first two non-archived Custom Side Quests like Android v338", async () => {
   const accountPage = await import("../src/app/account/page");
   assert.equal(typeof accountPage.AccountCustomQuestRows, "function");

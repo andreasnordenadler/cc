@@ -159,13 +159,7 @@ function SignedInAccountScreen({
           image={activeChallengeRecord?.badgeIdentity.image ? toMobileAssetPath(activeChallengeRecord.badgeIdentity.image) : mobileAsset.coat}
         />
         <AccountMultiplayerRow summary={activeMultiplayer} />
-        <AccountRow
-          title="Your Custom Side Quests"
-          meta={customSideQuests.length ? `${customSideQuests.length} made · private by default` : "Build a private custom Side Quest for solo or multiplayer use."}
-          status={customSideQuests.length ? `${customSideQuests.length} made` : "Create"}
-          href="/custom-side-quests"
-          image={mobileAsset.customCrest}
-        />
+        <AccountCustomQuestSummaryRow customSideQuests={customSideQuests} />
         <AccountCustomQuestRows customSideQuests={customSideQuests} />
       </AccountSection>
 
@@ -354,6 +348,35 @@ export function AccountCustomQuestRows({ customSideQuests }: { customSideQuests:
         image={quest.badgeImageUrl ?? mobileAsset.customCrest}
       />
     ));
+}
+
+export function AccountCustomQuestSummaryRow({ customSideQuests }: { customSideQuests: CustomSideQuest[] }) {
+  const summary = getAccountCustomQuestSummary(customSideQuests);
+  return (
+    <AccountRow
+      title="Your Custom Side Quests"
+      meta={summary.meta}
+      status={summary.status}
+      href="/custom-side-quests"
+      image={mobileAsset.customCrest}
+    />
+  );
+}
+
+export function getAccountCustomQuestSummary(customSideQuests: CustomSideQuest[]) {
+  if (!customSideQuests.length) {
+    return {
+      meta: "Build a private custom Side Quest for solo or multiplayer use.",
+      status: "Create",
+    };
+  }
+
+  const playableCount = customSideQuests.filter((quest) => quest.lifecycle !== "archived" && quest.lifecycle !== "draft").length;
+  const draftCount = customSideQuests.filter((quest) => quest.lifecycle === "draft").length;
+  return {
+    meta: `${playableCount} playable · ${draftCount} draft${draftCount === 1 ? "" : "s"} · private by default`,
+    status: `${customSideQuests.length} made`,
+  };
 }
 
 function cleanCustomPreviewTitle(title: string) {
