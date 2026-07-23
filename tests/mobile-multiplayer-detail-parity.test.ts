@@ -441,6 +441,19 @@ test("Multiplayer leave cancellation names the consequence and performs no reque
   assert.deepEqual(result, { kind: "cancelled" });
 });
 
+test("signed-in private related rows stay in account shelves without populating the public Community catalog", () => {
+  const html = renderToStaticMarkup(React.createElement(AppRouterContext.Provider, { value: {
+    back() {}, forward() {}, prefetch() {}, push() {}, refresh() {}, replace() {},
+  } }, React.createElement(CommunityMultiplayerCatalog, {
+    signedIn: true,
+    rows: [{ ...officialJoinedQuest, publiclyListed: false, sourceBadge: "Community", status: "Joined" }],
+  })));
+
+  assert.match(html, /Your active Multiplayer Side Quests/);
+  assert.match(html, /No public community Multiplayer Side Quests right now\./);
+  assert.equal((html.match(/href="\/groupquests\/official-starter-shield\?accepted=1"/g) ?? []).length, 1);
+});
+
 test("finished lifecycle is shown from quest data instead of hardcoding OPEN", () => {
   const html = renderDetail({ ...officialJoinedQuest, lifecycle: "finished", timeLeftLabel: "Final" });
   assert.match(html, />FINISHED</);

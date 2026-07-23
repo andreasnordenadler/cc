@@ -1,7 +1,8 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { applyCommunitySoloLikeState, applyMultiplayerLikeState, filterCommunitySoloCatalog, filterCustomCatalog, filterMultiplayerCatalog, filterSoloCatalog, getCommunitySoloEmptyState, paginateCatalog } from "../src/lib/catalog-models";
+import { applyCommunitySoloLikeState, applyMultiplayerLikeState, filterCommunitySoloCatalog, filterCustomCatalog, filterMultiplayerCatalog, filterSoloCatalog, getCommunityMultiplayerEmptyState, getCommunitySoloEmptyState, paginateCatalog } from "../src/lib/catalog-models";
+
 import { buildMobileWebMultiplayerLeaderboardRows, buildMobileWebMultiplayerPreview, buildUserMultiplayerRows, getMobileWebMultiplayerDetail, getMultiplayerHostFilter, mergeCommunityCatalogQuests } from "../src/lib/mobile-web-multiplayer";
 import type { ServerGroupQuest } from "../src/lib/groupquests";
 
@@ -38,6 +39,21 @@ test("Community Solo filtered no-results copy matches Android v338 without repla
   assert.deepEqual(getCommunitySoloEmptyState({ hasCatalogRows: false, signedIn: true }), {
     title: "No Community Side Quests match these filters.",
     guidance: "Create the first public Side Quest from My Custom Side Quests.",
+  });
+});
+
+test("Community Multiplayer filtered no-results copy matches Android v338 without replacing the honest empty catalog state", () => {
+  assert.deepEqual(getCommunityMultiplayerEmptyState({ hasCatalogRows: true, hasHostFilter: false }), {
+    title: "No community Multiplayer Side Quests match this search/filter.",
+    guidance: null,
+  });
+  assert.deepEqual(getCommunityMultiplayerEmptyState({ hasCatalogRows: false, hasHostFilter: false }), {
+    title: "No public community Multiplayer Side Quests right now.",
+    guidance: null,
+  });
+  assert.deepEqual(getCommunityMultiplayerEmptyState({ hasCatalogRows: true, hasHostFilter: true }), {
+    title: "No public Community Multiplayer Side Quests match this host shelf/search.",
+    guidance: "Nothing private is shown from guessed host context.",
   });
 });
 

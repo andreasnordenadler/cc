@@ -60,6 +60,27 @@ export function getCommunitySoloEmptyState({ hasCatalogRows, signedIn }: { hasCa
   };
 }
 
+export function getCommunityMultiplayerEmptyState({
+  hasCatalogRows,
+  hasHostFilter,
+}: {
+  hasCatalogRows: boolean;
+  hasHostFilter: boolean;
+}) {
+  if (hasCatalogRows && hasHostFilter) {
+    return {
+      title: "No public Community Multiplayer Side Quests match this host shelf/search.",
+      guidance: "Nothing private is shown from guessed host context.",
+    };
+  }
+  return {
+    title: hasCatalogRows
+      ? "No community Multiplayer Side Quests match this search/filter."
+      : "No public community Multiplayer Side Quests right now.",
+    guidance: null,
+  };
+}
+
 export function applyCommunitySoloLikeState<T extends { id: string; likeCount: number; likedByViewer: boolean }>(
   rows: T[],
   targetId: string,
