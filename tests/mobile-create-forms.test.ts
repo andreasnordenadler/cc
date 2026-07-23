@@ -42,7 +42,7 @@ import { getLocalCustomDraftEditHref, getLocalCustomDraftFormState, getLocalCust
 const root = new URL("../", import.meta.url);
 const source = (path: string) => readFile(new URL(path, root), "utf8");
 
-test("Multiplayer create uses Android option cards for access and provider choices", () => {
+test("Multiplayer create matches Android option cards and quick-duration guidance", () => {
   const html = renderToStaticMarkup(React.createElement(MobileMultiplayerCreateForm, {
     signedIn: false,
     quests: [],
@@ -58,6 +58,9 @@ test("Multiplayer create uses Android option cards for access and provider choic
   assert.match(html, />Lichess or Chess\.com<[\s\S]*>Players can use Lichess or Chess\.com</);
   assert.match(html, />Lichess<[\s\S]*>Only public Lichess games</);
   assert.match(html, />Chess\.com<[\s\S]*>Only public Chess\.com games</);
+  assert.match(html, /<span class="sqc-form-label">Quick duration<\/span>/);
+  assert.match(html, /aria-label="Quick duration"/);
+  assert.match(html, />Dates save as your local time\. Start defaults to shortly after creation; no typing needed\.</);
   assert.doesNotMatch(html, /<span>Access<\/span><select|<span>Games allowed<\/span><select/);
 });
 
