@@ -3882,7 +3882,7 @@ body::after {
   color-scheme: dark;
 }
 
-.sqc-create-multiplayer-screen details select {
+.sqc-multiplayer-create-form details select {
   width: 100%;
   min-height: 38px;
   border: 1px solid rgba(255, 247, 232, .16);

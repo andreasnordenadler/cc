@@ -50,7 +50,7 @@ export default function MobileMultiplayerCreateForm({ signedIn, quests, stableNo
     try { const response = await fetch("/api/groupquests", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) }); const result = await response.json().catch(() => null); const destination = response.ok ? getMultiplayerCreateDestination(result) : null; if (!destination) { setError(getCreateErrorMessage(response.status, result)); setSaving(false); return; } window.location.assign(destination); }
     catch { setError("Could not create this Side Quest right now. Please try again."); setSaving(false); }
   }
-  return <form className="sqc-stack" aria-label="Create Multiplayer Side Quest form" onSubmit={submit}>
+  return <form className="sqc-stack sqc-multiplayer-create-form" aria-label="Create Multiplayer Side Quest form" onSubmit={submit}>
     {communityUnavailable ? <p className="sqc-native-card sqc-create-community-notice" role="status"><strong>Community Side Quests could not load.</strong> Official and your own published Side Quests are still available.</p> : null}
     <section className="sqc-native-card"><div className="sqc-form-list">
       <label className="sqc-form-row"><span>Quest name</span><input aria-label="Quest name" maxLength={54} onChange={(e) => setName(e.target.value)} required value={name} /></label>

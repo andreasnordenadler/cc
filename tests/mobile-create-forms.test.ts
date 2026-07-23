@@ -49,6 +49,7 @@ test("Multiplayer create matches Android option cards and quick-duration guidanc
     stableNow: "2026-07-23T12:00:00.000Z",
   }));
 
+  assert.match(html, /<form class="sqc-stack sqc-multiplayer-create-form" aria-label="Create Multiplayer Side Quest form"/);
   assert.match(html, /aria-label="Multiplayer access"/);
   assert.match(html, /aria-pressed="true"[^>]*>[\s\S]*Public/);
   assert.match(html, />Public<[\s\S]*>Visible in Browse</);
@@ -69,7 +70,8 @@ test("Multiplayer create matches Android option cards and quick-duration guidanc
 test("Multiplayer advanced controls retain native dark form styling", async () => {
   const css = await source("src/app/mobile-web.css");
 
-  assert.match(css, /\.sqc-create-multiplayer-screen details select\s*\{[\s\S]*width:\s*100%;[\s\S]*min-height:\s*38px;[\s\S]*border:[^;]+;[\s\S]*border-radius:[^;]+;[\s\S]*background:\s*rgba\(6, 5, 7, \.72\);[\s\S]*color:\s*var\(--paper\);[\s\S]*font:\s*inherit;/);
+  assert.match(css, /\.sqc-multiplayer-create-form details select\s*\{[\s\S]*width:\s*100%;[\s\S]*min-height:\s*38px;[\s\S]*border:[^;]+;[\s\S]*border-radius:[^;]+;[\s\S]*background:\s*rgba\(6, 5, 7, \.72\);[\s\S]*color:\s*var\(--paper\);[\s\S]*font:\s*inherit;/);
+  assert.doesNotMatch(css, /\.sqc-create-multiplayer-screen details select\s*\{/);
 });
 
 test("signed-out custom drafts are stored locally without account identity", () => {
