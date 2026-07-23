@@ -944,7 +944,17 @@ export function MobileCommunitySideQuestDetailScreen({
       <section className="sqc-multiplayer-detail-hero sqc-community-detail-hero">
         <MobileAssetMark className="sqc-section-mark community" image={badge} glow={mobileAsset.coatGlow} size={118} glowSize={144} />
         <span className="sqc-detail-latest-check">{ownedByYou ? "Your Community Solo Side Quest" : "Community Solo Side Quest"}</span>
-        <h1>{quest.title}</h1>
+        <div className="sqc-active-detail-title-row">
+          <h1>{quest.title}</h1>
+          <OfficialSoloLikeControl
+            targetId={quest.id}
+            count={likeSummary.count}
+            likedByViewer={likeSummary.likedByViewer}
+            signedIn={signedIn}
+            returnTo={`/challenges/community/${encodeURIComponent(quest.id)}`}
+            label={quest.title}
+          />
+        </div>
         <p>{quest.summary}</p>
         <small>Ready · Public</small>
       </section>
@@ -1001,7 +1011,7 @@ export function MobileCommunitySideQuestDetailScreen({
 
       <div className="sqc-community-detail-actions" aria-label="Community Solo Side Quest actions">
         <CommunitySoloPickControl questId={quest.id} signedIn={signedIn} activeQuestId={activeQuestId} />
-        <CommunitySoloSocialActions questId={quest.id} title={quest.title} creatorName={quest.creatorName} signedIn={signedIn} initialCount={likeSummary.count} initiallyLiked={likeSummary.likedByViewer} />
+        <CommunitySoloSocialActions questId={quest.id} title={quest.title} creatorName={quest.creatorName} signedIn={signedIn} />
         <Link href="/community-side-quests" className="sqc-detail-quiet-button">Back to list</Link>
         <Link href={quest.creatorBrowsePath} className="sqc-detail-secondary-button">More by {quest.creatorName}</Link>
         {signedIn ? <Link href={`/create-multiplayer-side-quest?quest=${encodeURIComponent(quest.id)}`} className="sqc-detail-secondary-button">Use in Multiplayer</Link> : null}

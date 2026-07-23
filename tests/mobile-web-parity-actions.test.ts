@@ -200,6 +200,7 @@ test("Community Solo detail exposes Android share and copy actions instead of a 
 test("signed-out Community Solo detail keeps Android's exact report handoff reachable", () => {
   const html = renderToStaticMarkup(React.createElement(MobileCommunitySideQuestDetailScreen, {
     signedIn: false,
+    likeSummary: { count: 2, likedByViewer: false },
     quest: {
       id: "quest/42",
       title: "Ada's Fork & Pin",
@@ -212,7 +213,9 @@ test("signed-out Community Solo detail keeps Android's exact report handoff reac
     },
   }));
 
-  assert.match(html, />Sign in to like</);
+  assert.match(html, /<div class="sqc-active-detail-title-row"><h1>Ada&#x27;s Fork &amp; Pin<\/h1><a[^>]*class="sqc-like-pill"[^>]*aria-label="Sign in to like Ada&#x27;s Fork &amp; Pin\. 2 likes\."/);
+  assert.match(html, /data-icon="thumb-up-outline"/);
+  assert.doesNotMatch(html, />Sign in to like<\/a>/);
   assert.match(html, /href="\/support\?report=community-solo&amp;questId=quest%2F42&amp;title=Ada%27s\+Fork\+%26\+Pin&amp;creator=Ada\+%26\+Lin"[^>]*>Report this Side Quest<\/a>/);
   assert.doesNotMatch(html, /Sign in to like or report/);
 });
