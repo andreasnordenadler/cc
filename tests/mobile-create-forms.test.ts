@@ -67,6 +67,18 @@ test("Multiplayer create matches Android option cards and quick-duration guidanc
   assert.doesNotMatch(html, /<span>Access<\/span><select|<span>Games allowed<\/span><select/);
 });
 
+test("Multiplayer create blocks pre-hydration interactions instead of silently losing the first choice", () => {
+  const html = renderToStaticMarkup(React.createElement(MobileMultiplayerCreateForm, {
+    signedIn: false,
+    quests: [{ id: "finish-any-game", title: "Any Game Counts", summary: "Finish one game.", source: "official", sourceLabel: "SQC Official" }],
+    stableNow: "2026-07-23T12:00:00.000Z",
+  }));
+
+  assert.match(html, /<fieldset class="sqc-hydration-gate" disabled="">/);
+  assert.match(html, /aria-label="Add Any Game Counts to Multiplayer Side Quest"/);
+  assert.match(html, /aria-label="Switch to Community Side Quests"/);
+});
+
 test("Multiplayer advanced controls retain native dark form styling", async () => {
   const css = await source("src/app/mobile-web.css");
 

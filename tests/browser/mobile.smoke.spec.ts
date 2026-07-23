@@ -138,6 +138,26 @@ test("Community Solo detail shares and copies its exact public link", async ({ p
   expect(await noHorizontalOverflow(page)).toBe(true);
 });
 
+test("Multiplayer create waits for hydration before accepting the first picker action", async ({ page }) => {
+  const response = await page.goto("/create-multiplayer-side-quest", { waitUntil: "domcontentloaded" });
+  expect(response?.status()).toBeLessThan(400);
+
+  const gate = page.locator(".sqc-hydration-gate");
+  await expect(gate).not.toHaveAttribute("disabled", "", { timeout: 10_000 });
+
+  await page.getByRole("button", { name: "Add Any Game Counts to Multiplayer Side Quest" }).click();
+  const selectedTray = page.locator(".sqc-create-selected-tray");
+  await expect(selectedTray.getByRole("button", { name: "Remove Any Game Counts from Multiplayer Side Quest" })).toBeVisible();
+  const selectedCard = page.locator(".sqc-create-selected-card");
+  await expect(selectedCard.getByText("1/4 Side Quests selected", { exact: true })).toBeVisible();
+  await expect(selectedCard.getByRole("button", { name: "Clear selected Side Quests" })).toBeVisible();
+
+  await selectedCard.getByRole("button", { name: "Clear selected Side Quests" }).click();
+  await expect(selectedCard.getByText("0/4 Side Quests selected", { exact: true })).toBeVisible();
+  await expect(selectedCard.getByText("No Side Quests selected yet.", { exact: true })).toBeVisible();
+  expect(await noHorizontalOverflow(page)).toBe(true);
+});
+
 test("custom builder describes exact Android piece selector semantics", async ({ page }) => {
   const response = await page.goto("/create-custom-side-quest", { waitUntil: "domcontentloaded" });
   expect(response?.status()).toBeLessThan(400);
