@@ -69,8 +69,8 @@ export type MobileWebOfficialWeek = {
   id: string;
   title: string;
   meta: string;
-  href: string;
   questCount: number;
+  results: MobileWebMultiplayerResult[];
 };
 
 type ClerkClient = Awaited<ReturnType<typeof clerkClient>>;
@@ -368,7 +368,7 @@ function buildOfficialResultRow(quest: ServerGroupQuest): MobileWebMultiplayerRe
   };
 }
 
-function buildOfficialWeeks(quests: ServerGroupQuest[]): MobileWebOfficialWeek[] {
+export function buildOfficialWeeks(quests: ServerGroupQuest[]): MobileWebOfficialWeek[] {
   const weekMap = new Map<string, { id: string; label: string; rangeLabel: string; quests: ServerGroupQuest[] }>();
 
   quests.forEach((quest) => {
@@ -394,7 +394,7 @@ function buildOfficialWeeks(quests: ServerGroupQuest[]): MobileWebOfficialWeek[]
       id: week.id,
       title: week.label,
       meta: `${week.rangeLabel} · ${week.quests.length} official result${week.quests.length === 1 ? "" : "s"}`,
-      href: `/groupquests/${week.quests[0]?.id ?? ""}`,
       questCount: week.quests.length,
+      results: week.quests.map(buildOfficialResultRow),
     }));
 }

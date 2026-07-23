@@ -1202,15 +1202,20 @@ function OfficialMultiplayerPanel({
             {earlierOfficialWeeks.length ? (
               <div className="sqc-catalog">
                 {earlierOfficialWeeks.map((week) => (
-                  <AppRow
-                    key={week.id}
-                    title={week.title}
-                    meta={week.meta}
-                    status="Results"
-                    href={week.href}
-                    image={mobileAsset.multiplayerSeal}
-                    sourceBadge="Archive"
-                  />
+                  <details className="sqc-official-week-results" key={week.id}>
+                    <summary>
+                      <span className="sqc-official-week-copy">
+                        <strong>{week.title}</strong>
+                        <small>{week.meta}</small>
+                      </span>
+                      <span className="sqc-pill">Results</span>
+                    </summary>
+                    <div className="sqc-official-results-stack">
+                      {week.results.map((result) => (
+                        <OfficialResultCard key={result.id} result={result} />
+                      ))}
+                    </div>
+                  </details>
                 ))}
               </div>
             ) : (

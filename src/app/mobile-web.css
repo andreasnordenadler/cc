@@ -2626,6 +2626,56 @@ body::after {
   line-height: 1.5;
 }
 
+.sqc-official-week-results {
+  overflow: hidden;
+  border: 1px solid rgba(245, 200, 106, .2);
+  border-radius: 18px;
+  background: rgba(13, 11, 14, .62);
+}
+
+.sqc-official-week-results > summary {
+  min-height: 64px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.sqc-official-week-results > summary::-webkit-details-marker {
+  display: none;
+}
+
+.sqc-official-week-results[open] > summary {
+  border-bottom: 1px solid rgba(245, 200, 106, .16);
+  background: rgba(245, 200, 106, .07);
+}
+
+.sqc-official-week-copy {
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+}
+
+.sqc-official-week-copy strong {
+  color: var(--paper);
+  font-size: 15px;
+  font-weight: 900;
+}
+
+.sqc-official-week-copy small {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 16px;
+}
+
+.sqc-official-week-results > .sqc-official-results-stack {
+  padding: 9px;
+}
+
 .sqc-official-results-stack {
   display: grid;
   gap: 9px;

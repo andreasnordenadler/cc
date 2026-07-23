@@ -217,6 +217,40 @@ test("Community Solo catalog keeps the exact row link beside the Android like ac
   assert.match(solo, /data-icon="thumb-up"/);
 });
 
+test("earlier official weeks reveal every Android result instead of linking only the first", () => {
+  const podiumRows = (["Gold", "Silver", "Bronze"] as const).map((placement) => ({
+    placement,
+    name: `${placement} player`,
+    meta: `${placement} result`,
+    pending: false,
+  }));
+  const multiplayer = renderToStaticMarkup(createElement(MobileMultiplayerSideQuestsScreen, {
+    selectedTab: "official",
+    signedIn: true,
+    officialRows: [],
+    communityRows: [],
+    earlierOfficialWeeks: [{
+      id: "2026-07-06",
+      title: "Week of Jul 6",
+      meta: "Jul 6-Jul 12 · 2 official results",
+      questCount: 2,
+      results: [
+        { id: "rook-rally", title: "Rook Rally", href: "/groupquests/rook-rally", summary: "Final", podiumRows },
+        { id: "bishop-blitz", title: "Bishop Blitz", href: "/groupquests/bishop-blitz", summary: "Final", podiumRows },
+      ],
+    }],
+  }));
+
+  assert.match(multiplayer, /<details class="sqc-official-week-results">/);
+  assert.match(multiplayer, /<summary[^>]*>[\s\S]*Week of Jul 6[\s\S]*2 official results[\s\S]*<\/summary>/);
+  assert.match(multiplayer, /aria-label="Open official result Rook Rally"[^>]*href="\/groupquests\/rook-rally"/);
+  assert.match(multiplayer, /aria-label="Open official result Bishop Blitz"[^>]*href="\/groupquests\/bishop-blitz"/);
+
+  const css = readFileSync("src/app/mobile-web.css", "utf8");
+  assert.match(css, /\.sqc-official-week-results\s*>\s*summary\s*\{[^}]*display:\s*grid;[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\)\s+auto;/);
+  assert.match(css, /\.sqc-official-week-results\[open\]\s*>\s*summary/);
+});
+
 test("official row glows use Android badge tint instead of the raw white mask", () => {
   const challenge = CHALLENGES.find(item => item.id === "bishop-field-trip");
   assert.ok(challenge);

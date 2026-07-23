@@ -3,7 +3,7 @@ import test from "node:test";
 
 import { applyCommunitySoloLikeState, applyMultiplayerLikeState, filterCommunitySoloCatalog, filterCustomCatalog, filterMultiplayerCatalog, filterSoloCatalog, getCommunityMultiplayerEmptyState, getCommunitySoloEmptyState, paginateCatalog } from "../src/lib/catalog-models";
 
-import { buildMobileWebMultiplayerLeaderboardRows, buildMobileWebMultiplayerPreview, buildUserMultiplayerRows, getMobileWebMultiplayerDetail, getMultiplayerHostFilter, mergeCommunityCatalogQuests } from "../src/lib/mobile-web-multiplayer";
+import { buildMobileWebMultiplayerLeaderboardRows, buildMobileWebMultiplayerPreview, buildOfficialWeeks, buildUserMultiplayerRows, getMobileWebMultiplayerDetail, getMultiplayerHostFilter, mergeCommunityCatalogQuests } from "../src/lib/mobile-web-multiplayer";
 import type { ServerGroupQuest } from "../src/lib/groupquests";
 
 const likeSummary = { count: 0, likedByCurrentUser: false, likedByViewer: false };
@@ -26,6 +26,22 @@ function quest(overrides: Partial<ServerGroupQuest> = {}): ServerGroupQuest {
     createdAt: "2026-07-09T00:00:00.000Z", participants: [], ...overrides,
   };
 }
+
+test("official weekly archives preserve every Android-addressable result in the week", () => {
+  const weeks = buildOfficialWeeks([
+    quest({ id: "week-a", name: "Rook Rally", endAt: "2026-07-07T20:00:00.000Z" }),
+    quest({ id: "week-b", name: "Bishop Blitz", endAt: "2026-07-08T20:00:00.000Z" }),
+    quest({ id: "week-c", name: "Knight Night", endAt: "2026-07-09T20:00:00.000Z" }),
+  ]);
+
+  assert.equal(weeks.length, 1);
+  assert.equal(weeks[0]?.questCount, 3);
+  assert.deepEqual(weeks[0]?.results.map((result) => [result.id, result.href]), [
+    ["week-a", "/groupquests/week-a"],
+    ["week-b", "/groupquests/week-b"],
+    ["week-c", "/groupquests/week-c"],
+  ]);
+});
 
 test("Community Solo filtered no-results copy matches Android v338 without replacing the honest empty catalog state", () => {
   assert.deepEqual(getCommunitySoloEmptyState({ hasCatalogRows: true, signedIn: false }), {
