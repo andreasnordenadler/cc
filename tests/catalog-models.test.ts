@@ -32,8 +32,12 @@ test("Community Solo filtered no-results copy matches Android v338 without repla
     guidance: "Try a broader search or switch the filter back to All.",
   });
   assert.deepEqual(getCommunitySoloEmptyState({ hasCatalogRows: false, signedIn: false }), {
-    title: "No Community Side Quests yet.",
+    title: "No Community Side Quests match these filters.",
     guidance: "Public player-made Side Quests will appear here.",
+  });
+  assert.deepEqual(getCommunitySoloEmptyState({ hasCatalogRows: false, signedIn: true }), {
+    title: "No Community Side Quests match these filters.",
+    guidance: "Create the first public Side Quest from My Custom Side Quests.",
   });
 });
 

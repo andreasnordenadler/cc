@@ -53,7 +53,7 @@ export function getCommunitySoloEmptyState({ hasCatalogRows, signedIn }: { hasCa
     };
   }
   return {
-    title: "No Community Side Quests yet.",
+    title: "No Community Side Quests match these filters.",
     guidance: signedIn
       ? "Create the first public Side Quest from My Custom Side Quests."
       : "Public player-made Side Quests will appear here.",
