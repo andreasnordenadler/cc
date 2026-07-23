@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { applyCommunitySoloLikeState, applyMultiplayerLikeState, filterCommunitySoloCatalog, filterCustomCatalog, filterMultiplayerCatalog, filterSoloCatalog, paginateCatalog } from "../src/lib/catalog-models";
+import { applyCommunitySoloLikeState, applyMultiplayerLikeState, filterCommunitySoloCatalog, filterCustomCatalog, filterMultiplayerCatalog, filterSoloCatalog, getCommunitySoloEmptyState, paginateCatalog } from "../src/lib/catalog-models";
 import { buildMobileWebMultiplayerLeaderboardRows, buildMobileWebMultiplayerPreview, buildUserMultiplayerRows, getMobileWebMultiplayerDetail, getMultiplayerHostFilter, mergeCommunityCatalogQuests } from "../src/lib/mobile-web-multiplayer";
 import type { ServerGroupQuest } from "../src/lib/groupquests";
 
@@ -25,6 +25,17 @@ function quest(overrides: Partial<ServerGroupQuest> = {}): ServerGroupQuest {
     createdAt: "2026-07-09T00:00:00.000Z", participants: [], ...overrides,
   };
 }
+
+test("Community Solo filtered no-results copy matches Android v338 without replacing the honest empty catalog state", () => {
+  assert.deepEqual(getCommunitySoloEmptyState({ hasCatalogRows: true, signedIn: false }), {
+    title: "No matches yet.",
+    guidance: "Try a broader search or switch the filter back to All.",
+  });
+  assert.deepEqual(getCommunitySoloEmptyState({ hasCatalogRows: false, signedIn: false }), {
+    title: "No Community Side Quests yet.",
+    guidance: "Public player-made Side Quests will appear here.",
+  });
+});
 
 test("private invite codes use the canonical storage owner and never participant replicas", () => {
   const privateQuest = quest({ inviteMode: "private-key", inviteKey: "ROOK-742", participants: [{ userId: "participant", provider: "lichess", username: "rook-player", leaderboardName: "Rook Player", joinedAt: "2026-07-11T00:00:00.000Z" }] });

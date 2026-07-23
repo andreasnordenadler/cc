@@ -45,6 +45,21 @@ export type CommunitySoloCatalogRow = SoloCatalogRow & {
 export type CommunitySoloCatalogFilter = "all" | "popular" | "new" | "completed";
 export type CommunitySoloCatalogSort = "popular" | "liked" | "newest" | "name";
 
+export function getCommunitySoloEmptyState({ hasCatalogRows, signedIn }: { hasCatalogRows: boolean; signedIn: boolean }) {
+  if (hasCatalogRows) {
+    return {
+      title: "No matches yet.",
+      guidance: "Try a broader search or switch the filter back to All.",
+    };
+  }
+  return {
+    title: "No Community Side Quests yet.",
+    guidance: signedIn
+      ? "Create the first public Side Quest from My Custom Side Quests."
+      : "Public player-made Side Quests will appear here.",
+  };
+}
+
 export function applyCommunitySoloLikeState<T extends { id: string; likeCount: number; likedByViewer: boolean }>(
   rows: T[],
   targetId: string,
