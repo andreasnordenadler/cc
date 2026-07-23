@@ -13,3 +13,9 @@ test("privacy launch draft describes the implemented web and Android account del
   assert.match(source, /while keeping the account, account settings require at least one public chess username to remain/i);
   assert.match(source, /Deleting the account removes the account profile instead/i);
 });
+
+test("privacy hero keeps the back link and brand kicker on separate readable rows", async () => {
+  const css = await readFile(new URL("../src/app/globals.css", import.meta.url), "utf8");
+
+  assert.match(css, /\.privacy-kicker\s*\{[^}]*display:\s*block/);
+});
