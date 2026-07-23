@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import { buildMultiplayerCreatePayload, getCreateErrorMessage, getMultiplayerCreateDestination, getMultiplayerLocalDateTimeDefaults } from "@/lib/mobile-create-forms";
 import { getMultiplayerCreateQuestPicker, toggleMultiplayerCreateQuest, type MultiplayerCreateQuestChoice, type MultiplayerCreateQuestSource } from "@/lib/multiplayer-create-quest-choices";
 
@@ -18,6 +18,8 @@ const providerChoices = [
   { id: "chesscom", title: "Chess.com", helper: "Only public Chess.com games" },
 ] as const;
 
+const subscribeToHydration = () => () => undefined;
+
 function localDateTime(date: Date) { const shifted = new Date(date.getTime() - date.getTimezoneOffset() * 60_000); return shifted.toISOString().slice(0, 16); }
 
 export default function MobileMultiplayerCreateForm({ signedIn, quests, stableNow, communityUnavailable = false, initialQuestId }: { signedIn: boolean; quests: MultiplayerCreateQuest[]; stableNow: string; communityUnavailable?: boolean; initialQuestId?: string }) {
@@ -29,6 +31,7 @@ export default function MobileMultiplayerCreateForm({ signedIn, quests, stableNo
   const [source, setSource] = useState<MultiplayerCreateQuestSource>(initialQuest?.source === "official" ? "official" : initialQuest ? "community" : "official"); const [selectedOnly, setSelectedOnly] = useState(Boolean(initialQuest)); const [questLimit, setQuestLimit] = useState(8); const [selectionError, setSelectionError] = useState("");
   const [timeControl, setTimeControl] = useState("Any time control"); const [rated, setRated] = useState("Any rated state"); const [color, setColor] = useState("Any color");
   const [saving, setSaving] = useState(false); const [error, setError] = useState("");
+  const hydrated = useSyncExternalStore(subscribeToHydration, () => true, () => false);
   useEffect(() => {
     let mounted = true;
     queueMicrotask(() => {
@@ -52,6 +55,7 @@ export default function MobileMultiplayerCreateForm({ signedIn, quests, stableNo
     catch { setError("Could not create this Side Quest right now. Please try again."); setSaving(false); }
   }
   return <form className="sqc-stack sqc-multiplayer-create-form" aria-label="Create Multiplayer Side Quest form" onSubmit={submit}>
+    <fieldset className="sqc-hydration-gate" disabled={!hydrated}>
     {communityUnavailable ? <p className="sqc-native-card sqc-create-community-notice" role="status"><strong>Community Side Quests could not load.</strong> Official and your own published Side Quests are still available.</p> : null}
     <section className="sqc-native-card"><div className="sqc-form-list">
       <label className="sqc-form-row"><span>Quest name</span><input aria-label="Quest name" maxLength={54} onChange={(e) => setName(e.target.value)} required value={name} /></label>
@@ -83,5 +87,6 @@ export default function MobileMultiplayerCreateForm({ signedIn, quests, stableNo
       {picker.hiddenCount ? <button className="sqc-detail-secondary-button" onClick={() => setQuestLimit((current) => current + 8)} type="button">Show more ({picker.hiddenCount})</button> : null}
     </section>
     {error ? <p className="groupquest-join-error" role="alert">{error}</p> : null}<button className="sqc-create-footer-button" disabled={saving} type="submit">{saving ? "Creating…" : signedIn ? "Create Multiplayer Side Quest" : "Sign in to create"}</button>
+    </fieldset>
   </form>;
 }

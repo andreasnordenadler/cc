@@ -3896,6 +3896,14 @@ body::after {
   color-scheme: dark;
 }
 
+.sqc-hydration-gate {
+  display: contents;
+  border: 0;
+  margin: 0;
+  padding: 0;
+  min-inline-size: 0;
+}
+
 .sqc-create-multiplayer-screen .sqc-native-card {
   gap: 8px;
   padding: 11px;
