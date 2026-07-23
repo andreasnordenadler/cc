@@ -165,6 +165,45 @@ test("official Multiplayer detail does not offer the Community report action", (
   assert.doesNotMatch(html, /Report this Community Multiplayer Side Quest|Report this Side Quest/);
 });
 
+test("signed-in Community Multiplayer active shelf starts at Android's four-row boundary", () => {
+  const rows = Array.from({ length: 6 }, (_, index) => ({
+    ...officialJoinedQuest,
+    id: `active-${index + 1}`,
+    href: `/groupquests/active-${index + 1}`,
+    title: `Active table ${index + 1}`,
+    sourceBadge: "Community" as const,
+    publiclyListed: false,
+  }));
+  const html = renderToStaticMarkup(React.createElement(CommunityMultiplayerCatalog, { rows, signedIn: true }));
+
+  assert.match(html, />Active table 1</);
+  assert.match(html, />Active table 4</);
+  assert.doesNotMatch(html, />Active table 5</);
+  assert.doesNotMatch(html, />Active table 6</);
+  assert.match(html, /aria-label="Show more of my Multiplayer Side Quests"/);
+  assert.match(html, />More my quests \(2\)</);
+});
+
+test("signed-in Community Multiplayer history starts at Android's three-row boundary", () => {
+  const rows = Array.from({ length: 5 }, (_, index) => ({
+    ...officialJoinedQuest,
+    id: `finished-${index + 1}`,
+    href: `/groupquests/finished-${index + 1}`,
+    title: `Finished table ${index + 1}`,
+    sourceBadge: "Community" as const,
+    lifecycle: "finished" as const,
+    publiclyListed: false,
+  }));
+  const html = renderToStaticMarkup(React.createElement(CommunityMultiplayerCatalog, { rows, signedIn: true }));
+
+  assert.match(html, />Finished table 1</);
+  assert.match(html, />Finished table 3</);
+  assert.doesNotMatch(html, />Finished table 4</);
+  assert.doesNotMatch(html, />Finished table 5</);
+  assert.match(html, /aria-label="Show more finished Multiplayer Side Quests"/);
+  assert.match(html, />More history \(2\)</);
+});
+
 test("Community Multiplayer host shelf opens filtered and exposes a real clear action", () => {
   const html = renderToStaticMarkup(React.createElement(CommunityMultiplayerCatalog, {
     rows: [
