@@ -5,6 +5,7 @@ import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { MobileCreateCustomScreen, MobileCustomSideQuestsScreen } from "../src/components/mobile-app-web-shell";
 import MobileCustomCreateForm from "../src/components/mobile-custom-create-form";
+import MobileMultiplayerCreateForm from "../src/components/mobile-multiplayer-create-form";
 import { LocalCustomDraftList } from "../src/components/local-custom-draft-library";
 import type { CustomSideQuestRuleBlock } from "../src/lib/custom-side-quests";
 import {
@@ -999,6 +1000,23 @@ test("multiplayer creator validates and sends supported fields without client id
   assert.equal("hostUserId" in payload, false);
   assert.equal("userId" in payload, false);
   assert.equal("username" in payload, false);
+});
+
+test("multiplayer creator source switch exposes one truthful pressed-button group instead of an incomplete tablist", () => {
+  const html = renderToStaticMarkup(React.createElement(MobileMultiplayerCreateForm, {
+    signedIn: false,
+    stableNow: "2026-07-23T12:00:00.000Z",
+    quests: [
+      { id: "official-one", title: "Official one", summary: "Official rules", source: "official", sourceLabel: "SQC official" },
+      { id: "community-one", title: "Community one", summary: "Community rules", source: "community", sourceLabel: "Community" },
+    ],
+  }));
+
+  assert.match(html, /role="group" aria-label="Choose Side Quest source"/);
+  assert.match(html, /aria-pressed="true"[^>]*>Official \(1\)<\/button>/);
+  assert.match(html, /aria-pressed="false"[^>]*>Community \(1\)<\/button>/);
+  assert.doesNotMatch(html, /role="tablist"|role="tab"|aria-selected=/);
+  assert.match(html, /<button[^>]*aria-label="Switch to Community Side Quests"/);
 });
 
 test("multiplayer creator rejects malformed fields", () => {

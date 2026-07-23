@@ -100,7 +100,8 @@ test("multiplayer create form opens with the exact canonical community quest pre
   );
 
   assert.match(html, />Community \(11\)<\/button>/);
-  assert.match(html, /aria-selected="true"[^>]*>Community \(11\)<\/button>/);
+  assert.match(html, /aria-pressed="true"[^>]*>Community \(11\)<\/button>/);
+  assert.doesNotMatch(html, /role="tablist"|role="tab"|aria-selected=/);
   assert.match(html, /aria-pressed="false"[^>]*>Browse<\/button>/);
   assert.match(html, /aria-pressed="true"[^>]*>Selected \(1\)<\/button>/);
   assert.match(html, />1\/4 selected<\/h2>/);
