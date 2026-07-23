@@ -4190,6 +4190,15 @@ body::after {
   gap: 3px;
 }
 
+.sqc-create-selection-head > div {
+  flex: 1;
+  gap: 2px;
+}
+
+.sqc-create-selected-copy {
+  gap: 1px;
+}
+
 .sqc-create-selection-head small,
 .sqc-create-selected-copy small {
   color: var(--muted);
@@ -4197,51 +4206,127 @@ body::after {
   font-weight: 800;
 }
 
+.sqc-create-selection-head > div > small {
+  color: var(--green);
+  font-weight: 900;
+  line-height: 14px;
+  letter-spacing: .7px;
+  text-transform: uppercase;
+}
+
+.sqc-create-selected-card .sqc-create-selection-head h2 {
+  font-size: 18px;
+  font-weight: 900;
+  line-height: 22px;
+  letter-spacing: -.4px;
+  text-align: center;
+}
+
+.sqc-create-selection-head > .sqc-detail-quiet-button {
+  min-height: 32px;
+  padding-inline: 10px;
+  border: 1px solid rgba(255, 247, 232, .13);
+  border-radius: 999px;
+  background: rgba(255, 247, 232, .08);
+  color: var(--paper);
+  font-weight: 900;
+  line-height: 15px;
+}
+
 .sqc-create-selected-tray {
   display: grid;
-  gap: 7px;
+  gap: 6px;
+  padding: 8px;
+  border: 1px solid rgba(255, 247, 232, .1);
+  border-radius: 17px;
+  background: rgba(0, 0, 0, .18);
 }
 
 .sqc-create-selected-row {
   width: 100%;
-  min-height: 48px;
+  min-height: 46px;
   display: grid;
-  grid-template-columns: 28px minmax(0, 1fr) 28px;
+  grid-template-columns: 20px minmax(0, 1fr) 26px;
   align-items: center;
-  gap: 9px;
-  padding: 8px;
-  border: 1px solid rgba(255, 247, 232, .12);
+  gap: 8px;
+  padding: 7px 9px;
+  border: 1px solid rgba(245, 200, 106, .24);
   border-radius: 14px;
-  background: rgba(0, 0, 0, .18);
+  background: rgba(245, 200, 106, .12);
   color: var(--paper);
   font: inherit;
   text-align: left;
   cursor: pointer;
 }
 
-.sqc-create-selected-index,
-.sqc-create-selected-remove {
-  width: 28px;
-  height: 28px;
+.sqc-create-selected-index {
+  width: 20px;
+  height: 20px;
   display: grid;
   place-items: center;
-  border-radius: 999px;
-  background: rgba(255, 247, 232, .08);
-  color: var(--muted);
-  font-size: 12px;
+  overflow: hidden;
+  border-radius: 10px;
+  background: var(--gold);
+  color: #111;
+  font-size: 11px;
+  font-weight: 900;
+}
+
+.sqc-create-selected-remove {
+  width: 26px;
+  height: 26px;
+  display: grid;
+  place-items: center;
+  border-radius: 13px;
+  background: rgba(0, 0, 0, .18);
+  color: rgba(255, 247, 232, .72);
+  font-size: 14px;
   font-weight: 900;
 }
 
 .sqc-create-selected-copy strong {
+  color: var(--paper);
+  font-size: 12px;
+  font-weight: 900;
+  line-height: 15px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .sqc-create-selected-copy small {
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 900;
+  line-height: 13px;
+  letter-spacing: .45px;
+  text-transform: uppercase;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.sqc-create-selected-tray .sqc-selection-empty {
+  grid-template-columns: minmax(0, 1fr);
+  align-items: center;
+  gap: 3px;
+  padding: 5px 8px;
+  border: 0;
+  background: transparent;
+  text-align: center;
+}
+
+.sqc-create-selected-tray .sqc-selection-empty strong {
+  font-size: 13px;
+  font-weight: 900;
+  line-height: 17px;
+}
+
+.sqc-create-selected-tray .sqc-selection-empty span {
+  grid-column: 1;
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 16px;
 }
 
 .sqc-selection-empty {

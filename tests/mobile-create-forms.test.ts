@@ -98,8 +98,25 @@ test("Multiplayer create keeps Android's selected draft tray separate from catal
   assert.match(html, /<section class="sqc-native-card sqc-create-catalog-card">[\s\S]*<span class="sqc-card-eyebrow">Add from catalog<\/span>[\s\S]*<h2>Browse like Community Side Quests\.<\/h2>/);
 
   const css = await source("src/app/mobile-web.css");
-  assert.match(css, /\.sqc-create-selected-row\s*\{[^}]*grid-template-columns:\s*28px\s+minmax\(0,\s*1fr\)\s+28px;/);
-  assert.match(css, /\.sqc-create-selected-copy\s+small\s*\{[^}]*overflow:\s*hidden;[^}]*text-overflow:\s*ellipsis;[^}]*white-space:\s*nowrap;/);
+  assert.match(css, /\.sqc-create-selected-tray\s*\{[^}]*gap:\s*6px;[^}]*padding:\s*8px;[^}]*border:[^;]+rgba\(255,\s*247,\s*232,\s*\.1\);[^}]*border-radius:\s*17px;[^}]*background:\s*rgba\(0,\s*0,\s*0,\s*\.18\);/);
+  assert.match(css, /\.sqc-create-selected-row\s*\{[^}]*min-height:\s*46px;[^}]*grid-template-columns:\s*20px\s+minmax\(0,\s*1fr\)\s+26px;[^}]*border:[^;]+rgba\(245,\s*200,\s*106,\s*\.24\);[^}]*background:\s*rgba\(245,\s*200,\s*106,\s*\.12\);/);
+  assert.match(css, /\.sqc-create-selected-index\s*\{[^}]*width:\s*20px;[^}]*height:\s*20px;[^}]*background:\s*var\(--gold\);[^}]*color:\s*#111;/);
+  assert.match(css, /\.sqc-create-selection-head\s*>\s*div\s*\{[^}]*flex:\s*1;[^}]*gap:\s*2px;/);
+  assert.match(css, /\.sqc-create-selection-head\s*>\s*div\s*>\s*small\s*\{[^}]*color:\s*var\(--green\);[^}]*line-height:\s*14px;[^}]*text-transform:\s*uppercase;/);
+  assert.match(css, /\.sqc-create-selection-head\s*>\s*\.sqc-detail-quiet-button\s*\{[^}]*min-height:\s*32px;[^}]*line-height:\s*15px;/);
+  assert.match(css, /\.sqc-create-selected-copy\s*\{[^}]*gap:\s*1px;/);
+  assert.match(css, /\.sqc-create-selected-copy\s+strong\s*\{[^}]*color:\s*var\(--paper\);[^}]*font-size:\s*12px;[^}]*font-weight:\s*900;[^}]*line-height:\s*15px;[^}]*overflow:\s*hidden;[^}]*text-overflow:\s*ellipsis;[^}]*white-space:\s*nowrap;/);
+  assert.match(css, /\.sqc-create-selected-copy\s+small\s*\{[^}]*color:\s*var\(--muted\);[^}]*font-size:\s*10px;[^}]*font-weight:\s*900;[^}]*line-height:\s*13px;[^}]*letter-spacing:\s*\.45px;[^}]*text-transform:\s*uppercase;[^}]*overflow:\s*hidden;[^}]*text-overflow:\s*ellipsis;[^}]*white-space:\s*nowrap;/);
+  assert.match(css, /\.sqc-create-multiplayer-screen\s+\.sqc-native-card\s*\{[^}]*gap:\s*8px;[^}]*padding:\s*11px;[^}]*border-color:\s*rgba\(255,\s*247,\s*232,\s*\.14\);[^}]*border-radius:\s*19px;[^}]*background:\s*rgba\(255,\s*247,\s*232,\s*\.085\);/);
+  assert.match(css, /\.sqc-create-selected-card\s+\.sqc-create-selection-head\s+h2\s*\{[^}]*font-size:\s*18px;[^}]*font-weight:\s*900;[^}]*line-height:\s*22px;[^}]*letter-spacing:\s*-\.4px;[^}]*text-align:\s*center;/);
+  assert.match(css, /\.sqc-create-selected-tray\s+\.sqc-selection-empty\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\);[^}]*align-items:\s*center;[^}]*gap:\s*3px;[^}]*padding:\s*5px\s+8px;[^}]*border:\s*0;[^}]*background:\s*transparent;[^}]*text-align:\s*center;/);
+  assert.match(css, /\.sqc-create-selected-tray\s+\.sqc-selection-empty\s+strong\s*\{[^}]*font-size:\s*13px;[^}]*font-weight:\s*900;[^}]*line-height:\s*17px;/);
+  assert.match(css, /\.sqc-create-selected-tray\s+\.sqc-selection-empty\s+span\s*\{[^}]*grid-column:\s*1;[^}]*font-size:\s*12px;[^}]*font-weight:\s*800;[^}]*line-height:\s*16px;/);
+  assert.match(css, /\.sqc-create-selected-remove\s*\{[^}]*width:\s*26px;[^}]*height:\s*26px;[^}]*background:\s*rgba\(0,\s*0,\s*0,\s*\.18\);[^}]*color:\s*rgba\(255,\s*247,\s*232,\s*\.72\);/);
+
+  const formSource = await source("src/components/mobile-multiplayer-create-form.tsx");
+  assert.match(formSource, /Maximum of 4 Side Quests reached; remove one before adding/);
+  assert.doesNotMatch(formSource, /Maximum reached for/);
 });
 
 test("signed-out custom drafts are stored locally without account identity", () => {
