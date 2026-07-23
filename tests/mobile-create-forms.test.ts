@@ -74,6 +74,34 @@ test("Multiplayer advanced controls retain native dark form styling", async () =
   assert.doesNotMatch(css, /\.sqc-create-multiplayer-screen details select\s*\{/);
 });
 
+test("Multiplayer create keeps Android's selected draft tray separate from catalog browsing", async () => {
+  const html = renderToStaticMarkup(React.createElement(MobileMultiplayerCreateForm, {
+    signedIn: false,
+    stableNow: "2026-07-23T12:00:00.000Z",
+    initialQuestId: "owned-custom",
+    quests: [{
+      id: "owned-custom",
+      title: "Queenless Cup",
+      summary: "Win after losing your queen.",
+      source: "custom",
+      sourceLabel: "My published Side Quest",
+    }],
+  }));
+
+  assert.match(html, /<section class="sqc-native-card sqc-create-selected-card">/);
+  assert.match(html, /<span class="sqc-card-eyebrow">Included Side Quests<\/span>/);
+  assert.match(html, /<h2>Your Multiplayer draft<\/h2>/);
+  assert.match(html, />1\/4 Side Quests selected</);
+  assert.match(html, /aria-label="Clear selected Side Quests"[^>]*>Clear<\/button>/);
+  assert.match(html, /aria-label="Remove Queenless Cup from Multiplayer Side Quest"/);
+  assert.match(html, /<span class="sqc-create-selected-index">1<\/span>[\s\S]*Queenless Cup[\s\S]*My published Side Quest/);
+  assert.match(html, /<section class="sqc-native-card sqc-create-catalog-card">[\s\S]*<span class="sqc-card-eyebrow">Add from catalog<\/span>[\s\S]*<h2>Browse like Community Side Quests\.<\/h2>/);
+
+  const css = await source("src/app/mobile-web.css");
+  assert.match(css, /\.sqc-create-selected-row\s*\{[^}]*grid-template-columns:\s*28px\s+minmax\(0,\s*1fr\)\s+28px;/);
+  assert.match(css, /\.sqc-create-selected-copy\s+small\s*\{[^}]*overflow:\s*hidden;[^}]*text-overflow:\s*ellipsis;[^}]*white-space:\s*nowrap;/);
+});
+
 test("signed-out custom drafts are stored locally without account identity", () => {
   const values = new Map<string, string>();
   const storage = {

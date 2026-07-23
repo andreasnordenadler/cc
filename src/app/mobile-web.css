@@ -4183,6 +4183,67 @@ body::after {
   gap: 10px;
 }
 
+.sqc-create-selection-head > div,
+.sqc-create-selected-copy {
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+}
+
+.sqc-create-selection-head small,
+.sqc-create-selected-copy small {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.sqc-create-selected-tray {
+  display: grid;
+  gap: 7px;
+}
+
+.sqc-create-selected-row {
+  width: 100%;
+  min-height: 48px;
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr) 28px;
+  align-items: center;
+  gap: 9px;
+  padding: 8px;
+  border: 1px solid rgba(255, 247, 232, .12);
+  border-radius: 14px;
+  background: rgba(0, 0, 0, .18);
+  color: var(--paper);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.sqc-create-selected-index,
+.sqc-create-selected-remove {
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background: rgba(255, 247, 232, .08);
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.sqc-create-selected-copy strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sqc-create-selected-copy small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .sqc-selection-empty {
   display: grid;
   gap: 5px;
