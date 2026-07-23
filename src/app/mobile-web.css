@@ -3914,6 +3914,14 @@ body::after {
   text-align: left;
 }
 
+.sqc-create-custom-screen .sqc-option-card-copy {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.sqc-create-custom-screen .sqc-option-card-copy > small {
+  grid-column: 1;
+}
+
 .sqc-option-card-copy > .sqc-option-source,
 .sqc-option-card-copy > .sqc-option-summary {
   grid-column: 1 / -1;

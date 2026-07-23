@@ -1069,3 +1069,10 @@ test("mobile create screens use executable forms and never submit identity field
   assert.match(css, /\.sqc-custom-builder-card select\s*\{[\s\S]*?background:\s*rgba\(13, 11, 14, \.92\)[\s\S]*?color:\s*var\(--paper\)/);
   assert.match(css, /\.sqc-mobile-web\.signed-out \.sqc-local-custom-draft-row \.sqc-row-status\s*\{[\s\S]*?color:\s*var\(--gold\)/);
 });
+
+test("custom piece choices stack helper copy without overlapping labels at mobile width", async () => {
+  const css = await source("src/app/mobile-web.css");
+
+  assert.match(css, /\.sqc-create-custom-screen \.sqc-option-card-copy\s*\{[\s\S]*?grid-template-columns:\s*minmax\(0, 1fr\)/);
+  assert.match(css, /\.sqc-create-custom-screen \.sqc-option-card-copy > small\s*\{[\s\S]*?grid-column:\s*1/);
+});
