@@ -4,7 +4,23 @@ import { useState } from "react";
 import MobileAppWebShell, { GuestHome } from "@/components/mobile-app-web-shell";
 import { CHALLENGES } from "@/lib/challenges";
 
-const savedOfficialChallenges = CHALLENGES.slice(0, 6);
+const androidV338OfflineChallengeIds = [
+  "finish-any-game",
+  "knights-before-coffee",
+  "bishop-field-trip",
+  "queen-never-heard-of-her",
+  "knightmare-mode",
+] as const;
+
+export function getSavedOfficialChallenges() {
+  const challengesById = new Map(CHALLENGES.map((challenge) => [challenge.id, challenge]));
+  return androidV338OfflineChallengeIds.flatMap((id) => {
+    const challenge = challengesById.get(id);
+    return challenge ? [challenge] : [];
+  });
+}
+
+const savedOfficialChallenges = getSavedOfficialChallenges();
 type OfflineView = "home" | "solo";
 type OfflineState = { view: OfflineView; message: string | null };
 type OfflineEvent = "browse-solo" | "back" | "multiplayer" | "sign-in";

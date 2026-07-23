@@ -3,8 +3,7 @@ import test from "node:test";
 import { readFile } from "node:fs/promises";
 import { renderToStaticMarkup } from "react-dom/server";
 
-import ErrorScreen, { reduceOfflineState, reduceOfflineView } from "../src/app/error";
-import { CHALLENGES } from "../src/lib/challenges";
+import ErrorScreen, { getSavedOfficialChallenges, reduceOfflineState, reduceOfflineView } from "../src/app/error";
 
 test("route failures open on Android's compact offline Home before the saved board", () => {
   let retries = 0;
@@ -31,11 +30,20 @@ test("route failures open on Android's compact offline Home before the saved boa
   assert.equal(retries, 1);
 });
 
-test("offline Home opens and closes the bundled Solo board locally", () => {
+test("offline Home opens Android v338's exact five bundled Solo quests and closes locally", () => {
   assert.equal(reduceOfflineView("home", "browse-solo"), "solo");
   assert.equal(reduceOfflineView("solo", "back"), "home");
   assert.equal(reduceOfflineView("home", "back"), "home");
-  assert.equal(CHALLENGES.slice(0, 6).length, 6);
+  assert.deepEqual(
+    getSavedOfficialChallenges().map((challenge) => challenge.id),
+    [
+      "finish-any-game",
+      "knights-before-coffee",
+      "bishop-field-trip",
+      "queen-never-heard-of-her",
+      "knightmare-mode",
+    ],
+  );
 });
 
 test("opening the saved board clears stale offline action guidance", () => {
