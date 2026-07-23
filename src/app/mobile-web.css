@@ -3882,6 +3882,20 @@ body::after {
   color-scheme: dark;
 }
 
+.sqc-create-multiplayer-screen details select {
+  width: 100%;
+  min-height: 38px;
+  border: 1px solid rgba(255, 247, 232, .16);
+  border-radius: 12px;
+  background: rgba(6, 5, 7, .72);
+  color: var(--paper);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 850;
+  padding: 8px 10px;
+  color-scheme: dark;
+}
+
 .sqc-create-multiplayer-screen .sqc-native-card {
   gap: 8px;
   padding: 11px;

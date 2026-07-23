@@ -61,7 +61,15 @@ test("Multiplayer create matches Android option cards and quick-duration guidanc
   assert.match(html, /<span class="sqc-form-label">Quick duration<\/span>/);
   assert.match(html, /aria-label="Quick duration"/);
   assert.match(html, />Dates save as your local time\. Start defaults to shortly after creation; no typing needed\.</);
+  assert.match(html, /<span>Time control<\/span><select[^>]*>[\s\S]*<option[^>]*>Any time control<\/option>[\s\S]*<option[^>]*>Bullet<\/option>[\s\S]*<option[^>]*>Blitz<\/option>[\s\S]*<option[^>]*>Rapid<\/option>[\s\S]*<option[^>]*>Classical<\/option>[\s\S]*<\/select>/);
+  assert.doesNotMatch(html, /Rapid 10\+0|Blitz 5\+0/);
   assert.doesNotMatch(html, /<span>Access<\/span><select|<span>Games allowed<\/span><select/);
+});
+
+test("Multiplayer advanced controls retain native dark form styling", async () => {
+  const css = await source("src/app/mobile-web.css");
+
+  assert.match(css, /\.sqc-create-multiplayer-screen details select\s*\{[\s\S]*width:\s*100%;[\s\S]*min-height:\s*38px;[\s\S]*border:[^;]+;[\s\S]*border-radius:[^;]+;[\s\S]*background:\s*rgba\(6, 5, 7, \.72\);[\s\S]*color:\s*var\(--paper\);[\s\S]*font:\s*inherit;/);
 });
 
 test("signed-out custom drafts are stored locally without account identity", () => {
