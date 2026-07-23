@@ -18,6 +18,35 @@ const providerChoices = [
   { id: "chesscom", title: "Chess.com", helper: "Only public Chess.com games" },
 ] as const;
 
+const advancedRuleChoices = {
+  timeControl: {
+    label: "Time control",
+    options: [
+      { value: "Any time control", title: "Any", helper: "Bullet, blitz, rapid, or classical" },
+      { value: "Bullet", title: "Bullet", helper: "Bullet games only" },
+      { value: "Blitz", title: "Blitz", helper: "Blitz games only" },
+      { value: "Rapid", title: "Rapid", helper: "Rapid games only" },
+      { value: "Classical", title: "Classical", helper: "Classical games only" },
+    ],
+  },
+  rated: {
+    label: "Rated setting",
+    options: [
+      { value: "Any rated state", title: "Any", helper: "Rated or casual games count" },
+      { value: "Rated only", title: "Rated", helper: "Only rated games count" },
+      { value: "Casual only", title: "Casual", helper: "Only casual games count" },
+    ],
+  },
+  color: {
+    label: "Player color",
+    options: [
+      { value: "Any color", title: "Any side", helper: "Games as White or Black count" },
+      { value: "White only", title: "Play as White", helper: "Only games where you have the white pieces count" },
+      { value: "Black only", title: "Play as Black", helper: "Only games where you have the black pieces count" },
+    ],
+  },
+} as const;
+
 const subscribeToHydration = () => () => undefined;
 
 function localDateTime(date: Date) { const shifted = new Date(date.getTime() - date.getTimezoneOffset() * 60_000); return shifted.toISOString().slice(0, 16); }
@@ -29,7 +58,7 @@ export default function MobileMultiplayerCreateForm({ signedIn, quests, stableNo
   const [providerMode, setProviderMode] = useState("both"); const [startAt, setStartAt] = useState(""); const [endAt, setEndAt] = useState("");
   const [selected, setSelected] = useState<string[]>(initialQuest ? [initialQuest.id] : []); const [search, setSearch] = useState("");
   const [source, setSource] = useState<MultiplayerCreateQuestSource>(initialQuest?.source === "official" ? "official" : initialQuest ? "community" : "official"); const [selectedOnly, setSelectedOnly] = useState(Boolean(initialQuest)); const [questLimit, setQuestLimit] = useState(8); const [selectionError, setSelectionError] = useState("");
-  const [timeControl, setTimeControl] = useState("Any time control"); const [rated, setRated] = useState("Any rated state"); const [color, setColor] = useState("Any color");
+  const [timeControl, setTimeControl] = useState("Any time control"); const [rated, setRated] = useState("Any rated state"); const [color, setColor] = useState("Any color"); const [advancedOpen, setAdvancedOpen] = useState(false);
   const [saving, setSaving] = useState(false); const [error, setError] = useState("");
   const hydrated = useSyncExternalStore(subscribeToHydration, () => true, () => false);
   useEffect(() => {
@@ -69,7 +98,12 @@ export default function MobileMultiplayerCreateForm({ signedIn, quests, stableNo
       <span className="sqc-form-label">Quick duration</span>
       <div className="sqc-filter-row" role="group" aria-label="Quick duration">{[[1,"24h"],[3,"3 days"],[7,"1 week"],[14,"2 weeks"]].map(([days,label]) => <button key={label} onClick={() => duration(Number(days))} type="button">{label}</button>)}</div>
       <small>Dates save as your local time. Start defaults to shortly after creation; no typing needed.</small>
-      <details><summary>Advanced: time, rated, color</summary><label className="sqc-form-row"><span>Time control</span><select onChange={(e) => setTimeControl(e.target.value)} value={timeControl}><option>Any time control</option><option>Bullet</option><option>Blitz</option><option>Rapid</option><option>Classical</option></select></label><label className="sqc-form-row"><span>Rated</span><select onChange={(e) => setRated(e.target.value)} value={rated}><option>Any rated state</option><option>Rated only</option><option>Casual only</option></select></label><label className="sqc-form-row"><span>Color</span><select onChange={(e) => setColor(e.target.value)} value={color}><option>Any color</option><option>White only</option><option>Black only</option></select></label></details>
+      <div className="sqc-advanced-settings" hidden={!advancedOpen} id="multiplayer-advanced-settings">{Object.entries(advancedRuleChoices).map(([id, rule]) => {
+        const value = id === "timeControl" ? timeControl : id === "rated" ? rated : color;
+        const select = id === "timeControl" ? setTimeControl : id === "rated" ? setRated : setColor;
+        return <div className="sqc-advanced-rule" key={id}><span className="sqc-form-label">{rule.label}</span><div className="sqc-option-grid" role="group" aria-label={rule.label}>{rule.options.map((option) => <button aria-label={`${option.value}: ${option.helper}`} aria-pressed={value === option.value} className={`sqc-option-card${value === option.value ? " selected" : ""}`} key={option.value} onClick={() => select(option.value)} type="button"><span aria-hidden="true" /><div className="sqc-option-card-copy"><strong>{option.title}</strong><small>{option.helper}</small></div></button>)}</div></div>;
+      })}</div>
+      <button aria-controls="multiplayer-advanced-settings" aria-expanded={advancedOpen} aria-label="Toggle advanced Multiplayer game settings" className="sqc-detail-quiet-button sqc-advanced-toggle" onClick={() => setAdvancedOpen((current) => !current)} type="button">{advancedOpen ? "Hide advanced settings" : "Advanced: time, rated, color"}</button>
     </div></section>
     <section className="sqc-native-card sqc-create-selected-card">
       <span className="sqc-card-eyebrow">Included Side Quests</span>

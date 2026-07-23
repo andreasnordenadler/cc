@@ -62,7 +62,8 @@ test("Multiplayer create matches Android option cards and quick-duration guidanc
   assert.match(html, /<span class="sqc-form-label">Quick duration<\/span>/);
   assert.match(html, /aria-label="Quick duration"/);
   assert.match(html, />Dates save as your local time\. Start defaults to shortly after creation; no typing needed\.</);
-  assert.match(html, /<span>Time control<\/span><select[^>]*>[\s\S]*<option[^>]*>Any time control<\/option>[\s\S]*<option[^>]*>Bullet<\/option>[\s\S]*<option[^>]*>Blitz<\/option>[\s\S]*<option[^>]*>Rapid<\/option>[\s\S]*<option[^>]*>Classical<\/option>[\s\S]*<\/select>/);
+  assert.match(html, /aria-label="Toggle advanced Multiplayer game settings"[^>]*>Advanced: time, rated, color<\/button>/);
+  assert.doesNotMatch(html, /<select/);
   assert.doesNotMatch(html, /Rapid 10\+0|Blitz 5\+0/);
   assert.doesNotMatch(html, /<span>Access<\/span><select|<span>Games allowed<\/span><select/);
 });
@@ -79,11 +80,14 @@ test("Multiplayer create blocks pre-hydration interactions instead of silently l
   assert.match(html, /aria-label="Switch to Community Side Quests"/);
 });
 
-test("Multiplayer advanced controls retain native dark form styling", async () => {
+test("Multiplayer advanced controls use the shared Android option-card geometry", async () => {
   const css = await source("src/app/mobile-web.css");
 
-  assert.match(css, /\.sqc-multiplayer-create-form details select\s*\{[\s\S]*width:\s*100%;[\s\S]*min-height:\s*38px;[\s\S]*border:[^;]+;[\s\S]*border-radius:[^;]+;[\s\S]*background:\s*rgba\(6, 5, 7, \.72\);[\s\S]*color:\s*var\(--paper\);[\s\S]*font:\s*inherit;/);
-  assert.doesNotMatch(css, /\.sqc-create-multiplayer-screen details select\s*\{/);
+  assert.match(css, /\.sqc-create-multiplayer-screen \.sqc-advanced-settings\s*\{[^}]*display:\s*grid;[^}]*gap:\s*12px;/);
+  assert.match(css, /\.sqc-create-multiplayer-screen \.sqc-advanced-rule\s*\{[^}]*display:\s*grid;[^}]*gap:\s*8px;/);
+  assert.match(css, /\.sqc-create-multiplayer-screen \.sqc-advanced-toggle\s*\{[^}]*width:\s*100%;/);
+  assert.match(css, /\.sqc-create-multiplayer-screen \.sqc-option-card\.selected\s*\{[^}]*border-color:\s*rgba\(245, 200, 106, \.48\);[^}]*background:\s*rgba\(245, 200, 106, \.13\);/);
+  assert.doesNotMatch(css, /\.sqc-multiplayer-create-form details select\s*\{/);
 });
 
 test("Multiplayer create keeps Android's selected draft tray separate from catalog browsing", async () => {

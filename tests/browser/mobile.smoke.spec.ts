@@ -158,6 +158,41 @@ test("Multiplayer create waits for hydration before accepting the first picker a
   expect(await noHorizontalOverflow(page)).toBe(true);
 });
 
+test("Multiplayer advanced rules use the Android option-card interaction", async ({ page }) => {
+  const response = await page.goto("/create-multiplayer-side-quest", { waitUntil: "domcontentloaded" });
+  expect(response?.status()).toBeLessThan(400);
+
+  const toggle = page.getByRole("button", { name: "Toggle advanced Multiplayer game settings" });
+  await expect(toggle).toHaveText("Advanced: time, rated, color");
+  await expect(toggle).toHaveAttribute("aria-expanded", "false");
+  await toggle.click();
+
+  const advancedSettings = page.locator("#multiplayer-advanced-settings");
+  const timeControl = advancedSettings.getByRole("group", { name: "Time control" });
+  await expect(toggle).toHaveAttribute("aria-controls", "multiplayer-advanced-settings");
+  await expect(toggle).toHaveAttribute("aria-expanded", "true");
+  await expect(timeControl.getByRole("button", { name: /^Any time control/ })).toHaveAttribute("aria-pressed", "true");
+  await timeControl.getByRole("button", { name: /^Blitz/ }).click();
+  await expect(timeControl.getByRole("button", { name: /^Blitz/ })).toHaveAttribute("aria-pressed", "true");
+  await expect(advancedSettings.getByRole("group", { name: "Rated setting" }).getByRole("button")).toHaveCount(3);
+  await expect(advancedSettings.getByRole("group", { name: "Player color" }).getByRole("button")).toHaveCount(3);
+  await expect(page.locator(".sqc-multiplayer-create-form select")).toHaveCount(0);
+  await expect(toggle).toHaveText("Hide advanced settings");
+  await toggle.click();
+  await expect(toggle).toHaveAttribute("aria-expanded", "false");
+  await expect(advancedSettings).toHaveCount(1);
+  await expect(advancedSettings).toHaveAttribute("hidden", "");
+  await expect(advancedSettings).toBeHidden();
+  const controlledId = await toggle.getAttribute("aria-controls");
+  expect(controlledId).toBe("multiplayer-advanced-settings");
+  await expect(page.locator(`#${controlledId}`)).toHaveCount(1);
+  await toggle.click();
+  await expect(toggle).toHaveAttribute("aria-expanded", "true");
+  await expect(advancedSettings).toBeVisible();
+  await expect(timeControl.getByRole("button", { name: /^Blitz/ })).toHaveAttribute("aria-pressed", "true");
+  expect(await noHorizontalOverflow(page)).toBe(true);
+});
+
 test("custom builder describes exact Android piece selector semantics", async ({ page }) => {
   const response = await page.goto("/create-custom-side-quest", { waitUntil: "domcontentloaded" });
   expect(response?.status()).toBeLessThan(400);
