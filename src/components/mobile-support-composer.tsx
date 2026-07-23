@@ -16,12 +16,14 @@ export function MobileSupportComposer({
   signedIn,
   initialMessages,
   accountContext,
+  initialMessage = "",
 }: {
   signedIn: boolean;
   initialMessages: MobileWebSupportMessage[];
   accountContext: WebSupportAccountContext | null;
+  initialMessage?: string;
 }) {
-  const [message, setMessage] = useState("");
+  const [message, setMessage] = useState(initialMessage);
   const [messages, setMessages] = useState(initialMessages);
   const [state, setState] = useState<{ busy: boolean; message: string | null; error: string | null }>({
     busy: false,

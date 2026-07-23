@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { validateCommunitySoloReport } from "@/lib/mobile-web-parity-actions";
 
-export default function CommunitySoloSocialActions({ questId, title, signedIn, initialCount, initiallyLiked }: { questId: string; title: string; signedIn: boolean; initialCount: number; initiallyLiked: boolean }) {
+export default function CommunitySoloSocialActions({ questId, title, creatorName, signedIn, initialCount, initiallyLiked }: { questId: string; title: string; creatorName: string; signedIn: boolean; initialCount: number; initiallyLiked: boolean }) {
   const [liked, setLiked] = useState(initiallyLiked);
   const [count, setCount] = useState(initialCount);
   const [likeBusy, setLikeBusy] = useState(false);
@@ -13,7 +13,13 @@ export default function CommunitySoloSocialActions({ questId, title, signedIn, i
   const [status, setStatus] = useState("");
   const returnTo = `/challenges/community/${encodeURIComponent(questId)}`;
 
-  if (!signedIn) return <div className="sqc-community-detail-actions"><Link className="sqc-detail-secondary-button" href={`/sign-in?redirect_url=${encodeURIComponent(returnTo)}`}>Sign in to like or report</Link></div>;
+  if (!signedIn) {
+    const reportParams = new URLSearchParams({ report: "community-solo", questId, title, creator: creatorName });
+    return <div className="sqc-community-detail-actions">
+      <Link className="sqc-detail-secondary-button" href={`/sign-in?redirect_url=${encodeURIComponent(returnTo)}`}>Sign in to like</Link>
+      <Link className="sqc-detail-secondary-button" href={`/support?${reportParams.toString()}`}>Report this Side Quest</Link>
+    </div>;
+  }
 
   async function toggleLike() {
     if (likeBusy) return;

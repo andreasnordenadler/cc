@@ -4,8 +4,78 @@ import test from "node:test";
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { MobileSupportScreen } from "../src/components/mobile-app-web-shell";
-import { buildWebSupportAccountContext, buildWebSupportDiagnostics, loadWebSupportGroupQuestContext } from "../src/lib/web-support-diagnostics";
+import { buildCommunitySoloReportContext, buildWebSupportAccountContext, buildWebSupportDiagnostics, loadWebSupportGroupQuestContext } from "../src/lib/web-support-diagnostics";
 import { buildGroupQuest } from "../src/lib/groupquests";
+
+test("Community Solo support handoff accepts only bounded public display context", () => {
+  assert.deepEqual(buildCommunitySoloReportContext({
+    report: "community-solo",
+    questId: "quest/42",
+    title: "Ada's   Fork & Pin",
+    creator: "Ada & Lin",
+  }), {
+    type: "community-solo",
+    questId: "quest/42",
+    title: "Ada's   Fork & Pin",
+    creatorName: "Ada & Lin",
+    initialMessage: "Report Community Solo Side Quest\nTitle: Ada's   Fork & Pin\nID: quest/42\nCreator: Ada & Lin\nIssue: ",
+    returnPath: "/support?report=community-solo&questId=quest%2F42&title=Ada%27s+++Fork+%26+Pin&creator=Ada+%26+Lin",
+  });
+  assert.equal(buildCommunitySoloReportContext({ report: "multiplayer", questId: "quest/42", title: "Fork", creator: "Ada" }), null);
+  assert.equal(buildCommunitySoloReportContext({ report: "community-solo", questId: "", title: "Fork", creator: "Ada" }), null);
+  assert.equal(buildCommunitySoloReportContext({ report: "community-solo", questId: ["quest/42"], title: "Fork", creator: "Ada" }), null);
+  assert.equal(buildCommunitySoloReportContext({ report: "community-solo", questId: "q".repeat(161), title: "Fork", creator: "Ada" }), null);
+  assert.equal(buildCommunitySoloReportContext({ report: "community-solo", questId: "quest/42", title: "x".repeat(161), creator: "Ada" }), null);
+});
+
+test("support route normalizes report search parameters and passes them into the production screen", () => {
+  const source = readFileSync(new URL("../src/app/support/page.tsx", import.meta.url), "utf8");
+
+  assert.match(source, /SupportPage\(\{\s*searchParams,\s*\}/);
+  assert.match(source, /buildCommunitySoloReportContext\(await searchParams\)/);
+  assert.match(source, /reportContext=\{reportContext\}/);
+});
+
+test("support composer remounts when the exact report context changes", () => {
+  const source = readFileSync(new URL("../src/components/mobile-app-web-shell.tsx", import.meta.url), "utf8");
+
+  assert.match(source, /<MobileSupportComposer\s+key=\{reportContext\?\.returnPath \?\? "support"\}/);
+});
+
+test("signed-in support prefills the exact Community Solo report for account-attached submission", () => {
+  const html = renderToStaticMarkup(React.createElement(MobileSupportScreen, {
+    signedIn: true,
+    reportContext: buildCommunitySoloReportContext({
+      report: "community-solo",
+      questId: "quest/42",
+      title: "Ada's Fork",
+      creator: "Ada",
+    }),
+  }));
+
+  assert.match(html, /<textarea[^>]*>Report Community Solo Side Quest\nTitle: Ada&#x27;s Fork\nID: quest\/42\nCreator: Ada\nIssue: <\/textarea>/);
+  assert.match(html, />Send support message<\/button>/);
+});
+
+test("signed-out support renders the bounded Community Solo report context before sign-in", () => {
+  const html = renderToStaticMarkup(React.createElement(MobileSupportScreen, {
+    signedIn: false,
+    reportContext: {
+      type: "community-solo",
+      questId: "quest/42",
+      title: "Ada's Fork & Pin",
+      creatorName: "Ada & Lin",
+      initialMessage: "Report Community Solo Side Quest\nTitle: Ada's Fork & Pin\nID: quest/42\nCreator: Ada & Lin\nIssue: ",
+      returnPath: "/support?report=community-solo&questId=quest%2F42&title=Ada%27s+Fork+%26+Pin&creator=Ada+%26+Lin",
+    },
+  }));
+
+  assert.match(html, /Report Community Solo Side Quest/);
+  assert.match(html, /Ada&#x27;s Fork &amp; Pin/);
+  assert.match(html, /quest\/42/);
+  assert.match(html, /Ada &amp; Lin/);
+  assert.match(html, /href="\/sign-in\?redirect_url=%2Fsupport%3Freport%3Dcommunity-solo%26questId%3Dquest%252F42%26title%3DAda%2527s%2BFork%2B%2526%2BPin%26creator%3DAda%2B%2526%2BLin"/);
+});
 
 test("signed-out support keeps Android v338 copy diagnostics action reachable", () => {
   const html = renderToStaticMarkup(React.createElement(MobileSupportScreen, { signedIn: false }));

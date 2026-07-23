@@ -17,6 +17,40 @@ export type WebSupportDiagnosticsInput = {
   account: WebSupportAccountContext | null;
 };
 
+export type CommunitySoloReportContext = {
+  type: "community-solo";
+  questId: string;
+  title: string;
+  creatorName: string;
+  initialMessage: string;
+  returnPath: string;
+};
+
+export function buildCommunitySoloReportContext(input: Record<string, string | string[] | undefined>): CommunitySoloReportContext | null {
+  if (input.report !== "community-solo") return null;
+  const questId = readExactReportField(input.questId, 160);
+  const title = readExactReportField(input.title, 160);
+  const creatorName = readExactReportField(input.creator, 100);
+  if (!questId || !title || !creatorName) return null;
+  if (!/^[A-Za-z0-9][A-Za-z0-9._~:/-]{0,159}$/.test(questId)) return null;
+
+  const query = new URLSearchParams({ report: "community-solo", questId, title, creator: creatorName });
+  return {
+    type: "community-solo",
+    questId,
+    title,
+    creatorName,
+    initialMessage: `Report Community Solo Side Quest\nTitle: ${title}\nID: ${questId}\nCreator: ${creatorName}\nIssue: `,
+    returnPath: `/support?${query.toString()}`,
+  };
+}
+
+function readExactReportField(value: string | string[] | undefined, limit: number) {
+  if (typeof value !== "string") return "";
+  if (!value.length || value.length > limit || /[\u0000-\u001f\u007f]/.test(value)) return "";
+  return value;
+}
+
 export function buildWebSupportAccountContext(input: {
   displayName: string | null;
   lichessUsername: string | null;

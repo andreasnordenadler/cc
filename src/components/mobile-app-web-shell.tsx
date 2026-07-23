@@ -27,7 +27,7 @@ import GroupQuestRemoveParticipantAction from "./group-quest-remove-participant-
 import CommunityMultiplayerReportControl from "./community-multiplayer-report-control";
 import GroupQuestInviteKeyControl from "./group-quest-invite-key-control";
 import type { CustomEditQuestInput } from "@/lib/mobile-create-forms";
-import type { WebSupportAccountContext } from "@/lib/web-support-diagnostics";
+import type { CommunitySoloReportContext, WebSupportAccountContext } from "@/lib/web-support-diagnostics";
 import MobileWebHamburgerMenu from "./mobile-web-hamburger-menu";
 
 type AppTab = "home" | "sideQuests" | "multiplayerSideQuests" | "coatOfArms" | "account";
@@ -662,10 +662,12 @@ export function MobileSupportScreen({
   signedIn = false,
   supportMessages = [],
   accountContext = null,
+  reportContext = null,
 }: {
   signedIn?: boolean;
   supportMessages?: MobileWebSupportMessage[];
   accountContext?: WebSupportAccountContext | null;
+  reportContext?: CommunitySoloReportContext | null;
 }) {
   const helpRows = [
     {
@@ -742,13 +744,18 @@ export function MobileSupportScreen({
       </section>
 
       {signedIn ? (
-        <MobileSupportComposer signedIn initialMessages={supportMessages} accountContext={accountContext} />
+        <MobileSupportComposer key={reportContext?.returnPath ?? "support"} signedIn initialMessages={supportMessages} accountContext={accountContext} initialMessage={reportContext?.initialMessage} />
       ) : (
         <section className="sqc-support-card sqc-support-report" aria-label="Report a problem">
-          <span className="sqc-card-eyebrow">Report a problem</span>
+          <span className="sqc-card-eyebrow">{reportContext ? "Report Community Solo Side Quest" : "Report a problem"}</span>
+          {reportContext ? <>
+            <h3>{reportContext.title}</h3>
+            <p>Side Quest ID: {reportContext.questId}</p>
+            <p>Creator: {reportContext.creatorName}</p>
+          </> : null}
           <h3>Support messages require a signed-in SQC account.</h3>
           <p>Anonymous messages are not accepted by the support API. Sign in so your note and any reply stay attached to your account.</p>
-          <Link href="/sign-in?redirect_url=/support" className="sqc-primary-action">Sign in to message support</Link>
+          <Link href={`/sign-in?redirect_url=${encodeURIComponent(reportContext?.returnPath ?? "/support")}`} className="sqc-primary-action">Sign in to message support</Link>
         </section>
       )}
     </div>
@@ -994,7 +1001,7 @@ export function MobileCommunitySideQuestDetailScreen({
 
       <div className="sqc-community-detail-actions" aria-label="Community Solo Side Quest actions">
         <CommunitySoloPickControl questId={quest.id} signedIn={signedIn} activeQuestId={activeQuestId} />
-        <CommunitySoloSocialActions questId={quest.id} title={quest.title} signedIn={signedIn} initialCount={likeSummary.count} initiallyLiked={likeSummary.likedByViewer} />
+        <CommunitySoloSocialActions questId={quest.id} title={quest.title} creatorName={quest.creatorName} signedIn={signedIn} initialCount={likeSummary.count} initiallyLiked={likeSummary.likedByViewer} />
         <Link href="/community-side-quests" className="sqc-detail-quiet-button">Back to list</Link>
         <Link href={quest.creatorBrowsePath} className="sqc-detail-secondary-button">More by {quest.creatorName}</Link>
         {signedIn ? <Link href={`/create-multiplayer-side-quest?quest=${encodeURIComponent(quest.id)}`} className="sqc-detail-secondary-button">Use in Multiplayer</Link> : null}
