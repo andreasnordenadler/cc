@@ -755,7 +755,7 @@ export function MobileSupportScreen({
           </> : null}
           <h3>Support messages require a signed-in SQC account.</h3>
           <p>Anonymous messages are not accepted by the support API. Sign in so your note and any reply stay attached to your account.</p>
-          <Link href={`/sign-in?redirect_url=${encodeURIComponent(reportContext?.returnPath ?? "/support")}`} className="sqc-primary-action">Sign in to message support</Link>
+          <Link href={reportContext ? `/sign-in?redirect_url=${encodeURIComponent(reportContext.returnPath)}` : "/sign-in?redirect_url=/support"} className="sqc-primary-action">Sign in to message support</Link>
         </section>
       )}
     </div>
