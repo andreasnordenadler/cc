@@ -27,7 +27,7 @@ import GroupQuestRemoveParticipantAction from "./group-quest-remove-participant-
 import CommunityMultiplayerReportControl from "./community-multiplayer-report-control";
 import GroupQuestInviteKeyControl from "./group-quest-invite-key-control";
 import type { CustomEditQuestInput } from "@/lib/mobile-create-forms";
-import type { CommunitySoloReportContext, WebSupportAccountContext } from "@/lib/web-support-diagnostics";
+import type { WebSupportAccountContext, WebSupportReportContext } from "@/lib/web-support-diagnostics";
 import MobileWebHamburgerMenu from "./mobile-web-hamburger-menu";
 
 type AppTab = "home" | "sideQuests" | "multiplayerSideQuests" | "coatOfArms" | "account";
@@ -667,7 +667,7 @@ export function MobileSupportScreen({
   signedIn?: boolean;
   supportMessages?: MobileWebSupportMessage[];
   accountContext?: WebSupportAccountContext | null;
-  reportContext?: CommunitySoloReportContext | null;
+  reportContext?: WebSupportReportContext | null;
 }) {
   const helpRows = [
     {
@@ -747,11 +747,12 @@ export function MobileSupportScreen({
         <MobileSupportComposer key={reportContext?.returnPath ?? "support"} signedIn initialMessages={supportMessages} accountContext={accountContext} initialMessage={reportContext?.initialMessage} />
       ) : (
         <section className="sqc-support-card sqc-support-report" aria-label="Report a problem">
-          <span className="sqc-card-eyebrow">{reportContext ? "Report Community Solo Side Quest" : "Report a problem"}</span>
+          <span className="sqc-card-eyebrow">{reportContext ? reportContext.type === "community-solo" ? "Report Community Solo Side Quest" : "Report Community Multiplayer Side Quest" : "Report a problem"}</span>
           {reportContext ? <>
             <h3>{reportContext.title}</h3>
             <p>Side Quest ID: {reportContext.questId}</p>
-            <p>Creator: {reportContext.creatorName}</p>
+            <p>{reportContext.type === "community-solo" ? `Creator: ${reportContext.creatorName}` : `Host: ${reportContext.hostName}`}</p>
+            {reportContext.type === "community-multiplayer" ? <p>Status: {reportContext.status}</p> : null}
           </> : null}
           <h3>Support messages require a signed-in SQC account.</h3>
           <p>Anonymous messages are not accepted by the support API. Sign in so your note and any reply stay attached to your account.</p>
@@ -1537,7 +1538,7 @@ export function MobileMultiplayerDetailScreen({
         <section className="sqc-native-card sqc-multiplayer-native-card">
           <span className="sqc-card-eyebrow">Community safety</span>
           <h2>Report a problem with this Side Quest.</h2>
-          <CommunityMultiplayerReportControl questId={quest.id} title={quest.title} signedIn={signedIn} />
+          <CommunityMultiplayerReportControl questId={quest.id} title={quest.title} hostName={quest.hostName} status={quest.eventStatus ?? (quest.lifecycle === "finished" ? "Finished" : "Live")} signedIn={signedIn} />
         </section>
       ) : null}
 

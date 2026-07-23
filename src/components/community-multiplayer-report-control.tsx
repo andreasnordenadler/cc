@@ -3,16 +3,16 @@
 import Link from "next/link";
 import { useRef, useState } from "react";
 import { createCommunityMultiplayerReportSubmitter } from "@/lib/community-multiplayer-report";
+import { buildCommunityMultiplayerReportHref } from "@/lib/web-support-diagnostics";
 
-export default function CommunityMultiplayerReportControl({ questId, title, signedIn }: { questId: string; title: string; signedIn: boolean }) {
+export default function CommunityMultiplayerReportControl({ questId, title, hostName, status: questStatus, signedIn }: { questId: string; title: string; hostName?: string | null; status: string; signedIn: boolean }) {
   const [reason, setReason] = useState("");
   const [busy, setBusy] = useState(false);
   const [status, setStatus] = useState("");
   const submitReport = useRef(createCommunityMultiplayerReportSubmitter()).current;
-  const returnTo = `/groupquests/${encodeURIComponent(questId)}`;
 
   if (!signedIn) {
-    return <Link className="sqc-detail-secondary-button" href={`/sign-in?redirect_url=${encodeURIComponent(returnTo)}`}>Sign in to report</Link>;
+    return <Link className="sqc-detail-secondary-button" href={buildCommunityMultiplayerReportHref({ questId, title, hostName, status: questStatus })}>Report this Side Quest</Link>;
   }
 
   async function report() {

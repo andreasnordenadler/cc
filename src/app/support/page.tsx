@@ -7,7 +7,7 @@ import { getSupportMessages } from "@/lib/analytics";
 import { CHALLENGES } from "@/lib/challenges";
 import { getCustomSideQuests } from "@/lib/custom-side-quests";
 import { listPublicGroupQuests, listUserRelatedGroupQuests } from "@/lib/groupquests";
-import { buildCommunitySoloReportContext, buildWebSupportAccountContext, loadWebSupportGroupQuestContext } from "@/lib/web-support-diagnostics";
+import { buildSupportReportContext, buildWebSupportAccountContext, loadWebSupportGroupQuestContext } from "@/lib/web-support-diagnostics";
 
 export const metadata: Metadata = {
   title: "Help & Support — Side Quest Chess",
@@ -20,7 +20,7 @@ export default async function SupportPage({
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   noStore();
-  const reportContext = buildCommunitySoloReportContext(await searchParams);
+  const reportContext = buildSupportReportContext(await searchParams);
   const user = await currentUser();
   const metadataRecord = user?.publicMetadata ? (user.publicMetadata as UserMetadataRecord) : {};
   const privateMetadataRecord = user?.privateMetadata && typeof user.privateMetadata === "object"

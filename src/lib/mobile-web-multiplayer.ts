@@ -25,6 +25,7 @@ export type MobileWebMultiplayerPreview = {
   positionLabel?: string | null;
   leaderboardRows: MobileWebMultiplayerLeaderboardRow[];
   likeSummary: CommunityLikeSummary;
+  eventStatus?: "Soon" | "Live" | "Finished";
   lifecycle: "open" | "finished";
   createdAt: string;
   startAt: string;
@@ -195,6 +196,7 @@ export function buildMobileWebMultiplayerPreview(
     positionLabel,
     leaderboardRows: includeLeaderboard ? buildMobileWebMultiplayerLeaderboardRows(quest, userId, isOwner && status !== "Finished") : [],
     likeSummary,
+    eventStatus: status,
     lifecycle: status === "Finished" ? "finished" : "open",
     createdAt: quest.createdAt,
     startAt: quest.startAt,

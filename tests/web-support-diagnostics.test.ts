@@ -4,7 +4,7 @@ import test from "node:test";
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { MobileSupportScreen } from "../src/components/mobile-app-web-shell";
-import { buildCommunitySoloReportContext, buildWebSupportAccountContext, buildWebSupportDiagnostics, loadWebSupportGroupQuestContext } from "../src/lib/web-support-diagnostics";
+import { buildCommunitySoloReportContext, buildSupportReportContext, buildWebSupportAccountContext, buildWebSupportDiagnostics, loadWebSupportGroupQuestContext } from "../src/lib/web-support-diagnostics";
 import { buildGroupQuest } from "../src/lib/groupquests";
 
 test("Community Solo support handoff accepts only bounded public display context", () => {
@@ -28,11 +28,33 @@ test("Community Solo support handoff accepts only bounded public display context
   assert.equal(buildCommunitySoloReportContext({ report: "community-solo", questId: "quest/42", title: "x".repeat(161), creator: "Ada" }), null);
 });
 
+test("Community Multiplayer support handoff matches Android's bounded public report context", () => {
+  assert.deepEqual(buildSupportReportContext({
+    report: "community-multiplayer",
+    questId: "community/table-42",
+    title: "Ada's Fork Table",
+    host: "Ada & Lin",
+    status: "Open",
+  }), {
+    type: "community-multiplayer",
+    questId: "community/table-42",
+    title: "Ada's Fork Table",
+    hostName: "Ada & Lin",
+    status: "Open",
+    initialMessage: "Report Community Multiplayer Side Quest\nQuest: Ada's Fork Table\nQuest ID: community/table-42\nHost: Ada & Lin\nStatus: Open\nIssue: ",
+    returnPath: "/support?report=community-multiplayer&questId=community%2Ftable-42&title=Ada%27s+Fork+Table&host=Ada+%26+Lin&status=Open",
+  });
+  assert.equal(buildSupportReportContext({ report: "community-multiplayer", questId: ["community/table-42"], title: "Table", host: "Ada", status: "Open" }), null);
+  assert.equal(buildSupportReportContext({ report: "community-multiplayer", questId: "q".repeat(161), title: "Table", host: "Ada", status: "Open" }), null);
+  assert.equal(buildSupportReportContext({ report: "community-multiplayer", questId: "table", title: "x".repeat(161), host: "Ada", status: "Open" }), null);
+  assert.equal(buildSupportReportContext({ report: "community-multiplayer", questId: "table", title: "Table", host: "Ada\nInjected", status: "Open" }), null);
+});
+
 test("support route normalizes report search parameters and passes them into the production screen", () => {
   const source = readFileSync(new URL("../src/app/support/page.tsx", import.meta.url), "utf8");
 
   assert.match(source, /SupportPage\(\{\s*searchParams,\s*\}/);
-  assert.match(source, /buildCommunitySoloReportContext\(await searchParams\)/);
+  assert.match(source, /buildSupportReportContext\(await searchParams\)/);
   assert.match(source, /reportContext=\{reportContext\}/);
 });
 
@@ -75,6 +97,26 @@ test("signed-out support renders the bounded Community Solo report context befor
   assert.match(html, /quest\/42/);
   assert.match(html, /Ada &amp; Lin/);
   assert.match(html, /href="\/sign-in\?redirect_url=%2Fsupport%3Freport%3Dcommunity-solo%26questId%3Dquest%252F42%26title%3DAda%2527s%2BFork%2B%2526%2BPin%26creator%3DAda%2B%2526%2BLin"/);
+});
+
+test("signed-out support renders Android's Community Multiplayer report handoff before sign-in", () => {
+  const html = renderToStaticMarkup(React.createElement(MobileSupportScreen, {
+    signedIn: false,
+    reportContext: buildSupportReportContext({
+      report: "community-multiplayer",
+      questId: "community/table-42",
+      title: "Ada's Fork Table",
+      host: "Ada & Lin",
+      status: "Open",
+    }),
+  }));
+
+  assert.match(html, /Report Community Multiplayer Side Quest/);
+  assert.match(html, /Ada&#x27;s Fork Table/);
+  assert.match(html, /Side Quest ID: community\/table-42/);
+  assert.match(html, /Host: Ada &amp; Lin/);
+  assert.match(html, /Status: Open/);
+  assert.match(html, /href="\/sign-in\?redirect_url=%2Fsupport%3Freport%3Dcommunity-multiplayer/);
 });
 
 test("signed-out support keeps Android v338 copy diagnostics action reachable", () => {

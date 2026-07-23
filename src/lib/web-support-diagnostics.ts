@@ -26,6 +26,51 @@ export type CommunitySoloReportContext = {
   returnPath: string;
 };
 
+export type CommunityMultiplayerReportContext = {
+  type: "community-multiplayer";
+  questId: string;
+  title: string;
+  hostName: string;
+  status: string;
+  initialMessage: string;
+  returnPath: string;
+};
+
+export type WebSupportReportContext = CommunitySoloReportContext | CommunityMultiplayerReportContext;
+
+export function buildSupportReportContext(input: Record<string, string | string[] | undefined>): WebSupportReportContext | null {
+  if (input.report === "community-solo") return buildCommunitySoloReportContext(input);
+  if (input.report !== "community-multiplayer") return null;
+
+  const questId = readExactReportField(input.questId, 160);
+  const title = readExactReportField(input.title, 160);
+  const hostName = readExactReportField(input.host, 100);
+  const status = readExactReportField(input.status, 40);
+  if (!questId || !title || !hostName || !status) return null;
+  if (!/^[A-Za-z0-9][A-Za-z0-9._~:/-]{0,159}$/.test(questId)) return null;
+
+  const query = new URLSearchParams({ report: "community-multiplayer", questId, title, host: hostName, status });
+  return {
+    type: "community-multiplayer",
+    questId,
+    title,
+    hostName,
+    status,
+    initialMessage: `Report Community Multiplayer Side Quest\nQuest: ${title}\nQuest ID: ${questId}\nHost: ${hostName}\nStatus: ${status}\nIssue: `,
+    returnPath: `/support?${query.toString()}`,
+  };
+}
+
+export function buildCommunityMultiplayerReportHref(input: { questId: string; title: string; hostName?: string | null; status: string }) {
+  return buildSupportReportContext({
+    report: "community-multiplayer",
+    questId: input.questId,
+    title: input.title,
+    host: input.hostName?.trim() || "unknown",
+    status: input.status,
+  })?.returnPath ?? "/support";
+}
+
 export function buildCommunitySoloReportContext(input: Record<string, string | string[] | undefined>): CommunitySoloReportContext | null {
   if (input.report !== "community-solo") return null;
   const questId = readExactReportField(input.questId, 160);

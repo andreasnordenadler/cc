@@ -45,6 +45,7 @@ const officialJoinedQuest: MobileWebMultiplayerPreview = {
   positionLabel: "#1",
   leaderboardRows: [],
   likeSummary: { count: 0, likedByViewer: false },
+  eventStatus: "Live",
   lifecycle: "open",
   createdAt: "2026-07-01T00:00:00.000Z",
   startAt: "2026-07-06T00:00:00.000Z",
@@ -191,9 +192,13 @@ test("hostless Community Multiplayer detail still offers reporting", () => {
   assert.match(html, /aria-label="Report this Community Multiplayer Side Quest"/);
 });
 
-test("signed-out Community Multiplayer reporting preserves the exact encoded detail return", () => {
+test("signed-out Community Multiplayer reporting opens Android's support handoff with exact public context", () => {
   const html = renderDetail({ ...officialJoinedQuest, id: "community/table", sourceBadge: "Community" }, false);
-  assert.match(html, /href="\/sign-in\?redirect_url=%2Fgroupquests%2Fcommunity%252Ftable"/);
+  assert.match(html, /href="\/support\?report=community-multiplayer&amp;questId=community%2Ftable&amp;title=/);
+  assert.match(html, /host=/);
+  assert.match(html, /status=Live/);
+  assert.doesNotMatch(html, /Sign in to report/);
+  assert.match(html, />Report this Side Quest<\/a>/);
 });
 
 test("Community Multiplayer owners cannot report their own Side Quest", () => {

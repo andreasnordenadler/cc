@@ -57,6 +57,27 @@ test("Community Multiplayer filtered no-results copy matches Android v338 withou
   });
 });
 
+test("Multiplayer previews preserve Android's Soon, Live, and Finished status provenance", () => {
+  const scheduled = buildMobileWebMultiplayerPreview(quest({
+    startAt: "2099-01-01T00:00:00.000Z",
+    endAt: "2099-01-02T00:00:00.000Z",
+  }), null, "Community", likeSummary);
+  const live = buildMobileWebMultiplayerPreview(quest({
+    startAt: "2000-01-01T00:00:00.000Z",
+    endAt: "2099-01-02T00:00:00.000Z",
+  }), null, "Community", likeSummary);
+  const finished = buildMobileWebMultiplayerPreview(quest({
+    startAt: "2000-01-01T00:00:00.000Z",
+    endAt: "2000-01-02T00:00:00.000Z",
+  }), null, "Community", likeSummary);
+
+  assert.deepEqual([
+    (scheduled as unknown as { eventStatus?: string }).eventStatus,
+    (live as unknown as { eventStatus?: string }).eventStatus,
+    (finished as unknown as { eventStatus?: string }).eventStatus,
+  ], ["Soon", "Live", "Finished"]);
+});
+
 test("private invite codes use the canonical storage owner and never participant replicas", () => {
   const privateQuest = quest({ inviteMode: "private-key", inviteKey: "ROOK-742", participants: [{ userId: "participant", provider: "lichess", username: "rook-player", leaderboardName: "Rook Player", joinedAt: "2026-07-11T00:00:00.000Z" }] });
   const spoofedReplica = { ...privateQuest, hostUserId: "attacker" };
