@@ -105,6 +105,64 @@ test("authenticated Account row renders the server-derived Multiplayer summary",
   assert.match(html, />3 active</);
 });
 
+test("authenticated Account summarizes playable and draft Custom Side Quests like Android v338", async () => {
+  const accountPage = await import("../src/app/account/page");
+  assert.equal(typeof accountPage.getAccountCustomQuestSummary, "function");
+
+  assert.deepEqual(accountPage.getAccountCustomQuestSummary([
+    { id: "published", title: "Knight Errand", summary: "Playable", config: "{}", lifecycle: "published" as const, visibility: "private" as const, createdAt: "2026-07-01T00:00:00.000Z", updatedAt: "2026-07-01T00:00:00.000Z" },
+    { id: "draft", title: "Pawn Room", summary: "Draft", config: "{}", lifecycle: "draft" as const, visibility: "private" as const, createdAt: "2026-07-02T00:00:00.000Z", updatedAt: "2026-07-02T00:00:00.000Z" },
+    { id: "archived", title: "Old experiment", summary: "Archived", config: "{}", lifecycle: "archived" as const, visibility: "private" as const, createdAt: "2026-07-03T00:00:00.000Z", updatedAt: "2026-07-03T00:00:00.000Z" },
+  ]), {
+    meta: "1 playable · 1 draft · private by default",
+    status: "3 made",
+  });
+
+  assert.deepEqual(accountPage.getAccountCustomQuestSummary([]), {
+    meta: "Build a private custom Side Quest for solo or multiplayer use.",
+    status: "Create",
+  });
+});
+
+test("authenticated Account renders the Android Custom Side Quest summary from canonical lifecycle data", async () => {
+  const accountPage = await import("../src/app/account/page");
+  assert.equal(typeof accountPage.AccountCustomQuestSummaryRow, "function");
+  const html = renderToStaticMarkup(createElement(accountPage.AccountCustomQuestSummaryRow, {
+    customSideQuests: [
+      { id: "published", title: "Knight Errand", summary: "Playable", config: "{}", lifecycle: "published" as const, visibility: "private" as const, createdAt: "2026-07-01T00:00:00.000Z", updatedAt: "2026-07-01T00:00:00.000Z" },
+      { id: "draft", title: "Pawn Room", summary: "Draft", config: "{}", lifecycle: "draft" as const, visibility: "private" as const, createdAt: "2026-07-02T00:00:00.000Z", updatedAt: "2026-07-02T00:00:00.000Z" },
+      { id: "archived", title: "Old experiment", summary: "Archived", config: "{}", lifecycle: "archived" as const, visibility: "private" as const, createdAt: "2026-07-03T00:00:00.000Z", updatedAt: "2026-07-03T00:00:00.000Z" },
+    ],
+  }));
+
+  assert.match(html, /1 playable · 1 draft · private by default/);
+  assert.match(html, />3 made</);
+  assert.match(html, /href="\/custom-side-quests"/);
+});
+
+test("authenticated Account previews the first two non-archived Custom Side Quests like Android v338", async () => {
+  const accountPage = await import("../src/app/account/page");
+  assert.equal(typeof accountPage.AccountCustomQuestRows, "function");
+  const customSideQuests = [
+    { id: "archived", title: "Old experiment", summary: "Hidden history", config: "{}", lifecycle: "archived" as const, visibility: "private" as const, createdAt: "2026-07-01T00:00:00.000Z", updatedAt: "2026-07-01T00:00:00.000Z" },
+    { id: "published-private", title: "Knight Errand", summary: "Move the original knight.", config: "{}", lifecycle: "published" as const, visibility: "private" as const, badgeImageUrl: "/badges/custom/knight.png", createdAt: "2026-07-02T00:00:00.000Z", updatedAt: "2026-07-02T00:00:00.000Z" },
+    { id: "draft-public", title: "Pawn Room", summary: 42 as unknown as string, config: "{}", lifecycle: "draft" as const, visibility: "public" as const, createdAt: "2026-07-03T00:00:00.000Z", updatedAt: "2026-07-03T00:00:00.000Z" },
+    { id: "third", title: "Third visible quest", summary: "Must stay outside the compact preview.", config: "{}", lifecycle: "published" as const, visibility: "public" as const, createdAt: "2026-07-04T00:00:00.000Z", updatedAt: "2026-07-04T00:00:00.000Z" },
+  ];
+
+  const html = renderToStaticMarkup(createElement(accountPage.AccountCustomQuestRows, { customSideQuests }));
+
+  assert.match(html, /Created: Knight Errand/);
+  assert.match(html, /Move the original knight\./);
+  assert.match(html, />Private</);
+  assert.match(html, /href="\/custom-side-quests\/published-private"/);
+  assert.match(html, /Created: Pawn Multiplayer Side Quest/);
+  assert.match(html, /Player-made Side Quest rule\./);
+  assert.match(html, />Draft</);
+  assert.match(html, /href="\/custom-side-quests\/draft-public"/);
+  assert.doesNotMatch(html, /Old experiment|Third visible quest/);
+});
+
 test("summarizes Android-matched Account progress from canonical quest data", () => {
   const stats = summarizeMobileWebAccountStats({
     completedChallengeIds: ["official-win", "custom-alpha"],

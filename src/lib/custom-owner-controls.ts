@@ -30,3 +30,9 @@ export function getCustomOwnerDestination(payload: unknown, expectedId: string) 
     ? `/custom-side-quests/${encodeURIComponent(expectedId)}`
     : null;
 }
+
+export function getCustomOwnerMultiplayerHref(input: Pick<CustomOwnerSaveInput, "id" | "lifecycle">) {
+  return input.lifecycle === "published" && /^custom-[a-z0-9-]+$/i.test(input.id)
+    ? `/create-multiplayer-side-quest?quest=${encodeURIComponent(input.id)}`
+    : null;
+}

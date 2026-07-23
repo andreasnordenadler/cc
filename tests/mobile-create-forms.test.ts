@@ -5,6 +5,7 @@ import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { MobileCreateCustomScreen, MobileCustomSideQuestsScreen } from "../src/components/mobile-app-web-shell";
 import MobileCustomCreateForm from "../src/components/mobile-custom-create-form";
+import MobileMultiplayerCreateForm from "../src/components/mobile-multiplayer-create-form";
 import { LocalCustomDraftList } from "../src/components/local-custom-draft-library";
 import type { CustomSideQuestRuleBlock } from "../src/lib/custom-side-quests";
 import {
@@ -40,6 +41,83 @@ import { getLocalCustomDraftEditHref, getLocalCustomDraftFormState, getLocalCust
 
 const root = new URL("../", import.meta.url);
 const source = (path: string) => readFile(new URL(path, root), "utf8");
+
+test("Multiplayer create matches Android option cards and quick-duration guidance", () => {
+  const html = renderToStaticMarkup(React.createElement(MobileMultiplayerCreateForm, {
+    signedIn: false,
+    quests: [],
+    stableNow: "2026-07-23T12:00:00.000Z",
+  }));
+
+  assert.match(html, /<form class="sqc-stack sqc-multiplayer-create-form" aria-label="Create Multiplayer Side Quest form"/);
+  assert.match(html, /aria-label="Multiplayer access"/);
+  assert.match(html, /aria-pressed="true"[^>]*>[\s\S]*Public/);
+  assert.match(html, />Public<[\s\S]*>Visible in Browse</);
+  assert.match(html, />Unlisted link<[\s\S]*>Only players with the link can join</);
+  assert.match(html, />Invite code<[\s\S]*>Only players with the invite code or link can join</);
+  assert.match(html, /aria-label="Games allowed"/);
+  assert.match(html, />Lichess or Chess\.com<[\s\S]*>Players can use Lichess or Chess\.com</);
+  assert.match(html, />Lichess<[\s\S]*>Only public Lichess games</);
+  assert.match(html, />Chess\.com<[\s\S]*>Only public Chess\.com games</);
+  assert.match(html, /<span class="sqc-form-label">Quick duration<\/span>/);
+  assert.match(html, /aria-label="Quick duration"/);
+  assert.match(html, />Dates save as your local time\. Start defaults to shortly after creation; no typing needed\.</);
+  assert.match(html, /<span>Time control<\/span><select[^>]*>[\s\S]*<option[^>]*>Any time control<\/option>[\s\S]*<option[^>]*>Bullet<\/option>[\s\S]*<option[^>]*>Blitz<\/option>[\s\S]*<option[^>]*>Rapid<\/option>[\s\S]*<option[^>]*>Classical<\/option>[\s\S]*<\/select>/);
+  assert.doesNotMatch(html, /Rapid 10\+0|Blitz 5\+0/);
+  assert.doesNotMatch(html, /<span>Access<\/span><select|<span>Games allowed<\/span><select/);
+});
+
+test("Multiplayer advanced controls retain native dark form styling", async () => {
+  const css = await source("src/app/mobile-web.css");
+
+  assert.match(css, /\.sqc-multiplayer-create-form details select\s*\{[\s\S]*width:\s*100%;[\s\S]*min-height:\s*38px;[\s\S]*border:[^;]+;[\s\S]*border-radius:[^;]+;[\s\S]*background:\s*rgba\(6, 5, 7, \.72\);[\s\S]*color:\s*var\(--paper\);[\s\S]*font:\s*inherit;/);
+  assert.doesNotMatch(css, /\.sqc-create-multiplayer-screen details select\s*\{/);
+});
+
+test("Multiplayer create keeps Android's selected draft tray separate from catalog browsing", async () => {
+  const html = renderToStaticMarkup(React.createElement(MobileMultiplayerCreateForm, {
+    signedIn: false,
+    stableNow: "2026-07-23T12:00:00.000Z",
+    initialQuestId: "owned-custom",
+    quests: [{
+      id: "owned-custom",
+      title: "Queenless Cup",
+      summary: "Win after losing your queen.",
+      source: "custom",
+      sourceLabel: "My published Side Quest",
+    }],
+  }));
+
+  assert.match(html, /<section class="sqc-native-card sqc-create-selected-card">/);
+  assert.match(html, /<span class="sqc-card-eyebrow">Included Side Quests<\/span>/);
+  assert.match(html, /<h2>Your Multiplayer draft<\/h2>/);
+  assert.match(html, />1\/4 Side Quests selected</);
+  assert.match(html, /aria-label="Clear selected Side Quests"[^>]*>Clear<\/button>/);
+  assert.match(html, /aria-label="Remove Queenless Cup from Multiplayer Side Quest"/);
+  assert.match(html, /<span class="sqc-create-selected-index">1<\/span>[\s\S]*Queenless Cup[\s\S]*My published Side Quest/);
+  assert.match(html, /<section class="sqc-native-card sqc-create-catalog-card">[\s\S]*<span class="sqc-card-eyebrow">Add from catalog<\/span>[\s\S]*<h2>Browse like Community Side Quests\.<\/h2>/);
+
+  const css = await source("src/app/mobile-web.css");
+  assert.match(css, /\.sqc-create-selected-tray\s*\{[^}]*gap:\s*6px;[^}]*padding:\s*8px;[^}]*border:[^;]+rgba\(255,\s*247,\s*232,\s*\.1\);[^}]*border-radius:\s*17px;[^}]*background:\s*rgba\(0,\s*0,\s*0,\s*\.18\);/);
+  assert.match(css, /\.sqc-create-selected-row\s*\{[^}]*min-height:\s*46px;[^}]*grid-template-columns:\s*20px\s+minmax\(0,\s*1fr\)\s+26px;[^}]*border:[^;]+rgba\(245,\s*200,\s*106,\s*\.24\);[^}]*background:\s*rgba\(245,\s*200,\s*106,\s*\.12\);/);
+  assert.match(css, /\.sqc-create-selected-index\s*\{[^}]*width:\s*20px;[^}]*height:\s*20px;[^}]*background:\s*var\(--gold\);[^}]*color:\s*#111;/);
+  assert.match(css, /\.sqc-create-selection-head\s*>\s*div\s*\{[^}]*flex:\s*1;[^}]*gap:\s*2px;/);
+  assert.match(css, /\.sqc-create-selection-head\s*>\s*div\s*>\s*small\s*\{[^}]*color:\s*var\(--green\);[^}]*line-height:\s*14px;[^}]*text-transform:\s*uppercase;/);
+  assert.match(css, /\.sqc-create-selection-head\s*>\s*\.sqc-detail-quiet-button\s*\{[^}]*min-height:\s*32px;[^}]*line-height:\s*15px;/);
+  assert.match(css, /\.sqc-create-selected-copy\s*\{[^}]*gap:\s*1px;/);
+  assert.match(css, /\.sqc-create-selected-copy\s+strong\s*\{[^}]*color:\s*var\(--paper\);[^}]*font-size:\s*12px;[^}]*font-weight:\s*900;[^}]*line-height:\s*15px;[^}]*overflow:\s*hidden;[^}]*text-overflow:\s*ellipsis;[^}]*white-space:\s*nowrap;/);
+  assert.match(css, /\.sqc-create-selected-copy\s+small\s*\{[^}]*color:\s*var\(--muted\);[^}]*font-size:\s*10px;[^}]*font-weight:\s*900;[^}]*line-height:\s*13px;[^}]*letter-spacing:\s*\.45px;[^}]*text-transform:\s*uppercase;[^}]*overflow:\s*hidden;[^}]*text-overflow:\s*ellipsis;[^}]*white-space:\s*nowrap;/);
+  assert.match(css, /\.sqc-create-multiplayer-screen\s+\.sqc-native-card\s*\{[^}]*gap:\s*8px;[^}]*padding:\s*11px;[^}]*border-color:\s*rgba\(255,\s*247,\s*232,\s*\.14\);[^}]*border-radius:\s*19px;[^}]*background:\s*rgba\(255,\s*247,\s*232,\s*\.085\);/);
+  assert.match(css, /\.sqc-create-selected-card\s+\.sqc-create-selection-head\s+h2\s*\{[^}]*font-size:\s*18px;[^}]*font-weight:\s*900;[^}]*line-height:\s*22px;[^}]*letter-spacing:\s*-\.4px;[^}]*text-align:\s*center;/);
+  assert.match(css, /\.sqc-create-selected-tray\s+\.sqc-selection-empty\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\);[^}]*align-items:\s*center;[^}]*gap:\s*3px;[^}]*padding:\s*5px\s+8px;[^}]*border:\s*0;[^}]*background:\s*transparent;[^}]*text-align:\s*center;/);
+  assert.match(css, /\.sqc-create-selected-tray\s+\.sqc-selection-empty\s+strong\s*\{[^}]*font-size:\s*13px;[^}]*font-weight:\s*900;[^}]*line-height:\s*17px;/);
+  assert.match(css, /\.sqc-create-selected-tray\s+\.sqc-selection-empty\s+span\s*\{[^}]*grid-column:\s*1;[^}]*font-size:\s*12px;[^}]*font-weight:\s*800;[^}]*line-height:\s*16px;/);
+  assert.match(css, /\.sqc-create-selected-remove\s*\{[^}]*width:\s*26px;[^}]*height:\s*26px;[^}]*background:\s*rgba\(0,\s*0,\s*0,\s*\.18\);[^}]*color:\s*rgba\(255,\s*247,\s*232,\s*\.72\);/);
+
+  const formSource = await source("src/components/mobile-multiplayer-create-form.tsx");
+  assert.match(formSource, /Maximum of 4 Side Quests reached; remove one before adding/);
+  assert.doesNotMatch(formSource, /Maximum reached for/);
+});
 
 test("signed-out custom drafts are stored locally without account identity", () => {
   const values = new Map<string, string>();
@@ -872,7 +950,9 @@ test("signed-out custom library slot replaces the account-backed empty state", (
 
   assert.match(html, /Loading drafts saved in this browser/);
   assert.doesNotMatch(html, /Build your own Side Quest/);
-  assert.match(html, /class="sqc-brand-switch"[^>]*role="tab"[^>]*aria-selected="false"/);
+  assert.match(html, /<nav class="sqc-brand-tabs sqc-solo-brand-tabs" aria-label="Solo Side Quest catalog">/);
+  assert.match(html, /class="sqc-brand-switch"[^>]*href="\/side-quests"/);
+  assert.doesNotMatch(html, /role="(?:tablist|tab)"|aria-selected=/);
 });
 
 test("signed-out custom library route loads browser-local drafts", async () => {
@@ -999,6 +1079,23 @@ test("multiplayer creator validates and sends supported fields without client id
   assert.equal("username" in payload, false);
 });
 
+test("multiplayer creator source switch exposes one truthful pressed-button group instead of an incomplete tablist", () => {
+  const html = renderToStaticMarkup(React.createElement(MobileMultiplayerCreateForm, {
+    signedIn: false,
+    stableNow: "2026-07-23T12:00:00.000Z",
+    quests: [
+      { id: "official-one", title: "Official one", summary: "Official rules", source: "official", sourceLabel: "SQC official" },
+      { id: "community-one", title: "Community one", summary: "Community rules", source: "community", sourceLabel: "Community" },
+    ],
+  }));
+
+  assert.match(html, /role="group" aria-label="Choose Side Quest source"/);
+  assert.match(html, /aria-pressed="true"[^>]*>Official \(1\)<\/button>/);
+  assert.match(html, /aria-pressed="false"[^>]*>Community \(1\)<\/button>/);
+  assert.doesNotMatch(html, /role="tablist"|role="tab"|aria-selected=/);
+  assert.match(html, /<button[^>]*aria-label="Switch to Community Side Quests"/);
+});
+
 test("multiplayer creator rejects malformed fields", () => {
   const base = { name: "Quest", inviteCopy: "", inviteMode: "public", questIds: ["finish-any-game"], providerMode: "both", startAt: "2026-07-12T12:00:00.000Z", endAt: "2026-07-19T12:00:00.000Z", rules: {} };
   assert.throws(() => buildMultiplayerCreatePayload({ ...base, questIds: [] }), /at least one/i);
@@ -1048,4 +1145,11 @@ test("mobile create screens use executable forms and never submit identity field
   assert.match(css, /\.sqc-custom-condition-row \.sqc-detail-quiet-button\s*\{[\s\S]*?background:\s*rgba\(255, 247, 232, \.06\)/);
   assert.match(css, /\.sqc-custom-builder-card select\s*\{[\s\S]*?background:\s*rgba\(13, 11, 14, \.92\)[\s\S]*?color:\s*var\(--paper\)/);
   assert.match(css, /\.sqc-mobile-web\.signed-out \.sqc-local-custom-draft-row \.sqc-row-status\s*\{[\s\S]*?color:\s*var\(--gold\)/);
+});
+
+test("custom piece choices stack helper copy without overlapping labels at mobile width", async () => {
+  const css = await source("src/app/mobile-web.css");
+
+  assert.match(css, /\.sqc-create-custom-screen \.sqc-option-card-copy\s*\{[\s\S]*?grid-template-columns:\s*minmax\(0, 1fr\)/);
+  assert.match(css, /\.sqc-create-custom-screen \.sqc-option-card-copy > small\s*\{[\s\S]*?grid-column:\s*1/);
 });

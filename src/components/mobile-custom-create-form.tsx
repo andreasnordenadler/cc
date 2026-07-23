@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useCallback, useEffect, useRef, useState } from "react";
+import { FormEvent, useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import Image from "next/image";
 import type { CustomSideQuestRuleBlock } from "@/lib/custom-side-quests";
 import {
@@ -54,6 +54,8 @@ const conditionChoices: Array<{ id: string; label: string; helper: string; block
   { id: "knights-first", label: "Knight-only opening", helper: "Play Nf3, ...Nf6, Nc3, ...Nc6 from move 1.", block: { type: "openingSequence", raw: "Nf3 Nf6 Nc3 Nc6", moves: ["Nf3", "Nf6", "Nc3", "Nc6"], anchor: "gameStart" } },
 ];
 
+const subscribeToHydration = () => () => undefined;
+
 export default function MobileCustomCreateForm({ signedIn, initialQuest = null }: { signedIn: boolean; initialQuest?: CustomEditQuestInput | null }) {
   const initialState = initialQuest ? getCustomEditFormState(initialQuest) : null;
   const initialBlocks = initialState?.blocks ?? [];
@@ -77,6 +79,7 @@ export default function MobileCustomCreateForm({ signedIn, initialQuest = null }
   const allowNavigation = useRef(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const hydrated = useSyncExternalStore(subscribeToHydration, () => true, () => false);
   const [editingLocalDraftId, setEditingLocalDraftId] = useState<string | null>(initialQuest?.id.startsWith("local-custom-") ? initialQuest.id : null);
 
   const nextConditionRowId = useCallback(() => {
@@ -333,7 +336,7 @@ export default function MobileCustomCreateForm({ signedIn, initialQuest = null }
       </div>)}
       {!blocks.length ? <p>No conditions yet. Add the first thing players must do.</p> : null}
     </div>
-    <button className="sqc-detail-secondary-button" disabled={blocks.length >= 6} onClick={addCondition} type="button">{blocks.length >= 6 ? "Six-condition limit reached" : blocks.length ? "Add Another Condition" : "Add Condition"}</button>
+    <button className="sqc-detail-secondary-button" disabled={!hydrated || blocks.length >= 6} onClick={addCondition} type="button">{blocks.length >= 6 ? "Six-condition limit reached" : blocks.length ? "Add Another Condition" : "Add Condition"}</button>
     <p>{logic === "all" ? "Every saved condition must pass." : "Any one saved condition can complete the Side Quest."} Conditions can happen in any order.</p>
 
     <label className="sqc-form-row"><span>Side Quest name</span><input aria-label="Side Quest name" maxLength={80} onChange={(event) => setTitle(event.target.value)} placeholder="Name this custom Side Quest" required value={title} /></label>

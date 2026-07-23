@@ -1,6 +1,5 @@
 import { CHALLENGES } from "@/lib/challenges";
 import { listPublicGroupQuests, listUserRelatedGroupQuests, rankGroupQuestParticipants, type ServerGroupQuest } from "@/lib/groupquests";
-import type { clerkClient } from "@clerk/nextjs/server";
 
 export type MobileWebTrophyRow = {
   id: string;
@@ -54,7 +53,7 @@ export type ActiveMultiplayerAccountRow = {
   status: string;
 };
 
-type ClerkClient = Awaited<ReturnType<typeof clerkClient>>;
+type ClerkClient = Parameters<typeof listUserRelatedGroupQuests>[0] & Parameters<typeof listPublicGroupQuests>[0];
 const MOBILE_MULTIPLAYER_TROPHY_LIMIT = 12;
 
 export async function getMobileWebTrophyRows(

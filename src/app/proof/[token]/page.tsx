@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import MobileAppWebShell from "@/components/mobile-app-web-shell";
 import ProofImage from "@/components/proof-image";
+import PublicProofShareControls from "@/components/public-proof-share-controls";
 import { decodePublicProof, publicProofImagePath } from "@/lib/proof-share";
 
 export async function generateMetadata({
@@ -75,7 +76,11 @@ export default async function PublicProofPage({
           <h2>Latest verified proof</h2>
           <p>The app keeps the same proof receipt data as your SQC account: provider, game reference, final move, completion time, and canonical proof link when available.</p>
           <div className="sqc-action-pair one-or-two">
-            <Link href={publicProofImagePath(token)} className="sqc-secondary-action">Share proof</Link>
+            <PublicProofShareControls
+              token={token}
+              challengeTitle={payload.challengeTitle}
+              badgeName={payload.badgeName}
+            />
             <Link href="/side-quests" className="sqc-primary-action">Browse Solo Side Quests</Link>
           </div>
         </section>

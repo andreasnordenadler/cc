@@ -15,10 +15,13 @@ test("signed-out homepage exposes the two public browsing paths and auth entry",
   await expect(page.getByRole("link", { name: "Choose sign-in method" })).toHaveAttribute("href", "/sign-in");
 });
 
-test("signed-out shell exposes a visible guest menu without a top hamburger", async ({ page }) => {
+test("signed-out Home omits the web-only guest menu while non-Home routes preserve it", async ({ page }) => {
   await expectHealthyNavigation(page, "/");
 
   await expect(page.getByLabel("Open main menu")).toHaveCount(0);
+  await expect(page.getByRole("navigation", { name: "Guest menu" })).toHaveCount(0);
+
+  await expectHealthyNavigation(page, "/side-quests");
   const menu = page.getByRole("navigation", { name: "Guest menu" });
   await expect(menu).toBeVisible();
   await expect(menu.getByRole("link", { name: "Home" })).toHaveAttribute("href", "/");
@@ -88,6 +91,21 @@ test("privacy policy is public, dedicated, and links to privacy support", async 
   );
 });
 
+test("Terms of Use has a public dedicated launch-draft destination", async ({ page }) => {
+  await expectHealthyNavigation(page, "/terms");
+
+  await expect(page).toHaveURL(/\/terms$/);
+  await expect(page.getByRole("heading", { name: "Terms of Use" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Draft status" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Privacy Policy" })).toHaveAttribute("href", "/privacy");
+  await expect(page.getByRole("link", { name: "Open Help & Support" })).toHaveAttribute("href", "/support");
+  const brandItemsOverlap = await page.locator(".terms-brand-row").evaluate((row) => {
+    const [back, kicker] = Array.from(row.children).map((element) => element.getBoundingClientRect());
+    return back.left < kicker.right && back.right > kicker.left && back.top < kicker.bottom && back.bottom > kicker.top;
+  });
+  expect(brandItemsOverlap).toBe(false);
+});
+
 test("auth entry renders without requiring credentials", async ({ page }) => {
   await expectHealthyNavigation(page, "/sign-in");
 
@@ -95,11 +113,18 @@ test("auth entry renders without requiring credentials", async ({ page }) => {
   await expect(page.getByRole("region", { name: "Sign in form" })).toBeVisible();
 });
 
-test("public challenge share route keeps rules and sign-in boundary available", async ({ page }) => {
+test("public challenge sharing copies the exact route and keeps the sign-in boundary available", async ({ page, context }) => {
+  await context.grantPermissions(["clipboard-read", "clipboard-write"]);
   await expectHealthyNavigation(page, "/challenges/finish-any-game");
 
   await expect(page.getByRole("heading", { name: "Any Game Counts", exact: true })).toBeVisible();
-  await expect(page.getByRole("link", { name: "Share public link" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Share public link" })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Share Solo Side Quest public link" })).toBeVisible();
+  await page.getByRole("button", { name: "Copy Solo Side Quest public link" }).click();
+  await expect(page.getByRole("status")).toHaveText("Public link copied.");
+  await expect.poll(() => page.evaluate(() => navigator.clipboard.readText())).toBe(
+    new URL("/challenges/finish-any-game", page.url()).toString(),
+  );
   await expect(page.getByLabel("Current screen").getByRole("link", { name: "Sign in", exact: true })).toHaveAttribute(
     "href",
     "/sign-in?redirect_url=/challenges/finish-any-game",

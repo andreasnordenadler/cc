@@ -1,8 +1,9 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { filterCommunitySoloCatalog, filterCustomCatalog, filterMultiplayerCatalog, filterSoloCatalog, paginateCatalog } from "../src/lib/catalog-models";
-import { buildMobileWebMultiplayerLeaderboardRows, buildMobileWebMultiplayerPreview, buildUserMultiplayerRows, getMobileWebMultiplayerDetail, getMultiplayerHostFilter, mergeCommunityCatalogQuests } from "../src/lib/mobile-web-multiplayer";
+import { applyCommunitySoloLikeState, applyMultiplayerLikeState, filterCommunitySoloCatalog, filterCustomCatalog, filterMultiplayerCatalog, filterSoloCatalog, getCommunityMultiplayerEmptyState, getCommunitySoloEmptyState, paginateCatalog } from "../src/lib/catalog-models";
+
+import { buildMobileWebMultiplayerLeaderboardRows, buildMobileWebMultiplayerPreview, buildOfficialWeeks, buildUserMultiplayerRows, getMobileWebMultiplayerDetail, getMultiplayerHostFilter, mergeCommunityCatalogQuests } from "../src/lib/mobile-web-multiplayer";
 import type { ServerGroupQuest } from "../src/lib/groupquests";
 
 const likeSummary = { count: 0, likedByCurrentUser: false, likedByViewer: false };
@@ -25,6 +26,73 @@ function quest(overrides: Partial<ServerGroupQuest> = {}): ServerGroupQuest {
     createdAt: "2026-07-09T00:00:00.000Z", participants: [], ...overrides,
   };
 }
+
+test("official weekly archives preserve every Android-addressable result in the week", () => {
+  const weeks = buildOfficialWeeks([
+    quest({ id: "week-a", name: "Rook Rally", endAt: "2026-07-07T20:00:00.000Z" }),
+    quest({ id: "week-b", name: "Bishop Blitz", endAt: "2026-07-08T20:00:00.000Z" }),
+    quest({ id: "week-c", name: "Knight Night", endAt: "2026-07-09T20:00:00.000Z" }),
+  ]);
+
+  assert.equal(weeks.length, 1);
+  assert.equal(weeks[0]?.questCount, 3);
+  assert.deepEqual(weeks[0]?.results.map((result) => [result.id, result.href]), [
+    ["week-a", "/groupquests/week-a"],
+    ["week-b", "/groupquests/week-b"],
+    ["week-c", "/groupquests/week-c"],
+  ]);
+});
+
+test("Community Solo filtered no-results copy matches Android v338 without replacing the honest empty catalog state", () => {
+  assert.deepEqual(getCommunitySoloEmptyState({ hasCatalogRows: true, signedIn: false }), {
+    title: "No matches yet.",
+    guidance: "Try a broader search or switch the filter back to All.",
+  });
+  assert.deepEqual(getCommunitySoloEmptyState({ hasCatalogRows: false, signedIn: false }), {
+    title: "No Community Side Quests match these filters.",
+    guidance: "Public player-made Side Quests will appear here.",
+  });
+  assert.deepEqual(getCommunitySoloEmptyState({ hasCatalogRows: false, signedIn: true }), {
+    title: "No Community Side Quests match these filters.",
+    guidance: "Create the first public Side Quest from My Custom Side Quests.",
+  });
+});
+
+test("Community Multiplayer filtered no-results copy matches Android v338 without replacing the honest empty catalog state", () => {
+  assert.deepEqual(getCommunityMultiplayerEmptyState({ hasCatalogRows: true, hasHostFilter: false }), {
+    title: "No community Multiplayer Side Quests match this search/filter.",
+    guidance: null,
+  });
+  assert.deepEqual(getCommunityMultiplayerEmptyState({ hasCatalogRows: false, hasHostFilter: false }), {
+    title: "No public community Multiplayer Side Quests right now.",
+    guidance: null,
+  });
+  assert.deepEqual(getCommunityMultiplayerEmptyState({ hasCatalogRows: true, hasHostFilter: true }), {
+    title: "No public Community Multiplayer Side Quests match this host shelf/search.",
+    guidance: "Nothing private is shown from guessed host context.",
+  });
+});
+
+test("Multiplayer previews preserve Android's Soon, Live, and Finished status provenance", () => {
+  const scheduled = buildMobileWebMultiplayerPreview(quest({
+    startAt: "2099-01-01T00:00:00.000Z",
+    endAt: "2099-01-02T00:00:00.000Z",
+  }), null, "Community", likeSummary);
+  const live = buildMobileWebMultiplayerPreview(quest({
+    startAt: "2000-01-01T00:00:00.000Z",
+    endAt: "2099-01-02T00:00:00.000Z",
+  }), null, "Community", likeSummary);
+  const finished = buildMobileWebMultiplayerPreview(quest({
+    startAt: "2000-01-01T00:00:00.000Z",
+    endAt: "2000-01-02T00:00:00.000Z",
+  }), null, "Community", likeSummary);
+
+  assert.deepEqual([
+    (scheduled as unknown as { eventStatus?: string }).eventStatus,
+    (live as unknown as { eventStatus?: string }).eventStatus,
+    (finished as unknown as { eventStatus?: string }).eventStatus,
+  ], ["Soon", "Live", "Finished"]);
+});
 
 test("private invite codes use the canonical storage owner and never participant replicas", () => {
   const privateQuest = quest({ inviteMode: "private-key", inviteKey: "ROOK-742", participants: [{ userId: "participant", provider: "lichess", username: "rook-player", leaderboardName: "Rook Player", joinedAt: "2026-07-11T00:00:00.000Z" }] });
@@ -123,9 +191,9 @@ test("solo catalog matches title and rule text, filters status, and sorts by nam
 
 test("Community Solo catalog matches Android filters and deterministic sort choices", () => {
   const rows = [
-    { id: "old", title: "Ancient Rook", meta: "quiet rule", href: "/old", updatedAtMs: 100, popularityScore: 2, likeCount: 8, completedByViewer: false, isNew: false },
-    { id: "new", title: "Bold Bishop", meta: "fast rule", href: "/new", updatedAtMs: 300, popularityScore: 50, likeCount: 1, completedByViewer: false, isNew: true },
-    { id: "done", title: "Calm Castle", meta: "finish rule", href: "/done", updatedAtMs: 200, popularityScore: 4, likeCount: 3, completedByViewer: true, isNew: false },
+    { id: "old", title: "Ancient Rook", meta: "quiet rule", href: "/old", creatorKey: "ada-1", updatedAtMs: 100, popularityScore: 2, likeCount: 8, completedByViewer: false, isNew: false },
+    { id: "new", title: "Bold Bishop", meta: "fast rule", href: "/new", creatorKey: "nora-2", updatedAtMs: 300, popularityScore: 50, likeCount: 1, completedByViewer: false, isNew: true },
+    { id: "done", title: "Calm Castle", meta: "finish rule", href: "/done", creatorKey: "ada-1", updatedAtMs: 200, popularityScore: 4, likeCount: 3, completedByViewer: true, isNew: false },
   ];
 
   assert.deepEqual(filterCommunitySoloCatalog(rows, { query: "", filter: "popular", sort: "popular" }).map(row => row.id), ["new", "old", "done"]);
@@ -133,6 +201,26 @@ test("Community Solo catalog matches Android filters and deterministic sort choi
   assert.deepEqual(filterCommunitySoloCatalog(rows, { query: "", filter: "completed", sort: "newest" }).map(row => row.id), ["done"]);
   assert.deepEqual(filterCommunitySoloCatalog(rows, { query: "rook", filter: "all", sort: "liked" }).map(row => row.id), ["old"]);
   assert.deepEqual(filterCommunitySoloCatalog(rows, { query: "", filter: "all", sort: "name" }).map(row => row.id), ["old", "new", "done"]);
+  assert.deepEqual(filterCommunitySoloCatalog(rows, { query: "", filter: "all", sort: "newest", creator: "ada-1" }).map(row => row.id), ["done", "old"]);
+});
+
+test("Community Solo catalog updates like-derived filters and sorting after a toggle", () => {
+  const rows = [
+    { id: "liked", title: "Liked Rook", meta: "rule", href: "/liked", updatedAtMs: 100, popularityScore: 0, likeCount: 2, likedByViewer: false, completedByViewer: false, isNew: false },
+    { id: "leader", title: "Leading Bishop", meta: "rule", href: "/leader", updatedAtMs: 200, popularityScore: 0, likeCount: 3, likedByViewer: false, completedByViewer: false, isNew: false },
+  ];
+
+  const next = applyCommunitySoloLikeState(rows, "liked", true);
+
+  assert.deepEqual(next.map((row) => [row.id, row.likeCount, row.likedByViewer]), [
+    ["liked", 3, true],
+    ["leader", 3, false],
+  ]);
+  assert.deepEqual(filterCommunitySoloCatalog(next, { query: "", filter: "all", sort: "liked" }).map((row) => row.id), ["leader", "liked"]);
+  assert.deepEqual(applyCommunitySoloLikeState(next, "liked", false).map((row) => [row.id, row.likeCount, row.likedByViewer]), [
+    ["liked", 2, false],
+    ["leader", 3, false],
+  ]);
 });
 
 test("catalog pagination exposes every row at the load-more boundary", () => {
@@ -179,6 +267,28 @@ test("multiplayer community catalog matches Android liked sorting", () => {
     filterMultiplayerCatalog(rows, { query: "", filter: "all", sort: "liked" }).map(row => row.id),
     ["newer-liked", "older-liked", "less-liked"],
   );
+});
+
+test("multiplayer community catalog reorders liked results immediately after a successful optimistic toggle", () => {
+  const rows = [
+    multiplayerRow({ id: "target", likeSummary: { count: 2, likedByViewer: false }, startAt: "2026-07-08T00:00:00.000Z" }),
+    multiplayerRow({ id: "leader", likeSummary: { count: 2, likedByViewer: false }, startAt: "2026-07-09T00:00:00.000Z" }),
+  ];
+
+  const liked = applyMultiplayerLikeState(rows, "target", true);
+
+  assert.deepEqual(liked.map((row) => [row.id, row.likeSummary.count, row.likeSummary.likedByViewer]), [
+    ["target", 3, true],
+    ["leader", 2, false],
+  ]);
+  assert.deepEqual(
+    filterMultiplayerCatalog(liked, { query: "", filter: "all", sort: "liked" }).map((row) => row.id),
+    ["target", "leader"],
+  );
+  assert.deepEqual(applyMultiplayerLikeState(liked, "target", false)[0]?.likeSummary, {
+    count: 2,
+    likedByViewer: false,
+  });
 });
 
 test("multiplayer community catalog matches Android player-count sorting", () => {

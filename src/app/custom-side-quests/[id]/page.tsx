@@ -8,7 +8,8 @@ import CustomSideQuestOwnerControls from "@/components/custom-side-quest-owner-c
 import CustomSideQuestProofControls from "@/components/custom-side-quest-proof-controls";
 import { describeCustomSideQuestRuleDetails } from "@/lib/community-side-quests";
 import { getCustomSideQuestBadgeUrl, getCustomSideQuestById, getCustomSideQuests } from "@/lib/custom-side-quests";
-import { getChessComUsername, getLichessUsername, getPreferredRunnerName, type UserMetadataRecord } from "@/lib/user-metadata";
+import { buildCompletedCustomPublicProofPath } from "@/lib/proof-share";
+import { getChallengeProgress, getChessComUsername, getLatestPassedChallengeAttempt, getLichessUsername, getPreferredRunnerName, type UserMetadataRecord } from "@/lib/user-metadata";
 
 export const dynamic = "force-dynamic";
 
@@ -31,6 +32,11 @@ export default async function CustomSideQuestOwnerPage({ params }: { params: Pro
     emailAddress: user.primaryEmailAddress?.emailAddress,
   }) || "Side Quest Chess";
   const rules = describeCustomSideQuestRuleDetails(quest.config);
+  const completed = getChallengeProgress(publicMetadata).completedChallengeIds.includes(quest.id)
+    || (sourceMetadata !== publicMetadata && getChallengeProgress(sourceMetadata).completedChallengeIds.includes(quest.id));
+  const latestPassedAttempt = getLatestPassedChallengeAttempt(publicMetadata, quest.id)
+    ?? (sourceMetadata !== publicMetadata ? getLatestPassedChallengeAttempt(sourceMetadata, quest.id) : null);
+  const resultHref = await buildCompletedCustomPublicProofPath({ completed, attempt: latestPassedAttempt, quest });
 
   return <MobileAppWebShell
     activeTab="sideQuests"
@@ -61,6 +67,9 @@ export default async function CustomSideQuestOwnerPage({ params }: { params: Pro
         questId={quest.id}
         active={Boolean(publicMetadata.activeChallenge && typeof publicMetadata.activeChallenge === "object" && (publicMetadata.activeChallenge as { id?: string }).id === quest.id)}
         playable={quest.lifecycle === "published"}
+        completed={completed}
+        completedAt={latestPassedAttempt?.completedGameAt ?? latestPassedAttempt?.checkedAt ?? null}
+        resultHref={resultHref}
       />
 
       <CustomSideQuestOwnerControls quest={{

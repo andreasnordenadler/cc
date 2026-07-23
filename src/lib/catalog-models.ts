@@ -34,6 +34,7 @@ export function filterSoloCatalog<T extends SoloCatalogRow>(
 }
 
 export type CommunitySoloCatalogRow = SoloCatalogRow & {
+  creatorKey?: string;
   updatedAtMs: number;
   popularityScore: number;
   likeCount: number;
@@ -44,12 +45,60 @@ export type CommunitySoloCatalogRow = SoloCatalogRow & {
 export type CommunitySoloCatalogFilter = "all" | "popular" | "new" | "completed";
 export type CommunitySoloCatalogSort = "popular" | "liked" | "newest" | "name";
 
+export function getCommunitySoloEmptyState({ hasCatalogRows, signedIn }: { hasCatalogRows: boolean; signedIn: boolean }) {
+  if (hasCatalogRows) {
+    return {
+      title: "No matches yet.",
+      guidance: "Try a broader search or switch the filter back to All.",
+    };
+  }
+  return {
+    title: "No Community Side Quests match these filters.",
+    guidance: signedIn
+      ? "Create the first public Side Quest from My Custom Side Quests."
+      : "Public player-made Side Quests will appear here.",
+  };
+}
+
+export function getCommunityMultiplayerEmptyState({
+  hasCatalogRows,
+  hasHostFilter,
+}: {
+  hasCatalogRows: boolean;
+  hasHostFilter: boolean;
+}) {
+  if (hasCatalogRows && hasHostFilter) {
+    return {
+      title: "No public Community Multiplayer Side Quests match this host shelf/search.",
+      guidance: "Nothing private is shown from guessed host context.",
+    };
+  }
+  return {
+    title: hasCatalogRows
+      ? "No community Multiplayer Side Quests match this search/filter."
+      : "No public community Multiplayer Side Quests right now.",
+    guidance: null,
+  };
+}
+
+export function applyCommunitySoloLikeState<T extends { id: string; likeCount: number; likedByViewer: boolean }>(
+  rows: T[],
+  targetId: string,
+  likedByViewer: boolean,
+): T[] {
+  return rows.map((row) => row.id === targetId
+    ? { ...row, likedByViewer, likeCount: Math.max(0, row.likeCount + (likedByViewer === row.likedByViewer ? 0 : likedByViewer ? 1 : -1)) }
+    : row);
+}
+
 export function filterCommunitySoloCatalog<T extends CommunitySoloCatalogRow>(
   rows: T[],
-  options: { query: string; filter: CommunitySoloCatalogFilter; sort: CommunitySoloCatalogSort },
+  options: { query: string; filter: CommunitySoloCatalogFilter; sort: CommunitySoloCatalogSort; creator?: string | null },
 ): T[] {
   const query = options.query.trim().toLocaleLowerCase();
+  const creator = options.creator?.trim() ?? "";
   return rows
+    .filter((row) => !creator || row.creatorKey === creator)
     .filter((row) => !query || `${row.title} ${row.meta}`.toLocaleLowerCase().includes(query))
     .filter((row) => {
       if (options.filter === "popular") return row.popularityScore + row.likeCount * 5 > 0;
@@ -93,6 +142,21 @@ export function filterCustomCatalog<T extends CustomCatalogRow>(
 export function paginateCatalog<T>(rows: T[], limit: number) {
   const safeLimit = Math.max(0, limit);
   return { rows: rows.slice(0, safeLimit), hasMore: rows.length > safeLimit, total: rows.length };
+}
+
+export function applyMultiplayerLikeState<
+  T extends { id: string; likeSummary: { count: number; likedByViewer: boolean } },
+>(rows: T[], targetId: string, likedByViewer: boolean): T[] {
+  return rows.map((row) => row.id === targetId
+    ? {
+        ...row,
+        likeSummary: {
+          ...row.likeSummary,
+          count: Math.max(0, row.likeSummary.count + (likedByViewer === row.likeSummary.likedByViewer ? 0 : likedByViewer ? 1 : -1)),
+          likedByViewer,
+        },
+      }
+    : row);
 }
 
 export function filterMultiplayerCatalog<T extends MultiplayerCatalogRow>(

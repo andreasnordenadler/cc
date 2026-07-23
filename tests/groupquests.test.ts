@@ -391,6 +391,55 @@ test("public official records merge with legacy private copies in lookup, catalo
   assert.equal(related.some(({ id }) => id === official.id), true);
 });
 
+test("private invite lookup prefers the host's canonical copy over an earlier participant replica", async () => {
+  const canonical = buildGroupQuest({ hostUserId: "host-user", hostName: "Host", name: "Private table", inviteMode: "private-key", inviteKey: "ROOK-742" });
+  canonical.id = "private-table";
+  canonical.participants = [participant("participant-user")];
+  const staleReplica = { ...structuredClone(canonical), name: "Stale participant copy", participants: [participant("participant-user")] };
+  const client = { users: { getUserList: async () => ({
+    data: [
+      { id: "participant-user", privateMetadata: { sqcGroupQuests: [staleReplica] } },
+      { id: "host-user", privateMetadata: { sqcGroupQuests: [canonical] } },
+    ],
+    totalCount: 2,
+  }) } };
+
+  const found = await findGroupQuestByInviteKey(client, "rook-742");
+
+  assert.equal(found?.userId, "host-user");
+  assert.equal(found?.groupQuest.name, "Private table");
+});
+
+test("private invite lookup fails closed when only a participant replica remains", async () => {
+  const replica = buildGroupQuest({ hostUserId: "missing-host", hostName: "Host", name: "Private table", inviteMode: "private-key", inviteKey: "ROOK-742" });
+  replica.id = "private-table";
+  replica.participants = [participant("participant-user")];
+  const client = { users: { getUserList: async () => ({
+    data: [{ id: "participant-user", privateMetadata: { sqcGroupQuests: [replica] } }],
+    totalCount: 1,
+  }) } };
+
+  assert.equal(await findGroupQuestByInviteKey(client, "ROOK-742"), null);
+});
+
+test("private invite lookup ignores a late total that could hide a conflicting owner", async () => {
+  const canonical = buildGroupQuest({ hostUserId: "host-user", hostName: "Host", name: "Private table", inviteMode: "private-key", inviteKey: "ROOK-742" });
+  canonical.id = "private-table";
+  const forged = { ...structuredClone(canonical), hostUserId: "attacker-user", name: "Forged table" };
+  let page = 0;
+  const client = { users: { getUserList: async ({ limit }: { limit: number }) => {
+    page += 1;
+    if (page === 1) return { data: Array.from({ length: limit }, (_, index) => index === 0
+      ? { id: "host-user", privateMetadata: { sqcGroupQuests: [canonical] } }
+      : { id: `page-one-${index}`, privateMetadata: {} }), totalCount: Number.NaN };
+    if (page === 2) return { data: Array.from({ length: limit }, (_, index) => ({ id: `page-two-${index}`, privateMetadata: {} })), totalCount: limit };
+    return { data: [{ id: "attacker-user", privateMetadata: { sqcGroupQuests: [forged] } }] };
+  } } };
+
+  assert.equal(await findGroupQuestByInviteKey(client, "ROOK-742"), null);
+  assert.equal(page, 3);
+});
+
 test("invite lookup rejects malformed or overlong keys before querying Clerk", async () => {
   let calls = 0;
   const client = { users: { getUserList: async () => { calls += 1; return { data: [] }; } } };

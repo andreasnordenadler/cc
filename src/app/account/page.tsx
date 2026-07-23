@@ -159,13 +159,8 @@ function SignedInAccountScreen({
           image={activeChallengeRecord?.badgeIdentity.image ? toMobileAssetPath(activeChallengeRecord.badgeIdentity.image) : mobileAsset.coat}
         />
         <AccountMultiplayerRow summary={activeMultiplayer} />
-        <AccountRow
-          title="Your Custom Side Quests"
-          meta={customSideQuests.length ? `${customSideQuests.length} made · private by default` : "Build a private custom Side Quest for solo or multiplayer use."}
-          status={customSideQuests.length ? `${customSideQuests.length} made` : "Create"}
-          href="/custom-side-quests"
-          image={mobileAsset.customCrest}
-        />
+        <AccountCustomQuestSummaryRow customSideQuests={customSideQuests} />
+        <AccountCustomQuestRows customSideQuests={customSideQuests} />
       </AccountSection>
 
       <AccountSection title="Progress & Stats" action={{ label: "Details", href: "/trophy-cabinet" }}>
@@ -337,6 +332,61 @@ export function AccountMultiplayerRow({ summary }: { summary: ActiveMultiplayerA
       image={mobileAsset.multiplayerSeal}
     />
   );
+}
+
+export function AccountCustomQuestRows({ customSideQuests }: { customSideQuests: CustomSideQuest[] }) {
+  return customSideQuests
+    .filter((quest) => quest.lifecycle !== "archived")
+    .slice(0, 2)
+    .map((quest) => (
+      <AccountRow
+        key={quest.id}
+        title={`Created: ${cleanCustomPreviewTitle(quest.title)}`}
+        meta={typeof quest.summary === "string" && quest.summary.trim() ? quest.summary.trim() : "Player-made Side Quest rule."}
+        status={quest.lifecycle === "draft" ? "Draft" : quest.visibility === "public" ? "Public" : "Private"}
+        href={`/custom-side-quests/${encodeURIComponent(quest.id)}`}
+        image={quest.badgeImageUrl ?? mobileAsset.customCrest}
+      />
+    ));
+}
+
+export function AccountCustomQuestSummaryRow({ customSideQuests }: { customSideQuests: CustomSideQuest[] }) {
+  const summary = getAccountCustomQuestSummary(customSideQuests);
+  return (
+    <AccountRow
+      title="Your Custom Side Quests"
+      meta={summary.meta}
+      status={summary.status}
+      href="/custom-side-quests"
+      image={mobileAsset.customCrest}
+    />
+  );
+}
+
+export function getAccountCustomQuestSummary(customSideQuests: CustomSideQuest[]) {
+  if (!customSideQuests.length) {
+    return {
+      meta: "Build a private custom Side Quest for solo or multiplayer use.",
+      status: "Create",
+    };
+  }
+
+  const playableCount = customSideQuests.filter((quest) => quest.lifecycle !== "archived" && quest.lifecycle !== "draft").length;
+  const draftCount = customSideQuests.filter((quest) => quest.lifecycle === "draft").length;
+  return {
+    meta: `${playableCount} playable · ${draftCount} draft${draftCount === 1 ? "" : "s"} · private by default`,
+    status: `${customSideQuests.length} made`,
+  };
+}
+
+function cleanCustomPreviewTitle(title: string) {
+  return title
+    .replace(/\s+Demo(?=\s+Results\b|$)/gi, "")
+    .replace(/([a-z])Room(?=\d|$)/g, "$1 Multiplayer Side Quest ")
+    .replace(/\brooms\b/gi, "Multiplayer Side Quests")
+    .replace(/\broom\b/gi, "Multiplayer Side Quest")
+    .replace(/\s{2,}/g, " ")
+    .trim();
 }
 
 function AccountRow({ title, meta, status, href, image, statusImage }: { title: string; meta: string; status?: string; href: string; image: string; statusImage?: string | null }) {

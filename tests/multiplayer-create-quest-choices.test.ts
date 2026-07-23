@@ -100,10 +100,12 @@ test("multiplayer create form opens with the exact canonical community quest pre
   );
 
   assert.match(html, />Community \(11\)<\/button>/);
-  assert.match(html, /aria-selected="true"[^>]*>Community \(11\)<\/button>/);
+  assert.match(html, /aria-pressed="true"[^>]*>Community \(11\)<\/button>/);
+  assert.doesNotMatch(html, /role="tablist"|role="tab"|aria-selected=/);
   assert.match(html, /aria-pressed="false"[^>]*>Browse<\/button>/);
   assert.match(html, /aria-pressed="true"[^>]*>Selected \(1\)<\/button>/);
-  assert.match(html, />1\/4 selected<\/h2>/);
+  assert.match(html, />1\/4 Side Quests selected<\/small>/);
+  assert.match(html, /aria-label="Remove Community Knight 10 from Multiplayer Side Quest" class="sqc-create-selected-row"/);
   assert.match(html, /class="sqc-option-card selected"[^>]*>[\s\S]*?Community Knight 10[\s\S]*?<b>Remove<\/b>/);
 });
 

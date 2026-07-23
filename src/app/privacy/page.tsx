@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   description: "How Side Quest Chess handles account, public chess-game, support, and product-usage information.",
 };
 
-const LAST_UPDATED = "July 11, 2026";
+const LAST_UPDATED = "July 23, 2026";
 
 export default function PrivacyPage() {
   return (
@@ -71,14 +71,15 @@ export default function PrivacyPage() {
         <section id="retention">
           <h2>Retention and deletion</h2>
           <p>SQC keeps account and quest information while it is needed to provide the account and product features. Implemented limits currently keep up to 30 signed-in support messages, a compact analytics history of up to 12 recent events and 12 quest-stat records, and up to 500 account likes. Those limits do not by themselves delete the rest of an account.</p>
-          <p><strong>Current launch limitation:</strong> SQC does not yet expose self-service account deletion in the website or mobile app. You can request deletion or correction through privacy support. The exact response period, backup/log deletion schedule, and any legally required retention exceptions must still be confirmed by the product owner before this policy is treated as final.</p>
+          <p>Signed-in users can permanently delete their SQC account from My Account on the website or mobile app. This removes the Clerk sign-in and account-attached profile and progress data, and cleans hosted and participant references from replicated Multiplayer records. Deletion cannot be undone. If that cleanup cannot finish, SQC reports an error instead of deleting the sign-in identity so the user can retry or contact privacy support.</p>
+          <p><strong>Current launch limitation:</strong> The exact backup/log deletion schedule and any legally required retention exceptions must still be confirmed by the product owner before this policy is treated as final.</p>
         </section>
 
         <section id="choices">
           <h2>Your choices</h2>
           <ul>
             <li>You may browse public quest pages without creating an account.</li>
-            <li>You can replace connected public chess usernames in account settings. The current product requires at least one username to remain; complete removal requires contacting SQC and the deletion process still needs owner confirmation.</li>
+            <li>You can replace connected public chess usernames in account settings. While keeping the account, account settings require at least one public chess username to remain. Deleting the account removes the account profile instead.</li>
             <li>You can choose not to publish custom content or share proof links.</li>
             <li>You can contact SQC about access, correction, or deletion of information associated with your account. The request process and response timeline still require owner confirmation.</li>
           </ul>

@@ -45,6 +45,7 @@ const officialJoinedQuest: MobileWebMultiplayerPreview = {
   positionLabel: "#1",
   leaderboardRows: [],
   likeSummary: { count: 0, likedByViewer: false },
+  eventStatus: "Live",
   lifecycle: "open",
   createdAt: "2026-07-01T00:00:00.000Z",
   startAt: "2026-07-06T00:00:00.000Z",
@@ -164,6 +165,45 @@ test("official Multiplayer detail does not offer the Community report action", (
   assert.doesNotMatch(html, /Report this Community Multiplayer Side Quest|Report this Side Quest/);
 });
 
+test("signed-in Community Multiplayer active shelf starts at Android's four-row boundary", () => {
+  const rows = Array.from({ length: 6 }, (_, index) => ({
+    ...officialJoinedQuest,
+    id: `active-${index + 1}`,
+    href: `/groupquests/active-${index + 1}`,
+    title: `Active table ${index + 1}`,
+    sourceBadge: "Community" as const,
+    publiclyListed: false,
+  }));
+  const html = renderToStaticMarkup(React.createElement(CommunityMultiplayerCatalog, { rows, signedIn: true }));
+
+  assert.match(html, />Active table 1</);
+  assert.match(html, />Active table 4</);
+  assert.doesNotMatch(html, />Active table 5</);
+  assert.doesNotMatch(html, />Active table 6</);
+  assert.match(html, /aria-label="Show more of my Multiplayer Side Quests"/);
+  assert.match(html, />More my quests \(2\)</);
+});
+
+test("signed-in Community Multiplayer history starts at Android's three-row boundary", () => {
+  const rows = Array.from({ length: 5 }, (_, index) => ({
+    ...officialJoinedQuest,
+    id: `finished-${index + 1}`,
+    href: `/groupquests/finished-${index + 1}`,
+    title: `Finished table ${index + 1}`,
+    sourceBadge: "Community" as const,
+    lifecycle: "finished" as const,
+    publiclyListed: false,
+  }));
+  const html = renderToStaticMarkup(React.createElement(CommunityMultiplayerCatalog, { rows, signedIn: true }));
+
+  assert.match(html, />Finished table 1</);
+  assert.match(html, />Finished table 3</);
+  assert.doesNotMatch(html, />Finished table 4</);
+  assert.doesNotMatch(html, />Finished table 5</);
+  assert.match(html, /aria-label="Show more finished Multiplayer Side Quests"/);
+  assert.match(html, />More history \(2\)</);
+});
+
 test("Community Multiplayer host shelf opens filtered and exposes a real clear action", () => {
   const html = renderToStaticMarkup(React.createElement(CommunityMultiplayerCatalog, {
     rows: [
@@ -191,9 +231,13 @@ test("hostless Community Multiplayer detail still offers reporting", () => {
   assert.match(html, /aria-label="Report this Community Multiplayer Side Quest"/);
 });
 
-test("signed-out Community Multiplayer reporting preserves the exact encoded detail return", () => {
+test("signed-out Community Multiplayer reporting opens Android's support handoff with exact public context", () => {
   const html = renderDetail({ ...officialJoinedQuest, id: "community/table", sourceBadge: "Community" }, false);
-  assert.match(html, /href="\/sign-in\?redirect_url=%2Fgroupquests%2Fcommunity%252Ftable"/);
+  assert.match(html, /href="\/support\?report=community-multiplayer&amp;questId=community%2Ftable&amp;title=/);
+  assert.match(html, /host=/);
+  assert.match(html, /status=Live/);
+  assert.doesNotMatch(html, /Sign in to report/);
+  assert.match(html, />Report this Side Quest<\/a>/);
 });
 
 test("Community Multiplayer owners cannot report their own Side Quest", () => {
@@ -439,6 +483,19 @@ test("Multiplayer leave cancellation names the consequence and performs no reque
   assert.match(prompt, /participant entry will be removed.*rejoin later/i);
   assert.equal(requests, 0);
   assert.deepEqual(result, { kind: "cancelled" });
+});
+
+test("signed-in private related rows stay in account shelves without populating the public Community catalog", () => {
+  const html = renderToStaticMarkup(React.createElement(AppRouterContext.Provider, { value: {
+    back() {}, forward() {}, prefetch() {}, push() {}, refresh() {}, replace() {},
+  } }, React.createElement(CommunityMultiplayerCatalog, {
+    signedIn: true,
+    rows: [{ ...officialJoinedQuest, publiclyListed: false, sourceBadge: "Community", status: "Joined" }],
+  })));
+
+  assert.match(html, /Your active Multiplayer Side Quests/);
+  assert.match(html, /No public community Multiplayer Side Quests right now\./);
+  assert.equal((html.match(/href="\/groupquests\/official-starter-shield\?accepted=1"/g) ?? []).length, 1);
 });
 
 test("finished lifecycle is shown from quest data instead of hardcoding OPEN", () => {

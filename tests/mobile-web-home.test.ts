@@ -5,7 +5,9 @@ import {
   buildActiveMultiplayerHomeRows,
   buildSoloProofHomeStatus,
   formatHomeTrophyMeta,
+  loadHomeTrophyRows,
 } from "../src/lib/mobile-web-home";
+import { CHALLENGES } from "../src/lib/challenges";
 import type { ServerGroupQuest } from "../src/lib/groupquests";
 
 function quest(overrides: Partial<ServerGroupQuest> = {}): ServerGroupQuest {
@@ -56,7 +58,7 @@ test("builds hosted and joined active multiplayer rows newest-first without muta
   assert.deepEqual(original, [hosted, joined]);
 });
 
-test("excludes finished multiplayer quests and limits the home preview to five rows", () => {
+test("excludes finished multiplayer quests without hiding active rows beyond the Android preview limit", () => {
   const quests = Array.from({ length: 7 }, (_, index) => quest({
     id: `quest-${index}`,
     hostUserId: "me",
@@ -66,9 +68,22 @@ test("excludes finished multiplayer quests and limits the home preview to five r
 
   const rows = buildActiveMultiplayerHomeRows(quests, "me", Date.parse("2026-07-12T13:00:00.000Z"));
 
-  assert.equal(rows.length, 5);
   assert.equal(rows.some((row) => row.id === "quest-0"), false);
-  assert.deepEqual(rows.map((row) => row.id), ["quest-6", "quest-5", "quest-4", "quest-3", "quest-2"]);
+  assert.deepEqual(rows.map((row) => row.id), ["quest-6", "quest-5", "quest-4", "quest-3", "quest-2", "quest-1"]);
+});
+
+test("Home trophy loader keeps rows beyond Android's five-item preview boundary", async () => {
+  const client = {
+    users: {
+      getUserList: async () => ({ data: [], totalCount: 0 }),
+    },
+  };
+  const completedChallengeIds = CHALLENGES.slice(0, 6).map((challenge) => challenge.id);
+
+  const rows = await loadHomeTrophyRows(client, "viewer", completedChallengeIds);
+
+  assert.equal(rows.length, 6);
+  assert.deepEqual(rows.map((row) => row.href), completedChallengeIds.map((id) => `/challenges/${id}`));
 });
 
 test("distinguishes an unchecked solo quest from a check with no eligible game", () => {

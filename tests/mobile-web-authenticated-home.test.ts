@@ -44,6 +44,27 @@ test("authenticated Home keeps Active Solo compact with one refresh control and 
   assert.doesNotMatch(html, /Check latest game|Reset active selection|Choose another Side Quest/);
 });
 
+test("completed Solo Home opens its accepted proof instead of offering another refresh", () => {
+  const html = renderToStaticMarkup(React.createElement(SignedInHome, {
+    hasChessAccount: true,
+    activeSolo: {
+      ...failedSolo,
+      completed: true,
+      proofHref: "/proof/accepted-home-proof",
+      latestAttempt: { ...failedSolo.latestAttempt, status: "passed" },
+    },
+    activeSoloTitle: null,
+    activeMultiplayerRows: [],
+    trophyRows: [],
+    completedSoloCount: 1,
+    proofReceiptCount: 1,
+  }));
+
+  assert.match(html, /href="\/proof\/accepted-home-proof"/);
+  assert.match(html, />View victory proof</);
+  assert.doesNotMatch(html, /aria-label="Refresh active Solo Side Quest"/);
+});
+
 test("authenticated Home does not claim unsupported pull-to-refresh behavior", () => {
   const html = renderToStaticMarkup(React.createElement(SignedInHome, {
     hasChessAccount: true,
@@ -75,6 +96,62 @@ test("authenticated Home renders the native empty Multiplayer preview row", () =
   assert.match(html, />Explore</);
 });
 
+test("authenticated Home previews five active Multiplayer rows and exposes the remaining rows", () => {
+  const activeMultiplayerRows = Array.from({ length: 6 }, (_, index) => ({
+    id: `quest-${index + 1}`,
+    title: `Active table ${index + 1}`,
+    meta: "You host · Community public",
+    href: `/groupquests/quest-${index + 1}`,
+    status: "Host" as const,
+    sourceBadge: "Hosted" as const,
+  }));
+  const html = renderToStaticMarkup(React.createElement(SignedInHome, {
+    hasChessAccount: true,
+    activeSolo: failedSolo,
+    activeSoloTitle: null,
+    activeMultiplayerRows,
+    trophyRows: [],
+    completedSoloCount: 0,
+    proofReceiptCount: 0,
+  }));
+
+  for (const title of activeMultiplayerRows.slice(0, 5).map((row) => row.title)) {
+    assert.ok(html.indexOf(title) < html.indexOf("<details"), `${title} must remain in the five-row preview`);
+  }
+  assert.ok(html.indexOf("Active table 6") > html.indexOf("<details"), "the sixth row must be inside the expandable disclosure");
+  assert.match(html, />Show all active Multiplayer Side Quests</);
+  assert.match(html, />Show fewer active Multiplayer Side Quests</);
+  assert.match(html, /1 more active Multiplayer Side Quest\./);
+});
+
+test("authenticated Home previews five Trophy Cabinet rows and exposes every remaining trophy", () => {
+  const trophyRows = Array.from({ length: 6 }, (_, index) => ({
+    id: `trophy-${index + 1}`,
+    title: `Unlocked trophy ${index + 1}`,
+    meta: index % 2 === 0 ? "Solo completion" : "Community Multiplayer placement",
+    href: `/proof/trophy-${index + 1}`,
+    source: index % 2 === 0 ? "solo" as const : "communityMultiplayer" as const,
+  }));
+  const html = renderToStaticMarkup(React.createElement(SignedInHome, {
+    hasChessAccount: true,
+    activeSolo: failedSolo,
+    activeSoloTitle: null,
+    activeMultiplayerRows: [],
+    trophyRows,
+    completedSoloCount: 3,
+    proofReceiptCount: 3,
+  }));
+
+  for (const title of trophyRows.slice(0, 5).map((row) => row.title)) {
+    assert.ok(html.indexOf(title) < html.indexOf("Show all Trophy Cabinet items"), `${title} must remain in the five-row preview`);
+  }
+  assert.ok(html.indexOf("Unlocked trophy 6") > html.indexOf("Show all Trophy Cabinet items"), "the sixth trophy must be inside the expandable disclosure");
+  assert.match(html, />Show all Trophy Cabinet items</);
+  assert.match(html, />Show fewer Trophy Cabinet items</);
+  assert.match(html, /1 more unlocked item\./);
+  assert.equal((html.match(/href="\/proof\/trophy-/g) ?? []).length, 6, "every proof destination must remain reachable");
+});
+
 test("mini board assigns piece colors from FEN rather than square color", () => {
   const html = renderToStaticMarkup(React.createElement(MiniChessBoard, {
     fen: "8/8/8/3pP3/8/8/8/8 w - - 0 1",
@@ -100,6 +177,9 @@ test("mini board fixes all 64 cells to an equal eight-by-eight grid and refresh 
   assert.match(css, /grid-template-columns:\s*repeat\(8, minmax\(0, 1fr\)\)/);
   assert.match(css, /grid-template-rows:\s*repeat\(8, minmax\(0, 1fr\)\)/);
   assert.match(css, /\.sqc-refresh\.spinning \.sqc-refresh-icon[\s\S]*animation:\s*sqc-refresh-spin/);
+  assert.match(css, /\.sqc-home-row-collapse\s*\{[^}]*display:\s*none/);
+  assert.match(css, /\.sqc-home-row-disclosure\[open\] \.sqc-home-row-expand\s*\{[^}]*display:\s*none/);
+  assert.match(css, /\.sqc-home-row-disclosure\[open\] \.sqc-home-row-collapse\s*\{[^}]*display:\s*inline/);
   assert.match(css, /@media \(prefers-reduced-motion: reduce\)/);
   assert.match(actionSource, /pending \? "sqc-refresh spinning" : "sqc-refresh"/);
 });

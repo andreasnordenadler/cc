@@ -48,6 +48,7 @@ test("Community catalog derives like count and viewer state from the same bounde
   assert.equal(scans, 1);
   assert.equal(rows.length, 1);
   assert.deepEqual(rows[0]?.likeSummary, { count: 2, likedByViewer: true });
+  assert.equal(rows[0]?.creatorBrowsePath, `/community-side-quests?creator=${encodeURIComponent(rows[0]?.creatorKey ?? "")}#creator-${rows[0]?.creatorKey}`);
 });
 
 test("Community catalog can return every public quest before client-side popularity sorting", async () => {

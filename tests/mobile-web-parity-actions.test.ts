@@ -197,6 +197,29 @@ test("Community Solo detail exposes Android share and copy actions instead of a 
   assert.doesNotMatch(html, /<a[^>]*href="\/challenges\/community\/quest%2F42"[^>]*>Share public link<\/a>/);
 });
 
+test("signed-out Community Solo detail keeps Android's exact report handoff reachable", () => {
+  const html = renderToStaticMarkup(React.createElement(MobileCommunitySideQuestDetailScreen, {
+    signedIn: false,
+    likeSummary: { count: 2, likedByViewer: false },
+    quest: {
+      id: "quest/42",
+      title: "Ada's Fork & Pin",
+      summary: "Win a fork.",
+      creatorName: "Ada & Lin",
+      creatorBrowsePath: "/community-side-quests?creator=ada",
+      ruleLabel: "Fork",
+      ruleDetails: ["Create a fork."],
+      stats: { soloAttempts: 0, soloSelections: 0, soloCompletions: 0, multiplayerLineups: 0, multiplayerAttempts: 0, multiplayerFulfillments: 0 },
+    },
+  }));
+
+  assert.match(html, /<div class="sqc-active-detail-title-row"><h1>Ada&#x27;s Fork &amp; Pin<\/h1><a[^>]*class="sqc-like-pill"[^>]*aria-label="Sign in to like Ada&#x27;s Fork &amp; Pin\. 2 likes\."/);
+  assert.match(html, /data-icon="thumb-up-outline"/);
+  assert.doesNotMatch(html, />Sign in to like<\/a>/);
+  assert.match(html, /href="\/support\?report=community-solo&amp;questId=quest%2F42&amp;title=Ada%27s\+Fork\+%26\+Pin&amp;creator=Ada\+%26\+Lin"[^>]*>Report this Side Quest<\/a>/);
+  assert.doesNotMatch(html, /Sign in to like or report/);
+});
+
 test("signed-in Community Solo detail can start an exact preselected Multiplayer draft", () => {
   const html = renderToStaticMarkup(React.createElement(MobileCommunitySideQuestDetailScreen, {
     signedIn: true,

@@ -65,8 +65,8 @@ test("signed-out official Solo likes preserve the exact detail sign-in return pa
 test("official Solo like control disables repeated submissions and sends only the exact quest mutation", async () => {
   const source = await readFile(new URL("../src/components/official-solo-like-control.tsx", import.meta.url), "utf8");
 
-  assert.match(source, /disabled=\{busy\}/);
-  assert.match(source, /if \(busy\) return/);
+  assert.match(source, /disabled=\{busy \|\| externallyBusy\}/);
+  assert.match(source, /if \(busy \|\| externallyBusy\) return/);
   assert.match(source, /fetch\("\/api\/community-likes"/);
   assert.match(source, /targetType = "solo"/);
   assert.match(source, /targetType,/);
@@ -74,6 +74,17 @@ test("official Solo like control disables repeated submissions and sends only th
   assert.doesNotMatch(source, /userId|ownerId|username/);
   assert.match(source, /setLiked\(previous\.liked\)/);
   assert.match(source, /Could not update your like\. Try again\./);
+});
+
+test("shared like controls synchronize canonical props and honor a target-wide pending state", async () => {
+  const source = await readFile(new URL("../src/components/official-solo-like-control.tsx", import.meta.url), "utf8");
+
+  assert.match(source, /useEffect\(\(\) => \{\s*setLiked\(initiallyLiked\);\s*setCount\(initialCount\);\s*\}, \[initialCount, initiallyLiked\]\)/);
+  assert.match(source, /if \(busy \|\| externallyBusy\) return/);
+  assert.match(source, /disabled=\{busy \|\| externallyBusy\}/);
+  assert.match(source, /onMutationSettled\?\.\(\)/);
+  assert.match(source, /latestStateGeneration\.current = stateGeneration/);
+  assert.match(source, /if \(mutationGeneration === latestStateGeneration\.current\) \{/);
 });
 
 test("official Solo detail loads public like totals for signed-out viewers", async () => {

@@ -5,20 +5,24 @@ import { clerkClient, currentUser } from "@clerk/nextjs/server";
 import { unstable_noStore as noStore } from "next/cache";
 import { notFound } from "next/navigation";
 import MobileAppWebShell, { MiniChessBoard } from "@/components/mobile-app-web-shell";
+import CompletedOfficialSoloControls from "@/components/completed-official-solo-controls";
 import DeactivateQuestControl from "@/components/deactivate-quest-control";
 import { MobileWebRelativeTime } from "@/components/mobile-web-relative-time";
 import OfficialSoloDetailActions, { OfficialSoloExactGameControl } from "@/components/official-solo-detail-actions";
 import OfficialSoloLikeControl from "@/components/official-solo-like-control";
+import OfficialSoloShareControls from "@/components/official-solo-share-controls";
 import SoloCoatLightbox from "@/components/solo-coat-lightbox";
 import { CHALLENGES, getChallengeById } from "@/lib/challenges";
 import { getCommunityLikeSummaries } from "@/lib/community-likes";
 import { getChallengeGlowPath } from "@/lib/mobile-web-trophies";
+import { buildCompletedOfficialPublicProofPath } from "@/lib/proof-share";
 import {
   buildAttemptSummary,
   getActiveChallenge,
   getChallengeProgress,
   getChessComUsername,
   getLatestChallengeAttempt,
+  getLatestPassedChallengeAttempt,
   getLichessUsername,
   getPreferredRunnerName,
   type UserMetadataRecord,
@@ -100,6 +104,12 @@ export default async function ChallengeDetailPage({
       ? challenge.rules
       : [challenge.instruction, challenge.proofCallout].filter(Boolean);
   const completed = progress.completedChallengeIds.includes(challenge.id);
+  const completedProofPath = await buildCompletedOfficialPublicProofPath({
+    completed,
+    attempt: getLatestPassedChallengeAttempt(metadata, challenge.id),
+    challenge,
+    runnerName: displayName ?? undefined,
+  });
   const likeSummary = (await getCommunityLikeSummaries(await clerkClient(), user?.id ?? null)).get("solo", challenge.id);
 
   return (
@@ -217,7 +227,7 @@ export default async function ChallengeDetailPage({
               <p className="sqc-opening-hint">{challenge.openingHint}</p>
             </section>
 
-            <Link href={`/challenges/${challenge.id}`} className="sqc-secondary-action full sqc-share-action">Share public link</Link>
+            <OfficialSoloShareControls id={challenge.id} title={challenge.title} />
 
             {completed ? null : (
               <section className="sqc-native-card sqc-proof-action-card">
@@ -263,6 +273,10 @@ export default async function ChallengeDetailPage({
               <DeactivateQuestControl challenge={challenge} />
             </div>
           </section>
+        ) : null}
+
+        {completed && user ? (
+          <CompletedOfficialSoloControls challenge={challenge} proofPath={completedProofPath} />
         ) : null}
       </div>
     </MobileAppWebShell>

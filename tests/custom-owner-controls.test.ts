@@ -1,9 +1,14 @@
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
+import React from "react";
+import { renderToStaticMarkup } from "react-dom/server";
+import CustomSideQuestOwnerControls from "../src/components/custom-side-quest-owner-controls";
+import * as customOwnerControls from "../src/lib/custom-owner-controls";
 import {
   buildCustomOwnerSavePayload,
   getCustomOwnerDestination,
+  type CustomOwnerSaveInput,
 } from "../src/lib/custom-owner-controls";
 
 const root = new URL("../", import.meta.url);
@@ -42,6 +47,28 @@ test("owner save rejects unsafe quest identity and invalid rule config", () => {
 test("owner mutations only navigate to the exact owned detail", () => {
   assert.equal(getCustomOwnerDestination({ ok: true, customQuest: { id: "custom-safe-1" } }, "custom-safe-1"), "/custom-side-quests/custom-safe-1");
   assert.equal(getCustomOwnerDestination({ ok: true, customQuest: { id: "custom-other" } }, "custom-safe-1"), null);
+});
+
+test("Multiplayer eligibility uses the persisted owner quest lifecycle", () => {
+  const getHref = (customOwnerControls as unknown as {
+    getCustomOwnerMultiplayerHref?: (input: CustomOwnerSaveInput) => string | null;
+  }).getCustomOwnerMultiplayerHref;
+  assert.equal(typeof getHref, "function");
+  assert.equal(getHref?.(quest), "/create-multiplayer-side-quest?quest=custom-safe-1");
+  assert.equal(getHref?.({ ...quest, lifecycle: "draft" }), null);
+  assert.equal(getHref?.({ ...quest, lifecycle: "archived" }), null);
+});
+
+test("only published owned quests can be used in Multiplayer", () => {
+  const published = renderToStaticMarkup(React.createElement(CustomSideQuestOwnerControls, { quest }));
+  assert.match(published, /href="\/create-multiplayer-side-quest\?quest=custom-safe-1"[^>]*>Use in Multiplayer<\/a>/);
+
+  for (const lifecycle of ["draft", "archived"] as const) {
+    const unavailable = renderToStaticMarkup(React.createElement(CustomSideQuestOwnerControls, {
+      quest: { ...quest, lifecycle },
+    }));
+    assert.doesNotMatch(unavailable, /Use in Multiplayer/);
+  }
 });
 
 test("custom library and route wire each saved quest to an owner detail surface", async () => {
