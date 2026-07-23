@@ -6,6 +6,18 @@ import { getMultiplayerCreateQuestPicker, toggleMultiplayerCreateQuest, type Mul
 
 export type MultiplayerCreateQuest = MultiplayerCreateQuestChoice;
 
+const accessChoices = [
+  { id: "public", title: "Public", helper: "Visible in Browse" },
+  { id: "unlisted-link", title: "Unlisted link", helper: "Only players with the link can join" },
+  { id: "private-key", title: "Invite code", helper: "Only players with the invite code or link can join" },
+] as const;
+
+const providerChoices = [
+  { id: "both", title: "Lichess or Chess.com", helper: "Players can use Lichess or Chess.com" },
+  { id: "lichess", title: "Lichess", helper: "Only public Lichess games" },
+  { id: "chesscom", title: "Chess.com", helper: "Only public Chess.com games" },
+] as const;
+
 function localDateTime(date: Date) { const shifted = new Date(date.getTime() - date.getTimezoneOffset() * 60_000); return shifted.toISOString().slice(0, 16); }
 
 export default function MobileMultiplayerCreateForm({ signedIn, quests, stableNow, communityUnavailable = false, initialQuestId }: { signedIn: boolean; quests: MultiplayerCreateQuest[]; stableNow: string; communityUnavailable?: boolean; initialQuestId?: string }) {
@@ -43,9 +55,11 @@ export default function MobileMultiplayerCreateForm({ signedIn, quests, stableNo
     <section className="sqc-native-card"><div className="sqc-form-list">
       <label className="sqc-form-row"><span>Quest name</span><input aria-label="Quest name" maxLength={54} onChange={(e) => setName(e.target.value)} required value={name} /></label>
       <label className="sqc-form-row"><span>Intro text</span><textarea aria-label="Intro text" maxLength={260} onChange={(e) => setInviteCopy(e.target.value)} value={inviteCopy} /></label>
-      <label className="sqc-form-row"><span>Access</span><select onChange={(e) => setInviteMode(e.target.value)} value={inviteMode}><option value="public">Public</option><option value="unlisted-link">Unlisted link</option><option value="private-key">Invite code</option></select></label>
+      <span className="sqc-form-label">Access</span>
+      <div className="sqc-option-grid" role="group" aria-label="Multiplayer access">{accessChoices.map((choice) => <button aria-pressed={inviteMode === choice.id} className={`sqc-option-card${inviteMode === choice.id ? " selected" : ""}`} key={choice.id} onClick={() => setInviteMode(choice.id)} type="button"><span aria-hidden="true" /><div className="sqc-option-card-copy"><strong>{choice.title}</strong><small>{choice.helper}</small></div></button>)}</div>
       {inviteMode === "private-key" ? <label className="sqc-form-row"><span>Invite code</span><input maxLength={40} onChange={(e) => setInviteKey(e.target.value)} value={inviteKey} /></label> : null}
-      <label className="sqc-form-row"><span>Games allowed</span><select onChange={(e) => setProviderMode(e.target.value)} value={providerMode}><option value="both">Lichess or Chess.com</option><option value="lichess">Lichess</option><option value="chesscom">Chess.com</option></select></label>
+      <span className="sqc-form-label">Games allowed</span>
+      <div className="sqc-option-grid" role="group" aria-label="Games allowed">{providerChoices.map((choice) => <button aria-pressed={providerMode === choice.id} className={`sqc-option-card${providerMode === choice.id ? " selected" : ""}`} key={choice.id} onClick={() => setProviderMode(choice.id)} type="button"><span aria-hidden="true" /><div className="sqc-option-card-copy"><strong>{choice.title}</strong><small>{choice.helper}</small></div></button>)}</div>
       <label className="sqc-form-row"><span>Start</span><input required type="datetime-local" onChange={(e) => setStartAt(e.target.value)} value={startAt} /></label><label className="sqc-form-row"><span>End</span><input required type="datetime-local" onChange={(e) => setEndAt(e.target.value)} value={endAt} /></label>
       <div className="sqc-filter-row">{[[1,"24h"],[3,"3 days"],[7,"1 week"],[14,"2 weeks"]].map(([days,label]) => <button key={label} onClick={() => duration(Number(days))} type="button">{label}</button>)}</div>
       <details><summary>Advanced: time, rated, color</summary><label className="sqc-form-row"><span>Time control</span><select onChange={(e) => setTimeControl(e.target.value)} value={timeControl}><option>Any time control</option><option>Rapid 10+0</option><option>Blitz 5+0</option></select></label><label className="sqc-form-row"><span>Rated</span><select onChange={(e) => setRated(e.target.value)} value={rated}><option>Any rated state</option><option>Rated only</option><option>Casual only</option></select></label><label className="sqc-form-row"><span>Color</span><select onChange={(e) => setColor(e.target.value)} value={color}><option>Any color</option><option>White only</option><option>Black only</option></select></label></details>

@@ -42,6 +42,25 @@ import { getLocalCustomDraftEditHref, getLocalCustomDraftFormState, getLocalCust
 const root = new URL("../", import.meta.url);
 const source = (path: string) => readFile(new URL(path, root), "utf8");
 
+test("Multiplayer create uses Android option cards for access and provider choices", () => {
+  const html = renderToStaticMarkup(React.createElement(MobileMultiplayerCreateForm, {
+    signedIn: false,
+    quests: [],
+    stableNow: "2026-07-23T12:00:00.000Z",
+  }));
+
+  assert.match(html, /aria-label="Multiplayer access"/);
+  assert.match(html, /aria-pressed="true"[^>]*>[\s\S]*Public/);
+  assert.match(html, />Public<[\s\S]*>Visible in Browse</);
+  assert.match(html, />Unlisted link<[\s\S]*>Only players with the link can join</);
+  assert.match(html, />Invite code<[\s\S]*>Only players with the invite code or link can join</);
+  assert.match(html, /aria-label="Games allowed"/);
+  assert.match(html, />Lichess or Chess\.com<[\s\S]*>Players can use Lichess or Chess\.com</);
+  assert.match(html, />Lichess<[\s\S]*>Only public Lichess games</);
+  assert.match(html, />Chess\.com<[\s\S]*>Only public Chess\.com games</);
+  assert.doesNotMatch(html, /<span>Access<\/span><select|<span>Games allowed<\/span><select/);
+});
+
 test("signed-out custom drafts are stored locally without account identity", () => {
   const values = new Map<string, string>();
   const storage = {
