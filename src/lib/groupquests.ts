@@ -379,18 +379,37 @@ export async function findGroupQuestByInviteKey(
   let offset = 0;
   let pageCount = 0;
   let pageBound: number | undefined;
+  let snapshottedTotalCount: number | undefined;
+  let canonicalRecord: GroupQuestHostRecord | null = null;
+  let conflictingOwnerClaim = false;
   while (pageCount < (pageBound ?? CLERK_USER_SCAN_MAX_PAGES)) {
     const users = await client.users.getUserList({ limit: CLERK_USER_PAGE_SIZE, offset, orderBy: "-created_at" });
     pageCount += 1;
-    pageBound ??= clerkPageBound(users.totalCount);
+    if (offset === 0 && pageBound === undefined && isValidClerkTotalCount(users.totalCount) && users.totalCount >= users.data.length) {
+      snapshottedTotalCount = users.totalCount;
+      pageBound = clerkPageBound(users.totalCount);
+    }
     for (const user of users.data) {
       const groupQuest = getAllStoredGroupQuests(user).find((quest) => cleanInviteKey(quest.inviteKey) === normalizedKey);
-      if (groupQuest) return { userId: user.id, groupQuest };
+      if (!groupQuest) continue;
+      const record = { userId: user.id, groupQuest };
+      if (user.id === groupQuest.hostUserId) {
+        if (canonicalRecord && canonicalRecord.userId !== user.id) conflictingOwnerClaim = true;
+        else canonicalRecord = record;
+      }
     }
-    if (users.data.length < CLERK_USER_PAGE_SIZE) return null;
+    if (users.data.length < CLERK_USER_PAGE_SIZE) {
+      const shortPageMatchesSnapshot = snapshottedTotalCount === undefined
+        || offset + users.data.length === snapshottedTotalCount;
+      return shortPageMatchesSnapshot && !conflictingOwnerClaim ? canonicalRecord : null;
+    }
     offset += CLERK_USER_PAGE_SIZE;
   }
-  return null;
+  const totalCountProvesCompletion = snapshottedTotalCount !== undefined
+    && snapshottedTotalCount > 0
+    && snapshottedTotalCount % CLERK_USER_PAGE_SIZE === 0
+    && snapshottedTotalCount <= CLERK_USER_SCAN_MAX_PAGES * CLERK_USER_PAGE_SIZE;
+  return totalCountProvesCompletion && !conflictingOwnerClaim ? canonicalRecord : null;
 }
 
 
