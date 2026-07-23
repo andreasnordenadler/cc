@@ -166,6 +166,7 @@ function SignedInAccountScreen({
           href="/custom-side-quests"
           image={mobileAsset.customCrest}
         />
+        <AccountCustomQuestRows customSideQuests={customSideQuests} />
       </AccountSection>
 
       <AccountSection title="Progress & Stats" action={{ label: "Details", href: "/trophy-cabinet" }}>
@@ -337,6 +338,32 @@ export function AccountMultiplayerRow({ summary }: { summary: ActiveMultiplayerA
       image={mobileAsset.multiplayerSeal}
     />
   );
+}
+
+export function AccountCustomQuestRows({ customSideQuests }: { customSideQuests: CustomSideQuest[] }) {
+  return customSideQuests
+    .filter((quest) => quest.lifecycle !== "archived")
+    .slice(0, 2)
+    .map((quest) => (
+      <AccountRow
+        key={quest.id}
+        title={`Created: ${cleanCustomPreviewTitle(quest.title)}`}
+        meta={typeof quest.summary === "string" && quest.summary.trim() ? quest.summary.trim() : "Player-made Side Quest rule."}
+        status={quest.lifecycle === "draft" ? "Draft" : quest.visibility === "public" ? "Public" : "Private"}
+        href={`/custom-side-quests/${encodeURIComponent(quest.id)}`}
+        image={quest.badgeImageUrl ?? mobileAsset.customCrest}
+      />
+    ));
+}
+
+function cleanCustomPreviewTitle(title: string) {
+  return title
+    .replace(/\s+Demo(?=\s+Results\b|$)/gi, "")
+    .replace(/([a-z])Room(?=\d|$)/g, "$1 Multiplayer Side Quest ")
+    .replace(/\brooms\b/gi, "Multiplayer Side Quests")
+    .replace(/\broom\b/gi, "Multiplayer Side Quest")
+    .replace(/\s{2,}/g, " ")
+    .trim();
 }
 
 function AccountRow({ title, meta, status, href, image, statusImage }: { title: string; meta: string; status?: string; href: string; image: string; statusImage?: string | null }) {
