@@ -81,6 +81,27 @@ test("multiplayer create form defaults to Android's first three official Side Qu
   assert.doesNotMatch(html, /aria-label="Remove Official Mate from Multiplayer Side Quest"/);
 });
 
+test("multiplayer create form matches Android's persistent draft summary footer", () => {
+  const choices = buildMultiplayerCreateQuestChoices({
+    official: [
+      ...official,
+      { id: "official-2", title: "Official Pin", objective: "Win a pin." },
+      { id: "official-3", title: "Official Skewer", objective: "Win a skewer." },
+    ],
+    owned,
+    community,
+  });
+
+  const html = renderToStaticMarkup(
+    createElement(MobileMultiplayerCreateForm, { signedIn: true, quests: choices, stableNow: "2026-07-17T12:00:00.000Z" }),
+  );
+
+  assert.match(html, /class="sqc-create-footer-bar"/);
+  assert.match(html, /class="sqc-create-footer-title">3\/4 selected<\/strong>/);
+  assert.match(html, /class="sqc-create-footer-meta">Name the Multiplayer Side Quest before creating\.<\/span>/);
+  assert.match(html, /aria-label="Create Multiplayer Side Quest now"[^>]*>Create<\/button>/);
+});
+
 test("multiplayer create form renders each quest source instead of collapsing provenance", () => {
   const choices = buildMultiplayerCreateQuestChoices({ official, owned, community });
   const html = renderToStaticMarkup(

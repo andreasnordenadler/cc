@@ -4392,6 +4392,10 @@ body::after {
   gap: 2px;
 }
 
+.sqc-create-footer-bar > div > .sqc-create-footer-meta {
+  grid-column: 1;
+}
+
 .sqc-create-footer-button {
   min-height: 42px;
   display: inline-flex;
