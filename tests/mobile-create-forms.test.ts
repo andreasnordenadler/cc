@@ -64,6 +64,8 @@ test("Multiplayer create matches Android option cards and quick-duration guidanc
   assert.match(html, /aria-label="Quick duration"/);
   assert.match(html, />Dates save as your local time\. Start defaults to shortly after creation; no typing needed\.</);
   assert.match(html, /aria-label="Toggle advanced Multiplayer game settings"[^>]*>Advanced: time, rated, color<\/button>/);
+  assert.match(html, /aria-label="Sign in to create Multiplayer Side Quest"[^>]*>Sign in<\/button>/);
+  assert.doesNotMatch(html, /aria-label="Create Multiplayer Side Quest now"/);
   assert.doesNotMatch(html, /<select/);
   assert.doesNotMatch(html, /Rapid 10\+0|Blitz 5\+0/);
   assert.doesNotMatch(html, /<span>Access<\/span><select|<span>Games allowed<\/span><select/);
@@ -89,6 +91,12 @@ test("Multiplayer advanced controls use the shared Android option-card geometry"
   assert.match(css, /\.sqc-create-multiplayer-screen \.sqc-advanced-toggle\s*\{[^}]*width:\s*100%;/);
   assert.match(css, /\.sqc-create-multiplayer-screen \.sqc-option-card\.selected\s*\{[^}]*border-color:\s*rgba\(245, 200, 106, \.48\);[^}]*background:\s*rgba\(245, 200, 106, \.13\);/);
   assert.doesNotMatch(css, /\.sqc-multiplayer-create-form details select\s*\{/);
+});
+
+test("Multiplayer create footer stacks its live name below the selected count", async () => {
+  const css = await source("src/app/mobile-web.css");
+
+  assert.match(css, /\.sqc-create-footer-bar\s*>\s*div\s*>\s*\.sqc-create-footer-meta\s*\{[^}]*grid-column:\s*1;/);
 });
 
 test("Multiplayer create keeps Android's selected draft tray separate from catalog browsing", async () => {
