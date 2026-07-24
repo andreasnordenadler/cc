@@ -59,6 +59,7 @@ test("Multiplayer create matches Android option cards and quick-duration guidanc
   assert.match(html, />Lichess or Chess\.com<[\s\S]*>Players can use Lichess or Chess\.com</);
   assert.match(html, />Lichess<[\s\S]*>Only public Lichess games</);
   assert.match(html, />Chess\.com<[\s\S]*>Only public Chess\.com games</);
+  assert.match(html, /<span>Intro text<\/span><textarea[^>]*>A Multiplayer Side Quest where everyone tries the same Side Quests with fresh public games\.<\/textarea>/);
   assert.match(html, /<span class="sqc-form-label">Quick duration<\/span>/);
   assert.match(html, /aria-label="Quick duration"/);
   assert.match(html, />Dates save as your local time\. Start defaults to shortly after creation; no typing needed\.</);
