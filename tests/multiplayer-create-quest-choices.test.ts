@@ -58,6 +58,29 @@ test("requested community quest remains available beyond the bounded browse wind
   assert.equal(selectCommunityCreateChoices(quests, "community-1", 80).length, 80);
 });
 
+test("multiplayer create form defaults to Android's first three official Side Quests", () => {
+  const choices = buildMultiplayerCreateQuestChoices({
+    official: [
+      ...official,
+      { id: "official-2", title: "Official Pin", objective: "Win a pin." },
+      { id: "official-3", title: "Official Skewer", objective: "Win a skewer." },
+      { id: "official-4", title: "Official Mate", objective: "Deliver mate." },
+    ],
+    owned,
+    community,
+  });
+
+  const html = renderToStaticMarkup(
+    createElement(MobileMultiplayerCreateForm, { signedIn: true, quests: choices, stableNow: "2026-07-17T12:00:00.000Z" }),
+  );
+
+  assert.match(html, />3\/4 Side Quests selected<\/small>/);
+  assert.match(html, /aria-label="Remove Official Fork from Multiplayer Side Quest"/);
+  assert.match(html, /aria-label="Remove Official Pin from Multiplayer Side Quest"/);
+  assert.match(html, /aria-label="Remove Official Skewer from Multiplayer Side Quest"/);
+  assert.doesNotMatch(html, /aria-label="Remove Official Mate from Multiplayer Side Quest"/);
+});
+
 test("multiplayer create form renders each quest source instead of collapsing provenance", () => {
   const choices = buildMultiplayerCreateQuestChoices({ official, owned, community });
   const html = renderToStaticMarkup(
@@ -70,7 +93,7 @@ test("multiplayer create form renders each quest source instead of collapsing pr
   assert.match(html, />Official \(1\)</);
   assert.match(html, />Community \(2\)</);
   assert.match(html, /aria-pressed="true"[^>]*>Browse</);
-  assert.match(html, /aria-pressed="false"[^>]*>Selected \(0\)</);
+  assert.match(html, /aria-pressed="false"[^>]*>Selected \(1\)</);
 });
 
 test("multiplayer create form shows when optional community choices are unavailable", () => {

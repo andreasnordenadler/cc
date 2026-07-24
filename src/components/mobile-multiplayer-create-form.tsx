@@ -53,10 +53,13 @@ function localDateTime(date: Date) { const shifted = new Date(date.getTime() - d
 
 export default function MobileMultiplayerCreateForm({ signedIn, quests, stableNow, communityUnavailable = false, initialQuestId }: { signedIn: boolean; quests: MultiplayerCreateQuest[]; stableNow: string; communityUnavailable?: boolean; initialQuestId?: string }) {
   const initialQuest = initialQuestId ? quests.find((quest) => quest.id === initialQuestId) : undefined;
+  const defaultQuestIds = initialQuest
+    ? [initialQuest.id]
+    : quests.filter((quest) => quest.source === "official").slice(0, 3).map((quest) => quest.id);
   const [name, setName] = useState(""); const [inviteCopy, setInviteCopy] = useState("");
   const [inviteMode, setInviteMode] = useState("public"); const [inviteKey, setInviteKey] = useState("");
   const [providerMode, setProviderMode] = useState("both"); const [startAt, setStartAt] = useState(""); const [endAt, setEndAt] = useState("");
-  const [selected, setSelected] = useState<string[]>(initialQuest ? [initialQuest.id] : []); const [search, setSearch] = useState("");
+  const [selected, setSelected] = useState<string[]>(defaultQuestIds); const [search, setSearch] = useState("");
   const [source, setSource] = useState<MultiplayerCreateQuestSource>(initialQuest?.source === "official" ? "official" : initialQuest ? "community" : "official"); const [selectedOnly, setSelectedOnly] = useState(Boolean(initialQuest)); const [questLimit, setQuestLimit] = useState(8); const [selectionError, setSelectionError] = useState("");
   const [timeControl, setTimeControl] = useState("Any time control"); const [rated, setRated] = useState("Any rated state"); const [color, setColor] = useState("Any color"); const [advancedOpen, setAdvancedOpen] = useState(false);
   const [saving, setSaving] = useState(false); const [error, setError] = useState("");
