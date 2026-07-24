@@ -145,16 +145,18 @@ test("Multiplayer create waits for hydration before accepting the first picker a
   const gate = page.locator(".sqc-hydration-gate");
   await expect(gate).not.toHaveAttribute("disabled", "", { timeout: 10_000 });
 
-  await page.getByRole("button", { name: "Add Any Game Counts to Multiplayer Side Quest" }).click();
   const selectedTray = page.locator(".sqc-create-selected-tray");
-  await expect(selectedTray.getByRole("button", { name: "Remove Any Game Counts from Multiplayer Side Quest" })).toBeVisible();
   const selectedCard = page.locator(".sqc-create-selected-card");
-  await expect(selectedCard.getByText("1/4 Side Quests selected", { exact: true })).toBeVisible();
+  await expect(selectedCard.getByText("3/4 Side Quests selected", { exact: true })).toBeVisible();
+  await expect(selectedTray.getByRole("button")).toHaveCount(3);
   await expect(selectedCard.getByRole("button", { name: "Clear selected Side Quests" })).toBeVisible();
 
   await selectedCard.getByRole("button", { name: "Clear selected Side Quests" }).click();
   await expect(selectedCard.getByText("0/4 Side Quests selected", { exact: true })).toBeVisible();
   await expect(selectedCard.getByText("No Side Quests selected yet.", { exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "Add Any Game Counts to Multiplayer Side Quest" }).click();
+  await expect(selectedTray.getByRole("button", { name: "Remove Any Game Counts from Multiplayer Side Quest" })).toBeVisible();
+  await expect(selectedCard.getByText("1/4 Side Quests selected", { exact: true })).toBeVisible();
   expect(await noHorizontalOverflow(page)).toBe(true);
 });
 
