@@ -102,6 +102,36 @@ test("multiplayer create form matches Android's persistent draft summary footer"
   assert.match(html, /aria-label="Create Multiplayer Side Quest now"[^>]*>Create<\/button>/);
 });
 
+test("multiplayer create form gives authenticated users Android's name and intro guidance before submission", () => {
+  const html = renderToStaticMarkup(
+    createElement(MobileMultiplayerCreateForm, {
+      signedIn: true,
+      quests: buildMultiplayerCreateQuestChoices({ official, owned, community }),
+      stableNow: "2026-07-17T12:00:00.000Z",
+    }),
+  );
+
+  assert.match(html, /placeholder="Name this Multiplayer Side Quest"/);
+  assert.match(html, />Required\. Make it clear enough that players know what they are joining\.<\/small>/);
+  assert.match(html, /placeholder="Explain what players are joining\.\.\."/);
+  assert.match(html, />Shown to players before they join\.<\/small>/);
+});
+
+test("multiplayer create form preserves the signed-out field rendering", () => {
+  const html = renderToStaticMarkup(
+    createElement(MobileMultiplayerCreateForm, {
+      signedIn: false,
+      quests: buildMultiplayerCreateQuestChoices({ official, owned, community }),
+      stableNow: "2026-07-17T12:00:00.000Z",
+    }),
+  );
+
+  assert.doesNotMatch(html, /placeholder="Name this Multiplayer Side Quest"/);
+  assert.doesNotMatch(html, /Required\. Make it clear enough that players know what they are joining\./);
+  assert.doesNotMatch(html, /placeholder="Explain what players are joining\.\.\."/);
+  assert.doesNotMatch(html, /Shown to players before they join\./);
+});
+
 test("multiplayer create form renders each quest source instead of collapsing provenance", () => {
   const choices = buildMultiplayerCreateQuestChoices({ official, owned, community });
   const html = renderToStaticMarkup(
