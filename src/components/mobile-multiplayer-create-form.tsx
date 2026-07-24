@@ -47,6 +47,8 @@ const advancedRuleChoices = {
   },
 } as const;
 
+const multiplayerDefaultIntro = "A Multiplayer Side Quest where everyone tries the same Side Quests with fresh public games.";
+
 const subscribeToHydration = () => () => undefined;
 
 function localDateTime(date: Date) { const shifted = new Date(date.getTime() - date.getTimezoneOffset() * 60_000); return shifted.toISOString().slice(0, 16); }
@@ -56,7 +58,7 @@ export default function MobileMultiplayerCreateForm({ signedIn, quests, stableNo
   const defaultQuestIds = initialQuest
     ? [initialQuest.id]
     : quests.filter((quest) => quest.source === "official").slice(0, 3).map((quest) => quest.id);
-  const [name, setName] = useState(""); const [inviteCopy, setInviteCopy] = useState("");
+  const [name, setName] = useState(""); const [inviteCopy, setInviteCopy] = useState(multiplayerDefaultIntro);
   const [inviteMode, setInviteMode] = useState("public"); const [inviteKey, setInviteKey] = useState("");
   const [providerMode, setProviderMode] = useState("both"); const [startAt, setStartAt] = useState(""); const [endAt, setEndAt] = useState("");
   const [selected, setSelected] = useState<string[]>(defaultQuestIds); const [search, setSearch] = useState("");
