@@ -55,3 +55,12 @@ test("pnpm 11 explicitly ignores every dependency build script that CI does not 
     assert.ok(source.includes(`  "${packageName}": false`), `missing denied build-script package ${packageName}`);
   }
 });
+
+test("Android release signing stays fail-closed locally while allowing EAS credential injection", () => {
+  const source = readRepoFile("apps/mobile/android/app/build.gradle");
+
+  assert.match(source, /def sqcEasBuild = System\.getenv\("EAS_BUILD"\) == "true"/);
+  assert.match(source, /if \(!sqcEasBuild\) \{[\s\S]*Refusing to build a debug-signed release APK/);
+  assert.match(source, /buildTypes \{[\s\S]*release \{\s*signingConfig signingConfigs\.release/);
+  assert.doesNotMatch(source, /release \{\s*signingConfig signingConfigs\.debug/);
+});

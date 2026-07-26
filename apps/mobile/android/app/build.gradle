@@ -15,6 +15,7 @@ def sqcReleaseStoreFile = sqcReleaseStorePath ? (new File(sqcReleaseStorePath).i
 def sqcReleaseStorePassword = System.getenv("SQC_ANDROID_KEYSTORE_PASSWORD") ?: sqcReleaseCredentials?.keystorePassword
 def sqcReleaseKeyAlias = System.getenv("SQC_ANDROID_KEY_ALIAS") ?: sqcReleaseCredentials?.keyAlias
 def sqcReleaseKeyPassword = System.getenv("SQC_ANDROID_KEY_PASSWORD") ?: sqcReleaseCredentials?.keyPassword
+def sqcEasBuild = System.getenv("EAS_BUILD") == "true"
 
 /**
  * This is the configuration block to customize your React Native Android app.
@@ -117,13 +118,15 @@ android {
             keyPassword 'android'
         }
         release {
-            if (!sqcReleaseStoreFile || !sqcReleaseStoreFile.exists() || !sqcReleaseStorePassword || !sqcReleaseKeyAlias || !sqcReleaseKeyPassword) {
-                throw new GradleException("Release signing requires SQC_ANDROID_KEYSTORE_* env vars or apps/mobile/credentials.json. Refusing to build a debug-signed release APK.")
+            if (!sqcEasBuild) {
+                if (!sqcReleaseStoreFile || !sqcReleaseStoreFile.exists() || !sqcReleaseStorePassword || !sqcReleaseKeyAlias || !sqcReleaseKeyPassword) {
+                    throw new GradleException("Release signing requires SQC_ANDROID_KEYSTORE_* env vars or apps/mobile/credentials.json. Refusing to build a debug-signed release APK.")
+                }
+                storeFile sqcReleaseStoreFile
+                storePassword sqcReleaseStorePassword
+                keyAlias sqcReleaseKeyAlias
+                keyPassword sqcReleaseKeyPassword
             }
-            storeFile sqcReleaseStoreFile
-            storePassword sqcReleaseStorePassword
-            keyAlias sqcReleaseKeyAlias
-            keyPassword sqcReleaseKeyPassword
         }
     }
     buildTypes {
