@@ -1,31 +1,30 @@
 # SQC Mobile Real-Device Smoke
 
-Use this checklist before calling an APK launch-ready. Emulator-only smoke is useful, but it does **not** close the signed-device launch gate.
+Use this checklist before calling an Android store candidate launch-ready. Emulator-only or sideloaded-APK smoke is useful, but it does **not** close the Google Play-delivered signed-device gate.
 
 ## Distribution rule
 
-Until a store/TestFlight/Play track is explicitly cut, the launch candidate is the latest non-draft `mobile-v*` GitHub Release APK. Do not install from a local `dist-*` directory for the real-device gate.
+For the current Android gate, install the exact candidate from Google Play Internal testing. Do not substitute a local build, EAS download, GitHub Release APK, or ADB install for Play-delivered acceptance.
 
 Distribution status for this gate:
 
-- Public/store channel: **not cut yet**.
-- Real-device smoke source of truth: **GitHub Release APK only**.
-- Store/TestFlight/Play rollout decision: **separate Andreas approval after this checklist passes**.
-- If a newer `mobile-v*` release exists, update this section before testing so the recorded device evidence matches the actual candidate.
+- Google Play channel: **Internal testing only; no production rollout**.
+- Internal release shown by preserved Play Console evidence: `0.1.340 (341)`, available to internal testers.
+- Tester access: **blocked until an owner-authorized tester list is attached and the private opt-in path is used**.
+- Store publication, track promotion, tester communication, and Play Console changes remain explicit owner gates.
 
 Current candidate status:
 
-- GitHub Release tag: `mobile-v338`
-- Release URL: <https://github.com/andreasnordenadler/cc/releases/tag/mobile-v338>
-- APK filename: `sqc-mobile-android-v338-2026-07-12.apk`
+- Distribution: Google Play Internal testing
 - Package ID: `com.sidequestchess.app`
-- Version name: `0.1.338`
-- Android version code: `338`
-- APK SHA256: `adfbecbc922bc75828539f5f21b70346ad8853a9de96a01109211ef42238e228`
-- Source commit: `39e293a4bb952acb1a4f61c113623810d751ef4f`
-- Signer certificate SHA256: `891fdc5a80601eaa2b6db1f3fcb26ab756650179b40b3a3f5f58dd921d753cf2`
-- Status: **provenance-valid internal beta candidate; physical-device smoke pending.**
-- Provenance proof: `pnpm mobile:release:candidate-check` verifies tag commit, tagged app config, release notes, APK identity/hash, and signer identity.
+- Version name: `0.1.340`
+- Android version code: `341`
+- Frozen AAB SHA256: `26e7cfdd493308947876b5373f95a7d576e656e764027ad3ac41fd244f4b0483`
+- EAS build ID: `51c588b7-1374-49e1-9398-6d13085b5a0e`
+- Reviewed source commit: `8eb128d81e6c05c0641ef3eb8f59704b12c38275` (merged by PR #92)
+- Upload certificate SHA256: `891fdc5a80601eaa2b6db1f3fcb26ab756650179b40b3a3f5f58dd921d753cf2`
+- Status: **provenance-valid internal-track candidate; tester assignment and Play-delivered physical-device acceptance pending.**
+- Important: the Play-delivered APK set must match the Play **app-signing** certificate recorded in App integrity. The upload certificate above is not a substitute.
 
 Historical quarantine record:
 
@@ -33,21 +32,23 @@ Historical quarantine record:
 
 ## Candidate identity
 
-The v338 GitHub Release is the current approved internal test candidate. It is not a Play Store release.
+The v340/code-341 AAB is the current internal-track candidate. It is not production-ready until a physical phone installs it from Google Play and the installed identity, Play signer, and product smoke all pass.
 
-- Tester/device/OS: Pending physical Android device; physical-phone QA is manual on Andreas's side.
-- Test time: Pending physical-device installation and smoke.
+- Tester: `samnordbot@gmail.com` after owner-authorized Internal testing assignment and opt-in.
+- Tester/device/OS: Pending supported physical Android device.
+- Test time: Pending Play-delivered installation and smoke.
 
 ## Install and launch
 
-- [x] Run `pnpm mobile:release:candidate-check` and confirm the checklist, app config, release notes, SHA256 sidecar, downloaded GitHub Release APK, APK manifest, package ID, and signer all describe the same non-debuggable release candidate.
-- [ ] Prefer `pnpm mobile:release:device-install` for the first real-device step: it reruns the candidate check, downloads the APK from GitHub Release, refuses emulators, verifies SHA256, installs on exactly one authorized physical Android device, confirms the installed package version, launches `com.sidequestchess.app`, and verifies it is foregrounded after launch.
-- [ ] Download the APK from the GitHub Release, not a local `dist-*` directory, if installing manually.
-- [ ] Verify SHA256 matches the release note if recording proof manually.
-- [ ] Confirm the APK is not debuggable (`application-debuggable` absent/false) if recording proof manually.
-- [ ] Confirm the APK signer is a release certificate, not the Android debug identity, if recording proof manually.
-- [ ] Install on a real signed Android device.
+- [x] Freeze the exact AAB provenance, package/version, non-debuggable production configuration, source commit, and upload signer.
+- [ ] Attach an owner-authorized Internal testing email list containing `samnordbot@gmail.com` and use the generated private opt-in link.
+- [ ] Sign into Google Play as the tester and install/update Side Quest Chess from Google Play, not ADB or another distribution source.
+- [ ] Confirm Android reports installer/source `com.android.vending`.
+- [ ] Confirm the installed package is `com.sidequestchess.app`, version name `0.1.340`, version code `341`.
+- [ ] Inspect the installed base/split APK set and require its signer SHA256 to match the Play app-signing certificate shown in App integrity.
+- [ ] Install on a supported physical Android device.
 - [ ] Launch `com.sidequestchess.app` and confirm Home loads without a crash.
+- [ ] Confirm Android Back and keyboard dismissal do not trap, crash, or freeze the app.
 
 ## Auth and account sync
 
@@ -92,7 +93,9 @@ The v338 GitHub Release is the current approved internal test candidate. It is n
 
 ## Evidence to record
 
-- `pnpm mobile:release:candidate-check` output, including package ID, APK SHA256, `debuggable=false`, `allowBackup=false` manifest proof, and release-signer proof.
-- `pnpm mobile:release:device-install` output when available, including real-device model, serial, Android OS version, installed version identity, install success, and foreground launch success.
-- Screenshots or short clips for launch, signed-in Account, Solo proof, Custom edit, Multiplayer create/join, Support, Trophy Cabinet, and logout.
+- Frozen AAB provenance: SHA-256, EAS build ID, reviewed source SHA, package/version, non-debuggable/backup configuration, and upload certificate.
+- Play opt-in/install evidence without account or session secrets.
+- Physical-device model, serial or redacted device identifier, Android OS version, installed package/version, `com.android.vending` installer source, launch success, and timestamp.
+- Installed base/split APK signer proof matched to the Play app-signing certificate shown in App integrity.
+- Screenshots or short clips for launch, Carl’s corrected active Solo board, signed-in Account, Solo proof, Custom edit, Multiplayer create/join, Support, Trophy Cabinet, Android Back/keyboard behavior, and logout.
 - Any failed step with device, timestamp, app version, and exact observed text.
