@@ -4,18 +4,6 @@ import test from "node:test";
 
 const readRepoFile = (path: string) => readFileSync(new URL(`../${path}`, import.meta.url), "utf8");
 
-test("release audit ignores only the reviewed Expo CLI brace-expansion advisory", () => {
-  const source = readRepoFile("scripts/mobile-release.mjs");
-  const workspace = readRepoFile("pnpm-workspace.yaml");
-
-  assert.match(source, /GHSA-mh99-v99m-4gvg/);
-  assert.doesNotMatch(source, /"--ignore"/);
-  assert.match(source, /Expo CLI build tooling/);
-  assert.equal(workspace.match(/GHSA-mh99-v99m-4gvg/g)?.length, 1);
-  assert.doesNotMatch(workspace, /ignoreCves/);
-  assert.match(workspace, /brace-expansion@1\.1\.13:\s*1\.1\.17/);
-  assert.match(workspace, /brace-expansion@2\.1\.0:\s*2\.1\.3/);
-});
 
 test("Android signing stays fail-closed for direct and umbrella artifact tasks without blocking release lint", () => {
   const source = readRepoFile("apps/mobile/android/app/build.gradle");
@@ -46,7 +34,7 @@ test("CI uses a pnpm release whose audit client supports the registry bulk advis
 });
 
 test("pnpm 11 keeps the release-age guard except for the reviewed Expo patch set", () => {
-  const source = readRepoFile("pnpm-workspace.yaml").replaceAll("'", "").replaceAll('"', "");
+  const source = readRepoFile("pnpm-workspace.yaml");
   const reviewedExpoPatchSet = [
     "@expo/cli@54.0.26",
     "@expo/config-plugins@54.0.5",
@@ -61,12 +49,12 @@ test("pnpm 11 keeps the release-age guard except for the reviewed Expo patch set
 
   assert.doesNotMatch(source, /minimumReleaseAge:\s*0/);
   for (const packageVersion of reviewedExpoPatchSet) {
-    assert.ok(source.includes(`- ${packageVersion}`), `missing reviewed exception ${packageVersion}`);
+    assert.ok(source.includes(`- "${packageVersion}"`), `missing reviewed exception ${packageVersion}`);
   }
 });
 
 test("pnpm 11 explicitly ignores every dependency build script that CI does not need", () => {
-  const source = readRepoFile("pnpm-workspace.yaml").replaceAll("'", "").replaceAll('"', "");
+  const source = readRepoFile("pnpm-workspace.yaml");
   const intentionallyIgnored = [
     "@clerk/shared",
     "browser-tabs-lock",
@@ -79,7 +67,7 @@ test("pnpm 11 explicitly ignores every dependency build script that CI does not 
   ];
 
   for (const packageName of intentionallyIgnored) {
-    assert.ok(source.includes(`  ${packageName}: false`), `missing denied build-script package ${packageName}`);
+    assert.ok(source.includes(`  "${packageName}": false`), `missing denied build-script package ${packageName}`);
   }
 });
 

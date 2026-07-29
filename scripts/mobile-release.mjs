@@ -141,10 +141,6 @@ if (!shouldSkipBuild) {
 
 disableAndroidBackup();
 
-// GHSA-mh99-v99m-4gvg is confined to Expo CLI build tooling. The compatible
-// minimatch 1/2 lines use reviewed 1.1.17/2.1.3 security backports because they
-// cannot consume v5; the registry still advertises only 5.0.8 as patched, so
-// pnpm-workspace.yaml records this one metadata exception.
 run("pnpm", ["audit", "--prod", "--audit-level", "high"]);
 run("pnpm", ["mobile:doctor"]);
 run("pnpm", ["--dir", "apps/mobile", "typecheck"]);
