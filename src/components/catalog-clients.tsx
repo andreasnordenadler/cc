@@ -167,7 +167,7 @@ export function CustomSoloCatalog({ rows }: { rows: CustomCatalogClientRow[] }) 
   </>;
 }
 
-export function CommunityMultiplayerCatalog({ rows, signedIn, initialHost = null }: { rows: MobileWebMultiplayerPreview[]; signedIn: boolean; initialHost?: string | null }) {
+export function CommunityMultiplayerCatalog({ rows, signedIn, initialHost = null, catalogStatus = "available" }: { rows: MobileWebMultiplayerPreview[]; signedIn: boolean; initialHost?: string | null; catalogStatus?: "available" | "unavailable" }) {
   const [liveRows, setLiveRows] = useState(rows);
   const [previousRows, setPreviousRows] = useState(rows);
   const [pendingLikeIds, setPendingLikeIds] = useState<Set<string>>(() => new Set());
@@ -214,6 +214,7 @@ export function CommunityMultiplayerCatalog({ rows, signedIn, initialHost = null
           <label className="sqc-sort-pill">Sort <select aria-label="Sort multiplayer community" value={sort} onChange={event => { setSort(event.target.value as typeof sort); setLimit(4); }}><option value="closing">Closing</option><option value="liked">Liked</option><option value="newest">New</option><option value="players">Players</option></select></label></div>
         </div>
         {page.rows.length ? <div className="sqc-catalog">{page.rows.map(row => <MultiplayerCatalogRow key={row.id} row={row} signedIn={signedIn} status={signedIn ? row.lifecycle === "finished" ? "Finished" : row.status : "View"} stateGeneration={rowsGeneration} externallyBusy={pendingLikeIds.has(row.id)} onLikeStateChange={(liked) => { setPendingLikeIds((current) => new Set(current).add(row.id)); if (rowsGenerationRef.current === rowsGeneration) { setLiveRows((current) => applyMultiplayerLikeState(current, row.id, liked)); } }} onMutationSettled={() => setPendingLikeIds((current) => { const next = new Set(current); next.delete(row.id); return next; })} />)}</div> : (() => {
+          if (catalogStatus === "unavailable") return <div className="sqc-empty-panel"><strong>Public Multiplayer Side Quests could not be loaded.</strong><span>Check your connection and try again.</span></div>;
           const emptyState = getCommunityMultiplayerEmptyState({ hasCatalogRows: publicRows.length > 0, hasHostFilter: Boolean(host) });
           return <div className="sqc-empty-panel"><strong>{emptyState.title}</strong>{emptyState.guidance ? <span>{emptyState.guidance}</span> : null}</div>;
         })()}

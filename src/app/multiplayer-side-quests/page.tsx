@@ -14,7 +14,7 @@ export default async function MultiplayerSideQuestsPage({
   noStore();
   const [{ tab, host }, user, client] = await Promise.all([searchParams, currentUser(), clerkClient()]);
   const metadata = user?.publicMetadata ? (user.publicMetadata as UserMetadataRecord) : {};
-  const { officialRows, communityRows, previousOfficialRows, earlierOfficialWeeks } = await getMobileWebMultiplayerPreviews(client, user?.id);
+  const { officialRows, communityRows, previousOfficialRows, earlierOfficialWeeks, catalogStatus } = await getMobileWebMultiplayerPreviews(client, user?.id, undefined, { signedOutUnavailableFallback: true });
   const displayName = user
     ? getPreferredRunnerName(metadata, {
         firstName: user.firstName,
@@ -40,6 +40,7 @@ export default async function MultiplayerSideQuestsPage({
         communityHost={getMultiplayerHostFilter(host)}
         previousOfficialRows={previousOfficialRows}
         earlierOfficialWeeks={earlierOfficialWeeks}
+        catalogStatus={catalogStatus}
       />
     </MobileAppWebShell>
   );
