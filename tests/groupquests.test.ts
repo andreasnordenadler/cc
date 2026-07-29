@@ -500,9 +500,13 @@ test("normalizes the retired public acronym in stored official labels", () => {
   const legacy = buildGroupQuest({ hostUserId: "host", hostName: "Host", name: "Legacy official", startAt: "2026-07-01", endAt: "2026-07-20" });
   legacy.official = true;
   legacy.officialLabel = "Official SQC · 14 days";
+  legacy.hostName = "SQC host";
+  legacy.participants = [participant("legacy-runner", { leaderboardName: "SQC player" })];
 
   const [stored] = getStoredGroupQuests({ sqcGroupQuests: [legacy] });
   assert.equal(stored.officialLabel, "Official Side Quest Chess · 14 days");
+  assert.equal(stored.hostName, "Quest host");
+  assert.equal(stored.participants[0].leaderboardName, "Quest runner");
 });
 
 for (const lookup of ["id", "invite", "catalog"] as const) {

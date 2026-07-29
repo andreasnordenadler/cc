@@ -1,6 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
 import { ImageResponse } from "next/og";
-import { decodePublicProof } from "@/lib/proof-share";
+import { decodePublicProof, normalizePublicProofBadgeMotif } from "@/lib/proof-share";
 
 export const runtime = "edge";
 
@@ -31,6 +31,7 @@ export async function GET(
   const dateLabel = formatScrollDate(payload.completedGameAt ?? payload.checkedAt, timeZone);
   const badgeImageSource = payload.badgeImageUrl || challenge?.badgeIdentity.image;
   const badgeImage = badgeImageSource ? new URL(badgeImageSource, request.url).toString() : null;
+  const badgeMotif = normalizePublicProofBadgeMotif(payload.badgeMotif);
   const sealImage = new URL("/stamps/sqc-wax-seal-canonical.png", request.url).toString();
   const proofLine = payload.summary || "Verified public-game proof accepted by Side Quest Chess.";
   const achievementCopy = payload.challengeId === "finish-any-game"
@@ -123,7 +124,7 @@ export async function GET(
                 <img src={badgeImage} alt="" width="236" height="236" style={{ width: 236, height: 236, objectFit: "contain", filter: "drop-shadow(0 18px 24px rgba(82,38,15,.32))" }} />
               ) : (
                 <div style={{ width: 180, height: 205, display: "flex", alignItems: "center", justifyContent: "center", borderRadius: "36px 36px 68px 68px", border: "11px solid #7c2d12", background: "linear-gradient(160deg, #24100d, #5f1d14)", color: "#f5c86a", fontSize: 58, fontWeight: 1000 }}>
-                  {payload.badgeMotif || "♞"}
+                  {badgeMotif || "♞"}
                 </div>
               )}
             </div>

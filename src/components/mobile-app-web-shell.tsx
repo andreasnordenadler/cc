@@ -401,7 +401,7 @@ function DesktopGuestHome() {
         </div>
         <ol>
           <li><span>01</span><strong>Choose your bad idea</strong><p>Pick one rule likely to make your opening coach sigh.</p></li>
-          <li><span>02</span><strong>Play normal chess</strong><p>Use a public Lichess or Chess.com game. No special lobby, costume, or paperwork.</p></li>
+          <li><span>02</span><strong>Play normal chess</strong><p>Use a public Lichess or Chess.com game. No special lobby. No costume. We brought the clipboard.</p></li>
           <li><span>03</span><strong>Present evidence to the paperwork goblin</strong><p>Your newest public game is inspected for the required nonsense.</p></li>
           <li><span>04</span><strong>Receive unnecessary heraldry</strong><p>The Coat of Arms goes straight into your Trophy Cabinet.</p></li>
         </ol>

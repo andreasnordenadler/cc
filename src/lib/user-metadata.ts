@@ -58,7 +58,11 @@ export function getChessComUsername(metadata: UserMetadataRecord): string {
 }
 
 export function getRunnerDisplayName(metadata: UserMetadataRecord): string {
-  return typeof metadata.runnerDisplayName === "string" ? metadata.runnerDisplayName : "";
+  const stored = typeof metadata.runnerDisplayName === "string" ? metadata.runnerDisplayName : "";
+  if (/^SQC player$/i.test(stored)) return "Quest runner";
+  if (/^SQC host$/i.test(stored)) return "Quest host";
+  if (/^SQC$/i.test(stored)) return "Side Quest Chess";
+  return stored;
 }
 
 export function getClerkHumanName(user: {

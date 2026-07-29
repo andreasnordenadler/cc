@@ -656,11 +656,12 @@ function normalizeGroupQuest(value: unknown): ServerGroupQuest | null {
   const id = cleanText(record.id, 80);
   const hostUserId = cleanText(record.hostUserId, 120);
   const name = cleanText(record.name, 64);
+  const storedHostName = cleanText(record.hostName, 80);
   if (!id || !hostUserId || !name) return null;
   return {
     id,
     hostUserId,
-    hostName: cleanText(record.hostName, 80) ?? "Quest host",
+    hostName: storedHostName && /^SQC host$/i.test(storedHostName) ? "Quest host" : storedHostName ?? "Quest host",
     name,
     inviteCopy: cleanText(record.inviteCopy, 280) ?? defaultInviteCopy,
     inviteMode: normalizeInviteMode(record.inviteMode),
@@ -717,7 +718,8 @@ function normalizeParticipant(value: unknown): GroupQuestParticipant | null {
   const record = value as Record<string, unknown>;
   const userId = cleanText(record.userId, 120);
   const username = cleanText(record.username, 60);
-  const leaderboardName = cleanText(record.leaderboardName, 60);
+  const storedLeaderboardName = cleanText(record.leaderboardName, 60);
+  const leaderboardName = storedLeaderboardName && /^SQC player$/i.test(storedLeaderboardName) ? "Quest runner" : storedLeaderboardName;
   const joinedAt = cleanText(record.joinedAt, 40);
   if (!userId || !username || !leaderboardName || !joinedAt) return null;
   return {

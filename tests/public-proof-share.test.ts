@@ -8,6 +8,31 @@ import {
   buildPublicProofSharePayload,
   sharePublicProof,
 } from "../src/lib/public-proof-share";
+import { normalizePublicProofBadgeMotif, normalizePublicProofPayload } from "../src/lib/proof-share";
+
+test("legacy proof motifs never expose the retired public acronym", () => {
+  assert.equal(normalizePublicProofBadgeMotif("SQC"), "♞");
+  assert.equal(normalizePublicProofBadgeMotif("Knight"), "Knight");
+  assert.equal(normalizePublicProofBadgeMotif(undefined), "♞");
+});
+
+test("legacy proof tokens normalize every public text field", () => {
+  const payload = normalizePublicProofPayload({
+    v: 1,
+    challengeId: "legacy",
+    challengeTitle: "SQC challenge",
+    badgeName: "SQC crest",
+    badgeMotif: "SQC",
+    reward: 100,
+    summary: "Verified by SQC.",
+    runnerName: "SQC player",
+  });
+  assert.equal(payload.challengeTitle, "Side Quest Chess challenge");
+  assert.equal(payload.badgeName, "Side Quest Chess crest");
+  assert.equal(payload.badgeMotif, "♞");
+  assert.equal(payload.summary, "Verified by Side Quest Chess.");
+  assert.equal(payload.runnerName, "Side Quest Chess player");
+});
 
 test("public proof sharing targets the exact canonical receipt and opens native sharing", async () => {
   const shared: unknown[] = [];

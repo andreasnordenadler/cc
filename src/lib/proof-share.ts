@@ -26,6 +26,22 @@ export type DecodedPublicProof = {
   challenge: Challenge | null;
 };
 
+export function normalizePublicProofBadgeMotif(value: string | undefined) {
+  return !value || /^SQC$/i.test(value) ? "♞" : value;
+}
+
+export function normalizePublicProofPayload(payload: PublicProofPayload): PublicProofPayload {
+  const normalizeText = (value: string) => value.replace(/\bSQC\b/gi, "Side Quest Chess");
+  return {
+    ...payload,
+    challengeTitle: normalizeText(payload.challengeTitle),
+    badgeName: normalizeText(payload.badgeName),
+    badgeMotif: normalizePublicProofBadgeMotif(payload.badgeMotif),
+    summary: normalizeText(payload.summary),
+    runnerName: payload.runnerName ? normalizeText(payload.runnerName) : undefined,
+  };
+}
+
 export async function buildPublicProofPath({
   attempt,
   challenge,
@@ -132,7 +148,7 @@ export async function decodePublicProof(token: string | null | undefined): Promi
     }
 
     return {
-      payload,
+      payload: normalizePublicProofPayload(payload),
       challenge: getChallengeById(payload.challengeId) ?? null,
     };
   } catch {
