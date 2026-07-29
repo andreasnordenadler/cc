@@ -10,7 +10,7 @@ import { clerkClient, currentUser } from "@clerk/nextjs/server";
 import { unstable_noStore as noStore } from "next/cache";
 import { CHALLENGES } from "@/lib/challenges";
 import { getChessRatingSnapshots } from "@/lib/chess-ratings";
-import { listPublicCommunitySideQuests } from "@/lib/community-side-quests";
+import { listPublicCommunitySideQuests, type PublicCommunitySideQuest } from "@/lib/community-side-quests";
 import { getCustomSideQuests, type CustomSideQuest } from "@/lib/custom-side-quests";
 import { getActiveMultiplayerAccountRow, getMobileWebAccountOverview, loadOptionalCommunityTrophyQuests } from "@/lib/mobile-web-trophies";
 import {
@@ -22,6 +22,7 @@ import {
   getLichessUsername,
   getPreferredRunnerName,
   getRunnerBio,
+  type ActiveChallenge,
   type UserMetadataRecord,
 } from "@/lib/user-metadata";
 
@@ -31,6 +32,43 @@ const mobileAsset = {
   customCrest: "/badges/custom/community/community-coat-01.png",
   fallbackBadge: "/mobile-source/badges/v6/proof-loop-test-badge.png",
 };
+
+type AccountCustomSoloQuest = Pick<CustomSideQuest, "id" | "title" | "summary" | "badgeImageUrl">;
+type AccountCommunitySoloQuest = Pick<PublicCommunitySideQuest, "id" | "title" | "summary" | "badgeImageUrl" | "detailPath">;
+
+export function resolveAccountActiveSoloRow(
+  activeChallenge: ActiveChallenge | null,
+  customSideQuests: AccountCustomSoloQuest[],
+  communityQuests: AccountCommunitySoloQuest[],
+) {
+  if (!activeChallenge?.id) return null;
+  const officialChallenge = CHALLENGES.find((challenge) => challenge.id === activeChallenge.id);
+  if (officialChallenge) {
+    return {
+      title: officialChallenge.title,
+      objective: officialChallenge.objective,
+      href: `/challenges/${encodeURIComponent(officialChallenge.id)}`,
+      image: toMobileAssetPath(officialChallenge.badgeIdentity.image),
+    };
+  }
+  const customQuest = customSideQuests.find((quest) => quest.id === activeChallenge.id);
+  if (customQuest) {
+    return {
+      title: customQuest.title,
+      objective: customQuest.summary,
+      href: `/custom-side-quests/${encodeURIComponent(customQuest.id)}`,
+      image: customQuest.badgeImageUrl ?? mobileAsset.customCrest,
+    };
+  }
+  const communityQuest = communityQuests.find((quest) => quest.id === activeChallenge.id);
+  if (!communityQuest) return null;
+  return {
+    title: communityQuest.title,
+    objective: communityQuest.summary,
+    href: communityQuest.detailPath,
+    image: communityQuest.badgeImageUrl ?? mobileAsset.customCrest,
+  };
+}
 
 export default async function AccountPage() {
   noStore();
@@ -92,6 +130,7 @@ export default async function AccountPage() {
           accountStats={accountOverview?.stats ?? null}
           activeMultiplayer={accountOverview?.activeMultiplayer ?? null}
           customSideQuests={customSideQuests}
+          communityQuests={communityQuests}
         />
       ) : (
         <SignedOutAccountScreen />
@@ -112,6 +151,7 @@ function SignedInAccountScreen({
   accountStats,
   activeMultiplayer,
   customSideQuests,
+  communityQuests,
 }: {
   displayName: string;
   email: string | null;
@@ -124,9 +164,9 @@ function SignedInAccountScreen({
   accountStats: MobileWebAccountStats | null;
   activeMultiplayer: ActiveMultiplayerAccountSummary | null;
   customSideQuests: CustomSideQuest[];
+  communityQuests: PublicCommunitySideQuest[];
 }) {
   const activeChallenge = getActiveChallenge(metadata);
-  const activeChallengeRecord = activeChallenge?.id ? CHALLENGES.find((challenge) => challenge.id === activeChallenge.id) ?? null : null;
   const activeAttempt = getLatestChallengeAttempt(metadata, activeChallenge?.id);
   const ratings = getChessRatingSnapshots(metadata);
 
@@ -160,12 +200,11 @@ function SignedInAccountScreen({
       </section>
 
       <AccountSection title="Your Side Quests" action={{ label: "Browse Solo", href: "/side-quests" }}>
-        <AccountRow
-          title={`Solo Side Quest: ${activeChallengeRecord?.title ?? "Choose a Solo Side Quest"}`}
-          meta={activeChallengeRecord ? `${activeChallengeRecord.objective} · ${formatLatestCheck(activeAttempt?.checkedAt ?? activeChallenge?.verifiedAt)}` : "Pick one Side Quest to judge against your next public game."}
-          status={activeChallengeRecord ? "Active" : "Open"}
-          href={activeChallengeRecord ? `/challenges/${activeChallengeRecord.id}` : "/side-quests"}
-          image={activeChallengeRecord?.badgeIdentity.image ? toMobileAssetPath(activeChallengeRecord.badgeIdentity.image) : mobileAsset.coat}
+        <AccountSoloRow
+          activeChallenge={activeChallenge}
+          checkedAt={activeAttempt?.checkedAt ?? activeChallenge?.verifiedAt}
+          customSideQuests={customSideQuests}
+          communityQuests={communityQuests}
         />
         <AccountMultiplayerRow summary={activeMultiplayer} />
         <AccountCustomQuestSummaryRow customSideQuests={customSideQuests} />
@@ -321,6 +360,29 @@ function ReadinessChip({ label, value, href }: { label: string; value: string; h
       <span>{label}</span>
       <strong>{value || "Add"}</strong>
     </Link>
+  );
+}
+
+export function AccountSoloRow({
+  activeChallenge,
+  checkedAt,
+  customSideQuests,
+  communityQuests,
+}: {
+  activeChallenge: ActiveChallenge | null;
+  checkedAt?: string | null;
+  customSideQuests: AccountCustomSoloQuest[];
+  communityQuests: AccountCommunitySoloQuest[];
+}) {
+  const row = resolveAccountActiveSoloRow(activeChallenge, customSideQuests, communityQuests);
+  return (
+    <AccountRow
+      title={`Solo Side Quest: ${row?.title ?? "Choose a Solo Side Quest"}`}
+      meta={row ? `${row.objective} · ${formatLatestCheck(checkedAt)}` : "Pick one Side Quest to judge against your next public game."}
+      status={row ? "Active" : "Open"}
+      href={row?.href ?? "/side-quests"}
+      image={row?.image ?? mobileAsset.coat}
+    />
   );
 }
 
