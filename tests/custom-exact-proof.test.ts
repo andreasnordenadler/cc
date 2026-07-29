@@ -3,7 +3,7 @@ import test from "node:test";
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import CustomSideQuestProofControls from "../src/components/custom-side-quest-proof-controls";
-import { POST, submitMobileChallengeAttempt, verifySubmittedChallengeAttempt, withMobileQuestRouteTestDependencies } from "../src/app/api/mobile/quest/route";
+import { POST, selectPublishedPublicCustomQuest, submitMobileChallengeAttempt, verifySubmittedChallengeAttempt, withMobileQuestRouteTestDependencies } from "../src/app/api/mobile/quest/route";
 import { checkLatestCustomSideQuestForProvider, checkSubmittedCustomSideQuestForProvider, fetchBoundedProviderJson, type CustomSideQuest } from "../src/lib/custom-side-quests";
 import { buildCompletedCustomPublicProofPath, buildCustomPublicProofPath, decodePublicProof } from "../src/lib/proof-share";
 import { getLatestPassedChallengeAttempt } from "../src/lib/user-metadata";
@@ -413,12 +413,147 @@ test("latest custom checks keep active snapshot rules after mutable edit, delete
       authenticate: async () => "server-user",
       getClient: async () => ({ users: {
         getUser: async () => ({ publicMetadata: metadata, privateMetadata: { customSideQuests } }),
+        getUserList: async () => ({ data: [] }),
         updateUserMetadata: async (_userId: string, value: unknown) => { written = value; },
       } }) as never,
     }, () => POST(new Request("https://sidequestchess.com/api/mobile/quest", { method: "POST", body: JSON.stringify({ action: "check" }) })));
     assert.equal(response.status, 200);
     assert.equal((written as { publicMetadata: { activeChallenge: { status: string } } }).publicMetadata.activeChallenge.status, "verified");
   }
+});
+
+test("latest custom check returns a server-derived celebration only for a new completion", async (t) => {
+  const previousNodeEnv = process.env.NODE_ENV;
+  Object.defineProperty(process.env, "NODE_ENV", { value: "test", configurable: true, writable: true, enumerable: true });
+  t.after(() => Object.defineProperty(process.env, "NODE_ENV", { value: previousNodeEnv, configurable: true, writable: true, enumerable: true }));
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async () => new Response(`${JSON.stringify({
+    id: "Latest123",
+    status: "mate",
+    winner: "white",
+    createdAt: Date.parse("2026-07-18T10:00:00.000Z"),
+    lastMoveAt: Date.parse("2026-07-18T10:10:00.000Z"),
+    moves: "e2e4 e7e5 d1h5 b8c6 f1c4 g8f6 h5f7",
+    players: { white: { user: { name: "Alice" } }, black: { user: { name: "Bob" } } },
+  })}\n`, { status: 200 });
+  t.after(() => { globalThis.fetch = originalFetch; });
+
+  const ownedQuest = { ...winQuest, badgeImageUrl: "/badges/custom/community/community-coat-08.png" };
+  const metadata = {
+    lichessUsername: "alice",
+    activeChallenge: { id: winQuest.id, status: "accepted", startedAt: "2026-07-18T09:00:00.000Z", customQuestSnapshot: winQuest },
+    challengeProgress: { completedChallengeIds: [] },
+  };
+  const response = await withMobileQuestRouteTestDependencies({
+    authenticate: async () => "server-user",
+    getClient: async () => ({ users: {
+      getUser: async () => ({ publicMetadata: metadata, privateMetadata: { customSideQuests: [ownedQuest] } }),
+      updateUserMetadata: async () => undefined,
+    } }) as never,
+  }, () => POST(new Request("https://sidequestchess.com/api/mobile/quest", { method: "POST", body: JSON.stringify({ action: "check" }) })));
+
+  assert.equal(response.status, 200);
+  assert.deepEqual((await response.json()).completion, {
+    challengeId: winQuest.id,
+    challengeTitle: winQuest.title,
+    badgeName: "Custom Side Quest",
+    badgeImage: ownedQuest.badgeImageUrl,
+    unlockCopy: "Side Quest completed.",
+    accentColor: "#f5c86a",
+  });
+});
+
+test("stale public metadata cannot resurrect a private or archived Community quest", () => {
+  const stalePublic = { ...winQuest, visibility: "public" as const, lifecycle: "published" as const };
+  const currentPrivate = { ...winQuest, visibility: "private" as const, lifecycle: "archived" as const };
+
+  assert.equal(selectPublishedPublicCustomQuest(
+    { customSideQuests: [currentPrivate] },
+    { customSideQuests: [stalePublic] },
+    winQuest.id,
+  ), null);
+});
+
+test("latest Community check returns the authoritative Community coat and label", async (t) => {
+  const previousNodeEnv = process.env.NODE_ENV;
+  Object.defineProperty(process.env, "NODE_ENV", { value: "test", configurable: true, writable: true, enumerable: true });
+  t.after(() => Object.defineProperty(process.env, "NODE_ENV", { value: previousNodeEnv, configurable: true, writable: true, enumerable: true }));
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async () => new Response(`${JSON.stringify({
+    id: "Latest123",
+    status: "mate",
+    winner: "white",
+    createdAt: Date.parse("2026-07-18T10:00:00.000Z"),
+    lastMoveAt: Date.parse("2026-07-18T10:10:00.000Z"),
+    moves: "e2e4 e7e5 d1h5 b8c6 f1c4 g8f6 h5f7",
+    players: { white: { user: { name: "Alice" } }, black: { user: { name: "Bob" } } },
+  })}\n`, { status: 200 });
+  t.after(() => { globalThis.fetch = originalFetch; });
+
+  const communityQuest = { ...winQuest, title: "Renamed Community Quest", visibility: "public" as const, badgeImageUrl: "/badges/custom/community/community-coat-11.png" };
+  const metadata = {
+    lichessUsername: "alice",
+    activeChallenge: { id: winQuest.id, status: "accepted", startedAt: "2026-07-18T09:00:00.000Z", customQuestSnapshot: winQuest },
+    challengeProgress: { completedChallengeIds: [] },
+  };
+  const response = await withMobileQuestRouteTestDependencies({
+    authenticate: async () => "server-user",
+    getClient: async () => ({ users: {
+      getUser: async () => ({ publicMetadata: metadata, privateMetadata: {} }),
+      getUserList: async ({ offset = 0 }: { offset?: number }) => ({
+        data: offset === 0
+          ? Array.from({ length: 100 }, () => ({ publicMetadata: {}, privateMetadata: {} }))
+          : [{ publicMetadata: { customSideQuests: [communityQuest] }, privateMetadata: {} }],
+      }),
+      updateUserMetadata: async () => undefined,
+    } }) as never,
+  }, () => POST(new Request("https://sidequestchess.com/api/mobile/quest", { method: "POST", body: JSON.stringify({ action: "check" }) })));
+
+  assert.equal(response.status, 200);
+  assert.deepEqual((await response.json()).completion, {
+    challengeId: communityQuest.id,
+    challengeTitle: communityQuest.title,
+    badgeName: "Community Side Quest",
+    badgeImage: communityQuest.badgeImageUrl,
+    unlockCopy: "Side Quest completed.",
+    accentColor: "#f5c86a",
+  });
+});
+
+test("overlapping latest checks emit one Custom completion celebration", async (t) => {
+  const previousNodeEnv = process.env.NODE_ENV;
+  Object.defineProperty(process.env, "NODE_ENV", { value: "test", configurable: true, writable: true, enumerable: true });
+  t.after(() => Object.defineProperty(process.env, "NODE_ENV", { value: previousNodeEnv, configurable: true, writable: true, enumerable: true }));
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async () => new Response(`${JSON.stringify({
+    id: "Latest123", status: "mate", winner: "white",
+    createdAt: Date.parse("2026-07-18T10:00:00.000Z"), lastMoveAt: Date.parse("2026-07-18T10:10:00.000Z"),
+    moves: "e2e4 e7e5 d1h5 b8c6 f1c4 g8f6 h5f7",
+    players: { white: { user: { name: "Alice" } }, black: { user: { name: "Bob" } } },
+  })}\n`, { status: 200 });
+  t.after(() => { globalThis.fetch = originalFetch; });
+
+  const ownedQuest = { ...winQuest, badgeImageUrl: "/badges/custom/community/community-coat-08.png" };
+  let currentMetadata: Record<string, unknown> = {
+    lichessUsername: "alice",
+    activeChallenge: { id: winQuest.id, status: "accepted", startedAt: "2026-07-18T09:00:00.000Z", customQuestSnapshot: winQuest },
+    challengeProgress: { completedChallengeIds: [] },
+  };
+  const dependencies = {
+    authenticate: async () => "server-user",
+    getClient: async () => ({ users: {
+      getUser: async () => ({ publicMetadata: currentMetadata, privateMetadata: { customSideQuests: [ownedQuest] } }),
+      updateUserMetadata: async (_userId: string, value: { publicMetadata: Record<string, unknown> }) => { currentMetadata = value.publicMetadata; },
+    } }) as never,
+  };
+
+  const responses = await Promise.all([1, 2].map(() => withMobileQuestRouteTestDependencies(dependencies, () => POST(new Request("https://sidequestchess.com/api/mobile/quest", {
+    method: "POST",
+    body: JSON.stringify({ action: "check" }),
+  })))));
+  const payloads = await Promise.all(responses.map((response) => response.json()));
+
+  assert.equal(payloads.filter((payload) => payload.completion).length, 1);
 });
 
 test("latest custom checks persist only the canonical bounded active snapshot", async (t) => {
@@ -447,11 +582,13 @@ test("latest custom checks persist only the canonical bounded active snapshot", 
     authenticate: async () => "server-user",
     getClient: async () => ({ users: {
       getUser: async () => ({ publicMetadata: metadata, privateMetadata: {} }),
+      getUserList: async () => ({ data: [] }),
       updateUserMetadata: async (_userId: string, value: unknown) => { written = value; },
     } }) as never,
   }, () => POST(new Request("https://sidequestchess.com/api/mobile/quest", { method: "POST", body: JSON.stringify({ action: "check" }) })));
 
   assert.equal(response.status, 200);
+  assert.equal((await response.clone().json()).completion, null);
   assert.deepEqual((written as { publicMetadata: { activeChallenge: { customQuestSnapshot: unknown } } }).publicMetadata.activeChallenge.customQuestSnapshot, {
     id: winQuest.id,
     title: winQuest.title,

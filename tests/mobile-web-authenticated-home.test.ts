@@ -7,7 +7,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { MiniChessBoard, SignedInHome } from "../src/components/mobile-app-web-shell";
 import DeactivateQuestControl from "../src/components/deactivate-quest-control";
 import { CHALLENGES } from "../src/lib/challenges";
-import { checkActiveCustomSoloQuest } from "../src/lib/mobile-web-active-solo-check";
+import { checkActiveCustomSoloQuest, shouldReloadCustomSoloAfterCheck } from "../src/lib/mobile-web-active-solo-check";
 import { buildHomeActiveSoloProofPath, resolveHomeActiveSoloQuest } from "../src/lib/mobile-web-home";
 import { decodePublicProof } from "../src/lib/proof-share";
 
@@ -53,6 +53,88 @@ test("active Custom Home refresh uses the authenticated custom-capable quest rou
     message: "Latest-game check done.",
     error: null,
   });
+});
+
+test("active Custom Home refresh preserves a server-derived new completion", async () => {
+  const completion = {
+    challengeId: "custom/home-celebration",
+    challengeTitle: "Home Celebration Quest",
+    badgeName: "Custom Side Quest",
+    badgeImage: "/badges/custom/community/community-coat-08.png",
+    unlockCopy: "Side Quest completed.",
+    accentColor: "#f5c86a",
+  };
+
+  const result = await checkActiveCustomSoloQuest(async () => Response.json({
+    ok: true,
+    message: "Quest completed.",
+    completion,
+  }));
+
+  assert.deepEqual(result, {
+    status: "completed",
+    completion,
+    message: "Quest completed.",
+    error: null,
+  });
+});
+
+test("active Custom Home refresh rejects malformed completion presentation data", async () => {
+  const result = await checkActiveCustomSoloQuest(async () => Response.json({
+    ok: true,
+    message: "Latest-game check done.",
+    completion: {
+      challengeId: "custom/malformed",
+      challengeTitle: "Malformed Quest",
+      badgeName: "Custom Side Quest",
+      badgeImage: "javascript:alert(1)",
+      unlockCopy: "Side Quest completed.",
+      accentColor: "url(https://example.test/tracker)",
+    },
+  }));
+
+  assert.deepEqual(result, {
+    status: "checked",
+    completion: null,
+    message: "Latest-game check done.",
+    error: null,
+  });
+});
+
+test("active Custom Home refresh rejects a backslash badge path", async () => {
+  const result = await checkActiveCustomSoloQuest(async () => Response.json({
+    ok: true,
+    message: "Latest-game check done.",
+    completion: {
+      challengeId: "custom/malformed-path",
+      challengeTitle: "Malformed Path Quest",
+      badgeName: "Custom Side Quest",
+      badgeImage: "/\\\\evil.test/coat.png",
+      unlockCopy: "Side Quest completed.",
+      accentColor: "#f5c86a",
+    },
+  }));
+
+  assert.equal(result.status, "checked");
+  assert.equal(result.completion, null);
+});
+
+test("new Custom completion waits to reload until its celebration is dismissed", async () => {
+  assert.equal(shouldReloadCustomSoloAfterCheck({ status: "checked", completion: null }), true);
+  assert.equal(shouldReloadCustomSoloAfterCheck({
+    status: "completed",
+    completion: {
+      challengeId: "custom/home-celebration",
+      challengeTitle: "Home Celebration Quest",
+      badgeName: "Custom Side Quest",
+      badgeImage: "/badges/custom/community/community-coat-08.png",
+      unlockCopy: "Side Quest completed.",
+      accentColor: "#f5c86a",
+    },
+  }), false);
+
+  const actionSource = await readFile(new URL("../src/components/active-solo-actions.tsx", import.meta.url), "utf8");
+  assert.match(actionSource, /onClose=\{\(\) => \{[\s\S]*setDismissedCompletionId\(completion\.challengeId\);[\s\S]*checkMode === "custom"[\s\S]*window\.location\.reload\(\);/);
 });
 
 test("Home wires nonofficial active Solo refresh to the custom-capable checker", async () => {
