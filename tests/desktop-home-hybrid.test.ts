@@ -32,12 +32,14 @@ test("signed-out home renders an app surface plus a desktop-only guided experien
   assert.match(html, /class="sqc-app-only"/);
   assert.match(html, /class="sqc-desktop-home-only"/);
   assert.match(html, /aria-label="Desktop main menu"/);
-  assert.match(html, /Choose a Side Quest/);
-  assert.match(html, /Play a public game/);
-  assert.match(html, /SQC verifies it/);
-  assert.match(html, /Earn your Coat of Arms/);
+  assert.match(html, />Your next chess game needs a terrible side plot\.<\/h1>/);
+  assert.match(html, />Choose your bad idea<\/a>/);
+  assert.match(html, />The ritual is suspiciously simple\.<\/h2>/);
+  assert.match(html, />Present evidence to the paperwork goblin<\/strong>/);
+  assert.match(html, />Receive unnecessary heraldry<\/strong>/);
+  assert.match(html, />Three respectable ways to ruin a perfectly normal game\.<\/h2>/);
   assert.match(html, /Every bad idea deserves a coat of arms/);
-  assert.match(html, /href="\/side-quests"[^>]*>Choose a Side Quest<\/a>/);
+  assert.match(html, /href="\/side-quests"[^>]*>Choose your bad idea<\/a>/);
   assert.match(html, /href="\/sign-in"[^>]*>Sign in<\/a>/);
 });
 

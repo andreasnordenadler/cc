@@ -19,9 +19,9 @@ import { buildMobileWebMultiplayerLeaderboardRows, type MobileWebMultiplayerPrev
 const officialJoinedQuest: MobileWebMultiplayerPreview = {
   id: "official-starter-shield",
   title: "Official 14-Day Starter Shield",
-  meta: "SQC official · You joined",
+  meta: "Official · You joined",
   href: "/groupquests/official-starter-shield?accepted=1",
-  sourceBadge: "SQC Official",
+  sourceBadge: "Official",
   hostName: "Side Quest Chess",
   publiclyListed: true,
   inviteCopy: "A two-week official Multiplayer Side Quest.",
@@ -75,7 +75,7 @@ test("joined official Multiplayer detail renders the Android next action and rea
 
   assert.match(html, />Next action</);
   assert.match(html, />Refresh proof after your next eligible game\.</);
-  assert.match(html, />SQC checks only fresh public games inside this Multiplayer window\.</);
+  assert.match(html, />Side Quest Chess checks only fresh public games inside this Multiplayer window\.</);
   assert.match(html, />Check my latest game</);
   assert.match(html, />Leave Side Quest</);
   assert.match(html, />Share Side Quest</);
@@ -446,7 +446,7 @@ test("signed-out and finished Multiplayer states keep safe actions", () => {
   assert.doesNotMatch(finished, /Check my latest game|Join Side Quest|Leave Side Quest/);
 });
 
-test("Multiplayer leave reports a safe error when the request cannot reach SQC", async () => {
+test("Multiplayer leave reports a safe error when the request cannot reach Side Quest Chess", async () => {
   const result = await leaveGroupQuest("official-starter-shield", {
     confirm: () => true,
     request: async () => { throw new Error("private network detail"); },

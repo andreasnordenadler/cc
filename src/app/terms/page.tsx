@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   description: "Launch-draft terms for using the Side Quest Chess website and mobile app.",
 };
 
-const LAST_UPDATED = "July 21, 2026";
+const LAST_UPDATED = "July 29, 2026";
 
 export default function TermsPage() {
   return (
@@ -18,7 +18,7 @@ export default function TermsPage() {
             <span className="privacy-kicker">Side Quest Chess</span>
           </div>
           <h1 id="terms-title">Terms of Use</h1>
-          <p className="privacy-lede">These launch-draft terms describe the current Side Quest Chess (SQC) product and the basic expectations for using its website and mobile app.</p>
+          <p className="privacy-lede">These launch-draft terms describe the current Side Quest Chess product and the basic expectations for using its website and mobile app.</p>
           <p className="privacy-effective"><strong>Launch draft updated:</strong> {LAST_UPDATED}</p>
         </header>
 
@@ -39,14 +39,14 @@ export default function TermsPage() {
         </section>
 
         <section id="service">
-          <h2>Using SQC</h2>
-          <p>SQC lets people browse and complete chess Side Quests, verify eligible public chess games, create or join community and Multiplayer Side Quests, track progress, and share selected results. Features may differ between the website and mobile app while the product is under active development.</p>
-          <p>Do not rely on SQC as an official chess result, rating, tournament, prize, or eligibility authority. Quest checks use available public game data and product rules and can fail when a provider or network is unavailable.</p>
+          <h2>Using Side Quest Chess</h2>
+          <p>Side Quest Chess lets people browse and complete chess Side Quests, verify eligible public chess games, create or join community and Multiplayer Side Quests, track progress, and share selected results. Features may differ between the website and mobile app while the product is under active development.</p>
+          <p>Do not rely on Side Quest Chess as an official chess result, rating, tournament, prize, or eligibility authority. Quest checks use available public game data and product rules and can fail when a provider or network is unavailable.</p>
         </section>
 
         <section id="accounts">
           <h2>Accounts and connected chess profiles</h2>
-          <p>Some features require an SQC account. Keep access to that account secure and provide accurate public Lichess or Chess.com usernames when using game-verification features. SQC does not ask for your Lichess or Chess.com password.</p>
+          <p>Some features require a Side Quest Chess account. Keep access to that account secure and provide accurate public Lichess or Chess.com usernames when using game-verification features. Side Quest Chess does not ask for your Lichess or Chess.com password.</p>
           <p>Account and product data practices are described in the <Link href="/privacy">Privacy Policy</Link>.</p>
         </section>
 
@@ -58,17 +58,17 @@ export default function TermsPage() {
 
         <section id="conduct">
           <h2>Fair and safe use</h2>
-          <p>Do not misuse SQC to disrupt the service, evade access controls, falsify proof, manipulate participation or standings, scrape private data, or interfere with other users. Product safeguards may reject malformed, unauthorized, duplicate, or ineligible actions.</p>
+          <p>Do not misuse Side Quest Chess to disrupt the service, evade access controls, falsify proof, manipulate participation or standings, scrape private data, or interfere with other users. Product safeguards may reject malformed, unauthorized, duplicate, or ineligible actions.</p>
         </section>
 
         <section id="third-parties">
           <h2>Third-party services</h2>
-          <p>SQC currently relies on services including Clerk for authentication and public Lichess and Chess.com interfaces for chess information. Those services operate under their own terms and policies, and their availability is outside SQC’s direct control.</p>
+          <p>Side Quest Chess currently relies on services including Clerk for authentication and public Lichess and Chess.com interfaces for chess information. Those services operate under their own terms and policies, and their availability is outside the app’s direct control.</p>
         </section>
 
         <section id="changes">
           <h2>Product and terms changes</h2>
-          <p>SQC is actively developed, so features and this draft may change. A final effective date, notice process, termination policy, and treatment of existing users require owner/legal confirmation before these terms are adopted.</p>
+          <p>Side Quest Chess is actively developed, so features and this draft may change. A final effective date, notice process, termination policy, and treatment of existing users require owner/legal confirmation before these terms are adopted.</p>
         </section>
 
         <section id="contact" className="privacy-contact">

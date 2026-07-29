@@ -196,7 +196,7 @@ function buildQuestHubGroups(challengeIds: Set<string>): MobileDiscoveryGroup[] 
     {
       id: "recommended-start",
       title: "Recommended starting path",
-      copy: "Start here when you want SQC to pick a sensible first bad idea.",
+      copy: "Start here when you want Side Quest Chess to pick a sensible first bad idea.",
       challengeIds: ["knights-before-coffee", "no-castle-club", "finish-any-game"],
     },
     {

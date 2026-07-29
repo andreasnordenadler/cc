@@ -104,7 +104,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       lastName: user.lastName,
       username: user.username,
       emailAddress: user.primaryEmailAddress?.emailAddress,
-    }) || "SQC host";
+    }) || "Quest host";
     const inviteMode = normalizeInviteMode(payload?.inviteMode);
     const questSelection = await buildGroupQuestSelection(client, payload?.questIds, user.privateMetadata);
     if (questSelection.error) {
@@ -253,7 +253,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   }
 
   if (action === "join") {
-    const participant = buildMobileParticipant({ groupQuest: found.groupQuest, userId, metadata, fallbackName: user.firstName ?? user.username ?? "SQC player" });
+    const participant = buildMobileParticipant({ groupQuest: found.groupQuest, userId, metadata, fallbackName: user.firstName ?? user.username ?? "Quest runner" });
     if (!participant) {
       return NextResponse.json(
         { apiVersion: 1, authenticated: true, ok: false, message: "Add a public Lichess or Chess.com username before joining Multiplayer Side Quests." },

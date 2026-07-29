@@ -144,7 +144,7 @@ export function buildActiveMultiplayerHomeRows(
     .sort((a, b) => timestamp(b.startAt, b.endAt) - timestamp(a.startAt, a.endAt))
     .map((quest) => {
       const hosted = quest.hostUserId === userId;
-      const lane = quest.official || quest.id.startsWith("official-") ? "SQC official" : "Community public";
+      const lane = quest.official || quest.id.startsWith("official-") ? "Official" : "Community public";
       return {
         id: quest.id,
         title: quest.name,

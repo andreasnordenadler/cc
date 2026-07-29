@@ -101,7 +101,7 @@ export async function GET(
               fontWeight: 800,
             }}
           >
-            <span>SQC friend quest</span>
+            <span>Side Quest Chess friend quest</span>
             <span style={{ color: "#f8f4e8", opacity: 0.72 }}>Coat of Arms</span>
           </div>
           <div style={{ fontSize: 78, lineHeight: 0.94, fontWeight: 950, letterSpacing: -3 }}>

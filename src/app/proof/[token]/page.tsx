@@ -74,7 +74,7 @@ export default async function PublicProofPage({
         <section className="sqc-native-card">
           <span className="sqc-card-eyebrow">Receipt details</span>
           <h2>Latest verified proof</h2>
-          <p>The app keeps the same proof receipt data as your SQC account: provider, game reference, final move, completion time, and canonical proof link when available.</p>
+          <p>The app keeps the same proof receipt data as your Side Quest Chess account: provider, game reference, final move, completion time, and canonical proof link when available.</p>
           <div className="sqc-action-pair one-or-two">
             <PublicProofShareControls
               token={token}

@@ -91,7 +91,7 @@ export default function ProofPositionBoard({
       {board ? (
         <div className="proof-position-layout">
           <div className="proof-position-copy">
-            <span className="eyebrow">{variant === "completed" ? "SQC proof board" : "SQC referee board"}</span>
+            <span className="eyebrow">{variant === "completed" ? "Side Quest Chess proof board" : "Side Quest Chess referee board"}</span>
             <h3>{isFailedReceipt ? `${moveLabel}${moveText ? ` · ${moveText}` : ""}` : variant === "completed" ? "Verified position attached." : "Latest checked position."}</h3>
             <p>{receiptCopy}</p>
             <small>
@@ -116,9 +116,9 @@ export default function ProofPositionBoard({
       ) : isFailedReceipt ? (
         <div className="proof-position-layout">
           <div className="proof-position-copy">
-            <span className="eyebrow">SQC referee board</span>
+            <span className="eyebrow">Side Quest Chess referee board</span>
             <h3>Board position unavailable.</h3>
-            <p>{receiptCopy ?? "SQC checked the latest game and kept the failed proof reason, but the provider did not return a usable board position for this receipt."}</p>
+            <p>{receiptCopy ?? "Side Quest Chess checked the latest game and kept the failed proof reason, but the provider did not return a usable board position for this receipt."}</p>
             <small><ProofTime value={scrollDate} /></small>
           </div>
           <div className="proof-board-wrap proof-board-empty" data-board-state="ready" aria-hidden="true">

@@ -119,7 +119,7 @@ export default async function AccountPage() {
     >
       {user ? (
         <SignedInAccountScreen
-          displayName={displayName ?? "SQC player"}
+          displayName={displayName ?? "Quest runner"}
           email={user.primaryEmailAddress?.emailAddress ?? null}
           imageUrl={user.imageUrl ?? null}
           lastSignInAt={user.lastSignInAt ? new Date(user.lastSignInAt).toISOString() : null}

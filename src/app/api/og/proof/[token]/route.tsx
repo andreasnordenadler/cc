@@ -123,7 +123,7 @@ export async function GET(
                 <img src={badgeImage} alt="" width="236" height="236" style={{ width: 236, height: 236, objectFit: "contain", filter: "drop-shadow(0 18px 24px rgba(82,38,15,.32))" }} />
               ) : (
                 <div style={{ width: 180, height: 205, display: "flex", alignItems: "center", justifyContent: "center", borderRadius: "36px 36px 68px 68px", border: "11px solid #7c2d12", background: "linear-gradient(160deg, #24100d, #5f1d14)", color: "#f5c86a", fontSize: 58, fontWeight: 1000 }}>
-                  {payload.badgeMotif || "SQC"}
+                  {payload.badgeMotif || "♞"}
                 </div>
               )}
             </div>
@@ -141,10 +141,10 @@ export async function GET(
 }
 
 function formatScrollDate(value?: string, timeZone?: string) {
-  if (!value) return "Recorded by SQC";
+  if (!value) return "Recorded by Side Quest Chess";
 
   const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "Recorded by SQC";
+  if (Number.isNaN(date.getTime())) return "Recorded by Side Quest Chess";
 
   return new Intl.DateTimeFormat("en", {
     month: "short",

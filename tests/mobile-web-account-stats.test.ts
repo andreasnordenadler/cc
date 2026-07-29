@@ -385,7 +385,7 @@ test("authenticated Account preserves an active Community Solo identity and exac
     badgeImageUrl: "/badges/custom/community/community-coat-08.png",
     createdAt: "2026-07-01T00:00:00.000Z",
     updatedAt: "2026-07-01T00:00:00.000Z",
-    creatorName: "SQC player",
+    creatorName: "Quest runner",
     creatorKey: "sqc-player-viewer",
     creatorUserId: "viewer",
     creatorBrowsePath: "/community-side-quests?creator=sqc-player-viewer",

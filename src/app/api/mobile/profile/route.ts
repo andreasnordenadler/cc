@@ -111,7 +111,7 @@ export async function PATCH(request: Request) {
     apiVersion: 1,
     authenticated: true,
     ok: true,
-    message: "Profile saved to your SQC account.",
+    message: "Profile saved to your Side Quest Chess account.",
     chessAccounts: {
       lichessUsername: lichessValidation.username || null,
       chessComUsername: chessComValidation.username || null,

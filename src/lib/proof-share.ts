@@ -84,7 +84,7 @@ export async function buildCustomPublicProofPath({
     challengeId: quest.id,
     challengeTitle: quest.title,
     badgeName: "Custom Solo Side Quest crest",
-    badgeMotif: "SQC",
+    badgeMotif: "♞",
     badgeImageUrl: getCustomSideQuestBadgeUrl(quest),
     reward: 100,
     summary: attempt ? sanitizeAttemptSummary(attempt.summary) : "Completion saved by Side Quest Chess.",

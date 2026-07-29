@@ -86,7 +86,7 @@ export const verifierStateLabels: Record<VerifierState, { label: string; classNa
   next: {
     label: "Checker planned",
     className: "badge gold",
-    promise: "Rules are ready; SQC still needs a finished Lichess and Chess.com checker before this can award receipts.",
+    promise: "Rules are ready; Side Quest Chess still needs a finished Lichess and Chess.com checker before this can award receipts.",
   },
   spec: {
     label: "Rules drafted",

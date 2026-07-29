@@ -34,7 +34,7 @@ async function fetchWithTimeout(url: string, init: RequestInit = {}, timeoutMs =
     });
   } catch (caught) {
     if (caught instanceof Error && caught.name === "AbortError") {
-      throw new Error("SQC mobile request timed out. Check network access and try again.");
+      throw new Error("Side Quest Chess mobile request timed out. Check network access and try again.");
     }
 
     throw caught;
@@ -51,7 +51,7 @@ export async function fetchMobileBootstrap(): Promise<MobileBootstrap> {
   });
 
   if (!response.ok) {
-    throw new Error(`SQC mobile bootstrap failed: ${response.status}`);
+    throw new Error(`Side Quest Chess mobile bootstrap failed: ${response.status}`);
   }
 
   return readMobileJson<MobileBootstrap>(response, "bootstrap");
@@ -67,7 +67,7 @@ export async function fetchMobileAccountState(sessionToken?: string | null): Pro
   }
 
   if (!response.ok) {
-    throw new Error(`SQC mobile account failed: ${response.status}`);
+    throw new Error(`Side Quest Chess mobile account failed: ${response.status}`);
   }
 
   return readMobileJson<MobileAccountResponse>(response, "account");
@@ -88,7 +88,7 @@ export async function deleteMobileAccount({
   const result = await readMobileJson<MobileAccountDeletionResponse>(response, "account deletion");
 
   if (!response.ok) {
-    throw new Error(result.message || `SQC account deletion failed: ${response.status}`);
+    throw new Error(result.message || `Side Quest Chess account deletion failed: ${response.status}`);
   }
 
   return result;
@@ -115,7 +115,7 @@ export async function updateMobileChessUsernames({
   const payload = await readMobileJson<MobileProfileUpdateResponse>(response, "profile update");
 
   if (!response.ok) {
-    throw new Error(payload.message || `SQC mobile profile update failed: ${response.status}`);
+    throw new Error(payload.message || `Side Quest Chess mobile profile update failed: ${response.status}`);
   }
 
   return payload;
@@ -136,7 +136,7 @@ export async function submitMobileSupportMessage({
   const payload = await readMobileJson<MobileSupportMessageResponse>(response, "support message");
 
   if (!response.ok) {
-    throw new Error(payload.message || `SQC mobile support message failed: ${response.status}`);
+    throw new Error(payload.message || `Side Quest Chess mobile support message failed: ${response.status}`);
   }
 
   return payload;
@@ -168,7 +168,7 @@ export async function saveMobileCustomSideQuest({
   const payload = await readMobileJson<MobileCustomQuestSaveResponse>(response, "custom Side Quest save");
 
   if (!response.ok) {
-    throw new Error(payload.message || `SQC mobile custom Side Quest save failed: ${response.status}`);
+    throw new Error(payload.message || `Side Quest Chess mobile custom Side Quest save failed: ${response.status}`);
   }
 
   return payload;
@@ -188,7 +188,7 @@ export async function deleteMobileCustomSideQuest({
   const payload = await readMobileJson<MobileCustomQuestSaveResponse>(response, "custom Side Quest delete");
 
   if (!response.ok) {
-    throw new Error(payload.message || `SQC mobile custom Side Quest delete failed: ${response.status}`);
+    throw new Error(payload.message || `Side Quest Chess mobile custom Side Quest delete failed: ${response.status}`);
   }
 
   return payload;
@@ -213,7 +213,7 @@ export async function runMobileQuestAction({
   const payload = await readMobileJson<MobileQuestActionResponse>(response, "quest action");
 
   if (!response.ok) {
-    throw new Error(payload.message || `SQC mobile quest action failed: ${response.status}`);
+    throw new Error(payload.message || `Side Quest Chess mobile quest action failed: ${response.status}`);
   }
 
   return payload;
@@ -238,7 +238,7 @@ export async function runMobileGroupQuestAction({
   const result = await readMobileJson<MobileGroupQuestActionResponse>(response, "multiplayer action");
 
   if (!response.ok) {
-    throw new Error(result.message || `SQC mobile multiplayer action failed: ${response.status}`);
+    throw new Error(result.message || `Side Quest Chess mobile multiplayer action failed: ${response.status}`);
   }
 
   return result;
@@ -263,7 +263,7 @@ export async function runMobileCommunityLikeAction({
   const result = await readMobileJson<MobileCommunityLikeResponse>(response, "community like action");
 
   if (!response.ok) {
-    throw new Error(result.message || `SQC mobile community like action failed: ${response.status}`);
+    throw new Error(result.message || `Side Quest Chess mobile community like action failed: ${response.status}`);
   }
 
   return result;

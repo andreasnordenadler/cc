@@ -29,7 +29,7 @@ export async function handleGroupQuestCreateRequest(request: Request, dependenci
     if (selection.error) return Response.json({ ok: false, error: selection.error }, { status: 400 });
     const publicMetadata = (user.publicMetadata && typeof user.publicMetadata === "object" ? user.publicMetadata : {}) as UserMetadataRecord;
     const privateMetadata = (user.privateMetadata && typeof user.privateMetadata === "object" ? user.privateMetadata : {}) as UserMetadataRecord;
-    const hostName = getPreferredRunnerName(publicMetadata, { firstName: user.firstName, lastName: user.lastName, username: user.username, emailAddress: user.primaryEmailAddress?.emailAddress }) || "SQC host";
+    const hostName = getPreferredRunnerName(publicMetadata, { firstName: user.firstName, lastName: user.lastName, username: user.username, emailAddress: user.primaryEmailAddress?.emailAddress }) || "Quest host";
     const now = (dependencies.now?.() ?? new Date()).toISOString();
     const normalized = normalizeSchedulePayload({ ...input, ...proofConfiguration }, now);
     const groupQuest = buildGroupQuest({ ...normalized, questIds: selection.questIds, customQuestSnapshots: selection.customQuestSnapshots, hostUserId: userId, hostName });

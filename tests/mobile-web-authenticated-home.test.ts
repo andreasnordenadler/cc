@@ -91,7 +91,7 @@ test("completed Custom Solo on Home links directly to its accepted proof", async
     officialChallenge: null,
     customQuest: quest,
     attempt,
-    runnerName: "SQC tester",
+    runnerName: "Side Quest Chess tester",
   });
 
   assert.ok(path?.startsWith("/proof/"));
@@ -140,12 +140,12 @@ test("Home keeps the accepted Official Solo proof contract unchanged", async () 
     officialChallenge: challenge,
     customQuest: null,
     attempt,
-    runnerName: "SQC tester",
+    runnerName: "Side Quest Chess tester",
   });
   const decoded = await decodePublicProof(path?.slice("/proof/".length));
 
   assert.equal(decoded?.payload.challengeId, challenge.id);
-  assert.equal(decoded?.payload.runnerName, "SQC tester");
+  assert.equal(decoded?.payload.runnerName, "Side Quest Chess tester");
   assert.equal(decoded?.payload.gameId, attempt.gameId);
 });
 
@@ -185,7 +185,7 @@ test("authenticated Home resolves an active Community Solo quest to its public d
     badgeImageUrl: "/badges/custom/community/community-coat-08.png",
     createdAt: "2026-07-01T00:00:00.000Z",
     updatedAt: "2026-07-01T00:00:00.000Z",
-    creatorName: "SQC player",
+    creatorName: "Quest runner",
     creatorKey: "sqc-player-viewer",
     creatorUserId: "viewer",
     creatorBrowsePath: "/community-side-quests?creator=sqc-player-viewer",

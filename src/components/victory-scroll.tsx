@@ -38,7 +38,7 @@ export default function VictoryScroll({
         <span>{dateLabel}</span>
         <RatingPill value={reward} />
       </div>
-      <div className="victory-scroll-seal" aria-label="Side Quest Chess seal of approval" />
+      <div className="victory-scroll-seal" aria-label="heraldic seal of approval" />
     </div>
   );
 }

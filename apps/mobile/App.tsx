@@ -411,7 +411,7 @@ function FailureDiagnosticBoard({ receipt }: { receipt: MobileAccountState["late
   return (
     <View style={compactStyles.failureBoardPanel}>
       <View style={compactStyles.failureBoardHeader}>
-        <Text style={compactStyles.failureBoardKicker}>SQC referee board</Text>
+        <Text style={compactStyles.failureBoardKicker}>Side Quest Chess referee board</Text>
         <Text style={compactStyles.failureBoardMove}>{boardTitle}</Text>
         <Text style={compactStyles.failureBoardSubhead}>{boardContext}</Text>
       </View>
@@ -439,7 +439,7 @@ function FailureDiagnosticBoard({ receipt }: { receipt: MobileAccountState["late
           <MaterialCommunityIcons name="checkerboard" size={30} color="rgba(245,200,106,.88)" />
           <View style={compactStyles.failureBoardUnavailableCopyBlock}>
             <Text style={compactStyles.failureBoardUnavailableTitle}>Board position unavailable</Text>
-            <Text style={compactStyles.failureBoardUnavailableCopy}>SQC still checked the latest game and kept the reason below. Try refreshing after the provider finishes publishing the full game record.</Text>
+            <Text style={compactStyles.failureBoardUnavailableCopy}>Side Quest Chess still checked the latest game and kept the reason below. Try refreshing after the provider finishes publishing the full game record.</Text>
           </View>
         </View>
       )}
@@ -474,7 +474,7 @@ function VictoryProofBoard({ proof }: { proof: VictoryProofBoardInput | null | u
   return (
     <View style={compactStyles.failureBoardPanel}>
       <View style={compactStyles.failureBoardHeader}>
-        <Text style={compactStyles.failureBoardKicker}>SQC proof board</Text>
+        <Text style={compactStyles.failureBoardKicker}>Side Quest Chess proof board</Text>
         <Text style={compactStyles.failureBoardMove}>{moveText ? `Final position · ${moveText}` : "Verified final position"}</Text>
         <Text style={compactStyles.failureBoardSubhead}>{sourceText || "This is the verified board attached to the completed quest."}</Text>
       </View>
@@ -973,7 +973,7 @@ const DEFAULT_BADGE_IDENTITY: MobileChallenge["badgeIdentity"] = {
   imageUrl: null,
   colors: { primary: "#f5c86a", secondary: "#8b5a2b", glow: "#f5c86a" },
   heraldry: {
-    shield: "SQC",
+    shield: "♞",
     charge: "Verified proof",
     crest: "Side Quest Chess",
     motto: "Proof accepted",
@@ -1309,7 +1309,7 @@ function ClerkMobileShell() {
       const authResultType = result.authSessionResult?.type ?? "unknown";
       Alert.alert(
         "Sign-in did not finish",
-        `${providerLabel} returned to SQC, but Clerk did not create a mobile session yet. Details: auth=${authResultType}, signIn=${signInStatus}, signUp=${signUpStatus}.`,
+        `${providerLabel} returned to Side Quest Chess, but Clerk did not create a mobile session yet. Details: auth=${authResultType}, signIn=${signInStatus}, signUp=${signUpStatus}.`,
       );
     } catch (caught) {
       const message = caught instanceof Error ? caught.message : "Unknown mobile sign-in error.";
@@ -1911,7 +1911,7 @@ function TodayDashboard({
 
   async function toggleActiveSoloLike() {
     if (!signedIn?.activeQuest?.id || !authBridge.isSignedIn) {
-      Alert.alert("Sign in to like Side Quests", "Likes are saved to your SQC account.");
+      Alert.alert("Sign in to like Side Quests", "Likes are saved to your Side Quest Chess account.");
       return;
     }
     if (soloLikeBusyId === signedIn.activeQuest.id) return;
@@ -2051,7 +2051,7 @@ function TodayDashboard({
         </View>
         <View style={compactStyles.freshPanelCentered}>
           <Text style={[compactStyles.freshSectionTitle, compactStyles.centerText]}>Sign in to continue.</Text>
-          <Text style={[compactStyles.freshBody, compactStyles.centerText]}>Chess, but with stupidly hard side quests — solo or multiplayer. Browse the live boards first; sign in when you want SQC to save progress, verify proof, or join a table.</Text>
+          <Text style={[compactStyles.freshBody, compactStyles.centerText]}>Chess, but with stupidly hard side quests — solo or multiplayer. Browse the live boards first; sign in when you want Side Quest Chess to save progress, verify proof, or join a table.</Text>
           <View style={compactStyles.guestBrowseActions}>
             <Pressable accessibilityRole="button" accessibilityLabel="Browse Solo Side Quests" style={compactStyles.secondaryAction} onPress={() => onSelectTab("sideQuests")}>
               <Text style={compactStyles.secondaryActionText}>Browse Solo Side Quests</Text>
@@ -2090,7 +2090,7 @@ function TodayDashboard({
       {!hasChessAccount ? (
         <Pressable accessibilityRole="button" style={compactStyles.blockerPanel} onPress={() => onSelectTab("account")}>
           <Text style={compactStyles.blockerTitle}>Connect a chess username</Text>
-          <Text style={compactStyles.blockerCopy}>SQC needs Lichess or Chess.com before it can check real games.</Text>
+          <Text style={compactStyles.blockerCopy}>Side Quest Chess needs Lichess or Chess.com before it can check real games.</Text>
         </Pressable>
       ) : null}
 
@@ -2584,7 +2584,7 @@ function JoinedMultiplayerQuestModal({
           <View style={compactStyles.multiplayerDetailHero}>
             <Image source={SQC_GENERIC_COAT_GLOW_ASSET} style={compactStyles.multiplayerDetailSealGlow} resizeMode="contain" />
             <Image source={getMultiplayerQuestCoatSource(quest.title)} style={compactStyles.multiplayerDetailSeal} resizeMode="contain" />
-            <Text style={compactStyles.multiplayerDetailKicker}>{quest.official || quest.id.startsWith("official-") ? "SQC Official Multiplayer Side Quest" : quest.isOwner ? "Hosted by you" : "Community Multiplayer Side Quest"}</Text>
+            <Text style={compactStyles.multiplayerDetailKicker}>{quest.official || quest.id.startsWith("official-") ? "Official Multiplayer Side Quest" : quest.isOwner ? "Hosted by you" : "Community Multiplayer Side Quest"}</Text>
             <MobileInlineLikeTitle title={cleanMultiplayerTitle(quest.title)} textStyle={compactStyles.detailTitle} likeSummary={quest.likeSummary} label={cleanMultiplayerTitle(quest.title)} busy={likeBusy} onPress={onToggleLike ? () => void handleToggleLike() : undefined} />
             <Text style={compactStyles.detailGoal}>{cleanMultiplayerInviteCopy(quest.inviteCopy)}</Text>
             <Text style={compactStyles.detailLatestCheck}>{quest.status.toUpperCase()}</Text>
@@ -2652,7 +2652,7 @@ function JoinedMultiplayerQuestModal({
           <View style={compactStyles.multiplayerNativeCard}>
             <Text style={compactStyles.multiplayerCardEyebrow}>{joinClosed ? "Receipts locked" : mode === "joined" ? "Next action" : "Join first"}</Text>
             <Text style={compactStyles.multiplayerCardTitle}>{joinClosed ? "Final standings are frozen." : mode === "joined" ? "Refresh proof after your next eligible game." : "Join this Multiplayer Side Quest before playing your proof game."}</Text>
-            <Text style={styles.microcopy}>{joinClosed ? "The event window has ended, so SQC keeps the leaderboard as the final proof record." : mode === "joined" ? "SQC checks only fresh public games inside this Multiplayer window." : "You can inspect the quests and rules below before joining."}</Text>
+            <Text style={styles.microcopy}>{joinClosed ? "The event window has ended, so Side Quest Chess keeps the leaderboard as the final proof record." : mode === "joined" ? "Side Quest Chess checks only fresh public games inside this Multiplayer window." : "You can inspect the quests and rules below before joining."}</Text>
             {mode === "joined" && !joinClosed ? (
               <Pressable accessibilityRole="button" accessibilityLabel="Refresh Multiplayer Side Quest proof" style={[compactStyles.detailPrimaryButton, busy ? compactStyles.disabledAction : null]} disabled={busy} onPress={() => onRefresh?.()}>
                 <Text style={compactStyles.detailPrimaryButtonText}>{busy ? "Checking..." : "Check my latest game"}</Text>
@@ -2686,7 +2686,7 @@ function JoinedMultiplayerQuestModal({
               ) : null}
             </View>
             {quest.inviteMode === "private-key" && quest.isOwner ? <Text style={styles.microcopy}>This private invite link includes the invite code. Only share it with players you want in.</Text> : null}
-            {onReport && !quest.official && !quest.isOwner ? <Text style={styles.microcopy}>Reports help SQC keep shared Side Quests useful and safe.</Text> : null}
+            {onReport && !quest.official && !quest.isOwner ? <Text style={styles.microcopy}>Reports help Side Quest Chess keep shared Side Quests useful and safe.</Text> : null}
           </View>
 
           {!quest.official && quest.hostName ? (
@@ -2737,7 +2737,7 @@ function JoinedMultiplayerQuestModal({
                   {leaderboardRows.length ? leaderboardRows.map((row) => (
                     <MultiplayerLeaderboardRow key={`${row.rank}-${row.name}`} row={row} />
                   )) : (
-                    <AppRow title="No leaderboard rows yet" meta="Join this Multiplayer Side Quest or refresh proof to pull live player standings from SQC." status="Live data" imageSource={SQC_MULTIPLAYER_SEAL_ASSET} onPress={() => undefined} />
+                    <AppRow title="No leaderboard rows yet" meta="Join this Multiplayer Side Quest or refresh proof to pull live player standings from Side Quest Chess." status="Live data" imageSource={SQC_MULTIPLAYER_SEAL_ASSET} onPress={() => undefined} />
                   )}
                 </View>
               </View>
@@ -2784,7 +2784,7 @@ function JoinedMultiplayerQuestModal({
                   {leaderboardRows.length ? leaderboardRows.map((row) => (
                     <MultiplayerLeaderboardRow key={`${row.rank}-${row.name}`} row={row} compact />
                   )) : (
-                    <AppRow title="No leaderboard rows yet" meta="SQC will show real joined players here after this Multiplayer Side Quest has live participant data." status="Live data" imageSource={SQC_MULTIPLAYER_SEAL_ASSET} onPress={() => undefined} />
+                    <AppRow title="No leaderboard rows yet" meta="Side Quest Chess will show real joined players here after this Multiplayer Side Quest has live participant data." status="Live data" imageSource={SQC_MULTIPLAYER_SEAL_ASSET} onPress={() => undefined} />
                   )}
                 </View>
               </View>
@@ -3935,7 +3935,7 @@ function getMultiplayerQuestChoices(
       title: challenge.title,
       meta: challenge.objective,
       status: "Official",
-      sourceBadge: "SQC Official",
+      sourceBadge: "Official",
       source: "official" as MultiplayerQuestChoiceSource,
       imageSource: getChallengeCoatImageSource(challenge),
     })),
@@ -4144,7 +4144,7 @@ function getJoinedMultiplayerListStatus(quest: MobileGroupQuestSummary) {
 
 function getJoinedMultiplayerListMeta(quest: MobileGroupQuestSummary) {
   return quest.official
-    ? [quest.isOwner ? "You host" : null, "SQC official", quest.copy].filter(Boolean).join(" · ")
+    ? [quest.isOwner ? "You host" : null, "Official", quest.copy].filter(Boolean).join(" · ")
     : [quest.isOwner ? "You host" : null, "Community public", quest.copy].filter(Boolean).join(" · ");
 }
 
@@ -4159,7 +4159,7 @@ function getOfficialMultiplayerListMeta(
   signedOut = false,
 ) {
   const joined = quest.joinState === "Joined";
-  const lane = quest.official || quest.id.startsWith("official-") ? "SQC official" : "Community public";
+  const lane = quest.official || quest.id.startsWith("official-") ? "Official" : "Community public";
   return [lane, signedOut ? null : joined ? "You joined" : "Not joined", quest.copy].filter(Boolean).join(" · ");
 }
 
@@ -4194,9 +4194,9 @@ function getMultiplayerFinalSeal(rank: number | null): ImageSourcePropType | nul
 }
 
 function getMultiplayerFinalResultTitle(rank: number | null) {
-  if (rank === 1) return "Winner · gold SQC seal.";
-  if (rank === 2) return "Second place · silver SQC seal.";
-  if (rank === 3) return "Third place · bronze SQC seal.";
+  if (rank === 1) return "Winner · gold heraldic seal.";
+  if (rank === 2) return "Second place · silver heraldic seal.";
+  if (rank === 3) return "Third place · bronze heraldic seal.";
   if (rank && rank > 3) return `Finished #${rank}.`;
   return "Final placement recorded.";
 }
@@ -4822,7 +4822,7 @@ function QuestBoardDashboard({
 
   async function toggleCommunitySoloLike(quest: CustomLibraryQuest) {
     if (!authBridge.isSignedIn) {
-      Alert.alert("Sign in to like Community Side Quests", "Likes are saved to your SQC account so each player can like a Side Quest once and unlike it later.");
+      Alert.alert("Sign in to like Community Side Quests", "Likes are saved to your Side Quest Chess account so each player can like a Side Quest once and unlike it later.");
       return;
     }
     if (soloLikeBusyId === quest.id) return;
@@ -4840,7 +4840,7 @@ function QuestBoardDashboard({
 
   async function toggleOfficialSoloLike(challenge: MobileChallenge) {
     if (!authBridge.isSignedIn) {
-      Alert.alert("Sign in to like Side Quests", "Likes are saved to your SQC account so each player can like a Side Quest once and unlike it later.");
+      Alert.alert("Sign in to like Side Quests", "Likes are saved to your Side Quest Chess account so each player can like a Side Quest once and unlike it later.");
       return;
     }
     if (soloLikeBusyId === challenge.id) return;
@@ -5304,7 +5304,7 @@ function QuestBoardDashboard({
               <Image source={getCustomQuestImageSource(null)} style={compactStyles.multiplayerDetailSeal} resizeMode="contain" />
               <Text style={compactStyles.multiplayerDetailKicker}>Custom Side Quest</Text>
               <Text style={compactStyles.detailTitle}>{customEditingQuestId ? "Edit your Side Quest." : "Build your Side Quest."}</Text>
-              <Text style={compactStyles.detailGoal}>{customEditingQuestId ? "Update the name, rules, and publish state without rebuilding from scratch." : "Choose what should happen in a real game. SQC will check it after you play."}</Text>
+              <Text style={compactStyles.detailGoal}>{customEditingQuestId ? "Update the name, rules, and publish state without rebuilding from scratch." : "Choose what should happen in a real game. Side Quest Chess will check it after you play."}</Text>
             </View>
             <View style={compactStyles.multiplayerNativeCard}>
               <Text style={compactStyles.multiplayerCardEyebrow}>Start from a template</Text>
@@ -5330,7 +5330,7 @@ function QuestBoardDashboard({
               </View>
               <Text style={compactStyles.multiplayerCardEyebrow}>How to complete it</Text>
               <Text style={compactStyles.multiplayerCardTitle}>What must happen?</Text>
-              <Text style={styles.microcopy}>Add one or more conditions. SQC checks them against your next public game. Public means the game is visible on your connected chess account.</Text>
+              <Text style={styles.microcopy}>Add one or more conditions. Side Quest Chess checks them against your next public game. Public means the game is visible on your connected chess account.</Text>
               <Text style={compactStyles.multiplayerRuleLabel}>If you add several conditions, how should they count?</Text>
               <View style={compactStyles.multiplayerOptionGrid}>
                 {CUSTOM_RULE_LOGICS.map((logic) => {
@@ -5391,7 +5391,7 @@ function QuestBoardDashboard({
                 <View>
                   <Text style={compactStyles.multiplayerCardEyebrow}>Condition editor</Text>
                   <Text style={compactStyles.multiplayerCardTitle}>{customEditingRequirementId ? "Edit condition" : "New condition"}</Text>
-                  <Text style={styles.microcopy}>You can tap Save Condition, or publish/save the Side Quest directly and SQC will include this open condition if it is valid.</Text>
+                  <Text style={styles.microcopy}>You can tap Save Condition, or publish/save the Side Quest directly and Side Quest Chess will include this open condition if it is valid.</Text>
                   <Text style={compactStyles.multiplayerRuleLabel}>Condition type</Text>
                   <View style={compactStyles.multiplayerOptionGrid}>
                     {CUSTOM_RULE_CONDITIONS.map((condition) => {
@@ -5484,7 +5484,7 @@ function QuestBoardDashboard({
                     <View>
                       <Text style={compactStyles.multiplayerRuleLabel}>Opening sequence</Text>
                       <TextInput value={customRuleOpeningSequence} placeholder="1.e4 e5 2.f4" placeholderTextColor="rgba(255,247,232,.42)" autoCapitalize="none" multiline style={[styles.textInput, styles.textAreaInput]} onChangeText={(value) => setCustomRuleOpeningSequence(value.slice(0, 260))} onEndEditing={() => setCustomRuleOpeningSequence((current) => normalizeCustomOpeningSequence(current) || "1.e4 e5 2.f4")} />
-                      <Text style={styles.microcopy}>Paste opening notation with move numbers. SQC cleans it into: {getCustomOpeningPreview(customRuleOpeningSequence)}</Text>
+                      <Text style={styles.microcopy}>Paste opening notation with move numbers. Side Quest Chess cleans it into: {getCustomOpeningPreview(customRuleOpeningSequence)}</Text>
                     </View>
                   ) : null}
                   {customRuleCondition === "game result" ? (
@@ -5909,7 +5909,7 @@ function AccountTrackerDashboard({ bootstrap, account, authBridge, onSelectTab, 
       <HelpSupportModal visible={helpOpen} onClose={() => setHelpOpen(false)} signedIn={accountState} authBridge={authBridge} />
       <View style={compactStyles.heroPanel}>
         <Text style={compactStyles.kicker}>Danger zone</Text>
-        <Text style={compactStyles.heroCopy}>Permanently delete your SQC account, profile, progress, proofs, and Clerk sign-in. This cannot be undone.</Text>
+        <Text style={compactStyles.heroCopy}>Permanently delete your Side Quest Chess account, profile, progress, proofs, and Clerk sign-in. This cannot be undone.</Text>
         {showDeleteAccount ? (
           <View style={styles.inputStack}>
             <Text style={styles.inputLabel}>Type DELETE MY ACCOUNT to confirm</Text>
@@ -6194,7 +6194,7 @@ function HomeScreen({
         <Text style={styles.homeHeroBody}>
           {isSignedIn
             ? "Pick a Solo Side Quest or join a Multiplayer Side Quest, play a real Lichess or Chess.com game, then come back for automatic proof."
-            : "Sign in, connect your public chess usernames, choose one ridiculous Solo Side Quest or Multiplayer Side Quest, play on Lichess or Chess.com and let SQC check your latest public games."}
+            : "Sign in, connect your public chess usernames, choose one ridiculous Solo Side Quest or Multiplayer Side Quest, play on Lichess or Chess.com and let Side Quest Chess check your latest public games."}
         </Text>
         <View style={styles.homeHeroActions}>
           <Pressable accessibilityRole="button" accessibilityLabel="Go on a Solo Side Quest" testID="home-go-solo-side-quest" style={styles.primaryButtonWide} onPress={() => onSelectTab("sideQuests")}>
@@ -6332,7 +6332,7 @@ function AppRitualCard({ compact = false }: { compact?: boolean }) {
       <View style={styles.appRitualSteps}>
         <FlowStep done title="Choose solo or multiplayer" body="Start one Side Quest for yourself, or join a Multiplayer Side Quest when the bad idea deserves witnesses." />
         <FlowStep title="Play where you already play" body="Use a normal public Lichess or Chess.com game. Side Quest Chess never asks for chess-site passwords." />
-        <FlowStep title="Get the receipt" body="SQC checks your latest public game and updates your proof, progress, and leaderboard results." />
+        <FlowStep title="Get the receipt" body="Side Quest Chess checks your latest public game and updates your proof, progress, and leaderboard results." />
       </View>
     </View>
   );
@@ -6697,14 +6697,14 @@ function SideQuestsScreen({
 
       <View style={styles.soloDeckHeader}>
         <Text style={styles.sectionTitle}>Solo Side Quest deck</Text>
-        <Text style={styles.sectionBody}>Tap a Coat of Arms to review the rule, then start the Side Quest you want SQC to judge next.</Text>
+        <Text style={styles.sectionBody}>Tap a Coat of Arms to review the rule, then start the Side Quest you want Side Quest Chess to judge next.</Text>
       </View>
 
       {questHubGroups.length ? (
         <View style={compactStyles.multiplayerNativeCard}>
           <Text style={compactStyles.multiplayerCardEyebrow}>Quest Hub context</Text>
           <Text style={compactStyles.multiplayerCardTitle}>Browse by path, lane, or proof loop.</Text>
-          <Text style={styles.sectionBody}>These mobile lanes come from the SQC backend, so the app can follow website-equivalent Quest Hub grouping without a native update.</Text>
+          <Text style={styles.sectionBody}>These mobile lanes come from the quest service, so the app can follow website-equivalent Quest Hub grouping without a native update.</Text>
           <View style={compactStyles.appRows}>
             {questHubGroups.map((group) => {
               const firstChallenge = bootstrap.challenges.find((challenge) => challenge.id === group.challengeIds[0]);
@@ -6799,7 +6799,7 @@ function SideQuestsScreen({
               <Image source={getCustomQuestImageSource(null)} style={compactStyles.multiplayerDetailSeal} resizeMode="contain" />
               <Text style={compactStyles.multiplayerDetailKicker}>Custom Side Quest</Text>
               <Text style={compactStyles.detailTitle}>Build your Side Quest.</Text>
-              <Text style={compactStyles.detailGoal}>Choose what should happen in a real game. SQC will check it after you play.</Text>
+              <Text style={compactStyles.detailGoal}>Choose what should happen in a real game. Side Quest Chess will check it after you play.</Text>
             </View>
             <View style={compactStyles.multiplayerNativeCard}>
               <Text style={compactStyles.multiplayerCardEyebrow}>Start from a template</Text>
@@ -6825,7 +6825,7 @@ function SideQuestsScreen({
               </View>
               <Text style={compactStyles.multiplayerCardEyebrow}>How to complete it</Text>
               <Text style={compactStyles.multiplayerCardTitle}>What must happen?</Text>
-              <Text style={styles.microcopy}>Add one or more conditions. SQC checks them against your next public game. Public means the game is visible on your connected chess account.</Text>
+              <Text style={styles.microcopy}>Add one or more conditions. Side Quest Chess checks them against your next public game. Public means the game is visible on your connected chess account.</Text>
               <Text style={compactStyles.multiplayerRuleLabel}>If you add several conditions, how should they count?</Text>
               <View style={compactStyles.multiplayerOptionGrid}>
                 {CUSTOM_RULE_LOGICS.map((logic) => {
@@ -6886,7 +6886,7 @@ function SideQuestsScreen({
                 <View>
                   <Text style={compactStyles.multiplayerCardEyebrow}>Condition editor</Text>
                   <Text style={compactStyles.multiplayerCardTitle}>{customEditingRequirementId ? "Edit condition" : "New condition"}</Text>
-                  <Text style={styles.microcopy}>You can tap Save Condition, or publish/save the Side Quest directly and SQC will include this open condition if it is valid.</Text>
+                  <Text style={styles.microcopy}>You can tap Save Condition, or publish/save the Side Quest directly and Side Quest Chess will include this open condition if it is valid.</Text>
                   <Text style={compactStyles.multiplayerRuleLabel}>Condition type</Text>
                   <View style={compactStyles.multiplayerOptionGrid}>
                     {CUSTOM_RULE_CONDITIONS.map((condition) => {
@@ -6979,7 +6979,7 @@ function SideQuestsScreen({
                     <View>
                       <Text style={compactStyles.multiplayerRuleLabel}>Opening sequence</Text>
                       <TextInput value={customRuleOpeningSequence} placeholder="1.e4 e5 2.f4" placeholderTextColor="rgba(255,247,232,.42)" autoCapitalize="none" multiline style={[styles.textInput, styles.textAreaInput]} onChangeText={(value) => setCustomRuleOpeningSequence(value.slice(0, 260))} onEndEditing={() => setCustomRuleOpeningSequence((current) => normalizeCustomOpeningSequence(current) || "1.e4 e5 2.f4")} />
-                      <Text style={styles.microcopy}>Paste opening notation with move numbers. SQC cleans it into: {getCustomOpeningPreview(customRuleOpeningSequence)}</Text>
+                      <Text style={styles.microcopy}>Paste opening notation with move numbers. Side Quest Chess cleans it into: {getCustomOpeningPreview(customRuleOpeningSequence)}</Text>
                     </View>
                   ) : null}
                   {customRuleCondition === "game result" ? (
@@ -7208,7 +7208,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
     },
     {
       title: "Play",
-      copy: "Everyone plays real games elsewhere. SQC only counts proof that matches the Multiplayer Side Quest rules.",
+      copy: "Everyone plays real games elsewhere. Side Quest Chess only counts proof that matches the Multiplayer Side Quest rules.",
     },
     {
       title: "Prove",
@@ -7435,7 +7435,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
 
   async function toggleCommunityMultiplayerLike(quest: MobileGroupQuestSummary) {
     if (!authBridge.isSignedIn) {
-      Alert.alert("Sign in to like Community Multiplayer Side Quests", "Likes are saved to your SQC account so each player can like a Multiplayer Side Quest once and unlike it later.");
+      Alert.alert("Sign in to like Community Multiplayer Side Quests", "Likes are saved to your Side Quest Chess account so each player can like a Multiplayer Side Quest once and unlike it later.");
       return;
     }
     if (multiplayerLikeBusyId === quest.id) return;
@@ -7594,7 +7594,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
 
       {multiplayerCatalogTab === "official" ? (
         <>
-          <View style={compactStyles.appSection} accessibilityLabel="SQC Official Multiplayer Side Quests">
+          <View style={compactStyles.appSection} accessibilityLabel="Official Multiplayer Side Quests">
             <View style={compactStyles.panelHeaderRow}>
               <Text style={compactStyles.freshSectionTitle}>Official Multiplayer Side Quests</Text>
               <Text style={compactStyles.sectionAction}>{officialPublicGroupQuests.length} official</Text>
@@ -7602,7 +7602,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
             {officialPublicGroupQuests.length ? (
               <View style={compactStyles.sideQuestCatalogRows}>
                 {officialPublicGroupQuests.map((quest) => (
-                  <AppRow key={quest.id} title={cleanMultiplayerTitle(quest.title)} titleAccessory={<MobileLikePill likeSummary={quest.likeSummary} label={cleanMultiplayerTitle(quest.title)} busy={multiplayerLikeBusyId === quest.id} onPress={() => void toggleCommunityMultiplayerLike(quest)} />} meta={getOfficialMultiplayerListMeta(quest, isSignedOutBrowse)} status={isSignedOutBrowse ? "Sign in" : getOfficialMultiplayerListStatus(quest)} sourceBadge="SQC Official" imageSource={getMultiplayerQuestCoatSource(quest.title)} onPress={() => setOfficialMultiplayerId(quest.id)} />
+                  <AppRow key={quest.id} title={cleanMultiplayerTitle(quest.title)} titleAccessory={<MobileLikePill likeSummary={quest.likeSummary} label={cleanMultiplayerTitle(quest.title)} busy={multiplayerLikeBusyId === quest.id} onPress={() => void toggleCommunityMultiplayerLike(quest)} />} meta={getOfficialMultiplayerListMeta(quest, isSignedOutBrowse)} status={isSignedOutBrowse ? "Sign in" : getOfficialMultiplayerListStatus(quest)} sourceBadge="Official" imageSource={getMultiplayerQuestCoatSource(quest.title)} onPress={() => setOfficialMultiplayerId(quest.id)} />
                 ))}
               </View>
             ) : (
@@ -8020,7 +8020,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
       <View style={styles.groupquestsStoryCard} accessibilityLabel="What Multiplayer Side Quests are">
         <View style={styles.groupquestsStoryCopy}>
           <Text style={styles.sectionTitle}>A tiny chess tournament for bad ideas.</Text>
-          <Text style={styles.sectionBody}>One player creates the Multiplayer Side Quest, everyone agrees on rules, then SQC checks fresh public games for each player.</Text>
+          <Text style={styles.sectionBody}>One player creates the Multiplayer Side Quest, everyone agrees on rules, then Side Quest Chess checks fresh public games for each player.</Text>
         </View>
         <View style={styles.groupquestsProcessGraphic}>
           <Image source={{ uri: absoluteAssetUrl("/illustrations/multiplayer-side-quests-noble-chaos-coat-style.png") }} style={styles.groupquestsKnightArt} resizeMode="contain" />
@@ -8339,10 +8339,10 @@ function SelectedQuestDetailCard({
   const likeSummary = getOfficialChallengeLikeSummary(account, challenge.id);
   const actionTitle = !authenticated ? "Sign in to start this Side Quest." : activeQuest ? `${challenge.title} is on the royal docket.` : "Pick this Side Quest.";
   const actionBody = !authenticated
-    ? "Browse the rules here. Sign in when you want SQC to save this as your active Solo Side Quest and track proof."
+    ? "Browse the rules here. Sign in when you want Side Quest Chess to save this as your active Solo Side Quest and track proof."
     : activeQuest
     ? "Play a new eligible public game after starting this quest, then check your latest game for proof."
-    : "Choose this ridiculous rule so SQC knows what to judge after your next public game.";
+    : "Choose this ridiculous rule so Side Quest Chess knows what to judge after your next public game.";
   const conditionLines = getOfficialChallengeConditions(challenge);
 
   function confirmLifecycleAction(action: "deactivate" | "reset") {
@@ -8405,7 +8405,7 @@ function SelectedQuestDetailCard({
 
   async function toggleLike() {
     if (!authBridge.isSignedIn) {
-      Alert.alert("Sign in to like Side Quests", "Likes are saved to your SQC account so each player can like a Side Quest once and unlike it later.");
+      Alert.alert("Sign in to like Side Quests", "Likes are saved to your Side Quest Chess account so each player can like a Side Quest once and unlike it later.");
       return;
     }
     if (likeBusy) return;
@@ -8978,7 +8978,7 @@ function CompletedQuestProofCard({
       <View style={compactStyles.proofScrollCard}>
         <Text style={compactStyles.proofScrollEyebrow}>Receipt details</Text>
         <Text style={compactStyles.proofScrollTitle}>Latest verified proof</Text>
-        <Text style={compactStyles.proofScrollCopy}>The app keeps the same proof receipt data as your SQC account: provider, game reference, final move, completion time, and canonical proof link when available.</Text>
+        <Text style={compactStyles.proofScrollCopy}>The app keeps the same proof receipt data as your Side Quest Chess account: provider, game reference, final move, completion time, and canonical proof link when available.</Text>
         <DetailRow label="Game" value={proofDetailLines.game} />
         <DetailRow label="Final move" value={proofDetailLines.move} />
         <DetailRow label="Completed" value={proofDetailLines.completed} />
@@ -9016,7 +9016,7 @@ function buildCompletedProofDetailLines(
   completedQuest: MobileAccountState["completedQuests"][number],
   proofHref: string | null,
 ) {
-  const provider = completedQuest.provider?.trim() || "SQC verifier";
+  const provider = completedQuest.provider?.trim() || "Side Quest Chess verifier";
   const game = completedQuest.gameId?.trim() ? `${provider} · ${completedQuest.gameId.trim()}` : provider;
   const move = completedQuest.lastMoveSan?.trim() || completedQuest.lastMoveUci?.trim() || "Final move not attached";
   const completed = formatLatestCheckTime(completedQuest.completedAt);
@@ -9098,7 +9098,7 @@ function buildCustomProofChallenge(
     category: "Custom",
     difficulty: "Custom",
     completionRate: "Custom",
-    flavor: "A personally invented chess errand, now accepted by the SQC paperwork office.",
+    flavor: "A personally invented chess errand, now accepted by the Side Quest Chess paperwork office.",
     badge: completedQuest.badgeName,
     proofCallout: summary,
     rules: [summary],
@@ -9139,14 +9139,14 @@ function buildMobileVictoryScrollCopy(challenge: MobileChallenge) {
     return `${challenge.objective} Losing on these terms still counts as commitment to the bit.`;
   }
 
-  return `${challenge.objective} SQC accepted the proof, so the Coat of Arms is unlocked.`;
+  return `${challenge.objective} Side Quest Chess accepted the proof, so the Coat of Arms is unlocked.`;
 }
 
 function getMobileAccountNextStep(account: MobileAccountState) {
   if (!account.chessAccounts.hasAny) {
     return {
       title: "Connect your chess username.",
-      copy: "Add a public Lichess or Chess.com username first. SQC never needs your chess-site password.",
+      copy: "Add a public Lichess or Chess.com username first. Side Quest Chess never needs your chess-site password.",
       href: "/connect",
       cta: "Connect chess account",
     };
@@ -9155,7 +9155,7 @@ function getMobileAccountNextStep(account: MobileAccountState) {
   if (!account.activeQuest) {
     return {
       title: "Pick one side quest.",
-      copy: "Choose the ridiculous rule SQC should judge after your next public game.",
+      copy: "Choose the ridiculous rule Side Quest Chess should judge after your next public game.",
       href: "/challenges",
       cta: "Choose a Side Quest",
     };
@@ -9172,7 +9172,7 @@ function getMobileAccountNextStep(account: MobileAccountState) {
 
   return {
     title: `${account.activeQuest.title} is on the royal docket - play a new eligible game, then check the proof.`,
-    copy: "SQC will inspect your latest public game after this quest started and decide whether the bad idea counts.",
+    copy: "Side Quest Chess will inspect your latest public game after this quest started and decide whether the bad idea counts.",
     href: account.activeQuest.href.replace(getApiBaseUrl(), "") || `/challenges/${account.activeQuest.id}`,
     cta: "Open active Side Quest",
   };
@@ -9216,15 +9216,15 @@ function AccountShell({
           <Text style={styles.accountAuthHeroCopy}>Logging in lets Side Quest Chess remember your profile, public chess usernames, active Side Quest, badges, and proof cards.</Text>
           <View style={styles.authLightweightCopy} accessibilityLabel="Lightweight sign-in notes">
             <Text style={styles.authNote}><Text style={styles.authNoteStrong}>Lightweight by design.</Text> We do not need or ask for any Lichess or Chess.com passwords.</Text>
-            <Text style={styles.authNote}>Use a public chess username only. SQC checks public games and stores the minimum needed to remember your quests, proof, and Coat of Arms progress.</Text>
-            <Text style={styles.authNote}>You can browse Side Quests before signing in. Sign in when you want SQC to save progress, verify proof, or manage Multiplayer Quests.</Text>
+            <Text style={styles.authNote}>Use a public chess username only. Side Quest Chess checks public games and stores the minimum needed to remember your quests, proof, and Coat of Arms progress.</Text>
+            <Text style={styles.authNote}>You can browse Side Quests before signing in. Sign in when you want Side Quest Chess to save progress, verify proof, or manage Multiplayer Quests.</Text>
           </View>
         </View>
 
         <View style={styles.accountAuthFormCard} accessibilityLabel="Sign in form">
           <Text style={styles.eyebrow}>Account</Text>
           <Text style={styles.cardTitle}>{signedInButRejected ? "Finish syncing your account." : "Choose how to sign in."}</Text>
-          <Text style={styles.cardBody}>{signedInButRejected ? "Your sign-in is active, but SQC needs to refresh your account before saving progress." : "Sign in to save progress, verify proof, manage Multiplayer Quests, and keep your Coat of Arms progress synced."}</Text>
+          <Text style={styles.cardBody}>{signedInButRejected ? "Your sign-in is active, but Side Quest Chess needs to refresh your account before saving progress." : "Sign in to save progress, verify proof, manage Multiplayer Quests, and keep your Coat of Arms progress synced."}</Text>
           <Pressable accessibilityRole="button" accessibilityLabel={primaryLabel} testID="account-primary-sign-in" style={signedInButRejected ? styles.primaryButtonWide : styles.secondaryButtonWide} onPress={handlePrimaryPress}>
             {signedInButRejected ? <Text style={styles.primaryButtonText}>{primaryLabel}</Text> : <SocialSignInButtonContent provider="google" label={primaryLabel} textStyle={styles.secondaryButtonText} />}
           </Pressable>
@@ -9506,7 +9506,7 @@ function AccountNextActionsCard({ account }: { account: MobileAccountState }) {
       <Text style={styles.eyebrow}>Next best action</Text>
       <Text style={styles.accountChecklistTitle}>{account.activeQuest ? "Keep the active Side Quest moving." : "Pick a fresh Side Quest on the board."}</Text>
       <View style={styles.checkerFlow}>
-        <FlowStep done={hasChessAccount} title="Chess username" body={hasChessAccount ? "At least one chess username is connected to your SQC account." : "Add Lichess or Chess.com here before serious proof runs."} />
+        <FlowStep done={hasChessAccount} title="Chess username" body={hasChessAccount ? "At least one chess username is connected to your Side Quest Chess account." : "Add Lichess or Chess.com here before serious proof runs."} />
         <FlowStep done={Boolean(account.activeQuest)} title="Active quest" body={activeLabel} />
         <FlowStep done={Boolean(account.latestReceipt)} title="Latest receipt" body={account.latestReceipt?.headline ?? "Check a completed public game to create the first proof receipt."} />
       </View>
@@ -9713,7 +9713,7 @@ function PasswordAuthPanel({ authBridge, onAccountUpdated }: { authBridge: Mobil
       setError(null);
       try {
         await authBridge.attemptPasswordSignUpVerification?.({ code: cleanCode });
-        setMessage("Account created. Syncing your SQC account...");
+        setMessage("Account created. Syncing your Side Quest Chess account...");
         resetVerificationState();
         await Promise.resolve(onAccountUpdated());
       } catch (caught) {
@@ -9736,7 +9736,7 @@ function PasswordAuthPanel({ authBridge, onAccountUpdated }: { authBridge: Mobil
     try {
       if (mode === "sign-in") {
         await authBridge.startPasswordSignIn?.({ identifier: cleanIdentifier, password });
-        setMessage("Signed in. Syncing your SQC account...");
+        setMessage("Signed in. Syncing your Side Quest Chess account...");
         await Promise.resolve(onAccountUpdated());
       } else {
         const result = await authBridge.startPasswordSignUp?.({ identifier: cleanIdentifier, password });
@@ -9746,7 +9746,7 @@ function PasswordAuthPanel({ authBridge, onAccountUpdated }: { authBridge: Mobil
           setMessage(`Check ${result.identifier} for the verification code, then enter it here.`);
           return;
         }
-        setMessage("Account created. Syncing your SQC account...");
+        setMessage("Account created. Syncing your Side Quest Chess account...");
         await Promise.resolve(onAccountUpdated());
       }
     } catch (caught) {
@@ -9783,7 +9783,7 @@ function PasswordAuthPanel({ authBridge, onAccountUpdated }: { authBridge: Mobil
       <Pressable accessibilityRole="button" accessibilityLabel={submitLabel} accessibilityState={{ disabled: busy || !passwordAuthAvailable }} style={[styles.secondaryButtonWide, (busy || !passwordAuthAvailable) && compactStyles.disabledAction]} disabled={busy || !passwordAuthAvailable} onPress={() => void submitPasswordAuth()}>
         <Text style={styles.secondaryButtonText}>{busy ? "Working..." : submitLabel}</Text>
       </Pressable>
-      <Text style={styles.microcopy}>{mode === "sign-in" ? "Use this if your SQC account has a password." : waitingForVerification ? "Clerk needs this email check before Side Quest Chess can sync the new account." : "Use email for the smoothest setup; username depends on the Clerk auth settings."}</Text>
+      <Text style={styles.microcopy}>{mode === "sign-in" ? "Use this if your Side Quest Chess account has a password." : waitingForVerification ? "Clerk needs this email check before Side Quest Chess can sync the new account." : "Use email for the smoothest setup; username depends on the Clerk auth settings."}</Text>
       {message ? <Text style={styles.successCopy}>{message}</Text> : null}
       {error ? <Text style={styles.errorCopy}>{error}</Text> : null}
     </View>
@@ -9842,7 +9842,7 @@ function getDevTrackerPreviewAccount(account: MobileAccountResponse | null, boot
     generatedAt: new Date().toISOString(),
     profile: {
       displayName: "Andreas",
-      bio: "SQC app review account",
+      bio: "App review account",
       imageUrl: null,
       email: "andreas.nordenadler@gmail.com",
       lastSignInAt: new Date().toISOString(),

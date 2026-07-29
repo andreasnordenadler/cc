@@ -9,13 +9,13 @@ async function expectHealthyNavigation(page: import("@playwright/test").Page, pa
 test("signed-out desktop homepage explains the loop and exposes public browsing plus auth", async ({ page }) => {
   await expectHealthyNavigation(page, "/");
 
-  await expect(page.getByRole("heading", { name: "Your next chess game deserves a stranger objective." })).toBeVisible();
-  await expect(page.getByRole("link", { name: "Choose a Side Quest", exact: true })).toHaveAttribute("href", "/side-quests");
+  await expect(page.getByRole("heading", { name: "Your next chess game needs a terrible side plot." })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Choose your bad idea", exact: true })).toHaveAttribute("href", "/side-quests");
   await expect(page.getByRole("navigation", { name: "Desktop shortcuts" }).getByRole("link", { name: "Multiplayer Side Quests" })).toHaveAttribute("href", "/multiplayer");
   await expect(page.getByRole("link", { name: "Sign in", exact: true })).toHaveAttribute("href", "/sign-in");
-  await expect(page.getByRole("heading", { name: "Play where you already play." })).toBeVisible();
-  await expect(page.getByText("SQC verifies it", { exact: true })).toBeVisible();
-  await expect(page.getByText("Earn your Coat of Arms", { exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "The ritual is suspiciously simple." })).toBeVisible();
+  await expect(page.getByText("Present evidence to the paperwork goblin", { exact: true })).toBeVisible();
+  await expect(page.getByText("Receive unnecessary heraldry", { exact: true })).toBeVisible();
 });
 
 test("desktop app menu dismisses with Escape and outside click", async ({ page }) => {
@@ -32,7 +32,7 @@ test("desktop app menu dismisses with Escape and outside click", async ({ page }
 
   await trigger.click();
   await expect(menu).toBeVisible();
-  await page.getByRole("heading", { name: "Your next chess game deserves a stranger objective." }).click();
+  await page.getByRole("heading", { name: "Your next chess game needs a terrible side plot." }).click();
   await expect(menu).toBeHidden();
 });
 
@@ -65,7 +65,7 @@ test("signed-out support clearly requires an account before messaging", async ({
   await expectHealthyNavigation(page, "/support");
 
   const report = page.getByRole("region", { name: "Report a problem" });
-  await expect(report.getByText("Support messages require a signed-in SQC account.")).toBeVisible();
+  await expect(report.getByText("Support messages require a signed-in Side Quest Chess account.")).toBeVisible();
   await expect(report.getByRole("link", { name: "Sign in to message support" })).toHaveAttribute(
     "href",
     "/sign-in?redirect_url=/support",
@@ -104,7 +104,7 @@ test("privacy policy is public, dedicated, and links to privacy support", async 
 
   await expect(page).toHaveURL(/\/privacy$/);
   await expect(page.getByRole("heading", { name: "Privacy Policy" })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Information SQC handles" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Information Side Quest Chess handles" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Chess game verification" })).toBeVisible();
   await expect(page.getByRole("link", { name: "Contact privacy support" })).toHaveAttribute(
     "href",

@@ -108,7 +108,7 @@ export function buildMultiplayerCreateQuestChoices({
       title: quest.title,
       summary: quest.objective,
       source: "official",
-      sourceLabel: "SQC Official",
+      sourceLabel: "Official",
     });
   }
 
