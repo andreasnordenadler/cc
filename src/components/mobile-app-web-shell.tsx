@@ -56,6 +56,7 @@ type MobileAppWebShellProps = {
 
 type ActiveSoloHome = {
   id: string;
+  source?: "official" | "custom" | "community";
   href?: string | null;
   title: string;
   objective: string;
@@ -366,7 +367,7 @@ export function SignedInHome({
             glowSize={170}
           />
         ) : null}
-        {activeSolo && !activeSolo.completed ? <ActiveSoloActions /> : null}
+        {activeSolo && !activeSolo.completed ? <ActiveSoloActions checkMode={activeSolo.source === "custom" || activeSolo.source === "community" ? "custom" : "official"} /> : null}
         <div className="sqc-current-body">
           {!activeSolo?.badgeImage ? <MobileAssetMark className="sqc-current-mark" image={mobileAsset.coat} glow={mobileAsset.coatGlow} size={82} glowSize={104} /> : null}
           <div>

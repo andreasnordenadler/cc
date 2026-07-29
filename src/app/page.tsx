@@ -2,9 +2,11 @@ import MobileAppWebShell from "@/components/mobile-app-web-shell";
 import { clerkClient, currentUser } from "@clerk/nextjs/server";
 import { unstable_noStore as noStore } from "next/cache";
 import { CHALLENGES } from "@/lib/challenges";
+import { listPublicCommunitySideQuests } from "@/lib/community-side-quests";
+import { getCustomSideQuests } from "@/lib/custom-side-quests";
 import { getMobileWebTheme } from "@/lib/mobile-web-theme";
-import { getChallengeGlowPath } from "@/lib/mobile-web-trophies";
-import { buildActiveMultiplayerHomeRows, loadHomeTrophyRows } from "@/lib/mobile-web-home";
+import { getChallengeGlowPath, loadOptionalCommunityTrophyQuests } from "@/lib/mobile-web-trophies";
+import { buildActiveMultiplayerHomeRows, loadHomeTrophyRows, resolveHomeActiveSoloQuest } from "@/lib/mobile-web-home";
 import { listUserRelatedGroupQuests } from "@/lib/groupquests";
 import {
   buildAttemptSummary,
@@ -24,14 +26,33 @@ export default async function Home() {
   noStore();
   const user = await currentUser();
   const metadata = user?.publicMetadata ? (user.publicMetadata as UserMetadataRecord) : {};
+  const privateMetadata = user?.privateMetadata && typeof user.privateMetadata === "object"
+    ? (user.privateMetadata as UserMetadataRecord)
+    : {};
   const activeChallenge = getActiveChallenge(metadata);
-  const activeChallengeRecord = activeChallenge
+  const activeOfficialChallenge = activeChallenge
     ? CHALLENGES.find((challenge) => challenge.id === activeChallenge.id) ?? null
     : null;
+  const privateCustomSideQuests = getCustomSideQuests(privateMetadata);
+  const customSideQuests = privateCustomSideQuests.length ? privateCustomSideQuests : getCustomSideQuests(metadata);
+  const client = user ? await clerkClient() : null;
+  const needsCommunityActiveQuest = Boolean(
+    activeChallenge?.id
+      && !activeOfficialChallenge
+      && !customSideQuests.some((quest) => quest.id === activeChallenge.id),
+  );
+  const communitySideQuests = user && client && needsCommunityActiveQuest
+    ? await loadOptionalCommunityTrophyQuests(() => listPublicCommunitySideQuests(client, {
+        limit: null,
+        viewerUserId: user.id,
+        maxPages: 10,
+      }))
+    : [];
+  const activeSoloQuest = resolveHomeActiveSoloQuest(activeChallenge?.id, customSideQuests, communitySideQuests, activeChallenge?.customQuestSnapshot);
   const activeChallengeAttempt = activeChallenge?.id ? getLatestChallengeAttempt(metadata, activeChallenge.id) : null;
   const activeChallengeSummary = buildAttemptSummary(activeChallengeAttempt);
   const progress = getChallengeProgress(metadata);
-  const activeChallengeCompleted = Boolean(activeChallengeRecord && progress.completedChallengeIds.includes(activeChallengeRecord.id));
+  const activeChallengeCompleted = Boolean(activeSoloQuest && progress.completedChallengeIds.includes(activeSoloQuest.id));
   const proofReceiptCount = getChallengeAttempts(metadata).length;
   const displayName = user
     ? getPreferredRunnerName(metadata, {
@@ -41,13 +62,12 @@ export default async function Home() {
         emailAddress: user.primaryEmailAddress?.emailAddress,
       }) || "Side Quest Chess"
     : null;
-  const activeChallengeProofPath = activeChallengeRecord ? await buildCompletedOfficialPublicProofPath({
+  const activeChallengeProofPath = activeOfficialChallenge ? await buildCompletedOfficialPublicProofPath({
     completed: activeChallengeCompleted,
-    attempt: getLatestPassedChallengeAttempt(metadata, activeChallengeRecord.id),
-    challenge: activeChallengeRecord,
+    attempt: getLatestPassedChallengeAttempt(metadata, activeOfficialChallenge.id),
+    challenge: activeOfficialChallenge,
     runnerName: displayName ?? undefined,
   }) : null;
-  const client = user ? await clerkClient() : null;
   const [trophyRows, relatedGroupQuests] = user && client
     ? await Promise.all([
         loadHomeTrophyRows(client, user.id, progress.completedChallengeIds),
@@ -64,15 +84,16 @@ export default async function Home() {
       profileImageUrl={user?.imageUrl ?? null}
       lichessUsername={getLichessUsername(metadata)}
       chessComUsername={getChessComUsername(metadata)}
-      activeSolo={activeChallengeRecord ? {
-        id: activeChallengeRecord.id,
-        href: `/challenges/${activeChallengeRecord.id}`,
-        title: activeChallengeRecord.title,
-        objective: activeChallengeRecord.objective,
-        instruction: activeChallengeRecord.instruction,
-        badgeImage: activeChallengeRecord.badgeIdentity.image ?? null,
-        glowImage: getChallengeGlowPath(activeChallengeRecord.id),
-        theme: getMobileWebTheme(activeChallengeRecord.badgeIdentity.colors),
+      activeSolo={activeSoloQuest ? {
+        id: activeSoloQuest.id,
+        source: activeSoloQuest.source,
+        href: activeSoloQuest.href,
+        title: activeSoloQuest.title,
+        objective: activeSoloQuest.objective,
+        instruction: activeSoloQuest.instruction,
+        badgeImage: activeSoloQuest.badgeImage,
+        glowImage: activeSoloQuest.source === "official" ? getChallengeGlowPath(activeSoloQuest.id) : null,
+        theme: getMobileWebTheme(activeSoloQuest.badgeColors),
         pickedAt: activeChallenge?.startedAt ?? null,
         verifiedAt: activeChallenge?.verifiedAt ?? null,
         completed: activeChallengeCompleted,

@@ -1,5 +1,9 @@
 import type { ServerGroupQuest } from "./groupquests";
+import { CHALLENGES } from "./challenges";
+import type { PublicCommunitySideQuest } from "./community-side-quests";
+import type { CustomSideQuest } from "./custom-side-quests";
 import { getMobileWebTrophyRows } from "./mobile-web-trophies";
+import type { ActiveChallenge } from "./user-metadata";
 
 const HOME_TROPHY_ROW_LIMIT = 12;
 
@@ -24,6 +28,77 @@ export type SoloProofHomeStatus = {
   tone: "neutral" | "danger" | "good";
   detail: string;
 };
+
+export type HomeActiveSoloQuest = {
+  id: string;
+  href: string;
+  title: string;
+  objective: string;
+  instruction: string;
+  badgeImage: string | null;
+  badgeColors: { primary: string; secondary: string; glow: string } | null;
+  source: "official" | "custom" | "community";
+};
+
+export function resolveHomeActiveSoloQuest(
+  activeQuestId: string | null | undefined,
+  customSideQuests: readonly CustomSideQuest[],
+  communitySideQuests: readonly PublicCommunitySideQuest[],
+  activeSnapshot?: ActiveChallenge["customQuestSnapshot"],
+): HomeActiveSoloQuest | null {
+  if (!activeQuestId) return null;
+  const official = CHALLENGES.find((quest) => quest.id === activeQuestId);
+  if (official) {
+    return {
+      id: official.id,
+      href: `/challenges/${encodeURIComponent(official.id)}`,
+      title: official.title,
+      objective: official.objective,
+      instruction: official.instruction,
+      badgeImage: official.badgeIdentity.image ?? null,
+      badgeColors: official.badgeIdentity.colors,
+      source: "official",
+    };
+  }
+  const custom = customSideQuests.find((quest) => quest.id === activeQuestId);
+  if (custom) return buildCustomHomeQuest(custom, "custom", `/custom-side-quests/${encodeURIComponent(custom.id)}`);
+  const community = communitySideQuests.find((quest) => quest.id === activeQuestId);
+  if (community) return buildCustomHomeQuest(community, "community", community.detailPath);
+  if (activeSnapshot?.id === activeQuestId && activeSnapshot.title.trim()) {
+    const fallback = "Complete this community Side Quest rule in a fresh public game.";
+    return {
+      id: activeQuestId,
+      href: `/challenges/community/${encodeURIComponent(activeQuestId)}`,
+      title: activeSnapshot.title.trim(),
+      objective: fallback,
+      instruction: fallback,
+      badgeImage: null,
+      badgeColors: null,
+      source: "community",
+    };
+  }
+  return null;
+}
+
+function buildCustomHomeQuest(
+  quest: Pick<CustomSideQuest, "id" | "title" | "summary" | "badgeImageUrl">,
+  source: "custom" | "community",
+  href: string,
+): HomeActiveSoloQuest {
+  const summary = typeof quest.summary === "string" && quest.summary.trim()
+    ? quest.summary.trim()
+    : "Complete your custom Side Quest rule in a fresh public game.";
+  return {
+    id: quest.id,
+    href,
+    title: quest.title.trim(),
+    objective: summary,
+    instruction: summary,
+    badgeImage: quest.badgeImageUrl ?? null,
+    badgeColors: null,
+    source,
+  };
+}
 
 const uncheckedDetail = "Starting position shown until your next public game is available. Play on Lichess or Chess.com, then come back and refresh proof.";
 
