@@ -436,7 +436,7 @@ function DesktopGuestHome() {
           <p>
             Complete a quest and its shield enters your Trophy Cabinet: permanent evidence that, yes, you really chose to play like that.
           </p>
-          <Link href="/trophy-cabinet">Inspect the evidence <span aria-hidden="true">→</span></Link>
+          <Link href="/trophy-cabinet">Open the Trophy Cabinet <span aria-hidden="true">→</span></Link>
         </div>
         <div className="sqc-desktop-coat-row" aria-hidden="true">
           {featuredQuests.map((quest) => (
@@ -452,7 +452,7 @@ function DesktopGuestHome() {
           <h2 id="desktop-multiplayer-title">Same nonsense, now with witnesses.</h2>
           <p>Invite friends, agree on one terrible idea, then let public games decide who must live with the result.</p>
         </div>
-        <Link href="/multiplayer" className="sqc-desktop-secondary">Find some witnesses</Link>
+        <Link href="/multiplayer" className="sqc-desktop-secondary">Start a Multiplayer Side Quest</Link>
       </section>
 
       <footer className="sqc-desktop-footer">

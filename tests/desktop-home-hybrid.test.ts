@@ -39,6 +39,9 @@ test("signed-out home renders an app surface plus a desktop-only guided experien
   assert.match(html, />Receive unnecessary heraldry<\/strong>/);
   assert.match(html, />Three respectable ways to ruin a perfectly normal game\.<\/h2>/);
   assert.match(html, /Every bad idea deserves a coat of arms/);
+  assert.match(html, />Open the Trophy Cabinet/);
+  assert.match(html, />Start a Multiplayer Side Quest/);
+  assert.match(html, /Knights Before Coffee/);
   assert.match(html, /href="\/side-quests"[^>]*>Choose your bad idea<\/a>/);
   assert.match(html, /href="\/sign-in"[^>]*>Sign in<\/a>/);
 });
