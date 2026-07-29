@@ -66,6 +66,22 @@ test("Community catalog can return every public quest before client-side popular
   assert.equal(rows.length, 81);
 });
 
+test("optional trophy scans stop at the requested provider page bound", async () => {
+  let scans = 0;
+  const client = {
+    users: {
+      async getUserList({ offset = 0 }: { limit: number; offset?: number }) {
+        scans += 1;
+        return { data: offset < 300 ? Array.from({ length: 100 }, (_, index) => questOwner(`owner-${offset + index}`)) : [] };
+      },
+    },
+  };
+
+  await listPublicCommunitySideQuests(client, { limit: null, maxPages: 2 });
+
+  assert.equal(scans, 2);
+});
+
 test("exact Community Side Quest lookup finds public quests beyond the browse cap", async () => {
   const users = Array.from({ length: 201 }, (_, index) => questOwner(`owner-${index}`, [], `community-${index}`));
   const client = {

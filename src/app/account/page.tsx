@@ -10,8 +10,9 @@ import { clerkClient, currentUser } from "@clerk/nextjs/server";
 import { unstable_noStore as noStore } from "next/cache";
 import { CHALLENGES } from "@/lib/challenges";
 import { getChessRatingSnapshots } from "@/lib/chess-ratings";
+import { listPublicCommunitySideQuests } from "@/lib/community-side-quests";
 import { getCustomSideQuests, type CustomSideQuest } from "@/lib/custom-side-quests";
-import { getActiveMultiplayerAccountRow, getMobileWebAccountOverview } from "@/lib/mobile-web-trophies";
+import { getActiveMultiplayerAccountRow, getMobileWebAccountOverview, loadOptionalCommunityTrophyQuests } from "@/lib/mobile-web-trophies";
 import {
   getActiveChallenge,
   getChallengeAttempts,
@@ -51,12 +52,20 @@ export default async function AccountPage() {
   const progress = getChallengeProgress(metadata);
   const privateCustomSideQuests = getCustomSideQuests(privateMetadata);
   const customSideQuests = privateCustomSideQuests.length ? privateCustomSideQuests : getCustomSideQuests(metadata);
-  const accountOverview = user
-    ? await getMobileWebAccountOverview(await clerkClient(), user.id, {
+  const client = user ? await clerkClient() : null;
+  const communityQuests = user && client
+    ? await loadOptionalCommunityTrophyQuests(() => listPublicCommunitySideQuests(client, { limit: null, viewerUserId: user.id, maxPages: 10 }))
+    : [];
+  const accountOverview = user && client
+    ? await getMobileWebAccountOverview(client, user.id, {
         completedChallengeIds: progress.completedChallengeIds,
         attempts: getChallengeAttempts(metadata),
         customSideQuestIds: customSideQuests.map((quest) => quest.id),
-        limit: 5,
+        ownedCustomQuests: customSideQuests,
+        communityQuests,
+        multiplayerLimit: 4,
+        soloLimit: 5,
+        limit: null,
       })
     : null;
 
@@ -195,7 +204,7 @@ function SignedInAccountScreen({
               key={row.id}
               title={row.title}
               meta={row.meta}
-              status={row.source === "solo" ? "Unlocked" : "Podium"}
+              status={row.source.endsWith("Solo") ? "Unlocked" : "Podium"}
               href={row.href}
               image={row.image ?? mobileAsset.coat}
               statusImage={row.statusImage}

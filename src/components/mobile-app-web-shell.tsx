@@ -89,7 +89,7 @@ type TrophyRow = {
   image?: string | null;
   glow?: string | null;
   statusImage?: string | null;
-  source?: "multiplayer" | "officialMultiplayer" | "communityMultiplayer" | "solo";
+  source?: "multiplayer" | "officialMultiplayer" | "communityMultiplayer" | "solo" | "officialSolo" | "customSolo" | "communitySolo";
 };
 
 type CommunitySideQuestRow = {
@@ -778,11 +778,13 @@ export function MobileTrophyCabinetScreen({
 }) {
   const officialMultiplayerRows = trophyRows.filter((row) => row.source === "officialMultiplayer" || row.source === "multiplayer");
   const communityMultiplayerRows = trophyRows.filter((row) => row.source === "communityMultiplayer");
-  const multiplayerRows = [...officialMultiplayerRows, ...communityMultiplayerRows];
-  const soloRows = trophyRows.filter((row) => row.source === "solo" || !row.source);
+  const soloRows = trophyRows.filter((row) => row.source === "solo" || row.source?.endsWith("Solo") || !row.source);
+  const officialSoloRows = soloRows.filter((row) => row.source === "officialSolo" || row.source === "solo" || !row.source);
+  const customSoloRows = soloRows.filter((row) => row.source === "customSolo");
+  const communitySoloRows = soloRows.filter((row) => row.source === "communitySolo");
   const earnedIds = new Set(soloRows.map((row) => row.id.replace(/^solo-/, "")));
   const unlockedCount = trophyRows.length;
-  const customRewardCount = Math.max(0, unlockedCount - completedSoloCount - multiplayerRows.length);
+
   void _proofReceiptCount;
 
   return (
@@ -794,7 +796,7 @@ export function MobileTrophyCabinetScreen({
 
       <section className="sqc-native-card" aria-label="Trophy Cabinet summary">
         <span className="sqc-card-eyebrow">Trophy Cabinet</span>
-        <h2>{unlockedCount ? `${unlockedCount} unlocked: ${completedSoloCount} Official Solo Side Quest${completedSoloCount === 1 ? "" : "s"} · ${officialMultiplayerRows.length} Official Multiplayer Side Quest${officialMultiplayerRows.length === 1 ? "" : "s"} · ${communityMultiplayerRows.length} Community Multiplayer Side Quest${communityMultiplayerRows.length === 1 ? "" : "s"} · ${customRewardCount} custom reward${customRewardCount === 1 ? "" : "s"}` : "No unlocked trophies yet."}</h2>
+        <h2>{unlockedCount ? `${unlockedCount} unlocked: ${officialSoloRows.length} Official Solo Side Quest${officialSoloRows.length === 1 ? "" : "s"} · ${customSoloRows.length} Custom Solo Side Quest${customSoloRows.length === 1 ? "" : "s"} · ${communitySoloRows.length} Community Solo Side Quest${communitySoloRows.length === 1 ? "" : "s"} · ${officialMultiplayerRows.length} Official Multiplayer Side Quest${officialMultiplayerRows.length === 1 ? "" : "s"} · ${communityMultiplayerRows.length} Community Multiplayer Side Quest${communityMultiplayerRows.length === 1 ? "" : "s"}` : "No unlocked trophies yet."}</h2>
         <p>
           {unlockedCount
             ? "This is your unified Side Quest Chess reward shelf. Official Solo coats and Official Multiplayer podiums are highlighted first; community and custom rewards still belong here."
@@ -832,7 +834,7 @@ export function MobileTrophyCabinetScreen({
 
       <section className="sqc-native-card" aria-label="Unlocked Solo Side Quest rewards">
         <span className="sqc-card-eyebrow">Unlocked Solo Side Quest rewards</span>
-        <h2>{soloRows.length ? "Official and Custom Solo Side Quest Coats of Arms" : "No Solo coats yet."}</h2>
+        <h2>{soloRows.length ? "Official, Custom, and Community Solo Side Quest Coats of Arms" : "No Solo coats yet."}</h2>
         <div className="sqc-catalog">
           {soloRows.length ? soloRows.map((row) => (
             <AppRow key={row.id} title={row.title} meta={row.meta} status="Unlocked" href={row.href} image={row.image ?? undefined} glow={row.glow} statusImage={row.statusImage} />
@@ -845,7 +847,7 @@ export function MobileTrophyCabinetScreen({
       <section className="sqc-native-card" aria-label="Official Solo Side Quest collection">
         <span className="sqc-card-eyebrow">Official Solo Side Quest collection</span>
         <h2>{completedSoloCount} of {officialSoloCount} official Side Quest coats unlocked.</h2>
-        <p>Locked official coats are previews. Custom Solo Side Quest and community Multiplayer rewards appear above when earned.</p>
+        <p>Locked official coats are previews. Custom and Community Solo Side Quest rewards appear above when earned.</p>
       </section>
 
       <div className="sqc-coat-grid" aria-label="Official Solo Side Quest coat grid">

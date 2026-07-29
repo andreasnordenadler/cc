@@ -2,7 +2,9 @@ import MobileAppWebShell, { MobileTrophyCabinetScreen } from "@/components/mobil
 import { clerkClient, currentUser } from "@clerk/nextjs/server";
 import { unstable_noStore as noStore } from "next/cache";
 import { CHALLENGES } from "@/lib/challenges";
-import { getMobileWebTrophyRows } from "@/lib/mobile-web-trophies";
+import { listPublicCommunitySideQuests } from "@/lib/community-side-quests";
+import { getCustomSideQuests } from "@/lib/custom-side-quests";
+import { getMobileWebTrophyRows, loadOptionalCommunityTrophyQuests } from "@/lib/mobile-web-trophies";
 import { getChessComUsername, getLichessUsername, getPreferredRunnerName, type UserMetadataRecord } from "@/lib/user-metadata";
 import { getChallengeAttempts, getChallengeProgress } from "@/lib/user-metadata";
 
@@ -10,10 +12,22 @@ export default async function TrophyCabinetPage() {
   noStore();
   const user = await currentUser();
   const metadata = user?.publicMetadata ? (user.publicMetadata as UserMetadataRecord) : {};
+  const privateMetadata = user?.privateMetadata && typeof user.privateMetadata === "object"
+    ? (user.privateMetadata as UserMetadataRecord)
+    : {};
   const progress = getChallengeProgress(metadata);
   const proofReceiptCount = getChallengeAttempts(metadata).length;
-  const trophyRows = user
-    ? await getMobileWebTrophyRows(await clerkClient(), user.id, progress.completedChallengeIds, 12)
+  const privateCustomSideQuests = getCustomSideQuests(privateMetadata);
+  const customSideQuests = privateCustomSideQuests.length ? privateCustomSideQuests : getCustomSideQuests(metadata);
+  const client = user ? await clerkClient() : null;
+  const communityQuests = user && client
+    ? await loadOptionalCommunityTrophyQuests(() => listPublicCommunitySideQuests(client, { limit: null, viewerUserId: user.id, maxPages: 10 }))
+    : [];
+  const trophyRows = user && client
+    ? await getMobileWebTrophyRows(client, user.id, progress.completedChallengeIds, null, {
+        ownedCustomQuests: customSideQuests,
+        communityQuests,
+      })
     : [];
   const displayName = user
     ? getPreferredRunnerName(metadata, {
@@ -41,7 +55,7 @@ export default async function TrophyCabinetPage() {
     >
       <MobileTrophyCabinetScreen
         trophyRows={trophyRows}
-        completedSoloCount={progress.totalCompletedChallenges}
+        completedSoloCount={CHALLENGES.filter((challenge) => progress.completedChallengeIds.includes(challenge.id)).length}
         proofReceiptCount={proofReceiptCount}
         officialSoloCount={CHALLENGES.length}
         officialChallenges={CHALLENGES}

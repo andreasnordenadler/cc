@@ -41,9 +41,9 @@ type ClerkUserListClient = {
   };
 };
 
-export async function listPublicCommunitySideQuests(client: ClerkUserListClient, options: { limit?: number | null; groupQuests?: ServerGroupQuest[]; viewerUserId?: string | null } = {}) {
+export async function listPublicCommunitySideQuests(client: ClerkUserListClient, options: { limit?: number | null; groupQuests?: ServerGroupQuest[]; viewerUserId?: string | null; maxPages?: number } = {}) {
   noStore();
-  const users = await fetchAllUsers(client);
+  const users = await fetchAllUsers(client, options.maxPages);
   const seen = new Set<string>();
   const userPublicMetadata = users.map((user) => asMetadata(user.publicMetadata));
   const soloLikeCounts = new Map<string, number>();
@@ -113,15 +113,18 @@ export async function findPublicCommunityCustomSideQuestById(client: ClerkUserLi
   return findPublicCommunitySideQuestById(client, id);
 }
 
-async function fetchAllUsers(client: ClerkUserListClient) {
+async function fetchAllUsers(client: ClerkUserListClient, maxPages = Number.POSITIVE_INFINITY) {
   const out: Awaited<ReturnType<ClerkUserListClient["users"]["getUserList"]>>["data"] = [];
   let offset = 0;
-  while (true) {
+  let pageCount = 0;
+  while (pageCount < maxPages) {
     const batch = await client.users.getUserList({ limit: 100, offset, orderBy: "-created_at" });
+    pageCount += 1;
     out.push(...batch.data);
     if (batch.data.length < 100) return out;
     offset += batch.data.length;
   }
+  return out;
 }
 
 function asMetadata(value: unknown): UserMetadataRecord {

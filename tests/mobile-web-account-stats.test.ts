@@ -3,7 +3,107 @@ import test from "node:test";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 
-import { getActiveMultiplayerAccountRow, summarizeActiveMultiplayerAccount, summarizeMobileWebAccountStats } from "../src/lib/mobile-web-trophies";
+import { buildSoloTrophyRows, combineTrophyRows, getActiveMultiplayerAccountRow, getMobileWebAccountOverview, loadOptionalCommunityTrophyQuests, summarizeActiveMultiplayerAccount, summarizeMobileWebAccountStats } from "../src/lib/mobile-web-trophies";
+
+test("optional Community reward loading preserves Official and owned trophies on provider failure", async () => {
+  assert.deepEqual(await loadOptionalCommunityTrophyQuests(async () => {
+    throw new Error("Clerk unavailable");
+  }), []);
+});
+
+test("Trophy Cabinet keeps every Solo reward after the bounded Multiplayer podium shelf", () => {
+  const multiplayerRows = Array.from({ length: 12 }, (_, index) => ({
+    id: `multiplayer-${index}`,
+    title: `Podium ${index}`,
+    meta: "Official Multiplayer placement",
+    href: `/groupquests/${index}`,
+    source: "officialMultiplayer" as const,
+  }));
+  const soloRows = [
+    { id: "solo-official", title: "Official", meta: "Official Solo", href: "/challenges/official", source: "officialSolo" as const },
+    { id: "solo-custom", title: "Custom", meta: "Custom Solo", href: "/custom-side-quests/custom", source: "customSolo" as const },
+    { id: "solo-community", title: "Community", meta: "Community Solo", href: "/challenges/community/community", source: "communitySolo" as const },
+  ];
+
+  assert.equal(combineTrophyRows(multiplayerRows, soloRows).length, 15);
+  assert.deepEqual(combineTrophyRows(multiplayerRows, soloRows, { multiplayerLimit: 4, soloLimit: 5 }).map((row) => row.id), [
+    "multiplayer-0", "multiplayer-1", "multiplayer-2", "multiplayer-3", "solo-official", "solo-custom", "solo-community",
+  ]);
+});
+
+test("Trophy Cabinet includes completed owned Custom and Community Solo rewards with canonical provenance", () => {
+  const customQuest = {
+    id: "custom-alpha",
+    title: "Knight Errand",
+    summary: "Move the original knight before move ten.",
+    config: "{}",
+    badgeImageUrl: "/badges/custom/community/community-coat-07.png",
+    createdAt: "2026-07-01T00:00:00.000Z",
+    updatedAt: "2026-07-01T00:00:00.000Z",
+  };
+  const communityQuest = {
+    ...customQuest,
+    id: "community-beta",
+    title: "Pawn Parade",
+    badgeImageUrl: "/badges/custom/community/community-coat-08.png",
+  };
+
+  const rows = buildSoloTrophyRows(
+    ["finish-any-game", customQuest.id, communityQuest.id],
+    [customQuest],
+    [communityQuest],
+  );
+
+  assert.deepEqual(rows.map(({ id, title, meta, href, image, source }) => ({ id, title, meta, href, image, source })), [
+    {
+      id: "solo-finish-any-game",
+      title: "Any Game Counts",
+      meta: "Official Solo Side Quest · The First Game Shield",
+      href: "/challenges/finish-any-game",
+      image: "/mobile-source/badges/v6/proof-loop-test-badge.png",
+      source: "officialSolo",
+    },
+    {
+      id: "solo-custom-alpha",
+      title: "Knight Errand",
+      meta: "Custom Solo Side Quest · Custom Side Quest",
+      href: "/custom-side-quests/custom-alpha",
+      image: "/badges/custom/community/community-coat-07.png",
+      source: "customSolo",
+    },
+    {
+      id: "solo-community-beta",
+      title: "Pawn Parade",
+      meta: "Community Solo Side Quest · Community Side Quest",
+      href: "/challenges/community/community-beta",
+      image: "/badges/custom/community/community-coat-08.png",
+      source: "communitySolo",
+    },
+  ]);
+});
+
+test("authenticated trophy overview carries completed Custom and Community records into its rendered rows", async () => {
+  const client = {
+    users: {
+      getUserList: async () => ({ data: [], totalCount: 0 }),
+    },
+  };
+  const makeQuest = (id: string, title: string) => ({ id, title, badgeImageUrl: null });
+
+  const overview = await getMobileWebAccountOverview(client, "viewer-1", {
+    completedChallengeIds: ["custom-alpha", "community-beta"],
+    attempts: [],
+    customSideQuestIds: ["custom-alpha"],
+    ownedCustomQuests: [makeQuest("custom-alpha", "Knight Errand")],
+    communityQuests: [makeQuest("community-beta", "Pawn Parade")],
+    limit: 12,
+  });
+
+  assert.deepEqual(overview.trophyRows.map((row) => [row.title, row.source]), [
+    ["Knight Errand", "customSolo"],
+    ["Pawn Parade", "communitySolo"],
+  ]);
+});
 
 test("matches Android Account multiplayer summary from active joined and hosted quests", () => {
   const summary = summarizeActiveMultiplayerAccount("viewer-1", [
