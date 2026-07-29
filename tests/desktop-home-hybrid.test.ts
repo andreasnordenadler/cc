@@ -46,6 +46,8 @@ test("desktop home stays hidden until the full-desktop breakpoint", () => {
   assert.match(css, /\.sqc-desktop-home-only\s*\{[^}]*display:\s*none;/);
   assert.match(css, /@media\s*\(min-width:\s*1180px\)[\s\S]*?\.sqc-app-only\s*\{[^}]*display:\s*none;/);
   assert.match(css, /@media\s*\(min-width:\s*1180px\)[\s\S]*?\.sqc-desktop-home-only\s*\{[^}]*display:\s*block;/);
+  assert.match(css, /@media\s*\(prefers-reduced-motion:\s*reduce\)[\s\S]*?html\s*\{[^}]*scroll-behavior:\s*auto;/);
+  assert.match(css, /\.sqc-desktop-sign-in\s*\{[^}]*max-width:[^;}]+;[^}]*overflow:\s*hidden;[^}]*text-overflow:\s*ellipsis;[^}]*white-space:\s*nowrap;/);
 });
 
 test("signed-in desktop home guides setup while retaining the existing app home", () => {
@@ -67,6 +69,7 @@ test("signed-in desktop home guides setup while retaining the existing app home"
   assert.match(html, />Choose a Side Quest<\/a>/);
   assert.match(html, />Play and verify<\/strong>/);
   assert.match(html, /class="sqc-current-card/);
+  assert.equal(html.match(/class="sqc-current-card/g)?.length, 1, "signed-in Home should render one interactive current-card subtree");
 });
 
 test("non-home routes never render the desktop home composition", () => {

@@ -28,6 +28,7 @@ import CommunityMultiplayerReportControl from "./community-multiplayer-report-co
 import GroupQuestInviteKeyControl from "./group-quest-invite-key-control";
 import type { CustomEditQuestInput } from "@/lib/mobile-create-forms";
 import type { WebSupportAccountContext, WebSupportReportContext } from "@/lib/web-support-diagnostics";
+import DesktopHomeMenu from "./desktop-home-menu";
 import MobileWebHamburgerMenu from "./mobile-web-hamburger-menu";
 
 type AppTab = "home" | "sideQuests" | "multiplayerSideQuests" | "coatOfArms" | "account";
@@ -257,45 +258,50 @@ export default function MobileAppWebShell({
           </Link>
         ) : null}
 
-        <section className="sqc-screen" aria-label={activeTab === "home" ? "Home" : "Current screen"}>
-          {children ?? (
-            signedIn ? (
-              <SignedInHome
-                hasChessAccount={hasChessAccount}
-                activeSolo={activeSolo}
-                activeSoloTitle={activeSoloTitle}
-                activeMultiplayerRows={activeMultiplayerRows}
-                trophyRows={trophyRows}
-                completedSoloCount={completedSoloCount}
-                proofReceiptCount={proofReceiptCount}
-              />
-            ) : (
-              <GuestHome />
-            )
-          )}
-        </section>
+        {showDesktopHome && signedIn ? null : (
+          <section className="sqc-screen" aria-label={activeTab === "home" ? "Home" : "Current screen"}>
+            {children ?? (
+              signedIn ? (
+                <SignedInHome
+                  hasChessAccount={hasChessAccount}
+                  activeSolo={activeSolo}
+                  activeSoloTitle={activeSoloTitle}
+                  activeMultiplayerRows={activeMultiplayerRows}
+                  trophyRows={trophyRows}
+                  completedSoloCount={completedSoloCount}
+                  proofReceiptCount={proofReceiptCount}
+                />
+              ) : (
+                <GuestHome />
+              )
+            )}
+          </section>
+        )}
         {!signedIn && !(activeTab === "home" && children == null) && !modalPresentation && !immersivePresentation && !loadingPresentation ? (
           <GuestNavigation activeTab={activeTab} />
         ) : null}
       </div>
 
-      {showDesktopHome ? (
+      {showDesktopHome && signedIn ? (
+        <>
+          <div className="sqc-desktop-home-only">
+            <DesktopHomeHeader signedIn displayName={displayName} />
+          </div>
+          <DesktopSignedInHome
+            displayName={displayName}
+            hasChessAccount={hasChessAccount}
+            activeSolo={activeSolo}
+            activeSoloTitle={activeSoloTitle}
+            activeMultiplayerRows={activeMultiplayerRows}
+            trophyRows={trophyRows}
+            completedSoloCount={completedSoloCount}
+            proofReceiptCount={proofReceiptCount}
+          />
+        </>
+      ) : showDesktopHome ? (
         <div className="sqc-desktop-home-only">
-          <DesktopHomeHeader signedIn={signedIn} displayName={displayName} />
-          {signedIn ? (
-            <DesktopSignedInHome
-              displayName={displayName}
-              hasChessAccount={hasChessAccount}
-              activeSolo={activeSolo}
-              activeSoloTitle={activeSoloTitle}
-              activeMultiplayerRows={activeMultiplayerRows}
-              trophyRows={trophyRows}
-              completedSoloCount={completedSoloCount}
-              proofReceiptCount={proofReceiptCount}
-            />
-          ) : (
-            <DesktopGuestHome />
-          )}
+          <DesktopHomeHeader signedIn={false} displayName={displayName} />
+          <DesktopGuestHome />
         </div>
       ) : null}
     </main>
@@ -342,17 +348,7 @@ function DesktopHomeHeader({ signedIn, displayName }: { signedIn: boolean; displ
           </Link>
         ))}
       </nav>
-      <details className="sqc-desktop-menu">
-        <summary>Menu</summary>
-        <nav aria-label="Desktop main menu">
-          {desktopHomeMenuItems.map((item) => (
-            <Link key={item.id} href={item.href} aria-current={item.id === "home" ? "page" : undefined}>
-              <span className={`sqc-menu-icon ${item.icon}`} aria-hidden="true" />
-              <span>{item.label}</span>
-            </Link>
-          ))}
-        </nav>
-      </details>
+      <DesktopHomeMenu items={desktopHomeMenuItems} />
       <Link href={signedIn ? "/account" : "/sign-in"} className="sqc-desktop-sign-in">
         {signedIn ? displayName || "My Account" : "Sign in"}
       </Link>
@@ -494,7 +490,7 @@ function DesktopSignedInHome({
   const completedSteps = Number(hasChessAccount) + Number(hasActiveSolo);
 
   return (
-    <div className="sqc-desktop-signed-in">
+    <div className="sqc-desktop-signed-in sqc-responsive-signed-home">
       <section className="sqc-desktop-dashboard-intro">
         <div>
           <span className="sqc-desktop-eyebrow">Today&apos;s quest log</span>

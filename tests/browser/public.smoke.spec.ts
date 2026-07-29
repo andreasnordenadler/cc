@@ -18,6 +18,24 @@ test("signed-out desktop homepage explains the loop and exposes public browsing 
   await expect(page.getByText("Earn your Coat of Arms", { exact: true })).toBeVisible();
 });
 
+test("desktop app menu dismisses with Escape and outside click", async ({ page }) => {
+  await expectHealthyNavigation(page, "/");
+
+  const trigger = page.locator(".sqc-desktop-menu summary");
+  const menu = page.getByRole("navigation", { name: "Desktop main menu" });
+
+  await trigger.click();
+  await expect(menu).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(menu).toBeHidden();
+  await expect(trigger).toBeFocused();
+
+  await trigger.click();
+  await expect(menu).toBeVisible();
+  await page.getByRole("heading", { name: "Your next chess game deserves a stranger objective." }).click();
+  await expect(menu).toBeHidden();
+});
+
 test("signed-out Home omits the web-only guest menu while non-Home routes preserve it", async ({ page }) => {
   await expectHealthyNavigation(page, "/");
 

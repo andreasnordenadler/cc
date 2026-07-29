@@ -4980,6 +4980,16 @@ body::after {
   display: none;
 }
 
+.sqc-responsive-signed-home {
+  width: min(460px, 100%);
+  margin-inline: auto;
+}
+
+.sqc-responsive-signed-home > .sqc-desktop-dashboard-intro,
+.sqc-responsive-signed-home > .sqc-desktop-footer {
+  display: none;
+}
+
 @media (min-width: 1180px) {
   .sqc-mobile-web:has(.sqc-desktop-home-only) {
     display: block;
@@ -5152,9 +5162,13 @@ body::after {
   }
 
   .sqc-desktop-sign-in {
+    max-width: 150px;
+    overflow: hidden;
     border-color: rgba(245, 200, 106, .42);
     background: var(--gold);
     color: #1a120b;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .sqc-desktop-sign-in:hover {
@@ -5165,6 +5179,14 @@ body::after {
   .sqc-desktop-signed-in {
     width: min(1200px, calc(100% - 64px));
     margin: 0 auto;
+  }
+
+  .sqc-responsive-signed-home > .sqc-desktop-dashboard-intro {
+    display: grid;
+  }
+
+  .sqc-responsive-signed-home > .sqc-desktop-footer {
+    display: flex;
   }
 
   .sqc-desktop-hero {
@@ -5731,6 +5753,10 @@ body::after {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
   .sqc-desktop-home-only *,
   .sqc-desktop-home-only *::before,
   .sqc-desktop-home-only *::after {
