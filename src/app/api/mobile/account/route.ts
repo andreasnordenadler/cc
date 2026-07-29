@@ -10,6 +10,7 @@ import { getCommunityLikeSummaries } from "@/lib/community-likes";
 import { buildPublicProofPath } from "@/lib/proof-share";
 import { rankGroupQuestParticipants, listPublicGroupQuests, listUserRelatedGroupQuests, type ServerGroupQuest } from "@/lib/groupquests";
 import { getCustomSideQuestBadgeUrl, getCustomSideQuests } from "@/lib/custom-side-quests";
+import { buildCustomQuestStats } from "@/lib/custom-side-quest-activity";
 import {
   buildAttemptSummary,
   challengeBanner,
@@ -307,7 +308,7 @@ export async function GET(request: Request) {
     stats: buildCustomQuestStats({
       questId: quest.id,
       attempts,
-      completedSet,
+      completedChallengeIds: completedSet,
       activeChallengeId: activeChallenge?.id ?? null,
       groupQuests: dedupeGroupQuests([...relatedGroupQuests, ...publicGroupQuests]),
     }),
@@ -708,31 +709,6 @@ function buildMobileMultiplayerTrophies({ groupQuests, userId, baseUrl }: { grou
     })
     .filter((entry): entry is NonNullable<typeof entry> => Boolean(entry))
     .slice(0, 12);
-}
-
-function buildCustomQuestStats({
-  questId,
-  attempts,
-  completedSet,
-  activeChallengeId,
-  groupQuests,
-}: {
-  questId: string;
-  attempts: ChallengeAttempt[];
-  completedSet: Set<string>;
-  activeChallengeId: string | null;
-  groupQuests: ServerGroupQuest[];
-}) {
-  const soloAttempts = attempts.filter((attempt) => (attempt.challengeId ?? attempt.id?.split(":")[0]) === questId).length;
-  const lineups = groupQuests.filter((quest) => quest.questIds.includes(questId));
-  return {
-    soloAttempts,
-    soloSelections: activeChallengeId === questId ? 1 : 0,
-    soloCompletions: completedSet.has(questId) ? 1 : 0,
-    multiplayerLineups: lineups.length,
-    multiplayerAttempts: lineups.reduce((total, quest) => total + quest.participants.length, 0),
-    multiplayerFulfillments: lineups.reduce((total, quest) => total + quest.participants.filter((participant) => participant.completedQuestIds?.includes(questId)).length, 0),
-  };
 }
 
 function getLatestAttemptForChallenge(metadata: UserMetadataRecord, challengeId?: string) {

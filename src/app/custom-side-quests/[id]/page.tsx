@@ -1,13 +1,16 @@
 import Image from "next/image";
 import Link from "next/link";
-import { currentUser } from "@clerk/nextjs/server";
+import { clerkClient, currentUser } from "@clerk/nextjs/server";
 import { unstable_noStore as noStore } from "next/cache";
 import { notFound, redirect } from "next/navigation";
 import MobileAppWebShell from "@/components/mobile-app-web-shell";
 import CustomSideQuestOwnerControls from "@/components/custom-side-quest-owner-controls";
 import CustomSideQuestProofControls from "@/components/custom-side-quest-proof-controls";
+import CustomSideQuestActivity from "@/components/custom-side-quest-activity";
 import { describeCustomSideQuestRuleDetails } from "@/lib/community-side-quests";
+import { buildOwnedCustomQuestStats, loadCustomQuestGroupContext } from "@/lib/custom-side-quest-activity";
 import { getCustomSideQuestBadgeUrl, getCustomSideQuestById, getCustomSideQuests } from "@/lib/custom-side-quests";
+import { listPublicGroupQuests, listUserRelatedGroupQuests } from "@/lib/groupquests";
 import { buildCompletedCustomPublicProofPath } from "@/lib/proof-share";
 import { getChallengeProgress, getChessComUsername, getLatestPassedChallengeAttempt, getLichessUsername, getPreferredRunnerName, type UserMetadataRecord } from "@/lib/user-metadata";
 
@@ -16,7 +19,7 @@ export const dynamic = "force-dynamic";
 export default async function CustomSideQuestOwnerPage({ params }: { params: Promise<{ id: string }> }) {
   noStore();
   const { id } = await params;
-  const user = await currentUser();
+  const [user, client] = await Promise.all([currentUser(), clerkClient()]);
   if (!user) redirect(`/sign-in?redirect_url=${encodeURIComponent(`/custom-side-quests/${id}`)}`);
 
   const publicMetadata = user.publicMetadata ? user.publicMetadata as UserMetadataRecord : {};
@@ -37,6 +40,15 @@ export default async function CustomSideQuestOwnerPage({ params }: { params: Pro
   const latestPassedAttempt = getLatestPassedChallengeAttempt(publicMetadata, quest.id)
     ?? (sourceMetadata !== publicMetadata ? getLatestPassedChallengeAttempt(sourceMetadata, quest.id) : null);
   const resultHref = await buildCompletedCustomPublicProofPath({ completed, attempt: latestPassedAttempt, quest });
+  const groupQuests = await loadCustomQuestGroupContext({
+    loadRelated: () => listUserRelatedGroupQuests(client, user.id),
+    loadPublic: () => listPublicGroupQuests(client),
+  });
+  const stats = buildOwnedCustomQuestStats({
+    questId: quest.id,
+    publicMetadata,
+    groupQuests,
+  });
 
   return <MobileAppWebShell
     activeTab="sideQuests"
@@ -71,6 +83,8 @@ export default async function CustomSideQuestOwnerPage({ params }: { params: Pro
         completedAt={latestPassedAttempt?.completedGameAt ?? latestPassedAttempt?.checkedAt ?? null}
         resultHref={resultHref}
       />
+
+      <CustomSideQuestActivity stats={stats} />
 
       <CustomSideQuestOwnerControls quest={{
         id: quest.id,
