@@ -2,7 +2,7 @@
 
 import { useActionState, useEffect, useState } from "react";
 import { checkActiveChallengeWithResult } from "@/app/actions";
-import { checkActiveCustomSoloQuestAction } from "@/lib/mobile-web-active-solo-check";
+import { checkActiveCustomSoloQuestAction, shouldReloadCustomSoloAfterCheck } from "@/lib/mobile-web-active-solo-check";
 import type { SoloCheckActionResult } from "@/lib/solo-check-result";
 import { SoloCompletionCelebration } from "./solo-completion-celebration";
 import { SoloCheckFeedback } from "./solo-check-feedback";
@@ -28,8 +28,10 @@ export default function ActiveSoloActions({ checkMode = "official" }: { checkMod
     : null;
 
   useEffect(() => {
-    if (checkMode === "custom" && (state.status === "checked" || state.status === "completed")) window.location.reload();
-  }, [checkMode, state.status]);
+    if (checkMode === "custom" && (state.status === "checked" || state.status === "completed") && shouldReloadCustomSoloAfterCheck(state)) {
+      window.location.reload();
+    }
+  }, [checkMode, state]);
 
   return (
     <>
@@ -38,7 +40,10 @@ export default function ActiveSoloActions({ checkMode = "official" }: { checkMod
       {completion ? (
         <SoloCompletionCelebration
           completion={completion}
-          onClose={() => setDismissedCompletionId(completion.challengeId)}
+          onClose={() => {
+            setDismissedCompletionId(completion.challengeId);
+            if (checkMode === "custom") window.location.reload();
+          }}
         />
       ) : null}
     </>

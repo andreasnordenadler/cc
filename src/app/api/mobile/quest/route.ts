@@ -18,7 +18,7 @@ import {
   verifyChessComWinAsBlackAttempt,
   verifyChessComWinAsWhiteAttempt,
 } from "@/lib/chesscom";
-import { checkLatestCustomSideQuestForProvider, checkSubmittedCustomSideQuestForProvider, getCustomSideQuestById, getCustomSideQuests, parseCustomRuleConfig, type CustomSideQuest } from "@/lib/custom-side-quests";
+import { checkLatestCustomSideQuestForProvider, checkSubmittedCustomSideQuestForProvider, getCustomSideQuestBadgeUrl, getCustomSideQuestById, getCustomSideQuests, parseCustomRuleConfig, type CustomSideQuest } from "@/lib/custom-side-quests";
 import {
   verifyDrawAnyGameAttempt,
   verifyDrawAsBlackAttempt,
@@ -49,6 +49,22 @@ type MobileQuestRouteDependencies = {
 };
 
 const mobileQuestRouteTestDependencies = new AsyncLocalStorage<MobileQuestRouteDependencies>();
+const mobileQuestCheckQueues = new Map<string, Promise<void>>();
+
+async function withMobileQuestCheckLock<Result>(userId: string, operation: () => Promise<Result>): Promise<Result> {
+  const previous = mobileQuestCheckQueues.get(userId) ?? Promise.resolve();
+  let release!: () => void;
+  const current = new Promise<void>((resolve) => { release = resolve; });
+  const queued = previous.then(() => current);
+  mobileQuestCheckQueues.set(userId, queued);
+  await previous;
+  try {
+    return await operation();
+  } finally {
+    release();
+    if (mobileQuestCheckQueues.get(userId) === queued) mobileQuestCheckQueues.delete(userId);
+  }
+}
 
 export function withMobileQuestRouteTestDependencies<Result>(dependencies: MobileQuestRouteDependencies, callback: () => Result): Result {
   if (process.env.NODE_ENV !== "test") throw new Error("Mobile quest route dependency overrides are test-only.");
@@ -100,9 +116,10 @@ export async function POST(request: Request) {
   const metadata = user.publicMetadata ? (user.publicMetadata as UserMetadataRecord) : {};
   const privateMetadata = user.privateMetadata && typeof user.privateMetadata === "object" ? (user.privateMetadata as UserMetadataRecord) : {};
   const privateCustomSideQuests = getCustomSideQuests(privateMetadata);
+  const ownedCustomSideQuests = privateCustomSideQuests.length ? privateCustomSideQuests : getCustomSideQuests(metadata);
   let readMetadata: UserMetadataRecord = {
     ...metadata,
-    customSideQuests: privateCustomSideQuests.length ? privateCustomSideQuests : getCustomSideQuests(metadata),
+    customSideQuests: ownedCustomSideQuests,
   };
 
   try {
@@ -122,7 +139,31 @@ export async function POST(request: Request) {
     }
 
     if (action === "check") {
-      const result = await checkMobileActiveChallenge(userId, metadata, readMetadata);
+      const result = await withMobileQuestCheckLock(userId, async () => {
+        const freshUser = await client.users.getUser(userId);
+        const freshMetadata = freshUser.publicMetadata ? (freshUser.publicMetadata as UserMetadataRecord) : {};
+        const freshPrivateMetadata = freshUser.privateMetadata && typeof freshUser.privateMetadata === "object"
+          ? (freshUser.privateMetadata as UserMetadataRecord)
+          : {};
+        const freshPrivateCustomSideQuests = getCustomSideQuests(freshPrivateMetadata);
+        const freshOwnedCustomSideQuests = freshPrivateCustomSideQuests.length
+          ? freshPrivateCustomSideQuests
+          : getCustomSideQuests(freshMetadata);
+        let freshReadMetadata: UserMetadataRecord = {
+          ...freshMetadata,
+          customSideQuests: freshOwnedCustomSideQuests,
+        };
+        const activeChallengeId = freshMetadata.activeChallenge && typeof freshMetadata.activeChallenge === "object"
+          ? String((freshMetadata.activeChallenge as { id?: unknown }).id ?? "")
+          : "";
+        const ownedCustomQuest = activeChallengeId
+          ? freshOwnedCustomSideQuests.find((quest) => quest.id === activeChallengeId) ?? null
+          : null;
+        if (activeChallengeId && !getChallengeById(activeChallengeId) && !ownedCustomQuest) {
+          freshReadMetadata = await withPublicCustomSideQuest(client, freshReadMetadata, activeChallengeId);
+        }
+        return checkMobileActiveChallenge(userId, freshMetadata, freshReadMetadata, ownedCustomQuest);
+      });
 
       return NextResponse.json({
         apiVersion: 1,
@@ -130,6 +171,7 @@ export async function POST(request: Request) {
         ok: true,
         action,
         challengeId: result.challengeId,
+        completion: result.completion,
         message: result.completed ? "Quest completed." : "Latest-game check done.",
       });
     }
@@ -239,6 +281,16 @@ function getPassedProviderCheck(checks: MobileProviderCheck[]): MobileProviderCh
     .sort((a, b) => getProviderCheckTimeMs(b) - getProviderCheckTimeMs(a))[0];
 }
 
+export function selectPublishedPublicCustomQuest(
+  privateMetadata: UserMetadataRecord,
+  publicMetadata: UserMetadataRecord,
+  challengeId: string,
+): CustomSideQuest | null {
+  const privateQuests = getCustomSideQuests(privateMetadata);
+  const canonicalQuests = privateQuests.length ? privateQuests : getCustomSideQuests(publicMetadata);
+  return canonicalQuests.find((quest) => quest.id === challengeId && quest.visibility === "public" && quest.lifecycle === "published") ?? null;
+}
+
 async function withPublicCustomSideQuest(
   client: Awaited<ReturnType<typeof clerkClient>>,
   readMetadata: UserMetadataRecord,
@@ -247,18 +299,22 @@ async function withPublicCustomSideQuest(
   if (!challengeId || getChallengeById(challengeId) || getCustomSideQuestById(readMetadata, challengeId)) return readMetadata;
 
   try {
-    const users = await client.users.getUserList({ limit: 100, orderBy: "-created_at" });
-    for (const user of users.data) {
-      const privateMetadata = user.privateMetadata && typeof user.privateMetadata === "object" ? (user.privateMetadata as UserMetadataRecord) : {};
-      const publicMetadata = user.publicMetadata && typeof user.publicMetadata === "object" ? (user.publicMetadata as UserMetadataRecord) : {};
-      const customQuest = [...getCustomSideQuests(privateMetadata), ...getCustomSideQuests(publicMetadata)]
-        .find((quest) => quest.id === challengeId && quest.visibility === "public" && quest.lifecycle === "published");
-      if (customQuest) {
-        return {
-          ...readMetadata,
-          customSideQuests: [customQuest, ...getCustomSideQuests(readMetadata)].filter((quest, index, all) => all.findIndex((entry) => entry.id === quest.id) === index),
-        };
+    const pageSize = 100;
+    const maxPages = 10;
+    for (let page = 0; page < maxPages; page += 1) {
+      const users = await client.users.getUserList({ limit: pageSize, offset: page * pageSize, orderBy: "-created_at" });
+      for (const user of users.data) {
+        const privateMetadata = user.privateMetadata && typeof user.privateMetadata === "object" ? (user.privateMetadata as UserMetadataRecord) : {};
+        const publicMetadata = user.publicMetadata && typeof user.publicMetadata === "object" ? (user.publicMetadata as UserMetadataRecord) : {};
+        const customQuest = selectPublishedPublicCustomQuest(privateMetadata, publicMetadata, challengeId);
+        if (customQuest) {
+          return {
+            ...readMetadata,
+            customSideQuests: [customQuest, ...getCustomSideQuests(readMetadata)].filter((quest, index, all) => all.findIndex((entry) => entry.id === quest.id) === index),
+          };
+        }
       }
+      if (users.data.length < pageSize) break;
     }
   } catch (error) {
     console.warn("mobile public custom Side Quest lookup unavailable", { reason: error instanceof Error ? error.message : "unknown" });
@@ -310,7 +366,12 @@ async function startMobileChallenge(userId: string, metadata: UserMetadataRecord
   return { challengeId: questId, completed: Boolean(passedCheck) };
 }
 
-async function checkMobileActiveChallenge(userId: string, metadata: UserMetadataRecord, readMetadata: UserMetadataRecord) {
+async function checkMobileActiveChallenge(
+  userId: string,
+  metadata: UserMetadataRecord,
+  readMetadata: UserMetadataRecord,
+  ownedCustomQuest: CustomSideQuest | null = null,
+) {
   const activeChallenge = metadata.activeChallenge && typeof metadata.activeChallenge === "object"
     ? (metadata.activeChallenge as { id?: string; startedAt?: string; customQuestSnapshot?: ActiveCustomQuestSnapshot })
     : null;
@@ -333,7 +394,8 @@ async function checkMobileActiveChallenge(userId: string, metadata: UserMetadata
   const passedCheck = getPassedProviderCheck(providerChecks);
   const latestCheck = providerChecks.at(-1);
   const progress = getChallengeProgress(metadata);
-  const completedChallengeIds = passedCheck && !progress.completedChallengeIds.includes(questId)
+  const newlyCompleted = Boolean(passedCheck) && !progress.completedChallengeIds.includes(questId);
+  const completedChallengeIds = newlyCompleted
     ? [...progress.completedChallengeIds, questId]
     : progress.completedChallengeIds;
 
@@ -352,7 +414,30 @@ async function checkMobileActiveChallenge(userId: string, metadata: UserMetadata
     challengeProgress: buildChallengeProgressRecord(completedChallengeIds),
   });
 
-  return { challengeId: questId, completed: Boolean(passedCheck) };
+  const presentationCustomQuest = customQuest
+    ? ownedCustomQuest ?? getCustomSideQuestById(readMetadata, customQuest.id) ?? null
+    : null;
+  const completion = newlyCompleted && (challenge || presentationCustomQuest)
+    ? challenge
+      ? {
+          challengeId: challenge.id,
+          challengeTitle: challenge.title,
+          badgeName: challenge.badgeIdentity.name,
+          badgeImage: challenge.badgeIdentity.image ?? "/mobile-source/badges/v6/proof-loop-test-badge.png",
+          unlockCopy: challenge.badgeIdentity.unlockCopy,
+          accentColor: challenge.badgeIdentity.colors.glow,
+        }
+      : {
+          challengeId: customQuest!.id,
+          challengeTitle: presentationCustomQuest!.title,
+          badgeName: ownedCustomQuest ? "Custom Side Quest" : "Community Side Quest",
+          badgeImage: getCustomSideQuestBadgeUrl(presentationCustomQuest!),
+          unlockCopy: "Side Quest completed.",
+          accentColor: "#f5c86a",
+        }
+    : null;
+
+  return { challengeId: questId, completed: Boolean(passedCheck), completion };
 }
 
 type SubmitMobileChallengeDependencies = {
