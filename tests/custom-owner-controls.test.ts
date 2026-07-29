@@ -71,6 +71,13 @@ test("only published owned quests can be used in Multiplayer", () => {
   }
 });
 
+test("published public owner detail keeps Android's direct share and copy actions", async () => {
+  const route = await source("src/app/custom-side-quests/[id]/page.tsx");
+
+  assert.match(route, /import CommunitySoloShareControls from "@\/components\/community-solo-share-controls"/);
+  assert.match(route, /quest\.visibility === "public" && quest\.lifecycle === "published"[\s\S]*<CommunitySoloShareControls id=\{quest\.id\} title=\{quest\.title\} \/>/);
+});
+
 test("custom library and route wire each saved quest to an owner detail surface", async () => {
   const [library, route, controls, proofControls, editorRoute] = await Promise.all([
     source("src/app/custom-side-quests/page.tsx"),

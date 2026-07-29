@@ -7,6 +7,7 @@ import MobileAppWebShell from "@/components/mobile-app-web-shell";
 import CustomSideQuestOwnerControls from "@/components/custom-side-quest-owner-controls";
 import CustomSideQuestProofControls from "@/components/custom-side-quest-proof-controls";
 import CustomSideQuestActivity from "@/components/custom-side-quest-activity";
+import CommunitySoloShareControls from "@/components/community-solo-share-controls";
 import { describeCustomSideQuestRuleDetails } from "@/lib/community-side-quests";
 import { buildOwnedCustomQuestStats, loadCustomQuestGroupContext } from "@/lib/custom-side-quest-activity";
 import { getCustomSideQuestBadgeUrl, getCustomSideQuestById, getCustomSideQuests } from "@/lib/custom-side-quests";
@@ -96,7 +97,10 @@ export default async function CustomSideQuestOwnerPage({ params }: { params: Pro
       }} />
 
       <div className="sqc-community-detail-actions">
-        {quest.visibility === "public" && quest.lifecycle === "published" ? <Link className="sqc-detail-secondary-button" href={`/challenges/community/${encodeURIComponent(quest.id)}`}>View public page</Link> : null}
+        {quest.visibility === "public" && quest.lifecycle === "published" ? <>
+          <CommunitySoloShareControls id={quest.id} title={quest.title} />
+          <Link className="sqc-detail-secondary-button" href={`/challenges/community/${encodeURIComponent(quest.id)}`}>View public page</Link>
+        </> : null}
         <Link className="sqc-detail-quiet-button" href="/custom-side-quests">Back to My Custom Side Quests</Link>
       </div>
     </div>
