@@ -6,7 +6,7 @@ import { listPublicCommunitySideQuests } from "@/lib/community-side-quests";
 import { getCustomSideQuests } from "@/lib/custom-side-quests";
 import { getMobileWebTheme } from "@/lib/mobile-web-theme";
 import { getChallengeGlowPath, loadOptionalCommunityTrophyQuests } from "@/lib/mobile-web-trophies";
-import { buildActiveMultiplayerHomeRows, loadHomeTrophyRows, resolveHomeActiveSoloQuest } from "@/lib/mobile-web-home";
+import { buildActiveMultiplayerHomeRows, buildHomeActiveSoloProofPath, loadHomeTrophyRows, resolveHomeActiveSoloQuest } from "@/lib/mobile-web-home";
 import { listUserRelatedGroupQuests } from "@/lib/groupquests";
 import {
   buildAttemptSummary,
@@ -20,7 +20,6 @@ import {
   getPreferredRunnerName,
   type UserMetadataRecord,
 } from "@/lib/user-metadata";
-import { buildCompletedOfficialPublicProofPath } from "@/lib/proof-share";
 
 export default async function Home() {
   noStore();
@@ -53,6 +52,12 @@ export default async function Home() {
   const activeChallengeSummary = buildAttemptSummary(activeChallengeAttempt);
   const progress = getChallengeProgress(metadata);
   const activeChallengeCompleted = Boolean(activeSoloQuest && progress.completedChallengeIds.includes(activeSoloQuest.id));
+  const activeChallengePassedAttempt = activeChallenge?.id ? getLatestPassedChallengeAttempt(metadata, activeChallenge.id) : null;
+  const activeCustomQuest = activeChallenge?.id && !activeOfficialChallenge
+    ? customSideQuests.find((quest) => quest.id === activeChallenge.id)
+      ?? communitySideQuests.find((quest) => quest.id === activeChallenge.id)
+      ?? null
+    : null;
   const proofReceiptCount = getChallengeAttempts(metadata).length;
   const displayName = user
     ? getPreferredRunnerName(metadata, {
@@ -62,12 +67,13 @@ export default async function Home() {
         emailAddress: user.primaryEmailAddress?.emailAddress,
       }) || "Side Quest Chess"
     : null;
-  const activeChallengeProofPath = activeOfficialChallenge ? await buildCompletedOfficialPublicProofPath({
+  const activeChallengeProofPath = await buildHomeActiveSoloProofPath({
     completed: activeChallengeCompleted,
-    attempt: getLatestPassedChallengeAttempt(metadata, activeOfficialChallenge.id),
-    challenge: activeOfficialChallenge,
+    officialChallenge: activeOfficialChallenge,
+    customQuest: activeCustomQuest,
+    attempt: activeChallengePassedAttempt,
     runnerName: displayName ?? undefined,
-  }) : null;
+  });
   const [trophyRows, relatedGroupQuests] = user && client
     ? await Promise.all([
         loadHomeTrophyRows(client, user.id, progress.completedChallengeIds),

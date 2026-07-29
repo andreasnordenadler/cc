@@ -1,9 +1,10 @@
 import type { ServerGroupQuest } from "./groupquests";
-import { CHALLENGES } from "./challenges";
+import { CHALLENGES, type Challenge } from "./challenges";
 import type { PublicCommunitySideQuest } from "./community-side-quests";
 import type { CustomSideQuest } from "./custom-side-quests";
 import { getMobileWebTrophyRows } from "./mobile-web-trophies";
-import type { ActiveChallenge } from "./user-metadata";
+import { buildCompletedCustomPublicProofPath, buildCompletedOfficialPublicProofPath } from "./proof-share";
+import type { ActiveChallenge, ChallengeAttempt } from "./user-metadata";
 
 const HOME_TROPHY_ROW_LIMIT = 12;
 
@@ -39,6 +40,33 @@ export type HomeActiveSoloQuest = {
   badgeColors: { primary: string; secondary: string; glow: string } | null;
   source: "official" | "custom" | "community";
 };
+
+export async function buildHomeActiveSoloProofPath({
+  completed,
+  officialChallenge,
+  customQuest,
+  attempt,
+  runnerName,
+}: {
+  completed: boolean;
+  officialChallenge: Challenge | null;
+  customQuest: CustomSideQuest | null;
+  attempt: ChallengeAttempt | null;
+  runnerName?: string;
+}) {
+  if (officialChallenge) {
+    return buildCompletedOfficialPublicProofPath({
+      completed,
+      attempt,
+      challenge: officialChallenge,
+      runnerName,
+    });
+  }
+  if (customQuest) {
+    return buildCompletedCustomPublicProofPath({ completed, attempt, quest: customQuest });
+  }
+  return null;
+}
 
 export function resolveHomeActiveSoloQuest(
   activeQuestId: string | null | undefined,

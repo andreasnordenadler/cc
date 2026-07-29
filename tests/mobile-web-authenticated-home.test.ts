@@ -8,7 +8,8 @@ import { MiniChessBoard, SignedInHome } from "../src/components/mobile-app-web-s
 import DeactivateQuestControl from "../src/components/deactivate-quest-control";
 import { CHALLENGES } from "../src/lib/challenges";
 import { checkActiveCustomSoloQuest } from "../src/lib/mobile-web-active-solo-check";
-import { resolveHomeActiveSoloQuest } from "../src/lib/mobile-web-home";
+import { buildHomeActiveSoloProofPath, resolveHomeActiveSoloQuest } from "../src/lib/mobile-web-home";
+import { decodePublicProof } from "../src/lib/proof-share";
 
 const failedSolo = {
   id: "one-bishop-to-rule-them-all",
@@ -62,6 +63,90 @@ test("Home wires nonofficial active Solo refresh to the custom-capable checker",
 
   assert.match(shellSource, /<ActiveSoloActions checkMode=\{activeSolo\.source === "custom" \|\| activeSolo\.source === "community" \? "custom" : "official"\} \/>/);
   assert.match(actionSource, /checkMode === "custom" \? checkActiveCustomSoloQuestAction : checkActiveChallengeWithResult/);
+});
+
+test("completed Custom Solo on Home links directly to its accepted proof", async () => {
+  const quest = {
+    id: "custom/home-proof",
+    title: "Home Proof Quest",
+    summary: "Move a knight and win.",
+    config: "{\"version\":2,\"logic\":\"all\",\"blocks\":[]}",
+    lifecycle: "published" as const,
+    visibility: "private" as const,
+    badgeImageUrl: "/badges/custom/community/community-coat-08.png",
+    createdAt: "2026-07-01T00:00:00.000Z",
+    updatedAt: "2026-07-02T00:00:00.000Z",
+  };
+  const attempt = {
+    challengeId: quest.id,
+    status: "passed" as const,
+    checkedAt: "2026-07-29T12:00:00.000Z",
+    gameId: "accepted-custom-home-game",
+    provider: "lichess" as const,
+    summary: "Custom proof accepted.",
+  };
+
+  const path = await buildHomeActiveSoloProofPath({
+    completed: true,
+    officialChallenge: null,
+    customQuest: quest,
+    attempt,
+    runnerName: "SQC tester",
+  });
+
+  assert.ok(path?.startsWith("/proof/"));
+  const decoded = await decodePublicProof(path?.slice("/proof/".length));
+  assert.equal(decoded?.payload.challengeId, quest.id);
+  assert.equal(decoded?.payload.gameId, attempt.gameId);
+  assert.equal(decoded?.payload.challengeTitle, quest.title);
+});
+
+test("Home proof paths stay absent for incomplete or unresolved nonofficial Solo quests", async () => {
+  const customQuest = {
+    id: "custom/incomplete",
+    title: "Incomplete quest",
+    summary: "Not completed yet.",
+    config: "{}",
+    createdAt: "2026-07-01T00:00:00.000Z",
+    updatedAt: "2026-07-02T00:00:00.000Z",
+  };
+
+  assert.equal(await buildHomeActiveSoloProofPath({
+    completed: false,
+    officialChallenge: null,
+    customQuest,
+    attempt: null,
+  }), null);
+  assert.equal(await buildHomeActiveSoloProofPath({
+    completed: true,
+    officialChallenge: null,
+    customQuest: null,
+    attempt: null,
+  }), null);
+});
+
+test("Home keeps the accepted Official Solo proof contract unchanged", async () => {
+  const challenge = CHALLENGES[0];
+  const attempt = {
+    challengeId: challenge.id,
+    status: "passed" as const,
+    checkedAt: "2026-07-29T12:00:00.000Z",
+    gameId: "accepted-official-home-game",
+    provider: "chess.com" as const,
+    summary: "Official proof accepted.",
+  };
+  const path = await buildHomeActiveSoloProofPath({
+    completed: true,
+    officialChallenge: challenge,
+    customQuest: null,
+    attempt,
+    runnerName: "SQC tester",
+  });
+  const decoded = await decodePublicProof(path?.slice("/proof/".length));
+
+  assert.equal(decoded?.payload.challengeId, challenge.id);
+  assert.equal(decoded?.payload.runnerName, "SQC tester");
+  assert.equal(decoded?.payload.gameId, attempt.gameId);
 });
 
 test("authenticated Home resolves an active owned Custom Solo quest instead of showing the empty state", () => {
