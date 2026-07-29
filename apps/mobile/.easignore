@@ -1,4 +1,7 @@
 # Keep EAS Android upload lean; native source is included, generated build outputs are not.
+# Android is gitignored in the Expo app, so explicit negation is required for EAS archives.
+!android/
+!android/**
 android/app/build/
 android/app/.cxx/
 android/build/

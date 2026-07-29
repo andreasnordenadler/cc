@@ -15,6 +15,8 @@ def sqcReleaseStoreFile = sqcReleaseStorePath ? (new File(sqcReleaseStorePath).i
 def sqcReleaseStorePassword = System.getenv("SQC_ANDROID_KEYSTORE_PASSWORD") ?: sqcReleaseCredentials?.keystorePassword
 def sqcReleaseKeyAlias = System.getenv("SQC_ANDROID_KEY_ALIAS") ?: sqcReleaseCredentials?.keyAlias
 def sqcReleaseKeyPassword = System.getenv("SQC_ANDROID_KEY_PASSWORD") ?: sqcReleaseCredentials?.keyPassword
+def sqcEasBuild = System.getenv("EAS_BUILD") == "true"
+def sqcReleaseSigningConfigured = sqcReleaseStoreFile && sqcReleaseStoreFile.exists() && sqcReleaseStorePassword && sqcReleaseKeyAlias && sqcReleaseKeyPassword
 
 /**
  * This is the configuration block to customize your React Native Android app.
@@ -117,13 +119,12 @@ android {
             keyPassword 'android'
         }
         release {
-            if (!sqcReleaseStoreFile || !sqcReleaseStoreFile.exists() || !sqcReleaseStorePassword || !sqcReleaseKeyAlias || !sqcReleaseKeyPassword) {
-                throw new GradleException("Release signing requires SQC_ANDROID_KEYSTORE_* env vars or apps/mobile/credentials.json. Refusing to build a debug-signed release APK.")
+            if (!sqcEasBuild && sqcReleaseSigningConfigured) {
+                storeFile sqcReleaseStoreFile
+                storePassword sqcReleaseStorePassword
+                keyAlias sqcReleaseKeyAlias
+                keyPassword sqcReleaseKeyPassword
             }
-            storeFile sqcReleaseStoreFile
-            storePassword sqcReleaseStorePassword
-            keyAlias sqcReleaseKeyAlias
-            keyPassword sqcReleaseKeyPassword
         }
     }
     buildTypes {
@@ -148,6 +149,19 @@ android {
     }
     androidResources {
         ignoreAssetsPattern '!.svn:!.git:!.ds_store:!*.scc:!CVS:!thumbs.db:!picasa.ini:!*~'
+    }
+}
+
+gradle.taskGraph.whenReady { taskGraph ->
+    def releaseArtifactTaskRequested = taskGraph.allTasks.any { task ->
+        def normalizedTask = task.name.toLowerCase()
+        normalizedTask in ["assemblerelease", "bundlerelease", "packagerelease", "installrelease"] ||
+            (normalizedTask.startsWith("package") && normalizedTask.contains("release") &&
+                (normalizedTask.endsWith("bundle") || normalizedTask.endsWith("apk"))) ||
+            (normalizedTask.startsWith("publish") && normalizedTask.contains("release"))
+    }
+    if (!sqcEasBuild && !sqcReleaseSigningConfigured && releaseArtifactTaskRequested) {
+        throw new GradleException("Release signing requires SQC_ANDROID_KEYSTORE_* env vars or apps/mobile/credentials.json. Refusing to build a debug-signed release APK.")
     }
 }
 
