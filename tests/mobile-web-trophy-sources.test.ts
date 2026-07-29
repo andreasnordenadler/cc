@@ -29,6 +29,37 @@ test("community Multiplayer podiums are separated from official trophies", () =>
   assert.doesNotMatch(html, /1 Official Multiplayer Side Quest podium/);
 });
 
+test("Custom and Community Solo rewards render in the Android-matched Solo cabinet section", () => {
+  const html = renderToStaticMarkup(React.createElement(MobileTrophyCabinetScreen, {
+    trophyRows: [
+      {
+        id: "solo-custom-alpha",
+        title: "Knight Errand",
+        meta: "Custom Solo Side Quest · Custom Side Quest",
+        href: "/custom-side-quests/custom-alpha",
+        source: "customSolo",
+      },
+      {
+        id: "solo-community-beta",
+        title: "Pawn Parade",
+        meta: "Community Solo Side Quest · Community Side Quest",
+        href: "/challenges/community/community-beta",
+        source: "communitySolo",
+      },
+    ],
+    completedSoloCount: 2,
+    proofReceiptCount: 2,
+    officialSoloCount: 9,
+    officialChallenges: [],
+  }));
+
+  assert.match(html, /Official, Custom, and Community Solo Side Quest Coats of Arms/);
+  assert.match(html, /Knight Errand/);
+  assert.match(html, /Pawn Parade/);
+  assert.match(html, /1 Custom Solo Side Quest/);
+  assert.match(html, /1 Community Solo Side Quest/);
+});
+
 test("trophy source follows the canonical official flag with legacy id fallback", () => {
   assert.equal(getMultiplayerTrophySource({ id: "official-cycle", official: false }), "officialMultiplayer");
   assert.equal(getMultiplayerTrophySource({ id: "current-cycle", official: true }), "officialMultiplayer");

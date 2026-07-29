@@ -1,4 +1,5 @@
 import { CHALLENGES } from "@/lib/challenges";
+import { getCustomSideQuestBadgeUrl, type CustomSideQuest } from "@/lib/custom-side-quests";
 import { listPublicGroupQuests, listUserRelatedGroupQuests, rankGroupQuestParticipants, type ServerGroupQuest } from "@/lib/groupquests";
 
 export type MobileWebTrophyRow = {
@@ -9,8 +10,10 @@ export type MobileWebTrophyRow = {
   image?: string | null;
   glow?: string | null;
   statusImage?: string | null;
-  source: "officialMultiplayer" | "communityMultiplayer" | "solo";
+  source: "officialMultiplayer" | "communityMultiplayer" | "officialSolo" | "customSolo" | "communitySolo";
 };
+
+type SoloTrophyQuest = Pick<CustomSideQuest, "id" | "title" | "badgeImageUrl">;
 
 export type MobileWebAccountStats = {
   completedCount: number;
@@ -60,12 +63,15 @@ export async function getMobileWebTrophyRows(
   client: ClerkClient,
   userId: string,
   completedChallengeIds: string[],
-  limit = 12,
+  limit: number | null = 12,
+  soloQuests: { ownedCustomQuests?: SoloTrophyQuest[]; communityQuests?: SoloTrophyQuest[] } = {},
 ): Promise<MobileWebTrophyRow[]> {
   const overview = await getMobileWebAccountOverview(client, userId, {
     completedChallengeIds,
     attempts: [],
     customSideQuestIds: [],
+    ownedCustomQuests: soloQuests.ownedCustomQuests,
+    communityQuests: soloQuests.communityQuests,
     limit,
   });
   return overview.trophyRows;
@@ -78,7 +84,11 @@ export async function getMobileWebAccountOverview(
     completedChallengeIds: string[];
     attempts: AccountStatsAttempt[];
     customSideQuestIds: string[];
-    limit?: number;
+    ownedCustomQuests?: SoloTrophyQuest[];
+    communityQuests?: SoloTrophyQuest[];
+    limit?: number | null;
+    multiplayerLimit?: number;
+    soloLimit?: number;
   },
 ): Promise<{ trophyRows: MobileWebTrophyRow[]; stats: MobileWebAccountStats; activeMultiplayer: ActiveMultiplayerAccountSummary }> {
   const [relatedGroupQuests, publicGroupQuests] = await Promise.all([
@@ -106,11 +116,58 @@ export async function getMobileWebAccountOverview(
         source,
       };
     })
-    .filter((row): row is NonNullable<typeof row> => Boolean(row))
-    .slice(0, MOBILE_MULTIPLAYER_TROPHY_LIMIT);
+    .filter((row): row is NonNullable<typeof row> => Boolean(row));
 
-  const completedSet = new Set(input.completedChallengeIds);
-  const soloRows = CHALLENGES
+  const soloRows = buildSoloTrophyRows(input.completedChallengeIds, input.ownedCustomQuests, input.communityQuests);
+
+  return {
+    trophyRows: combineTrophyRows(multiplayerRows, soloRows, {
+      multiplayerLimit: input.multiplayerLimit ?? MOBILE_MULTIPLAYER_TROPHY_LIMIT,
+      soloLimit: input.soloLimit,
+      totalLimit: input.limit,
+    }),
+    stats: summarizeMobileWebAccountStats({
+      completedChallengeIds: input.completedChallengeIds,
+      attempts: input.attempts,
+      customSideQuestIds: input.customSideQuestIds,
+      multiplayerTrophyCount: multiplayerRows.length,
+      groupQuests: [...dedupedGroupQuests.values()],
+    }),
+    activeMultiplayer: summarizeActiveMultiplayerAccount(userId, relatedGroupQuests),
+  };
+}
+
+export function combineTrophyRows(
+  multiplayerRows: MobileWebTrophyRow[],
+  soloRows: MobileWebTrophyRow[],
+  limits: { multiplayerLimit?: number; soloLimit?: number; totalLimit?: number | null } = {},
+) {
+  const selectedMultiplayer = limits.multiplayerLimit === undefined
+    ? multiplayerRows
+    : multiplayerRows.slice(0, limits.multiplayerLimit);
+  const selectedSolo = limits.soloLimit === undefined
+    ? soloRows
+    : soloRows.slice(0, limits.soloLimit);
+  const combined = [...selectedMultiplayer, ...selectedSolo];
+  return typeof limits.totalLimit === "number" ? combined.slice(0, limits.totalLimit) : combined;
+}
+
+export async function loadOptionalCommunityTrophyQuests<T extends SoloTrophyQuest>(loader: () => Promise<T[]>): Promise<T[]> {
+  try {
+    return await loader();
+  } catch {
+    return [];
+  }
+}
+
+export function buildSoloTrophyRows(
+  completedChallengeIds: string[],
+  ownedCustomQuests: SoloTrophyQuest[] = [],
+  communityQuests: SoloTrophyQuest[] = [],
+): MobileWebTrophyRow[] {
+  const completedSet = new Set(completedChallengeIds);
+  const ownedIds = new Set(ownedCustomQuests.map((quest) => quest.id));
+  const officialRows = CHALLENGES
     .filter((challenge) => completedSet.has(challenge.id))
     .map((challenge) => ({
       id: `solo-${challenge.id}`,
@@ -120,19 +177,31 @@ export async function getMobileWebAccountOverview(
       image: toMobileAssetPath(challenge.badgeIdentity.image) ?? "/mobile-source/sqc-coat-of-arms.png",
       glow: getChallengeGlowPath(challenge.id),
       statusImage: "/mobile-source/stamps/quest-complete-red-wax-sqc-v15.png",
-      source: "solo" as const,
+      source: "officialSolo" as const,
     }));
+  const customRows = ownedCustomQuests
+    .filter((quest) => completedSet.has(quest.id))
+    .map((quest) => buildCustomSoloTrophyRow(quest, "customSolo"));
+  const communityRows = communityQuests
+    .filter((quest) => completedSet.has(quest.id) && !ownedIds.has(quest.id))
+    .map((quest) => buildCustomSoloTrophyRow(quest, "communitySolo"));
 
+  return [...officialRows, ...customRows, ...communityRows];
+}
+
+function buildCustomSoloTrophyRow(
+  quest: SoloTrophyQuest,
+  source: "customSolo" | "communitySolo",
+): MobileWebTrophyRow {
+  const isOwned = source === "customSolo";
   return {
-    trophyRows: [...multiplayerRows, ...soloRows].slice(0, input.limit ?? 12),
-    stats: summarizeMobileWebAccountStats({
-      completedChallengeIds: input.completedChallengeIds,
-      attempts: input.attempts,
-      customSideQuestIds: input.customSideQuestIds,
-      multiplayerTrophyCount: multiplayerRows.length,
-      groupQuests: [...dedupedGroupQuests.values()],
-    }),
-    activeMultiplayer: summarizeActiveMultiplayerAccount(userId, relatedGroupQuests),
+    id: `solo-${quest.id}`,
+    title: quest.title,
+    meta: `${isOwned ? "Custom" : "Community"} Solo Side Quest · ${isOwned ? "Custom" : "Community"} Side Quest`,
+    href: isOwned ? `/custom-side-quests/${encodeURIComponent(quest.id)}` : `/challenges/community/${encodeURIComponent(quest.id)}`,
+    image: getCustomSideQuestBadgeUrl(quest) ?? "/mobile-source/sqc-coat-of-arms.png",
+    statusImage: "/mobile-source/stamps/quest-complete-red-wax-sqc-v15.png",
+    source,
   };
 }
 

@@ -95,9 +95,9 @@ export function buildSoloProofHomeStatus(
   };
 }
 
-export function formatHomeTrophyMeta(meta: string, source?: "multiplayer" | "officialMultiplayer" | "communityMultiplayer" | "solo") {
-  if (source !== "solo") return meta;
-  const badgeName = meta.replace(/^Official Solo Side Quest\s*·\s*/i, "").trim();
+export function formatHomeTrophyMeta(meta: string, source?: "multiplayer" | "officialMultiplayer" | "communityMultiplayer" | "solo" | "officialSolo" | "customSolo" | "communitySolo") {
+  if (source !== "solo" && !source?.endsWith("Solo")) return meta;
+  const badgeName = meta.replace(/^(?:Official|Custom|Community) Solo Side Quest\s*·\s*/i, "").trim();
   return badgeName ? `Unlocked ${badgeName}` : "Unlocked Solo Side Quest trophy";
 }
 
