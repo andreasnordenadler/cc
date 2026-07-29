@@ -49,7 +49,8 @@ test("the production Home refresh shows celebration only from a newly completed 
   const actionBody = actionSource.slice(actionSource.indexOf("async function runActiveChallengeCheck"));
   assert.match(actionBody, /buildSoloCheckResult/);
   assert.match(actionBody, /alreadyCompleted:\s*progress\.completedChallengeIds\.includes\(challenge\.id\)/);
-  assert.match(controlSource, /useActionState\(checkActiveChallengeWithResult/);
+  assert.match(controlSource, /checkMode === "custom" \? checkActiveCustomSoloQuestAction : checkActiveChallengeWithResult/);
+  assert.match(controlSource, /useActionState\(checkAction, initialState\)/);
   assert.match(controlSource, /state\.status === "completed"/);
   assert.match(controlSource, /<SoloCompletionCelebration/);
   const celebrationSource = await readFile(new URL("../src/components/solo-completion-celebration.tsx", import.meta.url), "utf8");

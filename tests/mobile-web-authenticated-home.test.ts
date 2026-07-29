@@ -7,6 +7,8 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { MiniChessBoard, SignedInHome } from "../src/components/mobile-app-web-shell";
 import DeactivateQuestControl from "../src/components/deactivate-quest-control";
 import { CHALLENGES } from "../src/lib/challenges";
+import { checkActiveCustomSoloQuest } from "../src/lib/mobile-web-active-solo-check";
+import { resolveHomeActiveSoloQuest } from "../src/lib/mobile-web-home";
 
 const failedSolo = {
   id: "one-bishop-to-rule-them-all",
@@ -25,6 +27,148 @@ const failedSolo = {
     summary: "One Bishop to Rule Them All only counts if the lonely diagonal manager also wins. Winner was White.",
   },
 };
+
+test("active Custom Home refresh uses the authenticated custom-capable quest route", async () => {
+  const requests: Array<{ input: string; init?: RequestInit }> = [];
+  const result = await checkActiveCustomSoloQuest(async (input: string | URL | Request, init?: RequestInit) => {
+    requests.push({ input: String(input), init });
+    return new Response(JSON.stringify({ ok: true, message: "Latest-game check done." }), {
+      status: 200,
+      headers: { "content-type": "application/json" },
+    });
+  });
+
+  assert.deepEqual(requests, [{
+    input: "/api/mobile/quest",
+    init: {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ action: "check" }),
+    },
+  }]);
+  assert.deepEqual(result, {
+    status: "checked",
+    completion: null,
+    message: "Latest-game check done.",
+    error: null,
+  });
+});
+
+test("Home wires nonofficial active Solo refresh to the custom-capable checker", async () => {
+  const [shellSource, actionSource] = await Promise.all([
+    readFile(new URL("../src/components/mobile-app-web-shell.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../src/components/active-solo-actions.tsx", import.meta.url), "utf8"),
+  ]);
+
+  assert.match(shellSource, /<ActiveSoloActions checkMode=\{activeSolo\.source === "custom" \|\| activeSolo\.source === "community" \? "custom" : "official"\} \/>/);
+  assert.match(actionSource, /checkMode === "custom" \? checkActiveCustomSoloQuestAction : checkActiveChallengeWithResult/);
+});
+
+test("authenticated Home resolves an active owned Custom Solo quest instead of showing the empty state", () => {
+  const resolved = resolveHomeActiveSoloQuest("custom/knight", [{
+    id: "custom/knight",
+    title: "Knight Errand",
+    summary: "Move the original knight before move ten.",
+    config: "{}",
+    lifecycle: "published",
+    visibility: "private",
+    badgeImageUrl: "/badges/custom/community/community-coat-07.png",
+    createdAt: "2026-07-01T00:00:00.000Z",
+    updatedAt: "2026-07-01T00:00:00.000Z",
+  }], []);
+
+  assert.deepEqual(resolved, {
+    id: "custom/knight",
+    href: "/custom-side-quests/custom%2Fknight",
+    title: "Knight Errand",
+    objective: "Move the original knight before move ten.",
+    instruction: "Move the original knight before move ten.",
+    badgeImage: "/badges/custom/community/community-coat-07.png",
+    badgeColors: null,
+    source: "custom",
+  });
+});
+
+test("authenticated Home resolves an active Community Solo quest to its public detail", () => {
+  const communityQuest = {
+    id: "community/pawns",
+    title: "Pawn Parade",
+    summary: "Advance three pawns before move twelve.",
+    config: "{}",
+    lifecycle: "published" as const,
+    visibility: "public" as const,
+    badgeImageUrl: "/badges/custom/community/community-coat-08.png",
+    createdAt: "2026-07-01T00:00:00.000Z",
+    updatedAt: "2026-07-01T00:00:00.000Z",
+    creatorName: "SQC player",
+    creatorKey: "sqc-player-viewer",
+    creatorUserId: "viewer",
+    creatorBrowsePath: "/community-side-quests?creator=sqc-player-viewer",
+    detailPath: "/challenges/community/community%2Fpawns",
+    ruleLabel: "Custom rule",
+    ruleDetails: ["Custom rule"],
+    updatedAtMs: 1,
+    stats: { soloAttempts: 0, soloSelections: 1, soloCompletions: 0, multiplayerLineups: 0, multiplayerAttempts: 0, multiplayerFulfillments: 0 },
+    popularityScore: 1,
+    likeSummary: { count: 0, likedByViewer: false },
+  };
+
+  assert.deepEqual(resolveHomeActiveSoloQuest(communityQuest.id, [], [communityQuest]), {
+    id: communityQuest.id,
+    href: communityQuest.detailPath,
+    title: communityQuest.title,
+    objective: communityQuest.summary,
+    instruction: communityQuest.summary,
+    badgeImage: communityQuest.badgeImageUrl,
+    badgeColors: null,
+    source: "community",
+  });
+});
+
+test("authenticated Home preserves an active Community Solo snapshot when bounded discovery cannot find its owner", () => {
+  const resolved = resolveHomeActiveSoloQuest("community/beyond-page-limit", [], [], {
+    id: "community/beyond-page-limit",
+    title: "Faraway Knight Errand",
+    config: "{\"version\":2,\"logic\":\"all\",\"blocks\":[]}",
+    lifecycle: "published",
+  });
+
+  assert.deepEqual(resolved, {
+    id: "community/beyond-page-limit",
+    href: "/challenges/community/community%2Fbeyond-page-limit",
+    title: "Faraway Knight Errand",
+    objective: "Complete this community Side Quest rule in a fresh public game.",
+    instruction: "Complete this community Side Quest rule in a fresh public game.",
+    badgeImage: null,
+    badgeColors: null,
+    source: "community",
+  });
+});
+
+test("authenticated Home tolerates a malformed legacy Custom summary", () => {
+  const resolved = resolveHomeActiveSoloQuest("custom-legacy", [{
+    id: "custom-legacy",
+    title: "Legacy quest",
+    summary: 42 as unknown as string,
+    config: "{}",
+    createdAt: "2026-07-01T00:00:00.000Z",
+    updatedAt: "2026-07-01T00:00:00.000Z",
+  }], []);
+
+  assert.equal(resolved?.objective, "Complete your custom Side Quest rule in a fresh public game.");
+});
+
+test("Home page feeds authenticated Custom and Community records into active Solo resolution", async () => {
+  const source = await readFile(new URL("../src/app/page.tsx", import.meta.url), "utf8");
+
+  assert.match(source, /getCustomSideQuests\(privateMetadata\)/);
+  assert.match(source, /listPublicCommunitySideQuests\([\s\S]*maxPages:\s*10/);
+  assert.match(source, /resolveHomeActiveSoloQuest\(activeChallenge\?\.id, customSideQuests, communitySideQuests, activeChallenge\?\.customQuestSnapshot\)/);
+  assert.match(source, /activeSolo=\{activeSoloQuest \? \{/);
+  assert.match(source, /href:\s*activeSoloQuest\.href/);
+  assert.match(source, /title:\s*activeSoloQuest\.title/);
+  assert.match(source, /objective:\s*activeSoloQuest\.objective/);
+});
 
 test("authenticated Home keeps Active Solo compact with one refresh control and one catalog action", () => {
   const html = renderToStaticMarkup(React.createElement(SignedInHome, {
