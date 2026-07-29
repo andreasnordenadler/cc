@@ -4,6 +4,21 @@ import test from "node:test";
 
 const readRepoFile = (path: string) => readFileSync(new URL(`../${path}`, import.meta.url), "utf8");
 
+
+test("Android signing stays fail-closed for direct and umbrella artifact tasks without blocking release lint", () => {
+  const source = readRepoFile("apps/mobile/android/app/build.gradle");
+
+  assert.match(source, /gradle\.taskGraph\.whenReady/);
+  assert.match(source, /taskGraph\.allTasks\.any/);
+  assert.match(source, /releaseArtifactTaskRequested/);
+  for (const task of ["assemblerelease", "bundlerelease", "packagerelease", "installrelease"]) {
+    assert.match(source, new RegExp(`"${task}"`));
+  }
+  assert.match(source, /startsWith\("package"\).*contains\("release"\)[\s\S]*endsWith\("bundle"\).*endsWith\("apk"\)/);
+  assert.match(source, /startsWith\("publish"\).*contains\("release"\)/);
+  assert.match(source, /if \(!sqcEasBuild && !sqcReleaseSigningConfigured && releaseArtifactTaskRequested\)[\s\S]*Refusing to build a debug-signed release APK/);
+});
+
 test("CI uses a pnpm release whose audit client supports the registry bulk advisory endpoint", () => {
   for (const workflow of [".github/workflows/ci.yml", ".github/workflows/mobile-release-gate.yml"]) {
     const source = readRepoFile(workflow);
@@ -60,7 +75,7 @@ test("Android release signing stays fail-closed locally while allowing EAS crede
   const source = readRepoFile("apps/mobile/android/app/build.gradle");
 
   assert.match(source, /def sqcEasBuild = System\.getenv\("EAS_BUILD"\) == "true"/);
-  assert.match(source, /if \(!sqcEasBuild\) \{[\s\S]*Refusing to build a debug-signed release APK/);
+  assert.match(source, /if \(!sqcEasBuild && !sqcReleaseSigningConfigured && releaseArtifactTaskRequested\)[\s\S]*Refusing to build a debug-signed release APK/);
   assert.match(source, /buildTypes \{[\s\S]*release \{\s*signingConfig signingConfigs\.release/);
   assert.doesNotMatch(source, /release \{\s*signingConfig signingConfigs\.debug/);
 });

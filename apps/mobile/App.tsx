@@ -26,6 +26,7 @@ import {
   StyleSheet,
   Text,
   TextInput,
+  useWindowDimensions,
   View,
   type LayoutChangeEvent,
   type NativeScrollEvent,
@@ -42,6 +43,7 @@ import { findSignedOutPublicMultiplayerQuest, getSignedOutPublicMultiplayerCatal
 import { loadMobileAccount } from "./src/account/loadMobileAccount";
 import { clerkPublishableKey, clerkTokenCache, isClerkMobileAuthConfigured } from "./src/auth/clerk";
 import { OFFLINE_MOBILE_BOOTSTRAP } from "./src/data/offlineBootstrap";
+import { shouldStackActiveQuestSummary } from "./src/layout/activeQuestLayout";
 import type { MobileAccountResponse, MobileAccountState, MobileBootstrap, MobileChallenge, MobileCustomSideQuest, MobileGroupQuestParticipantRow, MobileGroupQuestSummary, MobileSupportMessage } from "./src/types/sqc";
 
 type AppTab = "home" | "sideQuests" | "multiplayerSideQuests" | "officialLeaderboards" | "coatOfArms" | "account";
@@ -321,11 +323,17 @@ function ActiveQuestEmptyMiniBoard() {
   );
 }
 
+function useActiveQuestSummaryLayout() {
+  const { width, fontScale } = useWindowDimensions();
+  return shouldStackActiveQuestSummary({ width, fontScale });
+}
+
 function ActiveQuestNoGameSummary({ goal, pickedLabel, latestCheckLabel, statusLabel }: { goal?: string; pickedLabel?: string; latestCheckLabel?: string; statusLabel?: string }) {
+  const stackSummary = useActiveQuestSummaryLayout();
   return (
-    <View style={compactStyles.currentEmptyBoardPanel}>
+    <View style={[compactStyles.currentEmptyBoardPanel, stackSummary && compactStyles.currentSummaryPanelStacked]}>
       <ActiveQuestEmptyMiniBoard />
-      <View style={compactStyles.currentProofTextBlock}>
+      <View style={[compactStyles.currentProofTextBlock, stackSummary && compactStyles.currentProofTextBlockStacked]}>
         {goal ? <Text style={compactStyles.currentQuestMeta}><Text style={compactStyles.currentQuestMetaStrong}>Goal: </Text>{goal}</Text> : null}
         {pickedLabel ? <Text style={compactStyles.currentQuestMeta} numberOfLines={1}><Text style={compactStyles.currentQuestMetaStrong}>Picked: </Text>{pickedLabel}</Text> : null}
         {latestCheckLabel ? <Text style={compactStyles.currentQuestMeta} numberOfLines={2}><Text style={compactStyles.currentQuestMetaStrong}>Latest check: </Text>{latestCheckLabel}</Text> : null}
@@ -338,13 +346,14 @@ function ActiveQuestNoGameSummary({ goal, pickedLabel, latestCheckLabel, statusL
 
 
 function ActiveQuestMiniProofBoard({ receipt, goal, pickedLabel, latestCheckLabel, statusLabel }: { receipt: MobileAccountState["latestReceipt"]; goal?: string; pickedLabel?: string; latestCheckLabel?: string; statusLabel?: string }) {
+  const stackSummary = useActiveQuestSummaryLayout();
   const orientation = mobileBoardOrientation(receipt?.playerColor ?? receipt?.failureDiagnostic?.playerColor);
   const board = parseMobileFenBoard(receipt?.finalPositionFen, receipt?.lastMoveUci ?? undefined, orientation);
 
   if (!receipt || receipt.status !== "passed" || !board) return null;
 
   return (
-    <View style={compactStyles.currentProofInlinePanel}>
+    <View style={[compactStyles.currentProofInlinePanel, stackSummary && compactStyles.currentSummaryPanelStacked]}>
       <View style={compactStyles.currentProofIntegratedBoard}>
         {board.map((square, index) => (
           <View key={square.square} style={[compactStyles.currentFailureMiniSquare, (Math.floor(index / 8) + index) % 2 === 0 ? compactStyles.failureBoardSquareLight : compactStyles.failureBoardSquareDark, square.highlight ? compactStyles.currentProofMiniSquareHighlight : null]}>
@@ -353,7 +362,7 @@ function ActiveQuestMiniProofBoard({ receipt, goal, pickedLabel, latestCheckLabe
           </View>
         ))}
       </View>
-      <View style={compactStyles.currentProofTextBlock}>
+      <View style={[compactStyles.currentProofTextBlock, stackSummary && compactStyles.currentProofTextBlockStacked]}>
         {goal ? <Text style={compactStyles.currentQuestMeta}><Text style={compactStyles.currentQuestMetaStrong}>Goal: </Text>{goal}</Text> : null}
         {pickedLabel ? <Text style={compactStyles.currentQuestMeta} numberOfLines={1}><Text style={compactStyles.currentQuestMetaStrong}>Picked: </Text>{pickedLabel}</Text> : null}
         {latestCheckLabel ? <Text style={compactStyles.currentQuestMeta} numberOfLines={2}><Text style={compactStyles.currentQuestMetaStrong}>Latest check: </Text>{latestCheckLabel}</Text> : null}
@@ -365,13 +374,14 @@ function ActiveQuestMiniProofBoard({ receipt, goal, pickedLabel, latestCheckLabe
 }
 
 function ActiveQuestFailureSummary({ receipt, goal, pickedLabel, latestCheckLabel, statusLabel }: { receipt: MobileAccountState["latestReceipt"]; goal?: string; pickedLabel?: string; latestCheckLabel?: string; statusLabel?: string }) {
+  const stackSummary = useActiveQuestSummaryLayout();
   const failureText = getReceiptFailureText(receipt);
   if (!failureText) return null;
 
   return (
-    <View style={compactStyles.currentFailurePanel}>
+    <View style={[compactStyles.currentFailurePanel, stackSummary && compactStyles.currentSummaryPanelStacked]}>
       <ActiveQuestMiniFailureBoard receipt={receipt} />
-      <View style={compactStyles.currentProofTextBlock}>
+      <View style={[compactStyles.currentProofTextBlock, stackSummary && compactStyles.currentProofTextBlockStacked]}>
         {goal ? <Text style={compactStyles.currentQuestMeta}><Text style={compactStyles.currentQuestMetaStrong}>Goal: </Text>{goal}</Text> : null}
         {pickedLabel ? <Text style={compactStyles.currentQuestMeta} numberOfLines={1}><Text style={compactStyles.currentQuestMetaStrong}>Picked: </Text>{pickedLabel}</Text> : null}
         {latestCheckLabel ? <Text style={compactStyles.currentQuestMeta} numberOfLines={2}><Text style={compactStyles.currentQuestMetaStrong}>Latest check: </Text>{latestCheckLabel}</Text> : null}
@@ -3389,13 +3399,13 @@ function AccountIdentityLine({ name, lichessUsername, chessComUsername }: { name
         {lichessUsername ? (
           <View style={compactStyles.identityAccount}>
             <Text style={[compactStyles.identityPlatform, compactStyles.identityPlatformLichess]}>lichess</Text>
-            <Text style={compactStyles.identityUsername} numberOfLines={1}>{lichessUsername}</Text>
+            <Text style={compactStyles.identityUsername} numberOfLines={1} ellipsizeMode="tail">{lichessUsername}</Text>
           </View>
         ) : null}
         {chessComUsername ? (
           <View style={compactStyles.identityAccount}>
             <Text style={[compactStyles.identityPlatform, compactStyles.identityPlatformChessCom]}>chess.com</Text>
-            <Text style={compactStyles.identityUsername} numberOfLines={1}>{chessComUsername}</Text>
+            <Text style={compactStyles.identityUsername} numberOfLines={1} ellipsizeMode="tail">{chessComUsername}</Text>
           </View>
         ) : null}
       </View>
@@ -10198,11 +10208,11 @@ const compactStyles = StyleSheet.create({
   identityLine: { alignItems: "center", gap: 4, minWidth: 0, maxWidth: "100%" },
   identityName: { color: colors.paper, fontSize: 17, lineHeight: 21, fontWeight: "900", letterSpacing: -.25, textAlign: "center" },
   identityAccountsLine: { flexDirection: "row", alignItems: "center", justifyContent: "center", flexWrap: "wrap", columnGap: 7, rowGap: 3 },
-  identityAccount: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 4, maxWidth: "48%" },
+  identityAccount: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 4, maxWidth: "48%", flexShrink: 1, minWidth: 0 },
   identityPlatform: { overflow: "hidden", paddingHorizontal: 5, paddingVertical: 1, borderRadius: 5, fontSize: 8, lineHeight: 11, fontWeight: "900", textTransform: "uppercase", letterSpacing: .25 },
   identityPlatformLichess: { color: colors.green, backgroundColor: "rgba(96,240,175,.1)", borderWidth: 1, borderColor: "rgba(96,240,175,.18)" },
   identityPlatformChessCom: { color: "#76a9ff", backgroundColor: "rgba(118,169,255,.1)", borderWidth: 1, borderColor: "rgba(118,169,255,.18)" },
-  identityUsername: { color: colors.paper, fontSize: 12, lineHeight: 15, fontWeight: "900" },
+  identityUsername: { color: colors.paper, fontSize: 12, lineHeight: 15, fontWeight: "900", flexShrink: 1, minWidth: 0 },
   accountDot: { position: "absolute", right: 2, top: 3, width: 40, height: 40, borderRadius: 20, alignItems: "center", justifyContent: "center", overflow: "hidden", backgroundColor: "rgba(245,200,106,.16)", borderWidth: 1, borderColor: "rgba(245,200,106,.24)" },
   accountAvatarImage: { width: "100%", height: "100%", borderRadius: 20 },
   accountDotText: { color: colors.gold, fontSize: 16, fontWeight: "900" },
@@ -10535,6 +10545,7 @@ const compactStyles = StyleSheet.create({
   currentFailurePanel: { flexDirection: "row", alignItems: "center", gap: 12, marginTop: 8, paddingVertical: 4, paddingHorizontal: 2, backgroundColor: "transparent", borderWidth: 0, borderColor: "transparent" },
   currentProofInlinePanel: { flexDirection: "row", alignItems: "center", gap: 12, marginTop: 6, paddingHorizontal: 2, paddingVertical: 4 },
   currentEmptyBoardPanel: { flexDirection: "row", alignItems: "center", gap: 12, marginTop: 6, paddingHorizontal: 2, paddingVertical: 4 },
+  currentSummaryPanelStacked: { flexDirection: "column", alignItems: "center", gap: 10 },
   currentFailureMiniBoardFrame: { width: 86, height: 86, flexShrink: 0, padding: 4, borderRadius: 15, backgroundColor: "rgba(18,14,13,.94)", borderWidth: 1, borderColor: "rgba(245,200,106,.4)", shadowColor: "#000", shadowOpacity: .18, shadowRadius: 8, shadowOffset: { width: 0, height: 5 }, elevation: 3 },
   currentProofMiniBoardFrame: { width: 112, height: 112, flexShrink: 0, padding: 0, borderRadius: 13, backgroundColor: "transparent", borderWidth: 0 },
   currentFailureMiniBoard: { width: 148, height: 148, flexShrink: 0, flexDirection: "row", flexWrap: "wrap", overflow: "hidden", borderRadius: 13, borderWidth: 0 },
@@ -10546,6 +10557,7 @@ const compactStyles = StyleSheet.create({
   emptyBoardSquareDark: { backgroundColor: "rgba(127,79,49,.52)" },
   currentFailureCopyBlock: { flex: 1, minWidth: 0, gap: 4 },
   currentProofTextBlock: { flex: 1, minWidth: 0, gap: 4, alignItems: "flex-start" },
+  currentProofTextBlockStacked: { flex: 0, width: "100%", alignItems: "stretch" },
   currentFailureTitle: { color: "rgba(245,200,106,.95)", fontSize: 11, lineHeight: 14, fontWeight: "900", textTransform: "uppercase", letterSpacing: .6 },
   currentFailureCopy: { color: "rgba(255,247,232,.84)", fontSize: 12, lineHeight: 16, fontWeight: "800", textAlign: "left" },
   currentProofMiniPiece: { fontSize: 15, lineHeight: 17, fontWeight: "900", textAlign: "center" },
