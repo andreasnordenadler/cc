@@ -6,13 +6,16 @@ async function expectHealthyNavigation(page: import("@playwright/test").Page, pa
   expect(response!.status(), `${path} should not return an HTTP error`).toBeLessThan(400);
 }
 
-test("signed-out homepage exposes the two public browsing paths and auth entry", async ({ page }) => {
+test("signed-out desktop homepage explains the loop and exposes public browsing plus auth", async ({ page }) => {
   await expectHealthyNavigation(page, "/");
 
-  await expect(page.getByRole("heading", { name: "Sign in to continue." })).toBeVisible();
-  await expect(page.getByRole("link", { name: "Browse Solo Side Quests" })).toHaveAttribute("href", "/side-quests");
-  await expect(page.getByRole("link", { name: "Browse Multiplayer Side Quests" })).toHaveAttribute("href", "/multiplayer");
-  await expect(page.getByRole("link", { name: "Choose sign-in method" })).toHaveAttribute("href", "/sign-in");
+  await expect(page.getByRole("heading", { name: "Your next chess game deserves a stranger objective." })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Choose a Side Quest", exact: true })).toHaveAttribute("href", "/side-quests");
+  await expect(page.getByRole("navigation", { name: "Desktop shortcuts" }).getByRole("link", { name: "Multiplayer Side Quests" })).toHaveAttribute("href", "/multiplayer");
+  await expect(page.getByRole("link", { name: "Sign in", exact: true })).toHaveAttribute("href", "/sign-in");
+  await expect(page.getByRole("heading", { name: "Play where you already play." })).toBeVisible();
+  await expect(page.getByText("SQC verifies it", { exact: true })).toBeVisible();
+  await expect(page.getByText("Earn your Coat of Arms", { exact: true })).toBeVisible();
 });
 
 test("signed-out Home omits the web-only guest menu while non-Home routes preserve it", async ({ page }) => {

@@ -4,7 +4,7 @@ import type { CSSProperties, ReactNode } from "react";
 import OfficialSoloLikeControl from "./official-solo-like-control";
 import { MobileSupportComposer, type MobileWebSupportMessage } from "./mobile-support-composer";
 import type { CommunityLikeSummary } from "@/lib/community-likes";
-import type { Challenge } from "@/lib/challenges";
+import { CHALLENGES, type Challenge } from "@/lib/challenges";
 import type { MobileWebMultiplayerPreview, MobileWebMultiplayerResult, MobileWebOfficialWeek } from "@/lib/mobile-web-multiplayer";
 import type { MobileWebShellTheme } from "@/lib/mobile-web-theme";
 import { buildSoloProofHomeStatus, formatHomeTrophyMeta, type ActiveMultiplayerHomeRow } from "@/lib/mobile-web-home";
@@ -143,7 +143,7 @@ type CustomSideQuestLibraryRow = {
   updatedAt: string;
 };
 
-const menuItems = [
+export const mobileWebMenuItems = [
   { id: "home", label: "Home", href: "/", icon: "home" },
   { id: "sideQuests", label: "Solo Side Quests", href: "/side-quests", icon: "flag" },
   { id: "multiplayer", label: "Multiplayer Side Quests", href: "/multiplayer", icon: "group" },
@@ -154,7 +154,12 @@ const menuItems = [
   { id: "account", label: "My Account", href: "/account", icon: "person" },
   { id: "support", label: "Help & Support", href: "/support", icon: "help" },
   { id: "privacy", label: "Privacy Policy", href: "/privacy", icon: "shield" },
-];
+] as const;
+
+// Desktop uses the same source list so labels, destinations, and order cannot drift from the app menu.
+export const desktopHomeMenuItems = mobileWebMenuItems;
+
+const menuItems = mobileWebMenuItems;
 
 const mobileAsset = {
   coat: "/mobile-source/sqc-coat-of-arms.png",
@@ -199,6 +204,8 @@ export default function MobileAppWebShell({
     "--sqc-bg-accent": activeTheme?.accent ?? (signedIn ? "rgba(45, 212, 191, .2)" : "rgba(179, 126, 43, .18)"),
   } as CSSProperties;
 
+  const showDesktopHome = activeTab === "home" && children == null && !modalPresentation && !immersivePresentation && !loadingPresentation;
+
   return (
     <main
       className={[
@@ -212,47 +219,72 @@ export default function MobileAppWebShell({
     >
       <div className="sqc-mobile-backdrop" aria-hidden="true" />
 
-      {modalPresentation ? null : signedIn ? (
-        <>
-          <MobileWebHamburgerMenu
-            items={menuItems.map((item) => ({
-              ...item,
-              active: isActiveMenuItem(item.id, activeTab),
-            }))}
-          />
+      <div className={showDesktopHome ? "sqc-app-only" : undefined}>
+        {modalPresentation ? null : signedIn ? (
+          <>
+            <MobileWebHamburgerMenu
+              items={menuItems.map((item) => ({
+                ...item,
+                active: isActiveMenuItem(item.id, activeTab),
+              }))}
+            />
 
-          {immersivePresentation || controlsOnlyHeader ? null : (
-            <header className="sqc-app-header">
-              <div className="sqc-identity">
-                <strong>{displayName || "Side Quest Chess"}</strong>
-                <span>
-                  {lichessUsername ? <small><b>LICHESS</b> {lichessUsername}</small> : null}
-                  {chessComUsername ? <small><b>CHESS.COM</b> {chessComUsername}</small> : null}
-                  {!hasChessAccount ? <small>Add a public chess username before checking Side Quest proof.</small> : null}
-                </span>
-              </div>
-              <Link href="/account" className="sqc-account-dot" aria-label="Open account settings">
-                {profileImageUrl ? <img alt="" src={profileImageUrl} referrerPolicy="no-referrer" /> : profileInitial}
-              </Link>
-            </header>
+            {immersivePresentation || controlsOnlyHeader ? null : (
+              <header className="sqc-app-header">
+                <div className="sqc-identity">
+                  <strong>{displayName || "Side Quest Chess"}</strong>
+                  <span>
+                    {lichessUsername ? <small><b>LICHESS</b> {lichessUsername}</small> : null}
+                    {chessComUsername ? <small><b>CHESS.COM</b> {chessComUsername}</small> : null}
+                    {!hasChessAccount ? <small>Add a public chess username before checking Side Quest proof.</small> : null}
+                  </span>
+                </div>
+                <Link href="/account" className="sqc-account-dot" aria-label="Open account settings">
+                  {profileImageUrl ? <img alt="" src={profileImageUrl} referrerPolicy="no-referrer" /> : profileInitial}
+                </Link>
+              </header>
+            )}
+          </>
+        ) : immersivePresentation || loadingPresentation ? null : activeTab === "home" ? (
+          <header className="sqc-app-header guest">
+            <h1>Side Quest Chess</h1>
+          </header>
+        ) : null}
+
+        {activeTab !== "home" || modalPresentation ? (
+          <Link href={closeHref} className="sqc-close-screen" aria-label="Close screen">
+            <span aria-hidden="true" />
+          </Link>
+        ) : null}
+
+        <section className="sqc-screen" aria-label={activeTab === "home" ? "Home" : "Current screen"}>
+          {children ?? (
+            signedIn ? (
+              <SignedInHome
+                hasChessAccount={hasChessAccount}
+                activeSolo={activeSolo}
+                activeSoloTitle={activeSoloTitle}
+                activeMultiplayerRows={activeMultiplayerRows}
+                trophyRows={trophyRows}
+                completedSoloCount={completedSoloCount}
+                proofReceiptCount={proofReceiptCount}
+              />
+            ) : (
+              <GuestHome />
+            )
           )}
-        </>
-      ) : immersivePresentation || loadingPresentation ? null : activeTab === "home" ? (
-        <header className="sqc-app-header guest">
-          <h1>Side Quest Chess</h1>
-        </header>
-      ) : null}
+        </section>
+        {!signedIn && !(activeTab === "home" && children == null) && !modalPresentation && !immersivePresentation && !loadingPresentation ? (
+          <GuestNavigation activeTab={activeTab} />
+        ) : null}
+      </div>
 
-      {activeTab !== "home" || modalPresentation ? (
-        <Link href={closeHref} className="sqc-close-screen" aria-label="Close screen">
-          <span aria-hidden="true" />
-        </Link>
-      ) : null}
-
-      <section className="sqc-screen" aria-label={activeTab === "home" ? "Home" : "Current screen"}>
-        {children ?? (
-          signedIn ? (
-            <SignedInHome
+      {showDesktopHome ? (
+        <div className="sqc-desktop-home-only">
+          <DesktopHomeHeader signedIn={signedIn} displayName={displayName} />
+          {signedIn ? (
+            <DesktopSignedInHome
+              displayName={displayName}
               hasChessAccount={hasChessAccount}
               activeSolo={activeSolo}
               activeSoloTitle={activeSoloTitle}
@@ -262,12 +294,9 @@ export default function MobileAppWebShell({
               proofReceiptCount={proofReceiptCount}
             />
           ) : (
-            <GuestHome />
-          )
-        )}
-      </section>
-      {!signedIn && !(activeTab === "home" && children == null) && !modalPresentation && !immersivePresentation && !loadingPresentation ? (
-        <GuestNavigation activeTab={activeTab} />
+            <DesktopGuestHome />
+          )}
+        </div>
       ) : null}
     </main>
   );
@@ -291,6 +320,216 @@ function GuestNavigation({ activeTab }: { activeTab: AppTab }) {
         </Link>
       ))}
     </nav>
+  );
+}
+
+function DesktopHomeHeader({ signedIn, displayName }: { signedIn: boolean; displayName?: string | null }) {
+  const shortcuts = desktopHomeMenuItems.slice(0, 4);
+
+  return (
+    <header className="sqc-desktop-header">
+      <Link href="/" className="sqc-desktop-brand" aria-label="Side Quest Chess home">
+        <Image src={mobileAsset.coat} alt="" width={42} height={47} />
+        <span>
+          <strong>Side Quest Chess</strong>
+          <small>Public games. Unreasonable objectives.</small>
+        </span>
+      </Link>
+      <nav className="sqc-desktop-shortcuts" aria-label="Desktop shortcuts">
+        {shortcuts.map((item) => (
+          <Link key={item.id} href={item.href} aria-current={item.id === "home" ? "page" : undefined}>
+            {item.label}
+          </Link>
+        ))}
+      </nav>
+      <details className="sqc-desktop-menu">
+        <summary>Menu</summary>
+        <nav aria-label="Desktop main menu">
+          {desktopHomeMenuItems.map((item) => (
+            <Link key={item.id} href={item.href} aria-current={item.id === "home" ? "page" : undefined}>
+              <span className={`sqc-menu-icon ${item.icon}`} aria-hidden="true" />
+              <span>{item.label}</span>
+            </Link>
+          ))}
+        </nav>
+      </details>
+      <Link href={signedIn ? "/account" : "/sign-in"} className="sqc-desktop-sign-in">
+        {signedIn ? displayName || "My Account" : "Sign in"}
+      </Link>
+    </header>
+  );
+}
+
+function DesktopGuestHome() {
+  const featuredQuests = ["knights-before-coffee", "bishop-field-trip", "early-king-walk"]
+    .map((id) => CHALLENGES.find((challenge) => challenge.id === id))
+    .filter((challenge): challenge is Challenge => Boolean(challenge));
+  const recommended = featuredQuests[0];
+
+  return (
+    <div className="sqc-desktop-guest">
+      <section className="sqc-desktop-hero" aria-labelledby="desktop-home-title">
+        <div className="sqc-desktop-hero-copy">
+          <span className="sqc-desktop-eyebrow">Chess, with a quest log</span>
+          <h1 id="desktop-home-title">Your next chess game deserves a stranger objective.</h1>
+          <p>
+            Choose a Side Quest, play a normal public game on Lichess or Chess.com, and let SQC verify what happened. Complete the challenge to unlock its Coat of Arms.
+          </p>
+          <div className="sqc-desktop-hero-actions">
+            <Link href="/side-quests" className="sqc-desktop-primary">Choose a Side Quest</Link>
+            <a href="#how-it-works" className="sqc-desktop-secondary">See how it works</a>
+          </div>
+          <p className="sqc-desktop-trust">No chess-site password. No special game mode. Just your public game record.</p>
+        </div>
+        {recommended ? (
+          <Link href={`/challenges/${recommended.id}`} className="sqc-desktop-featured-quest">
+            <span className="sqc-desktop-quest-kicker">A good first quest</span>
+            <div className="sqc-desktop-featured-art" aria-hidden="true">
+              <Image src={toMobileAssetPath(recommended.badgeIdentity.image) ?? mobileAsset.fallbackBadge} alt="" width={224} height={250} priority />
+            </div>
+            <div>
+              <span className="sqc-desktop-difficulty">{recommended.difficulty}</span>
+              <h2>{recommended.title}</h2>
+              <p>{recommended.objective}</p>
+              <strong>Open this Side Quest <span aria-hidden="true">→</span></strong>
+            </div>
+          </Link>
+        ) : null}
+      </section>
+
+      <section id="how-it-works" className="sqc-desktop-loop" aria-labelledby="desktop-loop-title">
+        <div className="sqc-desktop-section-heading">
+          <span className="sqc-desktop-eyebrow">One small ritual</span>
+          <h2 id="desktop-loop-title">Play where you already play.</h2>
+          <p>SQC adds the objective and proof. Lichess or Chess.com still hosts the game.</p>
+        </div>
+        <ol>
+          <li><span>01</span><strong>Choose a Side Quest</strong><p>Pick one rule to carry into your next game.</p></li>
+          <li><span>02</span><strong>Play a public game</strong><p>Use your normal Lichess or Chess.com account.</p></li>
+          <li><span>03</span><strong>SQC verifies it</strong><p>Your newest public game is checked against the quest.</p></li>
+          <li><span>04</span><strong>Earn your Coat of Arms</strong><p>Keep the heraldic receipt in your Trophy Cabinet.</p></li>
+        </ol>
+      </section>
+
+      <section className="sqc-desktop-quest-shelf" aria-labelledby="desktop-quests-title">
+        <div className="sqc-desktop-section-heading horizontal">
+          <div>
+            <span className="sqc-desktop-eyebrow">Curated starting points</span>
+            <h2 id="desktop-quests-title">How heroic are you feeling today?</h2>
+          </div>
+          <Link href="/side-quests">Browse every Solo Side Quest <span aria-hidden="true">→</span></Link>
+        </div>
+        <div className="sqc-desktop-quest-grid">
+          {featuredQuests.map((quest) => (
+            <Link href={`/challenges/${quest.id}`} key={quest.id} className="sqc-desktop-quest-card">
+              <Image src={toMobileAssetPath(quest.badgeIdentity.image) ?? mobileAsset.fallbackBadge} alt="" width={116} height={130} />
+              <div>
+                <span>{quest.difficulty}</span>
+                <h3>{quest.title}</h3>
+                <p>{quest.objective}</p>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      <section className="sqc-desktop-coat-story" aria-labelledby="desktop-coats-title">
+        <div>
+          <span className="sqc-desktop-eyebrow">The reward is the receipt</span>
+          <h2 id="desktop-coats-title">Every bad idea deserves a coat of arms.</h2>
+          <p>
+            Each unlocked shield records the exact challenge you survived. Build a cabinet that says more about your chess than another rating graph ever could.
+          </p>
+          <Link href="/trophy-cabinet">Explore the Trophy Cabinet <span aria-hidden="true">→</span></Link>
+        </div>
+        <div className="sqc-desktop-coat-row" aria-hidden="true">
+          {featuredQuests.map((quest) => (
+            <Image key={quest.id} src={toMobileAssetPath(quest.badgeIdentity.image) ?? mobileAsset.fallbackBadge} alt="" width={148} height={166} />
+          ))}
+        </div>
+      </section>
+
+      <section className="sqc-desktop-multiplayer-teaser" aria-labelledby="desktop-multiplayer-title">
+        <Image src={mobileAsset.multiplayerSeal} alt="" width={132} height={132} />
+        <div>
+          <span className="sqc-desktop-eyebrow">Multiplayer Side Quests</span>
+          <h2 id="desktop-multiplayer-title">Same nonsense, now with witnesses.</h2>
+          <p>Join a shared challenge, compare verified progress, or host a quest for friends.</p>
+        </div>
+        <Link href="/multiplayer" className="sqc-desktop-secondary">Explore Multiplayer</Link>
+      </section>
+
+      <footer className="sqc-desktop-footer">
+        <span>Side Quest Chess</span>
+        <nav aria-label="Footer">
+          <Link href="/support">Help & Support</Link>
+          <Link href="/privacy">Privacy Policy</Link>
+          <Link href="/terms">Terms of Use</Link>
+        </nav>
+      </footer>
+    </div>
+  );
+}
+
+function DesktopSignedInHome({
+  displayName,
+  hasChessAccount,
+  activeSolo,
+  activeSoloTitle,
+  activeMultiplayerRows,
+  trophyRows,
+  completedSoloCount,
+  proofReceiptCount,
+}: {
+  displayName?: string | null;
+  hasChessAccount: boolean;
+  activeSolo?: ActiveSoloHome | null;
+  activeSoloTitle?: string | null;
+  activeMultiplayerRows: ActiveMultiplayerHomeRow[];
+  trophyRows: TrophyRow[];
+  completedSoloCount: number;
+  proofReceiptCount: number;
+}) {
+  const hasActiveSolo = Boolean(activeSolo?.title ?? activeSoloTitle);
+  const completedSteps = Number(hasChessAccount) + Number(hasActiveSolo);
+
+  return (
+    <div className="sqc-desktop-signed-in">
+      <section className="sqc-desktop-dashboard-intro">
+        <div>
+          <span className="sqc-desktop-eyebrow">Today&apos;s quest log</span>
+          <h1>{hasActiveSolo ? `Welcome back${displayName ? `, ${displayName}` : ""}.` : "Let’s choose your first Side Quest."}</h1>
+          <p>{hasActiveSolo ? "Your active quest, latest proof, shared challenges, and unlocked coats are ready below." : "Connect a public chess username, choose one quest, then play a new public game."}</p>
+        </div>
+        {!hasActiveSolo ? (
+          <ol className="sqc-desktop-onboarding-progress" aria-label="Getting started">
+            <li className={hasChessAccount ? "done" : "current"}><span>1</span><Link href="/account">Connect chess account</Link></li>
+            <li className={hasChessAccount ? "current" : ""}><span>2</span><Link href="/side-quests">Choose a Side Quest</Link></li>
+            <li><span>3</span><strong>Play and verify</strong></li>
+          </ol>
+        ) : (
+          <Link href="/side-quests" className="sqc-desktop-secondary">Explore more Side Quests</Link>
+        )}
+      </section>
+      <div className="sqc-desktop-dashboard-grid">
+        <SignedInHome
+          hasChessAccount={hasChessAccount}
+          activeSolo={activeSolo}
+          activeSoloTitle={activeSoloTitle}
+          activeMultiplayerRows={activeMultiplayerRows}
+          trophyRows={trophyRows}
+          completedSoloCount={completedSoloCount}
+          proofReceiptCount={proofReceiptCount}
+        />
+      </div>
+      <footer className="sqc-desktop-footer">
+        <span>{completedSteps}/2 setup steps complete</span>
+        <nav aria-label="Footer">
+          <Link href="/support">Help & Support</Link>
+          <Link href="/privacy">Privacy Policy</Link>
+        </nav>
+      </footer>
+    </div>
   );
 }
 
