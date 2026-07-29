@@ -351,3 +351,102 @@ test("does not count unrelated Solo attempts or Multiplayer lineups as custom pr
     customWins: 0,
   });
 });
+
+test("authenticated Account preserves an active owned Custom Solo identity and exact destination", async () => {
+  const accountPage = await import("../src/app/account/page");
+  assert.equal(typeof accountPage.resolveAccountActiveSoloRow, "function");
+
+  assert.deepEqual(accountPage.resolveAccountActiveSoloRow(
+    { id: "custom/knight", status: "active" },
+    [{
+      id: "custom/knight",
+      title: "Knight Errand",
+      summary: "Move the original knight before move ten.",
+      badgeImageUrl: "/badges/custom/community/community-coat-07.png",
+    }],
+    [],
+  ), {
+    title: "Knight Errand",
+    objective: "Move the original knight before move ten.",
+    href: "/custom-side-quests/custom%2Fknight",
+    image: "/badges/custom/community/community-coat-07.png",
+  });
+});
+
+test("authenticated Account preserves an active Community Solo identity and exact destination", async () => {
+  const accountPage = await import("../src/app/account/page");
+  const communityQuest = {
+    id: "community/pawns",
+    title: "Pawn Parade",
+    summary: "Advance three pawns before move twelve.",
+    config: "{}",
+    lifecycle: "published" as const,
+    visibility: "public" as const,
+    badgeImageUrl: "/badges/custom/community/community-coat-08.png",
+    createdAt: "2026-07-01T00:00:00.000Z",
+    updatedAt: "2026-07-01T00:00:00.000Z",
+    creatorName: "SQC player",
+    creatorKey: "sqc-player-viewer",
+    creatorUserId: "viewer",
+    creatorBrowsePath: "/community-side-quests?creator=sqc-player-viewer",
+    detailPath: "/challenges/community/community%2Fpawns",
+    ruleLabel: "Custom rule",
+    ruleDetails: ["Custom rule"],
+    updatedAtMs: 1,
+    stats: { soloAttempts: 0, soloSelections: 1, soloCompletions: 0, multiplayerLineups: 0, multiplayerAttempts: 0, multiplayerFulfillments: 0 },
+    popularityScore: 1,
+    likeSummary: { count: 0, likedByViewer: false },
+  };
+
+  assert.deepEqual(accountPage.resolveAccountActiveSoloRow(
+    { id: communityQuest.id, status: "active" },
+    [],
+    [communityQuest],
+  ), {
+    title: "Pawn Parade",
+    objective: "Advance three pawns before move twelve.",
+    href: "/challenges/community/community%2Fpawns",
+    image: "/badges/custom/community/community-coat-08.png",
+  });
+});
+
+test("authenticated Account keeps Official and empty Solo row behavior", async () => {
+  const accountPage = await import("../src/app/account/page");
+
+  assert.deepEqual(accountPage.resolveAccountActiveSoloRow(
+    { id: "finish-any-game", status: "active" },
+    [],
+    [],
+  ), {
+    title: "Any Game Counts",
+    objective: "Play any finished game — win, lose, or draw — and complete the quest.",
+    href: "/challenges/finish-any-game",
+    image: "/mobile-source/badges/v6/proof-loop-test-badge.png",
+  });
+  assert.equal(accountPage.resolveAccountActiveSoloRow(null, [], []), null);
+});
+
+test("authenticated Account renders the resolved active Community Solo row", async () => {
+  const accountPage = await import("../src/app/account/page");
+  assert.equal(typeof accountPage.AccountSoloRow, "function");
+  const communityQuest = {
+    id: "community/pawns",
+    title: "Pawn Parade",
+    summary: "Advance three pawns before move twelve.",
+    badgeImageUrl: "/badges/custom/community/community-coat-08.png",
+    detailPath: "/challenges/community/community%2Fpawns",
+  };
+
+  const html = renderToStaticMarkup(createElement(accountPage.AccountSoloRow, {
+    activeChallenge: { id: communityQuest.id, status: "active" },
+    checkedAt: "2026-07-29T00:00:00.000Z",
+    customSideQuests: [],
+    communityQuests: [communityQuest],
+  }));
+
+  assert.match(html, /Solo Side Quest: Pawn Parade/);
+  assert.match(html, /Advance three pawns before move twelve\./);
+  assert.match(html, /href="\/challenges\/community\/community%2Fpawns"/);
+  assert.match(html, /%2Fbadges%2Fcustom%2Fcommunity%2Fcommunity-coat-08\.png/);
+  assert.match(html, />Active</);
+});
