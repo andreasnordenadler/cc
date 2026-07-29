@@ -13,7 +13,7 @@ export default async function MultiplayerPage() {
   noStore();
   const [user, client] = await Promise.all([currentUser(), clerkClient()]);
   const metadata = user?.publicMetadata ? (user.publicMetadata as UserMetadataRecord) : {};
-  const { officialRows, communityRows, previousOfficialRows, earlierOfficialWeeks } = await getMobileWebMultiplayerPreviews(client, user?.id);
+  const { officialRows, communityRows, previousOfficialRows, earlierOfficialWeeks, catalogStatus } = await getMobileWebMultiplayerPreviews(client, user?.id, undefined, { signedOutUnavailableFallback: true });
   const displayName = user
     ? getPreferredRunnerName(metadata, {
         firstName: user.firstName,
@@ -38,6 +38,7 @@ export default async function MultiplayerPage() {
         communityRows={communityRows}
         previousOfficialRows={previousOfficialRows}
         earlierOfficialWeeks={earlierOfficialWeeks}
+        catalogStatus={catalogStatus}
       />
     </MobileAppWebShell>
   );

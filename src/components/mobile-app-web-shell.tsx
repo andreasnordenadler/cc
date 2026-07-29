@@ -1086,6 +1086,7 @@ export function MobileMultiplayerSideQuestsScreen({
   communityHost,
   previousOfficialRows,
   earlierOfficialWeeks,
+  catalogStatus = "available",
 }: {
   selectedTab: "official" | "community";
   signedIn: boolean;
@@ -1094,6 +1095,7 @@ export function MobileMultiplayerSideQuestsScreen({
   communityHost?: string | null;
   previousOfficialRows?: MobileWebMultiplayerResult[];
   earlierOfficialWeeks?: MobileWebOfficialWeek[];
+  catalogStatus?: "available" | "unavailable";
 }) {
   return (
     <div className="sqc-stack">
@@ -1128,8 +1130,8 @@ export function MobileMultiplayerSideQuestsScreen({
       </nav>
 
       {selectedTab === "official"
-        ? <OfficialMultiplayerPanel signedIn={signedIn} rows={officialRows} previousOfficialRows={previousOfficialRows ?? []} earlierOfficialWeeks={earlierOfficialWeeks ?? []} />
-        : <CommunityMultiplayerPanel signedIn={signedIn} rows={communityRows} initialHost={communityHost} />}
+        ? <OfficialMultiplayerPanel signedIn={signedIn} rows={officialRows} previousOfficialRows={previousOfficialRows ?? []} earlierOfficialWeeks={earlierOfficialWeeks ?? []} catalogStatus={catalogStatus} />
+        : <CommunityMultiplayerPanel signedIn={signedIn} rows={communityRows} initialHost={communityHost} catalogStatus={catalogStatus} />}
     </div>
   );
 }
@@ -1139,11 +1141,13 @@ function OfficialMultiplayerPanel({
   rows,
   previousOfficialRows,
   earlierOfficialWeeks,
+  catalogStatus,
 }: {
   signedIn: boolean;
   rows: MobileWebMultiplayerPreview[];
   previousOfficialRows: MobileWebMultiplayerResult[];
   earlierOfficialWeeks: MobileWebOfficialWeek[];
+  catalogStatus: "available" | "unavailable";
 }) {
   return (
     <>
@@ -1175,8 +1179,8 @@ function OfficialMultiplayerPanel({
           </div>
         ) : (
           <div className="sqc-empty-panel standalone">
-            <strong>No official Multiplayer Side Quests are open.</strong>
-            <span>The next official cycle will appear here when it opens.</span>
+            <strong>{catalogStatus === "unavailable" ? "Public Multiplayer Side Quests could not be loaded." : "No official Multiplayer Side Quests are open."}</strong>
+            <span>{catalogStatus === "unavailable" ? "Check your connection and try again." : "The next official cycle will appear here when it opens."}</span>
           </div>
         )}
       </section>
@@ -1265,7 +1269,7 @@ function getOfficialPodiumSeal(placement: "Gold" | "Silver" | "Bronze") {
   return mobileAsset.bronzeSeal;
 }
 
-function CommunityMultiplayerPanel({ signedIn, rows, initialHost }: { signedIn: boolean; rows: MobileWebMultiplayerPreview[]; initialHost?: string | null }) {
+function CommunityMultiplayerPanel({ signedIn, rows, initialHost, catalogStatus }: { signedIn: boolean; rows: MobileWebMultiplayerPreview[]; initialHost?: string | null; catalogStatus: "available" | "unavailable" }) {
   return (
     <>
       <section className="sqc-empty-panel standalone">
@@ -1277,7 +1281,7 @@ function CommunityMultiplayerPanel({ signedIn, rows, initialHost }: { signedIn: 
         </span>
       </section>
 
-      <CommunityMultiplayerCatalog rows={rows} signedIn={signedIn} initialHost={initialHost} />
+      <CommunityMultiplayerCatalog rows={rows} signedIn={signedIn} initialHost={initialHost} catalogStatus={catalogStatus} />
 
       {signedIn ? (
         <section className="sqc-native-card green" aria-label="Create Multiplayer Side Quest fast action">

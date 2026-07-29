@@ -75,6 +75,18 @@ export type MobileWebOfficialWeek = {
 
 type ClerkClient = Awaited<ReturnType<typeof clerkClient>>;
 
+type MobileWebMultiplayerCatalogDependencies = {
+  listPublic: typeof listPublicGroupQuests;
+  listRelated: typeof listUserRelatedGroupQuests;
+  getLikes: typeof getCommunityLikeSummaries;
+};
+
+const mobileWebMultiplayerCatalogDependencies: MobileWebMultiplayerCatalogDependencies = {
+  listPublic: listPublicGroupQuests,
+  listRelated: listUserRelatedGroupQuests,
+  getLikes: getCommunityLikeSummaries,
+};
+
 type MobileWebMultiplayerDetailDependencies = {
   findQuestById: typeof findGroupQuestById;
   getLikeSummaries: typeof getCommunityLikeSummaries;
@@ -95,12 +107,25 @@ export function mergeCommunityCatalogQuests(publicQuests: ServerGroupQuest[], re
   return [...questsById.values()];
 }
 
-export async function getMobileWebMultiplayerPreviews(client: ClerkClient, userId?: string | null) {
-  const [publicQuests, relatedQuests, likeSummaries] = await Promise.all([
-    listPublicGroupQuests(client),
-    userId ? listUserRelatedGroupQuests(client, userId) : Promise.resolve([]),
-    getCommunityLikeSummaries(client, userId ?? null),
-  ]);
+export async function getMobileWebMultiplayerPreviews(
+  client: ClerkClient,
+  userId?: string | null,
+  dependencies: MobileWebMultiplayerCatalogDependencies = mobileWebMultiplayerCatalogDependencies,
+  options: { signedOutUnavailableFallback?: boolean } = {},
+) {
+  let publicQuests: ServerGroupQuest[];
+  let relatedQuests: ServerGroupQuest[];
+  let likeSummaries: Awaited<ReturnType<typeof getCommunityLikeSummaries>>;
+  try {
+    [publicQuests, relatedQuests, likeSummaries] = await Promise.all([
+      dependencies.listPublic(client),
+      userId ? dependencies.listRelated(client, userId) : Promise.resolve([]),
+      dependencies.getLikes(client, userId ?? null),
+    ]);
+  } catch (error) {
+    if (userId || !options.signedOutUnavailableFallback) throw error;
+    return { officialRows: [], communityRows: [], previousOfficialRows: [], earlierOfficialWeeks: [], catalogStatus: "unavailable" as const };
+  }
   const activeQuests = publicQuests.filter((quest) => deriveGroupQuestStatus(quest.startAt, quest.endAt) !== "Finished");
   const finishedQuests = publicQuests.filter((quest) => deriveGroupQuestStatus(quest.startAt, quest.endAt) === "Finished");
 
@@ -126,7 +151,7 @@ export async function getMobileWebMultiplayerPreviews(client: ClerkClient, userI
   const latestOfficialWeekId = officialWeeks[0]?.id ?? null;
   const earlierOfficialWeeks = officialWeeks.filter((week) => week.id !== latestOfficialWeekId);
 
-  return { officialRows, communityRows, previousOfficialRows, earlierOfficialWeeks };
+  return { officialRows, communityRows, previousOfficialRows, earlierOfficialWeeks, catalogStatus: "available" as const };
 }
 
 export async function getMobileWebMultiplayerDetail(
