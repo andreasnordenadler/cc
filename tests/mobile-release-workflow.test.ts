@@ -4,6 +4,44 @@ import test from "node:test";
 
 const readRepoFile = (path: string) => readFileSync(new URL(`../${path}`, import.meta.url), "utf8");
 
+test("mobile release dependencies resolve newly disclosed uuid and tar vulnerabilities", () => {
+  const workspace = readRepoFile("pnpm-workspace.yaml");
+  const lockfile = readRepoFile("pnpm-lock.yaml");
+
+  const mappingFor = (source: string, section: string) => {
+    const lines = source.split("\n");
+    const start = lines.findIndex((line) => line === `${section}:`);
+    assert.notEqual(start, -1, `missing ${section} mapping`);
+    const entries = new Map<string, string>();
+    for (const line of lines.slice(start + 1)) {
+      if (line && !line.startsWith(" ")) break;
+      const match = line.match(/^  (.+?):\s*["']?([^"']+?)["']?\s*$/);
+      if (match) entries.set(match[1], match[2]);
+    }
+    return entries;
+  };
+  const snapshotFor = (packagePattern: RegExp) => {
+    const snapshots = lockfile.slice(lockfile.indexOf("\nsnapshots:\n") + "\nsnapshots:\n".length);
+    const startMatch = snapshots.match(packagePattern);
+    assert.ok(startMatch?.index !== undefined, `missing snapshot matching ${packagePattern}`);
+    const start = startMatch.index;
+    const next = snapshots.slice(start + 1).search(/\n  \S[^\n]*:\n/);
+    return snapshots.slice(start, next === -1 ? undefined : start + 1 + next);
+  };
+
+  const overrides = mappingFor(workspace, "overrides");
+  assert.equal(overrides.get("uuid@<11.1.1"), "11.1.1");
+  assert.equal(overrides.get("tar@<7.5.21"), "7.5.21");
+
+  const resolvedVersions = (packageName: string) =>
+    [...new Set([...lockfile.matchAll(new RegExp(`^  ${packageName}@(\\d+\\.\\d+\\.\\d+):$`, "gm"))].map((match) => match[1]))];
+
+  assert.deepEqual(resolvedVersions("uuid"), ["11.1.1"]);
+  assert.deepEqual(resolvedVersions("tar"), ["7.5.21"]);
+  assert.match(snapshotFor(/^  jayson@[^\n]*:\n/m), /^      uuid: 11\.1\.1$/m);
+  assert.match(snapshotFor(/^  xcode@3\.0\.1:\n/m), /^      uuid: 11\.1\.1$/m);
+  assert.match(snapshotFor(/^  '@expo\/cli@54\.0\.26[^\n]*':\n/m), /^      tar: 7\.5\.21$/m);
+});
 
 test("Android signing stays fail-closed for direct and umbrella artifact tasks without blocking release lint", () => {
   const source = readRepoFile("apps/mobile/android/app/build.gradle");
