@@ -338,7 +338,7 @@ export default function MobileCustomCreateForm({ signedIn, initialQuest = null }
     <button className="sqc-detail-secondary-button" disabled={!hydrated || blocks.length >= 6} onClick={addCondition} type="button">{blocks.length >= 6 ? "Six-condition limit reached" : blocks.length ? "Add Another Condition" : "Add Condition"}</button>
     <p>{logic === "all" ? "Every saved condition must pass." : "Any one saved condition can complete the Side Quest."} Conditions can happen in any order.</p>
 
-    <label className="sqc-form-row"><span>Side Quest name</span><input aria-label="Side Quest name" maxLength={80} onChange={(event) => setTitle(event.target.value)} placeholder="Name this custom Side Quest" required value={title} /></label>
+    <label className="sqc-form-row"><span>Side Quest name</span><input aria-label="Side Quest name" maxLength={80} onChange={(event) => setTitle(event.target.value)} placeholder="Name this custom Side Quest" value={title} /></label>
     <div className="sqc-custom-coat-preview">
       <Image alt="" aria-hidden="true" height={66} src="/badges/custom/community/community-coat-01.png" width={66} />
       <div>
