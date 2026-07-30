@@ -7,6 +7,7 @@ import { AppRouterContext } from "next/dist/shared/lib/app-router-context.shared
 
 import { MobileMultiplayerDetailScreen, MobileMultiplayerSideQuestsScreen } from "../src/components/mobile-app-web-shell";
 import { CommunityMultiplayerCatalog } from "../src/components/catalog-clients";
+import { POST as contentReportPOST, withContentReportRouteTestDependencies } from "../src/app/api/reports/content/route";
 import { POST as supportPOST, withSupportRouteTestDependencies } from "../src/app/api/support/route";
 import { POST as removeParticipantPOST, withRemoveParticipantRouteTestDependencies } from "../src/app/api/groupquests/[id]/remove-participant/route";
 import { leaveGroupQuest } from "../src/lib/group-quest-leave";
@@ -298,13 +299,22 @@ test("Community Multiplayer reports require a useful reason and identify the exa
     ok: false,
     message: "Add a short reason before reporting this Side Quest.",
   });
+  assert.deepEqual(validateCommunityMultiplayerReport("community/table", "x".repeat(501)), {
+    ok: false,
+    message: "Keep the report reason to 500 characters or fewer.",
+  });
   assert.deepEqual(validateCommunityMultiplayerReport("community/table", "  misleading   rules  "), {
     ok: true,
     message: "Community Multiplayer Side Quest community/table: misleading rules",
   });
 });
 
-test("Community Multiplayer report sends only the exact support message", async () => {
+test("Clerk proxy covers the structured content report endpoint", async () => {
+  const proxySource = await readFile(new URL("../src/proxy.ts", import.meta.url), "utf8");
+  assert.match(proxySource, /"\/api\/reports\/\(\.\*\)"/);
+});
+
+test("Community Multiplayer report sends structured immutable target fields", async () => {
   const requests: Array<{ url: string; init?: RequestInit }> = [];
   const result = await submitCommunityMultiplayerReport("community/table", "misleading rules", async (url, init) => {
     requests.push({ url, init });
@@ -312,36 +322,39 @@ test("Community Multiplayer report sends only the exact support message", async 
   });
 
   assert.equal(requests.length, 1);
-  assert.equal(requests[0]?.url, "/api/support");
+  assert.equal(requests[0]?.url, "/api/reports/content");
   assert.equal(requests[0]?.init?.method, "POST");
   assert.deepEqual(JSON.parse(String(requests[0]?.init?.body)), {
-    message: "Community Multiplayer Side Quest community/table: misleading rules",
+    targetType: "community-multiplayer",
+    targetId: "community/table",
+    reason: "misleading rules",
   });
   assert.deepEqual(result, { kind: "success", message: "Report sent. We’ll review this Multiplayer Side Quest." });
 });
 
-test("exported support route rejects anonymous reports and attributes authenticated reports server-side", async (t) => {
+test("exported content report route rejects anonymous reports and persists immutable authenticated target identity", async (t) => {
   const previousNodeEnv = process.env.NODE_ENV;
   setNodeEnv("test");
   t.after(() => setNodeEnv(previousNodeEnv));
 
-  const anonymous = await withSupportRouteTestDependencies({
+  const anonymous = await withContentReportRouteTestDependencies({
     authenticate: async () => null,
     getClient: async () => { throw new Error("anonymous request must not load Clerk"); },
-  }, () => supportPOST(new Request("https://sidequestchess.com/api/support", {
+    findTarget: async () => { throw new Error("anonymous request must not resolve a target"); },
+  }, () => contentReportPOST(new Request("https://sidequestchess.com/api/reports/content", {
     method: "POST",
-    body: JSON.stringify({ message: "Community Multiplayer Side Quest community/table: misleading rules" }),
+    body: JSON.stringify({ targetType: "community-multiplayer", targetId: "community/table", reason: "misleading rules" }),
   })));
   assert.equal(anonymous.status, 401);
 
   const writes: Array<{ userId: string; metadata: unknown }> = [];
-  const authenticated = await withSupportRouteTestDependencies({
+  const dependencies = {
     authenticate: async () => "session-user",
     getClient: async () => ({ users: {
       getUser: async (userId: string) => {
         assert.equal(userId, "session-user");
         return {
-          privateMetadata: {},
+          privateMetadata: { unrelated: "preserved" },
           primaryEmailAddress: { emailAddress: "player@example.com" },
           firstName: "Session",
           lastName: "Player",
@@ -350,19 +363,113 @@ test("exported support route rejects anonymous reports and attributes authentica
       },
       updateUserMetadata: async (userId: string, metadata: unknown) => { writes.push({ userId, metadata }); },
     } }) as never,
-  }, () => supportPOST(new Request("https://sidequestchess.com/api/support", {
+    findTarget: async (_client: unknown, targetId: string) => targetId === "community/table" ? {
+      userId: "canonical-host",
+      groupQuest: { id: targetId, hostUserId: "canonical-host", inviteMode: "public", official: false },
+    } as never : null,
+  };
+  const spoofed = await withContentReportRouteTestDependencies(dependencies, () => contentReportPOST(new Request("https://sidequestchess.com/api/reports/content", {
     method: "POST",
     headers: { "content-type": "application/json" },
     body: JSON.stringify({
-      message: "Community Multiplayer Side Quest community/table: misleading rules",
-      userId: "attacker",
+      targetType: "community-multiplayer",
+      targetId: "community/table",
+      reason: "misleading rules",
+      reporterUserId: "attacker",
+      target: { type: "community-solo", id: "spoofed" },
+    }),
+  })));
+  assert.equal(spoofed.status, 400);
+  assert.equal(writes.length, 0);
+
+  const replica = await withContentReportRouteTestDependencies({
+    ...dependencies,
+    findTarget: async () => ({ userId: "participant-replica", groupQuest: { id: "community/table", hostUserId: "canonical-host", inviteMode: "public", official: false } }) as never,
+  }, () => contentReportPOST(new Request("https://sidequestchess.com/api/reports/content", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ targetType: "community-multiplayer", targetId: "community/table", reason: "misleading rules" }),
+  })));
+  assert.equal(replica.status, 404);
+  assert.equal(writes.length, 0);
+
+  const owner = await withContentReportRouteTestDependencies({
+    ...dependencies,
+    authenticate: async () => "canonical-host",
+  }, () => contentReportPOST(new Request("https://sidequestchess.com/api/reports/content", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ targetType: "community-multiplayer", targetId: "community/table", reason: "misleading rules" }),
+  })));
+  assert.equal(owner.status, 403);
+  assert.equal(writes.length, 0);
+
+  const authenticated = await withContentReportRouteTestDependencies(dependencies, () => contentReportPOST(new Request("https://sidequestchess.com/api/reports/content", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({
+      targetType: "community-multiplayer",
+      targetId: "community/table",
+      reason: "misleading rules",
     }),
   })));
   assert.equal(authenticated.status, 200);
   assert.equal(writes.length, 1);
   assert.equal(writes[0]?.userId, "session-user");
+  const saved = writes[0]?.metadata as { privateMetadata: { unrelated: string; sqcContentReports: Array<{ id: string; submittedAt: string; reporterUserId: string; targetType: string; targetId: string; targetOwnerUserId: string; reason: string; source: string }> } };
+  assert.equal(saved.privateMetadata.unrelated, "preserved");
+  const report = saved.privateMetadata.sqcContentReports[0];
+  assert.match(report.id, /^content-report-/);
+  assert.match(report.submittedAt, /^\d{4}-\d{2}-\d{2}T/);
+  assert.equal(report.reporterUserId, "session-user");
+  assert.equal(report.targetType, "community-multiplayer");
+  assert.equal(report.targetId, "community/table");
+  assert.equal(report.targetOwnerUserId, "canonical-host");
+  assert.equal(report.reason, "misleading rules");
+  assert.equal(report.source, "website");
+});
+
+test("content reports fail closed when unrelated private metadata leaves no safe byte budget", async (t) => {
+  const previousNodeEnv = process.env.NODE_ENV;
+  setNodeEnv("test");
+  t.after(() => setNodeEnv(previousNodeEnv));
+  let writes = 0;
+  const response = await withContentReportRouteTestDependencies({
+    authenticate: async () => "session-user",
+    getClient: async () => ({ users: {
+      getUser: async () => ({ privateMetadata: { unrelated: "x".repeat(7600) } }),
+      updateUserMetadata: async () => { writes += 1; },
+    } }) as never,
+    findTarget: async () => ({ userId: "canonical-host", groupQuest: { id: "community/table", hostUserId: "canonical-host", inviteMode: "public", official: false } }) as never,
+  }, () => contentReportPOST(new Request("https://sidequestchess.com/api/reports/content", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ targetType: "community-multiplayer", targetId: "community/table", reason: "misleading rules" }),
+  })));
+  assert.equal(response.status, 507);
+  assert.equal(writes, 0);
+});
+
+test("support endpoint remains message-only and preserves its account-attached thread", async (t) => {
+  const previousNodeEnv = process.env.NODE_ENV;
+  setNodeEnv("test");
+  t.after(() => setNodeEnv(previousNodeEnv));
+  const writes: Array<{ userId: string; metadata: unknown }> = [];
+  const response = await withSupportRouteTestDependencies({
+    authenticate: async () => "session-user",
+    getClient: async () => ({ users: {
+      getUser: async () => ({ privateMetadata: {}, primaryEmailAddress: { emailAddress: "player@example.com" }, firstName: "Session", lastName: "Player", username: null }),
+      updateUserMetadata: async (userId: string, metadata: unknown) => { writes.push({ userId, metadata }); },
+    } }) as never,
+  }, () => supportPOST(new Request("https://sidequestchess.com/api/support", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ message: "I need help with proof." }),
+  })));
+  assert.equal(response.status, 200);
+  assert.equal(writes[0]?.userId, "session-user");
   const saved = writes[0]?.metadata as { privateMetadata: { sqcSupportMessages: Array<{ message: string; accountEmail: string; displayName: string }> } };
-  assert.equal(saved.privateMetadata.sqcSupportMessages[0]?.message, "Community Multiplayer Side Quest community/table: misleading rules");
+  assert.equal(saved.privateMetadata.sqcSupportMessages[0]?.message, "I need help with proof.");
   assert.equal(saved.privateMetadata.sqcSupportMessages[0]?.accountEmail, "player@example.com");
   assert.equal(saved.privateMetadata.sqcSupportMessages[0]?.displayName, "Session Player");
 });

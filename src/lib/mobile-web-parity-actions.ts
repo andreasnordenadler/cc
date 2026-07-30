@@ -124,7 +124,8 @@ export function validateCommunitySoloReport(questId: string, reason: string) {
 }
 
 export function validateCommunityMultiplayerReport(questId: string, reason: string) {
-  const cleanReason = reason.trim().replace(/\s+/g, " ").slice(0, 500);
+  if (reason.length > 500) return { ok: false as const, message: "Keep the report reason to 500 characters or fewer." };
+  const cleanReason = reason.trim().replace(/\s+/g, " ");
   if (cleanReason.length < 3) return { ok: false as const, message: "Add a short reason before reporting this Side Quest." };
   return { ok: true as const, message: `Community Multiplayer Side Quest ${questId}: ${cleanReason}` };
 }

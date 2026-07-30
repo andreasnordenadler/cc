@@ -20,10 +20,14 @@ export async function submitCommunityMultiplayerReport(questId: string, reason: 
   if (!validated.ok) return { kind: "error" as const, message: validated.message };
 
   try {
-    const response = await request("/api/support", {
+    const response = await request("/api/reports/content", {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ message: validated.message }),
+      body: JSON.stringify({
+        targetType: "community-multiplayer",
+        targetId: questId,
+        reason: reason.trim().replace(/\s+/g, " "),
+      }),
     });
     await response.json().catch(() => ({}));
     if (!response.ok) return { kind: "error" as const, message: "Could not send the report. Try again." };
