@@ -278,22 +278,46 @@ test("custom quest draft persists Android v339's unfinished target square withou
   }]);
 });
 
-test("custom quest archived saves reject unfinished target squares without writing", async () => {
+test("custom quest archive preserves an authenticated owner's unfinished target-square draft", async () => {
+  const config = JSON.stringify({
+    version: 2,
+    logic: "all",
+    blocks: [{ type: "pieceState", piece: "knight", owner: "my", condition: "on square", targetSquare: "e", timing: { atGameEnd: true } }],
+  });
+  const existing = {
+    id: "custom-unfinished-target",
+    title: "Knight landing later",
+    summary: "Draft Side Quest",
+    config,
+    visibility: "private" as const,
+    lifecycle: "draft" as const,
+    createdAt: "2026-07-01T10:00:00.000Z",
+    updatedAt: "2026-07-01T10:00:00.000Z",
+    badgeImageUrl: "/badges/custom/community/community-coat-12.png",
+  };
   let writes = 0;
+  let saved: unknown[] = [];
+
   const response = await handleCustomQuestCreateRequest(jsonPost("https://sqc.test/api/mobile/custom-quests", {
-    title: "Archived knight landing",
-    config: JSON.stringify({
-      version: 2,
-      logic: "all",
-      blocks: [{ type: "pieceState", piece: "knight", owner: "my", condition: "on square", targetSquare: "e", timing: { atGameEnd: true } }],
-    }),
+    id: existing.id,
+    title: existing.title,
+    summary: existing.summary,
+    config,
     visibility: "public",
     lifecycle: "archived",
-  }), customDependencies({ saveCustomQuests: async () => { writes += 1; return []; } }));
+  }), customDependencies({
+    getMetadata: async () => ({ publicMetadata: {}, privateMetadata: { customSideQuests: [existing] } }),
+    saveCustomQuests: async (_id, quests) => { writes += 1; saved = quests; return quests; },
+  }));
 
-  assert.equal(response.status, 400);
-  assert.equal(writes, 0);
-  assert.match(String((await body(response)).message), /real board squares/i);
+  assert.equal(response.status, 200);
+  assert.equal(writes, 1);
+  assert.deepEqual(saved, [{
+    ...existing,
+    visibility: "public",
+    lifecycle: "archived",
+    updatedAt: "2026-07-12T14:00:00.000Z",
+  }]);
 });
 
 test("custom quest update preserves its badge and creation timestamp", async () => {
