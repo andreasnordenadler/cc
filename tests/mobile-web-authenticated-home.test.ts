@@ -426,8 +426,16 @@ test("authenticated Home previews five active Multiplayer rows and exposes the r
     proofReceiptCount: 0,
   }));
 
-  for (const title of activeMultiplayerRows.slice(0, 5).map((row) => row.title)) {
-    assert.ok(html.indexOf(title) < html.indexOf("<details"), `${title} must remain in the five-row preview`);
+  for (const row of activeMultiplayerRows.slice(0, 5)) {
+    assert.ok(html.indexOf(row.title) < html.indexOf("<details"), `${row.title} must remain in the five-row preview`);
+  }
+  for (const row of activeMultiplayerRows) {
+    const rowStart = html.indexOf(`class="sqc-app-row" href="${row.href}"`);
+    const titleStart = html.indexOf(row.title, rowStart);
+    assert.ok(rowStart >= 0 && titleStart > rowStart, `${row.title} must keep its exact detail destination`);
+    const rowLeadingMarkup = html.slice(rowStart, titleStart);
+    assert.match(rowLeadingMarkup, /sqc-multiplayer-seal\.png/, `${row.title} must use Android v339's Multiplayer seal`);
+    assert.doesNotMatch(rowLeadingMarkup, /proof-loop-test-badge\.png/, `${row.title} must not fall back to an unrelated Solo badge`);
   }
   assert.ok(html.indexOf("Active table 6") > html.indexOf("<details"), "the sixth row must be inside the expandable disclosure");
   assert.match(html, />Show all active Multiplayer Side Quests</);
