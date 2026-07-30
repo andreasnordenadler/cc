@@ -2,11 +2,35 @@ import type { CustomSideQuest } from "@/lib/custom-side-quests";
 import { buildCompletedCustomPublicProofPath } from "@/lib/proof-share";
 import {
   getChallengeProgress,
+  getChallengeAttempts,
   getLatestChallengeAttempt,
   getLatestPassedChallengeAttempt,
   type ChallengeAttempt,
   type UserMetadataRecord,
 } from "@/lib/user-metadata";
+
+export async function buildReplicatedCustomSoloCompletionState({
+  metadataRecords,
+  quest,
+}: {
+  metadataRecords: UserMetadataRecord[];
+  quest: CustomSideQuest;
+}) {
+  const completedChallengeIds = Array.from(new Set(metadataRecords.flatMap((metadata) => getChallengeProgress(metadata).completedChallengeIds)));
+  const attempts = metadataRecords
+    .flatMap((metadata) => getChallengeAttempts(metadata, quest.id))
+    .filter(isRenderableAttempt)
+    .filter((attempt, index, all) => all.findIndex((candidate) => attemptIdentity(candidate) === attemptIdentity(attempt)) === index)
+    .sort((left, right) => Date.parse(left.checkedAt!) - Date.parse(right.checkedAt!));
+
+  return buildCommunitySoloCompletionState({
+    metadata: {
+      challengeProgress: { completedChallengeIds },
+      challengeAttempts: attempts,
+    },
+    quest,
+  });
+}
 
 export async function buildCommunitySoloCompletionState({
   metadata,
@@ -58,4 +82,15 @@ function normalizeProofAttempt(attempt: ChallengeAttempt | null): ChallengeAttem
 
 function stringOrUndefined(value: unknown) {
   return typeof value === "string" ? value : undefined;
+}
+
+function isRenderableAttempt(attempt: ChallengeAttempt) {
+  return typeof attempt.status === "string"
+    && typeof attempt.summary === "string"
+    && typeof attempt.checkedAt === "string"
+    && Number.isFinite(Date.parse(attempt.checkedAt));
+}
+
+function attemptIdentity(attempt: ChallengeAttempt) {
+  return attempt.id ?? [attempt.challengeId, attempt.status, attempt.checkedAt, attempt.gameId].join(":");
 }

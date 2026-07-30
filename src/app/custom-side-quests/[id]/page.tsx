@@ -10,10 +10,10 @@ import CustomSideQuestActivity from "@/components/custom-side-quest-activity";
 import CommunitySoloShareControls from "@/components/community-solo-share-controls";
 import { describeCustomSideQuestRuleDetails } from "@/lib/community-side-quests";
 import { buildOwnedCustomQuestStats, loadCustomQuestGroupContext } from "@/lib/custom-side-quest-activity";
+import { buildReplicatedCustomSoloCompletionState } from "@/lib/community-solo-detail-state";
 import { getCustomSideQuestBadgeUrl, getCustomSideQuestById, getCustomSideQuests } from "@/lib/custom-side-quests";
 import { listPublicGroupQuests, listUserRelatedGroupQuests } from "@/lib/groupquests";
-import { buildCompletedCustomPublicProofPath } from "@/lib/proof-share";
-import { getChallengeProgress, getChessComUsername, getLatestPassedChallengeAttempt, getLichessUsername, getPreferredRunnerName, type UserMetadataRecord } from "@/lib/user-metadata";
+import { getChessComUsername, getLichessUsername, getPreferredRunnerName, type UserMetadataRecord } from "@/lib/user-metadata";
 
 export const dynamic = "force-dynamic";
 
@@ -36,11 +36,7 @@ export default async function CustomSideQuestOwnerPage({ params }: { params: Pro
     emailAddress: user.primaryEmailAddress?.emailAddress,
   }) || "Side Quest Chess";
   const rules = describeCustomSideQuestRuleDetails(quest.config);
-  const completed = getChallengeProgress(publicMetadata).completedChallengeIds.includes(quest.id)
-    || (sourceMetadata !== publicMetadata && getChallengeProgress(sourceMetadata).completedChallengeIds.includes(quest.id));
-  const latestPassedAttempt = getLatestPassedChallengeAttempt(publicMetadata, quest.id)
-    ?? (sourceMetadata !== publicMetadata ? getLatestPassedChallengeAttempt(sourceMetadata, quest.id) : null);
-  const resultHref = await buildCompletedCustomPublicProofPath({ completed, attempt: latestPassedAttempt, quest });
+  const completionState = await buildReplicatedCustomSoloCompletionState({ metadataRecords: [publicMetadata, sourceMetadata], quest });
   const groupQuests = await loadCustomQuestGroupContext({
     loadRelated: () => listUserRelatedGroupQuests(client, user.id),
     loadPublic: () => listPublicGroupQuests(client),
@@ -80,9 +76,10 @@ export default async function CustomSideQuestOwnerPage({ params }: { params: Pro
         questId={quest.id}
         active={Boolean(publicMetadata.activeChallenge && typeof publicMetadata.activeChallenge === "object" && (publicMetadata.activeChallenge as { id?: string }).id === quest.id)}
         playable={quest.lifecycle === "published"}
-        completed={completed}
-        completedAt={latestPassedAttempt?.completedGameAt ?? latestPassedAttempt?.checkedAt ?? null}
-        resultHref={resultHref}
+        completed={completionState.completed}
+        completedAt={completionState.completedAt}
+        resultHref={completionState.resultHref}
+        latestAttempt={completionState.latestAttempt}
       />
 
       <CustomSideQuestActivity stats={stats} />

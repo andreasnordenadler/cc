@@ -14,7 +14,7 @@ import {
   validateCommunitySoloReport,
 } from "../src/lib/mobile-web-parity-actions";
 import { upsertCommunityLike } from "../src/lib/community-likes";
-import { buildCommunitySoloCompletionState } from "../src/lib/community-solo-detail-state";
+import { buildCommunitySoloCompletionState, buildReplicatedCustomSoloCompletionState } from "../src/lib/community-solo-detail-state";
 import { decodePublicProof } from "../src/lib/proof-share";
 
 test("community solo pick state sends signed-out viewers to the exact detail sign-in return path", () => {
@@ -404,6 +404,70 @@ test("Community Solo detail state preserves the latest failed proof diagnostic f
   });
 });
 
+test("owned Custom Solo state keeps completion and the newest diagnostic across metadata replicas", async () => {
+  const state = await buildReplicatedCustomSoloCompletionState({
+    metadataRecords: [
+      {
+        challengeProgress: { completedChallengeIds: ["custom-replica"] },
+        challengeAttempts: [{ id: "custom-replica:passed", challengeId: "custom-replica", status: "passed", summary: "Accepted custom proof.", checkedAt: "2026-07-18T10:10:00.000Z", gameId: "accepted-game" }],
+      },
+      {
+        challengeAttempts: [{
+          id: "custom-replica:failed",
+          challengeId: "custom-replica",
+          status: "failed",
+          summary: "The newest game missed the saved condition.",
+          checkedAt: "2026-07-19T10:10:00.000Z",
+          lastMoveSan: "Kh1",
+          failureDiagnostic: { label: "Condition not met", explanation: "The required piece state was absent." },
+        }],
+      },
+    ],
+    quest: {
+      id: "custom-replica",
+      title: "Replica-aware custom quest",
+      summary: "Meet the saved condition.",
+      config: JSON.stringify({ version: 1, template: "finishAnyGame" }),
+      lifecycle: "published",
+      visibility: "private",
+      createdAt: "2026-07-12T00:00:00.000Z",
+      updatedAt: "2026-07-12T00:00:00.000Z",
+    },
+  });
+
+  assert.equal(state.completed, true);
+  assert.equal(state.completedAt, "2026-07-18T10:10:00.000Z");
+  assert.deepEqual(state.latestAttempt, {
+    status: "failed",
+    summary: "The newest game missed the saved condition.",
+    checkedAt: "2026-07-19T10:10:00.000Z",
+    lastMoveSan: "Kh1",
+    failureLabel: "Condition not met",
+    failureExplanation: "The required piece state was absent.",
+  });
+});
+
+test("owned Custom Solo replica merge ignores malformed diagnostics instead of hiding valid state", async () => {
+  const state = await buildReplicatedCustomSoloCompletionState({
+    metadataRecords: [
+      { challengeAttempts: [{ id: "valid", challengeId: "custom-replica", status: "failed", summary: "Valid failure", checkedAt: "2026-07-19T10:10:00.000Z" }] },
+      { challengeAttempts: [{ id: "malformed", challengeId: "custom-replica", status: "failed", summary: { hidden: true } as never, checkedAt: "not-a-date" }] },
+    ],
+    quest: {
+      id: "custom-replica",
+      title: "Replica-aware custom quest",
+      summary: "Meet the saved condition.",
+      config: JSON.stringify({ version: 1, template: "finishAnyGame" }),
+      lifecycle: "published",
+      visibility: "private",
+      createdAt: "2026-07-12T00:00:00.000Z",
+      updatedAt: "2026-07-12T00:00:00.000Z",
+    },
+  });
+
+  assert.equal(state.latestAttempt?.summary, "Valid failure");
+});
+
 test("Community Solo completion state keeps the latest accepted proof after a later failed check", async () => {
   const state = await buildCommunitySoloCompletionState({
     metadata: {
@@ -469,6 +533,13 @@ test("authenticated Community Solo route passes server-derived completion state 
   assert.match(source, /completed=\{completionState\.completed\}/);
   assert.match(source, /completedAt=\{completionState\.completedAt\}/);
   assert.match(source, /resultHref=\{completionState\.resultHref\}/);
+  assert.match(source, /latestAttempt=\{completionState\.latestAttempt\}/);
+});
+
+test("authenticated Custom Solo owner route passes replica-aware latest diagnostics to its proof command center", async () => {
+  const source = await import("node:fs/promises").then((fs) => fs.readFile(new URL("../src/app/custom-side-quests/[id]/page.tsx", import.meta.url), "utf8"));
+
+  assert.match(source, /buildReplicatedCustomSoloCompletionState\(\{[\s\S]*metadataRecords:\s*\[publicMetadata, sourceMetadata\][\s\S]*quest/);
   assert.match(source, /latestAttempt=\{completionState\.latestAttempt\}/);
 });
 
