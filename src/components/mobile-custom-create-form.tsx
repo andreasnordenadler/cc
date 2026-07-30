@@ -350,7 +350,7 @@ export default function MobileCustomCreateForm({ signedIn, initialQuest = null }
     {signedIn ? <>
       <span className="sqc-form-label">Visibility</span>
       <div className="sqc-filter-row"><button className={visibility === "private" ? "active" : ""} onClick={() => setVisibility("private")} type="button">Private</button><button className={visibility === "public" ? "active" : ""} onClick={() => setVisibility("public")} type="button">Public</button></div>
-      <label className="sqc-form-row"><span>Save state</span><select aria-label="Save state" onChange={(event) => setLifecycle(event.target.value as "draft" | "published" | "archived")} value={lifecycle}><option value="published">Ready to play</option><option value="draft">Draft</option>{initialState?.lifecycle === "archived" ? <option value="archived">Archived</option> : null}</select></label>
+      <label className="sqc-form-row"><span>Save state</span><select aria-label="Save state" onChange={(event) => setLifecycle(event.target.value as "draft" | "published")} value={lifecycle}><option value="published">Ready to play</option><option value="draft">Draft</option></select></label>
       <p>Identity and ownership come from your signed-in Side Quest Chess session. Published quests require at least one supported condition.</p>
     </> : <p className="sqc-local-draft-notice">This private draft is saved only in this browser. Sign in later to publish it or use proof.</p>}
     {error ? <p className="groupquest-join-error" role="alert">{error}</p> : null}

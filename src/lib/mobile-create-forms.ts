@@ -399,7 +399,7 @@ export function getCustomEditFormState(quest: CustomEditQuestInput) {
     logic: config.logic,
     blocks: config.blocks,
     visibility: quest.visibility,
-    lifecycle: quest.lifecycle,
+    lifecycle: quest.lifecycle === "archived" ? "published" : quest.lifecycle,
   };
 }
 
