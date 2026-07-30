@@ -79,3 +79,16 @@ test("Android release signing stays fail-closed locally while allowing EAS crede
   assert.match(source, /buildTypes \{[\s\S]*release \{\s*signingConfig signingConfigs\.release/);
   assert.doesNotMatch(source, /release \{\s*signingConfig signingConfigs\.debug/);
 });
+
+test("Android release blocks permissions that the product does not use", () => {
+  const config = JSON.parse(readRepoFile("apps/mobile/app.json"));
+
+  assert.deepEqual(config.expo.android.blockedPermissions, [
+    "android.permission.READ_EXTERNAL_STORAGE",
+    "android.permission.WRITE_EXTERNAL_STORAGE",
+    "android.permission.SYSTEM_ALERT_WINDOW",
+    "android.permission.USE_BIOMETRIC",
+    "android.permission.USE_FINGERPRINT",
+    "com.google.android.finsky.permission.BIND_GET_INSTALL_REFERRER_SERVICE",
+  ]);
+});
