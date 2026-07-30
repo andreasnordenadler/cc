@@ -621,7 +621,7 @@ test("archived owner rule edits preserve public visibility like Android v339", (
   assert.equal(payload.lifecycle, "archived");
 });
 
-test("owned custom Side Quest rules reopen in the exact editor state", () => {
+test("owned custom Side Quest rules reopen with Android v339 save-state semantics", () => {
   const blocks: CustomSideQuestRuleBlock[] = [
     { type: "gameResult", result: "win" },
     { type: "pieceState", piece: "queen", owner: "my", condition: "gone", timing: { atGameEnd: true } },
@@ -653,14 +653,21 @@ test("owned custom Side Quest rules reopen in the exact editor state", () => {
     lifecycle: "draft",
   }), null);
 
-  assert.equal(getCustomEditFormState({
+  const archivedQuest = {
     id: "custom-archived",
     title: "Archived rules",
     summary: "",
     config: JSON.stringify({ version: 2, logic: "all", blocks }),
-    visibility: "private",
-    lifecycle: "archived",
-  })?.lifecycle, "archived");
+    visibility: "public" as const,
+    lifecycle: "archived" as const,
+  };
+  const archivedState = getCustomEditFormState(archivedQuest);
+  assert.equal(archivedState?.lifecycle, "published");
+  assert.equal(archivedState?.visibility, "public");
+
+  const archivedEditor = renderToStaticMarkup(React.createElement(MobileCustomCreateForm, { signedIn: true, initialQuest: archivedQuest }));
+  assert.match(archivedEditor, /<option value="published" selected="">Ready to play<\/option>/);
+  assert.doesNotMatch(archivedEditor, /<option value="archived">Archived<\/option>/);
 });
 
 test("owned custom Side Quest editor can open legacy valid rules above Android's six-condition limit", () => {
