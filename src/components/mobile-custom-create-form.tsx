@@ -275,7 +275,7 @@ export default function MobileCustomCreateForm({ signedIn, initialQuest = null }
     </div>
 
     <span className="sqc-form-label">Your conditions · {blocks.length}/6</span>
-    {blocks.length > 6 ? <p className="groupquest-join-error" role="alert">Android v338 supports up to 6 conditions. Delete at least {blocks.length - 6} condition{blocks.length - 6 === 1 ? "" : "s"} before saving rule changes.</p> : null}
+    {blocks.length > 6 ? <p className="groupquest-join-error" role="alert">This Custom Side Quest editor supports up to 6 conditions. Delete at least {blocks.length - 6} condition{blocks.length - 6 === 1 ? "" : "s"} before saving rule changes.</p> : null}
     <div className="sqc-condition-list" aria-label="Saved conditions">
       {conditionRows.map(({ id, block, moveNumberInput }, index) => <div className="sqc-condition-compact-row sqc-custom-condition-row" key={id}>
         <span>{index + 1}</span>
