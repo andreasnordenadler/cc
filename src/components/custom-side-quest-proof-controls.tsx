@@ -12,6 +12,7 @@ export default function CustomSideQuestProofControls({
   completed,
   completedAt,
   resultHref,
+  latestAttempt,
 }: {
   questId: string;
   active: boolean;
@@ -19,6 +20,15 @@ export default function CustomSideQuestProofControls({
   completed?: boolean;
   completedAt?: string | null;
   resultHref?: string | null;
+  latestAttempt?: {
+    status: string;
+    summary: string;
+    checkedAt: string;
+    finalPositionFen?: string;
+    lastMoveSan?: string;
+    failureLabel?: string;
+    failureExplanation?: string;
+  } | null;
 }) {
   const [busy, setBusy] = useState<QuestAction | "">("");
   const [message, setMessage] = useState("");
@@ -55,6 +65,15 @@ export default function CustomSideQuestProofControls({
     <span className="sqc-card-eyebrow">Solo proof</span>
     <h2 id="custom-proof-controls-title">{completed ? "Completed Side Quest." : active ? "This is your active Side Quest." : playable ? "Ready for a proof run." : "Publish before playing."}</h2>
     <p>{completed ? `${completedAt ? "Your accepted proof is saved" : "Your completion is saved"}${completedLabel ? ` · Completed ${completedLabel}` : ""}.` : active ? "Play a fresh public Lichess or Chess.com game, then check the latest result against these saved rules." : playable ? "Start this Side Quest to make it your current Solo proof run." : "Draft and archived Side Quests keep their rules, but cannot start a proof run."}</p>
+    {!completed && active && latestAttempt ? (
+      <div className="sqc-detail-panel-strong" aria-label="Latest proof check">
+        <span className="sqc-card-eyebrow">Latest proof check</span>
+        <h3>{latestAttempt.failureLabel ?? (latestAttempt.status === "passed" ? "Proof check passed" : "No completion yet")}</h3>
+        <p>{latestAttempt.summary}</p>
+        {latestAttempt.failureExplanation ? <p>{latestAttempt.failureExplanation}</p> : null}
+        {latestAttempt.lastMoveSan ? <small>Last move: {latestAttempt.lastMoveSan}</small> : null}
+      </div>
+    ) : null}
     <div className="sqc-community-detail-actions" aria-label="Custom Side Quest proof actions">
       {completed ? resultHref ? <Link className="sqc-detail-primary-button" href={resultHref}>View result</Link> : null : active ? <>
         <label className="sqc-form-row">

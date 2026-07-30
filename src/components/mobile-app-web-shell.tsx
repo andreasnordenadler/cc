@@ -937,6 +937,7 @@ export function MobileCommunitySideQuestDetailScreen({
   completed = false,
   completedAt,
   resultHref,
+  latestAttempt,
 }: {
   quest: CommunitySideQuestDetail;
   signedIn: boolean;
@@ -946,9 +947,19 @@ export function MobileCommunitySideQuestDetailScreen({
   completed?: boolean;
   completedAt?: string | null;
   resultHref?: string | null;
+  latestAttempt?: {
+    status: string;
+    summary: string;
+    checkedAt: string;
+    finalPositionFen?: string;
+    lastMoveSan?: string;
+    failureLabel?: string;
+    failureExplanation?: string;
+  } | null;
 }) {
   const badge = toMobileAssetPath(quest.badgeImageUrl) ?? mobileAsset.customCrest;
   const totalSolo = quest.stats.soloAttempts + quest.stats.soloSelections + quest.stats.soloCompletions;
+  const activeForViewer = signedIn && activeQuestId === quest.id;
 
   return (
     <div className="sqc-stack sqc-community-detail-screen">
@@ -1014,25 +1025,26 @@ export function MobileCommunitySideQuestDetailScreen({
         <p>Browse more public Side Quests from this creator when available.</p>
       </section>
 
-      {completed ? (
+      {completed || activeForViewer ? (
         <CustomSideQuestProofControls
           questId={quest.id}
-          active={activeQuestId === quest.id}
+          active={activeForViewer}
           playable
-          completed
+          completed={completed}
           completedAt={completedAt}
           resultHref={resultHref}
+          latestAttempt={latestAttempt}
         />
       ) : (
         <section className="sqc-native-card sqc-multiplayer-native-card">
-          <span className="sqc-card-eyebrow">{activeQuestId === quest.id ? "Active now" : signedIn ? "Pick first" : "Sign in first"}</span>
-          <h2>{activeQuestId === quest.id ? "This is your active Solo Side Quest." : signedIn ? "Pick this Side Quest before playing your proof game." : "Sign in to pick this Community Solo Side Quest."}</h2>
-          <p>{activeQuestId === quest.id ? "Play a fresh public game, then return to check your proof." : "Your account keeps active Side Quests, usernames, proof checks, and trophies in sync."}</p>
+          <span className="sqc-card-eyebrow">{signedIn ? "Pick first" : "Sign in first"}</span>
+          <h2>{signedIn ? "Pick this Side Quest before playing your proof game." : "Sign in to pick this Community Solo Side Quest."}</h2>
+          <p>Your account keeps active Side Quests, usernames, proof checks, and trophies in sync.</p>
         </section>
       )}
 
       <div className="sqc-community-detail-actions" aria-label="Community Solo Side Quest actions">
-        {!completed ? <CommunitySoloPickControl questId={quest.id} signedIn={signedIn} activeQuestId={activeQuestId} /> : null}
+        {!completed && !activeForViewer ? <CommunitySoloPickControl questId={quest.id} signedIn={signedIn} activeQuestId={activeQuestId} /> : null}
         <CommunitySoloSocialActions questId={quest.id} title={quest.title} creatorName={quest.creatorName} signedIn={signedIn} />
         <Link href="/community-side-quests" className="sqc-detail-quiet-button">Back to list</Link>
         <Link href={quest.creatorBrowsePath} className="sqc-detail-secondary-button">More by {quest.creatorName}</Link>
