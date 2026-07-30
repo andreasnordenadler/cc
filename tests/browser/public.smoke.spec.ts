@@ -12,7 +12,7 @@ test("signed-out desktop homepage explains the loop and exposes public browsing 
   await expect(page.getByRole("heading", { name: "Your next chess game needs a terrible side plot." })).toBeVisible();
   await expect(page.getByRole("link", { name: "Choose your bad idea", exact: true })).toHaveAttribute("href", "/side-quests");
   await expect(page.getByRole("navigation", { name: "Desktop shortcuts" }).getByRole("link", { name: "Multiplayer Side Quests" })).toHaveAttribute("href", "/multiplayer");
-  await expect(page.getByRole("link", { name: "Sign in", exact: true })).toHaveAttribute("href", "/sign-in");
+  await expect(page.getByRole("link", { name: "Sign in", exact: true })).toHaveAttribute("href", "/sign-in?redirect_url=%2F");
   await expect(page.getByRole("heading", { name: "The ritual is suspiciously simple." })).toBeVisible();
   await expect(page.getByText("Present evidence to the paperwork goblin", { exact: true })).toBeVisible();
   await expect(page.getByText("Receive unnecessary heraldry", { exact: true })).toBeVisible();
@@ -50,8 +50,17 @@ test("signed-out Home omits the web-only guest menu while non-Home routes preser
   await expect(menu.getByRole("link", { name: "Multiplayer" })).toHaveAttribute("href", "/multiplayer");
   await expect(menu.getByRole("link", { name: "Help & Support" })).toHaveAttribute("href", "/support");
   await expect(menu.getByRole("link", { name: "Privacy" })).toHaveAttribute("href", "/privacy");
-  await expect(menu.getByRole("link", { name: "Sign in" })).toHaveAttribute("href", "/sign-in");
+  await expect(menu.getByRole("link", { name: "Sign in" })).toHaveAttribute("href", "/sign-in?redirect_url=%2Fside-quests");
   await expect(menu.getByRole("link", { name: "Trophy Cabinet" })).toHaveCount(0);
+});
+
+test("sign-in returns to the exact page and query where the user started", async ({ page }) => {
+  await page.goto("/side-quests?tab=community");
+  const menu = page.getByRole("navigation", { name: "Guest menu" });
+  await menu.getByRole("link", { name: "Sign in" }).click();
+
+  await expect(page).toHaveURL(/\/sign-in\?redirect_url=/);
+  expect(new URL(page.url()).searchParams.get("redirect_url")).toBe("/side-quests?tab=community");
 });
 
 test("help redirects canonically to support", async ({ page }) => {
