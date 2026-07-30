@@ -405,6 +405,18 @@ test("custom creator preserves Android's empty signed-in draft behavior", () => 
   assert.equal(payload.visibility, "private");
 });
 
+test("custom creator preserves Android v339's unfinished move sequence in a private draft", () => {
+  const unfinishedBlock: CustomSideQuestRuleBlock = { type: "moveSequence", sequence: " ?! ", timing: { atGameEnd: true } };
+  const payload = buildCustomCreatePayload({ title: "Later", summary: "", logic: "all", blocks: [unfinishedBlock], visibility: "public", lifecycle: "draft" });
+
+  assert.deepEqual(JSON.parse(payload.config), {
+    version: 2,
+    logic: "all",
+    blocks: [{ type: "moveSequence", sequence: "", timing: { atGameEnd: true } }],
+  });
+  assert.equal(payload.visibility, "private");
+});
+
 test("custom creator supports six independently editable Android-compatible conditions", () => {
   const blocks: CustomSideQuestRuleBlock[] = [
     { type: "gameResult", result: "win" },
@@ -864,7 +876,7 @@ test("custom opening-sequence editor rejects notation with no parsed moves", () 
   }), /opening line from move 1/i);
 });
 
-test("custom move-sequence editor rejects an empty condition like Android v338", () => {
+test("custom move-sequence editor rejects an empty published condition like Android v339", () => {
   assert.throws(() => buildCustomCreatePayload({
     title: "Empty sequence",
     summary: "",
@@ -872,6 +884,17 @@ test("custom move-sequence editor rejects an empty condition like Android v338",
     blocks: [{ type: "moveSequence", sequence: " ?! ", timing: { atGameEnd: true } }],
     visibility: "private",
     lifecycle: "published",
+  }), /algebraic move/i);
+});
+
+test("custom move-sequence editor keeps rejecting unfinished archived rule edits", () => {
+  assert.throws(() => buildCustomCreatePayload({
+    title: "Archived sequence",
+    summary: "",
+    logic: "all",
+    blocks: [{ type: "moveSequence", sequence: " ?! ", timing: { atGameEnd: true } }],
+    visibility: "private",
+    lifecycle: "archived",
   }), /algebraic move/i);
 });
 
