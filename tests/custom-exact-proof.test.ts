@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import CustomSideQuestProofControls from "../src/components/custom-side-quest-proof-controls";
+import CustomSideQuestProofControls, { buildCustomProofRequestBody } from "../src/components/custom-side-quest-proof-controls";
 import { POST, selectPublishedPublicCustomQuest, submitMobileChallengeAttempt, verifySubmittedChallengeAttempt, withMobileQuestRouteTestDependencies } from "../src/app/api/mobile/quest/route";
 import { checkLatestCustomSideQuestForProvider, checkSubmittedCustomSideQuestForProvider, fetchBoundedProviderJson, type CustomSideQuest } from "../src/lib/custom-side-quests";
 import { buildCompletedCustomPublicProofPath, buildCustomPublicProofPath, decodePublicProof } from "../src/lib/proof-share";
@@ -266,16 +266,28 @@ test("submitted Chess.com custom proof ignores malicious and malformed archive U
   ]);
 });
 
-test("active custom proof controls expose only latest-game checking and deactivation", () => {
+test("active custom proof controls expose Android v339 exact-game submission", () => {
   const html = renderToStaticMarkup(React.createElement(CustomSideQuestProofControls, {
     questId: "custom-win",
     active: true,
     playable: true,
   }));
 
+  assert.match(html, /aria-label="Specific proof game"/);
+  assert.match(html, /placeholder="Lichess game ID or Chess\.com URL"/);
   assert.match(html, />Check my latest game<\/button>/);
+  assert.match(html, />Submit game\/link<\/button>/);
   assert.match(html, />Deactivate<\/button>/);
-  assert.doesNotMatch(html, /Specific proof game|Lichess game ID or Chess\.com URL|Submit game\/link/);
+  assert.doesNotMatch(html, /userId|username|provider/);
+});
+
+test("custom exact-game submission targets only the active quest with a trimmed game reference", () => {
+  assert.deepEqual(buildCustomProofRequestBody("submit", "custom-win", "  Exact123  "), {
+    action: "submit",
+    challengeId: "custom-win",
+    gameId: "Exact123",
+  });
+  assert.throws(() => buildCustomProofRequestBody("submit", "custom-win", "   "), /paste a Lichess game ID or Chess\.com game URL first/i);
 });
 
 test("completed custom proof controls expose the Android result action instead of restart", () => {
