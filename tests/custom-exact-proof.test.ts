@@ -266,16 +266,16 @@ test("submitted Chess.com custom proof ignores malicious and malformed archive U
   ]);
 });
 
-test("active custom proof controls expose Android exact-game submission", () => {
+test("active custom proof controls expose only latest-game checking and deactivation", () => {
   const html = renderToStaticMarkup(React.createElement(CustomSideQuestProofControls, {
     questId: "custom-win",
     active: true,
     playable: true,
   }));
 
-  assert.match(html, /aria-label="Specific proof game"/);
-  assert.match(html, /Lichess game ID or Chess\.com URL/);
-  assert.match(html, />Submit game\/link</);
+  assert.match(html, />Check my latest game<\/button>/);
+  assert.match(html, />Deactivate<\/button>/);
+  assert.doesNotMatch(html, /Specific proof game|Lichess game ID or Chess\.com URL|Submit game\/link/);
 });
 
 test("completed custom proof controls expose the Android result action instead of restart", () => {

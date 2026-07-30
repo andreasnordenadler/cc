@@ -241,7 +241,7 @@ test("signed-in Community Solo detail can start an exact preselected Multiplayer
   assert.doesNotMatch(html, /userId=|creatorUserId=/);
 });
 
-test("active Community Solo detail exposes Android v339 latest, exact, and deactivate proof actions", () => {
+test("active Community Solo detail exposes only latest-game and deactivate proof actions", () => {
   const html = renderToStaticMarkup(React.createElement(MobileCommunitySideQuestDetailScreen, {
     signedIn: true,
     activeQuestId: "quest/42",
@@ -258,9 +258,8 @@ test("active Community Solo detail exposes Android v339 latest, exact, and deact
   }));
 
   assert.match(html, />Check my latest game<\/button>/);
-  assert.match(html, /aria-label="Specific proof game"/);
-  assert.match(html, />Submit game\/link<\/button>/);
   assert.match(html, />Deactivate<\/button>/);
+  assert.doesNotMatch(html, /Specific proof game|Lichess game ID or Chess\.com URL|Submit game\/link/);
   assert.doesNotMatch(html, />Active Side Quest<\/a>/);
 });
 
