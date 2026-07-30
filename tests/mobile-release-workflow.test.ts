@@ -80,6 +80,22 @@ test("Android release signing stays fail-closed locally while allowing EAS crede
   assert.doesNotMatch(source, /release \{\s*signingConfig signingConfigs\.debug/);
 });
 
+test("EAS production builds use the SDK 54 builder and pnpm 11 for the next Play code", () => {
+  for (const path of ["eas.json", "apps/mobile/eas.json"]) {
+    const config = JSON.parse(readRepoFile(path));
+    const production = config.build.production;
+
+    assert.equal(production.android.image, "sdk-54", `${path} must not fall back to a legacy Android image`);
+    assert.equal(production.node, "22.22.0", `${path} must satisfy pnpm 11's Node.js engine requirement`);
+    assert.equal(production.pnpm, "11.12.0", `${path} must read the pnpm v9 lockfile with the reviewed pnpm release`);
+    assert.equal(production.autoIncrement, true, `${path} must reserve the next Play version code`);
+  }
+
+  const app = JSON.parse(readRepoFile("apps/mobile/app.json")).expo;
+  assert.equal(app.version, "0.1.341");
+  assert.equal(app.android.versionCode, 341);
+});
+
 test("Android release blocks permissions that the product does not use", () => {
   const config = JSON.parse(readRepoFile("apps/mobile/app.json"));
 
