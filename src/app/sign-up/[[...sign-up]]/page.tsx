@@ -1,23 +1,14 @@
 import { SignUp } from "@clerk/nextjs";
 import MobileAppWebShell from "@/components/mobile-app-web-shell";
+import { safeAuthReturnPath } from "@/lib/auth-return-path";
 
 type SignUpPageProps = {
   searchParams?: Promise<{ redirect_url?: string | string[] }>;
 };
 
-function safeRedirectPath(value: string | string[] | undefined) {
-  const raw = Array.isArray(value) ? value[0] : value;
-
-  if (!raw || !raw.startsWith("/") || raw.startsWith("//")) {
-    return "/account";
-  }
-
-  return raw;
-}
-
 export default async function SignUpPage({ searchParams }: SignUpPageProps) {
   const params = await searchParams;
-  const returnTo = safeRedirectPath(params?.redirect_url);
+  const returnTo = safeAuthReturnPath(params?.redirect_url);
   const signInUrl = `/sign-in?redirect_url=${encodeURIComponent(returnTo)}`;
 
   return (

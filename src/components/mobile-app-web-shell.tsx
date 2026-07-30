@@ -30,6 +30,7 @@ import type { CustomEditQuestInput } from "@/lib/mobile-create-forms";
 import type { WebSupportAccountContext, WebSupportReportContext } from "@/lib/web-support-diagnostics";
 import DesktopHomeMenu from "./desktop-home-menu";
 import MobileWebHamburgerMenu from "./mobile-web-hamburger-menu";
+import CurrentPageSignInLink from "./current-page-sign-in-link";
 
 type AppTab = "home" | "sideQuests" | "multiplayerSideQuests" | "coatOfArms" | "account";
 
@@ -315,7 +316,6 @@ function GuestNavigation({ activeTab }: { activeTab: AppTab }) {
     { label: "Multiplayer", href: "/multiplayer", active: activeTab === "multiplayerSideQuests" },
     { label: "Help & Support", href: "/support", active: false },
     { label: "Privacy", href: "/privacy", active: false },
-    { label: "Sign in", href: "/sign-in", active: false },
   ];
 
   return (
@@ -325,6 +325,7 @@ function GuestNavigation({ activeTab }: { activeTab: AppTab }) {
           {item.label}
         </Link>
       ))}
+      <CurrentPageSignInLink>Sign in</CurrentPageSignInLink>
     </nav>
   );
 }
@@ -349,9 +350,11 @@ function DesktopHomeHeader({ signedIn, displayName }: { signedIn: boolean; displ
         ))}
       </nav>
       <DesktopHomeMenu items={desktopHomeMenuItems} />
-      <Link href={signedIn ? "/account" : "/sign-in"} className="sqc-desktop-sign-in">
-        {signedIn ? displayName || "My Account" : "Sign in"}
-      </Link>
+      {signedIn ? (
+        <Link href="/account" className="sqc-desktop-sign-in">{displayName || "My Account"}</Link>
+      ) : (
+        <CurrentPageSignInLink className="sqc-desktop-sign-in">Sign in</CurrentPageSignInLink>
+      )}
     </header>
   );
 }
@@ -554,7 +557,7 @@ export function GuestHome({
           {onBrowseSolo ? <button type="button" className="sqc-secondary-action" onClick={onBrowseSolo}>Browse Solo Side Quests</button> : <Link href="/side-quests" className="sqc-secondary-action">Browse Solo Side Quests</Link>}
           {onBrowseMultiplayer ? <button type="button" className="sqc-secondary-action" onClick={onBrowseMultiplayer}>Browse Multiplayer Side Quests</button> : <Link href="/multiplayer" className="sqc-secondary-action">Browse Multiplayer Side Quests</Link>}
         </div>
-        {onSignIn ? <button type="button" className="sqc-primary-action" onClick={onSignIn}>Choose sign-in method</button> : <Link href="/sign-in" className="sqc-primary-action">Choose sign-in method</Link>}
+        {onSignIn ? <button type="button" className="sqc-primary-action" onClick={onSignIn}>Choose sign-in method</button> : <CurrentPageSignInLink className="sqc-primary-action">Choose sign-in method</CurrentPageSignInLink>}
       </section>
     </div>
   );

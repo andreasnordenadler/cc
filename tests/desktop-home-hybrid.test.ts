@@ -43,7 +43,7 @@ test("signed-out home renders an app surface plus a desktop-only guided experien
   assert.match(html, />Start a Multiplayer Side Quest/);
   assert.match(html, /Knights Before Coffee/);
   assert.match(html, /href="\/side-quests"[^>]*>Choose your bad idea<\/a>/);
-  assert.match(html, /href="\/sign-in"[^>]*>Sign in<\/a>/);
+  assert.match(html, /href="\/sign-in\?redirect_url=%2F"[^>]*>Sign in<\/a>/);
 });
 
 test("desktop home stays hidden until the full-desktop breakpoint", () => {
