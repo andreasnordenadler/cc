@@ -96,6 +96,19 @@ test("EAS production builds use the SDK 54 builder and pnpm 11 for the next Play
   assert.equal(app.android.versionCode, 341);
 });
 
+test("EAS archives omit the partial generated Android tree so SDK 54 prebuild runs", () => {
+  const rootIgnore = readRepoFile(".easignore");
+  const mobileIgnore = readRepoFile("apps/mobile/.easignore");
+
+  assert.match(rootIgnore, /^apps\/mobile\/android\/$/m);
+  assert.doesNotMatch(rootIgnore, /^!apps\/mobile\/android/m);
+  assert.match(mobileIgnore, /^android\/$/m);
+  assert.doesNotMatch(mobileIgnore, /^!android/m);
+  for (const secretPattern of ["credentials.json", "credentials/", "*.jks", "*.keystore", "*.pem"]) {
+    assert.ok(mobileIgnore.split("\n").includes(secretPattern), `apps/mobile/.easignore must exclude ${secretPattern}`);
+  }
+});
+
 test("Android release blocks permissions that the product does not use", () => {
   const config = JSON.parse(readRepoFile("apps/mobile/app.json"));
 
