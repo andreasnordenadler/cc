@@ -1786,6 +1786,12 @@ export function MobileMultiplayerDetailScreen({
           <p>Update the invite, schedule, rules, and Side Quest lineup from the exact owner screen.</p>
           <Link href={`/groupquests/${encodeURIComponent(quest.id)}/edit`} className="sqc-detail-secondary-button">Manage Side Quest</Link>
         </section>
+      ) : joinState.kind === "hosted" ? (
+        <section className="sqc-native-card sqc-multiplayer-native-card" aria-label="Finished Multiplayer owner archive">
+          <span className="sqc-card-eyebrow">Owner archive</span>
+          <h2>This finished table is locked.</h2>
+          <p>You can still share the final result and review player receipts, but settings and player removals are closed after the event window ends.</p>
+        </section>
       ) : null}
 
       {joinState.kind === "hosted" && quest.inviteKey ? (

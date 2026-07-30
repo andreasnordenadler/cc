@@ -477,6 +477,33 @@ test("hosted Multiplayer detail keeps exact owner settings reachable until stand
   assert.doesNotMatch(finishedHost, /Manage Side Quest|\/edit/);
 });
 
+test("finished Multiplayer host sees Android's locked owner archive without mutation controls", () => {
+  const html = renderDetail({
+    ...officialJoinedQuest,
+    id: "private-finished-table",
+    sourceBadge: "Community",
+    status: "Hosted",
+    viewerJoined: true,
+    publiclyListed: false,
+    inviteKey: "ROOK-742",
+    lifecycle: "finished",
+    eventStatus: "Finished",
+    leaderboardRows: [
+      { rank: 1, name: "Current host", provider: "lichess · host", progress: "1/1", placement: "Gold", viewer: true },
+      { rank: 2, name: "Guest player", provider: "chess.com · guest", progress: "0/1", placement: "Silver", viewer: false, participantUserId: "guest-user" },
+    ],
+  });
+
+  assert.match(html, /aria-label="Finished Multiplayer owner archive"/);
+  assert.match(html, />Owner archive</);
+  assert.match(html, />This finished table is locked\.</);
+  assert.match(html, /You can still share the final result and review player receipts, but settings and player removals are closed after the event window ends\./);
+  assert.match(html, /aria-label="Private Multiplayer invite code"/);
+  assert.match(html, />ROOK-742</);
+  assert.match(html, /aria-label="Copy private invite code"/);
+  assert.doesNotMatch(html, /Manage Side Quest|Remove player|aria-label="Remove Guest player"/);
+});
+
 test("signed-out and finished Multiplayer states keep safe actions", () => {
   const signedOut = renderDetail({ ...officialJoinedQuest, status: "Not joined", viewerJoined: false }, false);
   assert.match(signedOut, />Sign in first</);
