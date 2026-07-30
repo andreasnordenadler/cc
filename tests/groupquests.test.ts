@@ -142,6 +142,81 @@ test("lists joined quests hosted on Clerk page two once in deterministic newest-
   assert.deepEqual(quests.map(({ id }) => id), ["joined-page-two", "older"]);
 });
 
+test("public Community loading does not resurrect a stale public replica after the host makes it private", async () => {
+  const canonical = buildGroupQuest({ hostUserId: "host-user", hostName: "Host", name: "Private canonical table", inviteMode: "private-key" });
+  canonical.id = "private-canonical-public-replica";
+  canonical.participants = [];
+  const staleReplica = {
+    ...structuredClone(canonical),
+    inviteMode: "public" as const,
+    name: "Stale public participant copy",
+    participants: [participant("removed-viewer", { score: 300 })],
+  };
+  const client = { users: { getUserList: async () => ({
+    data: [
+      { id: "removed-viewer", privateMetadata: { sqcGroupQuests: [staleReplica] } },
+      { id: "host-user", privateMetadata: { sqcGroupQuests: [canonical] } },
+    ],
+    totalCount: 2,
+  }) } };
+
+  const listed = await listPublicGroupQuests(client);
+
+  assert.equal(listed.some(({ id }) => id === canonical.id), false);
+});
+
+test("public Community loading prefers the host record over a stale participant replica", async () => {
+  const canonical = buildGroupQuest({ hostUserId: "host-user", hostName: "Host", name: "Canonical public table", inviteMode: "public" });
+  canonical.id = "public-replica-table";
+  canonical.participants = [participant("teammate", { score: 100 })];
+  const staleReplica = {
+    ...structuredClone(canonical),
+    name: "Stale public participant copy",
+    participants: [participant("removed-viewer", { score: 300 })],
+  };
+  const client = { users: { getUserList: async () => ({
+    data: [
+      { id: "removed-viewer", privateMetadata: { sqcGroupQuests: [staleReplica] } },
+      { id: "host-user", privateMetadata: { sqcGroupQuests: [canonical] } },
+    ],
+    totalCount: 2,
+  }) } };
+
+  const listed = (await listPublicGroupQuests(client)).find(({ id }) => id === canonical.id);
+
+  assert.equal(listed?.name, "Canonical public table");
+  assert.deepEqual(listed?.participants.map(({ userId }) => userId), ["teammate"]);
+});
+
+test("related quest loading prefers the host record over an earlier participant replica", async () => {
+  const canonical = buildGroupQuest({ hostUserId: "host-user", hostName: "Host", name: "Canonical table", inviteMode: "private-key" });
+  canonical.id = "related-replica-table";
+  canonical.participants = [
+    participant("current-user", { score: 300, completedQuestIds: canonical.questIds }),
+    participant("teammate", { score: 100 }),
+  ];
+  const staleReplica = {
+    ...structuredClone(canonical),
+    name: "Stale participant copy",
+    participants: [participant("current-user", { score: 10 })],
+  };
+  const client = { users: { getUserList: async () => ({
+    data: [
+      { id: "current-user", privateMetadata: { sqcGroupQuests: [staleReplica] } },
+      { id: "host-user", privateMetadata: { sqcGroupQuests: [canonical] } },
+    ],
+    totalCount: 2,
+  }) } };
+
+  const [related] = await listUserRelatedGroupQuests(client, "current-user");
+
+  assert.equal(related.name, "Canonical table");
+  assert.deepEqual(related.participants.map(({ userId, score }) => [userId, score]), [
+    ["current-user", 300],
+    ["teammate", 100],
+  ]);
+});
+
 test("scans three full Clerk pages and discovers a quest on the final short page", async () => {
   const discovered = buildGroupQuest({ hostUserId: "host-350", hostName: "Host", name: "Deep quest" });
   discovered.id = "deep-quest";

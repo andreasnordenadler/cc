@@ -428,7 +428,7 @@ export async function listUserRelatedGroupQuests(
   client: { users: { getUserList: (params: { limit: number; offset?: number; orderBy?: "-created_at" }) => Promise<ClerkUserListResponse> } },
   userId: string,
 ) {
-  const related: ServerGroupQuest[] = [];
+  const storedCopies: Array<{ userId: string; quest: ServerGroupQuest }> = [];
   let offset = 0;
   let pageCount = 0;
   let snapshottedPageBound: number | undefined;
@@ -446,19 +446,33 @@ export async function listUserRelatedGroupQuests(
         Math.max(1, Math.ceil(users.totalCount / CLERK_USER_PAGE_SIZE)),
       );
     }
-    related.push(...users.data
-      .flatMap(getAllStoredGroupQuests)
-      .filter((quest) => quest.hostUserId === userId || quest.participants.some((participant) => participant.userId === userId)));
+    for (const user of users.data) {
+      storedCopies.push(...getAllStoredGroupQuests(user).map((quest) => ({ userId: user.id, quest })));
+    }
     if (users.data.length < CLERK_USER_PAGE_SIZE) break;
     offset += CLERK_USER_PAGE_SIZE;
   }
 
-  const seen = new Set<string>();
-  return related.filter((quest) => {
-    if (seen.has(quest.id)) return false;
-    seen.add(quest.id);
-    return true;
-  }).sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt) || a.id.localeCompare(b.id));
+  const copiesById = new Map<string, Array<{ userId: string; quest: ServerGroupQuest }>>();
+  for (const copy of storedCopies) {
+    const copies = copiesById.get(copy.quest.id) ?? [];
+    copies.push(copy);
+    copiesById.set(copy.quest.id, copies);
+  }
+
+  return Array.from(copiesById.values())
+    .map((copies) => {
+      const canonicalCopies = copies.filter(({ userId, quest }) => userId === quest.hostUserId);
+      const claimedHostIds = new Set(canonicalCopies.map(({ userId }) => userId));
+      if (claimedHostIds.size > 1) return null;
+      const canonical = canonicalCopies[0]?.quest;
+      if (canonical && !canonical.official) return canonical;
+      const base = canonical ?? copies[0]?.quest;
+      return base ? mergeOfficialParticipantCopies(base, copies.map(({ quest }) => quest)) : null;
+    })
+    .filter((quest): quest is ServerGroupQuest => Boolean(quest))
+    .filter((quest) => quest.hostUserId === userId || quest.participants.some((participant) => participant.userId === userId))
+    .sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt) || a.id.localeCompare(b.id));
 }
 
 function isValidClerkTotalCount(value: unknown): value is number {
@@ -474,7 +488,8 @@ function clerkPageBound(totalCount: unknown) {
 export async function listPublicGroupQuests(
   client: { users: { getUserList: (params: { limit: number; offset?: number; orderBy?: "-created_at" }) => Promise<{ data: ClerkGroupQuestUser[] }> } },
 ) {
-  const storedPublicQuests = (await listStoredGroupQuests(client)).filter((quest) => quest.inviteMode === "public");
+  const storedCopies = await listStoredGroupQuestCopies(client);
+  const storedPublicQuests = storedCopies.filter(({ quest }) => quest.inviteMode === "public").map(({ quest }) => quest);
   const builtInOfficialQuests = getBuiltInOfficialGroupQuests().map((quest) => mergeOfficialParticipantCopies(
     quest,
     storedPublicQuests.filter((storedQuest) => storedQuest.id === quest.id && storedQuest.official),
@@ -483,7 +498,8 @@ export async function listPublicGroupQuests(
 
   return [
     ...builtInOfficialQuests,
-    ...mergeStoredPublicGroupQuestCopies(storedPublicQuests.filter((quest) => !builtInOfficialQuestIds.has(quest.id))),
+    ...mergeStoredPublicGroupQuestCopies(storedCopies.filter(({ quest }) => !builtInOfficialQuestIds.has(quest.id)))
+      .filter((quest) => quest.inviteMode === "public"),
   ]
     .sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt));
 }
@@ -822,7 +838,13 @@ function normalizeInviteMode(value: unknown): GroupQuestInviteMode {
 async function listStoredGroupQuests(
   client: { users: { getUserList: (params: { limit: number; offset?: number; orderBy?: "-created_at" }) => Promise<ClerkUserListResponse> } },
 ) {
-  const quests: ServerGroupQuest[] = [];
+  return (await listStoredGroupQuestCopies(client)).map(({ quest }) => quest);
+}
+
+async function listStoredGroupQuestCopies(
+  client: { users: { getUserList: (params: { limit: number; offset?: number; orderBy?: "-created_at" }) => Promise<ClerkUserListResponse> } },
+) {
+  const copies: Array<{ userId: string; quest: ServerGroupQuest }> = [];
   let offset = 0;
   let pageCount = 0;
   let pageBound: number | undefined;
@@ -830,11 +852,13 @@ async function listStoredGroupQuests(
     const users = await client.users.getUserList({ limit: CLERK_USER_PAGE_SIZE, offset, orderBy: "-created_at" });
     pageCount += 1;
     pageBound ??= clerkPageBound(users.totalCount);
-    quests.push(...users.data.flatMap(getAllStoredGroupQuests));
-    if (users.data.length < CLERK_USER_PAGE_SIZE) return quests;
+    for (const user of users.data) {
+      copies.push(...getAllStoredGroupQuests(user).map((quest) => ({ userId: user.id, quest })));
+    }
+    if (users.data.length < CLERK_USER_PAGE_SIZE) return copies;
     offset += CLERK_USER_PAGE_SIZE;
   }
-  return quests;
+  return copies;
 }
 
 function getAllStoredGroupQuests(user: ClerkGroupQuestUser) {
@@ -858,19 +882,24 @@ function mergeOfficialParticipantCopies(base: ServerGroupQuest, copies: ServerGr
   return { ...base, participants: Array.from(participantsByUserId.values()).slice(0, MAX_PARTICIPANTS) };
 }
 
-function mergeStoredPublicGroupQuestCopies(quests: ServerGroupQuest[]) {
-  const questsById = new Map<string, ServerGroupQuest>();
-  for (const quest of quests) {
-    const existing = questsById.get(quest.id);
-    if (!existing) {
-      questsById.set(quest.id, quest);
-      continue;
-    }
-    if (quest.official || existing.official) {
-      questsById.set(quest.id, mergeOfficialParticipantCopies(existing.official ? existing : quest, [existing, quest]));
-    }
+function mergeStoredPublicGroupQuestCopies(copies: Array<{ userId: string; quest: ServerGroupQuest }>) {
+  const copiesById = new Map<string, Array<{ userId: string; quest: ServerGroupQuest }>>();
+  for (const copy of copies) {
+    const questCopies = copiesById.get(copy.quest.id) ?? [];
+    questCopies.push(copy);
+    copiesById.set(copy.quest.id, questCopies);
   }
-  return Array.from(questsById.values());
+
+  return Array.from(copiesById.values()).flatMap((questCopies) => {
+    const quests = questCopies.map(({ quest }) => quest);
+    if (quests.some(({ official }) => official)) {
+      const base = quests.find(({ official }) => official) ?? quests[0];
+      return base ? [mergeOfficialParticipantCopies(base, quests)] : [];
+    }
+    const canonicalCopies = questCopies.filter(({ userId, quest }) => userId === quest.hostUserId);
+    if (new Set(canonicalCopies.map(({ userId }) => userId)).size > 1) return [];
+    return canonicalCopies[0]?.quest ? [canonicalCopies[0].quest] : quests[0] ? [quests[0]] : [];
+  });
 }
 
 function getOfficialGroupQuestWindow(now: Date) {

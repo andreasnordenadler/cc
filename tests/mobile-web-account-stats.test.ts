@@ -3,6 +3,7 @@ import test from "node:test";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 
+import { buildGroupQuest } from "../src/lib/groupquests";
 import { buildSoloTrophyRows, combineTrophyRows, getActiveMultiplayerAccountRow, getMobileWebAccountOverview, loadOptionalCommunityTrophyQuests, summarizeActiveMultiplayerAccount, summarizeMobileWebAccountStats } from "../src/lib/mobile-web-trophies";
 
 test("optional Community reward loading preserves Official and owned trophies on provider failure", async () => {
@@ -103,6 +104,37 @@ test("authenticated trophy overview carries completed Custom and Community recor
     ["Knight Errand", "customSolo"],
     ["Pawn Parade", "communitySolo"],
   ]);
+});
+
+test("Account trophy aggregation keeps the related host record over a public participant replica", async () => {
+  const canonical = buildGroupQuest({
+    hostUserId: "host-user",
+    hostName: "Host",
+    name: "Canonical final table",
+    inviteMode: "public",
+    startAt: "2026-06-01T00:00:00.000Z",
+    endAt: "2026-06-02T00:00:00.000Z",
+  });
+  canonical.id = "replicated-final-table";
+  canonical.participants = [{
+    userId: "viewer-1", provider: "lichess", username: "viewer", leaderboardName: "Viewer",
+    joinedAt: "2026-06-01T00:00:00.000Z", score: 300, completedQuestIds: canonical.questIds,
+    questFinishedAt: {},
+  }];
+  const replica = { ...structuredClone(canonical), name: "Stale public replica", participants: [{ ...canonical.participants[0], score: 10 }] };
+  const client = { users: { getUserList: async () => ({
+    data: [
+      { id: "viewer-1", privateMetadata: { sqcGroupQuests: [replica] } },
+      { id: "host-user", privateMetadata: { sqcGroupQuests: [canonical] } },
+    ],
+    totalCount: 2,
+  }) } };
+
+  const overview = await getMobileWebAccountOverview(client, "viewer-1", {
+    completedChallengeIds: [], attempts: [], customSideQuestIds: [], limit: null,
+  });
+
+  assert.equal(overview.trophyRows[0]?.title, "Canonical final table");
 });
 
 test("matches Android Account multiplayer summary from active joined and hosted quests", () => {

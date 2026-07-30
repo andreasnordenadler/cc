@@ -95,7 +95,10 @@ export async function getMobileWebAccountOverview(
     listUserRelatedGroupQuests(client, userId),
     listPublicGroupQuests(client),
   ]);
-  const dedupedGroupQuests = new Map([...relatedGroupQuests, ...publicGroupQuests].map((quest) => [quest.id, quest]));
+  // The related scan resolves a non-official quest to its host-owned record.
+  // Keep that authoritative copy when the public scan also returns a stale or
+  // participant-only replica of the same quest.
+  const dedupedGroupQuests = new Map([...publicGroupQuests, ...relatedGroupQuests].map((quest) => [quest.id, quest]));
   const multiplayerRows = [...dedupedGroupQuests.values()]
     .filter((quest) => deriveGroupQuestStatus(quest.startAt, quest.endAt) === "Finished")
     .map((quest) => {
