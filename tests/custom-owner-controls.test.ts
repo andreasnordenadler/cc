@@ -34,9 +34,10 @@ test("owner save preserves the selected quest identity and rule config", () => {
   });
 });
 
-test("owner save keeps drafts and archives private", () => {
+test("owner save keeps drafts private but preserves archived visibility like Android v339", () => {
   assert.equal(buildCustomOwnerSavePayload({ ...quest, lifecycle: "draft", visibility: "public" }).visibility, "private");
-  assert.equal(buildCustomOwnerSavePayload({ ...quest, lifecycle: "archived", visibility: "public" }).visibility, "private");
+  assert.equal(buildCustomOwnerSavePayload({ ...quest, lifecycle: "archived", visibility: "public" }).visibility, "public");
+  assert.equal(buildCustomOwnerSavePayload({ ...quest, lifecycle: "archived", visibility: "private" }).visibility, "private");
 });
 
 test("owner save rejects unsafe quest identity and invalid rule config", () => {
@@ -69,6 +70,13 @@ test("only published owned quests can be used in Multiplayer", () => {
     }));
     assert.doesNotMatch(unavailable, /Use in Multiplayer/);
   }
+});
+
+test("owner Archive action preserves the selected visibility", async () => {
+  const controls = await source("src/components/custom-side-quest-owner-controls.tsx");
+
+  assert.match(controls, /save\(undefined, \{ lifecycle: "archived", visibility \}\)[\s\S]*>Archive<\/button>/);
+  assert.doesNotMatch(controls, /lifecycle: "archived", visibility: "private"/);
 });
 
 test("published public owner detail keeps Android's direct share and copy actions", async () => {
