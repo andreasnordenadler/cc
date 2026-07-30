@@ -295,6 +295,85 @@ test("completed custom proof controls expose the Android result action instead o
   assert.doesNotMatch(html, />Start this Side Quest</);
 });
 
+test("completed custom proof controls keep Android's owner reset capability reachable", async () => {
+  const html = renderToStaticMarkup(React.createElement(CustomSideQuestProofControls, {
+    questId: "custom-win",
+    active: false,
+    playable: true,
+    completed: true,
+    completedAt: "2026-07-18T10:10:00.000Z",
+    resultHref: "/proof/signed-custom-result",
+    allowCompletedReset: true,
+  }));
+
+  assert.match(html, />Reset completed Side Quest<\/button>/);
+  assert.doesNotMatch(html, />Start this Side Quest<\/button>/);
+  const ownerRoute = await import("node:fs/promises").then((fs) => fs.readFile(new URL("../src/app/custom-side-quests/[id]/page.tsx", import.meta.url), "utf8"));
+  assert.match(ownerRoute, /<CustomSideQuestProofControls[\s\S]*allowCompletedReset[\s\S]*\/>/);
+});
+
+test("completed Community proof controls do not inherit the owner reset capability", () => {
+  const html = renderToStaticMarkup(React.createElement(CustomSideQuestProofControls, {
+    questId: "custom-community",
+    active: false,
+    playable: true,
+    completed: true,
+    resultHref: "/proof/signed-community-result",
+  }));
+
+  assert.match(html, />View result</);
+  assert.doesNotMatch(html, />Reset completed Side Quest<\/button>/);
+});
+
+test("authenticated custom reset clears only the exact completed proof through the production route", async (t) => {
+  const previousNodeEnv = process.env.NODE_ENV;
+  Object.defineProperty(process.env, "NODE_ENV", { value: "test", configurable: true, writable: true, enumerable: true });
+  t.after(() => Object.defineProperty(process.env, "NODE_ENV", { value: previousNodeEnv, configurable: true, writable: true, enumerable: true }));
+  const otherAttempts = Array.from({ length: 10 }, (_, index) => ({
+    id: `other:${index + 1}`,
+    challengeId: "other",
+    status: "failed",
+    summary: index === 0 ? `Unrelated ${"diagnostic ".repeat(30)}` : `Unrelated ${index + 1}`,
+    checkedAt: `2026-07-18T09:${String(index).padStart(2, "0")}:00.000Z`,
+  }));
+  const metadata = {
+    activeChallenge: { id: winQuest.id, status: "verified", startedAt: "2026-07-18T09:00:00.000Z" },
+    challengeAttempts: [
+      { id: "custom-win:1", challengeId: winQuest.id, status: "passed", summary: "Passed", checkedAt: "2026-07-18T10:10:00.000Z" },
+      ...otherAttempts,
+    ],
+    challengeProgress: { completedChallengeIds: [winQuest.id, "other"] },
+  };
+  const writes: Array<{ userId: string; publicMetadata: Record<string, unknown> }> = [];
+
+  const response = await withMobileQuestRouteTestDependencies({
+    authenticate: async () => "server-user",
+    getClient: async () => ({ users: {
+      getUser: async () => ({ publicMetadata: metadata, privateMetadata: { customSideQuests: [winQuest] } }),
+      updateUserMetadata: async (userId: string, value: { publicMetadata: Record<string, unknown> }) => { writes.push({ userId, ...value }); },
+    } }) as never,
+  }, () => POST(new Request("https://sidequestchess.com/api/mobile/quest", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ action: "reset", challengeId: winQuest.id, userId: "attacker" }),
+  })));
+
+  assert.equal(response.status, 200);
+  assert.deepEqual(await response.json(), {
+    apiVersion: 1,
+    authenticated: true,
+    ok: true,
+    action: "reset",
+    challengeId: winQuest.id,
+    message: "Completed quest reset. You can run it again.",
+  });
+  assert.equal(writes.length, 1);
+  assert.equal(writes[0].userId, "server-user");
+  assert.equal(writes[0].publicMetadata.activeChallenge, null);
+  assert.deepEqual(writes[0].publicMetadata.challengeAttempts, otherAttempts);
+  assert.deepEqual((writes[0].publicMetadata.challengeProgress as { completedChallengeIds: string[] }).completedChallengeIds, ["other"]);
+});
+
 test("completed custom proof controls keep the Android result action when a legacy receipt has no game details", () => {
   const html = renderToStaticMarkup(React.createElement(CustomSideQuestProofControls, {
     questId: "custom-win",

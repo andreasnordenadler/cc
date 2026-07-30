@@ -80,6 +80,7 @@ export default async function CustomSideQuestOwnerPage({ params }: { params: Pro
         completedAt={completionState.completedAt}
         resultHref={completionState.resultHref}
         latestAttempt={completionState.latestAttempt}
+        allowCompletedReset
       />
 
       <CustomSideQuestActivity stats={stats} />
