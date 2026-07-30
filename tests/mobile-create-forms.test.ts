@@ -420,9 +420,10 @@ test("custom square editor keeps incomplete input visible for Android v339 valid
   assert.equal(block.targetSquare, "e");
 });
 
-test("custom creator preserves Android's empty signed-in draft behavior", () => {
+test("custom creator gives an empty draft Android v339's unfinished-rule summary", () => {
   const payload = buildCustomCreatePayload({ title: "Later", summary: "", logic: "all", blocks: [], visibility: "public", lifecycle: "draft" });
   assert.deepEqual(JSON.parse(payload.config), { version: 2, logic: "all", blocks: [] });
+  assert.equal(payload.summary, "Add at least one condition before this Side Quest can be scored.");
   assert.equal(payload.visibility, "private");
 });
 

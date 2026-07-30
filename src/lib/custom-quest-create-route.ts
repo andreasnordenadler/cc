@@ -47,7 +47,10 @@ export async function handleCustomQuestCreateRequest(request: Request, dependenc
     if (requestedId && !previous) return Response.json({ apiVersion: 1, authenticated: true, ok: false, message: "That Custom Side Quest was not found in your library." }, { status: 404 });
     const now = (dependencies.now?.() ?? new Date()).toISOString();
     const id = requestedId ?? dependencies.makeId?.() ?? `custom-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
-    const quest = compact({ id, title, summary: summary || (lifecycle === "draft" ? "Draft Side Quest" : "Custom Side Quest"), config, visibility, lifecycle, createdAt: previous?.createdAt ?? now, updatedAt: now, badgeImageUrl: previous?.badgeImageUrl ?? dependencies.chooseBadge() }, Boolean(requestedId));
+    const draftSummary = lifecycle === "draft" && parsedConfig?.blocks.length === 0
+      ? "Add at least one condition before this Side Quest can be scored."
+      : "Draft Side Quest";
+    const quest = compact({ id, title, summary: summary || (lifecycle === "draft" ? draftSummary : "Custom Side Quest"), config, visibility, lifecycle, createdAt: previous?.createdAt ?? now, updatedAt: now, badgeImageUrl: previous?.badgeImageUrl ?? dependencies.chooseBadge() }, Boolean(requestedId));
     const next = [quest, ...existing.filter(item => item.id !== id)].slice(0, 8);
     const saved = await dependencies.saveCustomQuests(userId, next, privateMetadata);
     return Response.json({ apiVersion: 1, authenticated: true, ok: true, action: "save", customQuest: quest, customSideQuests: saved, message: "Custom Side Quest saved." });

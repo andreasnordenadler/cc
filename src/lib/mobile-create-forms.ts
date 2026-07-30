@@ -343,7 +343,10 @@ function normalizeCustomRuleBlock(block: CustomSideQuestRuleBlock, allowInvalidD
 export function buildCustomCreatePayload(input: CustomCreateInput) {
   const enteredTitle = input.title.replace(/\s+/g, " ").trim();
   const title = enteredTitle || (input.lifecycle === "draft" ? "Custom Side Quest" : "");
-  const summary = input.summary.replace(/\s+/g, " ").trim();
+  const enteredSummary = input.summary.replace(/\s+/g, " ").trim();
+  const summary = enteredSummary || (input.lifecycle === "draft" && !input.blocks.length
+    ? "Add at least one condition before this Side Quest can be scored."
+    : "");
   if (!title) throw new Error("Name this custom Side Quest before saving.");
   if (!input.blocks.length && input.lifecycle === "published") throw new Error("Choose at least one condition before saving.");
   if (input.lifecycle !== "draft" && input.blocks.some((block) => block.type === "pieceState" && block.condition === "on square" && !/^[a-h][1-8]$/i.test(block.targetSquare ?? ""))) throw new Error("Use a real board square like e4, h8, or a1.");
