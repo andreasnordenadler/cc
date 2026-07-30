@@ -2966,6 +2966,42 @@ body::after {
   line-height: 22px;
 }
 
+.sqc-multiplayer-final-reward {
+  display: grid;
+  grid-template-columns: 92px minmax(0, 1fr);
+  gap: 12px;
+  align-items: center;
+  padding: 10px;
+  border: 1px solid rgba(245, 200, 106, .24);
+  border-radius: 16px;
+  background: rgba(53, 32, 33, .5);
+}
+
+.sqc-multiplayer-final-reward img {
+  width: 92px;
+  height: 92px;
+  object-fit: contain;
+}
+
+.sqc-multiplayer-final-reward > div {
+  display: grid;
+  min-width: 0;
+  gap: 4px;
+}
+
+.sqc-multiplayer-final-reward strong {
+  color: var(--paper);
+  font-size: 15px;
+}
+
+.sqc-multiplayer-final-reward p,
+.sqc-multiplayer-final-reward small {
+  margin: 0;
+  color: rgba(255, 247, 232, .68);
+  font-size: 11px;
+  line-height: 1.4;
+}
+
 .sqc-multiplayer-share-actions {
   display: grid;
   gap: 8px;
