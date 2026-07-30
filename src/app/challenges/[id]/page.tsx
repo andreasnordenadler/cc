@@ -8,7 +8,7 @@ import MobileAppWebShell, { MiniChessBoard } from "@/components/mobile-app-web-s
 import CompletedOfficialSoloControls from "@/components/completed-official-solo-controls";
 import DeactivateQuestControl from "@/components/deactivate-quest-control";
 import { MobileWebRelativeTime } from "@/components/mobile-web-relative-time";
-import OfficialSoloDetailActions, { OfficialSoloExactGameControl } from "@/components/official-solo-detail-actions";
+import OfficialSoloDetailActions from "@/components/official-solo-detail-actions";
 import OfficialSoloLikeControl from "@/components/official-solo-like-control";
 import OfficialSoloShareControls from "@/components/official-solo-share-controls";
 import SoloCoatLightbox from "@/components/solo-coat-lightbox";
@@ -185,7 +185,6 @@ export default async function ChallengeDetailPage({
               <Link href="/side-quests" className="sqc-secondary-action">Back to Side Quests</Link>
               <OfficialSoloDetailActions mode="check" challengeId={challenge.id} />
             </div>
-            {!activePassed ? <OfficialSoloExactGameControl challengeId={challenge.id} /> : null}
           </section>
         ) : null}
 

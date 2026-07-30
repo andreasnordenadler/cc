@@ -3,7 +3,7 @@ import test from "node:test";
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 
-import { OfficialSoloExactGameForm } from "../src/components/official-solo-detail-actions";
+import OfficialSoloDetailActions from "../src/components/official-solo-detail-actions";
 import { assertActiveSoloSubmissionTarget } from "../src/lib/official-solo-exact-game";
 
 test("exact-game submission accepts only the authenticated account's active Solo quest", () => {
@@ -22,32 +22,18 @@ test("production exact-game action rejects a non-active target before provider c
   assert.ok(guardIndex < body.indexOf("await clerkClient()"));
 });
 
-test("active official Solo detail can submit one exact finished game without account identity fields", () => {
-  const html = renderToStaticMarkup(React.createElement(OfficialSoloExactGameForm, {
+test("active official Solo detail exposes only the latest-game proof action", () => {
+  const html = renderToStaticMarkup(React.createElement(OfficialSoloDetailActions, {
     challengeId: "finish-any-game",
-    action: async () => {},
+    mode: "check",
   }));
 
-  assert.match(html, /<form[^>]*aria-label="Submit specific game proof"/);
-  assert.match(html, /type="hidden" name="challengeId" value="finish-any-game"/);
-  assert.match(html, /name="gameId"/);
-  assert.match(html, /placeholder="Lichess game ID or Chess\.com URL"/);
-  assert.match(html, /required=""/);
-  assert.match(html, /paste a finished public game to check that exact proof instead of only the latest game/);
-  assert.match(html, />Submit game\/link<\/button>/);
-  assert.doesNotMatch(html, /userId|username|provider/);
+  assert.match(html, />Check my latest game<\/button>/);
+  assert.doesNotMatch(html, /Specific proof game|Lichess game ID or Chess\.com URL|Submit game\/link/);
 });
 
-test("official Solo page exposes exact-game submission only in the active detail state", async () => {
+test("official Solo page never renders a specific-game proof form", async () => {
   const page = await import("node:fs/promises").then((fs) => fs.readFile(new URL("../src/app/challenges/[id]/page.tsx", import.meta.url), "utf8"));
 
-  assert.match(page, /isActiveChallenge[\s\S]*<OfficialSoloExactGameControl challengeId=\{challenge\.id\}/);
-  assert.equal(page.match(/<OfficialSoloExactGameControl/g)?.length, 1);
-});
-
-test("exact-game submission keeps the Android input stack bounded at mobile width", async () => {
-  const css = await import("node:fs/promises").then((fs) => fs.readFile(new URL("../src/app/mobile-web.css", import.meta.url), "utf8"));
-
-  assert.match(css, /\.sqc-exact-game-form\s*\{[\s\S]*?display:\s*grid;[\s\S]*?gap:/);
-  assert.match(css, /\.sqc-exact-game-form \.sqc-secondary-action\s*\{[\s\S]*?width:\s*100%;/);
+  assert.doesNotMatch(page, /OfficialSoloExactGameControl|Specific proof game|Submit game\/link/);
 });
