@@ -17,6 +17,10 @@ test("sign-in links preserve the page and query the user came from", () => {
 test("auth pages never redirect back into the auth flow", () => {
   assert.equal(buildSignInHref("/sign-in"), "/sign-in?redirect_url=%2F");
   assert.equal(buildSignInHref("/sign-up?redirect_url=%2Faccount"), "/sign-in?redirect_url=%2F");
+  assert.equal(safeAuthReturnPath("/foo/../sign-in"), "/");
+  assert.equal(safeAuthReturnPath("/./sign-up"), "/");
+  assert.equal(safeAuthReturnPath("/foo/%2e%2e/sign-in"), "/");
+  assert.equal(safeAuthReturnPath("/%73ign-in"), "/");
 });
 
 test("shared sign-in controls capture the current page before entering Clerk", () => {
@@ -28,8 +32,10 @@ test("shared sign-in controls capture the current page before entering Clerk", (
   const settingsPage = readFileSync(new URL("../src/app/settings/page.tsx", import.meta.url), "utf8");
 
   assert.match(linkSource, /usePathname\(\)/);
+  assert.match(linkSource, /useSearchParams\(\)/);
+  assert.match(linkSource, /<Suspense/);
   assert.match(linkSource, /useSyncExternalStore/);
-  assert.match(linkSource, /window\.location\.search/);
+  assert.match(linkSource, /searchParams\.toString\(\)/);
   assert.ok((shellSource.match(/<CurrentPageSignInLink/g) ?? []).length >= 3);
   assert.doesNotMatch(shellSource, /href=\{signedIn \? "\/account" : "\/sign-in"\}/);
   assert.match(signInPage, /safeAuthReturnPath/);
