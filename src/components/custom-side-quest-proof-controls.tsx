@@ -3,7 +3,13 @@
 import Link from "next/link";
 import { useState } from "react";
 
-type QuestAction = "start" | "check" | "deactivate" | "reset";
+type QuestAction = "start" | "check" | "submit" | "deactivate" | "reset";
+
+export function buildCustomProofRequestBody(action: QuestAction, challengeId: string, gameId = "") {
+  const normalizedGameId = gameId.trim();
+  if (action === "submit" && !normalizedGameId) throw new Error("Paste a Lichess game ID or Chess.com game URL first.");
+  return { action, challengeId, ...(action === "submit" ? { gameId: normalizedGameId } : {}) };
+}
 
 export default function CustomSideQuestProofControls({
   questId,
@@ -35,18 +41,27 @@ export default function CustomSideQuestProofControls({
   const [busy, setBusy] = useState<QuestAction | "">("");
   const [message, setMessage] = useState("");
   const [error, setError] = useState(false);
+  const [gameId, setGameId] = useState("");
 
   async function run(action: QuestAction) {
+    let body: ReturnType<typeof buildCustomProofRequestBody>;
+    try {
+      body = buildCustomProofRequestBody(action, questId, gameId);
+    } catch (caught) {
+      setError(true);
+      setMessage(caught instanceof Error ? caught.message : "Could not update this proof run.");
+      return;
+    }
     setBusy(action); setMessage(""); setError(false);
     try {
       const response = await fetch("/api/mobile/quest", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ action, challengeId: questId }),
+        body: JSON.stringify(body),
       });
       const result = await response.json().catch(() => null) as { message?: string } | null;
       if (!response.ok) throw new Error(result?.message ?? "Could not update this proof run.");
-      setMessage(result?.message ?? (action === "start" ? "Side Quest started." : action === "check" ? "Latest game checked." : action === "reset" ? "Completed quest reset." : "Side Quest deactivated."));
+      setMessage(result?.message ?? (action === "start" ? "Side Quest started." : action === "check" ? "Latest game checked." : action === "submit" ? "Submitted game checked." : action === "reset" ? "Completed quest reset." : "Side Quest deactivated."));
       window.location.reload();
     } catch (caught) {
       setError(true);
@@ -80,7 +95,13 @@ export default function CustomSideQuestProofControls({
         {resultHref ? <Link className="sqc-detail-primary-button" href={resultHref}>View result</Link> : null}
         {allowCompletedReset ? <button className="sqc-detail-secondary-button" disabled={Boolean(busy)} onClick={resetCompletedQuest} type="button">{busy === "reset" ? "Resetting…" : "Reset completed Side Quest"}</button> : null}
       </> : active ? <>
+        <label className="sqc-form-row">
+          <span>Specific proof game</span>
+          <input aria-label="Specific proof game" autoCapitalize="none" autoCorrect="off" onChange={(event) => setGameId(event.target.value)} placeholder="Lichess game ID or Chess.com URL" value={gameId} />
+        </label>
+        <p className="sqc-form-help">Optional: paste a finished public game to check this exact custom Side Quest proof.</p>
         <button className="sqc-detail-primary-button" disabled={Boolean(busy)} onClick={() => run("check")} type="button">{busy === "check" ? "Checking…" : "Check my latest game"}</button>
+        <button className="sqc-detail-secondary-button" disabled={Boolean(busy)} onClick={() => run("submit")} type="button">{busy === "submit" ? "Checking…" : "Submit game/link"}</button>
         <button className="sqc-detail-secondary-button" disabled={Boolean(busy)} onClick={() => run("deactivate")} type="button">{busy === "deactivate" ? "Deactivating…" : "Deactivate"}</button>
       </> : <button className="sqc-detail-primary-button" disabled={Boolean(busy) || !playable} onClick={() => run("start")} type="button">{busy === "start" ? "Starting…" : "Start this Side Quest"}</button>}
     </div>
