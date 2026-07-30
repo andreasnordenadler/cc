@@ -259,9 +259,7 @@ export function updateCustomPieceStateBlock(
       ? { atMove: moveNumber }
       : { atGameEnd: true as const };
   const targetSquare = condition === "on square"
-    ? /^[a-h][1-8]$/i.test(input.targetSquare ?? block.targetSquare ?? "")
-      ? (input.targetSquare ?? block.targetSquare ?? "e4").toLowerCase()
-      : "e4"
+    ? (input.targetSquare ?? block.targetSquare ?? "").toLowerCase().replace(/[^a-h1-8]/g, "").slice(0, 2)
     : null;
 
   return {
@@ -334,6 +332,7 @@ export function describeCustomRuleBlock(block: CustomSideQuestRuleBlock) {
 function normalizeCustomRuleBlock(block: CustomSideQuestRuleBlock): CustomSideQuestRuleBlock {
   if (block.type === "moveSequence") return { ...block, sequence: normalizeCustomMoveSequence(block.sequence) };
   if (block.type === "openingSequence") return updateCustomOpeningSequenceBlock(block, finalizeCustomOpeningSequenceInput(block.raw ?? block.moves.join(" ")));
+  if (block.type === "pieceState" && block.condition === "on square") return { ...block, targetSquare: block.targetSquare?.toLowerCase() ?? "" };
   return block;
 }
 
@@ -342,6 +341,7 @@ export function buildCustomCreatePayload(input: CustomCreateInput) {
   const summary = input.summary.replace(/\s+/g, " ").trim();
   if (!title) throw new Error("Name this custom Side Quest before saving.");
   if (!input.blocks.length && input.lifecycle === "published") throw new Error("Choose at least one condition before saving.");
+  if (input.blocks.some((block) => block.type === "pieceState" && block.condition === "on square" && !/^[a-h][1-8]$/i.test(block.targetSquare ?? ""))) throw new Error("Use a real board square like e4, h8, or a1.");
   if (input.blocks.some((block) => block.type === "moveSequence" && !normalizeCustomMoveSequence(block.sequence))) throw new Error("Add at least one algebraic move to the move sequence.");
   if (input.blocks.some((block) => block.type === "openingSequence" && !updateCustomOpeningSequenceBlock(block, block.raw ?? block.moves.join(" ")).moves.length)) throw new Error("Add an opening line from move 1, for example 1.e4 e5 2.f4.");
   if (input.blocks.length > 6) throw new Error("Custom Side Quests can use up to 6 conditions.");

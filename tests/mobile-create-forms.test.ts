@@ -348,6 +348,57 @@ test("custom creator rejects missing title and condition", () => {
   assert.throws(() => buildCustomCreatePayload({ title: "Named", summary: "", logic: "all", blocks: [], visibility: "private", lifecycle: "published" }), /condition/i);
 });
 
+test("custom creator rejects an incomplete board square like Android v339", () => {
+  assert.throws(() => buildCustomCreatePayload({
+    title: "Knight landing",
+    summary: "Land a knight on the chosen square.",
+    logic: "all",
+    blocks: [{
+      type: "pieceState",
+      piece: "knight",
+      owner: "my",
+      condition: "on square",
+      targetSquare: "e",
+      timing: { atGameEnd: true },
+    }],
+    visibility: "private",
+    lifecycle: "published",
+  }), /real board square like e4, h8, or a1/i);
+});
+
+test("custom creator serializes valid board squares in the server's lowercase format", () => {
+  const payload = buildCustomCreatePayload({
+    title: "Knight landing",
+    summary: "Land a knight on the chosen square.",
+    logic: "all",
+    blocks: [{
+      type: "pieceState",
+      piece: "knight",
+      owner: "my",
+      condition: "on square",
+      targetSquare: "E4",
+      timing: { atGameEnd: true },
+    }],
+    visibility: "private",
+    lifecycle: "published",
+  });
+
+  assert.equal(JSON.parse(payload.config).blocks[0].targetSquare, "e4");
+});
+
+test("custom square editor keeps incomplete input visible for Android v339 validation", () => {
+  const block = updateCustomPieceStateBlock({
+    type: "pieceState",
+    piece: "knight",
+    owner: "my",
+    condition: "on square",
+    targetSquare: "e4",
+    timing: { atGameEnd: true },
+  }, { targetSquare: "e" });
+
+  assert.equal(block.targetSquare, "e");
+});
+
 test("custom creator preserves Android's empty signed-in draft behavior", () => {
   const payload = buildCustomCreatePayload({ title: "Later", summary: "", logic: "all", blocks: [], visibility: "public", lifecycle: "draft" });
   assert.deepEqual(JSON.parse(payload.config), { version: 2, logic: "all", blocks: [] });
@@ -570,6 +621,7 @@ test("owned custom Side Quest editor can open legacy valid rules above Android's
   const html = renderToStaticMarkup(React.createElement(MobileCustomCreateForm, { signedIn: true, initialQuest: quest }));
   assert.match(html, /supports up to 6 conditions/i);
   assert.match(html, /delete at least 1 condition/i);
+  assert.doesNotMatch(html, /Android v338/i);
   assert.match(html, /Save Rule Changes/);
 });
 
