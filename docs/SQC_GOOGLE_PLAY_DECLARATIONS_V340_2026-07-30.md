@@ -1,8 +1,8 @@
-# Side Quest Chess — Google Play declarations pack (v340)
+# Side Quest Chess — Google Play declarations pack (current-source draft)
 
 Prepared: 2026-07-30
 
-Candidate: `0.1.340 (341)` on Internal testing
+Current checked-in release baseline: `0.1.343 (343)`; the next EAS production build is expected to reserve code `344`
 
 Package: `com.sidequestchess.app`
 
@@ -12,9 +12,10 @@ Scope: evidence-bound answers for Google Play's App content forms. This is a lau
 
 ## Candidate and evidence boundary
 
-- Frozen AAB SHA-256: `26e7cfdd493308947876b5373f95a7d576e656e764027ad3ac41fd244f4b0483`.
-- Reviewed source: `8eb128d81e6c05c0641ef3eb8f59704b12c38275`; merged by PR #92 and an ancestor of `origin/main` at preparation time (`37aad7f7b0e61ceee878faf203a9cbc23a33da02`).
-- AAB inspection records package `com.sidequestchess.app`, version code 341, target SDK 36, `debuggable=false`, `allowBackup=false`, and production API `https://sidequestchess.com`.
+- Current canonical source: `origin/main` at `63488681bfb36d0bc77c53f2c2f0012f77e90e3e`; its latest mobile baseline is merged PR #119 at `2a869e3168b3716f746bc9cf32294af874f49fd4` (`0.1.343`, checked-in code `343`). Later mainline changes through the current SHA do not touch the mobile release inputs.
+- **No current-source AAB exists yet.** The newest inspected AAB is historical `0.1.342 (343)`, SHA-256 `0e2108ac481daf3e40d26d21315e622abf071af80c5baf06bac729b39ce36ff7`, built from `cdfc5d45a3ef71e39bdce16cc0e4089abf38724d`. It is superseded as an upload candidate because PR #119 subsequently changed mobile source.
+- Historical AAB inspection records package `com.sidequestchess.app`, target SDK 36, `debuggable=false`, `allowBackup=false`, bounded permissions, and production API `https://sidequestchess.com`. Re-run every artifact-bound declaration against the expected code-344 AAB before console entry.
+- Preserved Play Console evidence records `0.1.340 (341)` as available on Internal testing with no tester list selected. This is historical track state, not the current upload candidate and not production publication.
 - The candidate uses Clerk authentication and the first-party SQC API. It reads public Lichess and Chess.com records for user-selected usernames/game references.
 - The candidate has no advertising, billing, subscription, or real-money-prize integration.
 - The candidate supports public/community content, Multiplayer participation, proof links, support/report messages, and permanent in-app account deletion.
@@ -80,7 +81,36 @@ Use these facts when completing the interactive IARC questionnaire; do not claim
 | Users communicate or exchange content | **Yes, bounded** — users publish/join shared quest content and participation; this is not an unrestricted live chat product |
 | Location sharing | No |
 
-Reporting is available for Community Solo and Community Multiplayer content through signed-in support/report flows. `sam@crowdler.com` is the owner-provided moderation contact. Do not answer that UGC is absent merely because the product has no open chat. No user-blocking control, adopted acceptable-use terms, or evidenced moderation response procedure was found; public UGC launch compliance remains **BLOCKED** until the policy requirement is checked against the shipped interaction model and the missing controls/process are resolved.
+Content-report entry points are available for non-owner Community Solo and Community Multiplayer content on Android and the website. Android and the signed-out web handoff prefill editable quest context into a free-form support message, so the user can alter or remove that context. Signed-in website detail controls instead generate a message containing the quest ID plus the user's editable reason. Both paths ultimately store only free-form account-attached support text; the server does not persist immutable structured report fields or a separate reported-user identity. `sam@crowdler.com` is the owner-provided intended moderation contact, but the public privacy and terms pages still expose `andreas.nordenadler@gmail.com`. Do not answer that UGC is absent merely because the product has no open chat.
+
+### UGC controls and moderation operations — implementation confirmed; adoption BLOCKED
+
+Confirmed shipped controls:
+
+- public user-created Solo and Multiplayer Side Quests have content-report entry points on their detail surfaces;
+- only signed-in users can submit a report, and the server binds it to the authenticated SQC account;
+- the resulting editable message is length-bounded and stored in the reporter's private account metadata/support thread;
+- the reporter receives an in-product submission result and can receive an admin reply in that thread;
+- the product deliberately has no unrestricted live chat, direct messaging, photo/video upload, or location-sharing surface.
+
+Confirmed operational gaps:
+
+- there is no user-blocking control;
+- there is no distinct in-app user-reporting control;
+- there is no dedicated moderation queue, role-gated removal tool, escalation log, or executable takedown workflow in the reviewed source;
+- no adopted prohibited-content rules, response target, emergency escalation path, repeat-abuse policy, appeal path, or retention rule for moderation records was found;
+- storing a report in the reporter's private thread is not evidence that `sam@crowdler.com` is notified or that the report will be reviewed within a defined time.
+
+Recommended owner/legal adoption decision before broad public UGC launch:
+
+1. Treat Play's current UGC policy as a definite submission blocker for the present public UGC model: implement and test distinct in-app reporting for users and content plus user blocking before submission.
+2. Adopt the prohibited-content categories and identify who may hide/remove a quest or restrict an account.
+3. Set an explicit review target and urgent-harm escalation route that the named moderation owner can actually operate.
+4. Choose an auditable queue/notification mechanism; the existing private support-thread write alone is insufficient as an operations queue.
+5. Define reporter acknowledgement, creator notice, appeal/reinstatement, repeat-abuse handling, and moderation-record retention.
+6. Verify the complete report → owner review → action → reporter outcome path with disposable accounts before marking the UGC declaration READY.
+
+Until those decisions and controls are adopted and exercised, public UGC launch compliance remains **BLOCKED**. This draft does not invent an SLA or claim a removal capability that the product does not yet have.
 
 ## Data safety — top-level answers
 
@@ -89,7 +119,7 @@ Reporting is available for Community Solo and Community Multiplayer content thro
 | Does the app collect or share any required user-data types? | **Yes — READY.** Account, profile, user-generated content, support, public chess identity/game, progress, and app-interaction data leave the device. |
 | Is all user data encrypted in transit? | **BLOCKED.** First-party, Clerk, OAuth, and public-provider URLs are expected to use TLS, but repository/AAB inspection alone does not prove every production auth, hosting, logging, Google, Facebook, Lichess, and Chess.com transfer. Verify with the exact Play-delivered candidate and provider configuration before answering Yes. |
 | Can users request deletion? | **Yes — READY for in-app behavior.** My Account permanently deletes the SQC account, Clerk identity, account-attached profile/progress, and replicated Multiplayer references, failing closed if cleanup cannot complete. |
-| External account-deletion URL | **BLOCKED.** The reachable privacy/support pages still contain an older contact and launch-draft controller/age text. Publish an adopted, signed-out deletion-request route or corrected policy/contact page before entering this URL for public submission. |
+| External account-deletion URL | **BLOCKED.** The reachable privacy/support pages still contain the older `andreas.nordenadler@gmail.com` contact and launch-draft controller/age text, and they do not provide an adopted signed-out deletion-request workflow. Publish an adopted, signed-out deletion-request route or corrected policy/contact page before entering this URL for public submission. |
 | Is collected data optional? | Mixed. Account/sign-in data is required only for account features; public browsing is available without an account. Chess usernames, UGC, support messages, and publication/sharing actions are user-provided or feature-initiated. First-party interaction events are automatic when instrumented actions occur. |
 
 ### Data types to disclose as collected
@@ -102,7 +132,7 @@ Use the form's current labels; preserve the following substance if labels change
 | Personal info — email address | Clerk primary email; account-attached support context | Account management; authentication; support | Required for the supported email sign-up flow | **BLOCKED vendor-role classification** |
 | Personal info — user IDs | Clerk/SQC account ID; public chess usernames/provider | Account management; app functionality; proof verification | Account ID automatic for signed-in users; chess username user-provided | **BLOCKED vendor/user-initiated classification** |
 | Personal info — other info | Profile image URL/image display, brag line/bio, chess ratings snapshot | App functionality; personalization | User/provider supplied | **BLOCKED vendor-role classification** |
-| Messages — other in-app messages | Support and abuse-report text plus diagnostics that the mobile client automatically appends on every submission: app/package/build, OS, API base, display name, connected chess usernames, active Solo title, Multiplayer counts, and timestamp | App functionality; support; fraud/abuse prevention | Message submission is user-initiated; the diagnostics attachment is automatic once submitted | **BLOCKED vendor-role classification** |
+| Messages — other in-app messages | Support and abuse-report text; when the user explicitly opts in, bounded diagnostics including app/package/build, OS, API base, display name, connected chess usernames, active Solo title, Multiplayer counts, and timestamp | App functionality; support; fraud/abuse prevention | Message submission and diagnostics inclusion are user-initiated | **BLOCKED vendor-role classification** |
 | App activity — app interactions | Page/action events, quest starts/outcomes, paths, quest/game IDs, source, coarse device category, timestamps | Analytics; app functionality; reliability | Automatic for instrumented use | **BLOCKED hosting/log classification** |
 | Other user-generated content | Custom/Community/Multiplayer names, descriptions, rules, participation, standings, likes, public proof details | App functionality; social/community features | User-initiated | Public visibility is feature-directed; third-party classification still requires review |
 
@@ -123,7 +153,7 @@ Do **not** declare collection solely because an Android permission or transitive
 - local documents/files as user data;
 - advertising IDs for advertising or behavioral profiling.
 
-The AAB manifest nevertheless contains `READ_EXTERNAL_STORAGE`, `WRITE_EXTERNAL_STORAGE`, `SYSTEM_ALERT_WINDOW`, `USE_BIOMETRIC`, `USE_FINGERPRINT`, `VIBRATE`, network permissions, and the Play install-referrer binding permission. The app config requests no Android permissions, and reviewed product flows do not use storage upload, overlay, biometric, or advertising/referrer features. Treat this as a **release-hardening follow-up**: explain each merged permission from generated dependencies, remove unnecessary permissions in the next candidate where safe, and re-inspect downloaded AAB bytes. Manifest presence alone is not permission to answer a data-safety question inaccurately.
+The historical code-343 AAB was inspected after the permission-hardening merge. Its manifest is limited to Internet, network state, vibration, and the app-scoped dynamic-receiver permission; storage, overlay, biometric, fingerprint, and Play install-referrer permissions are blocked in source configuration. Re-inspect the expected code-344 AAB rather than carrying this historical result forward by assumption. Manifest presence or absence alone is not permission to answer a data-safety question inaccurately.
 
 ### Third-party sharing — BLOCKED before final submission
 
@@ -136,11 +166,11 @@ Do not currently submit a blanket **No data shared with third parties** answer. 
 
 Google's form treatment can differ for processors/service providers and user-initiated transfers. The repository does not establish the complete production vendor list, contractual roles, retention, or whether every transfer meets a form exception. Obtain the deployed vendor/subprocessor inventory and role determination, then mark each row consistently. Determine whether a Clerk-hosted profile image requires the current **Photos and videos** label rather than only Personal info — other. Until then, the sharing column above is intentionally fail-closed.
 
-## Persistent public-proof and support-diagnostic disclosures — BLOCKED
+## Persistent public-proof disclosure — BLOCKED
 
-Public proof links contain a readable signed payload that can include runner/display name, provider/game ID, timestamps, board position, and move evidence. A link already shared can remain readable independently of the Clerk account; current account deletion does not provide proof-link revocation. The final policy and deletion disclosure must say so accurately, define any future revocation/deletion path, and distinguish deleted account-attached data from already published proof artifacts and provider-public game records.
+Public proof links contain a readable signed payload that can include runner/display name, provider/game ID, timestamps, board position, and move evidence. A link already shared can remain readable independently of the Clerk account; current account deletion does not provide proof-link revocation. Draft PR #117 (`fix/account-deletion-proof-disclosure`, `18f580500ac67f6025714d9ca36e8d4791e93873`) corrects Android, web, and privacy deletion copy to disclose that boundary, but it remains a conflicting draft and has not been adopted or merged. Rebase and review that change against current `main`, then make the final policy and deletion disclosure consistent before submission.
 
-The mobile support/report flow automatically appends the diagnostics listed in the Data safety table to every submitted message. Current UI/privacy wording suggests diagnostics are included only when the user separately chooses to copy or provide them. Before public submission, either change the behavior to explicit opt-in or update the pre-submit UI and adopted policy so the automatic attachment is conspicuous and accurate.
+PR #112 has already changed mobile support/report diagnostics from automatic attachment to explicit user consent. The declarations must describe the current opt-in behavior and the expected code-344 AAB must be checked to contain that merged source before submission.
 
 ## Government, financial, health, and news declarations — READY
 
@@ -154,7 +184,7 @@ If Play introduces or displays another specialized declaration, answer only from
 
 ## Privacy-policy and legal adoption blockers
 
-The current `/privacy` and `/terms` pages are implementation-based launch drafts. They conflict with owner-provided launch facts by naming `andreas.nordenadler@gmail.com` rather than `sam@crowdler.com`; the privacy page also says controller identity and minimum age are unconfirmed. It does not establish the complete production vendor list, processor/controller roles, primary processing countries/international transfers, backup/log retention, legal retention exceptions, statutory request process/timeline, persistent public-proof handling, automatic support diagnostics, or final effective date.
+The current `/privacy` and `/terms` pages are implementation-based launch drafts. They still publish `andreas.nordenadler@gmail.com` rather than the owner-provided `sam@crowdler.com`, and the privacy page says controller identity and minimum age are unconfirmed. They do not establish the complete production vendor list, processor/controller roles, primary processing countries/international transfers, backup/log retention, legal retention exceptions, statutory request process/timeline, adopted persistent-public-proof handling, or final effective date.
 
 Before public store submission, an authorized owner/legal reviewer must approve and publish a consistent contract covering at least:
 
@@ -165,7 +195,7 @@ Before public store submission, an authorized owner/legal reviewer must approve 
 5. Deletion request URL/process, response timing, backup/log retention, and legal exceptions.
 6. `sam@crowdler.com` as the public support/privacy/moderation contact.
 7. Notice process and effective date.
-8. UGC rules and moderation operations: adopted acceptable-use terms, objectionable-content handling, report response ownership, and whether Play policy requires a user-blocking control for the shipped interaction model.
+8. UGC rules and moderation operations: adopted acceptable-use terms, objectionable-content handling, an operable queue/removal/escalation process, report response ownership, and implementation of Play-required in-app user/content reporting and user blocking.
 
 Green tests or a reachable policy URL do not adopt legal text.
 
@@ -192,7 +222,10 @@ Green tests or a reachable policy URL do not adopt legal text.
 - `src/lib/account-deletion-cleanup.ts`
 - `src/app/privacy/page.tsx`
 - `src/app/terms/page.tsx`
-- frozen AAB provenance: `apps/mobile/artifacts/android/mobile-v340/evidence/AAB_PROVENANCE.md` in the responsive-release evidence lane
+- historical code-343 AAB provenance: `apps/mobile/artifacts/android/mobile-v342-code343/evidence/AAB_PROVENANCE.md` in the mobile release lane
+- responsive Android matrix: `apps/mobile/artifacts/android/mobile-v340/evidence/RESPONSIVE_LAYOUT_MATRIX.md` in the responsive-release evidence lane
+- draft deletion-disclosure correction: PR #117 (`fix/account-deletion-proof-disclosure`)
 - exact listing pack: `docs/SQC_GOOGLE_PLAY_LISTING_V340_2026-07-30.md`
+- Google Play Developer Program Policy, User Generated Content: `https://support.google.com/googleplay/android-developer/answer/9876937?hl=en`
 
 Google's current help pages could not be re-fetched in this cycle because the managed web backend returned a billing/authorization error. Therefore this pack deliberately avoids claiming that remembered form labels are immutable. Reconcile labels in the live Play Console at the authorized entry gate while preserving the evidence-bound substance above.
