@@ -1,18 +1,17 @@
-# Keep EAS Android upload lean; native source is included, generated build outputs are not.
-# Android is gitignored in the Expo app, so explicit negation is required for EAS archives.
-!android/
-!android/**
-android/app/build/
-android/app/.cxx/
-android/build/
-android/.gradle/
+# Omit the partial generated Android tree so EAS runs Expo prebuild.
+android/
 .expo/
 
 # Local screenshots/static exports from design iterations.
 dist-android*/
 
-# Local env files are supplied through eas.json/profile env.
+# Local env and signing credential files never enter EAS archives.
 .env*
+credentials.json
+credentials/
+*.jks
+*.keystore
+*.pem
 
 # Package-manager and OS noise.
 node_modules/

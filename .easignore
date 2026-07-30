@@ -1,6 +1,6 @@
 # EAS archive rules for the SQC monorepo.
-# This mirrors .gitignore, except the generated Android native source is included
-# so remote EAS builds use the committed Expo package/version configuration.
+# This mirrors .gitignore and omits generated Android native source so EAS runs
+# Expo SDK 54 prebuild from the committed package/version configuration.
 
 /node_modules
 /.git
@@ -38,14 +38,10 @@ apps/mobile/credentials/
 *.jks
 *.keystore
 
-# Include apps/mobile/android source; exclude generated native build state.
-!apps/mobile/android/
-!apps/mobile/android/**
+# The repository tracks only a release-signing build.gradle guard. Exclude that
+# partial native tree so EAS does not mistake it for a complete Android project.
+apps/mobile/android/
 apps/mobile/.expo/
-apps/mobile/android/.gradle/
-apps/mobile/android/build/
-apps/mobile/android/app/build/
-apps/mobile/android/app/.cxx/
 
 /tmp/
 /.worktrees/
