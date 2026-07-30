@@ -19,7 +19,7 @@ export function buildCustomOwnerSavePayload(input: CustomOwnerSaveInput) {
     title: title.slice(0, 80),
     summary: input.summary.replace(/\s+/g, " ").trim().slice(0, 500),
     config: input.config,
-    visibility: input.lifecycle === "published" && input.visibility === "public" ? "public" as const : "private" as const,
+    visibility: input.lifecycle === "draft" ? "private" as const : input.visibility,
     lifecycle: input.lifecycle === "draft" || input.lifecycle === "archived" ? input.lifecycle : "published" as const,
   };
 }

@@ -350,7 +350,7 @@ export function buildCustomCreatePayload(input: CustomCreateInput) {
     title: title.slice(0, 80),
     summary: summary.slice(0, 500),
     config: JSON.stringify({ version: 2, logic: input.logic === "any" ? "any" : "all", blocks }),
-    visibility: input.lifecycle === "published" ? input.visibility : "private",
+    visibility: input.lifecycle === "draft" ? "private" : input.visibility,
     lifecycle: input.lifecycle,
   };
 }

@@ -560,6 +560,20 @@ test("negation keeps preset and move-sequence conditions editable without collap
   }), "piece-state");
 });
 
+test("archived owner rule edits preserve public visibility like Android v339", () => {
+  const payload = buildCustomCreatePayload({
+    title: "Archived public quest",
+    summary: "Keep its publication choice.",
+    logic: "all",
+    blocks: [{ type: "gameResult", result: "win" }],
+    visibility: "public",
+    lifecycle: "archived",
+  });
+
+  assert.equal(payload.visibility, "public");
+  assert.equal(payload.lifecycle, "archived");
+});
+
 test("owned custom Side Quest rules reopen in the exact editor state", () => {
   const blocks: CustomSideQuestRuleBlock[] = [
     { type: "gameResult", result: "win" },
