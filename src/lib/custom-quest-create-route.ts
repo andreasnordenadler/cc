@@ -32,11 +32,11 @@ export async function handleCustomQuestCreateRequest(request: Request, dependenc
   const title = cleanText(input.title, 80) || "Custom Side Quest";
   const summary = cleanText(input.summary, 500);
   const config = typeof input.config === "string" ? input.config : "";
-  const visibility = input.visibility === "public" ? "public" : "private";
   const lifecycle = input.lifecycle === "draft" || input.lifecycle === "archived" ? input.lifecycle : "published";
+  const visibility = lifecycle !== "draft" && input.visibility === "public" ? "public" : "private";
   if (getRawRuleBlockCount(config) > 8) return Response.json({ apiVersion: 1, authenticated: true, ok: false, message: "Custom Side Quests can use up to 8 conditions." }, { status: 400 });
   const parsedConfig = parseCustomRuleConfig(config);
-  const validation = !parsedConfig ? "This Side Quest has invalid saved rules." : lifecycle === "published" ? validateConfig(parsedConfig) : null;
+  const validation = !parsedConfig ? "This Side Quest has invalid saved rules." : lifecycle !== "draft" ? validateConfig(parsedConfig) : null;
   if (validation) return Response.json({ apiVersion: 1, authenticated: true, ok: false, message: validation }, { status: 400 });
   try {
     const { publicMetadata, privateMetadata } = await dependencies.getMetadata(userId);

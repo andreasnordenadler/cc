@@ -233,6 +233,53 @@ test("custom quest create parses JSON, validates rules, and persists exact norma
   assert.deepEqual(writes, [{ id: "creator-1", quests: [{ id: "custom-fixed", title: "Win nicely", summary: "A useful quest", config: '{"version":1,"logic":"all","blocks":[{"id":"b1","type":"gameResult","result":"win"}]}', visibility: "public", lifecycle: "published", createdAt: "2026-07-12T14:00:00.000Z", updatedAt: "2026-07-12T14:00:00.000Z", badgeImageUrl: "/badges/fixed.png" }], privateMetadata: { preserved: true } }]);
 });
 
+test("custom quest draft persists Android v339's unfinished target square without exposing it publicly", async () => {
+  const config = JSON.stringify({
+    version: 2,
+    logic: "all",
+    blocks: [{ type: "pieceState", piece: "knight", owner: "my", condition: "on square", targetSquare: "e", timing: { atGameEnd: true } }],
+  });
+  let saved: unknown[] = [];
+
+  const response = await handleCustomQuestCreateRequest(jsonPost("https://sqc.test/api/mobile/custom-quests", {
+    title: "Knight landing later",
+    config,
+    visibility: "public",
+    lifecycle: "draft",
+  }), customDependencies({ saveCustomQuests: async (_id, quests) => { saved = quests; return quests; } }));
+
+  assert.equal(response.status, 200);
+  assert.deepEqual(saved, [{
+    id: "custom-fixed",
+    title: "Knight landing later",
+    summary: "Draft Side Quest",
+    config,
+    visibility: "private",
+    lifecycle: "draft",
+    createdAt: "2026-07-12T14:00:00.000Z",
+    updatedAt: "2026-07-12T14:00:00.000Z",
+    badgeImageUrl: "/badges/fixed.png",
+  }]);
+});
+
+test("custom quest archived saves reject unfinished target squares without writing", async () => {
+  let writes = 0;
+  const response = await handleCustomQuestCreateRequest(jsonPost("https://sqc.test/api/mobile/custom-quests", {
+    title: "Archived knight landing",
+    config: JSON.stringify({
+      version: 2,
+      logic: "all",
+      blocks: [{ type: "pieceState", piece: "knight", owner: "my", condition: "on square", targetSquare: "e", timing: { atGameEnd: true } }],
+    }),
+    visibility: "public",
+    lifecycle: "archived",
+  }), customDependencies({ saveCustomQuests: async () => { writes += 1; return []; } }));
+
+  assert.equal(response.status, 400);
+  assert.equal(writes, 0);
+  assert.match(String((await body(response)).message), /real board squares/i);
+});
+
 test("custom quest update preserves its badge and creation timestamp", async () => {
   const existing = {
     id: "custom-fixed",
