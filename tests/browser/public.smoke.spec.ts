@@ -57,7 +57,9 @@ test("signed-out Home omits the web-only guest menu while non-Home routes preser
 test("sign-in returns to the exact page and query where the user started", async ({ page }) => {
   await page.goto("/side-quests?tab=community");
   const menu = page.getByRole("navigation", { name: "Guest menu" });
-  await menu.getByRole("link", { name: "Sign in" }).click();
+  const signInLink = menu.getByRole("link", { name: "Sign in" });
+  await expect(signInLink).toHaveAttribute("href", "/sign-in?redirect_url=%2Fside-quests%3Ftab%3Dcommunity");
+  await signInLink.click();
 
   await expect(page).toHaveURL(/\/sign-in\?redirect_url=/);
   expect(new URL(page.url()).searchParams.get("redirect_url")).toBe("/side-quests?tab=community");

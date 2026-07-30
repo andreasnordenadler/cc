@@ -1,8 +1,9 @@
 import MobileAppWebShell from "@/components/mobile-app-web-shell";
+import CurrentPageSignInLink from "@/components/current-page-sign-in-link";
 import { saveRunnerProfile } from "@/app/actions";
 import { currentUser } from "@clerk/nextjs/server";
 import { unstable_noStore as noStore } from "next/cache";
-import Link from "next/link";
+
 import { getChessComUsername, getLichessUsername, getPreferredRunnerName, getRunnerBio, type UserMetadataRecord } from "@/lib/user-metadata";
 
 export const metadata = {
@@ -93,7 +94,7 @@ function SignedOutSettings() {
         <p className="sqc-account-kicker">Profile details</p>
         <h1>Sign in to edit account details.</h1>
         <p className="sqc-account-copy">Sign in first to enable account edits and sync chess usernames with the app.</p>
-        <Link className="sqc-primary-action" href="/sign-in">Choose sign-in method</Link>
+        <CurrentPageSignInLink className="sqc-primary-action">Choose sign-in method</CurrentPageSignInLink>
       </section>
     </div>
   );

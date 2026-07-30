@@ -24,12 +24,17 @@ test("shared sign-in controls capture the current page before entering Clerk", (
   const shellSource = readFileSync(new URL("../src/components/mobile-app-web-shell.tsx", import.meta.url), "utf8");
   const signInPage = readFileSync(new URL("../src/app/sign-in/[[...sign-in]]/page.tsx", import.meta.url), "utf8");
   const signUpPage = readFileSync(new URL("../src/app/sign-up/[[...sign-up]]/page.tsx", import.meta.url), "utf8");
+  const accountPage = readFileSync(new URL("../src/app/account/page.tsx", import.meta.url), "utf8");
+  const settingsPage = readFileSync(new URL("../src/app/settings/page.tsx", import.meta.url), "utf8");
 
   assert.match(linkSource, /usePathname\(\)/);
+  assert.match(linkSource, /useSyncExternalStore/);
   assert.match(linkSource, /window\.location\.search/);
   assert.ok((shellSource.match(/<CurrentPageSignInLink/g) ?? []).length >= 3);
   assert.doesNotMatch(shellSource, /href=\{signedIn \? "\/account" : "\/sign-in"\}/);
   assert.match(signInPage, /safeAuthReturnPath/);
   assert.match(signUpPage, /safeAuthReturnPath/);
   assert.doesNotMatch(signInPage + signUpPage, /return "\/account"/);
+  assert.match(accountPage, /<CurrentPageSignInLink/);
+  assert.match(settingsPage, /<CurrentPageSignInLink/);
 });
