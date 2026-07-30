@@ -244,6 +244,47 @@ export async function runMobileGroupQuestAction({
   return result;
 }
 
+export async function submitMobileCommunityMultiplayerReport({
+  sessionToken,
+  targetId,
+  reason,
+}: {
+  sessionToken?: string | null;
+  targetId: string;
+  reason: string;
+}): Promise<{ ok: true; reportId: string; submittedAt: string; message: string }> {
+  const cleanReason = reason.trim().replace(/\s+/g, " ");
+  if (cleanReason.length < 3) throw new Error("Add a short reason before reporting this Side Quest.");
+  if (reason.length > 500) throw new Error("Keep the report reason to 500 characters or fewer.");
+  if (!/^[A-Za-z0-9][A-Za-z0-9_./:-]{0,119}$/.test(targetId)) throw new Error("Choose a valid Community Multiplayer Side Quest.");
+
+  const response = await fetchWithTimeout(buildMobileUrl("/api/reports/content"), {
+    method: "POST",
+    headers: buildMobileAuthHeaders(sessionToken),
+    body: JSON.stringify({ targetType: "community-multiplayer", targetId, reason: cleanReason }),
+  });
+  let result: { ok: boolean; reportId?: string; submittedAt?: string; message?: string };
+  try {
+    result = await readMobileJson(response, "Community Multiplayer report");
+  } catch {
+    throw new Error("Could not send the report. Try again.");
+  }
+
+  if (!response.ok || !result.ok || !result.reportId || !result.submittedAt) {
+    const safeMessages = new Set([
+      "Sign in before reporting Community content.",
+      "Choose a Community Multiplayer Side Quest and add a short reason.",
+      "Choose a valid Community Multiplayer Side Quest and add a short reason.",
+      "That Community Multiplayer Side Quest is not available to report.",
+      "You cannot report your own Multiplayer Side Quest.",
+      "Could not safely store this report. Please contact support.",
+    ]);
+    throw new Error(result.message && safeMessages.has(result.message) ? result.message : "Could not send the report. Try again.");
+  }
+
+  return { ok: true, reportId: result.reportId, submittedAt: result.submittedAt, message: "Report sent. We’ll review this Multiplayer Side Quest." };
+}
+
 export async function runMobileCommunityLikeAction({
   sessionToken,
   targetType,

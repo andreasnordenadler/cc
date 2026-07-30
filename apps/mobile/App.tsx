@@ -44,6 +44,7 @@ import { loadMobileAccount } from "./src/account/loadMobileAccount";
 import { clerkPublishableKey, clerkTokenCache, isClerkMobileAuthConfigured } from "./src/auth/clerk";
 import { OFFLINE_MOBILE_BOOTSTRAP } from "./src/data/offlineBootstrap";
 import { shouldStackActiveQuestSummary } from "./src/layout/activeQuestLayout";
+import { canReportCommunityMultiplayerQuest, createMobileCommunityReportSubmitter } from "./src/reports/communityMultiplayerReport";
 import { buildMobileSupportMessage } from "./src/support/buildMobileSupportMessage";
 import type { MobileAccountResponse, MobileAccountState, MobileBootstrap, MobileChallenge, MobileCustomSideQuest, MobileGroupQuestParticipantRow, MobileGroupQuestSummary, MobileSupportMessage } from "./src/types/sqc";
 
@@ -3726,6 +3727,76 @@ function HelpSupportModal({ visible, onClose, signedIn, authBridge, initialMessa
   );
 }
 
+function CommunityMultiplayerReportModal({ visible, quest, authBridge, onClose }: { visible: boolean; quest: MobileGroupQuestSummary | null; authBridge: MobileAuthBridge; onClose: () => void }) {
+  const [reason, setReason] = useState("");
+  const [submitState, setSubmitState] = useState<{ busy: boolean; message: string | null; error: string | null }>({ busy: false, message: null, error: null });
+  const submitReportRequest = useRef(createMobileCommunityReportSubmitter()).current;
+
+  async function submitReport() {
+    if (!quest || submitState.busy) return;
+    if (!authBridge.isSignedIn) {
+      setSubmitState({ busy: false, message: null, error: "Sign in before reporting Community content." });
+      return;
+    }
+
+    setSubmitState({ busy: true, message: null, error: null });
+    try {
+      const submission = await submitReportRequest(async () => ({
+        sessionToken: await authBridge.getSessionToken(),
+        targetId: quest.id,
+        reason,
+      }));
+      if (submission.kind === "busy") return;
+      const result = submission.result;
+      setReason("");
+      setSubmitState({ busy: false, message: result.message, error: null });
+    } catch (caught) {
+      setSubmitState({ busy: false, message: null, error: caught instanceof Error ? caught.message : "Could not send the report. Try again." });
+    }
+  }
+
+  return (
+    <Modal visible={visible} animationType="slide" presentationStyle="fullScreen" onRequestClose={() => { if (!submitState.busy) onClose(); }}>
+      <SafeAreaView style={compactStyles.detailScreen}>
+        <LinearGradient colors={["#352021", "#171011", colors.bg]} style={StyleSheet.absoluteFill} />
+        <View style={compactStyles.detailTopBar}>
+          <Pressable accessibilityRole="button" accessibilityLabel="Close Community Multiplayer report" accessibilityState={{ disabled: submitState.busy }} disabled={submitState.busy} style={[compactStyles.detailCloseButton, submitState.busy ? compactStyles.disabledAction : null]} onPress={onClose}>
+            <MaterialCommunityIcons name="close" size={23} color={colors.paper} />
+          </Pressable>
+        </View>
+        <ScrollHintedScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={[compactStyles.detailContent, compactStyles.detailContentWithBottomSafe]} showsVerticalScrollIndicator={false}>
+          <View style={compactStyles.multiplayerDetailHero}>
+            <Text style={compactStyles.multiplayerDetailKicker}>Community safety</Text>
+            <Text style={compactStyles.detailTitle}>Report this Side Quest</Text>
+            <Text style={compactStyles.detailGoal}>{quest ? cleanMultiplayerTitle(quest.title) : "Community Multiplayer Side Quest"}</Text>
+          </View>
+          <View style={compactStyles.multiplayerNativeCard}>
+            <Text style={compactStyles.detailPanelCopy}>The exact Community Multiplayer Side Quest is attached automatically. Describe unsafe, misleading, or inappropriate content without adding private information.</Text>
+            <View style={styles.inputStack}>
+              <Text style={styles.inputLabel}>Reason</Text>
+              <TextInput
+                accessibilityLabel="Report reason"
+                value={reason}
+                multiline
+                maxLength={500}
+                placeholder="What should the moderation team review?"
+                placeholderTextColor="rgba(255,247,232,.42)"
+                style={[styles.textInput, styles.textAreaInput]}
+                onChangeText={setReason}
+              />
+            </View>
+            {submitState.message ? <Text accessibilityRole="alert" style={compactStyles.inlineSuccess}>{submitState.message}</Text> : null}
+            {submitState.error ? <Text accessibilityRole="alert" style={compactStyles.inlineError}>{submitState.error}</Text> : null}
+            <Pressable accessibilityRole="button" accessibilityLabel="Send Community Multiplayer report" accessibilityState={{ disabled: submitState.busy }} style={[compactStyles.detailPrimaryButton, submitState.busy ? compactStyles.disabledAction : null]} disabled={submitState.busy} onPress={() => void submitReport()}>
+              <Text style={compactStyles.detailPrimaryButtonText}>{submitState.busy ? "Sending..." : "Send report"}</Text>
+            </Pressable>
+          </View>
+        </ScrollHintedScrollView>
+      </SafeAreaView>
+    </Modal>
+  );
+}
+
 function HelpSupportRow({ title, body }: { title: string; body: string }) {
   return (
     <View style={compactStyles.helpSupportRow}>
@@ -7143,8 +7214,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
   const [multiplayerCommunitySort, setMultiplayerCommunitySort] = useState<MultiplayerCommunitySort>("closing");
   const [createOpen, setCreateOpen] = useState(() => Boolean(pendingCreateOpenToken));
   const [inviteKey, setInviteKey] = useState("");
-  const [multiplayerReportOpen, setMultiplayerReportOpen] = useState(false);
-  const [multiplayerReportMessage, setMultiplayerReportMessage] = useState("");
+  const [multiplayerReportQuest, setMultiplayerReportQuest] = useState<MobileGroupQuestSummary | null>(null);
   const [multiplayerLikeBusyId, setMultiplayerLikeBusyId] = useState<string | null>(null);
   const [mineListLimit, setMineListLimit] = useState(4);
   const [availableListLimit, setAvailableListLimit] = useState(4);
@@ -7444,17 +7514,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
   }
 
   function openMultiplayerReport(quest: MobileGroupQuestSummary) {
-    const hostLine = quest.hostName ? `Host: ${quest.hostName}` : "Host: unknown";
-    const statusLine = quest.status ? `Status: ${quest.status}` : "Status: unknown";
-    setMultiplayerReportMessage([
-      "Report Community Multiplayer Side Quest",
-      `Quest: ${cleanMultiplayerTitle(quest.title)}`,
-      `Quest ID: ${quest.id}`,
-      hostLine,
-      statusLine,
-      "Issue: ",
-    ].join("\n"));
-    setMultiplayerReportOpen(true);
+    setMultiplayerReportQuest(quest);
   }
 
   async function toggleCommunityMultiplayerLike(quest: MobileGroupQuestSummary) {
@@ -7535,7 +7595,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
         onLeave={() => joinedMultiplayerQuest ? void runGroupQuestAction(joinedMultiplayerQuest.id, "leave") : undefined}
         onUpdate={(payload) => joinedMultiplayerQuest ? void runGroupQuestAction(joinedMultiplayerQuest.id, "update", payload) : undefined}
         onRemoveParticipant={(participantUserId) => joinedMultiplayerQuest ? void runGroupQuestAction(joinedMultiplayerQuest.id, "remove-participant", { participantUserId }) : undefined}
-        onReport={openMultiplayerReport}
+        onReport={canReportCommunityMultiplayerQuest(joinedMultiplayerQuest, authBridge.isSignedIn) ? openMultiplayerReport : undefined}
         onToggleLike={toggleCommunityMultiplayerLike}
         onViewHost={openMultiplayerHostShelf}
         account={signedInAccount}
@@ -7557,7 +7617,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
         onJoin={() => officialMultiplayerQuest && officialMultiplayerQuest.status !== "Finished" ? void runGroupQuestAction(officialMultiplayerQuest.id, "join") : undefined}
         onUpdate={(payload) => officialMultiplayerQuest ? void runGroupQuestAction(officialMultiplayerQuest.id, "update", payload) : undefined}
         onRemoveParticipant={(participantUserId) => officialMultiplayerQuest ? void runGroupQuestAction(officialMultiplayerQuest.id, "remove-participant", { participantUserId }) : undefined}
-        onReport={openMultiplayerReport}
+        onReport={undefined}
         onToggleLike={toggleCommunityMultiplayerLike}
       />
 
@@ -7609,12 +7669,12 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
         onJoin={() => publicMultiplayerQuest && publicMultiplayerQuest.status !== "Finished" ? void runGroupQuestAction(publicMultiplayerQuest.id, "join") : undefined}
         onUpdate={(payload) => publicMultiplayerQuest ? void runGroupQuestAction(publicMultiplayerQuest.id, "update", payload) : undefined}
         onRemoveParticipant={(participantUserId) => publicMultiplayerQuest ? void runGroupQuestAction(publicMultiplayerQuest.id, "remove-participant", { participantUserId }) : undefined}
-        onReport={openMultiplayerReport}
+        onReport={canReportCommunityMultiplayerQuest(publicMultiplayerQuest, authBridge.isSignedIn) ? openMultiplayerReport : undefined}
         onToggleLike={toggleCommunityMultiplayerLike}
         onViewHost={openMultiplayerHostShelf}
       />
 
-      <HelpSupportModal key={multiplayerReportMessage || "multiplayer-report"} visible={multiplayerReportOpen} onClose={() => setMultiplayerReportOpen(false)} signedIn={signedInAccount} authBridge={authBridge} initialMessage={multiplayerReportMessage} />
+      <CommunityMultiplayerReportModal key={multiplayerReportQuest?.id ?? "multiplayer-report"} visible={Boolean(multiplayerReportQuest)} quest={multiplayerReportQuest} authBridge={authBridge} onClose={() => setMultiplayerReportQuest(null)} />
 
       {multiplayerCatalogTab === "official" ? (
         <>
