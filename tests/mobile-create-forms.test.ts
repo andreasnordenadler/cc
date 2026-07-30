@@ -405,6 +405,19 @@ test("custom creator preserves Android's empty signed-in draft behavior", () => 
   assert.equal(payload.visibility, "private");
 });
 
+test("custom creator gives an unnamed draft Android v339's default name", () => {
+  const payload = buildCustomCreatePayload({ title: "  ", summary: "", logic: "all", blocks: [], visibility: "private", lifecycle: "draft" });
+
+  assert.equal(payload.title, "Custom Side Quest");
+});
+
+test("custom builder lets draft saves reach Android v339's unnamed default", () => {
+  const html = renderToStaticMarkup(React.createElement(MobileCustomCreateForm, { signedIn: true }));
+
+  assert.match(html, /<input aria-label="Side Quest name"/);
+  assert.doesNotMatch(html, /<input aria-label="Side Quest name"[^>]* required=""/);
+});
+
 test("custom creator preserves Android v339's unfinished move sequence in a private draft", () => {
   const unfinishedBlock: CustomSideQuestRuleBlock = { type: "moveSequence", sequence: " ?! ", timing: { atGameEnd: true } };
   const payload = buildCustomCreatePayload({ title: "Later", summary: "", logic: "all", blocks: [unfinishedBlock], visibility: "public", lifecycle: "draft" });

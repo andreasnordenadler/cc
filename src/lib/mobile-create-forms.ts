@@ -341,7 +341,8 @@ function normalizeCustomRuleBlock(block: CustomSideQuestRuleBlock, allowInvalidD
 }
 
 export function buildCustomCreatePayload(input: CustomCreateInput) {
-  const title = input.title.replace(/\s+/g, " ").trim();
+  const enteredTitle = input.title.replace(/\s+/g, " ").trim();
+  const title = enteredTitle || (input.lifecycle === "draft" ? "Custom Side Quest" : "");
   const summary = input.summary.replace(/\s+/g, " ").trim();
   if (!title) throw new Error("Name this custom Side Quest before saving.");
   if (!input.blocks.length && input.lifecycle === "published") throw new Error("Choose at least one condition before saving.");
