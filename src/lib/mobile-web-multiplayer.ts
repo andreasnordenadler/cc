@@ -103,7 +103,7 @@ export function getMultiplayerHostFilter(value: string | string[] | undefined) {
 
 export function mergeCommunityCatalogQuests(publicQuests: ServerGroupQuest[], relatedQuests: ServerGroupQuest[]) {
   const questsById = new Map(publicQuests.filter((quest) => !isOfficialGroupQuest(quest)).map((quest) => [quest.id, quest]));
-  relatedQuests.forEach((quest) => questsById.set(quest.id, quest));
+  relatedQuests.filter((quest) => !isOfficialGroupQuest(quest)).forEach((quest) => questsById.set(quest.id, quest));
   return [...questsById.values()];
 }
 
