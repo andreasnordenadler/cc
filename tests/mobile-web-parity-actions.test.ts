@@ -14,6 +14,8 @@ import {
   validateCommunitySoloReport,
 } from "../src/lib/mobile-web-parity-actions";
 import { upsertCommunityLike } from "../src/lib/community-likes";
+import { buildCommunitySoloCompletionState } from "../src/lib/community-solo-detail-state";
+import { decodePublicProof } from "../src/lib/proof-share";
 
 test("community solo pick state sends signed-out viewers to the exact detail sign-in return path", () => {
   assert.deepEqual(getCommunitySoloPickState({ questId: "fork & pin", signedIn: false, activeQuestId: null }), {
@@ -237,6 +239,96 @@ test("signed-in Community Solo detail can start an exact preselected Multiplayer
 
   assert.match(html, /href="\/create-multiplayer-side-quest\?quest=quest%2F42"[^>]*>Use in Multiplayer<\/a>/);
   assert.doesNotMatch(html, /userId=|creatorUserId=/);
+});
+
+test("completed Community Solo detail exposes Android v339's result action instead of pick or active self-links", () => {
+  const html = renderToStaticMarkup(React.createElement(MobileCommunitySideQuestDetailScreen, {
+    signedIn: true,
+    completed: true,
+    completedAt: "2026-07-18T10:10:00.000Z",
+    resultHref: "/proof/signed-community-result",
+    quest: {
+      id: "quest/42",
+      title: "Ada's Fork",
+      summary: "Win a fork.",
+      creatorName: "Ada",
+      creatorBrowsePath: "/community-side-quests?creator=ada",
+      ruleLabel: "Fork",
+      ruleDetails: ["Create a fork."],
+      stats: { soloAttempts: 0, soloSelections: 0, soloCompletions: 1, multiplayerLineups: 0, multiplayerAttempts: 0, multiplayerFulfillments: 0 },
+    },
+  }));
+
+  assert.match(html, /Completed Jul 18, 2026/);
+  assert.match(html, /href="\/proof\/signed-community-result"[^>]*>View result<\/a>/);
+  assert.doesNotMatch(html, />Pick this Side Quest<|>Active Side Quest</);
+});
+
+test("Community Solo completion state keeps the latest accepted proof after a later failed check", async () => {
+  const state = await buildCommunitySoloCompletionState({
+    metadata: {
+      challengeProgress: { completedChallengeIds: ["quest/42"] },
+      challengeAttempts: [
+        { id: "quest/42:passed", challengeId: "quest/42", status: "passed", summary: "Accepted Community proof", checkedAt: "2026-07-18T10:10:00.000Z", gameId: "game-42" },
+        { id: "quest/42:failed", challengeId: "quest/42", status: "failed", summary: "Later game failed", checkedAt: "2026-07-19T10:10:00.000Z" },
+      ],
+    },
+    quest: {
+      id: "quest/42",
+      title: "Ada's Fork",
+      summary: "Win a fork.",
+      config: JSON.stringify({ version: 1, template: "finishAnyGame" }),
+      lifecycle: "published",
+      visibility: "public",
+      createdAt: "2026-07-12T00:00:00.000Z",
+      updatedAt: "2026-07-12T00:00:00.000Z",
+    },
+  });
+  const decoded = await decodePublicProof(state.resultHref?.slice("/proof/".length));
+
+  assert.equal(state.completed, true);
+  assert.equal(state.completedAt, "2026-07-18T10:10:00.000Z");
+  assert.equal(decoded?.payload.challengeId, "quest/42");
+  assert.equal(decoded?.payload.summary, "Accepted Community proof");
+});
+
+test("Community Solo completion state ignores malformed retained attempts and keeps a generic result", async () => {
+  const state = await buildCommunitySoloCompletionState({
+    metadata: {
+      challengeProgress: { completedChallengeIds: ["quest/42"] },
+      challengeAttempts: [{
+        id: "quest/42:malformed",
+        challengeId: "quest/42",
+        status: "passed",
+        summary: { private: "invalid" } as never,
+        checkedAt: "2026-07-18T10:10:00.000Z",
+      }],
+    },
+    quest: {
+      id: "quest/42",
+      title: "Ada's Fork",
+      summary: "Win a fork.",
+      config: JSON.stringify({ version: 1, template: "finishAnyGame" }),
+      lifecycle: "published",
+      visibility: "public",
+      createdAt: "2026-07-12T00:00:00.000Z",
+      updatedAt: "2026-07-12T00:00:00.000Z",
+    },
+  });
+  const decoded = await decodePublicProof(state.resultHref?.slice("/proof/".length));
+
+  assert.equal(state.completed, true);
+  assert.equal(state.completedAt, null);
+  assert.equal(decoded?.payload.summary, "Completion saved by Side Quest Chess.");
+});
+
+test("authenticated Community Solo route passes server-derived completion state to the production detail", async () => {
+  const source = await import("node:fs/promises").then((fs) => fs.readFile(new URL("../src/app/challenges/community/[id]/page.tsx", import.meta.url), "utf8"));
+
+  assert.match(source, /buildCommunitySoloCompletionState\(\{ metadata: metadataRecord, quest \}\)/);
+  assert.match(source, /completed=\{completionState\.completed\}/);
+  assert.match(source, /completedAt=\{completionState\.completedAt\}/);
+  assert.match(source, /resultHref=\{completionState\.resultHref\}/);
 });
 
 test("Community Solo detail keeps its Coat of Arms in flow instead of clipping it above the viewport", async () => {
