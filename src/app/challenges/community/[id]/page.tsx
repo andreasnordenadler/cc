@@ -5,6 +5,7 @@ import MobileAppWebShell, { MobileCommunitySideQuestDetailScreen } from "@/compo
 import { findPublicCommunitySideQuestById } from "@/lib/community-side-quests";
 import { getChessComUsername, getLichessUsername, getPreferredRunnerName, type UserMetadataRecord } from "@/lib/user-metadata";
 import { getCommunityLikeSummaries } from "@/lib/community-likes";
+import { buildCommunitySoloCompletionState } from "@/lib/community-solo-detail-state";
 
 export const dynamic = "force-dynamic";
 
@@ -24,6 +25,7 @@ export default async function CommunitySideQuestDetailPage({
   const likeSummary = (await getCommunityLikeSummaries(client, user?.id ?? null)).get("solo", quest.id);
 
   const metadataRecord = user?.publicMetadata ? (user.publicMetadata as UserMetadataRecord) : {};
+  const completionState = await buildCommunitySoloCompletionState({ metadata: metadataRecord, quest });
   const displayName = user
     ? getPreferredRunnerName(metadataRecord, {
         firstName: user.firstName,
@@ -56,6 +58,9 @@ export default async function CommunitySideQuestDetailPage({
         ownedByYou={quest.creatorUserId === user?.id}
         activeQuestId={metadataRecord.activeChallenge && typeof metadataRecord.activeChallenge === "object" ? String((metadataRecord.activeChallenge as { id?: string }).id ?? "") : null}
         likeSummary={likeSummary}
+        completed={completionState.completed}
+        completedAt={completionState.completedAt}
+        resultHref={completionState.resultHref}
       />
     </MobileAppWebShell>
   );

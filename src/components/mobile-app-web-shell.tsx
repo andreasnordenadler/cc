@@ -18,6 +18,7 @@ import MobileMultiplayerCreateForm, { type MultiplayerCreateQuest } from "./mobi
 import { CommunityMultiplayerCatalog, CommunitySoloCatalog, CustomSoloCatalog } from "./catalog-clients";
 import CommunitySoloSocialActions from "./community-solo-social-actions";
 import CommunitySoloShareControls from "./community-solo-share-controls";
+import CustomSideQuestProofControls from "./custom-side-quest-proof-controls";
 import SupportDiagnosticsCopy from "./support-diagnostics-copy";
 import ActiveSoloActions from "./active-solo-actions";
 import GroupQuestRefreshButton from "./group-quest-refresh-button";
@@ -933,12 +934,18 @@ export function MobileCommunitySideQuestDetailScreen({
   ownedByYou = false,
   activeQuestId,
   likeSummary = { count: 0, likedByViewer: false },
+  completed = false,
+  completedAt,
+  resultHref,
 }: {
   quest: CommunitySideQuestDetail;
   signedIn: boolean;
   ownedByYou?: boolean;
   activeQuestId?: string | null;
   likeSummary?: CommunityLikeSummary;
+  completed?: boolean;
+  completedAt?: string | null;
+  resultHref?: string | null;
 }) {
   const badge = toMobileAssetPath(quest.badgeImageUrl) ?? mobileAsset.customCrest;
   const totalSolo = quest.stats.soloAttempts + quest.stats.soloSelections + quest.stats.soloCompletions;
@@ -960,7 +967,7 @@ export function MobileCommunitySideQuestDetailScreen({
           />
         </div>
         <p>{quest.summary}</p>
-        <small>Ready · Public</small>
+        <small>{completed ? "Completed · Public" : "Ready · Public"}</small>
       </section>
 
       <section className="sqc-native-card sqc-detail-panel-strong">
@@ -1007,14 +1014,25 @@ export function MobileCommunitySideQuestDetailScreen({
         <p>Browse more public Side Quests from this creator when available.</p>
       </section>
 
-      <section className="sqc-native-card sqc-multiplayer-native-card">
-        <span className="sqc-card-eyebrow">{activeQuestId === quest.id ? "Active now" : signedIn ? "Pick first" : "Sign in first"}</span>
-        <h2>{activeQuestId === quest.id ? "This is your active Solo Side Quest." : signedIn ? "Pick this Side Quest before playing your proof game." : "Sign in to pick this Community Solo Side Quest."}</h2>
-        <p>{activeQuestId === quest.id ? "Play a fresh public game, then return to check your proof." : "Your account keeps active Side Quests, usernames, proof checks, and trophies in sync."}</p>
-      </section>
+      {completed ? (
+        <CustomSideQuestProofControls
+          questId={quest.id}
+          active={activeQuestId === quest.id}
+          playable
+          completed
+          completedAt={completedAt}
+          resultHref={resultHref}
+        />
+      ) : (
+        <section className="sqc-native-card sqc-multiplayer-native-card">
+          <span className="sqc-card-eyebrow">{activeQuestId === quest.id ? "Active now" : signedIn ? "Pick first" : "Sign in first"}</span>
+          <h2>{activeQuestId === quest.id ? "This is your active Solo Side Quest." : signedIn ? "Pick this Side Quest before playing your proof game." : "Sign in to pick this Community Solo Side Quest."}</h2>
+          <p>{activeQuestId === quest.id ? "Play a fresh public game, then return to check your proof." : "Your account keeps active Side Quests, usernames, proof checks, and trophies in sync."}</p>
+        </section>
+      )}
 
       <div className="sqc-community-detail-actions" aria-label="Community Solo Side Quest actions">
-        <CommunitySoloPickControl questId={quest.id} signedIn={signedIn} activeQuestId={activeQuestId} />
+        {!completed ? <CommunitySoloPickControl questId={quest.id} signedIn={signedIn} activeQuestId={activeQuestId} /> : null}
         <CommunitySoloSocialActions questId={quest.id} title={quest.title} creatorName={quest.creatorName} signedIn={signedIn} />
         <Link href="/community-side-quests" className="sqc-detail-quiet-button">Back to list</Link>
         <Link href={quest.creatorBrowsePath} className="sqc-detail-secondary-button">More by {quest.creatorName}</Link>
