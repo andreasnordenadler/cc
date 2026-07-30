@@ -24,7 +24,6 @@ import {
   updateCustomOpeningSequenceBlock,
   updateCustomPieceIdentityChoice,
   updateCustomPieceStateEditor,
-  finalizeCustomOpeningSequenceInput,
   type CustomEditQuestInput,
   type CustomTemplate,
 } from "@/lib/mobile-create-forms";
@@ -225,7 +224,7 @@ export default function MobileCustomCreateForm({ signedIn, initialQuest = null }
         visibility: signedIn ? visibility : "private",
         lifecycle: signedIn ? lifecycle : "draft",
       });
-      if (initialState && initialQuest) body = { ...body, id: initialState.id, config: buildCustomEditConfig(initialQuest.config, logic, blocks) };
+      if (initialState && initialQuest) body = { ...body, id: initialState.id, config: buildCustomEditConfig(initialQuest.config, logic, blocks, lifecycle) };
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "Check the form and try again.");
       return;
@@ -290,7 +289,7 @@ export default function MobileCustomCreateForm({ signedIn, initialQuest = null }
             <label className="sqc-form-row"><span>Timing</span><select aria-label={`Condition ${index + 1} timing`} onChange={(event) => updateMoveSequenceCondition(index, { timing: event.target.value as "byMove" | "atMove" | "atGameEnd" })} value={block.timing?.atMove ? "atMove" : block.timing?.byMove ? "byMove" : "atGameEnd"}><option value="byMove">By move</option><option value="atMove">At move</option><option value="atGameEnd">At game end</option></select></label>
             {block.timing?.byMove || block.timing?.atMove ? <label className="sqc-form-row"><span>Move number</span><input aria-label={`Condition ${index + 1} move number`} inputMode="numeric" max={300} min={1} onChange={(event) => updateMoveSequenceCondition(index, { moveNumberInput: event.target.value })} type="number" value={moveNumberInput} /></label> : null}
           </div> : block.type === "openingSequence" ? <div className="sqc-condition-editor-fields">
-            <label className="sqc-form-row"><span>Opening notation</span><textarea aria-label={`Condition ${index + 1} opening sequence`} maxLength={260} onBlur={(event) => updateOpeningSequenceCondition(index, finalizeCustomOpeningSequenceInput(event.target.value))} onChange={(event) => updateOpeningSequenceCondition(index, event.target.value)} placeholder="1.e4 e5 2.f4" value={block.raw ?? block.moves.join(" ")} /></label>
+            <label className="sqc-form-row"><span>Opening notation</span><textarea aria-label={`Condition ${index + 1} opening sequence`} maxLength={260} onChange={(event) => updateOpeningSequenceCondition(index, event.target.value)} placeholder="1.e4 e5 2.f4" value={block.raw ?? block.moves.join(" ")} /></label>
             <p>Paste opening notation with move numbers. Side Quest Chess cleans it into: {block.moves.length ? block.moves.join(" → ") : "No moves parsed yet."}</p>
             <p>Opening sequence is always checked from move 1, so no timing is needed.</p>
           </div> : block.type === "pieceState" && block.owner !== "either" ? <div className="sqc-condition-editor-fields">

@@ -329,9 +329,13 @@ export function describeCustomRuleBlock(block: CustomSideQuestRuleBlock) {
   return block.negate ? `It must not be true that ${positive.slice(0, 1).toLowerCase()}${positive.slice(1)}` : positive;
 }
 
-function normalizeCustomRuleBlock(block: CustomSideQuestRuleBlock): CustomSideQuestRuleBlock {
+function normalizeCustomRuleBlock(block: CustomSideQuestRuleBlock, allowInvalidDraft = false): CustomSideQuestRuleBlock {
   if (block.type === "moveSequence") return { ...block, sequence: normalizeCustomMoveSequence(block.sequence) };
-  if (block.type === "openingSequence") return updateCustomOpeningSequenceBlock(block, finalizeCustomOpeningSequenceInput(block.raw ?? block.moves.join(" ")));
+  if (block.type === "openingSequence") {
+    const normalized = updateCustomOpeningSequenceBlock(block, block.raw ?? block.moves.join(" "));
+    if (allowInvalidDraft && !normalized.moves.length) return { ...block, moves: [] };
+    return updateCustomOpeningSequenceBlock(block, finalizeCustomOpeningSequenceInput(block.raw ?? block.moves.join(" ")));
+  }
   if (block.type === "pieceState" && block.condition === "on square") return { ...block, targetSquare: block.targetSquare?.toLowerCase() ?? "" };
   return block;
 }
@@ -343,9 +347,9 @@ export function buildCustomCreatePayload(input: CustomCreateInput) {
   if (!input.blocks.length && input.lifecycle === "published") throw new Error("Choose at least one condition before saving.");
   if (input.blocks.some((block) => block.type === "pieceState" && block.condition === "on square" && !/^[a-h][1-8]$/i.test(block.targetSquare ?? ""))) throw new Error("Use a real board square like e4, h8, or a1.");
   if (input.lifecycle !== "draft" && input.blocks.some((block) => block.type === "moveSequence" && !normalizeCustomMoveSequence(block.sequence))) throw new Error("Add at least one algebraic move to the move sequence.");
-  if (input.blocks.some((block) => block.type === "openingSequence" && !updateCustomOpeningSequenceBlock(block, block.raw ?? block.moves.join(" ")).moves.length)) throw new Error("Add an opening line from move 1, for example 1.e4 e5 2.f4.");
+  if (input.lifecycle !== "draft" && input.blocks.some((block) => block.type === "openingSequence" && !updateCustomOpeningSequenceBlock(block, block.raw ?? block.moves.join(" ")).moves.length)) throw new Error("Add an opening line from move 1, for example 1.e4 e5 2.f4.");
   if (input.blocks.length > 6) throw new Error("Custom Side Quests can use up to 6 conditions.");
-  const blocks = input.blocks.map(normalizeCustomRuleBlock);
+  const blocks = input.blocks.map((block) => normalizeCustomRuleBlock(block, input.lifecycle === "draft"));
   return {
     title: title.slice(0, 80),
     summary: summary.slice(0, 500),
@@ -355,7 +359,12 @@ export function buildCustomCreatePayload(input: CustomCreateInput) {
   };
 }
 
-export function buildCustomEditConfig(originalConfig: string, logic: "all" | "any", blocks: CustomSideQuestRuleBlock[]) {
+export function buildCustomEditConfig(
+  originalConfig: string,
+  logic: "all" | "any",
+  blocks: CustomSideQuestRuleBlock[],
+  lifecycle: "draft" | "published" | "archived" = "published",
+) {
   let original: Record<string, unknown>;
   try {
     const parsed = JSON.parse(originalConfig);
@@ -365,7 +374,7 @@ export function buildCustomEditConfig(originalConfig: string, logic: "all" | "an
     throw new Error("This Side Quest has invalid saved rules.");
   }
   if (blocks.length > 6) throw new Error("Custom Side Quests can use up to 6 conditions.");
-  const normalizedBlocks = blocks.map(normalizeCustomRuleBlock);
+  const normalizedBlocks = blocks.map((block) => normalizeCustomRuleBlock(block, lifecycle === "draft"));
   return JSON.stringify({ ...original, logic: logic === "any" ? "any" : "all", blocks: normalizedBlocks });
 }
 

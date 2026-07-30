@@ -866,14 +866,52 @@ test("custom opening-sequence editor renders Android's editable notation and par
 });
 
 test("custom opening-sequence editor rejects notation with no parsed moves", () => {
-  assert.throws(() => buildCustomCreatePayload({
-    title: "Empty opening",
-    summary: "",
+  for (const lifecycle of ["published", "archived"] as const) {
+    assert.throws(() => buildCustomCreatePayload({
+      title: "Empty opening",
+      summary: "",
+      logic: "all",
+      blocks: [{ type: "openingSequence", raw: "1-0 {done}", moves: [], anchor: "gameStart" }],
+      visibility: "private",
+      lifecycle,
+    }), /opening line from move 1/i);
+  }
+});
+
+test("custom creator preserves Android v339's unfinished opening sequence in a private draft", () => {
+  const unfinishedBlock: CustomSideQuestRuleBlock = { type: "openingSequence", raw: "1-0 {later}", moves: ["stale"], anchor: "gameStart" };
+  const payload = buildCustomCreatePayload({ title: "Later", summary: "", logic: "all", blocks: [unfinishedBlock], visibility: "public", lifecycle: "draft" });
+
+  assert.deepEqual(JSON.parse(payload.config), {
+    version: 2,
     logic: "all",
-    blocks: [{ type: "openingSequence", raw: "1-0 {done}", moves: [], anchor: "gameStart" }],
-    visibility: "private",
-    lifecycle: "published",
-  }), /opening line from move 1/i);
+    blocks: [{ type: "openingSequence", raw: "1-0 {later}", moves: [], anchor: "gameStart" }],
+  });
+  assert.equal(payload.visibility, "private");
+});
+
+test("custom draft submission keeps unfinished opening input through browser blur", async () => {
+  const form = await source("src/components/mobile-custom-create-form.tsx");
+
+  assert.doesNotMatch(form, /onBlur=\{\(event\) => updateOpeningSequenceCondition\(index, finalizeCustomOpeningSequenceInput/);
+  assert.match(form, /onChange=\{\(event\) => updateOpeningSequenceCondition\(index, event\.target\.value\)\}/);
+});
+
+test("editing an existing draft preserves Android v339's unfinished opening input and advanced config", () => {
+  const original = JSON.stringify({
+    version: 7,
+    logic: "all",
+    customTopLevel: { mode: "legacy" },
+    blocks: [{ type: "gameResult", result: "win" }],
+  });
+  const unfinishedBlock: CustomSideQuestRuleBlock = { type: "openingSequence", raw: "1-0 {later}", moves: ["stale"], anchor: "gameStart" };
+
+  assert.deepEqual(JSON.parse(buildCustomEditConfig(original, "any", [unfinishedBlock], "draft")), {
+    version: 7,
+    logic: "any",
+    customTopLevel: { mode: "legacy" },
+    blocks: [{ type: "openingSequence", raw: "1-0 {later}", moves: [], anchor: "gameStart" }],
+  });
 });
 
 test("custom move-sequence editor rejects an empty published condition like Android v339", () => {
