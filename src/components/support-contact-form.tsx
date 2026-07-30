@@ -94,7 +94,7 @@ export default function SupportContactForm({ isSignedIn = false, initialMessages
     <div className="support-contact-stack">
       <div className="support-thread-card support-guide-card">
         <span className="eyebrow">Support details</span>
-        <h3>{isSignedIn ? "Messages stay with your SQC account." : "Copy a safe troubleshooting packet."}</h3>
+        <h3>{isSignedIn ? "Messages stay with your Side Quest Chess account." : "Copy a safe troubleshooting packet."}</h3>
         <p>{isSignedIn ? "Support uses your account-attached thread. Reports can include quest context without exposing private player data." : "Copy safe page and browser details for support without exposing chess-site passwords, private invite codes, or private custom quest rules."}</p>
         {hasReportContext ? (
           <div className="support-context-note" role="note">
@@ -120,7 +120,7 @@ export default function SupportContactForm({ isSignedIn = false, initialMessages
             <div className="support-thread-list" aria-label="Recent support messages">
               {visibleMessages.map((entry) => (
                 <article key={entry.id} className="support-thread-message">
-                  <strong>{entry.source === "admin" ? "SQC support" : "You"}</strong>
+                  <strong>{entry.source === "admin" ? "Side Quest Chess support" : "You"}</strong>
                   <time dateTime={entry.at}>{formatSupportDate(entry.at)}</time>
                   <p>{entry.message}</p>
                 </article>

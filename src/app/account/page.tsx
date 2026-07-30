@@ -1,6 +1,7 @@
 import MobileAppWebShell from "@/components/mobile-app-web-shell";
 import AccountLogoutButton from "@/components/account-logout-button";
 import DeleteAccountControl from "@/components/delete-account-control";
+import CurrentPageSignInLink from "@/components/current-page-sign-in-link";
 import { saveRunnerProfile } from "@/app/actions";
 import type { ActiveMultiplayerAccountSummary, MobileWebAccountStats, MobileWebTrophyRow } from "@/lib/mobile-web-trophies";
 import Image from "next/image";
@@ -124,7 +125,7 @@ export default async function AccountPage() {
     >
       {user ? (
         <SignedInAccountScreen
-          displayName={displayName ?? "SQC player"}
+          displayName={displayName ?? "Quest runner"}
           email={user.primaryEmailAddress?.emailAddress ?? null}
           imageUrl={user.imageUrl ?? null}
           lastSignInAt={user.lastSignInAt ? new Date(user.lastSignInAt).toISOString() : null}
@@ -302,7 +303,7 @@ function SignedOutAccountScreen() {
         <p className="sqc-account-kicker">My Account</p>
         <h1>Sign in to sync your board.</h1>
         <p className="sqc-account-copy">Sign in to save Side Quest progress, latest proof, Coat of Arms unlocks, and connected chess usernames.</p>
-        <Link href="/sign-in" className="sqc-primary-action">Choose sign-in method</Link>
+        <CurrentPageSignInLink className="sqc-primary-action">Choose sign-in method</CurrentPageSignInLink>
       </section>
     </div>
   );

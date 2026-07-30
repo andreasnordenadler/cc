@@ -205,7 +205,7 @@ export function getBuiltInOfficialGroupQuests(now = new Date()): ServerGroupQues
     providerMode: "both",
     providerLabel: "Lichess or Chess.com",
     official: true,
-    officialLabel: "Official SQC · 14 days",
+    officialLabel: "Official · 14 days",
     startAt,
     endAt,
     rules: defaultRules,
@@ -238,7 +238,7 @@ function getBuiltInOfficialGroupQuestDefinitionById(id: string): ServerGroupQues
     providerMode: "both",
     providerLabel: "Lichess or Chess.com",
     official: true,
-    officialLabel: "Official SQC · 14 days",
+    officialLabel: "Official · 14 days",
     startAt: start.toISOString(),
     endAt: end.toISOString(),
     rules: defaultRules,
@@ -281,7 +281,7 @@ export function buildGroupQuest(input: {
   return {
     id: makeGroupQuestId(name),
     hostUserId: input.hostUserId,
-    hostName: cleanText(input.hostName, 80) ?? "SQC host",
+    hostName: cleanText(input.hostName, 80) ?? "Quest host",
     name,
     inviteCopy: cleanText(input.inviteCopy, 280) ?? defaultInviteCopy,
     inviteMode: normalizeInviteMode(input.inviteMode),
@@ -672,11 +672,12 @@ function normalizeGroupQuest(value: unknown): ServerGroupQuest | null {
   const id = cleanText(record.id, 80);
   const hostUserId = cleanText(record.hostUserId, 120);
   const name = cleanText(record.name, 64);
+  const storedHostName = cleanText(record.hostName, 80);
   if (!id || !hostUserId || !name) return null;
   return {
     id,
     hostUserId,
-    hostName: cleanText(record.hostName, 80) ?? "SQC host",
+    hostName: storedHostName && /^SQC host$/i.test(storedHostName) ? "Quest host" : storedHostName ?? "Quest host",
     name,
     inviteCopy: cleanText(record.inviteCopy, 280) ?? defaultInviteCopy,
     inviteMode: normalizeInviteMode(record.inviteMode),
@@ -685,7 +686,7 @@ function normalizeGroupQuest(value: unknown): ServerGroupQuest | null {
     providerMode: normalizeProviderMode(record.providerMode),
     providerLabel: cleanText(record.providerLabel, 80) ?? providerLabelFor(record.providerMode),
     official: record.official === true,
-    officialLabel: cleanText(record.officialLabel, 80),
+    officialLabel: cleanText(record.officialLabel, 80)?.replace(/\bSQC\b/g, "Side Quest Chess"),
     customQuestSnapshots: normalizeCustomQuestSnapshots(record.customQuestSnapshots),
     startAt: cleanText(record.startAt, 40) ?? "Not set",
     endAt: cleanText(record.endAt, 40) ?? "Not set",
@@ -733,7 +734,8 @@ function normalizeParticipant(value: unknown): GroupQuestParticipant | null {
   const record = value as Record<string, unknown>;
   const userId = cleanText(record.userId, 120);
   const username = cleanText(record.username, 60);
-  const leaderboardName = cleanText(record.leaderboardName, 60);
+  const storedLeaderboardName = cleanText(record.leaderboardName, 60);
+  const leaderboardName = storedLeaderboardName && /^SQC player$/i.test(storedLeaderboardName) ? "Quest runner" : storedLeaderboardName;
   const joinedAt = cleanText(record.joinedAt, 40);
   if (!userId || !username || !leaderboardName || !joinedAt) return null;
   return {

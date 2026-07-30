@@ -18,7 +18,7 @@ const sideQuestModes: Array<{
     id: "official",
     label: "Official",
     title: "Curated Solo Side Quests",
-    copy: "SQC's official Solo deck with proof checks and coat rewards.",
+    copy: "The app's official Solo deck with proof checks and coat rewards.",
     href: "/solo",
     group: "catalog",
   },

@@ -16,7 +16,7 @@ export type CustomQuestPersistenceErrorReason = "metadata_capacity" | "persisten
 export function classifyCustomQuestPersistenceError(caught: unknown): { message: string; reason: CustomQuestPersistenceErrorReason } {
   const text = caught instanceof Error ? caught.message : String(caught ?? "");
   if (/metadata exceeds|metadata.*too large|exceeds the maximum allowed size|form_param_exceeds_allowed_size|too large|maximum allowed|unprocessable entity/i.test(text)) {
-    return { message: "Your Side Quest library is full. SQC cleaned up older saved data; please try again.", reason: "metadata_capacity" };
+    return { message: "Your Side Quest library is full. Side Quest Chess cleaned up older saved data; please try again.", reason: "metadata_capacity" };
   }
   return { message: "Could not save this custom Side Quest right now.", reason: "persistence_error" };
 }

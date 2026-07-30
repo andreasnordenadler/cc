@@ -189,7 +189,7 @@ export default function GroupQuestProofControls({ id, quests, initialState, fini
         <div>
           <span className="eyebrow">Proof controls</span>
           <h2>Check the table without leaving the page.</h2>
-          <p>SQC judges your newest eligible public game for every quest in this Multiplayer run, then writes the receipts below.</p>
+          <p>Side Quest Chess judges your newest eligible public game for every quest in this Multiplayer run, then writes the receipts below.</p>
         </div>
       </div>
 
@@ -203,7 +203,7 @@ export default function GroupQuestProofControls({ id, quests, initialState, fini
           </button>
         </article>
         <article className="proof-check-card">
-          <span className="eyebrow">What SQC checks</span>
+          <span className="eyebrow">What Side Quest Chess checks</span>
           <h3>Same rules, same receipt.</h3>
           <p>The verifier checks the quest objective, provider, finished-game status, and table time window. Passed checks can also add safe proof to your account Trophy Cabinet.</p>
         </article>

@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { CLERK_USER_SCAN_MAX_PAGES, OFFICIAL_GROUP_QUEST_METADATA_KEY, buildGroupQuest, findGroupQuestById, findGroupQuestByInviteKey, getBuiltInOfficialGroupQuests, getGroupQuestParticipantFinishedAt, getGroupQuestResultMode, getStoredOfficialGroupQuestParticipations, listPublicGroupQuests, listUserRelatedGroupQuests, rankGroupQuestParticipants, upsertOfficialGroupQuestParticipation } from "../src/lib/groupquests";
+import { CLERK_USER_SCAN_MAX_PAGES, OFFICIAL_GROUP_QUEST_METADATA_KEY, buildGroupQuest, findGroupQuestById, findGroupQuestByInviteKey, getBuiltInOfficialGroupQuests, getGroupQuestParticipantFinishedAt, getGroupQuestResultMode, getStoredGroupQuests, getStoredOfficialGroupQuestParticipations, listPublicGroupQuests, listUserRelatedGroupQuests, rankGroupQuestParticipants, upsertOfficialGroupQuestParticipation } from "../src/lib/groupquests";
 
 type Participant = {
   id: string;
@@ -569,6 +569,19 @@ test("supports the branch legacy array official metadata shape", () => {
   const official = getBuiltInOfficialGroupQuests(new Date("2026-07-06T12:00:00.000Z"))[0];
   const arrayMetadata = { [OFFICIAL_GROUP_QUEST_METADATA_KEY]: [{ questId: official.id, provider: "lichess", username: "array-user", leaderboardName: "Array", joinedAt: "2026-07-01T00:00:00.000Z" }] };
   assert.equal(getStoredOfficialGroupQuestParticipations(arrayMetadata, "user")[0].participants[0].username, "array-user");
+});
+
+test("normalizes the retired public acronym in stored official labels", () => {
+  const legacy = buildGroupQuest({ hostUserId: "host", hostName: "Host", name: "Legacy official", startAt: "2026-07-01", endAt: "2026-07-20" });
+  legacy.official = true;
+  legacy.officialLabel = "Official SQC · 14 days";
+  legacy.hostName = "SQC host";
+  legacy.participants = [participant("legacy-runner", { leaderboardName: "SQC player" })];
+
+  const [stored] = getStoredGroupQuests({ sqcGroupQuests: [legacy] });
+  assert.equal(stored.officialLabel, "Official Side Quest Chess · 14 days");
+  assert.equal(stored.hostName, "Quest host");
+  assert.equal(stored.participants[0].leaderboardName, "Quest runner");
 });
 
 for (const lookup of ["id", "invite", "catalog"] as const) {

@@ -53,7 +53,7 @@ test("builds hosted and joined active multiplayer rows newest-first without muta
     { id: "joined", status: "Joined", sourceBadge: "Joined" },
     { id: "hosted", status: "Host", sourceBadge: "Hosted" },
   ]);
-  assert.match(rows[0].meta, /SQC official/);
+  assert.match(rows[0].meta, /Official/);
   assert.equal(rows[0].href, "/groupquests/joined?accepted=1");
   assert.deepEqual(original, [hosted, joined]);
 });

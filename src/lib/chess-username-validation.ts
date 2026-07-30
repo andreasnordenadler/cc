@@ -85,7 +85,7 @@ async function validateProviderUsername(username: string, validation: ProviderVa
       return {
         ok: false,
         username: cleaned,
-        message: `${validation.provider} user \"${cleaned}\" exists but is disabled, so SQC cannot use it for proof checks.`,
+        message: `${validation.provider} user \"${cleaned}\" exists but is disabled, so Side Quest Chess cannot use it for proof checks.`,
       };
     }
 

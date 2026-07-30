@@ -74,7 +74,7 @@ test("Multiplayer create matches Android option cards and quick-duration guidanc
 test("Multiplayer create blocks pre-hydration interactions without losing Android's default choice", () => {
   const html = renderToStaticMarkup(React.createElement(MobileMultiplayerCreateForm, {
     signedIn: false,
-    quests: [{ id: "finish-any-game", title: "Any Game Counts", summary: "Finish one game.", source: "official", sourceLabel: "SQC Official" }],
+    quests: [{ id: "finish-any-game", title: "Any Game Counts", summary: "Finish one game.", source: "official", sourceLabel: "Official" }],
     stableNow: "2026-07-23T12:00:00.000Z",
   }));
 
@@ -783,7 +783,7 @@ test("custom opening-sequence editor renders Android's editable notation and par
   }));
 
   assert.match(html, /aria-label="Condition 1 opening sequence"[^>]*maxLength="260"[^>]*>1\.e4 e5 2\.f4<\/textarea>/);
-  assert.match(html, /Paste opening notation with move numbers\. SQC cleans it into: e4 → e5 → f4/);
+  assert.match(html, /Paste opening notation with move numbers\. Side Quest Chess cleans it into: e4 → e5 → f4/);
   assert.match(html, /Opening sequence is always checked from move 1, so no timing is needed\./);
 });
 
@@ -1109,7 +1109,7 @@ test("multiplayer creator source switch exposes one truthful pressed-button grou
     signedIn: false,
     stableNow: "2026-07-23T12:00:00.000Z",
     quests: [
-      { id: "official-one", title: "Official one", summary: "Official rules", source: "official", sourceLabel: "SQC official" },
+      { id: "official-one", title: "Official one", summary: "Official rules", source: "official", sourceLabel: "Official" },
       { id: "community-one", title: "Community one", summary: "Community rules", source: "community", sourceLabel: "Community" },
     ],
   }));

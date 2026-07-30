@@ -233,7 +233,7 @@ export default async function ChallengeDetailPage({
               <section className="sqc-native-card sqc-proof-action-card">
                 <span className="sqc-card-eyebrow">{user ? "Pick this Side Quest" : "Sign in to start this Side Quest"}</span>
                 <h2>{user ? `${challenge.title} is ready for the royal docket.` : "Sign in to save quest progress."}</h2>
-                <p>{user ? "Choose this rule so SQC knows what to judge after your next public game." : "Browse the rules here. Sign in when you want SQC to save this as your active Solo Side Quest and track proof."}</p>
+                <p>{user ? "Choose this rule so Side Quest Chess knows what to judge after your next public game." : "Browse the rules here. Sign in when you want Side Quest Chess to save this as your active Solo Side Quest and track proof."}</p>
                 <div className="sqc-action-pair one-or-two">
                   <Link href="/side-quests" className="sqc-secondary-action">Back to list</Link>
                   {user ? (

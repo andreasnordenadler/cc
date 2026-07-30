@@ -18,7 +18,7 @@ const community = [
 
 test("multiplayer create choices include official, published owned, and public community quests with provenance", () => {
   assert.deepEqual(buildMultiplayerCreateQuestChoices({ official, owned, community }), [
-    { id: "official-1", title: "Official Fork", summary: "Win a fork.", source: "official", sourceLabel: "SQC Official" },
+    { id: "official-1", title: "Official Fork", summary: "Win a fork.", source: "official", sourceLabel: "Official" },
     { id: "owned-published", title: "My Published Quest", summary: "Keep the queen home.", source: "custom", sourceLabel: "Your private" },
     { id: "community-1", title: "Community Knight", summary: "Move both knights.", source: "community", sourceLabel: "Community · Ada" },
   ]);
@@ -140,7 +140,7 @@ test("multiplayer create form renders each quest source instead of collapsing pr
 
   assert.match(html, /class="sqc-option-card-copy"/);
   assert.match(html, /class="sqc-option-source"/);
-  assert.match(html, />SQC Official</);
+  assert.match(html, />Official</);
   assert.match(html, />Official \(1\)</);
   assert.match(html, />Community \(2\)</);
   assert.match(html, /aria-pressed="true"[^>]*>Browse</);
@@ -216,7 +216,7 @@ test("multiplayer create picker matches Android source, selected, search, and pa
   const paged = getMultiplayerCreateQuestPicker({
     choices: [
       ...choices,
-      { id: "official-2", title: "Second", summary: "Second quest", source: "official", sourceLabel: "SQC Official" },
+      { id: "official-2", title: "Second", summary: "Second quest", source: "official", sourceLabel: "Official" },
     ],
     source: "official",
     selectedIds: [],

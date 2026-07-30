@@ -2299,7 +2299,7 @@ function evaluateChessComKnightmareMode(game: KnightmareGame): ChessComKnightmar
   }
 
   if (game.finalMove.color !== game.playerColor) {
-    return { status: "failed", gameId: game.id, summary: "The mating move was not made by the Side Quest Chess player.", evidence: [`Final move belonged to ${game.finalMove.color}.`] };
+    return { status: "failed", gameId: game.id, summary: "The mating move was not made by the Quest runner.", evidence: [`Final move belonged to ${game.finalMove.color}.`] };
   }
 
   if (game.finalMove.piece !== "knight") {

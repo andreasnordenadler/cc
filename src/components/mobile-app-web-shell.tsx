@@ -4,7 +4,7 @@ import type { CSSProperties, ReactNode } from "react";
 import OfficialSoloLikeControl from "./official-solo-like-control";
 import { MobileSupportComposer, type MobileWebSupportMessage } from "./mobile-support-composer";
 import type { CommunityLikeSummary } from "@/lib/community-likes";
-import type { Challenge } from "@/lib/challenges";
+import { CHALLENGES, type Challenge } from "@/lib/challenges";
 import type { MobileWebMultiplayerPreview, MobileWebMultiplayerResult, MobileWebOfficialWeek } from "@/lib/mobile-web-multiplayer";
 import type { MobileWebShellTheme } from "@/lib/mobile-web-theme";
 import { buildSoloProofHomeStatus, formatHomeTrophyMeta, type ActiveMultiplayerHomeRow } from "@/lib/mobile-web-home";
@@ -29,7 +29,9 @@ import CommunityMultiplayerReportControl from "./community-multiplayer-report-co
 import GroupQuestInviteKeyControl from "./group-quest-invite-key-control";
 import type { CustomEditQuestInput } from "@/lib/mobile-create-forms";
 import type { WebSupportAccountContext, WebSupportReportContext } from "@/lib/web-support-diagnostics";
+import DesktopHomeMenu from "./desktop-home-menu";
 import MobileWebHamburgerMenu from "./mobile-web-hamburger-menu";
+import CurrentPageSignInLink from "./current-page-sign-in-link";
 
 type AppTab = "home" | "sideQuests" | "multiplayerSideQuests" | "coatOfArms" | "account";
 
@@ -144,7 +146,7 @@ type CustomSideQuestLibraryRow = {
   updatedAt: string;
 };
 
-const menuItems = [
+export const mobileWebMenuItems = [
   { id: "home", label: "Home", href: "/", icon: "home" },
   { id: "sideQuests", label: "Solo Side Quests", href: "/side-quests", icon: "flag" },
   { id: "multiplayer", label: "Multiplayer Side Quests", href: "/multiplayer", icon: "group" },
@@ -155,7 +157,12 @@ const menuItems = [
   { id: "account", label: "My Account", href: "/account", icon: "person" },
   { id: "support", label: "Help & Support", href: "/support", icon: "help" },
   { id: "privacy", label: "Privacy Policy", href: "/privacy", icon: "shield" },
-];
+] as const;
+
+// Desktop uses the same source list so labels, destinations, and order cannot drift from the app menu.
+export const desktopHomeMenuItems = mobileWebMenuItems;
+
+const menuItems = mobileWebMenuItems;
 
 const mobileAsset = {
   coat: "/mobile-source/sqc-coat-of-arms.png",
@@ -200,6 +207,8 @@ export default function MobileAppWebShell({
     "--sqc-bg-accent": activeTheme?.accent ?? (signedIn ? "rgba(45, 212, 191, .2)" : "rgba(179, 126, 43, .18)"),
   } as CSSProperties;
 
+  const showDesktopHome = activeTab === "home" && children == null && !modalPresentation && !immersivePresentation && !loadingPresentation;
+
   return (
     <main
       className={[
@@ -213,62 +222,89 @@ export default function MobileAppWebShell({
     >
       <div className="sqc-mobile-backdrop" aria-hidden="true" />
 
-      {modalPresentation ? null : signedIn ? (
-        <>
-          <MobileWebHamburgerMenu
-            items={menuItems.map((item) => ({
-              ...item,
-              active: isActiveMenuItem(item.id, activeTab),
-            }))}
-          />
-
-          {immersivePresentation || controlsOnlyHeader ? null : (
-            <header className="sqc-app-header">
-              <div className="sqc-identity">
-                <strong>{displayName || "Side Quest Chess"}</strong>
-                <span>
-                  {lichessUsername ? <small><b>LICHESS</b> {lichessUsername}</small> : null}
-                  {chessComUsername ? <small><b>CHESS.COM</b> {chessComUsername}</small> : null}
-                  {!hasChessAccount ? <small>Add a public chess username before checking Side Quest proof.</small> : null}
-                </span>
-              </div>
-              <Link href="/account" className="sqc-account-dot" aria-label="Open account settings">
-                {profileImageUrl ? <img alt="" src={profileImageUrl} referrerPolicy="no-referrer" /> : profileInitial}
-              </Link>
-            </header>
-          )}
-        </>
-      ) : immersivePresentation || loadingPresentation ? null : activeTab === "home" ? (
-        <header className="sqc-app-header guest">
-          <h1>Side Quest Chess</h1>
-        </header>
-      ) : null}
-
-      {activeTab !== "home" || modalPresentation ? (
-        <Link href={closeHref} className="sqc-close-screen" aria-label="Close screen">
-          <span aria-hidden="true" />
-        </Link>
-      ) : null}
-
-      <section className="sqc-screen" aria-label={activeTab === "home" ? "Home" : "Current screen"}>
-        {children ?? (
-          signedIn ? (
-            <SignedInHome
-              hasChessAccount={hasChessAccount}
-              activeSolo={activeSolo}
-              activeSoloTitle={activeSoloTitle}
-              activeMultiplayerRows={activeMultiplayerRows}
-              trophyRows={trophyRows}
-              completedSoloCount={completedSoloCount}
-              proofReceiptCount={proofReceiptCount}
+      <div className={showDesktopHome ? "sqc-app-only" : undefined}>
+        {modalPresentation ? null : signedIn ? (
+          <>
+            <MobileWebHamburgerMenu
+              items={menuItems.map((item) => ({
+                ...item,
+                active: isActiveMenuItem(item.id, activeTab),
+              }))}
             />
-          ) : (
-            <GuestHome />
-          )
+
+            {immersivePresentation || controlsOnlyHeader ? null : (
+              <header className="sqc-app-header">
+                <div className="sqc-identity">
+                  <strong>{displayName || "Side Quest Chess"}</strong>
+                  <span>
+                    {lichessUsername ? <small><b>LICHESS</b> {lichessUsername}</small> : null}
+                    {chessComUsername ? <small><b>CHESS.COM</b> {chessComUsername}</small> : null}
+                    {!hasChessAccount ? <small>Add a public chess username before checking Side Quest proof.</small> : null}
+                  </span>
+                </div>
+                <Link href="/account" className="sqc-account-dot" aria-label="Open account settings">
+                  {profileImageUrl ? <img alt="" src={profileImageUrl} referrerPolicy="no-referrer" /> : profileInitial}
+                </Link>
+              </header>
+            )}
+          </>
+        ) : immersivePresentation || loadingPresentation ? null : activeTab === "home" ? (
+          <header className="sqc-app-header guest">
+            <h1>Side Quest Chess</h1>
+          </header>
+        ) : null}
+
+        {activeTab !== "home" || modalPresentation ? (
+          <Link href={closeHref} className="sqc-close-screen" aria-label="Close screen">
+            <span aria-hidden="true" />
+          </Link>
+        ) : null}
+
+        {showDesktopHome && signedIn ? null : (
+          <section className="sqc-screen" aria-label={activeTab === "home" ? "Home" : "Current screen"}>
+            {children ?? (
+              signedIn ? (
+                <SignedInHome
+                  hasChessAccount={hasChessAccount}
+                  activeSolo={activeSolo}
+                  activeSoloTitle={activeSoloTitle}
+                  activeMultiplayerRows={activeMultiplayerRows}
+                  trophyRows={trophyRows}
+                  completedSoloCount={completedSoloCount}
+                  proofReceiptCount={proofReceiptCount}
+                />
+              ) : (
+                <GuestHome />
+              )
+            )}
+          </section>
         )}
-      </section>
-      {!signedIn && !(activeTab === "home" && children == null) && !modalPresentation && !immersivePresentation && !loadingPresentation ? (
-        <GuestNavigation activeTab={activeTab} />
+        {!signedIn && !(activeTab === "home" && children == null) && !modalPresentation && !immersivePresentation && !loadingPresentation ? (
+          <GuestNavigation activeTab={activeTab} />
+        ) : null}
+      </div>
+
+      {showDesktopHome && signedIn ? (
+        <>
+          <div className="sqc-desktop-home-only">
+            <DesktopHomeHeader signedIn displayName={displayName} />
+          </div>
+          <DesktopSignedInHome
+            displayName={displayName}
+            hasChessAccount={hasChessAccount}
+            activeSolo={activeSolo}
+            activeSoloTitle={activeSoloTitle}
+            activeMultiplayerRows={activeMultiplayerRows}
+            trophyRows={trophyRows}
+            completedSoloCount={completedSoloCount}
+            proofReceiptCount={proofReceiptCount}
+          />
+        </>
+      ) : showDesktopHome ? (
+        <div className="sqc-desktop-home-only">
+          <DesktopHomeHeader signedIn={false} displayName={displayName} />
+          <DesktopGuestHome />
+        </div>
       ) : null}
     </main>
   );
@@ -281,7 +317,6 @@ function GuestNavigation({ activeTab }: { activeTab: AppTab }) {
     { label: "Multiplayer", href: "/multiplayer", active: activeTab === "multiplayerSideQuests" },
     { label: "Help & Support", href: "/support", active: false },
     { label: "Privacy", href: "/privacy", active: false },
-    { label: "Sign in", href: "/sign-in", active: false },
   ];
 
   return (
@@ -291,7 +326,210 @@ function GuestNavigation({ activeTab }: { activeTab: AppTab }) {
           {item.label}
         </Link>
       ))}
+      <CurrentPageSignInLink>Sign in</CurrentPageSignInLink>
     </nav>
+  );
+}
+
+function DesktopHomeHeader({ signedIn, displayName }: { signedIn: boolean; displayName?: string | null }) {
+  const shortcuts = desktopHomeMenuItems.slice(0, 4);
+
+  return (
+    <header className="sqc-desktop-header">
+      <Link href="/" className="sqc-desktop-brand" aria-label="Side Quest Chess home">
+        <Image src={mobileAsset.coat} alt="" width={42} height={47} />
+        <span>
+          <strong>Side Quest Chess</strong>
+          <small>Public games. Unreasonable objectives.</small>
+        </span>
+      </Link>
+      <nav className="sqc-desktop-shortcuts" aria-label="Desktop shortcuts">
+        {shortcuts.map((item) => (
+          <Link key={item.id} href={item.href} aria-current={item.id === "home" ? "page" : undefined}>
+            {item.label}
+          </Link>
+        ))}
+      </nav>
+      <DesktopHomeMenu items={desktopHomeMenuItems} />
+      {signedIn ? (
+        <Link href="/account" className="sqc-desktop-sign-in">{displayName || "My Account"}</Link>
+      ) : (
+        <CurrentPageSignInLink className="sqc-desktop-sign-in">Sign in</CurrentPageSignInLink>
+      )}
+    </header>
+  );
+}
+
+function DesktopGuestHome() {
+  const featuredQuests = ["knights-before-coffee", "bishop-field-trip", "early-king-walk"]
+    .map((id) => CHALLENGES.find((challenge) => challenge.id === id))
+    .filter((challenge): challenge is Challenge => Boolean(challenge));
+  const recommended = featuredQuests[0];
+
+  return (
+    <div className="sqc-desktop-guest">
+      <section className="sqc-desktop-hero" aria-labelledby="desktop-home-title">
+        <div className="sqc-desktop-hero-copy">
+          <span className="sqc-desktop-eyebrow">Chess, with optional nonsense</span>
+          <h1 id="desktop-home-title">Your next chess game needs a terrible side plot.</h1>
+          <p>
+            Pick one ridiculous rule, then play a normal public game on Lichess or Chess.com. Side Quest Chess handles the paperwork and awards unnecessary heraldry if your bad idea survives inspection.
+          </p>
+          <div className="sqc-desktop-hero-actions">
+            <Link href="/side-quests" className="sqc-desktop-primary">Choose your bad idea</Link>
+            <a href="#how-it-works" className="sqc-desktop-secondary">Inspect the ritual</a>
+          </div>
+          <p className="sqc-desktop-trust">No chess-site password. No special game mode. One public game and an unreasonable amount of heraldry.</p>
+        </div>
+        {recommended ? (
+          <Link href={`/challenges/${recommended.id}`} className="sqc-desktop-featured-quest">
+            <span className="sqc-desktop-quest-kicker">A sensible first mistake</span>
+            <div className="sqc-desktop-featured-art" aria-hidden="true">
+              <Image src={toMobileAssetPath(recommended.badgeIdentity.image) ?? mobileAsset.fallbackBadge} alt="" width={224} height={250} priority />
+            </div>
+            <div>
+              <span className="sqc-desktop-difficulty">{recommended.difficulty}</span>
+              <h2>{recommended.title}</h2>
+              <p>{recommended.objective}</p>
+              <strong>Commit to this mistake <span aria-hidden="true">→</span></strong>
+            </div>
+          </Link>
+        ) : null}
+      </section>
+
+      <section id="how-it-works" className="sqc-desktop-loop" aria-labelledby="desktop-loop-title">
+        <div className="sqc-desktop-section-heading">
+          <span className="sqc-desktop-eyebrow">The official procedure</span>
+          <h2 id="desktop-loop-title">The ritual is suspiciously simple.</h2>
+          <p>You supply the chess. Side Quest Chess supplies the strange objective, the paperwork, and a tiny heraldic reward department.</p>
+        </div>
+        <ol>
+          <li><span>01</span><strong>Choose your bad idea</strong><p>Pick one rule likely to make your opening coach sigh.</p></li>
+          <li><span>02</span><strong>Play normal chess</strong><p>Use a public Lichess or Chess.com game. No special lobby. No costume. We brought the clipboard.</p></li>
+          <li><span>03</span><strong>Present evidence to the paperwork goblin</strong><p>Your newest public game is inspected for the required nonsense.</p></li>
+          <li><span>04</span><strong>Receive unnecessary heraldry</strong><p>The Coat of Arms goes straight into your Trophy Cabinet.</p></li>
+        </ol>
+      </section>
+
+      <section className="sqc-desktop-quest-shelf" aria-labelledby="desktop-quests-title">
+        <div className="sqc-desktop-section-heading horizontal">
+          <div>
+            <span className="sqc-desktop-eyebrow">Choose your level of regret</span>
+            <h2 id="desktop-quests-title">Three respectable ways to ruin a perfectly normal game.</h2>
+          </div>
+          <Link href="/side-quests">Show me worse ideas <span aria-hidden="true">→</span></Link>
+        </div>
+        <div className="sqc-desktop-quest-grid">
+          {featuredQuests.map((quest) => (
+            <Link href={`/challenges/${quest.id}`} key={quest.id} className="sqc-desktop-quest-card">
+              <Image src={toMobileAssetPath(quest.badgeIdentity.image) ?? mobileAsset.fallbackBadge} alt="" width={116} height={130} />
+              <div>
+                <span>{quest.difficulty}</span>
+                <h3>{quest.title}</h3>
+                <p>{quest.objective}</p>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      <section className="sqc-desktop-coat-story" aria-labelledby="desktop-coats-title">
+        <div>
+          <span className="sqc-desktop-eyebrow">The paperwork has a crest</span>
+          <h2 id="desktop-coats-title">Every bad idea deserves a coat of arms.</h2>
+          <p>
+            Complete a quest and its shield enters your Trophy Cabinet: permanent evidence that, yes, you really chose to play like that.
+          </p>
+          <Link href="/trophy-cabinet">Open the Trophy Cabinet <span aria-hidden="true">→</span></Link>
+        </div>
+        <div className="sqc-desktop-coat-row" aria-hidden="true">
+          {featuredQuests.map((quest) => (
+            <Image key={quest.id} src={toMobileAssetPath(quest.badgeIdentity.image) ?? mobileAsset.fallbackBadge} alt="" width={148} height={166} />
+          ))}
+        </div>
+      </section>
+
+      <section className="sqc-desktop-multiplayer-teaser" aria-labelledby="desktop-multiplayer-title">
+        <Image src={mobileAsset.multiplayerSeal} alt="" width={132} height={132} />
+        <div>
+          <span className="sqc-desktop-eyebrow">Multiplayer Side Quests</span>
+          <h2 id="desktop-multiplayer-title">Same nonsense, now with witnesses.</h2>
+          <p>Invite friends, agree on one terrible idea, then let public games decide who must live with the result.</p>
+        </div>
+        <Link href="/multiplayer" className="sqc-desktop-secondary">Start a Multiplayer Side Quest</Link>
+      </section>
+
+      <footer className="sqc-desktop-footer">
+        <span>Side Quest Chess</span>
+        <nav aria-label="Footer">
+          <Link href="/support">Help & Support</Link>
+          <Link href="/privacy">Privacy Policy</Link>
+          <Link href="/terms">Terms of Use</Link>
+        </nav>
+      </footer>
+    </div>
+  );
+}
+
+function DesktopSignedInHome({
+  displayName,
+  hasChessAccount,
+  activeSolo,
+  activeSoloTitle,
+  activeMultiplayerRows,
+  trophyRows,
+  completedSoloCount,
+  proofReceiptCount,
+}: {
+  displayName?: string | null;
+  hasChessAccount: boolean;
+  activeSolo?: ActiveSoloHome | null;
+  activeSoloTitle?: string | null;
+  activeMultiplayerRows: ActiveMultiplayerHomeRow[];
+  trophyRows: TrophyRow[];
+  completedSoloCount: number;
+  proofReceiptCount: number;
+}) {
+  const hasActiveSolo = Boolean(activeSolo?.title ?? activeSoloTitle);
+  const completedSteps = Number(hasChessAccount) + Number(hasActiveSolo);
+
+  return (
+    <div className="sqc-desktop-signed-in sqc-responsive-signed-home">
+      <section className="sqc-desktop-dashboard-intro">
+        <div>
+          <span className="sqc-desktop-eyebrow">Today&apos;s quest log</span>
+          <h1>{hasActiveSolo ? `Welcome back${displayName ? `, ${displayName}` : ""}.` : "Let’s choose your first Side Quest."}</h1>
+          <p>{hasActiveSolo ? "Your active quest, latest proof, shared challenges, and unlocked coats are ready below." : "Connect a public chess username, choose one quest, then play a new public game."}</p>
+        </div>
+        {!hasActiveSolo ? (
+          <ol className="sqc-desktop-onboarding-progress" aria-label="Getting started">
+            <li className={hasChessAccount ? "done" : "current"}><span>1</span><Link href="/account">Connect chess account</Link></li>
+            <li className={hasChessAccount ? "current" : ""}><span>2</span><Link href="/side-quests">Choose a Side Quest</Link></li>
+            <li><span>3</span><strong>Play and verify</strong></li>
+          </ol>
+        ) : (
+          <Link href="/side-quests" className="sqc-desktop-secondary">Explore more Side Quests</Link>
+        )}
+      </section>
+      <div className="sqc-desktop-dashboard-grid">
+        <SignedInHome
+          hasChessAccount={hasChessAccount}
+          activeSolo={activeSolo}
+          activeSoloTitle={activeSoloTitle}
+          activeMultiplayerRows={activeMultiplayerRows}
+          trophyRows={trophyRows}
+          completedSoloCount={completedSoloCount}
+          proofReceiptCount={proofReceiptCount}
+        />
+      </div>
+      <footer className="sqc-desktop-footer">
+        <span>{completedSteps}/2 setup steps complete</span>
+        <nav aria-label="Footer">
+          <Link href="/support">Help & Support</Link>
+          <Link href="/privacy">Privacy Policy</Link>
+        </nav>
+      </footer>
+    </div>
   );
 }
 
@@ -314,13 +552,13 @@ export function GuestHome({
         <h2>Sign in to continue.</h2>
         <p>
           Chess, but with stupidly hard side quests — solo or multiplayer. Browse the live boards first;
-          sign in when you want SQC to save progress, verify proof, or join a table.
+          sign in when you want Side Quest Chess to save progress, verify proof, or join a table.
         </p>
         <div className="sqc-action-pair">
           {onBrowseSolo ? <button type="button" className="sqc-secondary-action" onClick={onBrowseSolo}>Browse Solo Side Quests</button> : <Link href="/side-quests" className="sqc-secondary-action">Browse Solo Side Quests</Link>}
           {onBrowseMultiplayer ? <button type="button" className="sqc-secondary-action" onClick={onBrowseMultiplayer}>Browse Multiplayer Side Quests</button> : <Link href="/multiplayer" className="sqc-secondary-action">Browse Multiplayer Side Quests</Link>}
         </div>
-        {onSignIn ? <button type="button" className="sqc-primary-action" onClick={onSignIn}>Choose sign-in method</button> : <Link href="/sign-in" className="sqc-primary-action">Choose sign-in method</Link>}
+        {onSignIn ? <button type="button" className="sqc-primary-action" onClick={onSignIn}>Choose sign-in method</button> : <CurrentPageSignInLink className="sqc-primary-action">Choose sign-in method</CurrentPageSignInLink>}
       </section>
     </div>
   );
@@ -351,7 +589,7 @@ export function SignedInHome({
       {!hasChessAccount ? (
         <Link href="/account" className="sqc-blocker">
           <strong>Connect a chess username</strong>
-          <span>SQC needs Lichess or Chess.com before it can check real games.</span>
+          <span>Side Quest Chess needs Lichess or Chess.com before it can check real games.</span>
         </Link>
       ) : null}
 
@@ -653,7 +891,7 @@ export function MobileCreateCustomScreen({ signedIn = false, initialQuest = null
         <MobileAssetMark className="sqc-section-mark custom" image={mobileAsset.customCrest} glow={mobileAsset.coatGlow} size={112} glowSize={152} />
         <span className="sqc-multiplayer-kicker">Custom Side Quest</span>
         <h1>{initialQuest ? "Edit your Side Quest." : "Build your Side Quest."}</h1>
-        <p>{initialQuest ? "Update the saved proof conditions without changing who owns this Side Quest." : "Choose what should happen in a real game. SQC will check it after you play."}</p>
+        <p>{initialQuest ? "Update the saved proof conditions without changing who owns this Side Quest." : "Choose what should happen in a real game. Side Quest Chess will check it after you play."}</p>
       </section>
       <MobileCustomCreateForm key={initialQuest?.id ?? "new-custom-side-quest"} signedIn={signedIn} initialQuest={initialQuest} />
     </div>
@@ -720,7 +958,7 @@ export function MobileSupportScreen({
           </span>
         </summary>
         <p><strong>Web app</strong></p>
-        <p>{accountContext ? `Signed in as ${accountContext.displayName ?? "SQC player"}.` : "Not signed in."}</p>
+        <p>{accountContext ? `Signed in as ${accountContext.displayName ?? "Quest runner"}.` : "Not signed in."}</p>
         <p>Lichess: {accountContext?.lichessUsername ?? "not connected"} · Chess.com: {accountContext?.chessComUsername ?? "not connected"}</p>
         <p>Active Solo: {accountContext?.activeSoloQuestTitle ?? "none"} · Active Multiplayer: {accountContext?.activeMultiplayerQuestCount ?? 0} · Public hosted: {accountContext?.publicHostedMultiplayerQuestCount ?? 0}</p>
         {!signedIn ? <SupportDiagnosticsCopy accountContext={accountContext} /> : null}
@@ -756,7 +994,7 @@ export function MobileSupportScreen({
             <p>{reportContext.type === "community-solo" ? `Creator: ${reportContext.creatorName}` : `Host: ${reportContext.hostName}`}</p>
             {reportContext.type === "community-multiplayer" ? <p>Status: {reportContext.status}</p> : null}
           </> : null}
-          <h3>Support messages require a signed-in SQC account.</h3>
+          <h3>Support messages require a signed-in Side Quest Chess account.</h3>
           <p>Anonymous messages are not accepted by the support API. Sign in so your note and any reply stay attached to your account.</p>
           <Link href={reportContext ? `/sign-in?redirect_url=${encodeURIComponent(reportContext.returnPath)}` : "/sign-in?redirect_url=/support"} className="sqc-primary-action">Sign in to message support</Link>
         </section>
@@ -1181,7 +1419,7 @@ function OfficialMultiplayerPanel({
 }) {
   return (
     <>
-      <section className="sqc-panel list" aria-label="SQC Official Multiplayer Side Quests">
+      <section className="sqc-panel list" aria-label="Official Multiplayer Side Quests">
         <div className="sqc-list-head inline">
           <h2>Official Multiplayer Side Quests</h2>
           <span>{rows.length} official</span>
@@ -1446,7 +1684,7 @@ export function MobileMultiplayerDetailScreen({
   quest: MobileWebMultiplayerPreview;
   signedIn: boolean;
 }) {
-  const official = quest.sourceBadge === "SQC Official";
+  const official = quest.sourceBadge === "Official";
   const joinState = getMultiplayerJoinState({ questId: quest.id, signedIn, status: quest.status });
   const participating = joinState.kind === "joined" || (joinState.kind === "hosted" && quest.viewerJoined === true);
   const hostedNeedsJoin = joinState.kind === "hosted" && !participating;
@@ -1461,7 +1699,7 @@ export function MobileMultiplayerDetailScreen({
     <div className="sqc-stack sqc-multiplayer-public-detail-screen">
       <section className="sqc-multiplayer-detail-hero">
         <MobileAssetMark className="sqc-section-mark group" image={mobileAsset.multiplayerSeal} glow={mobileAsset.coatGlow} size={116} glowSize={146} />
-        <span className="sqc-multiplayer-kicker">{official ? "SQC Official Multiplayer Side Quest" : "Community Multiplayer Side Quest"}</span>
+        <span className="sqc-multiplayer-kicker">{official ? "Official Multiplayer Side Quest" : "Community Multiplayer Side Quest"}</span>
         <div className="sqc-active-detail-title-row">
           <h1>{quest.title}</h1>
           <OfficialSoloLikeControl
@@ -1505,7 +1743,7 @@ export function MobileMultiplayerDetailScreen({
       <section className="sqc-native-card sqc-multiplayer-native-card">
         <span className="sqc-card-eyebrow">{quest.lifecycle === "finished" ? "Receipts locked" : participating ? "Next action" : signedIn ? "Join first" : "Sign in first"}</span>
         <h2>{quest.lifecycle === "finished" ? "Final standings are frozen." : participating ? "Refresh proof after your next eligible game." : hostedNeedsJoin ? "Join your Multiplayer Side Quest before playing your proof game." : "Join this Multiplayer Side Quest before playing your proof game."}</h2>
-        <p>{quest.lifecycle === "finished" ? "The event window has ended, so SQC keeps the leaderboard as the final proof record." : participating ? "SQC checks only fresh public games inside this Multiplayer window." : "You can inspect the quests and rules below before joining."}</p>
+        <p>{quest.lifecycle === "finished" ? "The event window has ended, so Side Quest Chess keeps the leaderboard as the final proof record." : participating ? "Side Quest Chess checks only fresh public games inside this Multiplayer window." : "You can inspect the quests and rules below before joining."}</p>
         {quest.lifecycle === "finished" ? null : joinState.kind === "join" || hostedNeedsJoin ? (
           <GroupQuestDirectJoin
             id={quest.id}

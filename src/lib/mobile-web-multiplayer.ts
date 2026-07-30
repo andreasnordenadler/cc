@@ -9,7 +9,7 @@ export type MobileWebMultiplayerPreview = {
   title: string;
   meta: string;
   href: string;
-  sourceBadge: "SQC Official" | "Community";
+  sourceBadge: "Official" | "Community";
   hostName?: string;
   publiclyListed: boolean;
   inviteKey?: string;
@@ -132,12 +132,12 @@ export async function getMobileWebMultiplayerPreviews(
 
   const officialRows = activeQuests
     .filter((quest) => isOfficialGroupQuest(quest))
-    .map((quest) => buildMobileWebMultiplayerPreview(quest, userId, "SQC Official", likeSummaries.get("multiplayer", quest.id)));
+    .map((quest) => buildMobileWebMultiplayerPreview(quest, userId, "Official", likeSummaries.get("multiplayer", quest.id)));
 
   const communityRows = mergeCommunityCatalogQuests(publicQuests, relatedQuests).map((quest) => buildMobileWebMultiplayerPreview(
     quest,
     userId,
-    isOfficialGroupQuest(quest) ? "SQC Official" : "Community",
+    isOfficialGroupQuest(quest) ? "Official" : "Community",
     likeSummaries.get("multiplayer", quest.id),
   ));
 
@@ -171,7 +171,7 @@ export async function getMobileWebMultiplayerDetail(
   return buildMobileWebMultiplayerPreview(
     found.groupQuest,
     userId,
-    isOfficialGroupQuest(found.groupQuest) ? "SQC Official" : "Community",
+    isOfficialGroupQuest(found.groupQuest) ? "Official" : "Community",
     likeSummaries.get("multiplayer", id),
     true,
     canonicalOwnerUserId,
@@ -181,7 +181,7 @@ export async function getMobileWebMultiplayerDetail(
 export function buildMobileWebMultiplayerPreview(
   quest: ServerGroupQuest,
   userId: string | null | undefined,
-  sourceBadge: "SQC Official" | "Community",
+  sourceBadge: "Official" | "Community",
   likeSummary: CommunityLikeSummary,
   includeLeaderboard = false,
   canonicalOwnerUserId?: string,
@@ -194,7 +194,7 @@ export function buildMobileWebMultiplayerPreview(
   const positionLabel = userId ? getParticipantPositionLabel(quest, userId) : null;
   const joinStateLabel = userId ? (isOwner ? "You host" : joined ? "You joined" : "Not joined") : null;
   const meta = [
-    sourceBadge === "SQC Official" ? "SQC official" : "Community public",
+    sourceBadge === "Official" ? "Official" : "Community public",
     joinStateLabel,
     playersLabel,
     timeLeftLabel,
@@ -240,7 +240,7 @@ export function buildUserMultiplayerRows(
   return quests
     .filter((quest) => quest.hostUserId === userId || quest.participants.some((participant) => participant.userId === userId))
     .map((quest) => {
-      const row = buildMobileWebMultiplayerPreview(quest, userId, isOfficialGroupQuest(quest) ? "SQC Official" : "Community", likeSummaries.get(quest.id) ?? { count: 0, likedByViewer: false });
+      const row = buildMobileWebMultiplayerPreview(quest, userId, isOfficialGroupQuest(quest) ? "Official" : "Community", likeSummaries.get(quest.id) ?? { count: 0, likedByViewer: false });
       return { ...row, lifecycle: Number.isFinite(Date.parse(quest.endAt)) && Date.parse(quest.endAt) < now ? "finished" as const : "open" as const };
     });
 }

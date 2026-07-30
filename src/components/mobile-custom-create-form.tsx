@@ -291,7 +291,7 @@ export default function MobileCustomCreateForm({ signedIn, initialQuest = null }
             {block.timing?.byMove || block.timing?.atMove ? <label className="sqc-form-row"><span>Move number</span><input aria-label={`Condition ${index + 1} move number`} inputMode="numeric" max={300} min={1} onChange={(event) => updateMoveSequenceCondition(index, { moveNumberInput: event.target.value })} type="number" value={moveNumberInput} /></label> : null}
           </div> : block.type === "openingSequence" ? <div className="sqc-condition-editor-fields">
             <label className="sqc-form-row"><span>Opening notation</span><textarea aria-label={`Condition ${index + 1} opening sequence`} maxLength={260} onBlur={(event) => updateOpeningSequenceCondition(index, finalizeCustomOpeningSequenceInput(event.target.value))} onChange={(event) => updateOpeningSequenceCondition(index, event.target.value)} placeholder="1.e4 e5 2.f4" value={block.raw ?? block.moves.join(" ")} /></label>
-            <p>Paste opening notation with move numbers. SQC cleans it into: {block.moves.length ? block.moves.join(" → ") : "No moves parsed yet."}</p>
+            <p>Paste opening notation with move numbers. Side Quest Chess cleans it into: {block.moves.length ? block.moves.join(" → ") : "No moves parsed yet."}</p>
             <p>Opening sequence is always checked from move 1, so no timing is needed.</p>
           </div> : block.type === "pieceState" && block.owner !== "either" ? <div className="sqc-condition-editor-fields">
             <span className="sqc-card-eyebrow">Piece</span>
@@ -352,7 +352,7 @@ export default function MobileCustomCreateForm({ signedIn, initialQuest = null }
       <span className="sqc-form-label">Visibility</span>
       <div className="sqc-filter-row"><button className={visibility === "private" ? "active" : ""} onClick={() => setVisibility("private")} type="button">Private</button><button className={visibility === "public" ? "active" : ""} onClick={() => setVisibility("public")} type="button">Public</button></div>
       <label className="sqc-form-row"><span>Save state</span><select aria-label="Save state" onChange={(event) => setLifecycle(event.target.value as "draft" | "published" | "archived")} value={lifecycle}><option value="published">Ready to play</option><option value="draft">Draft</option>{initialState?.lifecycle === "archived" ? <option value="archived">Archived</option> : null}</select></label>
-      <p>Identity and ownership come from your signed-in SQC session. Published quests require at least one supported condition.</p>
+      <p>Identity and ownership come from your signed-in Side Quest Chess session. Published quests require at least one supported condition.</p>
     </> : <p className="sqc-local-draft-notice">This private draft is saved only in this browser. Sign in later to publish it or use proof.</p>}
     {error ? <p className="groupquest-join-error" role="alert">{error}</p> : null}
     <button className="sqc-create-footer-button" disabled={saving} type="submit">{saving ? "Saving…" : initialState ? "Save Rule Changes" : signedIn ? "Save Custom Side Quest" : "Save Draft Locally"}</button>

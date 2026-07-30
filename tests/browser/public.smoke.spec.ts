@@ -6,13 +6,34 @@ async function expectHealthyNavigation(page: import("@playwright/test").Page, pa
   expect(response!.status(), `${path} should not return an HTTP error`).toBeLessThan(400);
 }
 
-test("signed-out homepage exposes the two public browsing paths and auth entry", async ({ page }) => {
+test("signed-out desktop homepage explains the loop and exposes public browsing plus auth", async ({ page }) => {
   await expectHealthyNavigation(page, "/");
 
-  await expect(page.getByRole("heading", { name: "Sign in to continue." })).toBeVisible();
-  await expect(page.getByRole("link", { name: "Browse Solo Side Quests" })).toHaveAttribute("href", "/side-quests");
-  await expect(page.getByRole("link", { name: "Browse Multiplayer Side Quests" })).toHaveAttribute("href", "/multiplayer");
-  await expect(page.getByRole("link", { name: "Choose sign-in method" })).toHaveAttribute("href", "/sign-in");
+  await expect(page.getByRole("heading", { name: "Your next chess game needs a terrible side plot." })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Choose your bad idea", exact: true })).toHaveAttribute("href", "/side-quests");
+  await expect(page.getByRole("navigation", { name: "Desktop shortcuts" }).getByRole("link", { name: "Multiplayer Side Quests" })).toHaveAttribute("href", "/multiplayer");
+  await expect(page.getByRole("link", { name: "Sign in", exact: true })).toHaveAttribute("href", "/sign-in?redirect_url=%2F");
+  await expect(page.getByRole("heading", { name: "The ritual is suspiciously simple." })).toBeVisible();
+  await expect(page.getByText("Present evidence to the paperwork goblin", { exact: true })).toBeVisible();
+  await expect(page.getByText("Receive unnecessary heraldry", { exact: true })).toBeVisible();
+});
+
+test("desktop app menu dismisses with Escape and outside click", async ({ page }) => {
+  await expectHealthyNavigation(page, "/");
+
+  const trigger = page.locator(".sqc-desktop-menu summary");
+  const menu = page.getByRole("navigation", { name: "Desktop main menu" });
+
+  await trigger.click();
+  await expect(menu).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(menu).toBeHidden();
+  await expect(trigger).toBeFocused();
+
+  await trigger.click();
+  await expect(menu).toBeVisible();
+  await page.getByRole("heading", { name: "Your next chess game needs a terrible side plot." }).click();
+  await expect(menu).toBeHidden();
 });
 
 test("signed-out Home omits the web-only guest menu while non-Home routes preserve it", async ({ page }) => {
@@ -29,8 +50,19 @@ test("signed-out Home omits the web-only guest menu while non-Home routes preser
   await expect(menu.getByRole("link", { name: "Multiplayer" })).toHaveAttribute("href", "/multiplayer");
   await expect(menu.getByRole("link", { name: "Help & Support" })).toHaveAttribute("href", "/support");
   await expect(menu.getByRole("link", { name: "Privacy" })).toHaveAttribute("href", "/privacy");
-  await expect(menu.getByRole("link", { name: "Sign in" })).toHaveAttribute("href", "/sign-in");
+  await expect(menu.getByRole("link", { name: "Sign in" })).toHaveAttribute("href", "/sign-in?redirect_url=%2Fside-quests");
   await expect(menu.getByRole("link", { name: "Trophy Cabinet" })).toHaveCount(0);
+});
+
+test("sign-in returns to the exact page and query where the user started", async ({ page }) => {
+  await page.goto("/side-quests?tab=community");
+  const menu = page.getByRole("navigation", { name: "Guest menu" });
+  const signInLink = menu.getByRole("link", { name: "Sign in" });
+  await expect(signInLink).toHaveAttribute("href", "/sign-in?redirect_url=%2Fside-quests%3Ftab%3Dcommunity");
+  await signInLink.click();
+
+  await expect(page).toHaveURL(/\/sign-in\?redirect_url=/);
+  expect(new URL(page.url()).searchParams.get("redirect_url")).toBe("/side-quests?tab=community");
 });
 
 test("help redirects canonically to support", async ({ page }) => {
@@ -44,7 +76,7 @@ test("signed-out support clearly requires an account before messaging", async ({
   await expectHealthyNavigation(page, "/support");
 
   const report = page.getByRole("region", { name: "Report a problem" });
-  await expect(report.getByText("Support messages require a signed-in SQC account.")).toBeVisible();
+  await expect(report.getByText("Support messages require a signed-in Side Quest Chess account.")).toBeVisible();
   await expect(report.getByRole("link", { name: "Sign in to message support" })).toHaveAttribute(
     "href",
     "/sign-in?redirect_url=/support",
@@ -83,7 +115,7 @@ test("privacy policy is public, dedicated, and links to privacy support", async 
 
   await expect(page).toHaveURL(/\/privacy$/);
   await expect(page.getByRole("heading", { name: "Privacy Policy" })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Information SQC handles" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Information Side Quest Chess handles" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Chess game verification" })).toBeVisible();
   await expect(page.getByRole("link", { name: "Contact privacy support" })).toHaveAttribute(
     "href",

@@ -320,7 +320,7 @@ export async function GET(request: Request) {
     authenticated: true,
     generatedAt: new Date().toISOString(),
     profile: {
-      displayName: runnerName || "SQC player",
+      displayName: runnerName || "Quest runner",
       bio: getRunnerBio(metadata),
       imageUrl: user.imageUrl || null,
       email: user.primaryEmailAddress?.emailAddress ?? null,
@@ -428,7 +428,7 @@ async function getMobileAccountUser(
           apiVersion: 1,
           authenticated: true,
           temporarilyUnavailable: true,
-          message: "SQC could not refresh your account for a moment. Try again shortly.",
+          message: "Side Quest Chess could not refresh your account for a moment. Try again shortly.",
         },
         { status: 503, headers: retryAfter ? { "Retry-After": String(retryAfter) } : undefined },
       ),
@@ -456,7 +456,7 @@ async function listPublicCommunitySideQuests(
       });
       return quests
         .filter((quest) => quest.lifecycle === "published" && quest.visibility === "public")
-        .map((quest) => ({ quest, userId: user.id, creatorName: creatorName || "SQC player" }));
+        .map((quest) => ({ quest, userId: user.id, creatorName: creatorName || "Quest runner" }));
     });
 
     const seen = new Set<string>();

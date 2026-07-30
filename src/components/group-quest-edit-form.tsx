@@ -111,7 +111,7 @@ export default function GroupQuestEditForm({ canMarkOfficial = false, groupQuest
   const [inviteKey, setInviteKey] = useState(groupQuest.inviteKey ?? makeInviteKey(groupQuest.name));
   const [providerMode, setProviderMode] = useState<GroupQuestProviderMode>(groupQuest.providerMode);
   const [official, setOfficial] = useState(Boolean(groupQuest.official));
-  const [officialLabel, setOfficialLabel] = useState(groupQuest.officialLabel ?? "Official SQC Multiplayer Side Quest");
+  const [officialLabel, setOfficialLabel] = useState(groupQuest.officialLabel ?? "Official Multiplayer Side Quest");
   const [selectedQuestIds, setSelectedQuestIds] = useState<string[]>(groupQuest.questIds.length ? groupQuest.questIds : [quests[0]?.id ?? ""]);
   const [startAt, setStartAt] = useState(toDateTimeLocal(groupQuest.startAt));
   const [endAt, setEndAt] = useState(toDateTimeLocal(groupQuest.endAt));
@@ -218,8 +218,8 @@ export default function GroupQuestEditForm({ canMarkOfficial = false, groupQuest
             <label className="groupquests-official-toggle">
               <input checked={official} onChange={(event) => setOfficial(event.target.checked)} type="checkbox" />
               <span>
-                <strong>Official SQC Multiplayer Side Quest</strong>
-                <small>Highlight this as a curated SQC event in public listings.</small>
+                <strong>Official Multiplayer Side Quest</strong>
+                <small>Highlight this as a curated Side Quest Chess event in public listings.</small>
               </span>
             </label>
           ) : null}
@@ -322,7 +322,7 @@ export default function GroupQuestEditForm({ canMarkOfficial = false, groupQuest
 
         <aside className="groupquests-draft-preview" aria-label="Edit preview">
           <span className="eyebrow">Editing</span>
-          {official ? <span className="badge gold official-sqc-badge">{officialLabel || "Official SQC Multiplayer Side Quest"}</span> : null}
+          {official ? <span className="badge gold official-sqc-badge">{officialLabel || "Official Multiplayer Side Quest"}</span> : null}
           <h3>{name.trim() || "Untitled Multiplayer Side Quest"}</h3>
           <p>{inviteCopy}</p>
           <div className="groupquests-preview-stat-grid">

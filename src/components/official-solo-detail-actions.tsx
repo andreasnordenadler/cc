@@ -104,7 +104,7 @@ export function OfficialSoloStartControl({ challengeId, activeChallengeTitle }: 
             <span className="eyebrow">Switch active Side Quest?</span>
             <h2 id="official-solo-switch-title">Replace {activeChallengeTitle}?</h2>
             <p id="official-solo-switch-copy">
-              Starting this Side Quest changes which rules SQC checks after your next public game. Your existing quest stays available.
+              Starting this Side Quest changes which rules Side Quest Chess checks after your next public game. Your existing quest stays available.
             </p>
             <div className="sqc-action-pair">
               <button type="button" className="sqc-secondary-action" onClick={() => setIsConfirmingSwitch(false)}>

@@ -38,7 +38,7 @@ test("completed Official Solo detail opens the latest accepted proof without inv
     completed: true,
     attempt: passedAttempt,
     challenge,
-    runnerName: "SQC player",
+    runnerName: "Quest runner",
   });
 
   assert.ok(proofPath);

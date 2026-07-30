@@ -66,7 +66,7 @@ export async function listPublicCommunitySideQuests(client: ClerkUserListClient,
       lastName: user.lastName,
       username: user.username,
       emailAddress: user.primaryEmailAddress?.emailAddress,
-    }) || "SQC player";
+    }) || "Quest runner";
     const creatorKey = makeCreatorKey(creatorName, user.id);
 
     return records

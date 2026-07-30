@@ -284,7 +284,7 @@ export function evaluateKnightmareMode(game: KnightmareGame): KnightmareVerdict 
     return {
       status: "failed",
       gameId: game.id,
-      summary: "The mating move was not made by the Side Quest Chess player.",
+      summary: "The mating move was not made by the Quest runner.",
       evidence: [`Final move belonged to ${colorName(game.finalMove.color)}.`],
     };
   }
