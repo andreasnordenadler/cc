@@ -692,7 +692,7 @@ async function resetMobileCompletedChallenge(userId: string, metadata: UserMetad
 
   await updateUserPublicMetadata(userId, metadata, {
     activeChallenge: activeChallenge?.id === questId ? null : metadata.activeChallenge,
-    challengeAttempts: compactChallengeAttempts(remainingAttempts),
+    challengeAttempts: remainingAttempts,
     challengeProgress: buildChallengeProgressRecord(completedChallengeIds),
   });
 }

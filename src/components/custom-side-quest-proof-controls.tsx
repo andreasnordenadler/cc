@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 
-type QuestAction = "start" | "check" | "submit" | "deactivate";
+type QuestAction = "start" | "check" | "submit" | "deactivate" | "reset";
 
 export default function CustomSideQuestProofControls({
   questId,
@@ -13,6 +13,7 @@ export default function CustomSideQuestProofControls({
   completedAt,
   resultHref,
   latestAttempt,
+  allowCompletedReset = false,
 }: {
   questId: string;
   active: boolean;
@@ -29,6 +30,7 @@ export default function CustomSideQuestProofControls({
     failureLabel?: string;
     failureExplanation?: string;
   } | null;
+  allowCompletedReset?: boolean;
 }) {
   const [busy, setBusy] = useState<QuestAction | "">("");
   const [message, setMessage] = useState("");
@@ -59,6 +61,11 @@ export default function CustomSideQuestProofControls({
     }
   }
 
+  function resetCompletedQuest() {
+    if (!window.confirm("Reset this completed Side Quest? This removes the completed proof, receipt attempts, and Coat of Arms unlock so you can run it again.")) return;
+    void run("reset");
+  }
+
   const completedLabel = completedAt ? formatCompletedDate(completedAt) : null;
 
   return <section className="sqc-native-card sqc-multiplayer-native-card" aria-labelledby="custom-proof-controls-title">
@@ -75,7 +82,10 @@ export default function CustomSideQuestProofControls({
       </div>
     ) : null}
     <div className="sqc-community-detail-actions" aria-label="Custom Side Quest proof actions">
-      {completed ? resultHref ? <Link className="sqc-detail-primary-button" href={resultHref}>View result</Link> : null : active ? <>
+      {completed ? <>
+        {resultHref ? <Link className="sqc-detail-primary-button" href={resultHref}>View result</Link> : null}
+        {allowCompletedReset ? <button className="sqc-detail-secondary-button" disabled={Boolean(busy)} onClick={resetCompletedQuest} type="button">{busy === "reset" ? "Resetting…" : "Reset completed Side Quest"}</button> : null}
+      </> : active ? <>
         <label className="sqc-form-row">
           <span>Specific proof game</span>
           <input aria-label="Specific proof game" autoCapitalize="none" autoCorrect="off" onChange={(event) => setGameId(event.target.value)} placeholder="Lichess game ID or Chess.com URL" value={gameId} />
