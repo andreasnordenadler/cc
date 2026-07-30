@@ -533,7 +533,7 @@ test("active Multiplayer detail renders the live leaderboard and marks the viewe
     ...officialJoinedQuest,
     positionLabel: "#2",
     leaderboardRows: [
-      { rank: 1, name: "Ada", provider: "lichess · ada", progress: "2/3", placement: "Gold", viewer: false },
+      { rank: 1, name: "Ada", provider: "lichess · ada", progress: "2/3", placement: "Gold", viewer: false, note: "Latest proof Jul 30: Game abc verified" },
       { rank: 2, name: "Current player", provider: "chess.com · current", progress: "1/3", placement: "Silver", viewer: true },
     ],
   });
@@ -542,6 +542,8 @@ test("active Multiplayer detail renders the live leaderboard and marks the viewe
   assert.match(html, />Current Multiplayer Side Quest standings\.</);
   assert.match(html, />Ada</);
   assert.match(html, /2\/3/);
+  assert.match(html, /role="progressbar"[^>]*aria-valuenow="67"/);
+  assert.match(html, /Latest proof Jul 30: Game abc verified/);
   assert.match(html, />Current player · You</);
   assert.match(html, /1\/3/);
   assert.doesNotMatch(html, /Final leaderboard|Frozen player standings/);
@@ -559,6 +561,32 @@ test("active Multiplayer detail reports an authoritative empty leaderboard truth
 
   assert.match(html, />No players have joined yet\.</);
   assert.doesNotMatch(html, /participant data is available/i);
+});
+
+test("Multiplayer leaderboard rows preserve Android v339 proof diagnostics", () => {
+  const rows = buildMobileWebMultiplayerLeaderboardRows({
+    questIds: ["quest-one", "quest-two"],
+    participants: [{
+      userId: "viewer",
+      provider: "lichess" as const,
+      username: "viewer",
+      leaderboardName: "Viewer",
+      joinedAt: "2026-07-01T00:00:00.000Z",
+      completedQuestIds: ["quest-one"],
+      lastProofSummary: "Game abc123 verified Quest One",
+      lastProofAt: "2026-07-30T05:04:00.000Z",
+    }],
+  }, "viewer");
+
+  assert.deepEqual(rows[0], {
+    rank: 1,
+    name: "Viewer",
+    provider: "lichess · viewer",
+    progress: "1/2",
+    placement: "Gold",
+    viewer: true,
+    note: "You · Latest proof Jul 30: Game abc123 verified Quest One",
+  });
 });
 
 test("host detail exposes only other participants as removable", () => {
