@@ -366,6 +366,27 @@ test("custom creator rejects an incomplete board square like Android v339", () =
   }), /real board square like e4, h8, or a1/i);
 });
 
+test("custom creator preserves Android v339's unfinished target square in a private draft", () => {
+  const payload = buildCustomCreatePayload({
+    title: "Knight landing later",
+    summary: "Finish choosing the square later.",
+    logic: "all",
+    blocks: [{
+      type: "pieceState",
+      piece: "knight",
+      owner: "my",
+      condition: "on square",
+      targetSquare: "e",
+      timing: { atGameEnd: true },
+    }],
+    visibility: "public",
+    lifecycle: "draft",
+  });
+
+  assert.equal(JSON.parse(payload.config).blocks[0].targetSquare, "e");
+  assert.equal(payload.visibility, "private");
+});
+
 test("custom creator serializes valid board squares in the server's lowercase format", () => {
   const payload = buildCustomCreatePayload({
     title: "Knight landing",
