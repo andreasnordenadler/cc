@@ -13,6 +13,7 @@ import { getChessRatingSnapshots } from "@/lib/chess-ratings";
 import { listPublicCommunitySideQuests, type PublicCommunitySideQuest } from "@/lib/community-side-quests";
 import { getCustomSideQuests, type CustomSideQuest } from "@/lib/custom-side-quests";
 import { getActiveMultiplayerAccountRow, getMobileWebAccountOverview, loadOptionalCommunityTrophyQuests } from "@/lib/mobile-web-trophies";
+import { loadWebAccountRatings } from "@/lib/web-account-ratings";
 import {
   getActiveChallenge,
   getChallengeAttempts,
@@ -73,10 +74,15 @@ export function resolveAccountActiveSoloRow(
 export default async function AccountPage() {
   noStore();
   const user = await currentUser();
-  const metadata = user?.publicMetadata ? (user.publicMetadata as UserMetadataRecord) : {};
+  let metadata = user?.publicMetadata ? (user.publicMetadata as UserMetadataRecord) : {};
   const privateMetadata = user?.privateMetadata && typeof user.privateMetadata === "object"
     ? (user.privateMetadata as UserMetadataRecord)
     : {};
+  const client = user ? await clerkClient() : null;
+  const accountRatings = user
+    ? await loadWebAccountRatings(metadata)
+    : { metadata, snapshots: getChessRatingSnapshots(metadata) };
+  metadata = accountRatings.metadata;
   const displayName = user
     ? getPreferredRunnerName(metadata, {
         firstName: user.firstName,
@@ -90,7 +96,6 @@ export default async function AccountPage() {
   const progress = getChallengeProgress(metadata);
   const privateCustomSideQuests = getCustomSideQuests(privateMetadata);
   const customSideQuests = privateCustomSideQuests.length ? privateCustomSideQuests : getCustomSideQuests(metadata);
-  const client = user ? await clerkClient() : null;
   const communityQuests = user && client
     ? await loadOptionalCommunityTrophyQuests(() => listPublicCommunitySideQuests(client, { limit: null, viewerUserId: user.id, maxPages: 10 }))
     : [];
@@ -123,7 +128,7 @@ export default async function AccountPage() {
           email={user.primaryEmailAddress?.emailAddress ?? null}
           imageUrl={user.imageUrl ?? null}
           lastSignInAt={user.lastSignInAt ? new Date(user.lastSignInAt).toISOString() : null}
-          metadata={metadata}
+          metadata={accountRatings.metadata}
           lichessUsername={lichessUsername}
           chessComUsername={chessComUsername}
           trophyRows={accountOverview?.trophyRows ?? []}
@@ -230,8 +235,8 @@ function SignedInAccountScreen({
           <h2>Public chess ratings</h2>
           <p>Provider ratings are kept as context. Your Side Quest proof still comes from finished public games.</p>
           <div className="sqc-rating-grid">
-            <RatingColumn title="Lichess" username={lichessUsername} ratings={ratings.lichess?.ratings ?? []} />
-            <RatingColumn title="Chess.com" username={chessComUsername} ratings={ratings.chessCom?.ratings ?? []} />
+            <RatingColumn title="Lichess" username={lichessUsername} ratings={ratings.lichess?.ratings ?? []} error={ratings.lichess?.error} />
+            <RatingColumn title="Chess.com" username={chessComUsername} ratings={ratings.chessCom?.ratings ?? []} error={ratings.chessCom?.error} />
           </div>
         </div>
       </AccountSection>
@@ -486,7 +491,7 @@ function Metric({ label, value }: { label: string; value: number }) {
   );
 }
 
-function RatingColumn({ title, username, ratings }: { title: string; username: string; ratings: Array<{ label: string; rating: number }> }) {
+function RatingColumn({ title, username, ratings, error }: { title: string; username: string; ratings: Array<{ label: string; rating: number }>; error?: string }) {
   return (
     <div className="sqc-rating-column">
       <strong>{title}</strong>
@@ -497,7 +502,7 @@ function RatingColumn({ title, username, ratings }: { title: string; username: s
           <b>{rating.rating}</b>
         </span>
       ))}
-      {!ratings.length ? <em>No public ratings loaded yet.</em> : null}
+      {error ? <em>{error}</em> : !ratings.length ? <em>No public ratings loaded yet.</em> : null}
     </div>
   );
 }
