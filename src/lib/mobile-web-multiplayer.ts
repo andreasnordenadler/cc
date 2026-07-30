@@ -49,6 +49,7 @@ export type MobileWebMultiplayerLeaderboardRow = {
   progress: string;
   placement: "Gold" | "Silver" | "Bronze" | null;
   viewer: boolean;
+  note?: string;
   participantUserId?: string;
 };
 
@@ -289,15 +290,39 @@ export function buildMobileWebMultiplayerLeaderboardRows(
   userId: string | null | undefined,
   canManageParticipants = false,
 ): MobileWebMultiplayerLeaderboardRow[] {
-  return rankGroupQuestParticipants(quest).map((participant, index) => ({
-    rank: index + 1,
-    name: participant.leaderboardName,
-    provider: `${participant.provider === "chesscom" ? "chess.com" : "lichess"} · ${participant.username}`,
-    progress: `${participant.completedQuestIds?.length ?? 0}/${Math.max(quest.questIds.length, 1)}`,
-    placement: podiumPlacements[index] ?? null,
-    viewer: Boolean(userId) && participant.userId === userId,
-    ...(canManageParticipants && participant.userId !== userId ? { participantUserId: participant.userId } : {}),
-  }));
+  return rankGroupQuestParticipants(quest).map((participant, index) => {
+    const note = formatLeaderboardNote(participant, userId, index, quest.questIds.length);
+    return {
+      rank: index + 1,
+      name: participant.leaderboardName,
+      provider: `${participant.provider === "chesscom" ? "chess.com" : "lichess"} · ${participant.username}`,
+      progress: `${participant.completedQuestIds?.length ?? 0}/${Math.max(quest.questIds.length, 1)}`,
+      placement: podiumPlacements[index] ?? null,
+      viewer: Boolean(userId) && participant.userId === userId,
+      ...(note ? { note } : {}),
+      ...(canManageParticipants && participant.userId !== userId ? { participantUserId: participant.userId } : {}),
+    };
+  });
+}
+
+function formatLeaderboardNote(
+  participant: ServerGroupQuest["participants"][number],
+  userId: string | null | undefined,
+  index: number,
+  questCount: number,
+) {
+  const summary = participant.lastProofSummary?.trim();
+  const selfPrefix = participant.userId === userId ? "You" : "";
+  const podium = podiumPlacements[index] ? `${podiumPlacements[index]} seal` : "";
+  const finalPrefix = participant.completedQuestIds?.length === questCount ? podium : "";
+  if (!summary) return "";
+  const date = participant.lastProofAt ? new Date(participant.lastProofAt) : null;
+  const proofDate = date && !Number.isNaN(date.getTime())
+    ? date.toLocaleDateString("en-US", { month: "short", day: "numeric" })
+    : "";
+  return [selfPrefix, finalPrefix, `Latest proof${proofDate ? ` ${proofDate}` : ""}: ${summary}`]
+    .filter(Boolean)
+    .join(" · ");
 }
 
 function getGroupQuestChallengeTitle(quest: Pick<ServerGroupQuest, "customQuestSnapshots">, challengeId: string) {

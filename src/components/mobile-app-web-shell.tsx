@@ -1553,6 +1553,8 @@ export function MobileMultiplayerDetailScreen({
                 <div>
                   <strong>{row.name}{row.viewer ? " · You" : ""}</strong>
                   <p>{[row.placement, row.progress, row.provider].filter(Boolean).join(" · ")}</p>
+                  <MultiplayerLeaderboardProgress progress={row.progress} />
+                  {row.note ? <p className="sqc-multiplayer-proof-note">{row.note}</p> : null}
                 </div>
               </div>
             )) : (
@@ -1646,6 +1648,8 @@ export function MobileMultiplayerDetailScreen({
                 <div>
                   <strong>{row.name}{row.viewer ? " · You" : ""}</strong>
                   <p>{[row.progress, row.provider].filter(Boolean).join(" · ")}</p>
+                  <MultiplayerLeaderboardProgress progress={row.progress} />
+                  {row.note ? <p className="sqc-multiplayer-proof-note">{row.note}</p> : null}
                   {row.participantUserId ? (
                     <GroupQuestRemoveParticipantAction
                       id={quest.id}
@@ -1674,6 +1678,26 @@ export function MobileMultiplayerDetailScreen({
         </div>
       </section>
     </div>
+  );
+}
+
+function MultiplayerLeaderboardProgress({ progress }: { progress: string }) {
+  const match = progress.match(/(\d+)\s*\/\s*(\d+)/);
+  const done = Number(match?.[1] ?? 0);
+  const total = Number(match?.[2] ?? 0);
+  const percent = total > 0 ? Math.max(0, Math.min(100, Math.round((done / total) * 100))) : 0;
+  return (
+    <span className="sqc-multiplayer-progress-track">
+      <span
+        className="sqc-multiplayer-progress-fill"
+        role="progressbar"
+        aria-label={`${progress} Side Quests verified`}
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-valuenow={percent}
+        style={{ width: `${percent}%` }}
+      />
+    </span>
   );
 }
 
