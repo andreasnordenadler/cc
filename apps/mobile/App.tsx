@@ -44,6 +44,7 @@ import { loadMobileAccount } from "./src/account/loadMobileAccount";
 import { clerkPublishableKey, clerkTokenCache, isClerkMobileAuthConfigured } from "./src/auth/clerk";
 import { OFFLINE_MOBILE_BOOTSTRAP } from "./src/data/offlineBootstrap";
 import { shouldStackActiveQuestSummary } from "./src/layout/activeQuestLayout";
+import { buildMobileSupportMessage } from "./src/support/buildMobileSupportMessage";
 import type { MobileAccountResponse, MobileAccountState, MobileBootstrap, MobileChallenge, MobileCustomSideQuest, MobileGroupQuestParticipantRow, MobileGroupQuestSummary, MobileSupportMessage } from "./src/types/sqc";
 
 type AppTab = "home" | "sideQuests" | "multiplayerSideQuests" | "officialLeaderboards" | "coatOfArms" | "account";
@@ -3545,6 +3546,7 @@ function buildMobileSupportDiagnostics(signedIn: MobileAccountState | null) {
 
 function HelpSupportModal({ visible, onClose, signedIn, authBridge, initialMessage = "" }: { visible: boolean; onClose: () => void; signedIn: MobileAccountState | null; authBridge: MobileAuthBridge; initialMessage?: string }) {
   const [supportMessage, setSupportMessage] = useState(initialMessage);
+  const [includeDiagnostics, setIncludeDiagnostics] = useState(false);
   const [localSupportMessages, setLocalSupportMessages] = useState<MobileSupportMessage[]>([]);
   const [submitState, setSubmitState] = useState<{ busy: boolean; message: string | null; error: string | null }>({ busy: false, message: null, error: null });
   const [diagnosticsOpen, setDiagnosticsOpen] = useState(false);
@@ -3573,12 +3575,17 @@ function HelpSupportModal({ visible, onClose, signedIn, authBridge, initialMessa
 
     try {
       const sessionToken = await authBridge.getSessionToken();
-      const messageWithDiagnostics = `${trimmed}\n\n---\n${buildMobileSupportDiagnostics(signedIn)}`;
-      const result = await submitMobileSupportMessage({ sessionToken, message: messageWithDiagnostics });
+      const message = buildMobileSupportMessage({
+        message: trimmed,
+        diagnostics: buildMobileSupportDiagnostics(signedIn),
+        includeDiagnostics,
+      });
+      const result = await submitMobileSupportMessage({ sessionToken, message });
       if (result.supportMessage) {
         setLocalSupportMessages((current) => [...current, result.supportMessage as MobileSupportMessage]);
       }
       setSupportMessage("");
+      setIncludeDiagnostics(false);
       setSubmitState({ busy: false, message: result.message, error: null });
     } catch (caught) {
       setSubmitState({ busy: false, message: null, error: caught instanceof Error ? caught.message : "Could not send the support note." });
@@ -3687,6 +3694,23 @@ function HelpSupportModal({ visible, onClose, signedIn, authBridge, initialMessa
                 onChangeText={setSupportMessage}
               />
             </View>
+            <Pressable
+              accessibilityRole="checkbox"
+              accessibilityState={{ checked: includeDiagnostics }}
+              accessibilityLabel="Include app diagnostics with support message"
+              style={compactStyles.diagnosticsDisclosure}
+              onPress={() => setIncludeDiagnostics((current) => !current)}
+            >
+              <MaterialCommunityIcons
+                name={includeDiagnostics ? "checkbox-marked" : "checkbox-blank-outline"}
+                size={24}
+                color={colors.gold}
+              />
+              <View style={{ flex: 1 }}>
+                <Text style={compactStyles.appRowTitle}>Include app diagnostics</Text>
+                <Text style={compactStyles.detailPanelCopy}>Optional: sends your build, device, connected chess usernames, active quest, and Multiplayer counts with this message.</Text>
+              </View>
+            </Pressable>
             {submitState.message ? <Text style={compactStyles.inlineSuccess}>{submitState.message}</Text> : null}
             {submitState.error ? <Text style={compactStyles.inlineError}>{submitState.error}</Text> : null}
             <Pressable accessibilityRole="button" accessibilityLabel="Send support message" style={[compactStyles.detailPrimaryButton, submitState.busy ? compactStyles.disabledAction : null]} disabled={submitState.busy} onPress={() => void submitSupport()}>
