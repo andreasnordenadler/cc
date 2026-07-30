@@ -2,6 +2,7 @@ import type { CustomSideQuest } from "@/lib/custom-side-quests";
 import { buildCompletedCustomPublicProofPath } from "@/lib/proof-share";
 import {
   getChallengeProgress,
+  getLatestChallengeAttempt,
   getLatestPassedChallengeAttempt,
   type ChallengeAttempt,
   type UserMetadataRecord,
@@ -16,11 +17,26 @@ export async function buildCommunitySoloCompletionState({
 }) {
   const completed = getChallengeProgress(metadata).completedChallengeIds.includes(quest.id);
   const attempt = normalizeProofAttempt(getLatestPassedChallengeAttempt(metadata, quest.id));
+  const latestAttempt = normalizeLatestAttempt(getLatestChallengeAttempt(metadata, quest.id));
 
   return {
     completed,
     completedAt: attempt?.completedGameAt ?? attempt?.checkedAt ?? null,
     resultHref: await buildCompletedCustomPublicProofPath({ completed, attempt, quest }),
+    latestAttempt,
+  };
+}
+
+function normalizeLatestAttempt(attempt: ChallengeAttempt | null) {
+  if (!attempt || typeof attempt.status !== "string" || typeof attempt.summary !== "string" || typeof attempt.checkedAt !== "string") return null;
+  return {
+    status: attempt.status,
+    summary: attempt.summary,
+    checkedAt: attempt.checkedAt,
+    ...(stringOrUndefined(attempt.finalPositionFen) ? { finalPositionFen: attempt.finalPositionFen as string } : {}),
+    ...(stringOrUndefined(attempt.lastMoveSan) ? { lastMoveSan: attempt.lastMoveSan as string } : {}),
+    ...(typeof attempt.failureDiagnostic?.label === "string" ? { failureLabel: attempt.failureDiagnostic.label } : {}),
+    ...(typeof attempt.failureDiagnostic?.explanation === "string" ? { failureExplanation: attempt.failureDiagnostic.explanation } : {}),
   };
 }
 

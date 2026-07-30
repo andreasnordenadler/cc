@@ -61,6 +61,7 @@ export default async function CommunitySideQuestDetailPage({
         completed={completionState.completed}
         completedAt={completionState.completedAt}
         resultHref={completionState.resultHref}
+        latestAttempt={completionState.latestAttempt}
       />
     </MobileAppWebShell>
   );

@@ -241,6 +241,81 @@ test("signed-in Community Solo detail can start an exact preselected Multiplayer
   assert.doesNotMatch(html, /userId=|creatorUserId=/);
 });
 
+test("active Community Solo detail exposes Android v339 latest, exact, and deactivate proof actions", () => {
+  const html = renderToStaticMarkup(React.createElement(MobileCommunitySideQuestDetailScreen, {
+    signedIn: true,
+    activeQuestId: "quest/42",
+    quest: {
+      id: "quest/42",
+      title: "Ada's Fork",
+      summary: "Win a fork.",
+      creatorName: "Ada",
+      creatorBrowsePath: "/community-side-quests?creator=ada",
+      ruleLabel: "Fork",
+      ruleDetails: ["Create a fork."],
+      stats: { soloAttempts: 1, soloSelections: 1, soloCompletions: 0, multiplayerLineups: 0, multiplayerAttempts: 0, multiplayerFulfillments: 0 },
+    },
+  }));
+
+  assert.match(html, />Check my latest game<\/button>/);
+  assert.match(html, /aria-label="Specific proof game"/);
+  assert.match(html, />Submit game\/link<\/button>/);
+  assert.match(html, />Deactivate<\/button>/);
+  assert.doesNotMatch(html, />Active Side Quest<\/a>/);
+});
+
+test("signed-out Community Solo detail ignores stale active identity and keeps sign-in actions", () => {
+  const html = renderToStaticMarkup(React.createElement(MobileCommunitySideQuestDetailScreen, {
+    signedIn: false,
+    activeQuestId: "quest/42",
+    quest: {
+      id: "quest/42",
+      title: "Ada's Fork",
+      summary: "Win a fork.",
+      creatorName: "Ada",
+      creatorBrowsePath: "/community-side-quests?creator=ada",
+      ruleLabel: "Fork",
+      ruleDetails: ["Create a fork."],
+      stats: { soloAttempts: 0, soloSelections: 0, soloCompletions: 0, multiplayerLineups: 0, multiplayerAttempts: 0, multiplayerFulfillments: 0 },
+    },
+  }));
+
+  assert.match(html, /Sign in to pick this Community Solo Side Quest/);
+  assert.match(html, />Sign in<\/a>/);
+  assert.doesNotMatch(html, />Check my latest game<|>Submit game\/link<|>Deactivate</);
+});
+
+test("active Community Solo detail renders the latest failed proof diagnostic from authenticated state", () => {
+  const html = renderToStaticMarkup(React.createElement(MobileCommunitySideQuestDetailScreen, {
+    signedIn: true,
+    activeQuestId: "quest/42",
+    latestAttempt: {
+      status: "failed",
+      summary: "The latest game did not create a fork.",
+      checkedAt: "2026-07-19T10:10:00.000Z",
+      lastMoveSan: "Kh1",
+      failureLabel: "Fork not found",
+      failureExplanation: "No move attacked two pieces at once.",
+    },
+    quest: {
+      id: "quest/42",
+      title: "Ada's Fork",
+      summary: "Win a fork.",
+      creatorName: "Ada",
+      creatorBrowsePath: "/community-side-quests?creator=ada",
+      ruleLabel: "Fork",
+      ruleDetails: ["Create a fork."],
+      stats: { soloAttempts: 1, soloSelections: 1, soloCompletions: 0, multiplayerLineups: 0, multiplayerAttempts: 0, multiplayerFulfillments: 0 },
+    },
+  }));
+
+  assert.match(html, /Latest proof check/);
+  assert.match(html, /Fork not found/);
+  assert.match(html, /The latest game did not create a fork\./);
+  assert.match(html, /No move attacked two pieces at once\./);
+  assert.match(html, /Last move: Kh1/);
+});
+
 test("completed Community Solo detail exposes Android v339's result action instead of pick or active self-links", () => {
   const html = renderToStaticMarkup(React.createElement(MobileCommunitySideQuestDetailScreen, {
     signedIn: true,
@@ -262,6 +337,71 @@ test("completed Community Solo detail exposes Android v339's result action inste
   assert.match(html, /Completed Jul 18, 2026/);
   assert.match(html, /href="\/proof\/signed-community-result"[^>]*>View result<\/a>/);
   assert.doesNotMatch(html, />Pick this Side Quest<|>Active Side Quest</);
+});
+
+test("completed Community Solo detail keeps the result surface free of active-run diagnostics", () => {
+  const html = renderToStaticMarkup(React.createElement(MobileCommunitySideQuestDetailScreen, {
+    signedIn: true,
+    activeQuestId: "quest/42",
+    completed: true,
+    completedAt: "2026-07-18T10:10:00.000Z",
+    resultHref: "/proof/signed-community-result",
+    latestAttempt: {
+      status: "passed",
+      summary: "Accepted proof.",
+      checkedAt: "2026-07-18T10:10:00.000Z",
+    },
+    quest: {
+      id: "quest/42",
+      title: "Ada's Fork",
+      summary: "Win a fork.",
+      creatorName: "Ada",
+      creatorBrowsePath: "/community-side-quests?creator=ada",
+      ruleLabel: "Fork",
+      ruleDetails: ["Create a fork."],
+      stats: { soloAttempts: 1, soloSelections: 1, soloCompletions: 1, multiplayerLineups: 0, multiplayerAttempts: 0, multiplayerFulfillments: 0 },
+    },
+  }));
+
+  assert.match(html, />View result<\/a>/);
+  assert.doesNotMatch(html, /Latest proof check|Accepted proof\.|>Deactivate</);
+});
+
+test("Community Solo detail state preserves the latest failed proof diagnostic for the active command center", async () => {
+  const state = await buildCommunitySoloCompletionState({
+    metadata: {
+      challengeAttempts: [{
+        id: "quest/42:failed",
+        challengeId: "quest/42",
+        status: "failed",
+        summary: "The latest game did not create a fork.",
+        checkedAt: "2026-07-19T10:10:00.000Z",
+        finalPositionFen: "8/8/8/8/8/8/8/K6k w - - 0 1",
+        lastMoveSan: "Kh1",
+        failureDiagnostic: { label: "Fork not found", explanation: "No move attacked two pieces at once." },
+      }],
+    },
+    quest: {
+      id: "quest/42",
+      title: "Ada's Fork",
+      summary: "Win a fork.",
+      config: JSON.stringify({ version: 1, template: "finishAnyGame" }),
+      lifecycle: "published",
+      visibility: "public",
+      createdAt: "2026-07-12T00:00:00.000Z",
+      updatedAt: "2026-07-12T00:00:00.000Z",
+    },
+  });
+
+  assert.deepEqual(state.latestAttempt, {
+    status: "failed",
+    summary: "The latest game did not create a fork.",
+    checkedAt: "2026-07-19T10:10:00.000Z",
+    finalPositionFen: "8/8/8/8/8/8/8/K6k w - - 0 1",
+    lastMoveSan: "Kh1",
+    failureLabel: "Fork not found",
+    failureExplanation: "No move attacked two pieces at once.",
+  });
 });
 
 test("Community Solo completion state keeps the latest accepted proof after a later failed check", async () => {
@@ -329,6 +469,7 @@ test("authenticated Community Solo route passes server-derived completion state 
   assert.match(source, /completed=\{completionState\.completed\}/);
   assert.match(source, /completedAt=\{completionState\.completedAt\}/);
   assert.match(source, /resultHref=\{completionState\.resultHref\}/);
+  assert.match(source, /latestAttempt=\{completionState\.latestAttempt\}/);
 });
 
 test("Community Solo detail keeps its Coat of Arms in flow instead of clipping it above the viewport", async () => {
