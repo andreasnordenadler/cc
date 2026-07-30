@@ -50,6 +50,7 @@ export type MobileWebMultiplayerLeaderboardRow = {
   placement: "Gold" | "Silver" | "Bronze" | null;
   viewer: boolean;
   note?: string;
+  lastProofSummary?: string;
   participantUserId?: string;
 };
 
@@ -300,6 +301,7 @@ export function buildMobileWebMultiplayerLeaderboardRows(
       placement: podiumPlacements[index] ?? null,
       viewer: Boolean(userId) && participant.userId === userId,
       ...(note ? { note } : {}),
+      ...(participant.lastProofSummary?.trim() ? { lastProofSummary: participant.lastProofSummary.trim() } : {}),
       ...(canManageParticipants && participant.userId !== userId ? { participantUserId: participant.userId } : {}),
     };
   });

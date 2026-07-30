@@ -1694,6 +1694,13 @@ export function MobileMultiplayerDetailScreen({
     : viewerFinalRow
       ? `Final place #${viewerFinalRow.rank}.`
       : "Final leaderboard frozen.";
+  const finalSealImage = viewerFinalRow?.placement === "Gold"
+    ? mobileAsset.goldSeal
+    : viewerFinalRow?.placement === "Silver"
+      ? mobileAsset.silverSeal
+      : viewerFinalRow?.placement === "Bronze"
+        ? mobileAsset.bronzeSeal
+        : mobileAsset.multiplayerSeal;
 
   return (
     <div className="sqc-stack sqc-multiplayer-public-detail-screen">
@@ -1736,6 +1743,17 @@ export function MobileMultiplayerDetailScreen({
           <span className="sqc-card-eyebrow">Final result</span>
           <h2>{finalResultTitle}</h2>
           <p>{viewerFinalRow ? `${viewerFinalRow.progress} complete · Proof checks are closed, so this is your final table receipt.` : "Proof checks are closed, so this leaderboard is final."}</p>
+          {viewerFinalRow ? (
+            <div className="sqc-multiplayer-final-reward" aria-label="Final Multiplayer reward proof">
+              <Image src={finalSealImage} alt="" width={92} height={92} unoptimized />
+              <div>
+                <strong>{viewerFinalRow.placement ? "Final reward sealed." : "Final proof saved."}</strong>
+                <p>{viewerFinalRow.placement ? "Podium seal earned. This reward appears in your Trophy Cabinet after account sync." : "Final proof recorded. Podium seals are awarded to the top three finishers."}</p>
+                <small>{viewerFinalRow.progress} complete · {viewerFinalRow.progress} verified</small>
+                {viewerFinalRow.lastProofSummary ? <small>{viewerFinalRow.lastProofSummary}</small> : null}
+              </div>
+            </div>
+          ) : null}
           <GroupQuestShareControls id={quest.id} title={quest.title} isOwner={joinState.kind === "hosted"} shareLabel="Share final result" copyLabel="Copy final link" />
         </section>
       ) : null}

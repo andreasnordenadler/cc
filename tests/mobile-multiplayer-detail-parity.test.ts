@@ -83,6 +83,48 @@ test("joined official Multiplayer detail renders the Android next action and rea
   assert.doesNotMatch(html, /Back to catalog|Joined Side Quest|before joining|Created by|Hosted by Side Quest Chess/);
 });
 
+test("finished joined Multiplayer detail renders Android's sealed final reward receipt from canonical participant data", () => {
+  const leaderboardRows = buildMobileWebMultiplayerLeaderboardRows({
+    questIds: ["quest-one", "quest-two", "quest-three"],
+    participants: [
+      {
+        userId: "winner",
+        provider: "lichess",
+        username: "winner",
+        leaderboardName: "Winner",
+        joinedAt: "2026-07-01T00:00:00.000Z",
+        completedQuestIds: ["quest-one", "quest-two", "quest-three"],
+      },
+      {
+        userId: "viewer",
+        provider: "chesscom",
+        username: "current-player",
+        leaderboardName: "Current player",
+        joinedAt: "2026-07-02T00:00:00.000Z",
+        completedQuestIds: ["quest-one", "quest-two"],
+        lastProofSummary: "Bishop Field Trip.",
+        lastProofAt: "2026-07-29T12:00:00.000Z",
+      },
+    ],
+  }, "viewer");
+  const html = renderDetail({
+    ...officialJoinedQuest,
+    lifecycle: "finished",
+    eventStatus: "Finished",
+    status: "Joined",
+    timeLeftLabel: "Final",
+    positionLabel: "#2",
+    leaderboardRows,
+  });
+
+  assert.match(html, /aria-label="Final Multiplayer reward proof"/);
+  assert.match(html, /src="\/mobile-source\/stamps\/sqc-silver-seal\.png"/);
+  assert.match(html, />Final reward sealed\.</);
+  assert.match(html, />Podium seal earned\. This reward appears in your Trophy Cabinet after account sync\.</);
+  assert.match(html, />2\/3 complete · 2\/3 verified</);
+  assert.match(html, /<small>Bishop Field Trip\.<\/small>/);
+});
+
 test("each included Multiplayer Side Quest opens its Android rule and proof detail", () => {
   const html = renderDetail(officialJoinedQuest);
 
@@ -586,6 +628,7 @@ test("Multiplayer leaderboard rows preserve Android v339 proof diagnostics", () 
     placement: "Gold",
     viewer: true,
     note: "You · Latest proof Jul 30: Game abc123 verified Quest One",
+    lastProofSummary: "Game abc123 verified Quest One",
   });
 });
 
