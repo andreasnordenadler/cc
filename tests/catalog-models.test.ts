@@ -369,3 +369,18 @@ test("Community catalog data keeps finished public quests available for host she
     ["open-public", "finished-public", "related-private"],
   );
 });
+
+test("Community catalog excludes authenticated Official Multiplayer replicas", () => {
+  const communityPublic = quest({ id: "community-public" });
+  const relatedPrivate = quest({ id: "related-private", inviteMode: "private-key" });
+  const relatedOfficial = quest({ id: "official-starter-shield", official: true });
+  const relatedLegacyOfficial = quest({ id: "official-legacy-week", official: false });
+
+  assert.deepEqual(
+    mergeCommunityCatalogQuests(
+      [communityPublic],
+      [relatedOfficial, relatedLegacyOfficial, relatedPrivate],
+    ).map(item => item.id),
+    ["community-public", "related-private"],
+  );
+});
