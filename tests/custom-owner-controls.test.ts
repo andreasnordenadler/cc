@@ -9,6 +9,7 @@ import {
   buildCustomOwnerDuplicatePayload,
   buildCustomOwnerSavePayload,
   duplicateCustomOwnerQuest,
+  getCustomOwnerDuplicateSuccessMessage,
   getCustomOwnerDestination,
   saveCustomOwnerState,
   type CustomOwnerSaveInput,
@@ -114,6 +115,18 @@ test("owner duplicate action uses the persisted quest instead of unsaved form st
 
   assert.match(controls, /duplicateCustomOwnerQuest\(quest\)/);
   assert.doesNotMatch(controls, /title: `\$\{title\} Copy`/);
+});
+
+test("owner duplicate success stays on the original detail and acknowledges the Android v339 result", async () => {
+  const controls = await source("src/components/custom-side-quest-owner-controls.tsx");
+
+  assert.equal(
+    getCustomOwnerDuplicateSuccessMessage("Knight watch"),
+    "Knight watch Copy is now in My Custom Side Quests.",
+  );
+  assert.match(controls, /setMessage\(getCustomOwnerDuplicateSuccessMessage\(quest\.title\)\)/);
+  assert.match(controls, /async function duplicate[\s\S]*?setMessageIsError\(false\)[\s\S]*?async function remove/);
+  assert.doesNotMatch(controls, /async function duplicate[\s\S]*?window\.location\.assign\(destination\)[\s\S]*?async function remove/);
 });
 
 test("owner delete confirmation matches Android v339 active and inactive consequences", () => {

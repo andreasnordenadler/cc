@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { FormEvent, useState } from "react";
-import { buildCustomOwnerSavePayload, deleteCustomOwnerQuest, duplicateCustomOwnerQuest, getCustomOwnerDeleteConfirmation, getCustomOwnerDestination, getCustomOwnerMultiplayerHref, getCustomOwnerStateSavedMessage, saveCustomOwnerState, type CustomOwnerSaveInput } from "@/lib/custom-owner-controls";
+import { buildCustomOwnerSavePayload, deleteCustomOwnerQuest, duplicateCustomOwnerQuest, getCustomOwnerDeleteConfirmation, getCustomOwnerDestination, getCustomOwnerDuplicateSuccessMessage, getCustomOwnerMultiplayerHref, getCustomOwnerStateSavedMessage, saveCustomOwnerState, type CustomOwnerSaveInput } from "@/lib/custom-owner-controls";
 
 export default function CustomSideQuestOwnerControls({ quest, active = false }: { quest: CustomOwnerSaveInput; active?: boolean }) {
   const [title, setTitle] = useState(quest.title);
@@ -55,7 +55,8 @@ export default function CustomSideQuestOwnerControls({ quest, active = false }: 
     try {
       const destination = await duplicateCustomOwnerQuest(quest);
       if (!destination) { setMessage("Could not duplicate this Side Quest right now."); return; }
-      window.location.assign(destination);
+      setMessageIsError(false);
+      setMessage(getCustomOwnerDuplicateSuccessMessage(quest.title));
     } catch { setMessage("Could not duplicate this Side Quest right now."); }
     finally { setBusy(""); }
   }
