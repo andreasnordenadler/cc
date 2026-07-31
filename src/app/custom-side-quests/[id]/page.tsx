@@ -8,7 +8,7 @@ import CustomSideQuestOwnerControls from "@/components/custom-side-quest-owner-c
 import CustomSideQuestProofControls from "@/components/custom-side-quest-proof-controls";
 import CustomSideQuestActivity from "@/components/custom-side-quest-activity";
 import CommunitySoloShareControls from "@/components/community-solo-share-controls";
-import { describeCustomSideQuestRuleDetails } from "@/lib/community-side-quests";
+import { getCustomSideQuestRulePresentation } from "@/lib/community-side-quests";
 import { buildOwnedCustomQuestStats, loadCustomQuestGroupContext } from "@/lib/custom-side-quest-activity";
 import { buildReplicatedCustomSoloCompletionState } from "@/lib/community-solo-detail-state";
 import { getCustomSideQuestBadgeUrl, getCustomSideQuestById, getCustomSideQuests } from "@/lib/custom-side-quests";
@@ -39,7 +39,7 @@ export default async function CustomSideQuestOwnerPage({ params, searchParams }:
     username: user.username,
     emailAddress: user.primaryEmailAddress?.emailAddress,
   }) || "Side Quest Chess";
-  const rules = describeCustomSideQuestRuleDetails(quest.config);
+  const rulePresentation = getCustomSideQuestRulePresentation(quest.config, quest.summary);
   const active = Boolean(publicMetadata.activeChallenge && typeof publicMetadata.activeChallenge === "object" && (publicMetadata.activeChallenge as { id?: string }).id === quest.id);
   const completionState = await buildReplicatedCustomSoloCompletionState({ metadataRecords: [publicMetadata, sourceMetadata], quest });
   const groupQuests = await loadCustomQuestGroupContext({
@@ -70,16 +70,24 @@ export default async function CustomSideQuestOwnerPage({ params, searchParams }:
         </span>
         <span className="sqc-card-eyebrow">Your Custom Side Quest · {quest.lifecycle === "draft" ? "Draft" : quest.lifecycle === "archived" ? "Archived" : quest.visibility === "public" ? "Published publicly" : "Ready privately"}</span>
         <h1>{quest.title}</h1>
-        <p>{quest.summary}</p>
+        <p>{rulePresentation.summary}</p>
       </section>
 
       {query["state-saved"] === `${questLifecycle}-${questVisibility}` ? <p className="sqc-action-success" role="status">{getCustomOwnerStateSavedMessage(quest.title, { lifecycle: questLifecycle, visibility: questVisibility })}</p> : null}
 
       <section className="sqc-native-card sqc-multiplayer-native-card">
-        <span className="sqc-card-eyebrow">What counts</span>
-        <h2>{rules.length} saved condition{rules.length === 1 ? "" : "s"}</h2>
-        <ul>{rules.map((rule) => <li key={rule}>{rule}</li>)}</ul>
-        <p>These are the verifier rules currently saved for this Side Quest.</p>
+        <span className="sqc-card-eyebrow">Challenge</span>
+        <h2>What to do</h2>
+        <p>{rulePresentation.summary}</p>
+        <p>Play a new public game after picking this Side Quest.</p>
+      </section>
+
+      <section className="sqc-native-card sqc-multiplayer-native-card">
+        <span className="sqc-card-eyebrow">Rule details</span>
+        <h2>{rulePresentation.logicLabel}</h2>
+        <p>{rulePresentation.lines.length} saved condition{rulePresentation.lines.length === 1 ? "" : "s"}</p>
+        <ol>{rulePresentation.lines.map((rule, index) => <li key={`${index}-${rule}`}>{rule}</li>)}</ol>
+        <p>Complete these conditions in one eligible public game.</p>
       </section>
 
       <CustomSideQuestProofControls
