@@ -57,6 +57,21 @@ export function getCustomOwnerDestination(payload: unknown, expectedId: string) 
     : null;
 }
 
+export async function saveCustomOwnerState(
+  quest: CustomOwnerSaveInput,
+  next: Pick<CustomOwnerSaveInput, "lifecycle" | "visibility">,
+  request: typeof fetch = fetch,
+) {
+  const body = buildCustomOwnerSavePayload({ ...quest, ...next });
+  const response = await request("/api/mobile/custom-quests", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  const result = await response.json().catch(() => null);
+  return response.ok ? getCustomOwnerDestination(result, quest.id) : null;
+}
+
 export async function deleteCustomOwnerQuest(
   id: string,
   request: typeof fetch = fetch,
