@@ -195,6 +195,22 @@ test("owner Archive action preserves the selected visibility", async () => {
   assert.doesNotMatch(controls, /lifecycle: "archived", visibility: "private"/);
 });
 
+test("draft and archived owner details expose Android v339's direct Publish action", async () => {
+  for (const lifecycle of ["draft", "archived"] as const) {
+    const markup = renderToStaticMarkup(React.createElement(CustomSideQuestOwnerControls, {
+      quest: { ...quest, lifecycle, visibility: "private" },
+    }));
+    assert.match(markup, />Publish<\/button>/);
+  }
+
+  const published = renderToStaticMarkup(React.createElement(CustomSideQuestOwnerControls, { quest }));
+  assert.doesNotMatch(published, />Publish<\/button>/);
+
+  const controls = await source("src/components/custom-side-quest-owner-controls.tsx");
+  assert.match(controls, /save\(undefined, \{ lifecycle: "published", visibility \}\)/);
+  assert.doesNotMatch(controls, /setLifecycle\("published"\)/);
+});
+
 test("published public owner detail keeps Android's direct share and copy actions", async () => {
   const route = await source("src/app/custom-side-quests/[id]/page.tsx");
 
