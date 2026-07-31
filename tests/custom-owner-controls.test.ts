@@ -10,6 +10,7 @@ import {
   buildCustomOwnerSavePayload,
   duplicateCustomOwnerQuest,
   getCustomOwnerDestination,
+  saveCustomOwnerState,
   type CustomOwnerSaveInput,
 } from "../src/lib/custom-owner-controls";
 
@@ -34,6 +35,28 @@ test("owner save preserves the selected quest identity and rule config", () => {
     visibility: "public",
     lifecycle: "published",
   });
+});
+
+test("owner state mutation sends persisted quest copy with only Android v339 state overrides", async () => {
+  let capturedInit: RequestInit | undefined;
+  const destination = await saveCustomOwnerState(
+    quest,
+    { lifecycle: "archived", visibility: "private" },
+    async (_url: string | URL | Request, init?: RequestInit) => {
+      capturedInit = init;
+      return Response.json({ ok: true, customQuest: { id: quest.id } });
+    },
+  );
+
+  assert.deepEqual(JSON.parse(String(capturedInit?.body)), {
+    id: quest.id,
+    title: "Queenless sprint",
+    summary: "Trade queens, then win.",
+    config: quest.config,
+    lifecycle: "archived",
+    visibility: "private",
+  });
+  assert.equal(destination, `/custom-side-quests/${quest.id}`);
 });
 
 test("owner duplicate matches Android v339 exact persisted-copy semantics", () => {
@@ -188,10 +211,20 @@ test("only published owned quests can be used in Multiplayer", () => {
   }
 });
 
-test("owner Archive action preserves the selected visibility", async () => {
+test("owner state action wiring cannot submit unsaved editor copy", async () => {
   const controls = await source("src/components/custom-side-quest-owner-controls.tsx");
 
-  assert.match(controls, /save\(undefined, \{ lifecycle: "archived", visibility \}\)[\s\S]*>Archive<\/button>/);
+  assert.match(controls, /saveCustomOwnerState\(quest, next\)/);
+  assert.match(controls, /runStateMutation\(\{ lifecycle: "published", visibility: quest\.visibility \}\)/);
+  assert.match(controls, /runStateMutation\(\{ lifecycle: "published", visibility: quest\.visibility === "public" \? "private" : "public" \}\)/);
+  assert.match(controls, /runStateMutation\(\{ lifecycle: "archived", visibility: quest\.visibility \}\)/);
+  assert.doesNotMatch(controls, /save\(undefined, \{ lifecycle:/);
+});
+
+test("owner Archive action preserves the persisted visibility", async () => {
+  const controls = await source("src/components/custom-side-quest-owner-controls.tsx");
+
+  assert.match(controls, /runStateMutation\(\{ lifecycle: "archived", visibility: quest\.visibility \}\)[\s\S]*"Archive"/);
   assert.doesNotMatch(controls, /lifecycle: "archived", visibility: "private"/);
 });
 
@@ -207,7 +240,7 @@ test("draft and archived owner details expose Android v339's direct Publish acti
   assert.doesNotMatch(published, />Publish<\/button>/);
 
   const controls = await source("src/components/custom-side-quest-owner-controls.tsx");
-  assert.match(controls, /save\(undefined, \{ lifecycle: "published", visibility \}\)/);
+  assert.match(controls, /runStateMutation\(\{ lifecycle: "published", visibility: quest\.visibility \}\)/);
   assert.doesNotMatch(controls, /setLifecycle\("published"\)/);
 });
 
@@ -226,8 +259,8 @@ test("published owner detail exposes Android v339's direct visibility mutation",
   assert.doesNotMatch(draftMarkup, /Make public \/ shareable|Make private again/);
 
   const controls = await source("src/components/custom-side-quest-owner-controls.tsx");
-  assert.match(controls, /quest\.lifecycle === "published" && lifecycle === "published"/);
-  assert.match(controls, /save\(undefined, \{ lifecycle: "published", visibility: quest\.visibility === "public" \? "private" : "public" \}\)/);
+  assert.match(controls, /quest\.lifecycle === "published"/);
+  assert.match(controls, /runStateMutation\(\{ lifecycle: "published", visibility: quest\.visibility === "public" \? "private" : "public" \}\)/);
   assert.doesNotMatch(controls, /setVisibility\(quest\.visibility === "public" \? "private" : "public"\)/);
 });
 
