@@ -5,7 +5,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { readFile } from "node:fs/promises";
 
 import CustomSideQuestActivity from "../src/components/custom-side-quest-activity";
-import { buildCustomLibraryActivityRows, buildCustomQuestStats, buildOwnedCustomQuestStats, formatCustomQuestActivity, loadCustomQuestGroupContext } from "../src/lib/custom-side-quest-activity";
+import { buildCustomLibraryActivityRows, buildCustomLibraryStatusRows, buildCustomQuestStats, buildOwnedCustomQuestStats, formatCustomQuestActivity, loadCustomQuestGroupContext } from "../src/lib/custom-side-quest-activity";
 
 const attempts = [
   { challengeId: "custom-alpha" },
@@ -67,6 +67,26 @@ test("owned Custom library rows include Android v339 activity summaries from aut
   assert.deepEqual(rows, [
     { id: "custom-alpha", activity: "4 plays · 3 completions" },
     { id: "custom-empty", activity: "No plays yet." },
+  ]);
+});
+
+test("owned Custom library status follows Android v339 public account progress when quests are stored privately", () => {
+  const rows = buildCustomLibraryStatusRows({
+    quests: [
+      { id: "custom-active", lifecycle: "published" },
+      { id: "custom-complete", lifecycle: "published" },
+      { id: "custom-ready", lifecycle: "published" },
+    ],
+    publicMetadata: {
+      activeChallenge: { id: "custom-active", status: "accepted" },
+      challengeProgress: { completedChallengeIds: ["custom-complete"] },
+    },
+  });
+
+  assert.deepEqual(rows, [
+    { id: "custom-active", status: "Active" },
+    { id: "custom-complete", status: "Completed" },
+    { id: "custom-ready", status: "Ready" },
   ]);
 });
 
@@ -147,6 +167,16 @@ test("authenticated Custom library loads Android v339 activity for every row wit
   assert.match(source, /loadRelated: async \(\) => listUserRelatedGroupQuests\(await clerkClient\(\), user\.id\)/);
   assert.match(source, /loadPublic: async \(\) => listPublicGroupQuests\(await clerkClient\(\)\)/);
   assert.match(source, /activityById\.get\(quest\.id\)/);
+});
+
+test("authenticated Custom library loads status from Android v339 public account progress", async () => {
+  const source = await readFile(new URL("../src/app/custom-side-quests/page.tsx", import.meta.url), "utf8");
+
+  assert.match(source, /buildCustomLibraryStatusRows/);
+  assert.match(source, /publicMetadata: metadataRecord/);
+  assert.match(source, /statusById\.get\(quest\.id\)/);
+  assert.doesNotMatch(source, /getActiveChallenge\(sourceMetadata\)/);
+  assert.doesNotMatch(source, /getChallengeProgress\(sourceMetadata\)/);
 });
 
 test("authenticated owner detail wires server-derived activity into every lifecycle and visibility state", async () => {
