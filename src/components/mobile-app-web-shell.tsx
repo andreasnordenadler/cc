@@ -32,6 +32,8 @@ import type { WebSupportAccountContext, WebSupportReportContext } from "@/lib/we
 import DesktopHomeMenu from "./desktop-home-menu";
 import MobileWebHamburgerMenu from "./mobile-web-hamburger-menu";
 import CurrentPageSignInLink from "./current-page-sign-in-link";
+import CommunitySoloDuplicateControl from "./community-solo-duplicate-control";
+import type { CustomOwnerSaveInput } from "@/lib/custom-owner-controls";
 
 type AppTab = "home" | "sideQuests" | "multiplayerSideQuests" | "coatOfArms" | "account";
 
@@ -1169,6 +1171,7 @@ export function MobileCommunitySideQuestsScreen({
 export function MobileCommunitySideQuestDetailScreen({
   quest,
   signedIn,
+  duplicateInput,
   ownedByYou = false,
   activeQuestId,
   likeSummary = { count: 0, likedByViewer: false },
@@ -1179,6 +1182,7 @@ export function MobileCommunitySideQuestDetailScreen({
 }: {
   quest: CommunitySideQuestDetail;
   signedIn: boolean;
+  duplicateInput?: CustomOwnerSaveInput;
   ownedByYou?: boolean;
   activeQuestId?: string | null;
   likeSummary?: CommunityLikeSummary;
@@ -1287,6 +1291,8 @@ export function MobileCommunitySideQuestDetailScreen({
         <Link href="/community-side-quests" className="sqc-detail-quiet-button">Back to list</Link>
         <Link href={quest.creatorBrowsePath} className="sqc-detail-secondary-button">More by {quest.creatorName}</Link>
         {signedIn ? <Link href={`/create-multiplayer-side-quest?quest=${encodeURIComponent(quest.id)}`} className="sqc-detail-secondary-button">Use in Multiplayer</Link> : null}
+        {signedIn && duplicateInput ? <CommunitySoloDuplicateControl quest={duplicateInput} /> : null}
+        {!signedIn ? <CurrentPageSignInLink aria-label="Sign in to duplicate custom Side Quest" className="sqc-detail-secondary-button">Duplicate</CurrentPageSignInLink> : null}
         <CommunitySoloShareControls id={quest.id} title={quest.title} />
       </div>
     </div>

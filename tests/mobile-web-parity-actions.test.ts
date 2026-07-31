@@ -241,6 +241,51 @@ test("signed-in Community Solo detail can start an exact preselected Multiplayer
   assert.doesNotMatch(html, /userId=|creatorUserId=/);
 });
 
+test("signed-in Community Solo detail can duplicate the exact public quest into My Custom Side Quests", () => {
+  const html = renderToStaticMarkup(React.createElement(MobileCommunitySideQuestDetailScreen, {
+    signedIn: true,
+    duplicateInput: {
+      id: "custom-community-42",
+      title: "Ada's Fork",
+      summary: "Win a fork.",
+      config: JSON.stringify({ version: 2, logic: "all", blocks: [{ type: "gameResult", result: "win" }] }),
+      visibility: "public",
+      lifecycle: "published",
+    },
+    quest: {
+      id: "custom-community-42",
+      title: "Ada's Fork",
+      summary: "Win a fork.",
+      creatorName: "Ada",
+      creatorBrowsePath: "/community-side-quests?creator=ada",
+      ruleLabel: "Win",
+      ruleDetails: ["Win the game."],
+      stats: { soloAttempts: 0, soloSelections: 0, soloCompletions: 0, multiplayerLineups: 0, multiplayerAttempts: 0, multiplayerFulfillments: 0 },
+    },
+  }));
+
+  assert.match(html, /<button[^>]*aria-label="Duplicate custom Side Quest"[^>]*>Duplicate<\/button>/);
+  assert.doesNotMatch(html, /creatorUserId|userId=/);
+});
+
+test("signed-out Community Solo detail keeps duplicate visible as an account-linking action", () => {
+  const html = renderToStaticMarkup(React.createElement(MobileCommunitySideQuestDetailScreen, {
+    signedIn: false,
+    quest: {
+      id: "custom-community-42",
+      title: "Ada's Fork",
+      summary: "Win a fork.",
+      creatorName: "Ada",
+      creatorBrowsePath: "/community-side-quests?creator=ada",
+      ruleLabel: "Win",
+      ruleDetails: ["Win the game."],
+      stats: { soloAttempts: 0, soloSelections: 0, soloCompletions: 0, multiplayerLineups: 0, multiplayerAttempts: 0, multiplayerFulfillments: 0 },
+    },
+  }));
+
+  assert.match(html, /<a[^>]*aria-label="Sign in to duplicate custom Side Quest"[^>]*href="\/sign-in\?redirect_url=%2F"[^>]*>Duplicate<\/a>/);
+});
+
 test("active Community Solo detail exposes Android v339 exact-game proof actions", () => {
   const html = renderToStaticMarkup(React.createElement(MobileCommunitySideQuestDetailScreen, {
     signedIn: true,

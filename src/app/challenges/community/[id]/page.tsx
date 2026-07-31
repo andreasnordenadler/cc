@@ -55,6 +55,14 @@ export default async function CommunitySideQuestDetailPage({
       <MobileCommunitySideQuestDetailScreen
         quest={quest}
         signedIn={Boolean(user)}
+        duplicateInput={user ? {
+          id: quest.id,
+          title: quest.title,
+          summary: quest.summary,
+          config: quest.config,
+          visibility: quest.visibility ?? "public",
+          lifecycle: quest.lifecycle ?? "published",
+        } : undefined}
         ownedByYou={quest.creatorUserId === user?.id}
         activeQuestId={metadataRecord.activeChallenge && typeof metadataRecord.activeChallenge === "object" ? String((metadataRecord.activeChallenge as { id?: string }).id ?? "") : null}
         likeSummary={likeSummary}
