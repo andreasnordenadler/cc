@@ -151,19 +151,16 @@ export function CustomSoloCatalog({ rows }: { rows: CustomCatalogClientRow[] }) 
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<"all" | "published" | "draft" | "public" | "archived">("all");
   const [sort, setSort] = useState<"newest" | "name">("newest");
-  const [limit, setLimit] = useState(12);
   const filtered = useMemo(() => filterCustomCatalog(rows, { query, filter, sort }), [rows, query, filter, sort]);
-  const page = paginateCatalog(filtered, limit);
   const filters = ["all", "published", "draft", "public", "archived"] as const;
   return <>
     <div className="sqc-community-browse-panel" aria-label="My Custom Side Quest filters">
-      <label className="sqc-search-shell"><span className="sr-only">Search my custom Side Quests</span><input aria-label="Search my custom Side Quests" placeholder="Search by name or rule" value={query} onChange={event => { setQuery(event.target.value); setLimit(12); }} /></label>
-      <div className="sqc-community-controls"><div className="sqc-filter-row" aria-label="Filter my custom Side Quests">{filters.map(value => <button type="button" key={value} className={filter === value ? "active" : ""} aria-pressed={filter === value} onClick={() => { setFilter(value); setLimit(12); }}>{value === "draft" ? "Drafts" : value[0].toUpperCase() + value.slice(1)}</button>)}</div>
+      <label className="sqc-search-shell"><span className="sr-only">Search my custom Side Quests</span><input aria-label="Search my custom Side Quests" placeholder="Search by name or rule" value={query} onChange={event => setQuery(event.target.value)} /></label>
+      <div className="sqc-community-controls"><div className="sqc-filter-row" aria-label="Filter my custom Side Quests">{filters.map(value => <button type="button" key={value} className={filter === value ? "active" : ""} aria-pressed={filter === value} onClick={() => setFilter(value)}>{value === "draft" ? "Drafts" : value[0].toUpperCase() + value.slice(1)}</button>)}</div>
       <label className="sqc-sort-pill">Sort <select aria-label="Sort my custom Side Quests" value={sort} onChange={event => setSort(event.target.value as typeof sort)}><option value="newest">Recently updated</option><option value="name">Name</option></select></label></div>
     </div>
-    <span aria-live="polite">{page.total} result{page.total === 1 ? "" : "s"}</span>
-    {page.rows.length ? <div className="sqc-catalog">{page.rows.map(row => <CatalogRow key={row.id} row={row} status={row.status ?? "Ready"} />)}</div> : <div className="sqc-empty-panel standalone"><strong>No custom Side Quests match these filters.</strong><span>{rows.length ? "Try another search or filter." : "Create a draft first, then publish it when the rule feels ready."}</span></div>}
-    {page.hasMore ? <button type="button" className="sqc-detail-secondary-button" onClick={() => setLimit(value => value + 12)}>Load more</button> : null}
+    <span aria-live="polite">{filtered.length} result{filtered.length === 1 ? "" : "s"}</span>
+    {filtered.length ? <div className="sqc-catalog">{filtered.map((row: CustomCatalogClientRow) => <CatalogRow key={row.id} row={row} status={row.status ?? "Ready"} />)}</div> : <div className="sqc-empty-panel standalone"><strong>No custom Side Quests match these filters.</strong><span>{rows.length ? "Try another search or filter." : "Create a draft first, then publish it when the rule feels ready."}</span></div>}
   </>;
 }
 
