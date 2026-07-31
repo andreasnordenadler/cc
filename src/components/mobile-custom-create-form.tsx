@@ -13,6 +13,7 @@ import {
   getCreateErrorMessage,
   getCustomConditionEditorRow,
   getCustomCreateDestination,
+  getCustomEditDestination,
   getCustomEditFormState,
   getCustomBuilderSnapshot,
   hasUnsavedCustomBuilderChanges,
@@ -27,7 +28,7 @@ import {
   type CustomEditQuestInput,
   type CustomTemplate,
 } from "@/lib/mobile-create-forms";
-import { getCustomOwnerDestination } from "@/lib/custom-owner-controls";
+
 import {
   getLocalCustomDraftFormState,
   getLocalCustomDraftIdFromSearch,
@@ -250,7 +251,7 @@ export default function MobileCustomCreateForm({ signedIn, initialQuest = null }
     try {
       const response = await fetch("/api/mobile/custom-quests", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
       const result = await response.json().catch(() => null);
-      const destination = response.ok ? initialState ? getCustomOwnerDestination(result, initialState.id) : getCustomCreateDestination(result) : null;
+      const destination = response.ok ? initialState ? getCustomEditDestination(result, initialState.id) : getCustomCreateDestination(result) : null;
       if (!destination) { setError(getCreateErrorMessage(response.status, result)); setSaving(false); return; }
       if (editingLocalDraftId) tryRemoveLocalCustomDraft(window.localStorage, editingLocalDraftId);
       allowNavigation.current = true;

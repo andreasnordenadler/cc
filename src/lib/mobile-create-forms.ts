@@ -388,6 +388,17 @@ export function getCustomCreateDestination(payload: unknown) {
   return /^custom-[a-z0-9-]+$/i.test(id) ? `/custom-side-quests?saved=${encodeURIComponent(id)}` : null;
 }
 
+export function getCustomEditDestination(payload: unknown, expectedId: string) {
+  const result = payload && typeof payload === "object" ? payload as { ok?: unknown; customQuest?: { id?: unknown } } : null;
+  return result?.ok === true && result.customQuest?.id === expectedId && /^custom-[a-z0-9-]+$/i.test(expectedId)
+    ? `/custom-side-quests?updated=${encodeURIComponent(expectedId)}`
+    : null;
+}
+
+export function getCustomEditSuccessMessage(title: string) {
+  return `${title} now has the latest name, rules, and visibility.`;
+}
+
 export function getCustomEditFormState(quest: CustomEditQuestInput) {
   if (!/^custom-[a-z0-9-]+$/i.test(quest.id)) return null;
   const config = parseCustomRuleConfig(quest.config);

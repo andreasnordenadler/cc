@@ -3,6 +3,7 @@ import LocalCustomDraftLibrary from "@/components/local-custom-draft-library";
 import { currentUser } from "@clerk/nextjs/server";
 import { unstable_noStore as noStore } from "next/cache";
 import { getCustomSideQuests, type CustomSideQuest } from "@/lib/custom-side-quests";
+import { getCustomEditSuccessMessage } from "@/lib/mobile-create-forms";
 import { getActiveChallenge, getChallengeProgress, getChessComUsername, getLichessUsername, getPreferredRunnerName, type UserMetadataRecord } from "@/lib/user-metadata";
 
 export const metadata = {
@@ -10,12 +11,16 @@ export const metadata = {
   description: "My Custom Side Quests in the Side Quest Chess mobile app shell.",
 };
 
-export default async function CustomSideQuestsPage() {
+export default async function CustomSideQuestsPage({ searchParams }: { searchParams: Promise<{ updated?: string | string[] }> }) {
   noStore();
+  const updatedParam = (await searchParams).updated;
+  const updatedId = typeof updatedParam === "string" && /^custom-[a-z0-9-]+$/i.test(updatedParam) ? updatedParam : null;
   const user = await currentUser();
   const metadataRecord = user?.publicMetadata ? (user.publicMetadata as UserMetadataRecord) : {};
   const privateMetadataRecord = user?.privateMetadata ? (user.privateMetadata as UserMetadataRecord) : {};
   const customSideQuests = user ? getCustomLibraryRows(privateMetadataRecord, metadataRecord) : [];
+  const updatedQuest = updatedId ? customSideQuests.find((quest) => quest.id === updatedId) : null;
+  const successMessage = updatedQuest ? getCustomEditSuccessMessage(updatedQuest.title) : null;
   const displayName = user
     ? getPreferredRunnerName(metadataRecord, {
         firstName: user.firstName,
@@ -36,6 +41,7 @@ export default async function CustomSideQuestsPage() {
       <MobileCustomSideQuestsScreen
         rows={customSideQuests}
         localDrafts={<LocalCustomDraftLibrary />}
+        successMessage={successMessage}
       />
     </MobileAppWebShell>
   );
