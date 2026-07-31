@@ -84,6 +84,24 @@ test("Community Multiplayer browse exposes every Android sort choice", () => {
   }
 });
 
+test("My Custom Side Quests keeps Android v339 newest-first ordering without a web-only sort", () => {
+  const base = {
+    meta: "Private rule",
+    href: "/custom-side-quests/example",
+    lifecycle: "published" as const,
+    visibility: "private" as const,
+  };
+  const html = renderToStaticMarkup(createElement(CustomSoloCatalog, {
+    rows: [
+      { ...base, id: "older", title: "Alpha older", updatedAt: "2026-07-01T00:00:00.000Z" },
+      { ...base, id: "newer", title: "Zulu newer", updatedAt: "2026-07-02T00:00:00.000Z" },
+    ],
+  }));
+
+  assert.ok(html.indexOf("Zulu newer") < html.indexOf("Alpha older"));
+  assert.doesNotMatch(html, /Sort my custom Side Quests|Recently updated|>Name</);
+});
+
 test("Community Multiplayer likes feed optimistic state back into like-derived sorting", () => {
   const source = readFileSync(new URL("../src/components/catalog-clients.tsx", import.meta.url), "utf8");
 
