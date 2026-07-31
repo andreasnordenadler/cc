@@ -91,6 +91,63 @@ test("custom quest delete rejects an ID outside the authenticated owner's librar
   });
 });
 
+test("custom quest delete returns stable safe JSON when metadata loading fails without attempting persistence", async () => {
+  let writes = 0;
+  const logs: unknown[] = [];
+  const response = await handleCustomQuestDeleteRequest(
+    new Request("https://sqc.test/api/mobile/custom-quests?id=custom-target", { method: "DELETE" }),
+    {
+      getAuthenticatedUserId: async () => "owner-1",
+      getMetadata: async () => {
+        throw new Error("provider request exposed private metadata");
+      },
+      persistDeletion: async () => {
+        writes += 1;
+        return [];
+      },
+      logPersistenceError: (...args: unknown[]) => { logs.push(args); },
+    },
+  );
+
+  assert.equal(response.status, 503);
+  assert.equal(writes, 0);
+  assert.deepEqual(await response.json(), {
+    apiVersion: 1,
+    authenticated: true,
+    ok: false,
+    message: "Could not delete this custom Side Quest right now. Please try again.",
+  });
+  assert.deepEqual(logs, [["mobile custom Side Quest delete failed", { reason: "metadata_load_error" }]]);
+});
+
+test("custom quest delete returns stable safe JSON when persistence fails without reporting success", async () => {
+  const target = quest("custom-target");
+  const logs: unknown[] = [];
+  const response = await handleCustomQuestDeleteRequest(
+    new Request("https://sqc.test/api/mobile/custom-quests?id=custom-target", { method: "DELETE" }),
+    {
+      getAuthenticatedUserId: async () => "owner-1",
+      getMetadata: async () => ({
+        publicMetadata: {},
+        privateMetadata: { customSideQuests: [target] },
+      }),
+      persistDeletion: async () => {
+        throw new Error("Clerk secret sk_live_must-not-leak");
+      },
+      logPersistenceError: (...args: unknown[]) => { logs.push(args); },
+    },
+  );
+
+  assert.equal(response.status, 503);
+  assert.deepEqual(await response.json(), {
+    apiVersion: 1,
+    authenticated: true,
+    ok: false,
+    message: "Could not delete this custom Side Quest right now. Please try again.",
+  });
+  assert.deepEqual(logs, [["mobile custom Side Quest delete failed", { reason: "persistence_error" }]]);
+});
+
 test("exported custom quest DELETE route clears the authenticated owner's matching active quest", async (t) => {
   const previousNodeEnv = process.env.NODE_ENV;
   Object.defineProperty(process.env, "NODE_ENV", { value: "test", configurable: true, writable: true, enumerable: true });
