@@ -399,6 +399,12 @@ export function getCustomEditSuccessMessage(title: string) {
   return `${title} now has the latest name, rules, and visibility.`;
 }
 
+export function getCustomCreateSuccessMessage(quest: Pick<CustomEditQuestInput, "title" | "lifecycle" | "visibility">) {
+  if (quest.lifecycle === "draft") return `${quest.title} is saved as a private draft. Publish it when the rules are ready.`;
+  if (quest.visibility === "public") return `${quest.title} is now public in Community Discover.`;
+  return `${quest.title} is ready in your private Side Quest Library.`;
+}
+
 export function getCustomEditFormState(quest: CustomEditQuestInput) {
   if (!/^custom-[a-z0-9-]+$/i.test(quest.id)) return null;
   const config = parseCustomRuleConfig(quest.config);
