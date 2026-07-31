@@ -1,8 +1,9 @@
 import { clerkClient } from "@clerk/nextjs/server";
-import { NextResponse } from "next/server";
+import { AsyncLocalStorage } from "node:async_hooks";
 import { getMobileRequestUserId } from "@/lib/mobile-auth";
+import { handleCustomQuestDeleteRequest } from "@/lib/custom-quest-delete-route";
 import { classifyCustomQuestPersistenceError, handleCustomQuestCreateRequest } from "@/lib/custom-quest-create-route";
-import { chooseCustomSideQuestBadge, getCustomSideQuests, parseCustomRuleConfig, type CustomSideQuest } from "@/lib/custom-side-quests";
+import { chooseCustomSideQuestBadge, parseCustomRuleConfig, type CustomSideQuest } from "@/lib/custom-side-quests";
 import type { UserMetadataRecord } from "@/lib/user-metadata";
 
 export async function POST(request: Request) {
@@ -22,30 +23,49 @@ export async function POST(request: Request) {
   });
 }
 
+type CustomQuestRouteDependencies = {
+  authenticate: (request: Request) => Promise<string | null>;
+  getClient: () => ReturnType<typeof clerkClient>;
+};
+
+const deleteTestDependencies = new AsyncLocalStorage<CustomQuestRouteDependencies>();
+
+export function withCustomQuestRouteTestDependencies<Result>(
+  dependencies: CustomQuestRouteDependencies,
+  callback: () => Result,
+): Result {
+  if (process.env.NODE_ENV !== "test") throw new Error("Custom quest route dependency overrides are test-only.");
+  return deleteTestDependencies.run(dependencies, callback);
+}
+
 export async function DELETE(request: Request) {
-  const userId = await getMobileRequestUserId(request);
-  if (!userId) return NextResponse.json({ apiVersion: 1, authenticated: false, ok: false, message: "Sign in to delete custom Side Quests." }, { status: 401 });
-  const id = new URL(request.url).searchParams.get("id") ?? "";
-  if (!id.startsWith("custom-")) return NextResponse.json({ apiVersion: 1, authenticated: true, ok: false, message: "Unknown custom Side Quest." }, { status: 400 });
-  const client = await clerkClient();
-  const user = await client.users.getUser(userId);
-  const publicMetadata = user.publicMetadata ? user.publicMetadata as UserMetadataRecord : {};
-  const privateMetadata = user.privateMetadata && typeof user.privateMetadata === "object" ? user.privateMetadata as UserMetadataRecord : {};
-  const next = getCustomSideQuestStore(privateMetadata, publicMetadata).filter((item) => item.id !== id).map(compactCustomSideQuest).slice(0, 8);
-  const active = publicMetadata.activeChallenge && typeof publicMetadata.activeChallenge === "object" && (publicMetadata.activeChallenge as { id?: string }).id === id ? null : publicMetadata.activeChallenge;
-  if (active !== publicMetadata.activeChallenge) {
-    await client.users.updateUserMetadata(userId, { publicMetadata: { ...publicMetadata, activeChallenge: active }, privateMetadata: { customSideQuests: next } });
-  } else {
-    await saveCustomQuestStoreWithFallback(client, userId, next, privateMetadata);
-  }
-  return NextResponse.json({ apiVersion: 1, authenticated: true, ok: true, action: "delete", customSideQuests: next, message: "Custom Side Quest deleted." });
+  const override = deleteTestDependencies.getStore();
+  let clientPromise: ReturnType<typeof clerkClient> | undefined;
+  const getClient = () => clientPromise ??= override?.getClient() ?? clerkClient();
+  return handleCustomQuestDeleteRequest(request, {
+    getAuthenticatedUserId: override?.authenticate ?? getMobileRequestUserId,
+    getMetadata: async (userId) => {
+      const client = await getClient();
+      const user = await client.users.getUser(userId);
+      return {
+        publicMetadata: user.publicMetadata ? user.publicMetadata as UserMetadataRecord : {},
+        privateMetadata: user.privateMetadata && typeof user.privateMetadata === "object" ? user.privateMetadata as UserMetadataRecord : {},
+      };
+    },
+    persistDeletion: async (userId, input) => {
+      const client = await getClient();
+      const next = input.customSideQuests.map(compactCustomSideQuest).slice(0, 8);
+      if (input.clearActiveChallenge) {
+        await client.users.updateUserMetadata(userId, {
+          publicMetadata: { ...input.publicMetadata, activeChallenge: null },
+          privateMetadata: { customSideQuests: next },
+        });
+        return next;
+      }
+      return saveCustomQuestStoreWithFallback(client, userId, next, input.privateMetadata);
+    },
+  });
 }
-
-function getCustomSideQuestStore(privateMetadata: UserMetadataRecord, publicMetadata: UserMetadataRecord) {
-  const privateQuests = getCustomSideQuests(privateMetadata);
-  return privateQuests.length ? privateQuests : getCustomSideQuests(publicMetadata);
-}
-
 
 async function saveCustomQuestStoreWithFallback(client: Awaited<ReturnType<typeof clerkClient>>, userId: string, quests: CustomSideQuest[], privateMetadata: UserMetadataRecord) {
   const attempts = [quests.slice(0, 8), quests.slice(0, 5), quests.slice(0, 3), quests.slice(0, 1)];
