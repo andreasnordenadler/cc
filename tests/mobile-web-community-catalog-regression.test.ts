@@ -315,6 +315,23 @@ test("custom-library rows remain text-only", () => {
   assert.doesNotMatch(custom, /class="sqc-row-glow/);
 });
 
+test("custom library renders every saved row without target-only paging", () => {
+  const rows = Array.from({ length: 13 }, (_, index) => ({
+    id: `custom-${index + 1}`,
+    title: `Custom quest ${index + 1}`,
+    meta: `Rule ${index + 1}`,
+    href: `/custom-side-quests/custom-${index + 1}`,
+    lifecycle: "published" as const,
+    visibility: "private" as const,
+    updatedAt: new Date(Date.UTC(2026, 6, index + 1)).toISOString(),
+  }));
+
+  const custom = renderToStaticMarkup(createElement(CustomSoloCatalog, { rows }));
+
+  assert.match(custom, /Custom quest 1/);
+  assert.doesNotMatch(custom, />Load more</);
+});
+
 test("text-only community Multiplayer rows receive the full copy column", () => {
   const multiplayer = renderToStaticMarkup(createElement(MobileMultiplayerSideQuestsScreen, { selectedTab: "community", signedIn: true, officialRows: [], communityRows: [row] }));
   assert.match(multiplayer, /class="sqc-app-row sqc-app-row-with-like text-only"/);
