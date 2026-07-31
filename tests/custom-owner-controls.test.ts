@@ -11,6 +11,7 @@ import {
   duplicateCustomOwnerQuest,
   getCustomOwnerDuplicateSuccessMessage,
   getCustomOwnerDestination,
+  getCustomOwnerStateReloadDestination,
   saveCustomOwnerState,
   type CustomOwnerSaveInput,
 } from "../src/lib/custom-owner-controls";
@@ -242,26 +243,33 @@ test("later owner failures reset a prior direct-state success to an alert", asyn
   assert.match(controls, /async function remove[\s\S]*?setMessageIsError\(true\)[\s\S]*?return <form/);
 });
 
-test("direct owner state success stays on detail and acknowledges Android v339's exact result", async () => {
+test("direct owner state success reloads the exact detail so every state surface matches Android v339", async () => {
   const getMessage = (customOwnerControls as unknown as {
     getCustomOwnerStateSavedMessage?: (
       name: string,
       next: Pick<CustomOwnerSaveInput, "lifecycle" | "visibility">,
     ) => string;
   }).getCustomOwnerStateSavedMessage;
-  const controls = await source("src/components/custom-side-quest-owner-controls.tsx");
+  const [controls, route] = await Promise.all([
+    source("src/components/custom-side-quest-owner-controls.tsx"),
+    source("src/app/custom-side-quests/[id]/page.tsx"),
+  ]);
 
   assert.equal(typeof getMessage, "function");
   assert.equal(getMessage?.("Knight watch", { lifecycle: "archived", visibility: "public" }), "Knight watch is archived and no longer playable.");
   assert.equal(getMessage?.("Knight watch", { lifecycle: "published", visibility: "public" }), "Knight watch is public/shareable. Other players may see its title, goal, and Coat of Arms when it is shared.");
   assert.equal(getMessage?.("Knight watch", { lifecycle: "published", visibility: "private" }), "Knight watch is private. Only you can manage it, but you can still use it in Multiplayer Side Quests you host.");
-  assert.match(controls, /setMessage\(getCustomOwnerStateSavedMessage\(quest\.title, next\)\)/);
-  assert.match(controls, /setPersistedLifecycle\(next\.lifecycle\)/);
-  assert.match(controls, /setPersistedVisibility\(next\.visibility\)/);
+  assert.equal(getCustomOwnerStateReloadDestination("/custom-side-quests/custom-safe-1", { lifecycle: "archived", visibility: "public" }), "/custom-side-quests/custom-safe-1?state-saved=archived-public");
+  assert.equal(getCustomOwnerStateReloadDestination("/custom-side-quests/../escape", { lifecycle: "archived", visibility: "public" }), null);
+  assert.match(controls, /getCustomOwnerStateReloadDestination\(destination, next\)/);
+  assert.match(controls, /window\.location\.assign\(reloadDestination\)/);
+  assert.match(route, /const questLifecycle = quest\.lifecycle \?\? "published"/);
+  assert.match(route, /const questVisibility = quest\.visibility \?\? "private"/);
+  assert.match(route, /query\["state-saved"\] === `\$\{questLifecycle\}-\$\{questVisibility\}`/);
+  assert.match(route, /getCustomOwnerStateSavedMessage\(quest\.title, \{ lifecycle: questLifecycle, visibility: questVisibility \}\)/);
   assert.match(controls, /setMessageIsError\(false\)/);
   assert.match(controls, /className=\{messageIsError \? "groupquest-join-error" : "sqc-action-success"\}/);
   assert.match(controls, /role=\{messageIsError \? "alert" : "status"\}/);
-  assert.doesNotMatch(controls, /router\.refresh/);
 });
 
 test("owner Archive action preserves the persisted visibility", async () => {
