@@ -2856,6 +2856,30 @@ body::after {
   box-shadow: none;
 }
 
+.sqc-custom-detail-coat-frame {
+  position: relative;
+  width: 124px;
+  height: 136px;
+  display: grid;
+  place-items: center;
+  overflow: visible;
+}
+
+.sqc-custom-detail-coat-image {
+  width: 108px;
+  height: 118px;
+  object-fit: contain;
+}
+
+.sqc-custom-detail-completion-seal {
+  position: absolute;
+  right: 6px;
+  bottom: 4px;
+  width: 44px;
+  height: 44px;
+  object-fit: contain;
+}
+
 .sqc-community-detail-screen .sqc-community-detail-hero > .sqc-section-mark {
   position: relative;
   top: auto;

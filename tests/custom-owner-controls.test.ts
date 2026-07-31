@@ -314,6 +314,20 @@ test("published public owner detail keeps Android's direct share and copy action
   assert.match(route, /quest\.visibility === "public" && quest\.lifecycle === "published"[\s\S]*<CommunitySoloShareControls id=\{quest\.id\} title=\{quest\.title\} \/>/);
 });
 
+test("completed owner detail overlays the Android v339 completion seal on the saved Coat of Arms", async () => {
+  const [route, css] = await Promise.all([
+    source("src/app/custom-side-quests/[id]/page.tsx"),
+    source("src/app/mobile-web.css"),
+  ]);
+
+  assert.match(route, /className="sqc-custom-detail-coat-frame"[\s\S]*className="sqc-custom-detail-coat-image"[^>]*width=\{108\} height=\{118\}/);
+  assert.match(route, /completionState\.completed \? <Image className="sqc-custom-detail-completion-seal" alt="" src="\/mobile-source\/stamps\/quest-complete-red-wax-sqc-v3\.png" width=\{44\} height=\{44\} priority \/> : null/);
+  assert.equal(route.match(/quest-complete-red-wax-sqc-v3\.png/g)?.length, 1);
+  assert.match(css, /\.sqc-custom-detail-coat-frame \{[\s\S]*?width: 124px;[\s\S]*?height: 136px;[\s\S]*?overflow: visible;[\s\S]*?\}/);
+  assert.match(css, /\.sqc-custom-detail-coat-image \{[\s\S]*?width: 108px;[\s\S]*?height: 118px;[\s\S]*?\}/);
+  assert.match(css, /\.sqc-custom-detail-completion-seal \{[\s\S]*?right: 6px;[\s\S]*?bottom: 4px;[\s\S]*?width: 44px;[\s\S]*?height: 44px;[\s\S]*?\}/);
+});
+
 test("custom library and route wire each saved quest to an owner detail surface", async () => {
   const [library, route, controls, proofControls, editorRoute] = await Promise.all([
     source("src/app/custom-side-quests/page.tsx"),
