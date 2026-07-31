@@ -12,7 +12,7 @@ import { getCustomSideQuestRulePresentation } from "@/lib/community-side-quests"
 import { buildOwnedCustomQuestStats, loadCustomQuestGroupContext } from "@/lib/custom-side-quest-activity";
 import { buildReplicatedCustomSoloCompletionState } from "@/lib/community-solo-detail-state";
 import { getCustomSideQuestBadgeUrl, getCustomSideQuestById, getCustomSideQuests } from "@/lib/custom-side-quests";
-import { getCustomOwnerStateSavedMessage } from "@/lib/custom-owner-controls";
+import { getCustomOwnerStateSavedMessage, getCustomOwnerStatusLabel } from "@/lib/custom-owner-controls";
 import { listPublicGroupQuests, listUserRelatedGroupQuests } from "@/lib/groupquests";
 import { getChessComUsername, getLichessUsername, getPreferredRunnerName, type UserMetadataRecord } from "@/lib/user-metadata";
 
@@ -42,6 +42,7 @@ export default async function CustomSideQuestOwnerPage({ params, searchParams }:
   const rulePresentation = getCustomSideQuestRulePresentation(quest.config, quest.summary);
   const active = Boolean(publicMetadata.activeChallenge && typeof publicMetadata.activeChallenge === "object" && (publicMetadata.activeChallenge as { id?: string }).id === quest.id);
   const completionState = await buildReplicatedCustomSoloCompletionState({ metadataRecords: [publicMetadata, sourceMetadata], quest });
+  const ownerStatusLabel = getCustomOwnerStatusLabel({ lifecycle: questLifecycle, active, completed: completionState.completed });
   const groupQuests = await loadCustomQuestGroupContext({
     loadRelated: () => listUserRelatedGroupQuests(client, user.id),
     loadPublic: () => listPublicGroupQuests(client),
@@ -88,6 +89,15 @@ export default async function CustomSideQuestOwnerPage({ params, searchParams }:
         <p>{rulePresentation.lines.length} saved condition{rulePresentation.lines.length === 1 ? "" : "s"}</p>
         <ol>{rulePresentation.lines.map((rule, index) => <li key={`${index}-${rule}`}>{rule}</li>)}</ol>
         <p>Complete these conditions in one eligible public game.</p>
+      </section>
+
+      <section className="sqc-native-card sqc-multiplayer-native-card">
+        <span className="sqc-card-eyebrow">Visibility</span>
+        <h2>{questVisibility === "public" ? "Public Side Quest" : "Private Side Quest"}</h2>
+        <p>{questVisibility === "public"
+          ? "Other players can discover and play this Side Quest when it is shared."
+          : "Only you can find and manage this Side Quest."}</p>
+        <p>{ownerStatusLabel} · {questLifecycle === "published" ? "Ready to play as Solo or Multiplayer" : "Publish it before playing"}</p>
       </section>
 
       <CustomSideQuestProofControls
