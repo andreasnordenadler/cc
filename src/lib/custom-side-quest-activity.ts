@@ -67,6 +67,25 @@ export function buildOwnedCustomQuestStats({
   });
 }
 
+export function buildCustomLibraryActivityRows({
+  quests,
+  publicMetadata,
+  groupQuests,
+}: {
+  quests: Array<{ id: string }>;
+  publicMetadata: UserMetadataRecord;
+  groupQuests: ActivityGroupQuest[];
+}) {
+  return quests.map((quest) => ({
+    id: quest.id,
+    activity: formatCustomQuestActivity(buildOwnedCustomQuestStats({
+      questId: quest.id,
+      publicMetadata,
+      groupQuests,
+    })),
+  }));
+}
+
 export async function loadCustomQuestGroupContext({
   loadRelated,
   loadPublic,

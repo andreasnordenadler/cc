@@ -5,7 +5,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { readFile } from "node:fs/promises";
 
 import CustomSideQuestActivity from "../src/components/custom-side-quest-activity";
-import { buildCustomQuestStats, buildOwnedCustomQuestStats, formatCustomQuestActivity, loadCustomQuestGroupContext } from "../src/lib/custom-side-quest-activity";
+import { buildCustomLibraryActivityRows, buildCustomQuestStats, buildOwnedCustomQuestStats, formatCustomQuestActivity, loadCustomQuestGroupContext } from "../src/lib/custom-side-quest-activity";
 
 const attempts = [
   { challengeId: "custom-alpha" },
@@ -48,6 +48,26 @@ test("owned Custom activity matches Android v339 play and completion semantics",
     multiplayerFulfillments: 2,
   });
   assert.equal(formatCustomQuestActivity(stats), "4 plays · 3 completions");
+});
+
+test("owned Custom library rows include Android v339 activity summaries from authoritative account data", () => {
+  const rows = buildCustomLibraryActivityRows({
+    quests: [{ id: "custom-alpha" }, { id: "custom-empty" }],
+    publicMetadata: {
+      challengeAttempts: [
+        { challengeId: "custom-alpha", summary: "First check", checkedAt: "2026-07-31T10:00:00.000Z" },
+        { challengeId: "custom-alpha", summary: "Second check", checkedAt: "2026-07-31T10:01:00.000Z" },
+        { challengeId: "official-only", summary: "Other check", checkedAt: "2026-07-31T10:02:00.000Z" },
+      ],
+      challengeProgress: { completedChallengeIds: ["custom-alpha"] },
+    },
+    groupQuests: [relatedQuest, secondQuest],
+  });
+
+  assert.deepEqual(rows, [
+    { id: "custom-alpha", activity: "4 plays · 3 completions" },
+    { id: "custom-empty", activity: "No plays yet." },
+  ]);
 });
 
 test("owned Custom activity deduplicates replicated Multiplayer records by stable id", () => {
@@ -117,6 +137,16 @@ test("owner activity keeps the available Multiplayer context when either bounded
     loadRelated: async () => { throw new Error("related unavailable"); },
     loadPublic: async () => { throw new Error("public unavailable"); },
   }), []);
+});
+
+test("authenticated Custom library loads Android v339 activity for every row with bounded failure fallback", async () => {
+  const source = await readFile(new URL("../src/app/custom-side-quests/page.tsx", import.meta.url), "utf8");
+
+  assert.match(source, /buildCustomLibraryActivityRows/);
+  assert.match(source, /loadCustomQuestGroupContext/);
+  assert.match(source, /loadRelated: async \(\) => listUserRelatedGroupQuests\(await clerkClient\(\), user\.id\)/);
+  assert.match(source, /loadPublic: async \(\) => listPublicGroupQuests\(await clerkClient\(\)\)/);
+  assert.match(source, /activityById\.get\(quest\.id\)/);
 });
 
 test("authenticated owner detail wires server-derived activity into every lifecycle and visibility state", async () => {

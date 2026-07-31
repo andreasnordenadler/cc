@@ -1,8 +1,10 @@
 import MobileAppWebShell, { MobileCustomSideQuestsScreen } from "@/components/mobile-app-web-shell";
 import LocalCustomDraftLibrary from "@/components/local-custom-draft-library";
-import { currentUser } from "@clerk/nextjs/server";
+import { clerkClient, currentUser } from "@clerk/nextjs/server";
 import { unstable_noStore as noStore } from "next/cache";
+import { buildCustomLibraryActivityRows, loadCustomQuestGroupContext } from "@/lib/custom-side-quest-activity";
 import { getCustomSideQuests, type CustomSideQuest } from "@/lib/custom-side-quests";
+import { listPublicGroupQuests, listUserRelatedGroupQuests } from "@/lib/groupquests";
 import { getCustomCreateSuccessMessage, getCustomEditSuccessMessage } from "@/lib/mobile-create-forms";
 import { getActiveChallenge, getChallengeProgress, getChessComUsername, getLichessUsername, getPreferredRunnerName, type UserMetadataRecord } from "@/lib/user-metadata";
 
@@ -21,7 +23,19 @@ export default async function CustomSideQuestsPage({ searchParams }: { searchPar
   const user = await currentUser();
   const metadataRecord = user?.publicMetadata ? (user.publicMetadata as UserMetadataRecord) : {};
   const privateMetadataRecord = user?.privateMetadata ? (user.privateMetadata as UserMetadataRecord) : {};
-  const customSideQuests = user ? getCustomLibraryRows(privateMetadataRecord, metadataRecord) : [];
+  const libraryQuests = user ? getCustomSideQuests(getCustomSideQuests(privateMetadataRecord).length ? privateMetadataRecord : metadataRecord) : [];
+  const groupQuests = user && libraryQuests.length
+    ? await loadCustomQuestGroupContext({
+        loadRelated: async () => listUserRelatedGroupQuests(await clerkClient(), user.id),
+        loadPublic: async () => listPublicGroupQuests(await clerkClient()),
+      })
+    : [];
+  const activityById = new Map<string, string>(buildCustomLibraryActivityRows({
+    quests: libraryQuests,
+    publicMetadata: metadataRecord,
+    groupQuests,
+  }).map((row) => [row.id, row.activity]));
+  const customSideQuests = user ? getCustomLibraryRows(privateMetadataRecord, metadataRecord, activityById) : [];
   const updatedQuest = updatedId ? customSideQuests.find((quest) => quest.id === updatedId) : null;
   const savedQuest = savedId ? customSideQuests.find((quest) => quest.id === savedId) ?? null : null;
   const successMessage = updatedQuest
@@ -55,7 +69,7 @@ export default async function CustomSideQuestsPage({ searchParams }: { searchPar
   );
 }
 
-function getCustomLibraryRows(privateMetadata: UserMetadataRecord, publicMetadata: UserMetadataRecord) {
+function getCustomLibraryRows(privateMetadata: UserMetadataRecord, publicMetadata: UserMetadataRecord, activityById: ReadonlyMap<string, string>) {
   const sourceMetadata = getCustomSideQuests(privateMetadata).length ? privateMetadata : publicMetadata;
   const activeId = getActiveChallenge(sourceMetadata)?.id ?? null;
   const completedIds = new Set(getChallengeProgress(sourceMetadata).completedChallengeIds);
@@ -64,7 +78,7 @@ function getCustomLibraryRows(privateMetadata: UserMetadataRecord, publicMetadat
     .map((quest) => ({
       id: quest.id,
       title: quest.title,
-      meta: getCustomLibraryMeta(quest),
+      meta: [getCustomLibraryMeta(quest), activityById.get(quest.id) ?? "No plays yet."].join(" · "),
       status: getCustomLibraryStatus(quest, activeId, completedIds.has(quest.id)),
       sourceBadge: quest.lifecycle === "draft" ? "Draft" : quest.visibility === "public" ? "Community" : "Private",
       href: `/custom-side-quests/${encodeURIComponent(quest.id)}`,
