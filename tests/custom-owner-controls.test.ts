@@ -6,7 +6,9 @@ import { renderToStaticMarkup } from "react-dom/server";
 import CustomSideQuestOwnerControls from "../src/components/custom-side-quest-owner-controls";
 import * as customOwnerControls from "../src/lib/custom-owner-controls";
 import {
+  buildCustomOwnerDuplicatePayload,
   buildCustomOwnerSavePayload,
+  duplicateCustomOwnerQuest,
   getCustomOwnerDestination,
   type CustomOwnerSaveInput,
 } from "../src/lib/custom-owner-controls";
@@ -32,6 +34,63 @@ test("owner save preserves the selected quest identity and rule config", () => {
     visibility: "public",
     lifecycle: "published",
   });
+});
+
+test("owner duplicate matches Android v339 exact persisted-copy semantics", () => {
+  assert.deepEqual(buildCustomOwnerDuplicatePayload({ ...quest, lifecycle: "archived" }), {
+    title: "  Queenless sprint   Copy",
+    summary: "  Trade queens, then win.  ",
+    config: quest.config,
+    visibility: "public",
+    lifecycle: "published",
+  });
+
+  for (const lifecycle of ["draft", "published", "archived"] as const) {
+    assert.equal(buildCustomOwnerDuplicatePayload({ ...quest, lifecycle, visibility: "private" }).visibility, "private");
+    assert.equal(buildCustomOwnerDuplicatePayload({ ...quest, lifecycle, visibility: "public" }).visibility, "public");
+  }
+});
+
+test("owner duplicate request ignores unsaved form values and sends the exact persisted quest", async () => {
+  let capturedUrl = "";
+  let capturedInit: RequestInit | undefined;
+  const destination = await duplicateCustomOwnerQuest({ ...quest, lifecycle: "draft" }, async (url: string | URL | Request, init?: RequestInit) => {
+    capturedUrl = String(url);
+    capturedInit = init;
+    return Response.json({ ok: true, customQuest: { id: "custom-copy-1" } });
+  });
+
+  assert.equal(capturedUrl, "/api/mobile/custom-quests");
+  assert.equal(capturedInit?.method, "POST");
+  assert.deepEqual(JSON.parse(String(capturedInit?.body)), {
+    title: "  Queenless sprint   Copy",
+    summary: "  Trade queens, then win.  ",
+    config: quest.config,
+    visibility: "public",
+    lifecycle: "published",
+  });
+  assert.equal(destination, "/custom-side-quests/custom-copy-1");
+});
+
+test("owner duplicate fails closed for unsafe or unsuccessful responses", async () => {
+  const cases: Array<() => Promise<Response>> = [
+    async () => Response.json({ ok: true, customQuest: { id: "custom-copy-1" } }, { status: 500 }),
+    async () => Response.json({ ok: false, customQuest: { id: "custom-copy-1" } }),
+    async () => new Response("not json", { status: 200 }),
+    async () => Response.json({ ok: true, customQuest: { id: "../escape" } }),
+    async () => Response.json({ ok: true, customQuest: { id: quest.id } }),
+  ];
+
+  for (const request of cases) {
+    assert.equal(await duplicateCustomOwnerQuest(quest, request), null);
+  }
+});
+
+test("owner duplicate action uses the persisted quest instead of unsaved form state", async () => {
+  const controls = await source("src/components/custom-side-quest-owner-controls.tsx");
+
+  assert.match(controls, /duplicateCustomOwnerQuest\(quest\)/);
+  assert.doesNotMatch(controls, /title: `\$\{title\} Copy`/);
 });
 
 test("owner save keeps drafts private but preserves archived visibility like Android v339", () => {
