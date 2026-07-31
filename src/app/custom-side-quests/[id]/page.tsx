@@ -60,7 +60,10 @@ export default async function CustomSideQuestOwnerPage({ params }: { params: Pro
   >
     <div className="sqc-stack sqc-custom-library-screen">
       <section className="sqc-native-card sqc-community-detail-hero">
-        <Image alt="" src={getCustomSideQuestBadgeUrl(quest)} width={132} height={148} priority />
+        <span className="sqc-custom-detail-coat-frame" aria-hidden="true">
+          <Image className="sqc-custom-detail-coat-image" alt="" src={getCustomSideQuestBadgeUrl(quest)} width={108} height={118} priority />
+          {completionState.completed ? <Image className="sqc-custom-detail-completion-seal" alt="" src="/mobile-source/stamps/quest-complete-red-wax-sqc-v3.png" width={44} height={44} priority /> : null}
+        </span>
         <span className="sqc-card-eyebrow">Your Custom Side Quest · {quest.lifecycle === "draft" ? "Draft" : quest.lifecycle === "archived" ? "Archived" : quest.visibility === "public" ? "Published publicly" : "Ready privately"}</span>
         <h1>{quest.title}</h1>
         <p>{quest.summary}</p>
