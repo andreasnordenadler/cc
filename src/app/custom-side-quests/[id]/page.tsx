@@ -36,6 +36,7 @@ export default async function CustomSideQuestOwnerPage({ params }: { params: Pro
     emailAddress: user.primaryEmailAddress?.emailAddress,
   }) || "Side Quest Chess";
   const rules = describeCustomSideQuestRuleDetails(quest.config);
+  const active = Boolean(publicMetadata.activeChallenge && typeof publicMetadata.activeChallenge === "object" && (publicMetadata.activeChallenge as { id?: string }).id === quest.id);
   const completionState = await buildReplicatedCustomSoloCompletionState({ metadataRecords: [publicMetadata, sourceMetadata], quest });
   const groupQuests = await loadCustomQuestGroupContext({
     loadRelated: () => listUserRelatedGroupQuests(client, user.id),
@@ -74,7 +75,7 @@ export default async function CustomSideQuestOwnerPage({ params }: { params: Pro
 
       <CustomSideQuestProofControls
         questId={quest.id}
-        active={Boolean(publicMetadata.activeChallenge && typeof publicMetadata.activeChallenge === "object" && (publicMetadata.activeChallenge as { id?: string }).id === quest.id)}
+        active={active}
         playable={quest.lifecycle === "published"}
         completed={completionState.completed}
         completedAt={completionState.completedAt}
@@ -92,7 +93,7 @@ export default async function CustomSideQuestOwnerPage({ params }: { params: Pro
         config: quest.config,
         visibility: quest.visibility ?? "private",
         lifecycle: quest.lifecycle ?? "published",
-      }} />
+      }} active={active} />
 
       <div className="sqc-community-detail-actions">
         {quest.visibility === "public" && quest.lifecycle === "published" ? <>

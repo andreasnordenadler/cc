@@ -57,6 +57,22 @@ export function getCustomOwnerDestination(payload: unknown, expectedId: string) 
     : null;
 }
 
+export async function deleteCustomOwnerQuest(
+  id: string,
+  request: typeof fetch = fetch,
+) {
+  if (!/^custom-[a-z0-9-]+$/i.test(id)) return null;
+  const response = await request(`/api/mobile/custom-quests?id=${encodeURIComponent(id)}`, { method: "DELETE" });
+  const result = await response.json().catch(() => null) as { ok?: boolean; action?: string } | null;
+  return response.ok && result?.ok === true && result.action === "delete" ? "/custom-side-quests" : null;
+}
+
+export function getCustomOwnerDeleteConfirmation(active: boolean) {
+  return active
+    ? "This will remove it from My Custom Side Quests and clear it as your active Side Quest."
+    : "This removes it from My Custom Side Quests. Existing Multiplayer Side Quests keep the version they already saved.";
+}
+
 export function getCustomOwnerMultiplayerHref(input: Pick<CustomOwnerSaveInput, "id" | "lifecycle">) {
   return input.lifecycle === "published" && /^custom-[a-z0-9-]+$/i.test(input.id)
     ? `/create-multiplayer-side-quest?quest=${encodeURIComponent(input.id)}`
