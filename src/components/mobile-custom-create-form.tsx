@@ -10,9 +10,9 @@ import {
   deleteCustomConditionEditorRow,
   describeCustomRuleBlock,
   duplicateCustomConditionEditorRow,
-  getCreateErrorMessage,
   getCustomConditionEditorRow,
   getCustomCreateDestination,
+  getCustomSaveErrorMessage,
   getCustomEditDestination,
   getCustomEditFormState,
   getCustomBuilderSnapshot,
@@ -252,12 +252,12 @@ export default function MobileCustomCreateForm({ signedIn, initialQuest = null }
       const response = await fetch("/api/mobile/custom-quests", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
       const result = await response.json().catch(() => null);
       const destination = response.ok ? initialState ? getCustomEditDestination(result, initialState.id) : getCustomCreateDestination(result) : null;
-      if (!destination) { setError(getCreateErrorMessage(response.status, result)); setSaving(false); return; }
+      if (!destination) { setError(getCustomSaveErrorMessage(body.lifecycle, response.status, result)); setSaving(false); return; }
       if (editingLocalDraftId) tryRemoveLocalCustomDraft(window.localStorage, editingLocalDraftId);
       allowNavigation.current = true;
       window.location.assign(destination);
     } catch {
-      setError("Could not create this Side Quest right now. Please try again.");
+      setError(getCustomSaveErrorMessage(body.lifecycle, 0, null));
       setSaving(false);
     }
   }

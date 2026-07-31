@@ -491,3 +491,9 @@ export function getCreateErrorMessage(status: number, payload: unknown) {
   if (status >= 400 && status < 500 && allowedClientMessages.some((pattern) => pattern.test(candidate))) return candidate.slice(0, 240);
   return "Could not create this Side Quest right now. Please try again.";
 }
+
+export function getCustomSaveErrorMessage(lifecycle: "draft" | "published" | "archived", status: number, payload: unknown) {
+  const heading = lifecycle === "published" ? "Could not publish Side Quest." : "Could not save draft.";
+  const detail = getCreateErrorMessage(status, payload);
+  return `${heading} ${detail.startsWith("Could not create this Side Quest") ? "Try again in a moment." : detail}`;
+}
