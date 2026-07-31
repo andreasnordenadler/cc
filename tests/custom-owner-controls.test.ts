@@ -4,6 +4,7 @@ import test from "node:test";
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import CustomSideQuestOwnerControls from "../src/components/custom-side-quest-owner-controls";
+import * as communitySideQuests from "../src/lib/community-side-quests";
 import * as customOwnerControls from "../src/lib/custom-owner-controls";
 import {
   buildCustomOwnerDuplicatePayload,
@@ -358,4 +359,63 @@ test("custom library and route wire each saved quest to an owner detail surface"
   assert.match(proofControls, /run\("start"\)/);
   assert.match(proofControls, /run\("check"\)/);
   assert.match(proofControls, /run\("deactivate"\)/);
+});
+
+test("owner detail separates Android v339 rule logic from the saved condition count", async () => {
+  const getPresentation = (communitySideQuests as unknown as {
+    getCustomSideQuestRulePresentation?: (config: string, summary: string) => { logicLabel: string; lines: string[]; summary: string };
+  }).getCustomSideQuestRulePresentation;
+  const route = await source("src/app/custom-side-quests/[id]/page.tsx");
+  const config = JSON.stringify({
+    version: 2,
+    logic: "any",
+    blocks: [
+      { type: "gameResult", result: "win" },
+      { type: "gameResult", result: "draw" },
+    ],
+  });
+
+  assert.equal(typeof getPresentation, "function");
+  assert.deepEqual(getPresentation?.(config, "Game result must be win.."), {
+    logicLabel: "Complete any one condition",
+    lines: ["Win a game.", "Draw a game."],
+    summary: "Win a game.",
+  });
+  assert.deepEqual(getPresentation?.("not json", "Game result must be draw.."), {
+    logicLabel: "Rule summary",
+    lines: ["Draw a game."],
+    summary: "Draw a game.",
+  });
+  assert.deepEqual(getPresentation?.(JSON.stringify({ version: 2, logic: "all", blocks: [
+    { type: "gameResult", result: "win" },
+    { type: "unknown" },
+  ] }), "Fallback"), {
+    logicLabel: "Complete every condition",
+    lines: ["Win a game."],
+    summary: "Fallback",
+  });
+  assert.deepEqual(getPresentation?.(JSON.stringify({ version: 2, logic: "all", blocks: [
+    { type: "gameResult", result: "win", negate: true },
+    { type: "openingSequence", moves: ["e4", "e5"], negate: true },
+    { type: "moveSequence", sequence: "e4 e5", timing: { byMove: 4 }, negate: true },
+    { type: "pieceState", piece: "queen", owner: "my", selector: { quantifier: "any one", count: 1, identity: "original" }, condition: "moved", timing: { atGameEnd: true } },
+    { type: "pieceState", piece: "rook", owner: "my", selector: { quantifier: "all", count: 2, identity: "any" }, condition: "not moved", timing: { byMove: 12 }, negate: true },
+  ] }), "Negated rules"), {
+    logicLabel: "Complete every condition",
+    lines: [
+      "Do not win the game.",
+      "It must NOT be true that opening line from move 1 must match “e4 e5”.",
+      "It must NOT be true that game must include the move sequence “e4 e5” by move 4.",
+      "Your queen must be moved at game end.",
+      "It must NOT be true that both of your rooks must be not moved by move 12.",
+    ],
+    summary: "Negated rules",
+  });
+  assert.match(route, /<span className="sqc-card-eyebrow">Challenge<\/span>[\s\S]*<h2>What to do<\/h2>/);
+  assert.match(route, /<h1>\{quest\.title\}<\/h1>[\s\S]*<p>\{rulePresentation\.summary\}<\/p>/);
+  assert.match(route, /<span className="sqc-card-eyebrow">Rule details<\/span>[\s\S]*<h2>\{rulePresentation\.logicLabel\}<\/h2>/);
+  assert.match(route, /rulePresentation\.lines\.length/);
+  assert.match(route, /<ol>[\s\S]*rulePresentation\.lines\.map\(\(rule, index\)[\s\S]*key=\{`\$\{index\}-\$\{rule\}`\}/);
+  assert.doesNotMatch(route, /rules\.length/);
+  assert.deepEqual(communitySideQuests.describeCustomSideQuestRuleDetails(JSON.stringify({ version: 2, logic: "all", blocks: [{ type: "gameResult", result: "win", negate: true }] })), ["Win the game."]);
 });

@@ -1,6 +1,6 @@
 import { unstable_noStore as noStore } from "next/cache";
 import { getCommunityLikes, type CommunityLikeSummary } from "@/lib/community-likes";
-import { getCustomSideQuestBadgeUrl, getCustomSideQuests, parseCustomRuleConfig, type CustomSideQuest } from "@/lib/custom-side-quests";
+import { getCustomSideQuestBadgeUrl, getCustomSideQuests, parseCustomRuleConfig, type CustomSideQuest, type CustomSideQuestRuleBlock } from "@/lib/custom-side-quests";
 import { type ServerGroupQuest } from "@/lib/groupquests";
 import { getActiveChallenge, getChallengeAttempts, getChallengeProgress, getPreferredRunnerName, type UserMetadataRecord } from "@/lib/user-metadata";
 
@@ -153,6 +153,72 @@ export function describeCustomSideQuestRuleDetails(config: string) {
     return "Custom rule";
   });
   return parsed.logic === "any" && lines.length > 1 ? ["Complete any one of these rules.", ...lines] : lines;
+}
+
+export function getCustomSideQuestRulePresentation(config: string, fallbackSummary: string) {
+  const summary = cleanCustomRuleSummaryText(fallbackSummary);
+  try {
+    const parsed = JSON.parse(config) as { logic?: unknown; blocks?: unknown };
+    const blocks = Array.isArray(parsed.blocks) ? parsed.blocks : [];
+    const lines = blocks.flatMap((block) => {
+      const single = parseCustomRuleConfig(JSON.stringify({ version: 2, logic: "all", blocks: [block] }));
+      return single?.blocks.length ? single.blocks.map(describeCustomRulePresentationLine) : [];
+    });
+    if (lines.length) return {
+      logicLabel: parsed.logic === "any" ? "Complete any one condition" : "Complete every condition",
+      lines,
+      summary,
+    };
+  } catch {
+    // Legacy and malformed saved recipes use their persisted human-readable summary.
+  }
+  return { logicLabel: "Rule summary", lines: [summary], summary };
+}
+
+function describeCustomRulePresentationLine(block: CustomSideQuestRuleBlock) {
+  if (block.type === "gameResult") {
+    if (block.negate) return block.result === "win" ? "Do not win the game." : block.result === "draw" ? "Do not draw the game." : "Do not lose the game.";
+    return block.result === "win" ? "Win a game." : block.result === "draw" ? "Draw a game." : "Finish with a loss.";
+  }
+  if (block.type === "openingSequence") {
+    const positive = `Opening line from move 1 must match “${block.moves.join(" ")}”.`;
+    return block.negate ? `It must NOT be true that ${positive.slice(0, 1).toLowerCase()}${positive.slice(1)}` : positive;
+  }
+  if (block.type === "moveSequence") {
+    const timing = block.timing?.byMove ? `by move ${block.timing.byMove}` : block.timing?.atMove ? `at move ${block.timing.atMove}` : "at game end";
+    const positive = `Game must include the move sequence “${block.sequence}” ${timing}.`;
+    return block.negate ? `It must NOT be true that ${positive.slice(0, 1).toLowerCase()}${positive.slice(1)}` : positive;
+  }
+  const timing = block.timing?.byMove ? `by move ${block.timing.byMove}` : block.timing?.atMove ? `at move ${block.timing.atMove}` : "at game end";
+  const maxCount = block.piece === "pawn" ? 8 : block.piece === "king" || block.piece === "queen" ? 1 : 2;
+  const identity = block.selector?.identity ?? "any";
+  const specificIdentity = identity !== "any";
+  const count = Math.min(Math.max(1, block.selector?.count ?? 1), maxCount);
+  const identityLabel = identity === "original" ? block.piece : identity.endsWith("-pawn") ? identity : `${identity} ${block.piece}`;
+  const pluralPiece = block.piece === "pawn" ? "pawns" : `${block.piece}s`;
+  const pieceLabel = specificIdentity || maxCount === 1 ? identityLabel : block.selector?.quantifier === "all" || count > 1 ? pluralPiece : block.piece;
+  const owner = block.owner === "opponent" ? "opponent's" : "your";
+  const ownerPossessive = block.owner === "opponent" ? "your opponent's" : "your";
+  const allPieceSubject = block.selector?.quantifier === "all" && !specificIdentity && maxCount > 1
+    ? maxCount === 2 ? `both of ${ownerPossessive} ${pieceLabel}` : `all ${maxCount} of ${ownerPossessive} ${pieceLabel}`
+    : null;
+  const quantity = block.selector?.quantifier === "any one" || !block.selector?.quantifier ? "any 1" : `${block.selector.quantifier} ${count}`;
+  const subject = allPieceSubject ?? (specificIdentity || maxCount === 1 ? `${owner} ${pieceLabel}` : `${owner} ${quantity} ${pieceLabel}`);
+  const condition = block.condition === "on square" ? `on ${block.targetSquare}` : block.condition;
+  const positive = `${subject.slice(0, 1).toUpperCase()}${subject.slice(1)} must be ${condition} ${timing}.`;
+  return block.negate ? `It must NOT be true that ${positive.slice(0, 1).toLowerCase()}${positive.slice(1)}` : positive;
+}
+
+function cleanCustomRuleSummaryText(value: string) {
+  return value
+    .replace(/game\s+result\s+must\s+be\s+win\.?/gi, "Win a game.")
+    .replace(/game\s+result\s+must\s+be\s+draw\.?/gi, "Draw a game.")
+    .replace(/game\s+result\s+must\s+be\s+lose\.?/gi, "Finish with a loss.")
+    .replace(/\b(your|opponent's) any 1 (king|queen)\b/gi, (_match, owner: string, piece: string) => `${owner} ${piece}`)
+    .replace(/\b(your|opponent's) any 1 ((?:queenside|kingside) (?:rook|bishop|knight)|[a-h]-pawn)\b/gi, (_match, owner: string, piece: string) => `${owner} ${piece}`)
+    .replace(/\.\./g, ".")
+    .replace(/\s+/g, " ")
+    .trim();
 }
 
 export function getCommunityPopularityScore(stats: PublicCommunitySideQuest["stats"]) {
