@@ -34,6 +34,10 @@ export function buildCustomOwnerDuplicatePayload(input: CustomOwnerSaveInput) {
   };
 }
 
+export function getCustomOwnerDuplicateSuccessMessage(name: string) {
+  return `${name} Copy is now in My Custom Side Quests.`;
+}
+
 export async function duplicateCustomOwnerQuest(
   input: CustomOwnerSaveInput,
   request: typeof fetch = fetch,
