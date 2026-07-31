@@ -3,7 +3,8 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import MobileAppWebShell, { desktopHomeMenuItems, mobileWebMenuItems } from "../src/components/mobile-app-web-shell";
+import MobileAppWebShell, { desktopHomeMenuItems, mobileWebMenuItems, MobileSoloSideQuestsScreen } from "../src/components/mobile-app-web-shell";
+import { CHALLENGES } from "../src/lib/challenges";
 
 test("desktop home menu preserves the app menu labels, destinations, and order", () => {
   assert.deepEqual(desktopHomeMenuItems, mobileWebMenuItems);
@@ -77,19 +78,53 @@ test("signed-in desktop home guides setup while retaining the existing app home"
   assert.equal(html.match(/class="sqc-current-card/g)?.length, 1, "signed-in Home should render one interactive current-card subtree");
 });
 
-test("non-home routes never render the desktop home composition", () => {
+test("Solo discovery renders one catalog plus desktop navigation with the correct current route", () => {
   const html = renderToStaticMarkup(
     createElement(
       MobileAppWebShell,
       {
         activeTab: "sideQuests",
         signedIn: false,
+        desktopPresentation: "solo-discovery",
       },
-      createElement("p", null, "Catalog"),
+      createElement(MobileSoloSideQuestsScreen, { challenges: CHALLENGES, signedIn: false }),
     ),
   );
 
   assert.doesNotMatch(html, /sqc-desktop-home-only/);
   assert.doesNotMatch(html, /sqc-app-only/);
-  assert.match(html, />Catalog<\/p>/);
+  assert.match(html, /class="sqc-desktop-route-only"/);
+  assert.match(html, /aria-label="Desktop shortcuts"/);
+  assert.match(html, /<a[^>]*aria-current="page"[^>]*href="\/side-quests">Solo Side Quests<\/a>/);
+  assert.doesNotMatch(html, /<a[^>]*aria-current="page"[^>]*href="\/">Home<\/a>/);
+  assert.match(html, /class="sqc-desktop-catalog-intro"/);
+  assert.match(html, />Choose the rule that will ruin your next perfectly normal game\.<\/h1>/);
+  assert.equal(html.match(/class="sqc-catalog"/g)?.length, 1, "desktop and mobile share one catalog subtree");
+});
+
+test("routes that share the Solo app tab do not inherit the desktop discovery composition", () => {
+  const html = renderToStaticMarkup(
+    createElement(
+      MobileAppWebShell,
+      { activeTab: "sideQuests", signedIn: false },
+      createElement("p", null, "Custom or detail surface"),
+    ),
+  );
+
+  assert.doesNotMatch(html, /sqc-desktop-route-only|desktop-solo-discovery/);
+  assert.match(html, />Custom or detail surface<\/p>/);
+});
+
+test("Solo discovery switches to a wide card grid only at the established desktop boundary", () => {
+  const css = readFileSync("src/app/mobile-web.css", "utf8");
+
+  assert.match(css, /\.sqc-desktop-route-only,\s*\.sqc-desktop-catalog-intro\s*\{[^}]*display:\s*none;/);
+  assert.match(css, /@media\s*\(min-width:\s*1180px\)[\s\S]*?\.sqc-mobile-web\.desktop-solo-discovery\s+\.sqc-screen\s*\{[^}]*width:\s*min\(1240px,\s*calc\(100%\s*-\s*64px\)\)/);
+  assert.match(css, /\.sqc-mobile-web\.desktop-solo-discovery\s+\.sqc-catalog\s*\{[^}]*grid-template-columns:\s*repeat\(3,\s*minmax\(0,\s*1fr\)\);/);
+  assert.match(css, /\.sqc-mobile-web\.desktop-solo-discovery\s+\.sqc-app-row\s*\{[^}]*position:\s*relative;[^}]*grid-template-columns:\s*68px\s+minmax\(0,\s*1fr\);/);
+  assert.match(css, /\.sqc-mobile-web\.desktop-solo-discovery\s+\.sqc-row-copy\s*\{[^}]*padding-right:\s*64px;/);
+  assert.match(css, /\.sqc-mobile-web\.desktop-solo-discovery\s+\.sqc-row-title-line\s*>\s*strong\s*\{[^}]*-webkit-line-clamp:\s*2;[^}]*white-space:\s*normal;/);
+  assert.match(css, /@media\s*\(min-width:\s*1180px\)[\s\S]*?\.sqc-mobile-web\.desktop-solo-discovery\s+\.sqc-app-row\s*\{[^}]*min-height:\s*156px/);
+  assert.match(css, /\.sqc-mobile-web\.desktop-solo-discovery:not\(\.signed-out\)\s+\.sqc-solo-brand-tabs\s+\.sqc-brand-switch\s*\{[^}]*position:\s*static;[^}]*margin:\s*0;/);
+  assert.match(css, /\.sqc-mobile-web\.desktop-solo-discovery\s+\.sqc-solo-brand-tabs\s+\.sqc-brand-switch\s*\{[^}]*width:\s*44px;[^}]*height:\s*44px;[^}]*justify-self:\s*center;/);
 });

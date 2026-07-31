@@ -40,6 +40,7 @@ type AppTab = "home" | "sideQuests" | "multiplayerSideQuests" | "coatOfArms" | "
 type MobileAppWebShellProps = {
   activeTab: AppTab;
   signedIn: boolean;
+  desktopPresentation?: "solo-discovery";
   displayName?: string | null;
   profileImageUrl?: string | null;
   lichessUsername?: string | null;
@@ -181,6 +182,7 @@ const mobileAsset = {
 export default function MobileAppWebShell({
   activeTab,
   signedIn,
+  desktopPresentation,
   displayName,
   profileImageUrl,
   lichessUsername,
@@ -215,6 +217,7 @@ export default function MobileAppWebShell({
     <main
       className={[
         "sqc-mobile-web",
+        desktopPresentation ? `desktop-${desktopPresentation}` : "",
         immersivePresentation ? "immersive" : "",
         controlsOnlyHeader ? "controls-only" : "",
         signedIn ? "signed-in" : "signed-out",
@@ -223,6 +226,12 @@ export default function MobileAppWebShell({
       style={shellStyle}
     >
       <div className="sqc-mobile-backdrop" aria-hidden="true" />
+
+      {desktopPresentation === "solo-discovery" && !modalPresentation && !immersivePresentation && !loadingPresentation ? (
+        <div className="sqc-desktop-route-only">
+          <DesktopHomeHeader signedIn={signedIn} displayName={displayName} activeTab={activeTab} />
+        </div>
+      ) : null}
 
       <div className={showDesktopHome ? "sqc-app-only" : undefined}>
         {modalPresentation ? null : signedIn ? (
@@ -289,7 +298,7 @@ export default function MobileAppWebShell({
       {showDesktopHome && signedIn ? (
         <>
           <div className="sqc-desktop-home-only">
-            <DesktopHomeHeader signedIn displayName={displayName} />
+            <DesktopHomeHeader signedIn displayName={displayName} activeTab="home" />
           </div>
           <DesktopSignedInHome
             displayName={displayName}
@@ -304,7 +313,7 @@ export default function MobileAppWebShell({
         </>
       ) : showDesktopHome ? (
         <div className="sqc-desktop-home-only">
-          <DesktopHomeHeader signedIn={false} displayName={displayName} />
+          <DesktopHomeHeader signedIn={false} displayName={displayName} activeTab="home" />
           <DesktopGuestHome />
         </div>
       ) : null}
@@ -333,7 +342,7 @@ function GuestNavigation({ activeTab }: { activeTab: AppTab }) {
   );
 }
 
-function DesktopHomeHeader({ signedIn, displayName }: { signedIn: boolean; displayName?: string | null }) {
+function DesktopHomeHeader({ signedIn, displayName, activeTab }: { signedIn: boolean; displayName?: string | null; activeTab: AppTab }) {
   const shortcuts = desktopHomeMenuItems.slice(0, 4);
 
   return (
@@ -347,12 +356,12 @@ function DesktopHomeHeader({ signedIn, displayName }: { signedIn: boolean; displ
       </Link>
       <nav className="sqc-desktop-shortcuts" aria-label="Desktop shortcuts">
         {shortcuts.map((item) => (
-          <Link key={item.id} href={item.href} aria-current={item.id === "home" ? "page" : undefined}>
+          <Link key={item.id} href={item.href} aria-current={isActiveMenuItem(item.id, activeTab) ? "page" : undefined}>
             {item.label}
           </Link>
         ))}
       </nav>
-      <DesktopHomeMenu items={desktopHomeMenuItems} />
+      <DesktopHomeMenu items={desktopHomeMenuItems} activeItemId={activeTab === "multiplayerSideQuests" ? "multiplayer" : activeTab === "coatOfArms" ? "coats" : activeTab} />
       {signedIn ? (
         <Link href="/account" className="sqc-desktop-sign-in">{displayName || "My Account"}</Link>
       ) : (
@@ -795,6 +804,11 @@ export function MobileSoloSideQuestsScreen({
 
   return (
     <div className="sqc-stack sqc-catalog-screen">
+      <header className="sqc-desktop-catalog-intro">
+        <span className="sqc-desktop-eyebrow">Official Solo Side Quests</span>
+        <h1>Choose the rule that will ruin your next perfectly normal game.</h1>
+        <p>Every card opens the complete objective before you commit. Start easy, or skip directly to the kind of decision that deserves its own coat of arms.</p>
+      </header>
       <div className="sqc-screen-emblem solo" aria-hidden="true">
         <Image className="sqc-screen-emblem-glow" alt="" src={mobileAsset.coatGlow} width={166} height={176} priority />
         <Image className="sqc-screen-emblem-image" alt="" src={mobileAsset.coat} width={132} height={148} priority />
