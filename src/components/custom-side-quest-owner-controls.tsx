@@ -70,6 +70,7 @@ export default function CustomSideQuestOwnerControls({ quest, active = false }: 
     <div className="sqc-community-detail-actions" aria-label="Custom Side Quest lifecycle actions">
       <button className="sqc-detail-secondary-button" disabled={Boolean(busy)} onClick={duplicate} type="button">{busy === "duplicate" ? "Duplicating…" : "Duplicate"}</button>
       {lifecycle !== "published" ? <button className="sqc-detail-secondary-button" disabled={Boolean(busy)} onClick={() => { void save(undefined, { lifecycle: "published", visibility }); }} type="button">{busy === "save" ? "Saving…" : "Publish"}</button> : null}
+      {quest.lifecycle === "published" && lifecycle === "published" ? <button className="sqc-detail-secondary-button" disabled={Boolean(busy)} onClick={() => { void save(undefined, { lifecycle: "published", visibility: quest.visibility === "public" ? "private" : "public" }); }} type="button">{busy === "save" ? "Saving…" : quest.visibility === "public" ? "Make private again" : "Make public / shareable"}</button> : null}
       {lifecycle !== "archived" ? <button className="sqc-detail-secondary-button" disabled={Boolean(busy)} onClick={() => { setLifecycle("archived"); void save(undefined, { lifecycle: "archived", visibility }); }} type="button">Archive</button> : null}
       <button className="sqc-detail-quiet-button" disabled={Boolean(busy)} onClick={remove} type="button">{busy === "delete" ? "Deleting…" : "Delete from library"}</button>
     </div>

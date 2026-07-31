@@ -211,6 +211,26 @@ test("draft and archived owner details expose Android v339's direct Publish acti
   assert.doesNotMatch(controls, /setLifecycle\("published"\)/);
 });
 
+test("published owner detail exposes Android v339's direct visibility mutation", async () => {
+  const privateMarkup = renderToStaticMarkup(React.createElement(CustomSideQuestOwnerControls, {
+    quest: { ...quest, visibility: "private" },
+  }));
+  assert.match(privateMarkup, />Make public \/ shareable<\/button>/);
+
+  const publicMarkup = renderToStaticMarkup(React.createElement(CustomSideQuestOwnerControls, { quest }));
+  assert.match(publicMarkup, />Make private again<\/button>/);
+
+  const draftMarkup = renderToStaticMarkup(React.createElement(CustomSideQuestOwnerControls, {
+    quest: { ...quest, lifecycle: "draft" },
+  }));
+  assert.doesNotMatch(draftMarkup, /Make public \/ shareable|Make private again/);
+
+  const controls = await source("src/components/custom-side-quest-owner-controls.tsx");
+  assert.match(controls, /quest\.lifecycle === "published" && lifecycle === "published"/);
+  assert.match(controls, /save\(undefined, \{ lifecycle: "published", visibility: quest\.visibility === "public" \? "private" : "public" \}\)/);
+  assert.doesNotMatch(controls, /setVisibility\(quest\.visibility === "public" \? "private" : "public"\)/);
+});
+
 test("published public owner detail keeps Android's direct share and copy actions", async () => {
   const route = await source("src/app/custom-side-quests/[id]/page.tsx");
 
