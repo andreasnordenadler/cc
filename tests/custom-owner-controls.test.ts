@@ -215,16 +215,46 @@ test("owner state action wiring cannot submit unsaved editor copy", async () => 
   const controls = await source("src/components/custom-side-quest-owner-controls.tsx");
 
   assert.match(controls, /saveCustomOwnerState\(quest, next\)/);
-  assert.match(controls, /runStateMutation\(\{ lifecycle: "published", visibility: quest\.visibility \}\)/);
-  assert.match(controls, /runStateMutation\(\{ lifecycle: "published", visibility: quest\.visibility === "public" \? "private" : "public" \}\)/);
-  assert.match(controls, /runStateMutation\(\{ lifecycle: "archived", visibility: quest\.visibility \}\)/);
+  assert.match(controls, /runStateMutation\(\{ lifecycle: "published", visibility: persistedVisibility \}\)/);
+  assert.match(controls, /runStateMutation\(\{ lifecycle: "published", visibility: persistedVisibility === "public" \? "private" : "public" \}\)/);
+  assert.match(controls, /runStateMutation\(\{ lifecycle: "archived", visibility: persistedVisibility \}\)/);
   assert.doesNotMatch(controls, /save\(undefined, \{ lifecycle:/);
+});
+
+test("later owner failures reset a prior direct-state success to an alert", async () => {
+  const controls = await source("src/components/custom-side-quest-owner-controls.tsx");
+
+  assert.match(controls, /async function save[\s\S]*?setMessageIsError\(true\)[\s\S]*?async function runStateMutation/);
+  assert.match(controls, /async function duplicate[\s\S]*?setMessageIsError\(true\)[\s\S]*?async function remove/);
+  assert.match(controls, /async function remove[\s\S]*?setMessageIsError\(true\)[\s\S]*?return <form/);
+});
+
+test("direct owner state success stays on detail and acknowledges Android v339's exact result", async () => {
+  const getMessage = (customOwnerControls as unknown as {
+    getCustomOwnerStateSavedMessage?: (
+      name: string,
+      next: Pick<CustomOwnerSaveInput, "lifecycle" | "visibility">,
+    ) => string;
+  }).getCustomOwnerStateSavedMessage;
+  const controls = await source("src/components/custom-side-quest-owner-controls.tsx");
+
+  assert.equal(typeof getMessage, "function");
+  assert.equal(getMessage?.("Knight watch", { lifecycle: "archived", visibility: "public" }), "Knight watch is archived and no longer playable.");
+  assert.equal(getMessage?.("Knight watch", { lifecycle: "published", visibility: "public" }), "Knight watch is public/shareable. Other players may see its title, goal, and Coat of Arms when it is shared.");
+  assert.equal(getMessage?.("Knight watch", { lifecycle: "published", visibility: "private" }), "Knight watch is private. Only you can manage it, but you can still use it in Multiplayer Side Quests you host.");
+  assert.match(controls, /setMessage\(getCustomOwnerStateSavedMessage\(quest\.title, next\)\)/);
+  assert.match(controls, /setPersistedLifecycle\(next\.lifecycle\)/);
+  assert.match(controls, /setPersistedVisibility\(next\.visibility\)/);
+  assert.match(controls, /setMessageIsError\(false\)/);
+  assert.match(controls, /className=\{messageIsError \? "groupquest-join-error" : "sqc-action-success"\}/);
+  assert.match(controls, /role=\{messageIsError \? "alert" : "status"\}/);
+  assert.doesNotMatch(controls, /router\.refresh/);
 });
 
 test("owner Archive action preserves the persisted visibility", async () => {
   const controls = await source("src/components/custom-side-quest-owner-controls.tsx");
 
-  assert.match(controls, /runStateMutation\(\{ lifecycle: "archived", visibility: quest\.visibility \}\)[\s\S]*"Archive"/);
+  assert.match(controls, /runStateMutation\(\{ lifecycle: "archived", visibility: persistedVisibility \}\)[\s\S]*"Archive"/);
   assert.doesNotMatch(controls, /lifecycle: "archived", visibility: "private"/);
 });
 
@@ -240,7 +270,7 @@ test("draft and archived owner details expose Android v339's direct Publish acti
   assert.doesNotMatch(published, />Publish<\/button>/);
 
   const controls = await source("src/components/custom-side-quest-owner-controls.tsx");
-  assert.match(controls, /runStateMutation\(\{ lifecycle: "published", visibility: quest\.visibility \}\)/);
+  assert.match(controls, /runStateMutation\(\{ lifecycle: "published", visibility: persistedVisibility \}\)/);
   assert.doesNotMatch(controls, /setLifecycle\("published"\)/);
 });
 
@@ -259,8 +289,8 @@ test("published owner detail exposes Android v339's direct visibility mutation",
   assert.doesNotMatch(draftMarkup, /Make public \/ shareable|Make private again/);
 
   const controls = await source("src/components/custom-side-quest-owner-controls.tsx");
-  assert.match(controls, /quest\.lifecycle === "published"/);
-  assert.match(controls, /runStateMutation\(\{ lifecycle: "published", visibility: quest\.visibility === "public" \? "private" : "public" \}\)/);
+  assert.match(controls, /persistedLifecycle === "published"/);
+  assert.match(controls, /runStateMutation\(\{ lifecycle: "published", visibility: persistedVisibility === "public" \? "private" : "public" \}\)/);
   assert.doesNotMatch(controls, /setVisibility\(quest\.visibility === "public" \? "private" : "public"\)/);
 });
 

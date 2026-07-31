@@ -2,20 +2,23 @@
 
 import Link from "next/link";
 import { FormEvent, useState } from "react";
-import { buildCustomOwnerSavePayload, deleteCustomOwnerQuest, duplicateCustomOwnerQuest, getCustomOwnerDeleteConfirmation, getCustomOwnerDestination, getCustomOwnerMultiplayerHref, saveCustomOwnerState, type CustomOwnerSaveInput } from "@/lib/custom-owner-controls";
+import { buildCustomOwnerSavePayload, deleteCustomOwnerQuest, duplicateCustomOwnerQuest, getCustomOwnerDeleteConfirmation, getCustomOwnerDestination, getCustomOwnerMultiplayerHref, getCustomOwnerStateSavedMessage, saveCustomOwnerState, type CustomOwnerSaveInput } from "@/lib/custom-owner-controls";
 
 export default function CustomSideQuestOwnerControls({ quest, active = false }: { quest: CustomOwnerSaveInput; active?: boolean }) {
-  const multiplayerHref = getCustomOwnerMultiplayerHref(quest);
   const [title, setTitle] = useState(quest.title);
   const [summary, setSummary] = useState(quest.summary);
   const [visibility, setVisibility] = useState<"private" | "public">(quest.visibility);
   const [lifecycle, setLifecycle] = useState<"draft" | "published" | "archived">(quest.lifecycle);
+  const [persistedVisibility, setPersistedVisibility] = useState(quest.visibility);
+  const [persistedLifecycle, setPersistedLifecycle] = useState(quest.lifecycle);
   const [busy, setBusy] = useState("");
   const [message, setMessage] = useState("");
+  const [messageIsError, setMessageIsError] = useState(true);
+  const multiplayerHref = getCustomOwnerMultiplayerHref({ ...quest, lifecycle: persistedLifecycle });
 
   async function save(event?: FormEvent, overrides: Partial<CustomOwnerSaveInput> = {}) {
     event?.preventDefault();
-    setMessage("");
+    setMessage(""); setMessageIsError(true);
     let body: ReturnType<typeof buildCustomOwnerSavePayload>;
     try {
       body = buildCustomOwnerSavePayload({ ...quest, title, summary, visibility, lifecycle, ...overrides });
@@ -35,17 +38,20 @@ export default function CustomSideQuestOwnerControls({ quest, active = false }: 
   }
 
   async function runStateMutation(next: Pick<CustomOwnerSaveInput, "lifecycle" | "visibility">) {
-    setBusy("state"); setMessage("");
+    setBusy("state"); setMessage(""); setMessageIsError(true);
     try {
       const destination = await saveCustomOwnerState(quest, next);
       if (!destination) { setMessage("Could not save this Side Quest right now. Please try again."); return; }
-      window.location.assign(destination);
+      setPersistedLifecycle(next.lifecycle);
+      setPersistedVisibility(next.visibility);
+      setMessageIsError(false);
+      setMessage(getCustomOwnerStateSavedMessage(quest.title, next));
     } catch { setMessage("Could not save this Side Quest right now. Please try again."); }
     finally { setBusy(""); }
   }
 
   async function duplicate() {
-    setBusy("duplicate"); setMessage("");
+    setBusy("duplicate"); setMessage(""); setMessageIsError(true);
     try {
       const destination = await duplicateCustomOwnerQuest(quest);
       if (!destination) { setMessage("Could not duplicate this Side Quest right now."); return; }
@@ -56,7 +62,7 @@ export default function CustomSideQuestOwnerControls({ quest, active = false }: 
 
   async function remove() {
     if (!window.confirm(getCustomOwnerDeleteConfirmation(active))) return;
-    setBusy("delete"); setMessage("");
+    setBusy("delete"); setMessage(""); setMessageIsError(true);
     try {
       const destination = await deleteCustomOwnerQuest(quest.id);
       if (!destination) { setMessage("Could not delete this Side Quest right now."); return; }
@@ -75,13 +81,13 @@ export default function CustomSideQuestOwnerControls({ quest, active = false }: 
     <p>Your saved rule conditions stay unchanged while you edit the name, description, visibility, or lifecycle.</p>
     <Link className="sqc-detail-secondary-button" href={`/create-custom-side-quest?edit=${encodeURIComponent(quest.id)}`}>Edit rule conditions</Link>
     {multiplayerHref ? <Link className="sqc-detail-secondary-button" href={multiplayerHref}>Use in Multiplayer</Link> : null}
-    {message ? <p className="groupquest-join-error" role="alert">{message}</p> : null}
+    {message ? <p className={messageIsError ? "groupquest-join-error" : "sqc-action-success"} role={messageIsError ? "alert" : "status"}>{message}</p> : null}
     <button className="sqc-create-footer-button" disabled={Boolean(busy)} type="submit">{busy === "save" ? "Saving…" : "Save changes"}</button>
     <div className="sqc-community-detail-actions" aria-label="Custom Side Quest lifecycle actions">
       <button className="sqc-detail-secondary-button" disabled={Boolean(busy)} onClick={duplicate} type="button">{busy === "duplicate" ? "Duplicating…" : "Duplicate"}</button>
-      {quest.lifecycle !== "published" ? <button className="sqc-detail-secondary-button" disabled={Boolean(busy)} onClick={() => { void runStateMutation({ lifecycle: "published", visibility: quest.visibility }); }} type="button">{busy === "state" ? "Saving…" : "Publish"}</button> : null}
-      {quest.lifecycle === "published" ? <button className="sqc-detail-secondary-button" disabled={Boolean(busy)} onClick={() => { void runStateMutation({ lifecycle: "published", visibility: quest.visibility === "public" ? "private" : "public" }); }} type="button">{busy === "state" ? "Saving…" : quest.visibility === "public" ? "Make private again" : "Make public / shareable"}</button> : null}
-      {quest.lifecycle !== "archived" ? <button className="sqc-detail-secondary-button" disabled={Boolean(busy)} onClick={() => { void runStateMutation({ lifecycle: "archived", visibility: quest.visibility }); }} type="button">{busy === "state" ? "Saving…" : "Archive"}</button> : null}
+      {persistedLifecycle !== "published" ? <button className="sqc-detail-secondary-button" disabled={Boolean(busy)} onClick={() => { void runStateMutation({ lifecycle: "published", visibility: persistedVisibility }); }} type="button">{busy === "state" ? "Saving…" : "Publish"}</button> : null}
+      {persistedLifecycle === "published" ? <button className="sqc-detail-secondary-button" disabled={Boolean(busy)} onClick={() => { void runStateMutation({ lifecycle: "published", visibility: persistedVisibility === "public" ? "private" : "public" }); }} type="button">{busy === "state" ? "Saving…" : persistedVisibility === "public" ? "Make private again" : "Make public / shareable"}</button> : null}
+      {persistedLifecycle !== "archived" ? <button className="sqc-detail-secondary-button" disabled={Boolean(busy)} onClick={() => { void runStateMutation({ lifecycle: "archived", visibility: persistedVisibility }); }} type="button">{busy === "state" ? "Saving…" : "Archive"}</button> : null}
       <button className="sqc-detail-quiet-button" disabled={Boolean(busy)} onClick={remove} type="button">{busy === "delete" ? "Deleting…" : "Delete from library"}</button>
     </div>
   </form>;

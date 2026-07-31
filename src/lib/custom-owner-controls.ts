@@ -57,6 +57,16 @@ export function getCustomOwnerDestination(payload: unknown, expectedId: string) 
     : null;
 }
 
+export function getCustomOwnerStateSavedMessage(
+  name: string,
+  next: Pick<CustomOwnerSaveInput, "lifecycle" | "visibility">,
+) {
+  if (next.lifecycle === "archived") return `${name} is archived and no longer playable.`;
+  if (next.visibility === "public") return `${name} is public/shareable. Other players may see its title, goal, and Coat of Arms when it is shared.`;
+  if (next.visibility === "private") return `${name} is private. Only you can manage it, but you can still use it in Multiplayer Side Quests you host.`;
+  return `${name} is published and ready to play.`;
+}
+
 export async function saveCustomOwnerState(
   quest: CustomOwnerSaveInput,
   next: Pick<CustomOwnerSaveInput, "lifecycle" | "visibility">,
