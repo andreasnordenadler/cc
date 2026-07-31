@@ -18,6 +18,7 @@ import {
   duplicateCustomConditionEditorRow,
   getCreateErrorMessage,
   getCustomCreateDestination,
+  getCustomCreateSuccessMessage,
   getCustomEditDestination,
   getCustomEditSuccessMessage,
   getCustomEditFormState,
@@ -1169,6 +1170,36 @@ test("custom builder restores and updates the exact local draft from its URL", a
 test("custom success navigates to the owned custom catalog", () => {
   assert.equal(getCustomCreateDestination({ ok: true, customQuest: { id: "custom-safe" } }), "/custom-side-quests?saved=custom-safe");
   assert.equal(getCustomCreateDestination({ ok: true, customQuest: { id: "../escape" } }), null);
+});
+
+test("new Custom draft acknowledgement matches Android v339", () => {
+  assert.equal(
+    getCustomCreateSuccessMessage({ title: "Knight Notes", lifecycle: "draft", visibility: "private" }),
+    "Knight Notes is saved as a private draft. Publish it when the rules are ready.",
+  );
+});
+
+test("new private Custom publish acknowledgement matches Android v339", () => {
+  assert.equal(
+    getCustomCreateSuccessMessage({ title: "Knight Notes", lifecycle: "published", visibility: "private" }),
+    "Knight Notes is ready in your private Side Quest Library.",
+  );
+});
+
+test("new public Community publish acknowledgement matches Android v339", () => {
+  assert.equal(
+    getCustomCreateSuccessMessage({ title: "Knight Notes", lifecycle: "published", visibility: "public" }),
+    "Knight Notes is now public in Community Discover.",
+  );
+});
+
+test("new Custom success returns to the library and acknowledges the exact persisted quest state", async () => {
+  const route = await source("src/app/custom-side-quests/page.tsx");
+
+  assert.match(route, /searchParams: Promise<\{[^}]*saved\?: string \| string\[\]/);
+  assert.match(route, /savedQuest = savedId \? customSideQuests\.find\(\(quest\) => quest\.id === savedId\) \?\? null : null/);
+  assert.match(route, /getCustomCreateSuccessMessage\(savedQuest\)/);
+  assert.match(route, /successMessage=\{successMessage\}/);
 });
 
 test("custom edit success returns to My Custom Side Quests with Android's update acknowledgement intent", () => {
