@@ -10,7 +10,7 @@ type DesktopMenuItem = {
   icon: string;
 };
 
-export default function DesktopHomeMenu({ items }: { items: readonly DesktopMenuItem[] }) {
+export default function DesktopHomeMenu({ items, activeItemId }: { items: readonly DesktopMenuItem[]; activeItemId: string }) {
   const detailsRef = useRef<HTMLDetailsElement>(null);
   const summaryRef = useRef<HTMLElement>(null);
 
@@ -50,7 +50,7 @@ export default function DesktopHomeMenu({ items }: { items: readonly DesktopMenu
           <Link
             key={item.id}
             href={item.href}
-            aria-current={item.id === "home" ? "page" : undefined}
+            aria-current={item.id === activeItemId ? "page" : undefined}
             onClick={() => {
               if (detailsRef.current) detailsRef.current.open = false;
             }}

@@ -35,6 +35,7 @@ export default async function SideQuestsPage() {
   return (
     <MobileAppWebShell
       activeTab="sideQuests"
+      desktopPresentation="solo-discovery"
       signedIn={Boolean(user)}
       displayName={displayName}
       lichessUsername={getLichessUsername(metadata)}

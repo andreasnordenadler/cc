@@ -5061,6 +5061,11 @@ body::after {
   display: none;
 }
 
+.sqc-desktop-route-only,
+.sqc-desktop-catalog-intro {
+  display: none;
+}
+
 .sqc-responsive-signed-home {
   width: min(460px, 100%);
   margin-inline: auto;
@@ -5799,6 +5804,214 @@ body::after {
   .sqc-desktop-dashboard-grid .sqc-section-mark.trophy .sqc-mark-glow {
     width: 96px;
     height: 102px;
+  }
+
+  /* Desktop Solo discovery uses the same links, likes, status, and data as mobile,
+     but composes them as a navigable collection instead of a centered phone list. */
+  .sqc-mobile-web.desktop-solo-discovery .sqc-desktop-route-only {
+    display: block;
+  }
+
+  .sqc-mobile-web.desktop-solo-discovery {
+    display: block;
+    min-height: 100vh;
+    padding: 0;
+    background:
+      radial-gradient(circle at 14% 9%, rgba(118, 169, 255, .1), transparent 28%),
+      radial-gradient(circle at 82% 14%, var(--sqc-bg-glow), transparent 30%),
+      linear-gradient(180deg, #25180f 0%, #15100d 35%, #09090a 74%, #050506 100%);
+  }
+
+  .sqc-mobile-web.desktop-solo-discovery > div:not(.sqc-mobile-backdrop):not(.sqc-desktop-route-only) > :is(.sqc-menu, .sqc-app-header, .sqc-close-screen),
+  .sqc-mobile-web.desktop-solo-discovery .sqc-guest-nav {
+    display: none;
+  }
+
+  .sqc-mobile-web.desktop-solo-discovery .sqc-screen {
+    width: min(1240px, calc(100% - 64px));
+    margin: 0 auto;
+    padding: 44px 0 76px;
+  }
+
+  .sqc-mobile-web.desktop-solo-discovery .sqc-catalog-screen {
+    display: grid;
+    grid-template-columns: 190px minmax(0, 1fr);
+    gap: 18px 34px;
+  }
+
+  .sqc-mobile-web.desktop-solo-discovery .sqc-desktop-catalog-intro {
+    grid-column: 2;
+    display: grid;
+    align-content: end;
+    gap: 9px;
+    min-height: 176px;
+    padding-right: 90px;
+  }
+
+  .sqc-mobile-web.desktop-solo-discovery .sqc-desktop-catalog-intro h1 {
+    max-width: 820px;
+    margin: 0;
+    font-family: ui-serif, Georgia, Cambria, "Times New Roman", serif;
+    font-size: clamp(38px, 3.4vw, 52px);
+    line-height: 1.02;
+    letter-spacing: -.04em;
+    text-wrap: balance;
+  }
+
+  .sqc-mobile-web.desktop-solo-discovery .sqc-desktop-catalog-intro p {
+    max-width: 790px;
+    margin: 0;
+    color: rgba(255, 247, 232, .68);
+    font-size: 14px;
+    line-height: 1.55;
+  }
+
+  .sqc-mobile-web.desktop-solo-discovery .sqc-screen-emblem.solo {
+    grid-column: 1;
+    grid-row: 1 / span 2;
+    min-height: 0;
+    align-self: stretch;
+    padding: 0;
+  }
+
+  .sqc-mobile-web.desktop-solo-discovery .sqc-screen-emblem.solo .sqc-screen-emblem-glow {
+    width: 180px;
+    height: 196px;
+  }
+
+  .sqc-mobile-web.desktop-solo-discovery .sqc-screen-emblem.solo .sqc-screen-emblem-image {
+    width: 142px;
+    height: 160px;
+    filter: drop-shadow(0 22px 24px rgba(0, 0, 0, .42));
+  }
+
+  .sqc-mobile-web.desktop-solo-discovery .sqc-solo-brand-tabs {
+    grid-column: 2;
+    width: min(650px, 100%);
+    grid-template-columns: minmax(0, 1fr) 44px minmax(0, 1fr);
+    gap: 0;
+  }
+
+  .sqc-mobile-web.desktop-solo-discovery:not(.signed-out) .sqc-solo-brand-tabs .sqc-brand-switch {
+    position: static;
+    margin: 0;
+  }
+
+  .sqc-mobile-web.desktop-solo-discovery .sqc-solo-brand-tabs .sqc-brand-switch {
+    width: 44px;
+    height: 44px;
+    justify-self: center;
+  }
+
+  .sqc-mobile-web.desktop-solo-discovery .sqc-brand-tab {
+    min-height: 52px;
+    border-radius: 18px;
+    font-size: 13px;
+  }
+
+  .sqc-mobile-web.desktop-solo-discovery .sqc-panel.list {
+    grid-column: 1 / -1;
+    margin-top: 18px;
+  }
+
+  .sqc-mobile-web.desktop-solo-discovery .sqc-list-head.inline {
+    margin-bottom: 12px;
+  }
+
+  .sqc-mobile-web.desktop-solo-discovery .sqc-list-head.inline h2 {
+    font-family: ui-serif, Georgia, Cambria, "Times New Roman", serif;
+    font-size: 25px;
+    letter-spacing: -.025em;
+  }
+
+  .sqc-mobile-web.desktop-solo-discovery .sqc-catalog {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+    overflow: visible;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+  }
+
+  .sqc-mobile-web.desktop-solo-discovery .sqc-app-row {
+    min-height: 156px;
+    position: relative;
+    grid-template-columns: 68px minmax(0, 1fr);
+    align-content: center;
+    gap: 12px;
+    padding: 20px 18px;
+    border: 1px solid rgba(255, 247, 232, .11);
+    border-radius: 22px;
+    background:
+      radial-gradient(circle at 10% 40%, rgba(245, 200, 106, .08), transparent 34%),
+      rgba(8, 7, 8, .72);
+    box-shadow: 0 18px 40px rgba(0, 0, 0, .15);
+  }
+
+  .sqc-mobile-web.desktop-solo-discovery .sqc-catalog .sqc-app-row + .sqc-app-row {
+    border-top: 1px solid rgba(255, 247, 232, .11);
+  }
+
+  .sqc-mobile-web.desktop-solo-discovery .sqc-app-row:hover {
+    border-color: rgba(245, 200, 106, .38);
+    background:
+      radial-gradient(circle at 10% 40%, rgba(245, 200, 106, .16), transparent 36%),
+      rgba(22, 17, 13, .88);
+    transform: translateY(-2px);
+  }
+
+  .sqc-mobile-web.desktop-solo-discovery .sqc-row-icon {
+    width: 68px;
+    height: 78px;
+  }
+
+  .sqc-mobile-web.desktop-solo-discovery .sqc-row-glow {
+    width: 82px;
+    height: 88px;
+    opacity: .82;
+  }
+
+  .sqc-mobile-web.desktop-solo-discovery .sqc-row-image {
+    width: 62px;
+    height: 70px;
+    filter: saturate(1.08) contrast(1.04) drop-shadow(0 12px 14px rgba(0, 0, 0, .46));
+  }
+
+  .sqc-mobile-web.desktop-solo-discovery .sqc-row-copy {
+    align-content: center;
+    gap: 7px;
+    padding-right: 64px;
+  }
+
+  .sqc-mobile-web.desktop-solo-discovery .sqc-row-copy strong {
+    font-family: ui-serif, Georgia, Cambria, "Times New Roman", serif;
+    font-size: 18px;
+    line-height: 1.08;
+  }
+
+  .sqc-mobile-web.desktop-solo-discovery .sqc-row-title-line > strong {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    white-space: normal;
+  }
+
+  .sqc-mobile-web.desktop-solo-discovery .sqc-row-copy small {
+    color: rgba(255, 247, 232, .62);
+    font-size: 12px;
+    line-height: 1.4;
+  }
+
+  .sqc-mobile-web.desktop-solo-discovery .sqc-row-status {
+    position: absolute;
+    top: 18px;
+    right: 16px;
+  }
+
+  .sqc-mobile-web.desktop-solo-discovery :is(a, summary, button):focus-visible {
+    outline: 3px solid rgba(245, 200, 106, .84);
+    outline-offset: 3px;
   }
 
   .sqc-desktop-home-only :is(a, summary, button):focus-visible {
