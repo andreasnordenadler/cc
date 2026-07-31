@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { FormEvent, useState } from "react";
-import { buildCustomOwnerSavePayload, getCustomOwnerDestination, getCustomOwnerMultiplayerHref, type CustomOwnerSaveInput } from "@/lib/custom-owner-controls";
+import { buildCustomOwnerSavePayload, duplicateCustomOwnerQuest, getCustomOwnerDestination, getCustomOwnerMultiplayerHref, type CustomOwnerSaveInput } from "@/lib/custom-owner-controls";
 
 export default function CustomSideQuestOwnerControls({ quest }: { quest: CustomOwnerSaveInput }) {
   const multiplayerHref = getCustomOwnerMultiplayerHref(quest);
@@ -37,18 +37,9 @@ export default function CustomSideQuestOwnerControls({ quest }: { quest: CustomO
   async function duplicate() {
     setBusy("duplicate"); setMessage("");
     try {
-      const body = buildCustomOwnerSavePayload({ ...quest, id: quest.id, title: `${title} Copy`, summary, visibility, lifecycle: "published" });
-      const copy = {
-        title: body.title,
-        summary: body.summary,
-        config: body.config,
-        visibility: body.visibility,
-        lifecycle: body.lifecycle,
-      };
-      const response = await fetch("/api/mobile/custom-quests", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(copy) });
-      const result = await response.json().catch(() => null) as { ok?: boolean; customQuest?: { id?: string } } | null;
-      if (!response.ok || result?.ok !== true || typeof result.customQuest?.id !== "string" || !/^custom-[a-z0-9-]+$/i.test(result.customQuest.id)) { setMessage("Could not duplicate this Side Quest right now."); return; }
-      window.location.assign(`/custom-side-quests/${encodeURIComponent(result.customQuest.id)}`);
+      const destination = await duplicateCustomOwnerQuest(quest);
+      if (!destination) { setMessage("Could not duplicate this Side Quest right now."); return; }
+      window.location.assign(destination);
     } catch { setMessage("Could not duplicate this Side Quest right now."); }
     finally { setBusy(""); }
   }

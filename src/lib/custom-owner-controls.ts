@@ -24,6 +24,32 @@ export function buildCustomOwnerSavePayload(input: CustomOwnerSaveInput) {
   };
 }
 
+export function buildCustomOwnerDuplicatePayload(input: CustomOwnerSaveInput) {
+  return {
+    title: `${input.title} Copy`,
+    summary: input.summary,
+    config: input.config,
+    visibility: input.visibility,
+    lifecycle: "published" as const,
+  };
+}
+
+export async function duplicateCustomOwnerQuest(
+  input: CustomOwnerSaveInput,
+  request: typeof fetch = fetch,
+) {
+  const response = await request("/api/mobile/custom-quests", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify(buildCustomOwnerDuplicatePayload(input)),
+  });
+  const result = await response.json().catch(() => null) as { ok?: boolean; customQuest?: { id?: string } } | null;
+  const id = result?.customQuest?.id;
+  return response.ok && result?.ok === true && typeof id === "string" && id !== input.id && /^custom-[a-z0-9-]+$/i.test(id)
+    ? `/custom-side-quests/${encodeURIComponent(id)}`
+    : null;
+}
+
 export function getCustomOwnerDestination(payload: unknown, expectedId: string) {
   const result = payload && typeof payload === "object" ? payload as { ok?: unknown; customQuest?: { id?: unknown } } : null;
   return result?.ok === true && result.customQuest?.id === expectedId && /^custom-[a-z0-9-]+$/i.test(expectedId)
