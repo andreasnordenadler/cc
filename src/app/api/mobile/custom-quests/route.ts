@@ -64,6 +64,7 @@ export async function DELETE(request: Request) {
       }
       return saveCustomQuestStoreWithFallback(client, userId, next, input.privateMetadata);
     },
+    logPersistenceError: console.error,
   });
 }
 

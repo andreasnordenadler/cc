@@ -15,7 +15,20 @@ export type CustomQuestDeleteDependencies = {
     privateMetadata: UserMetadataRecord;
   }>;
   persistDeletion: (userId: string, input: CustomQuestDeleteInput) => Promise<CustomSideQuest[]>;
+  logPersistenceError?: (message: string, context: { reason: "metadata_load_error" | "persistence_error" }) => void;
 };
+
+function unavailableDeleteResponse() {
+  return Response.json(
+    {
+      apiVersion: 1,
+      authenticated: true,
+      ok: false,
+      message: "Could not delete this custom Side Quest right now. Please try again.",
+    },
+    { status: 503 },
+  );
+}
 
 export async function handleCustomQuestDeleteRequest(
   request: Request,
@@ -37,7 +50,14 @@ export async function handleCustomQuestDeleteRequest(
     );
   }
 
-  const { publicMetadata, privateMetadata } = await dependencies.getMetadata(userId);
+  let metadata: Awaited<ReturnType<CustomQuestDeleteDependencies["getMetadata"]>>;
+  try {
+    metadata = await dependencies.getMetadata(userId);
+  } catch {
+    dependencies.logPersistenceError?.("mobile custom Side Quest delete failed", { reason: "metadata_load_error" });
+    return unavailableDeleteResponse();
+  }
+  const { publicMetadata, privateMetadata } = metadata;
   const privateQuests = getCustomSideQuests(privateMetadata);
   const existing = privateQuests.length ? privateQuests : getCustomSideQuests(publicMetadata);
   if (!existing.some((item) => item.id === id)) {
@@ -58,12 +78,18 @@ export async function handleCustomQuestDeleteRequest(
     && typeof activeChallenge === "object"
     && (activeChallenge as { id?: string }).id === id,
   );
-  const saved = await dependencies.persistDeletion(userId, {
-    customSideQuests,
-    privateMetadata,
-    publicMetadata,
-    clearActiveChallenge,
-  });
+  let saved: CustomSideQuest[];
+  try {
+    saved = await dependencies.persistDeletion(userId, {
+      customSideQuests,
+      privateMetadata,
+      publicMetadata,
+      clearActiveChallenge,
+    });
+  } catch {
+    dependencies.logPersistenceError?.("mobile custom Side Quest delete failed", { reason: "persistence_error" });
+    return unavailableDeleteResponse();
+  }
 
   return Response.json({
     apiVersion: 1,
