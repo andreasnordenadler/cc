@@ -93,6 +93,63 @@ test("owner duplicate action uses the persisted quest instead of unsaved form st
   assert.doesNotMatch(controls, /title: `\$\{title\} Copy`/);
 });
 
+test("owner delete confirmation matches Android v339 active and inactive consequences", () => {
+  const getConfirmation = (customOwnerControls as unknown as {
+    getCustomOwnerDeleteConfirmation?: (active: boolean) => string;
+  }).getCustomOwnerDeleteConfirmation;
+
+  assert.equal(typeof getConfirmation, "function");
+  assert.equal(getConfirmation?.(true), "This will remove it from My Custom Side Quests and clear it as your active Side Quest.");
+  assert.equal(getConfirmation?.(false), "This removes it from My Custom Side Quests. Existing Multiplayer Side Quests keep the version they already saved.");
+});
+
+test("owner delete control receives active state and exposes Android v339 library wording", async () => {
+  const [controls, route] = await Promise.all([
+    source("src/components/custom-side-quest-owner-controls.tsx"),
+    source("src/app/custom-side-quests/[id]/page.tsx"),
+  ]);
+  const markup = renderToStaticMarkup(React.createElement(CustomSideQuestOwnerControls, { quest, active: true }));
+
+  assert.match(markup, />Delete from library<\/button>/);
+  assert.match(controls, /getCustomOwnerDeleteConfirmation\(active\)/);
+  assert.match(controls, /deleteCustomOwnerQuest\(quest\.id\)/);
+  assert.match(route, /<CustomSideQuestOwnerControls[\s\S]*active=\{active\}/);
+});
+
+test("owner delete request targets the exact persisted quest and returns the library destination", async () => {
+  const deleteQuest = (customOwnerControls as unknown as {
+    deleteCustomOwnerQuest?: (id: string, request?: typeof fetch) => Promise<string | null>;
+  }).deleteCustomOwnerQuest;
+  let capturedUrl = "";
+  let capturedInit: RequestInit | undefined;
+
+  assert.equal(typeof deleteQuest, "function");
+  const destination = await deleteQuest?.(quest.id, async (url: string | URL | Request, init?: RequestInit) => {
+    capturedUrl = String(url);
+    capturedInit = init;
+    return Response.json({ ok: true, action: "delete" });
+  });
+
+  assert.equal(capturedUrl, "/api/mobile/custom-quests?id=custom-safe-1");
+  assert.equal(capturedInit?.method, "DELETE");
+  assert.equal(destination, "/custom-side-quests");
+});
+
+test("owner delete fails closed without a confirmed Android-compatible delete response", async () => {
+  const deleteQuest = (customOwnerControls as unknown as {
+    deleteCustomOwnerQuest: (id: string, request?: typeof fetch) => Promise<string | null>;
+  }).deleteCustomOwnerQuest;
+  const cases: Array<() => Promise<Response>> = [
+    async () => Response.json({ ok: true, action: "delete" }, { status: 500 }),
+    async () => Response.json({ ok: false, action: "delete" }),
+    async () => Response.json({ ok: true, action: "save" }),
+    async () => new Response("not json"),
+  ];
+
+  assert.equal(await deleteQuest("../escape", async () => Response.json({ ok: true, action: "delete" })), null);
+  for (const request of cases) assert.equal(await deleteQuest(quest.id, request), null);
+});
+
 test("owner save keeps drafts private but preserves archived visibility like Android v339", () => {
   assert.equal(buildCustomOwnerSavePayload({ ...quest, lifecycle: "draft", visibility: "public" }).visibility, "private");
   assert.equal(buildCustomOwnerSavePayload({ ...quest, lifecycle: "archived", visibility: "public" }).visibility, "public");

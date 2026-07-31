@@ -2,9 +2,9 @@
 
 import Link from "next/link";
 import { FormEvent, useState } from "react";
-import { buildCustomOwnerSavePayload, duplicateCustomOwnerQuest, getCustomOwnerDestination, getCustomOwnerMultiplayerHref, type CustomOwnerSaveInput } from "@/lib/custom-owner-controls";
+import { buildCustomOwnerSavePayload, deleteCustomOwnerQuest, duplicateCustomOwnerQuest, getCustomOwnerDeleteConfirmation, getCustomOwnerDestination, getCustomOwnerMultiplayerHref, type CustomOwnerSaveInput } from "@/lib/custom-owner-controls";
 
-export default function CustomSideQuestOwnerControls({ quest }: { quest: CustomOwnerSaveInput }) {
+export default function CustomSideQuestOwnerControls({ quest, active = false }: { quest: CustomOwnerSaveInput; active?: boolean }) {
   const multiplayerHref = getCustomOwnerMultiplayerHref(quest);
   const [title, setTitle] = useState(quest.title);
   const [summary, setSummary] = useState(quest.summary);
@@ -45,12 +45,12 @@ export default function CustomSideQuestOwnerControls({ quest }: { quest: CustomO
   }
 
   async function remove() {
-    if (!window.confirm(`Delete “${title}” permanently? This cannot be undone.`)) return;
+    if (!window.confirm(getCustomOwnerDeleteConfirmation(active))) return;
     setBusy("delete"); setMessage("");
     try {
-      const response = await fetch(`/api/mobile/custom-quests?id=${encodeURIComponent(quest.id)}`, { method: "DELETE" });
-      if (!response.ok) { setMessage("Could not delete this Side Quest right now."); return; }
-      window.location.assign("/custom-side-quests");
+      const destination = await deleteCustomOwnerQuest(quest.id);
+      if (!destination) { setMessage("Could not delete this Side Quest right now."); return; }
+      window.location.assign(destination);
     } catch { setMessage("Could not delete this Side Quest right now."); }
     finally { setBusy(""); }
   }
@@ -70,7 +70,7 @@ export default function CustomSideQuestOwnerControls({ quest }: { quest: CustomO
     <div className="sqc-community-detail-actions" aria-label="Custom Side Quest lifecycle actions">
       <button className="sqc-detail-secondary-button" disabled={Boolean(busy)} onClick={duplicate} type="button">{busy === "duplicate" ? "Duplicating…" : "Duplicate"}</button>
       {lifecycle !== "archived" ? <button className="sqc-detail-secondary-button" disabled={Boolean(busy)} onClick={() => { setLifecycle("archived"); void save(undefined, { lifecycle: "archived", visibility }); }} type="button">Archive</button> : null}
-      <button className="sqc-detail-quiet-button" disabled={Boolean(busy)} onClick={remove} type="button">{busy === "delete" ? "Deleting…" : "Delete"}</button>
+      <button className="sqc-detail-quiet-button" disabled={Boolean(busy)} onClick={remove} type="button">{busy === "delete" ? "Deleting…" : "Delete from library"}</button>
     </div>
   </form>;
 }
