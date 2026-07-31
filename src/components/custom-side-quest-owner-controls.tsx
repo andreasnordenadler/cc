@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { FormEvent, useState } from "react";
-import { buildCustomOwnerSavePayload, deleteCustomOwnerQuest, duplicateCustomOwnerQuest, getCustomOwnerDeleteConfirmation, getCustomOwnerDestination, getCustomOwnerDuplicateSuccessMessage, getCustomOwnerMultiplayerHref, getCustomOwnerStateSavedMessage, saveCustomOwnerState, type CustomOwnerSaveInput } from "@/lib/custom-owner-controls";
+import { buildCustomOwnerSavePayload, deleteCustomOwnerQuest, duplicateCustomOwnerQuest, getCustomOwnerDeleteConfirmation, getCustomOwnerDestination, getCustomOwnerDuplicateSuccessMessage, getCustomOwnerMultiplayerHref, getCustomOwnerStateReloadDestination, getCustomOwnerStateSavedMessage, saveCustomOwnerState, type CustomOwnerSaveInput } from "@/lib/custom-owner-controls";
 
 export default function CustomSideQuestOwnerControls({ quest, active = false }: { quest: CustomOwnerSaveInput; active?: boolean }) {
   const [title, setTitle] = useState(quest.title);
@@ -46,6 +46,8 @@ export default function CustomSideQuestOwnerControls({ quest, active = false }: 
       setPersistedVisibility(next.visibility);
       setMessageIsError(false);
       setMessage(getCustomOwnerStateSavedMessage(quest.title, next));
+      const reloadDestination = getCustomOwnerStateReloadDestination(destination, next);
+      if (reloadDestination) window.location.assign(reloadDestination);
     } catch { setMessage("Could not save this Side Quest right now. Please try again."); }
     finally { setBusy(""); }
   }

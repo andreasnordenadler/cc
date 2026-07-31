@@ -12,14 +12,16 @@ import { describeCustomSideQuestRuleDetails } from "@/lib/community-side-quests"
 import { buildOwnedCustomQuestStats, loadCustomQuestGroupContext } from "@/lib/custom-side-quest-activity";
 import { buildReplicatedCustomSoloCompletionState } from "@/lib/community-solo-detail-state";
 import { getCustomSideQuestBadgeUrl, getCustomSideQuestById, getCustomSideQuests } from "@/lib/custom-side-quests";
+import { getCustomOwnerStateSavedMessage } from "@/lib/custom-owner-controls";
 import { listPublicGroupQuests, listUserRelatedGroupQuests } from "@/lib/groupquests";
 import { getChessComUsername, getLichessUsername, getPreferredRunnerName, type UserMetadataRecord } from "@/lib/user-metadata";
 
 export const dynamic = "force-dynamic";
 
-export default async function CustomSideQuestOwnerPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function CustomSideQuestOwnerPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ "state-saved"?: string | string[] }> }) {
   noStore();
   const { id } = await params;
+  const query = await searchParams;
   const [user, client] = await Promise.all([currentUser(), clerkClient()]);
   if (!user) redirect(`/sign-in?redirect_url=${encodeURIComponent(`/custom-side-quests/${id}`)}`);
 
@@ -28,6 +30,8 @@ export default async function CustomSideQuestOwnerPage({ params }: { params: Pro
   const sourceMetadata = getCustomSideQuests(privateMetadata).length ? privateMetadata : publicMetadata;
   const quest = getCustomSideQuestById(sourceMetadata, id);
   if (!quest) notFound();
+  const questLifecycle = quest.lifecycle ?? "published";
+  const questVisibility = quest.visibility ?? "private";
 
   const displayName = getPreferredRunnerName(publicMetadata, {
     firstName: user.firstName,
@@ -68,6 +72,8 @@ export default async function CustomSideQuestOwnerPage({ params }: { params: Pro
         <h1>{quest.title}</h1>
         <p>{quest.summary}</p>
       </section>
+
+      {query["state-saved"] === `${questLifecycle}-${questVisibility}` ? <p className="sqc-action-success" role="status">{getCustomOwnerStateSavedMessage(quest.title, { lifecycle: questLifecycle, visibility: questVisibility })}</p> : null}
 
       <section className="sqc-native-card sqc-multiplayer-native-card">
         <span className="sqc-card-eyebrow">What counts</span>

@@ -61,6 +61,15 @@ export function getCustomOwnerDestination(payload: unknown, expectedId: string) 
     : null;
 }
 
+export function getCustomOwnerStateReloadDestination(
+  destination: string,
+  next: Pick<CustomOwnerSaveInput, "lifecycle" | "visibility">,
+) {
+  return /^\/custom-side-quests\/custom-[a-z0-9-]+$/i.test(destination)
+    ? `${destination}?state-saved=${next.lifecycle}-${next.visibility}`
+    : null;
+}
+
 export function getCustomOwnerStateSavedMessage(
   name: string,
   next: Pick<CustomOwnerSaveInput, "lifecycle" | "visibility">,
