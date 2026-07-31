@@ -239,9 +239,9 @@ test("owner state action wiring cannot submit unsaved editor copy", async () => 
 test("later owner failures reset a prior direct-state success to an alert", async () => {
   const controls = await source("src/components/custom-side-quest-owner-controls.tsx");
 
-  assert.match(controls, /async function save[\s\S]*?setMessageIsError\(true\)[\s\S]*?async function runStateMutation/);
+  assert.match(controls, /async function runStateMutation[\s\S]*?setMessageIsError\(true\)[\s\S]*?async function duplicate/);
   assert.match(controls, /async function duplicate[\s\S]*?setMessageIsError\(true\)[\s\S]*?async function remove/);
-  assert.match(controls, /async function remove[\s\S]*?setMessageIsError\(true\)[\s\S]*?return <form/);
+  assert.match(controls, /async function remove[\s\S]*?setMessageIsError\(true\)[\s\S]*?return <section/);
 });
 
 test("direct owner state success reloads the exact detail so every state surface matches Android v339", async () => {
@@ -352,7 +352,7 @@ test("custom library and route wire each saved quest to an owner detail surface"
   assert.match(controls, /Archive/);
   assert.match(controls, /Duplicate/);
   assert.match(controls, /Delete/);
-  assert.match(controls, /Visibility/);
+  assert.match(route, /Visibility/);
   assert.match(controls, /\/create-custom-side-quest\?edit=/);
   assert.match(editorRoute, /getCustomSideQuestById/);
   assert.match(editorRoute, /initialQuest=\{editQuest\}/);
@@ -418,4 +418,32 @@ test("owner detail separates Android v339 rule logic from the saved condition co
   assert.match(route, /<ol>[\s\S]*rulePresentation\.lines\.map\(\(rule, index\)[\s\S]*key=\{`\$\{index\}-\$\{rule\}`\}/);
   assert.doesNotMatch(route, /rules\.length/);
   assert.deepEqual(communitySideQuests.describeCustomSideQuestRuleDetails(JSON.stringify({ version: 2, logic: "all", blocks: [{ type: "gameResult", result: "win", negate: true }] })), ["Win the game."]);
+});
+
+test("owner detail matches Android v339's single editor entry and truthful persisted visibility card", async () => {
+  const route = await source("src/app/custom-side-quests/[id]/page.tsx");
+  const markup = renderToStaticMarkup(React.createElement(CustomSideQuestOwnerControls, { quest }));
+
+  assert.match(markup, />Edit name &amp; rules<\/a>/);
+  assert.doesNotMatch(markup, /Side Quest name|Description \/ goal|aria-label="Lifecycle"|Save changes/);
+  assert.match(route, /<span className="sqc-card-eyebrow">Visibility<\/span>/);
+  assert.match(route, /questVisibility === "public" \? "Public Side Quest" : "Private Side Quest"/);
+  assert.match(route, /Other players can discover and play this Side Quest when it is shared\./);
+  assert.match(route, /Only you can find and manage this Side Quest\./);
+  assert.match(route, /questLifecycle === "published" \? "Ready to play as Solo or Multiplayer" : "Publish it before playing"/);
+});
+
+test("owner visibility card preserves Android v339 lifecycle, active, and completed status precedence", async () => {
+  const getStatus = (customOwnerControls as unknown as {
+    getCustomOwnerStatusLabel?: (input: { lifecycle: "draft" | "published" | "archived"; active: boolean; completed: boolean }) => string;
+  }).getCustomOwnerStatusLabel;
+  const route = await source("src/app/custom-side-quests/[id]/page.tsx");
+
+  assert.equal(typeof getStatus, "function");
+  assert.equal(getStatus?.({ lifecycle: "draft", active: true, completed: true }), "Draft");
+  assert.equal(getStatus?.({ lifecycle: "archived", active: true, completed: true }), "Archived");
+  assert.equal(getStatus?.({ lifecycle: "published", active: true, completed: true }), "Active");
+  assert.equal(getStatus?.({ lifecycle: "published", active: false, completed: true }), "Completed");
+  assert.equal(getStatus?.({ lifecycle: "published", active: false, completed: false }), "Ready");
+  assert.match(route, /\{ownerStatusLabel\} · \{questLifecycle === "published" \? "Ready to play as Solo or Multiplayer" : "Publish it before playing"\}/);
 });

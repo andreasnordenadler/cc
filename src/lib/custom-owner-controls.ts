@@ -116,3 +116,14 @@ export function getCustomOwnerMultiplayerHref(input: Pick<CustomOwnerSaveInput, 
     ? `/create-multiplayer-side-quest?quest=${encodeURIComponent(input.id)}`
     : null;
 }
+
+export function getCustomOwnerStatusLabel(input: {
+  lifecycle: CustomOwnerSaveInput["lifecycle"];
+  active: boolean;
+  completed: boolean;
+}) {
+  if (input.lifecycle === "draft") return "Draft";
+  if (input.lifecycle === "archived") return "Archived";
+  if (input.active) return "Active";
+  return input.completed ? "Completed" : "Ready";
+}
