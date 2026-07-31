@@ -18,6 +18,8 @@ import {
   duplicateCustomConditionEditorRow,
   getCreateErrorMessage,
   getCustomCreateDestination,
+  getCustomEditDestination,
+  getCustomEditSuccessMessage,
   getCustomEditFormState,
   getCustomBuilderSnapshot,
   hasUnsavedCustomBuilderChanges,
@@ -1167,6 +1169,38 @@ test("custom builder restores and updates the exact local draft from its URL", a
 test("custom success navigates to the owned custom catalog", () => {
   assert.equal(getCustomCreateDestination({ ok: true, customQuest: { id: "custom-safe" } }), "/custom-side-quests?saved=custom-safe");
   assert.equal(getCustomCreateDestination({ ok: true, customQuest: { id: "../escape" } }), null);
+});
+
+test("custom edit success returns to My Custom Side Quests with Android's update acknowledgement intent", () => {
+  assert.equal(
+    getCustomEditDestination({ ok: true, customQuest: { id: "custom-safe" } }, "custom-safe"),
+    "/custom-side-quests?updated=custom-safe",
+  );
+  assert.equal(getCustomEditDestination({ ok: true, customQuest: { id: "custom-other" } }, "custom-safe"), null);
+  assert.equal(getCustomEditDestination({ ok: true, customQuest: { id: "../escape" } }, "../escape"), null);
+});
+
+test("custom edit acknowledgement matches Android v339", () => {
+  assert.equal(
+    getCustomEditSuccessMessage("Knight's Errand"),
+    "Knight's Errand now has the latest name, rules, and visibility.",
+  );
+});
+
+test("custom editor returns to the library and renders the exact saved quest acknowledgement", async () => {
+  const html = renderToStaticMarkup(React.createElement(MobileCustomSideQuestsScreen, {
+    rows: [],
+    successMessage: "Knight's Errand now has the latest name, rules, and visibility.",
+  }));
+  assert.match(html, /role="status"[^>]*>Knight&#x27;s Errand now has the latest name, rules, and visibility\.<\/p>/);
+
+  const [form, route] = await Promise.all([
+    source("src/components/mobile-custom-create-form.tsx"),
+    source("src/app/custom-side-quests/page.tsx"),
+  ]);
+  assert.match(form, /initialState \? getCustomEditDestination\(result, initialState\.id\) : getCustomCreateDestination\(result\)/);
+  assert.match(route, /getCustomEditSuccessMessage\(updatedQuest\.title\)/);
+  assert.match(route, /successMessage=\{successMessage\}/);
 });
 
 test("custom piece-state editor preserves Android piece, owner, condition, square, and timing semantics", () => {

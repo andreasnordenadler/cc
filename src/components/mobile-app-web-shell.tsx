@@ -1296,9 +1296,11 @@ export function MobileCommunitySideQuestDetailScreen({
 export function MobileCustomSideQuestsScreen({
   rows,
   localDrafts,
+  successMessage,
 }: {
   rows: CustomSideQuestLibraryRow[];
   localDrafts?: ReactNode;
+  successMessage?: string | null;
 }) {
   return (
     <div className="sqc-stack sqc-custom-library-screen">
@@ -1321,6 +1323,8 @@ export function MobileCustomSideQuestsScreen({
         <Link href="/community-side-quests">Discover</Link>
         <span className="active" aria-current="page">My Library</span>
       </nav>
+
+      {successMessage ? <p className="sqc-action-success" role="status">{successMessage}</p> : null}
 
       <section className="sqc-community-catalog-section" aria-label="My Custom Side Quests">
         <div className="sqc-community-section-header">
