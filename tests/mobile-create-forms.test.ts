@@ -19,6 +19,7 @@ import {
   getCreateErrorMessage,
   getCustomCreateDestination,
   getCustomCreateSuccessMessage,
+  getCustomSaveErrorMessage,
   getCustomEditDestination,
   getCustomEditSuccessMessage,
   getCustomEditFormState,
@@ -1380,6 +1381,35 @@ test("server failures expose safe messages and signed-out guidance", () => {
   assert.equal(getCreateErrorMessage(401, { error: "sign_in_required" }), "Sign in to create a Side Quest.");
   assert.equal(getCreateErrorMessage(500, { error: "database password leaked" }), "Could not create this Side Quest right now. Please try again.");
   assert.equal(getCreateErrorMessage(400, { message: "Add at least one saved condition before saving." }), "Add at least one saved condition before saving.");
+});
+
+test("failed new Custom saves distinguish publish from draft like Android v339", () => {
+  assert.equal(
+    getCustomSaveErrorMessage("published", 500, { error: "database password leaked" }),
+    "Could not publish Side Quest. Try again in a moment.",
+  );
+  assert.equal(
+    getCustomSaveErrorMessage("draft", 500, { error: "database password leaked" }),
+    "Could not save draft. Try again in a moment.",
+  );
+});
+
+test("Custom save failures retain safe actionable validation after the Android heading", () => {
+  assert.equal(
+    getCustomSaveErrorMessage("published", 400, { message: "Add at least one saved condition before saving." }),
+    "Could not publish Side Quest. Add at least one saved condition before saving.",
+  );
+  assert.equal(
+    getCustomSaveErrorMessage("draft", 401, { error: "sign_in_required" }),
+    "Could not save draft. Sign in to create a Side Quest.",
+  );
+});
+
+test("new Custom form renders lifecycle-specific failure feedback for response and network failures", async () => {
+  const form = await source("src/components/mobile-custom-create-form.tsx");
+
+  assert.match(form, /setError\(getCustomSaveErrorMessage\(body\.lifecycle, response\.status, result\)\)/);
+  assert.match(form, /catch \{\s*setError\(getCustomSaveErrorMessage\(body\.lifecycle, 0, null\)\)/);
 });
 
 test("mobile create screens use executable forms and never submit identity fields", async () => {
