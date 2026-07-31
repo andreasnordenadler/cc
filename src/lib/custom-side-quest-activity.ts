@@ -86,6 +86,30 @@ export function buildCustomLibraryActivityRows({
   }));
 }
 
+export function buildCustomLibraryStatusRows({
+  quests,
+  publicMetadata,
+}: {
+  quests: Array<{ id: string; lifecycle?: "draft" | "published" | "archived" }>;
+  publicMetadata: UserMetadataRecord;
+}) {
+  const activeId = getActiveChallenge(publicMetadata)?.id ?? null;
+  const completedIds = new Set(getChallengeProgress(publicMetadata).completedChallengeIds);
+
+  return quests.map((quest) => ({
+    id: quest.id,
+    status: quest.lifecycle === "draft"
+      ? "Draft"
+      : quest.lifecycle === "archived"
+        ? "Archived"
+        : quest.id === activeId
+          ? "Active"
+          : completedIds.has(quest.id)
+            ? "Completed"
+            : "Ready",
+  }));
+}
+
 export async function loadCustomQuestGroupContext({
   loadRelated,
   loadPublic,
