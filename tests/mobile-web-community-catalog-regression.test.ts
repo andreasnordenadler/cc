@@ -102,6 +102,29 @@ test("My Custom Side Quests keeps Android v339 newest-first ordering without a w
   assert.doesNotMatch(html, /Sort my custom Side Quests|Recently updated|>Name</);
 });
 
+test("My Custom Side Quest rows render their saved Coat of Arms and seal glow like Android v339", () => {
+  const html = renderToStaticMarkup(createElement(CustomSoloCatalog, {
+    rows: [{
+      id: "custom-seal",
+      title: "Saved custom seal",
+      meta: "Saved · Private to you · Win with a rook.",
+      href: "/custom-side-quests/custom-seal",
+      image: "/badges/custom/community/community-coat-28.png",
+      sourceBadge: "Private",
+      status: "Ready",
+      lifecycle: "published",
+      visibility: "private",
+      updatedAt: "2026-07-02T00:00:00.000Z",
+    }],
+  }));
+
+  assert.match(html, /class="sqc-app-row"/);
+  assert.doesNotMatch(html, /class="sqc-app-row text-only"/);
+  assert.match(html, /class="sqc-row-icon"/);
+  assert.match(html, /community-coat-28\.png/);
+  assert.match(html, /class="sqc-row-glow generic"/);
+});
+
 test("Community Multiplayer likes feed optimistic state back into like-derived sorting", () => {
   const source = readFileSync(new URL("../src/components/catalog-clients.tsx", import.meta.url), "utf8");
 
@@ -314,23 +337,23 @@ test("unrelated explicit AppRow glows preserve their original image rendering", 
   assert.doesNotMatch(simple, /--sqc-row-glow-color/);
 });
 
-test("custom-library rows remain text-only", () => {
+test("custom-library rows without a saved image use the generic custom crest and seal glow", () => {
   const custom = renderToStaticMarkup(createElement(CustomSoloCatalog, {
     rows: [{
       id: "custom-solo",
       title: "Private draft",
       meta: "Owner-only rule",
       href: "/custom-side-quests/custom-solo",
-      image: "/badges/custom/community/community-coat-28.png",
       lifecycle: "draft",
       visibility: "private",
       updatedAt: "2026-07-19T00:00:00.000Z",
     }],
   }));
 
-  assert.match(custom, /class="sqc-app-row text-only"/);
-  assert.doesNotMatch(custom, /class="sqc-row-icon"/);
-  assert.doesNotMatch(custom, /class="sqc-row-glow/);
+  assert.match(custom, /class="sqc-app-row"/);
+  assert.match(custom, /class="sqc-row-icon"/);
+  assert.match(custom, /custom-side-quest-crest\.png/);
+  assert.match(custom, /class="sqc-row-glow generic"/);
 });
 
 test("custom library renders every saved row without target-only paging", () => {

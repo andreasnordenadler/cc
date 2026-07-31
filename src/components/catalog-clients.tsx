@@ -158,7 +158,7 @@ export function CustomSoloCatalog({ rows }: { rows: CustomCatalogClientRow[] }) 
       <div className="sqc-community-controls"><div className="sqc-filter-row" aria-label="Filter my custom Side Quests">{filters.map(value => <button type="button" key={value} className={filter === value ? "active" : ""} aria-pressed={filter === value} onClick={() => setFilter(value)}>{value === "draft" ? "Drafts" : value[0].toUpperCase() + value.slice(1)}</button>)}</div></div>
     </div>
     <span aria-live="polite">{filtered.length} result{filtered.length === 1 ? "" : "s"}</span>
-    {filtered.length ? <div className="sqc-catalog">{filtered.map((row: CustomCatalogClientRow) => <CatalogRow key={row.id} row={row} status={row.status ?? "Ready"} />)}</div> : <div className="sqc-empty-panel standalone"><strong>No custom Side Quests match these filters.</strong><span>{rows.length ? "Try another search or filter." : "Create a draft first, then publish it when the rule feels ready."}</span></div>}
+    {filtered.length ? <div className="sqc-catalog">{filtered.map((row: CustomCatalogClientRow) => <CatalogRow key={row.id} row={row} status={row.status ?? "Ready"} showImage />)}</div> : <div className="sqc-empty-panel standalone"><strong>No custom Side Quests match these filters.</strong><span>{rows.length ? "Try another search or filter." : "Create a draft first, then publish it when the rule feels ready."}</span></div>}
   </>;
 }
 
