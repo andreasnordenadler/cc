@@ -19,7 +19,7 @@ type ContentReport = {
   targetId: string;
   targetOwnerUserId: string;
   reason: string;
-  source: "website";
+  source: "website" | "mobile";
 };
 
 type ContentReportRouteDependencies = {
@@ -85,7 +85,7 @@ export async function POST(request: Request) {
     targetId: target.groupQuest.id,
     targetOwnerUserId: target.userId,
     reason,
-    source: "website",
+    source: request.headers.get("x-side-quest-chess-client") === "android" ? "mobile" : "website",
   };
   const nextMetadata = fitWithinMetadataBudget(privateMetadata, report);
   if (!nextMetadata) {
@@ -132,7 +132,7 @@ function getContentReports(metadata: Record<string, unknown>): ContentReport[] {
       && typeof report.targetId === "string"
       && typeof report.targetOwnerUserId === "string"
       && typeof report.reason === "string"
-      && report.source === "website";
+      && (report.source === "website" || report.source === "mobile");
   });
 }
 

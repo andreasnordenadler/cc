@@ -429,6 +429,35 @@ test("exported content report route rejects anonymous reports and persists immut
   assert.equal(report.source, "website");
 });
 
+test("exported content report route records Android report provenance", async (t) => {
+  const previousNodeEnv = process.env.NODE_ENV;
+  setNodeEnv("test");
+  t.after(() => setNodeEnv(previousNodeEnv));
+  let savedSource: string | undefined;
+
+  const response = await withContentReportRouteTestDependencies({
+    authenticate: async () => "session-user",
+    getClient: async () => ({ users: {
+      getUser: async () => ({ privateMetadata: {} }),
+      updateUserMetadata: async (_userId: string, metadata: unknown) => {
+        const saved = metadata as { privateMetadata: { sqcContentReports: Array<{ source: string }> } };
+        savedSource = saved.privateMetadata.sqcContentReports[0]?.source;
+      },
+    } }) as never,
+    findTarget: async () => ({
+      userId: "canonical-host",
+      groupQuest: { id: "community/table", hostUserId: "canonical-host", inviteMode: "public", official: false },
+    }) as never,
+  }, () => contentReportPOST(new Request("https://sidequestchess.com/api/reports/content", {
+    method: "POST",
+    headers: { "content-type": "application/json", "x-side-quest-chess-client": "android" },
+    body: JSON.stringify({ targetType: "community-multiplayer", targetId: "community/table", reason: "misleading rules" }),
+  })));
+
+  assert.equal(response.status, 200);
+  assert.equal(savedSource, "mobile");
+});
+
 test("content reports fail closed when unrelated private metadata leaves no safe byte budget", async (t) => {
   const previousNodeEnv = process.env.NODE_ENV;
   setNodeEnv("test");
