@@ -5070,7 +5070,8 @@ body::after {
 .sqc-desktop-route-only,
 .sqc-desktop-catalog-intro,
 .sqc-desktop-community-intro,
-.sqc-desktop-custom-intro {
+.sqc-desktop-custom-intro,
+.sqc-desktop-multiplayer-intro {
   display: none;
 }
 
@@ -7298,6 +7299,202 @@ body::after {
     margin-top: 2px;
     border-radius: 16px;
     font-size: 15px;
+  }
+
+  /* Multiplayer discovery keeps the Android data, actions, and official/community
+     split while turning the narrow app list into a desktop tournament desk. */
+  .sqc-mobile-web.desktop-multiplayer-discovery .sqc-desktop-route-only {
+    display: block;
+  }
+
+  .sqc-mobile-web.desktop-multiplayer-discovery {
+    display: block;
+    min-height: 100vh;
+    padding: 0;
+    background:
+      radial-gradient(circle at 16% 8%, rgba(245, 200, 106, .11), transparent 30%),
+      radial-gradient(circle at 86% 18%, rgba(96, 240, 175, .07), transparent 28%),
+      linear-gradient(180deg, #25180f 0%, #15100d 35%, #09090a 74%, #050506 100%);
+  }
+
+  .sqc-mobile-web.desktop-multiplayer-discovery > div:not(.sqc-mobile-backdrop):not(.sqc-desktop-route-only) > :is(.sqc-menu, .sqc-app-header, .sqc-close-screen),
+  .sqc-mobile-web.desktop-multiplayer-discovery .sqc-guest-nav {
+    display: none;
+  }
+
+  .sqc-mobile-web.desktop-multiplayer-discovery .sqc-screen {
+    width: min(1320px, calc(100% - 64px));
+    margin: 0 auto;
+    padding: 44px 0 76px;
+  }
+
+  .sqc-mobile-web.desktop-multiplayer-discovery .sqc-stack {
+    display: grid;
+    grid-template-columns: 200px minmax(0, 1fr);
+    gap: 18px 34px;
+  }
+
+  .sqc-mobile-web.desktop-multiplayer-discovery .sqc-screen-emblem {
+    grid-column: 1;
+    grid-row: 1 / span 2;
+    min-height: 190px;
+    padding: 0;
+  }
+
+  .sqc-mobile-web.desktop-multiplayer-discovery .sqc-screen-emblem-glow {
+    width: 194px;
+    height: 204px;
+  }
+
+  .sqc-mobile-web.desktop-multiplayer-discovery .sqc-screen-emblem-image.multiplayer {
+    width: 154px;
+    height: 154px;
+    filter: drop-shadow(0 22px 24px rgba(0, 0, 0, .46));
+  }
+
+  .sqc-mobile-web.desktop-multiplayer-discovery .sqc-desktop-multiplayer-intro {
+    grid-column: 2;
+    grid-row: 1;
+    display: grid;
+    align-content: end;
+    gap: 9px;
+    min-height: 190px;
+    padding: 0 90px 6px 0;
+  }
+
+  .sqc-mobile-web.desktop-multiplayer-discovery .sqc-desktop-multiplayer-intro > span {
+    color: var(--gold);
+    font-size: 11px;
+    font-weight: 950;
+    letter-spacing: .13em;
+    text-transform: uppercase;
+  }
+
+  .sqc-mobile-web.desktop-multiplayer-discovery .sqc-desktop-multiplayer-intro h1 {
+    max-width: 860px;
+    margin: 0;
+    font-family: ui-serif, Georgia, Cambria, "Times New Roman", serif;
+    font-size: clamp(40px, 3.4vw, 54px);
+    line-height: 1;
+    letter-spacing: -.04em;
+    text-wrap: balance;
+  }
+
+  .sqc-mobile-web.desktop-multiplayer-discovery .sqc-desktop-multiplayer-intro p {
+    max-width: 800px;
+    margin: 0;
+    color: rgba(255, 247, 232, .66);
+    font-size: 14px;
+    line-height: 1.55;
+  }
+
+  .sqc-mobile-web.desktop-multiplayer-discovery .sqc-multiplayer-brand-tabs {
+    grid-column: 2;
+    grid-row: 2;
+    width: min(680px, 100%);
+    grid-template-columns: minmax(0, 1fr) 44px minmax(0, 1fr);
+    gap: 0;
+  }
+
+  .sqc-mobile-web.desktop-multiplayer-discovery .sqc-multiplayer-brand-tabs .sqc-brand-switch {
+    position: static;
+    width: 44px;
+    height: 44px;
+    justify-self: center;
+    margin: 0;
+  }
+
+  .sqc-mobile-web.desktop-multiplayer-discovery .sqc-brand-tab {
+    min-height: 52px;
+    border-radius: 18px;
+    font-size: 13px;
+  }
+
+  .sqc-mobile-web.desktop-multiplayer-discovery .sqc-stack > :not(.sqc-screen-emblem):not(.sqc-desktop-multiplayer-intro):not(.sqc-multiplayer-brand-tabs) {
+    grid-column: 1 / -1;
+  }
+
+  .sqc-mobile-web.desktop-multiplayer-discovery .sqc-panel.list {
+    margin-top: 20px;
+  }
+
+  .sqc-mobile-web.desktop-multiplayer-discovery .sqc-list-head.inline h2 {
+    font-family: ui-serif, Georgia, Cambria, "Times New Roman", serif;
+    font-size: 27px;
+    letter-spacing: -.025em;
+  }
+
+  .sqc-mobile-web.desktop-multiplayer-discovery .sqc-panel.list .sqc-catalog {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+    overflow: visible;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+  }
+
+  .sqc-mobile-web.desktop-multiplayer-discovery .sqc-app-row {
+    min-height: 156px;
+    position: relative;
+    grid-template-columns: 68px minmax(0, 1fr);
+    align-content: center;
+    gap: 12px;
+    padding: 20px 18px;
+    border: 1px solid rgba(255, 247, 232, .11);
+    border-radius: 22px;
+    background:
+      radial-gradient(circle at 10% 40%, rgba(245, 200, 106, .1), transparent 36%),
+      rgba(8, 7, 8, .72);
+    box-shadow: 0 18px 40px rgba(0, 0, 0, .15);
+    transition: border-color .18s ease, background .18s ease, transform .18s ease;
+  }
+
+  .sqc-mobile-web.desktop-multiplayer-discovery .sqc-catalog .sqc-app-row + .sqc-app-row {
+    border-top: 1px solid rgba(255, 247, 232, .11);
+  }
+
+  .sqc-mobile-web.desktop-multiplayer-discovery .sqc-app-row:hover {
+    border-color: rgba(245, 200, 106, .38);
+    background:
+      radial-gradient(circle at 10% 40%, rgba(245, 200, 106, .18), transparent 38%),
+      rgba(22, 17, 13, .88);
+    transform: translateY(-2px);
+  }
+
+  .sqc-mobile-web.desktop-multiplayer-discovery .sqc-row-icon {
+    width: 68px;
+    height: 76px;
+  }
+
+  .sqc-mobile-web.desktop-multiplayer-discovery .sqc-row-image {
+    width: 62px;
+    height: 68px;
+  }
+
+  .sqc-mobile-web.desktop-multiplayer-discovery .sqc-row-copy {
+    min-width: 0;
+    padding-right: 58px;
+  }
+
+  .sqc-mobile-web.desktop-multiplayer-discovery .sqc-row-title-line > strong {
+    white-space: normal;
+  }
+
+  .sqc-mobile-web.desktop-multiplayer-discovery .sqc-row-status {
+    position: absolute;
+    top: 18px;
+    right: 16px;
+  }
+
+  .sqc-mobile-web.desktop-multiplayer-discovery .sqc-native-card.green {
+    width: auto;
+    margin: 0;
+  }
+
+  .sqc-mobile-web.desktop-multiplayer-discovery :is(a, summary, button, input, select):focus-visible {
+    outline: 3px solid rgba(245, 200, 106, .84);
+    outline-offset: 3px;
   }
 
   .sqc-mobile-web.desktop-custom-detail :is(a, summary, button, input):focus-visible,

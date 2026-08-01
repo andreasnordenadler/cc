@@ -26,6 +26,7 @@ export default async function MultiplayerPage() {
   return (
     <MobileAppWebShell
       activeTab="multiplayerSideQuests"
+      desktopPresentation="multiplayer-discovery"
       signedIn={Boolean(user)}
       displayName={displayName}
       lichessUsername={getLichessUsername(metadata)}
