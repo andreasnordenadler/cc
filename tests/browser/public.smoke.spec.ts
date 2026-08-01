@@ -36,28 +36,26 @@ test("desktop app menu dismisses with Escape and outside click", async ({ page }
   await expect(menu).toBeHidden();
 });
 
-test("signed-out Home omits the web-only guest menu while non-Home routes preserve it", async ({ page }) => {
+test("signed-out desktop-native routes omit the phone menu and expose persistent shortcuts", async ({ page }) => {
   await expectHealthyNavigation(page, "/");
 
   await expect(page.getByLabel("Open main menu")).toHaveCount(0);
   await expect(page.getByRole("navigation", { name: "Guest menu" })).toHaveCount(0);
 
   await expectHealthyNavigation(page, "/side-quests");
-  const menu = page.getByRole("navigation", { name: "Guest menu" });
-  await expect(menu).toBeVisible();
-  await expect(menu.getByRole("link", { name: "Home" })).toHaveAttribute("href", "/");
-  await expect(menu.getByRole("link", { name: "Solo" })).toHaveAttribute("href", "/side-quests");
-  await expect(menu.getByRole("link", { name: "Multiplayer" })).toHaveAttribute("href", "/multiplayer");
-  await expect(menu.getByRole("link", { name: "Help & Support" })).toHaveAttribute("href", "/support");
-  await expect(menu.getByRole("link", { name: "Privacy" })).toHaveAttribute("href", "/privacy");
-  await expect(menu.getByRole("link", { name: "Sign in" })).toHaveAttribute("href", "/sign-in?redirect_url=%2Fside-quests");
-  await expect(menu.getByRole("link", { name: "Trophy Cabinet" })).toHaveCount(0);
+  await expect(page.getByRole("navigation", { name: "Guest menu" })).toHaveCount(0);
+  const shortcuts = page.getByRole("navigation", { name: "Desktop shortcuts" });
+  await expect(shortcuts).toBeVisible();
+  await expect(shortcuts.getByRole("link", { name: "Home" })).toHaveAttribute("href", "/");
+  await expect(shortcuts.getByRole("link", { name: "Solo Side Quests" })).toHaveAttribute("href", "/side-quests");
+  await expect(shortcuts.getByRole("link", { name: "Multiplayer Side Quests" })).toHaveAttribute("href", "/multiplayer");
+  await expect(shortcuts.getByRole("link", { name: "Trophy Cabinet" })).toHaveAttribute("href", "/trophy-cabinet");
+  await expect(page.getByRole("link", { name: "Sign in", exact: true })).toHaveAttribute("href", "/sign-in?redirect_url=%2Fside-quests");
 });
 
 test("sign-in returns to the exact page and query where the user started", async ({ page }) => {
   await page.goto("/side-quests?tab=community");
-  const menu = page.getByRole("navigation", { name: "Guest menu" });
-  const signInLink = menu.getByRole("link", { name: "Sign in" });
+  const signInLink = page.getByRole("link", { name: "Sign in", exact: true });
   await expect(signInLink).toHaveAttribute("href", "/sign-in?redirect_url=%2Fside-quests%3Ftab%3Dcommunity");
   await signInLink.click();
 
