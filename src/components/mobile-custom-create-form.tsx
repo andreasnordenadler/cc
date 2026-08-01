@@ -263,18 +263,21 @@ export default function MobileCustomCreateForm({ signedIn, initialQuest = null }
   }
 
   return <form className="sqc-native-card sqc-custom-builder-card" aria-label="Custom Side Quest builder" onSubmit={submit}>
-    <span className="sqc-card-eyebrow">{initialState ? "Editing saved Side Quest" : "Start from a template"}</span>
-    <div className="sqc-option-grid">
-      {templates.map((item) => <button className="sqc-option-card sqc-template-card" key={item.id} onClick={() => applyTemplate(item.id)} type="button"><strong>{item.title}</strong><span>{item.helper}</span></button>)}
+    <div className="sqc-custom-builder-setup">
+      <span className="sqc-card-eyebrow">{initialState ? "Editing saved Side Quest" : "Start from a template"}</span>
+      <div className="sqc-option-grid">
+        {templates.map((item) => <button className="sqc-option-card sqc-template-card" key={item.id} onClick={() => applyTemplate(item.id)} type="button"><strong>{item.title}</strong><span>{item.helper}</span></button>)}
+      </div>
+
+      <span className="sqc-card-eyebrow">How conditions count</span>
+      <div className="sqc-filter-row" aria-label="Condition logic">
+        <button aria-pressed={logic === "all"} className={logic === "all" ? "active" : ""} onClick={() => setLogic("all")} type="button">Complete every condition</button>
+        <button aria-pressed={logic === "any"} className={logic === "any" ? "active" : ""} onClick={() => setLogic("any")} type="button">Complete any one condition</button>
+      </div>
     </div>
 
-    <span className="sqc-card-eyebrow">How conditions count</span>
-    <div className="sqc-filter-row" aria-label="Condition logic">
-      <button aria-pressed={logic === "all"} className={logic === "all" ? "active" : ""} onClick={() => setLogic("all")} type="button">Complete every condition</button>
-      <button aria-pressed={logic === "any"} className={logic === "any" ? "active" : ""} onClick={() => setLogic("any")} type="button">Complete any one condition</button>
-    </div>
-
-    <span className="sqc-form-label">Your conditions · {blocks.length}/6</span>
+    <div className="sqc-custom-builder-workspace">
+      <span className="sqc-form-label">Your conditions · {blocks.length}/6</span>
     {blocks.length > 6 ? <p className="groupquest-join-error" role="alert">This Custom Side Quest editor supports up to 6 conditions. Delete at least {blocks.length - 6} condition{blocks.length - 6 === 1 ? "" : "s"} before saving rule changes.</p> : null}
     <div className="sqc-condition-list" aria-label="Saved conditions">
       {conditionRows.map(({ id, block, moveNumberInput }, index) => <div className="sqc-condition-compact-row sqc-custom-condition-row" key={id}>
@@ -355,6 +358,7 @@ export default function MobileCustomCreateForm({ signedIn, initialQuest = null }
       <p>Identity and ownership come from your signed-in Side Quest Chess session. Published quests require at least one supported condition.</p>
     </> : <p className="sqc-local-draft-notice">This private draft is saved only in this browser. Sign in later to publish it or use proof.</p>}
     {error ? <p className="groupquest-join-error" role="alert">{error}</p> : null}
-    <button className="sqc-create-footer-button" disabled={saving} type="submit">{saving ? "Saving…" : initialState ? "Save Rule Changes" : signedIn ? "Save Custom Side Quest" : "Save Draft Locally"}</button>
+      <button className="sqc-create-footer-button" disabled={saving} type="submit">{saving ? "Saving…" : initialState ? "Save Rule Changes" : signedIn ? "Save Custom Side Quest" : "Save Draft Locally"}</button>
+    </div>
   </form>;
 }
