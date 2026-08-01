@@ -37,6 +37,7 @@ export default async function CreateCustomSideQuestPage({ searchParams }: { sear
     <MobileAppWebShell
       activeTab="sideQuests"
       signedIn={Boolean(user)}
+      desktopPresentation="custom-editor"
       displayName={displayName}
       lichessUsername={getLichessUsername(metadataRecord)}
       chessComUsername={getChessComUsername(metadataRecord)}

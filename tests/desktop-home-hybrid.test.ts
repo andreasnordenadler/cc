@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import MobileAppWebShell, { desktopHomeMenuItems, mobileWebMenuItems, MobileCommunitySideQuestsScreen, MobileCustomSideQuestsScreen, MobileSoloSideQuestsScreen } from "../src/components/mobile-app-web-shell";
+import MobileAppWebShell, { desktopHomeMenuItems, mobileWebMenuItems, MobileCommunitySideQuestsScreen, MobileCreateCustomScreen, MobileCustomSideQuestsScreen, MobileSoloSideQuestsScreen } from "../src/components/mobile-app-web-shell";
 import { CHALLENGES } from "../src/lib/challenges";
 
 test("desktop home menu preserves the app menu labels, destinations, and order", () => {
@@ -336,6 +336,45 @@ test("Custom owner save feedback stays directly below the desktop hero", () => {
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-custom-detail\s+\.sqc-custom-owner-save-status\s*\{[^}]*grid-column:\s*1\s*\/\s*-1;[^}]*grid-row:\s*2;/);
   assert.match(desktopMedia, /\.sqc-custom-owner-detail-screen:has\(>\s*\.sqc-custom-owner-save-status\)\s+\.sqc-custom-owner-visibility\s*\{[^}]*grid-row:\s*3;/);
   assert.match(desktopMedia, /\.sqc-custom-owner-detail-screen:has\(>\s*\.sqc-custom-owner-save-status\)\s+\.sqc-custom-owner-management\s*\{[^}]*grid-row:\s*4\s*\/\s*span\s*3;/);
+});
+
+test("Custom editor keeps one form while adding persistent desktop navigation and workspace regions", () => {
+  const html = renderToStaticMarkup(
+    createElement(
+      MobileAppWebShell,
+      {
+        activeTab: "sideQuests",
+        signedIn: false,
+        desktopPresentation: "custom-editor",
+        immersivePresentation: true,
+        closeHref: "/custom-side-quests",
+      },
+      createElement(MobileCreateCustomScreen, { signedIn: false }),
+    ),
+  );
+
+  assert.match(html, /class="sqc-mobile-web desktop-custom-editor immersive signed-out"/);
+  assert.match(html, /class="sqc-desktop-route-only"/);
+  assert.match(html, /<a[^>]*aria-current="page"[^>]*href="\/create-custom-side-quest"><span[^>]*><\/span>Create Custom Side Quest<\/a>/);
+  assert.equal(html.match(/aria-label="Custom Side Quest builder"/g)?.length, 1, "desktop and mobile share one editor form");
+  assert.match(html, /class="sqc-custom-builder-setup"/);
+  assert.match(html, /class="sqc-custom-builder-workspace"/);
+});
+
+test("Custom editor becomes a wide two-column workbench only at the desktop boundary", () => {
+  const css = readFileSync("src/app/mobile-web.css", "utf8");
+  const route = readFileSync("src/app/create-custom-side-quest/page.tsx", "utf8");
+  const desktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1180px)"));
+  const reducedMotion = readCssBlock(css, css.lastIndexOf("@media (prefers-reduced-motion: reduce)"));
+
+  assert.match(route, /desktopPresentation="custom-editor"/);
+  assert.doesNotMatch(route, /closeHref=/, "desktop composition must not change the existing mobile close destination");
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-custom-editor\s+\.sqc-screen\s*\{[^}]*width:\s*min\(1280px,\s*calc\(100%\s*-\s*64px\)\)/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-custom-editor\s+\.sqc-custom-builder-hero\s*\{[^}]*grid-template-columns:\s*220px\s+minmax\(0,\s*1fr\);/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-custom-editor\s+\.sqc-custom-builder-card\s*\{[^}]*grid-template-columns:\s*320px\s+minmax\(0,\s*1fr\);/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-custom-editor\s+\.sqc-custom-builder-setup\s*\{[^}]*position:\s*sticky;/);
+  assert.match(reducedMotion, /\.sqc-mobile-web\.desktop-custom-editor\s+\.sqc-template-card\s*\{[^}]*transition:\s*none\s*!important;[^}]*transform:\s*none\s*!important;/);
+  assert.equal(css.replace(desktopMedia, "").replace(reducedMotion, "").includes(".sqc-mobile-web.desktop-custom-editor"), false, "desktop Custom editor composition rules must not leak below 1180px");
 });
 
 function readCssBlock(css: string, start: number) {

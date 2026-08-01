@@ -40,7 +40,7 @@ type AppTab = "home" | "sideQuests" | "multiplayerSideQuests" | "coatOfArms" | "
 type MobileAppWebShellProps = {
   activeTab: AppTab;
   signedIn: boolean;
-  desktopPresentation?: "solo-discovery" | "community-discovery" | "custom-library" | "custom-detail" | "official-detail" | "community-detail";
+  desktopPresentation?: "solo-discovery" | "community-discovery" | "custom-library" | "custom-detail" | "custom-editor" | "official-detail" | "community-detail";
   displayName?: string | null;
   profileImageUrl?: string | null;
   lichessUsername?: string | null;
@@ -233,7 +233,7 @@ export default function MobileAppWebShell({
             signedIn={signedIn}
             displayName={displayName}
             activeTab={desktopPresentation.startsWith("community-") || desktopPresentation.startsWith("custom-") ? null : activeTab}
-            activeItemId={desktopPresentation.startsWith("custom-") ? "custom" : undefined}
+            activeItemId={desktopPresentation === "custom-editor" ? "createCustom" : desktopPresentation.startsWith("custom-") ? "custom" : undefined}
           />
         </div>
       ) : null}
