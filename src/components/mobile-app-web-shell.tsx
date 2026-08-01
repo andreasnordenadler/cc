@@ -40,7 +40,7 @@ type AppTab = "home" | "sideQuests" | "multiplayerSideQuests" | "coatOfArms" | "
 type MobileAppWebShellProps = {
   activeTab: AppTab;
   signedIn: boolean;
-  desktopPresentation?: "solo-discovery" | "community-discovery";
+  desktopPresentation?: "solo-discovery" | "community-discovery" | "official-detail";
   displayName?: string | null;
   profileImageUrl?: string | null;
   lichessUsername?: string | null;

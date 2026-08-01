@@ -116,6 +116,7 @@ export default async function ChallengeDetailPage({
     <MobileAppWebShell
       activeTab="sideQuests"
       signedIn={Boolean(user)}
+      desktopPresentation="official-detail"
       displayName={displayName}
       lichessUsername={getLichessUsername(metadata)}
       chessComUsername={getChessComUsername(metadata)}

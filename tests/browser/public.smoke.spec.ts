@@ -80,6 +80,34 @@ test("Community discovery switches between one mobile catalog and a desktop brow
   expect(overflow).toBe(0);
 });
 
+test("official Solo detail switches from the mobile flow to one desktop action workspace", async ({ page }) => {
+  await page.setViewportSize({ width: 1179, height: 900 });
+  await expectHealthyNavigation(page, "/challenges/knights-before-coffee");
+
+  const detail = page.locator(".sqc-official-solo-detail-screen");
+  await expect(page.getByLabel("Close screen")).toBeVisible();
+  await expect(page.getByRole("navigation", { name: "Desktop shortcuts" })).toBeHidden();
+  await expect(detail.locator(".sqc-proof-action-card").getByRole("link", { name: "Sign in", exact: true })).toHaveCount(1);
+
+  await page.setViewportSize({ width: 1180, height: 900 });
+  await expect(page.getByLabel("Close screen")).toBeHidden();
+  await expect(page.getByRole("navigation", { name: "Desktop shortcuts" })).toBeVisible();
+  await expect(detail.locator(".sqc-proof-action-card").getByRole("link", { name: "Sign in", exact: true })).toHaveCount(1);
+
+  const geometry = await detail.evaluate((element) => {
+    const rect = element.getBoundingClientRect();
+    const style = getComputedStyle(element);
+    return {
+      width: Math.round(rect.width),
+      columns: style.gridTemplateColumns.split(" ").filter(Boolean).length,
+      overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+    };
+  });
+  expect(geometry.width).toBeGreaterThan(1000);
+  expect(geometry.columns).toBe(2);
+  expect(geometry.overflow).toBe(0);
+});
+
 test("sign-in returns to the exact page and query where the user started", async ({ page }) => {
   await page.goto("/side-quests?tab=community");
   const signInLink = page.getByRole("link", { name: "Sign in", exact: true });
