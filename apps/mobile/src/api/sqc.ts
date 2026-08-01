@@ -260,7 +260,7 @@ export async function submitMobileCommunityMultiplayerReport({
 
   const response = await fetchWithTimeout(buildMobileUrl("/api/reports/content"), {
     method: "POST",
-    headers: buildMobileAuthHeaders(sessionToken),
+    headers: { ...buildMobileAuthHeaders(sessionToken), "X-Side-Quest-Chess-Client": "android" },
     body: JSON.stringify({ targetType: "community-multiplayer", targetId, reason: cleanReason }),
   });
   let result: { ok: boolean; reportId?: string; submittedAt?: string; message?: string };
