@@ -203,3 +203,43 @@ test("official Solo detail uses a wide two-column composition only at the deskto
   assert.match(css, /\.sqc-mobile-web\.desktop-official-detail\s+\.sqc-official-solo-detail-screen\s*>\s*\.sqc-community-share-actions\s*\{[^}]*grid-column:\s*1;/);
   assert.doesNotMatch(css, /\.sqc-mobile-web\.desktop-official-detail\s+\.sqc-proof-action-card\s*\{/);
 });
+
+test("Community Solo detail opts into persistent desktop navigation without duplicating its actions", () => {
+  const html = renderToStaticMarkup(
+    createElement(
+      MobileAppWebShell,
+      {
+        activeTab: "sideQuests",
+        signedIn: false,
+        desktopPresentation: "community-detail",
+        modalPresentation: true,
+        immersivePresentation: true,
+        closeHref: "/community-side-quests",
+      },
+      createElement(
+        "div",
+        { className: "sqc-stack sqc-community-detail-screen" },
+        createElement("div", { className: "sqc-community-task-rail" },
+          createElement("button", { type: "button" }, "Share public link"),
+        ),
+      ),
+    ),
+  );
+
+  assert.match(html, /class="sqc-mobile-web desktop-community-detail immersive signed-out"/);
+  assert.match(html, /class="sqc-desktop-route-only"/);
+  assert.match(html, /aria-label="Desktop shortcuts"/);
+  assert.equal(html.match(/>Share public link<\/button>/g)?.length, 1, "desktop and mobile share one action subtree");
+});
+
+test("Community Solo detail becomes a wide reading workspace only at the desktop boundary", () => {
+  const css = readFileSync("src/app/mobile-web.css", "utf8");
+  const route = readFileSync("src/app/challenges/community/[id]/page.tsx", "utf8");
+
+  assert.match(route, /desktopPresentation="community-detail"/);
+  assert.match(css, /@media\s*\(min-width:\s*1180px\)[\s\S]*?\.sqc-mobile-web\.desktop-community-detail\s+\.sqc-screen\s*\{[^}]*width:\s*min\(1240px,\s*calc\(100%\s*-\s*64px\)\)/);
+  assert.match(css, /\.sqc-mobile-web\.desktop-community-detail\s+\.sqc-community-detail-screen\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1\.35fr\)\s+minmax\(340px,\s*\.65fr\);/);
+  assert.match(css, /\.sqc-mobile-web\.desktop-community-detail\s+\.sqc-community-detail-hero\s*\{[^}]*grid-column:\s*1\s*\/\s*-1;/);
+  assert.match(css, /\.sqc-mobile-web\.desktop-community-detail\s+\.sqc-community-task-rail\s*\{[^}]*grid-column:\s*2;[^}]*grid-row:\s*2\s*\/\s*span\s*4;[^}]*position:\s*sticky;/);
+  assert.match(css, /\.sqc-mobile-web\.desktop-community-detail\s+\.sqc-multiplayer-score-grid\s*\{[^}]*grid-column:\s*1;/);
+});

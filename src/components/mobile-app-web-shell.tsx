@@ -40,7 +40,7 @@ type AppTab = "home" | "sideQuests" | "multiplayerSideQuests" | "coatOfArms" | "
 type MobileAppWebShellProps = {
   activeTab: AppTab;
   signedIn: boolean;
-  desktopPresentation?: "solo-discovery" | "community-discovery" | "official-detail";
+  desktopPresentation?: "solo-discovery" | "community-discovery" | "official-detail" | "community-detail";
   displayName?: string | null;
   profileImageUrl?: string | null;
   lichessUsername?: string | null;
@@ -227,9 +227,9 @@ export default function MobileAppWebShell({
     >
       <div className="sqc-mobile-backdrop" aria-hidden="true" />
 
-      {desktopPresentation && !modalPresentation && !loadingPresentation ? (
+      {desktopPresentation && !loadingPresentation ? (
         <div className="sqc-desktop-route-only">
-          <DesktopHomeHeader signedIn={signedIn} displayName={displayName} activeTab={desktopPresentation === "community-discovery" ? null : activeTab} />
+          <DesktopHomeHeader signedIn={signedIn} displayName={displayName} activeTab={desktopPresentation.startsWith("community-") ? null : activeTab} />
         </div>
       ) : null}
 
@@ -1287,33 +1287,35 @@ export function MobileCommunitySideQuestDetailScreen({
         <p>Browse more public Side Quests from this creator when available.</p>
       </section>
 
-      {completed || activeForViewer ? (
-        <CustomSideQuestProofControls
-          questId={quest.id}
-          active={activeForViewer}
-          playable
-          completed={completed}
-          completedAt={completedAt}
-          resultHref={resultHref}
-          latestAttempt={latestAttempt}
-        />
-      ) : (
-        <section className="sqc-native-card sqc-multiplayer-native-card">
-          <span className="sqc-card-eyebrow">{signedIn ? "Pick first" : "Sign in first"}</span>
-          <h2>{signedIn ? "Pick this Side Quest before playing your proof game." : "Sign in to pick this Community Solo Side Quest."}</h2>
-          <p>Your account keeps active Side Quests, usernames, proof checks, and trophies in sync.</p>
-        </section>
-      )}
+      <div className="sqc-community-task-rail">
+        {completed || activeForViewer ? (
+          <CustomSideQuestProofControls
+            questId={quest.id}
+            active={activeForViewer}
+            playable
+            completed={completed}
+            completedAt={completedAt}
+            resultHref={resultHref}
+            latestAttempt={latestAttempt}
+          />
+        ) : (
+          <section className="sqc-native-card sqc-multiplayer-native-card">
+            <span className="sqc-card-eyebrow">{signedIn ? "Pick first" : "Sign in first"}</span>
+            <h2>{signedIn ? "Pick this Side Quest before playing your proof game." : "Sign in to pick this Community Solo Side Quest."}</h2>
+            <p>Your account keeps active Side Quests, usernames, proof checks, and trophies in sync.</p>
+          </section>
+        )}
 
-      <div className="sqc-community-detail-actions" aria-label="Community Solo Side Quest actions">
-        {!completed && !activeForViewer ? <CommunitySoloPickControl questId={quest.id} signedIn={signedIn} activeQuestId={activeQuestId} /> : null}
-        <CommunitySoloSocialActions questId={quest.id} title={quest.title} creatorName={quest.creatorName} signedIn={signedIn} />
-        <Link href="/community-side-quests" className="sqc-detail-quiet-button">Back to list</Link>
-        <Link href={quest.creatorBrowsePath} className="sqc-detail-secondary-button">More by {quest.creatorName}</Link>
-        {signedIn ? <Link href={`/create-multiplayer-side-quest?quest=${encodeURIComponent(quest.id)}`} className="sqc-detail-secondary-button">Use in Multiplayer</Link> : null}
-        {signedIn && duplicateInput ? <CommunitySoloDuplicateControl quest={duplicateInput} /> : null}
-        {!signedIn ? <CurrentPageSignInLink aria-label="Sign in to duplicate custom Side Quest" className="sqc-detail-secondary-button">Duplicate</CurrentPageSignInLink> : null}
-        <CommunitySoloShareControls id={quest.id} title={quest.title} />
+        <div className="sqc-community-detail-actions" aria-label="Community Solo Side Quest actions">
+          {!completed && !activeForViewer ? <CommunitySoloPickControl questId={quest.id} signedIn={signedIn} activeQuestId={activeQuestId} /> : null}
+          <CommunitySoloSocialActions questId={quest.id} title={quest.title} creatorName={quest.creatorName} signedIn={signedIn} />
+          <Link href="/community-side-quests" className="sqc-detail-quiet-button">Back to list</Link>
+          <Link href={quest.creatorBrowsePath} className="sqc-detail-secondary-button">More by {quest.creatorName}</Link>
+          {signedIn ? <Link href={`/create-multiplayer-side-quest?quest=${encodeURIComponent(quest.id)}`} className="sqc-detail-secondary-button">Use in Multiplayer</Link> : null}
+          {signedIn && duplicateInput ? <CommunitySoloDuplicateControl quest={duplicateInput} /> : null}
+          {!signedIn ? <CurrentPageSignInLink aria-label="Sign in to duplicate custom Side Quest" className="sqc-detail-secondary-button">Duplicate</CurrentPageSignInLink> : null}
+          <CommunitySoloShareControls id={quest.id} title={quest.title} />
+        </div>
       </div>
     </div>
   );
