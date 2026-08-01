@@ -40,7 +40,7 @@ type AppTab = "home" | "sideQuests" | "multiplayerSideQuests" | "coatOfArms" | "
 type MobileAppWebShellProps = {
   activeTab: AppTab;
   signedIn: boolean;
-  desktopPresentation?: "solo-discovery" | "community-discovery" | "custom-library" | "custom-detail" | "custom-editor" | "official-detail" | "community-detail";
+  desktopPresentation?: "solo-discovery" | "community-discovery" | "multiplayer-discovery" | "custom-library" | "custom-detail" | "custom-editor" | "official-detail" | "community-detail";
   displayName?: string | null;
   profileImageUrl?: string | null;
   lichessUsername?: string | null;
@@ -1414,6 +1414,12 @@ export function MobileMultiplayerSideQuestsScreen({
       <div className="sqc-screen-emblem" aria-hidden="true">
         <Image className="sqc-screen-emblem-glow" alt="" src={mobileAsset.coatGlow} width={166} height={176} priority />
         <Image className="sqc-screen-emblem-image multiplayer" alt="" src={mobileAsset.multiplayerSeal} width={118} height={118} priority />
+      </div>
+
+      <div className="sqc-desktop-multiplayer-intro">
+        <span>Multiplayer Side Quests</span>
+        <h1>Shared challenges, arranged like a tournament desk.</h1>
+        <p>Join an official challenge, browse community tables, or create one for friends. Every result still comes from fresh public games and checked proof.</p>
       </div>
 
       <nav className="sqc-brand-tabs sqc-multiplayer-brand-tabs" aria-label="Multiplayer Side Quest catalog">

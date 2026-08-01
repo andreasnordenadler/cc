@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import MobileAppWebShell, { desktopHomeMenuItems, mobileWebMenuItems, MobileCommunitySideQuestsScreen, MobileCreateCustomScreen, MobileCustomSideQuestsScreen, MobileSoloSideQuestsScreen } from "../src/components/mobile-app-web-shell";
+import MobileAppWebShell, { desktopHomeMenuItems, mobileWebMenuItems, MobileCommunitySideQuestsScreen, MobileCreateCustomScreen, MobileCustomSideQuestsScreen, MobileMultiplayerSideQuestsScreen, MobileSoloSideQuestsScreen } from "../src/components/mobile-app-web-shell";
 import { CHALLENGES } from "../src/lib/challenges";
 
 test("desktop home menu preserves the app menu labels, destinations, and order", () => {
@@ -118,7 +118,7 @@ test("routes that share the Solo app tab do not inherit the desktop discovery co
 test("Solo discovery switches to a wide card grid only at the established desktop boundary", () => {
   const css = readFileSync("src/app/mobile-web.css", "utf8");
 
-  assert.match(css, /\.sqc-desktop-route-only,\s*\.sqc-desktop-catalog-intro,\s*\.sqc-desktop-community-intro,\s*\.sqc-desktop-custom-intro\s*\{[^}]*display:\s*none;/);
+  assert.match(css, /\.sqc-desktop-route-only,\s*\.sqc-desktop-catalog-intro,\s*\.sqc-desktop-community-intro,\s*\.sqc-desktop-custom-intro,\s*\.sqc-desktop-multiplayer-intro\s*\{[^}]*display:\s*none;/);
   assert.match(css, /@media\s*\(min-width:\s*1180px\)[\s\S]*?\.sqc-mobile-web\.desktop-solo-discovery\s+\.sqc-screen\s*\{[^}]*width:\s*min\(1240px,\s*calc\(100%\s*-\s*64px\)\)/);
   assert.match(css, /\.sqc-mobile-web\.desktop-solo-discovery\s+\.sqc-catalog\s*\{[^}]*grid-template-columns:\s*repeat\(3,\s*minmax\(0,\s*1fr\)\);/);
   assert.match(css, /\.sqc-mobile-web\.desktop-solo-discovery\s+\.sqc-app-row\s*\{[^}]*position:\s*relative;[^}]*grid-template-columns:\s*68px\s+minmax\(0,\s*1fr\);/);
@@ -174,6 +174,54 @@ test("Community discovery uses a wide desktop grid only at the established bound
   assert.match(css, /\.sqc-mobile-web\.desktop-community-discovery\s+\.sqc-community-controls\s*\{[^}]*display:\s*flex;/);
 });
 
+test("Multiplayer discovery becomes one desktop tournament desk without duplicating catalog actions", () => {
+  const rows = [{
+    id: "official-one",
+    title: "Official 14-Day Starter Shield",
+    meta: "Official · 0 players · 14d left",
+    href: "/groupquests/official-one",
+    sourceBadge: "Official",
+    status: "Join",
+    likeSummary: { count: 0, likedByViewer: false },
+  }];
+  const html = renderToStaticMarkup(
+    createElement(
+      MobileAppWebShell,
+      { activeTab: "multiplayerSideQuests", signedIn: false, desktopPresentation: "multiplayer-discovery" },
+      createElement(MobileMultiplayerSideQuestsScreen, {
+        selectedTab: "official",
+        signedIn: false,
+        officialRows: rows as never,
+        communityRows: [],
+      }),
+    ),
+  );
+
+  assert.match(html, /class="sqc-mobile-web desktop-multiplayer-discovery signed-out"/);
+  assert.match(html, /class="sqc-desktop-route-only"/);
+  assert.match(html, /<a[^>]*aria-current="page"[^>]*href="\/multiplayer">Multiplayer Side Quests<\/a>/);
+  assert.match(html, /class="sqc-desktop-multiplayer-intro"/);
+  assert.match(html, />Shared challenges, arranged like a tournament desk\.<\/h1>/);
+  assert.equal(html.match(/aria-label="Multiplayer Side Quest catalog"/g)?.length, 1, "desktop and mobile share one catalog navigation subtree");
+  assert.equal(html.match(/aria-label="Open Official 14-Day Starter Shield"/g)?.length, 1, "desktop and mobile share one quest action subtree");
+});
+
+test("Multiplayer discovery keeps mobile below 1180px and uses a wide desktop grid at the boundary", () => {
+  const css = readFileSync("src/app/mobile-web.css", "utf8");
+  const route = readFileSync("src/app/multiplayer/page.tsx", "utf8");
+  const aliasRoute = readFileSync("src/app/multiplayer-side-quests/page.tsx", "utf8");
+  const desktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1180px)"));
+
+  assert.match(route, /desktopPresentation="multiplayer-discovery"/);
+  assert.match(aliasRoute, /desktopPresentation="multiplayer-discovery"/, "the tab and like-return route must preserve the desktop workspace");
+  assert.match(css, /\.sqc-desktop-multiplayer-intro\s*\{[^}]*display:\s*none;/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-multiplayer-discovery\s+\.sqc-screen\s*\{[^}]*width:\s*min\(1320px,\s*calc\(100%\s*-\s*64px\)\)/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-multiplayer-discovery\s+\.sqc-stack\s*\{[^}]*grid-template-columns:\s*200px\s+minmax\(0,\s*1fr\);/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-multiplayer-discovery\s+\.sqc-panel\.list\s+\.sqc-catalog\s*\{[^}]*grid-template-columns:\s*repeat\(3,\s*minmax\(0,\s*1fr\)\);/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-multiplayer-discovery\s+\.sqc-app-row\s*\{[^}]*min-height:\s*156px;/);
+  assert.equal(css.replace(desktopMedia, "").includes(".sqc-mobile-web.desktop-multiplayer-discovery"), false, "desktop Multiplayer rules must not leak below 1180px");
+});
+
 test("Custom library becomes one desktop workshop without duplicating its filters or create path", () => {
   const rows = [{
     id: "custom-one",
@@ -208,7 +256,7 @@ test("Custom library becomes one desktop workshop without duplicating its filter
 test("Custom library keeps the mobile composition below 1180px and exposes a desktop two-column workspace at the boundary", () => {
   const css = readFileSync("src/app/mobile-web.css", "utf8");
 
-  assert.match(css, /\.sqc-desktop-custom-intro\s*\{[^}]*display:\s*none;/);
+  assert.match(css, /\.sqc-desktop-custom-intro,\s*\.sqc-desktop-multiplayer-intro\s*\{[^}]*display:\s*none;/);
   assert.match(css, /@media\s*\(min-width:\s*1180px\)[\s\S]*?\.sqc-mobile-web\.desktop-custom-library\s+\.sqc-screen\s*\{[^}]*width:\s*min\(1320px,\s*calc\(100%\s*-\s*64px\)\)/);
   assert.match(css, /\.sqc-mobile-web\.desktop-custom-library\s+\.sqc-custom-library-screen\s*\{[^}]*grid-template-columns:\s*240px\s+minmax\(0,\s*1fr\);/);
   assert.match(css, /\.sqc-mobile-web\.desktop-custom-library\s+\.sqc-community-catalog-section\s*\{[^}]*grid-column:\s*2;/);
