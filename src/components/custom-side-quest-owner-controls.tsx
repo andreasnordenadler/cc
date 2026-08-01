@@ -50,7 +50,7 @@ export default function CustomSideQuestOwnerControls({ quest, active = false }: 
     finally { setBusy(""); }
   }
 
-  return <section className="sqc-native-card sqc-custom-builder-card" aria-label="Manage Custom Side Quest">
+  return <section className="sqc-native-card sqc-custom-builder-card sqc-custom-owner-management" aria-label="Manage Custom Side Quest">
     <span className="sqc-card-eyebrow">Owner controls</span>
     <Link className="sqc-detail-secondary-button" href={`/create-custom-side-quest?edit=${encodeURIComponent(quest.id)}`}>Edit name &amp; rules</Link>
     {multiplayerHref ? <Link className="sqc-detail-secondary-button" href={multiplayerHref}>Use in Multiplayer</Link> : null}

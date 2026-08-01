@@ -2,7 +2,7 @@ import { formatCustomQuestActivity, type CustomSideQuestActivityStats } from "@/
 
 export default function CustomSideQuestActivity({ stats }: { stats: CustomSideQuestActivityStats }) {
   return (
-    <section className="sqc-native-card sqc-multiplayer-native-card" aria-label="Custom Side Quest activity">
+    <section className="sqc-native-card sqc-multiplayer-native-card sqc-custom-owner-activity" aria-label="Custom Side Quest activity">
       <span className="sqc-card-eyebrow">Stats</span>
       <h2>Activity so far</h2>
       <p>{formatCustomQuestActivity(stats)}</p>

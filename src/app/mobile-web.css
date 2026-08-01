@@ -6914,6 +6914,173 @@ body::after {
     background: rgba(0, 0, 0, .18);
   }
 
+  /* The owner detail keeps Android's exact data and action subtree, but presents it
+     as a desktop command workspace instead of a centered modal-card stack. */
+  .sqc-mobile-web.desktop-custom-detail .sqc-desktop-route-only {
+    display: block;
+  }
+
+  .sqc-mobile-web.desktop-custom-detail {
+    display: block;
+    min-height: 100vh;
+    padding: 0;
+    background:
+      radial-gradient(circle at 82% 10%, rgba(96, 240, 175, .1), transparent 30%),
+      radial-gradient(circle at 12% 32%, rgba(245, 200, 106, .1), transparent 28%),
+      linear-gradient(180deg, #20170f 0%, #111313 42%, #070808 100%);
+  }
+
+  .sqc-mobile-web.desktop-custom-detail > div:not(.sqc-mobile-backdrop):not(.sqc-desktop-route-only) > :is(.sqc-menu, .sqc-app-header, .sqc-close-screen) {
+    display: none;
+  }
+
+  .sqc-mobile-web.desktop-custom-detail .sqc-screen {
+    width: min(1280px, calc(100% - 64px));
+    margin: 0 auto;
+    padding: 42px 0 88px;
+  }
+
+  .sqc-mobile-web.desktop-custom-detail .sqc-custom-owner-detail-screen {
+    display: grid;
+    grid-template-columns: minmax(0, 1.35fr) minmax(360px, .65fr);
+    align-items: start;
+    gap: 18px 24px;
+  }
+
+  .sqc-mobile-web.desktop-custom-detail .sqc-custom-owner-detail-hero {
+    grid-column: 1 / -1;
+    min-height: 264px;
+    display: grid;
+    grid-template-columns: 230px minmax(0, 1fr);
+    grid-template-rows: auto auto auto;
+    align-content: center;
+    justify-items: start;
+    gap: 10px 42px;
+    padding: 28px 44px;
+    border: 1px solid rgba(245, 200, 106, .2);
+    border-radius: 30px;
+    background:
+      radial-gradient(circle at 12% 48%, rgba(245, 200, 106, .18), transparent 25%),
+      linear-gradient(135deg, rgba(255, 247, 232, .09), rgba(96, 240, 175, .035));
+    box-shadow: 0 28px 80px rgba(0, 0, 0, .26);
+    text-align: left;
+  }
+
+  .sqc-mobile-web.desktop-custom-detail .sqc-custom-owner-detail-hero .sqc-custom-detail-coat-frame {
+    grid-column: 1;
+    grid-row: 1 / span 3;
+    align-self: center;
+    width: 210px;
+    height: 218px;
+  }
+
+  .sqc-mobile-web.desktop-custom-detail .sqc-custom-owner-detail-hero .sqc-custom-detail-coat-image {
+    width: 184px;
+    height: 202px;
+    filter: saturate(1.12) drop-shadow(0 18px 30px rgba(0, 0, 0, .38));
+  }
+
+  .sqc-mobile-web.desktop-custom-detail .sqc-custom-owner-detail-hero .sqc-custom-detail-completion-seal {
+    right: 8px;
+    bottom: 5px;
+    width: 68px;
+    height: 68px;
+  }
+
+  .sqc-mobile-web.desktop-custom-detail .sqc-custom-owner-detail-hero > :not(.sqc-custom-detail-coat-frame) {
+    grid-column: 2;
+  }
+
+  .sqc-mobile-web.desktop-custom-detail .sqc-custom-owner-detail-hero h1 {
+    max-width: 760px;
+    font-family: ui-serif, Georgia, Cambria, "Times New Roman", serif;
+    font-size: clamp(42px, 4vw, 60px);
+    line-height: 1;
+    letter-spacing: -.04em;
+  }
+
+  .sqc-mobile-web.desktop-custom-detail .sqc-custom-owner-detail-hero p {
+    max-width: 720px;
+    color: rgba(255, 247, 232, .74);
+    font-size: 17px;
+    line-height: 1.55;
+  }
+
+  .sqc-mobile-web.desktop-custom-detail .sqc-custom-owner-detail-screen > .sqc-native-card {
+    gap: 13px;
+    padding: 26px 28px;
+    border-radius: 24px;
+  }
+
+  .sqc-mobile-web.desktop-custom-detail .sqc-custom-owner-detail-screen > .sqc-native-card h2 {
+    font-family: ui-serif, Georgia, Cambria, "Times New Roman", serif;
+    font-size: 27px;
+    line-height: 1.1;
+  }
+
+  .sqc-mobile-web.desktop-custom-detail .sqc-custom-owner-brief,
+  .sqc-mobile-web.desktop-custom-detail .sqc-custom-owner-rules,
+  .sqc-mobile-web.desktop-custom-detail .sqc-custom-owner-proof,
+  .sqc-mobile-web.desktop-custom-detail .sqc-custom-owner-activity {
+    grid-column: 1;
+  }
+
+  .sqc-mobile-web.desktop-custom-detail .sqc-custom-owner-proof {
+    grid-column: 1;
+    background:
+      radial-gradient(circle at 0 0, rgba(96, 240, 175, .1), transparent 44%),
+      rgba(255, 247, 232, .055);
+  }
+
+  .sqc-mobile-web.desktop-custom-detail .sqc-custom-owner-save-status {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    margin: 0;
+  }
+
+  .sqc-mobile-web.desktop-custom-detail .sqc-custom-owner-detail-screen:has(> .sqc-custom-owner-save-status) .sqc-custom-owner-visibility {
+    grid-row: 3;
+  }
+
+  .sqc-mobile-web.desktop-custom-detail .sqc-custom-owner-detail-screen:has(> .sqc-custom-owner-save-status) .sqc-custom-owner-management {
+    grid-row: 4 / span 3;
+  }
+
+  .sqc-mobile-web.desktop-custom-detail .sqc-custom-owner-visibility {
+    grid-column: 2;
+    grid-row: 2;
+    background: rgba(245, 200, 106, .07);
+  }
+
+  .sqc-mobile-web.desktop-custom-detail .sqc-custom-owner-management {
+    grid-column: 2;
+    grid-row: 3 / span 3;
+    position: sticky;
+    top: 102px;
+    gap: 12px;
+    background:
+      radial-gradient(circle at 100% 0, rgba(96, 240, 175, .12), transparent 46%),
+      rgba(255, 247, 232, .065);
+    box-shadow: 0 24px 60px rgba(0, 0, 0, .24);
+  }
+
+  .sqc-mobile-web.desktop-custom-detail .sqc-custom-owner-management > .sqc-detail-secondary-button {
+    width: 100%;
+  }
+
+  .sqc-mobile-web.desktop-custom-detail .sqc-custom-owner-detail-screen > .sqc-community-detail-actions {
+    grid-column: 2;
+    padding: 14px;
+    border: 1px solid rgba(255, 247, 232, .1);
+    border-radius: 22px;
+    background: rgba(0, 0, 0, .18);
+  }
+
+  .sqc-mobile-web.desktop-custom-detail :is(a, summary, button, input):focus-visible {
+    outline: 3px solid rgba(96, 240, 175, .82);
+    outline-offset: 3px;
+  }
+
   .sqc-mobile-web.desktop-community-detail :is(a, summary, button):focus-visible {
     outline: 3px solid rgba(245, 200, 106, .84);
     outline-offset: 3px;

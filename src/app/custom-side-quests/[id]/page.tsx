@@ -59,12 +59,13 @@ export default async function CustomSideQuestOwnerPage({ params, searchParams }:
     displayName={displayName}
     lichessUsername={getLichessUsername(publicMetadata)}
     chessComUsername={getChessComUsername(publicMetadata)}
+    desktopPresentation="custom-detail"
     modalPresentation
     immersivePresentation
     closeHref="/custom-side-quests"
   >
-    <div className="sqc-stack sqc-custom-library-screen">
-      <section className="sqc-native-card sqc-community-detail-hero">
+    <div className="sqc-stack sqc-custom-library-screen sqc-custom-owner-detail-screen">
+      <section className="sqc-native-card sqc-community-detail-hero sqc-custom-owner-detail-hero">
         <span className="sqc-custom-detail-coat-frame" aria-hidden="true">
           <Image className="sqc-custom-detail-coat-image" alt="" src={getCustomSideQuestBadgeUrl(quest)} width={108} height={118} priority />
           {completionState.completed ? <Image className="sqc-custom-detail-completion-seal" alt="" src="/mobile-source/stamps/quest-complete-red-wax-sqc-v3.png" width={44} height={44} priority /> : null}
@@ -74,16 +75,16 @@ export default async function CustomSideQuestOwnerPage({ params, searchParams }:
         <p>{rulePresentation.summary}</p>
       </section>
 
-      {query["state-saved"] === `${questLifecycle}-${questVisibility}` ? <p className="sqc-action-success" role="status">{getCustomOwnerStateSavedMessage(quest.title, { lifecycle: questLifecycle, visibility: questVisibility })}</p> : null}
+      {query["state-saved"] === `${questLifecycle}-${questVisibility}` ? <p className="sqc-action-success sqc-custom-owner-save-status" role="status">{getCustomOwnerStateSavedMessage(quest.title, { lifecycle: questLifecycle, visibility: questVisibility })}</p> : null}
 
-      <section className="sqc-native-card sqc-multiplayer-native-card">
+      <section className="sqc-native-card sqc-multiplayer-native-card sqc-custom-owner-brief">
         <span className="sqc-card-eyebrow">Challenge</span>
         <h2>What to do</h2>
         <p>{rulePresentation.summary}</p>
         <p>Play a new public game after picking this Side Quest.</p>
       </section>
 
-      <section className="sqc-native-card sqc-multiplayer-native-card">
+      <section className="sqc-native-card sqc-multiplayer-native-card sqc-custom-owner-rules">
         <span className="sqc-card-eyebrow">Rule details</span>
         <h2>{rulePresentation.logicLabel}</h2>
         <p>{rulePresentation.lines.length} saved condition{rulePresentation.lines.length === 1 ? "" : "s"}</p>
@@ -91,7 +92,7 @@ export default async function CustomSideQuestOwnerPage({ params, searchParams }:
         <p>Complete these conditions in one eligible public game.</p>
       </section>
 
-      <section className="sqc-native-card sqc-multiplayer-native-card">
+      <section className="sqc-native-card sqc-multiplayer-native-card sqc-custom-owner-visibility">
         <span className="sqc-card-eyebrow">Visibility</span>
         <h2>{questVisibility === "public" ? "Public Side Quest" : "Private Side Quest"}</h2>
         <p>{questVisibility === "public"
