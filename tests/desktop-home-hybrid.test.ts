@@ -284,3 +284,68 @@ test("Community Solo detail becomes a wide reading workspace only at the desktop
   assert.match(css, /\.sqc-mobile-web\.desktop-community-detail\s+\.sqc-community-task-rail\s*\{[^}]*grid-column:\s*2;[^}]*grid-row:\s*2\s*\/\s*span\s*4;[^}]*position:\s*sticky;/);
   assert.match(css, /\.sqc-mobile-web\.desktop-community-detail\s+\.sqc-multiplayer-score-grid\s*\{[^}]*grid-column:\s*1;/);
 });
+
+test("Custom owner detail opts into one persistent desktop workspace", () => {
+  const html = renderToStaticMarkup(
+    createElement(
+      MobileAppWebShell,
+      {
+        activeTab: "sideQuests",
+        signedIn: true,
+        desktopPresentation: "custom-detail",
+        modalPresentation: true,
+        immersivePresentation: true,
+        closeHref: "/custom-side-quests",
+      },
+      createElement(
+        "div",
+        { className: "sqc-stack sqc-custom-owner-detail-screen" },
+        createElement("button", { type: "button" }, "Edit name & rules"),
+      ),
+    ),
+  );
+
+  assert.match(html, /class="sqc-mobile-web desktop-custom-detail immersive signed-in"/);
+  assert.match(html, /class="sqc-desktop-route-only"/);
+  assert.match(html, /<a[^>]*aria-current="page"[^>]*href="\/custom-side-quests"><span[^>]*><\/span>My Custom Side Quests<\/a>/);
+  assert.equal(html.match(/>Edit name &amp; rules<\/button>/g)?.length, 1, "desktop and mobile share one owner-action subtree");
+});
+
+test("Custom owner detail becomes a wide command workspace only at the desktop boundary", () => {
+  const css = readFileSync("src/app/mobile-web.css", "utf8");
+  const route = readFileSync("src/app/custom-side-quests/[id]/page.tsx", "utf8");
+  const desktopMediaStart = css.indexOf("@media (min-width: 1180px)");
+  const desktopMedia = readCssBlock(css, desktopMediaStart);
+
+  assert.match(route, /desktopPresentation="custom-detail"/);
+  assert.match(route, /className="sqc-stack sqc-custom-library-screen sqc-custom-owner-detail-screen"/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-custom-detail\s+\.sqc-screen\s*\{[^}]*width:\s*min\(1280px,\s*calc\(100%\s*-\s*64px\)\)/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-custom-detail\s+\.sqc-custom-owner-detail-screen\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1\.35fr\)\s+minmax\(360px,\s*\.65fr\);/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-custom-detail\s+\.sqc-custom-owner-detail-hero\s*\{[^}]*grid-column:\s*1\s*\/\s*-1;/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-custom-detail\s+\.sqc-custom-owner-management\s*\{[^}]*grid-column:\s*2;[^}]*grid-row:\s*3\s*\/\s*span\s*3;[^}]*position:\s*sticky;/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-custom-detail\s+\.sqc-custom-owner-proof\s*\{[^}]*grid-column:\s*1;/);
+  assert.equal(css.replace(desktopMedia, "").includes(".sqc-mobile-web.desktop-custom-detail"), false, "desktop Custom detail rules must not leak below 1180px");
+});
+
+test("Custom owner save feedback stays directly below the desktop hero", () => {
+  const css = readFileSync("src/app/mobile-web.css", "utf8");
+  const route = readFileSync("src/app/custom-side-quests/[id]/page.tsx", "utf8");
+  const desktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1180px)"));
+
+  assert.match(route, /className="sqc-action-success sqc-custom-owner-save-status"/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-custom-detail\s+\.sqc-custom-owner-save-status\s*\{[^}]*grid-column:\s*1\s*\/\s*-1;[^}]*grid-row:\s*2;/);
+  assert.match(desktopMedia, /\.sqc-custom-owner-detail-screen:has\(>\s*\.sqc-custom-owner-save-status\)\s+\.sqc-custom-owner-visibility\s*\{[^}]*grid-row:\s*3;/);
+  assert.match(desktopMedia, /\.sqc-custom-owner-detail-screen:has\(>\s*\.sqc-custom-owner-save-status\)\s+\.sqc-custom-owner-management\s*\{[^}]*grid-row:\s*4\s*\/\s*span\s*3;/);
+});
+
+function readCssBlock(css: string, start: number) {
+  assert.notEqual(start, -1, "expected CSS block start");
+  const opening = css.indexOf("{", start);
+  let depth = 0;
+  for (let index = opening; index < css.length; index += 1) {
+    if (css[index] === "{") depth += 1;
+    if (css[index] === "}") depth -= 1;
+    if (depth === 0) return css.slice(start, index + 1);
+  }
+  throw new Error("Unclosed CSS block");
+}

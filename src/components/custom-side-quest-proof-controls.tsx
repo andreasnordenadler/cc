@@ -77,7 +77,7 @@ export default function CustomSideQuestProofControls({
 
   const completedLabel = completedAt ? formatCompletedDate(completedAt) : null;
 
-  return <section className="sqc-native-card sqc-multiplayer-native-card" aria-labelledby="custom-proof-controls-title">
+  return <section className="sqc-native-card sqc-multiplayer-native-card sqc-custom-owner-proof" aria-labelledby="custom-proof-controls-title">
     <span className="sqc-card-eyebrow">Solo proof</span>
     <h2 id="custom-proof-controls-title">{completed ? "Completed Side Quest." : active ? "This is your active Side Quest." : playable ? "Ready for a proof run." : "Publish before playing."}</h2>
     <p>{completed ? `${completedAt ? "Your accepted proof is saved" : "Your completion is saved"}${completedLabel ? ` · Completed ${completedLabel}` : ""}.` : active ? "Play a fresh public Lichess or Chess.com game, then check the latest result against these saved rules." : playable ? "Start this Side Quest to make it your current Solo proof run." : "Draft and archived Side Quests keep their rules, but cannot start a proof run."}</p>
