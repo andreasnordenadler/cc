@@ -53,6 +53,33 @@ test("signed-out desktop-native routes omit the phone menu and expose persistent
   await expect(page.getByRole("link", { name: "Sign in", exact: true })).toHaveAttribute("href", "/sign-in?redirect_url=%2Fside-quests");
 });
 
+test("Community discovery switches between one mobile catalog and a desktop browsing workspace", async ({ page }) => {
+  await page.setViewportSize({ width: 1179, height: 900 });
+  await expectHealthyNavigation(page, "/community-side-quests");
+
+  const desktopIntro = page.getByRole("heading", { name: "Player-made rules, arranged for serious browsing." });
+  await expect(desktopIntro).toBeHidden();
+  await expect(page.getByLabel("Close screen")).toBeVisible();
+  await expect(page.getByRole("navigation", { name: "Desktop shortcuts" })).toBeHidden();
+  await expect(page.getByLabel("Community Side Quest filters")).toHaveCount(1);
+
+  await page.setViewportSize({ width: 1180, height: 900 });
+  await expect(desktopIntro).toBeVisible();
+  await expect(page.getByLabel("Close screen")).toBeHidden();
+  await expect(page.getByRole("navigation", { name: "Desktop shortcuts" })).toBeVisible();
+  await expect(page.getByLabel("Community Side Quest filters")).toHaveCount(1);
+
+  const catalog = page.locator(".sqc-community-catalog-section .sqc-catalog");
+  if (await catalog.count()) {
+    const columns = await catalog.evaluate((element) => getComputedStyle(element).gridTemplateColumns.split(" ").length);
+    expect(columns).toBe(2);
+  } else {
+    await expect(page.locator(".sqc-community-catalog-section .sqc-empty-panel.standalone")).toBeVisible();
+  }
+  const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+  expect(overflow).toBe(0);
+});
+
 test("sign-in returns to the exact page and query where the user started", async ({ page }) => {
   await page.goto("/side-quests?tab=community");
   const signInLink = page.getByRole("link", { name: "Sign in", exact: true });
