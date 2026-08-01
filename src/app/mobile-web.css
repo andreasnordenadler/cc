@@ -5062,7 +5062,8 @@ body::after {
 }
 
 .sqc-desktop-route-only,
-.sqc-desktop-catalog-intro {
+.sqc-desktop-catalog-intro,
+.sqc-desktop-community-intro {
   display: none;
 }
 
@@ -6007,6 +6008,274 @@ body::after {
     position: absolute;
     top: 18px;
     right: 16px;
+  }
+
+  /* Community discovery keeps Android's content and controls while using a desktop
+     browsing workspace: persistent navigation, a compact rail, and comparable cards. */
+  .sqc-mobile-web.desktop-community-discovery .sqc-desktop-route-only {
+    display: block;
+  }
+
+  .sqc-mobile-web.desktop-community-discovery {
+    display: block;
+    min-height: 100vh;
+    padding: 0;
+    background:
+      radial-gradient(circle at 12% 12%, rgba(96, 240, 175, .08), transparent 27%),
+      radial-gradient(circle at 84% 8%, rgba(245, 200, 106, .13), transparent 28%),
+      linear-gradient(180deg, #24180f 0%, #15100d 34%, #09090a 72%, #050506 100%);
+  }
+
+  .sqc-mobile-web.desktop-community-discovery > div:not(.sqc-mobile-backdrop):not(.sqc-desktop-route-only) > :is(.sqc-menu, .sqc-app-header, .sqc-close-screen),
+  .sqc-mobile-web.desktop-community-discovery .sqc-guest-nav {
+    display: none;
+  }
+
+  .sqc-mobile-web.desktop-community-discovery .sqc-screen {
+    width: min(1320px, calc(100% - 64px));
+    margin: 0 auto;
+    padding: 46px 0 82px;
+  }
+
+  .sqc-mobile-web.desktop-community-discovery .sqc-community-solo-screen {
+    display: grid;
+    grid-template-columns: 220px minmax(0, 1fr);
+    align-items: start;
+    gap: 22px 36px;
+  }
+
+  .sqc-mobile-web.desktop-community-discovery .sqc-screen-emblem {
+    grid-column: 1;
+    grid-row: 1;
+    min-height: 188px;
+    padding: 0;
+  }
+
+  .sqc-mobile-web.desktop-community-discovery .sqc-screen-emblem-glow {
+    width: 190px;
+    height: 202px;
+  }
+
+  .sqc-mobile-web.desktop-community-discovery .sqc-screen-emblem-image {
+    width: 148px;
+    height: 166px;
+    filter: drop-shadow(0 22px 24px rgba(0, 0, 0, .46));
+  }
+
+  .sqc-mobile-web.desktop-community-discovery .sqc-desktop-community-intro {
+    grid-column: 2;
+    grid-row: 1;
+    display: grid;
+    align-content: end;
+    gap: 10px;
+    min-height: 188px;
+    padding: 0 80px 8px 0;
+  }
+
+  .sqc-mobile-web.desktop-community-discovery .sqc-desktop-community-intro > span {
+    color: var(--green);
+    font-size: 11px;
+    font-weight: 950;
+    letter-spacing: .13em;
+    text-transform: uppercase;
+  }
+
+  .sqc-mobile-web.desktop-community-discovery .sqc-desktop-community-intro h1 {
+    max-width: 850px;
+    margin: 0;
+    font-family: ui-serif, Georgia, Cambria, "Times New Roman", serif;
+    font-size: clamp(40px, 3.4vw, 54px);
+    line-height: 1;
+    letter-spacing: -.04em;
+    text-wrap: balance;
+  }
+
+  .sqc-mobile-web.desktop-community-discovery .sqc-desktop-community-intro p {
+    max-width: 760px;
+    margin: 0;
+    color: rgba(255, 247, 232, .66);
+    font-size: 14px;
+    line-height: 1.55;
+  }
+
+  .sqc-mobile-web.desktop-community-discovery .sqc-solo-brand-tabs {
+    grid-column: 1;
+    grid-row: 2 / span 2;
+    position: sticky;
+    top: 98px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 8px;
+    padding: 8px;
+    border: 1px solid rgba(255, 247, 232, .11);
+    border-radius: 22px;
+    background: rgba(8, 7, 8, .58);
+  }
+
+  .sqc-mobile-web.desktop-community-discovery .sqc-solo-brand-tabs .sqc-brand-switch {
+    display: none;
+  }
+
+  .sqc-mobile-web.desktop-community-discovery .sqc-brand-tab {
+    min-height: 54px;
+    border-radius: 15px;
+    font-size: 12px;
+    white-space: normal;
+  }
+
+  .sqc-mobile-web.desktop-community-discovery .sqc-community-intro {
+    display: none;
+  }
+
+  .sqc-mobile-web.desktop-community-discovery .sqc-community-subtabs {
+    grid-column: 2;
+    grid-row: 2;
+    width: min(480px, 100%);
+    border-radius: 18px;
+  }
+
+  .sqc-mobile-web.desktop-community-discovery .sqc-community-subtabs span,
+  .sqc-mobile-web.desktop-community-discovery .sqc-community-subtabs a {
+    min-height: 42px;
+    border-radius: 13px;
+  }
+
+  .sqc-mobile-web.desktop-community-discovery .sqc-community-catalog-section {
+    grid-column: 2;
+    grid-row: 3;
+    gap: 14px;
+    min-width: 0;
+  }
+
+  .sqc-mobile-web.desktop-community-discovery .sqc-community-section-header h2 {
+    font-family: ui-serif, Georgia, Cambria, "Times New Roman", serif;
+    font-size: 27px;
+    letter-spacing: -.025em;
+  }
+
+  .sqc-mobile-web.desktop-community-discovery .sqc-community-browse-panel {
+    grid-template-columns: minmax(260px, 1fr) auto;
+    align-items: center;
+    gap: 14px;
+    padding: 14px;
+    border-radius: 20px;
+    background: rgba(0, 0, 0, .24);
+  }
+
+  .sqc-mobile-web.desktop-community-discovery .sqc-community-browse-panel > .sqc-empty-panel {
+    grid-column: 1 / -1;
+  }
+
+  .sqc-mobile-web.desktop-community-discovery .sqc-search-shell {
+    min-height: 46px;
+  }
+
+  .sqc-mobile-web.desktop-community-discovery .sqc-community-controls {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+  }
+
+  .sqc-mobile-web.desktop-community-discovery .sqc-filter-row {
+    flex-wrap: nowrap;
+  }
+
+  .sqc-mobile-web.desktop-community-discovery .sqc-filter-row button,
+  .sqc-mobile-web.desktop-community-discovery .sqc-sort-pill {
+    min-height: 40px;
+  }
+
+  .sqc-mobile-web.desktop-community-discovery .sqc-catalog {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+    overflow: visible;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+  }
+
+  .sqc-mobile-web.desktop-community-discovery .sqc-app-row {
+    min-height: 166px;
+    position: relative;
+    grid-template-columns: 70px minmax(0, 1fr);
+    align-content: center;
+    gap: 14px;
+    padding: 22px 18px;
+    border: 1px solid rgba(255, 247, 232, .11);
+    border-radius: 22px;
+    background:
+      radial-gradient(circle at 10% 42%, rgba(96, 240, 175, .07), transparent 34%),
+      rgba(8, 7, 8, .74);
+    box-shadow: 0 18px 44px rgba(0, 0, 0, .16);
+  }
+
+  .sqc-mobile-web.desktop-community-discovery .sqc-catalog .sqc-app-row + .sqc-app-row {
+    border-top: 1px solid rgba(255, 247, 232, .11);
+  }
+
+  .sqc-mobile-web.desktop-community-discovery .sqc-app-row:hover {
+    border-color: rgba(96, 240, 175, .34);
+    background:
+      radial-gradient(circle at 10% 42%, rgba(96, 240, 175, .13), transparent 36%),
+      rgba(19, 18, 15, .9);
+    transform: translateY(-2px);
+  }
+
+  .sqc-mobile-web.desktop-community-discovery .sqc-row-icon {
+    width: 70px;
+    height: 80px;
+  }
+
+  .sqc-mobile-web.desktop-community-discovery .sqc-row-glow {
+    width: 84px;
+    height: 90px;
+    opacity: .82;
+  }
+
+  .sqc-mobile-web.desktop-community-discovery .sqc-row-image {
+    width: 64px;
+    height: 72px;
+    filter: saturate(1.08) contrast(1.04) drop-shadow(0 12px 14px rgba(0, 0, 0, .46));
+  }
+
+  .sqc-mobile-web.desktop-community-discovery .sqc-row-copy {
+    align-content: center;
+    gap: 7px;
+    padding-right: 54px;
+  }
+
+  .sqc-mobile-web.desktop-community-discovery .sqc-row-title-line > strong {
+    display: -webkit-box;
+    overflow: hidden;
+    font-family: ui-serif, Georgia, Cambria, "Times New Roman", serif;
+    font-size: 18px;
+    line-height: 1.08;
+    white-space: normal;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+
+  .sqc-mobile-web.desktop-community-discovery .sqc-row-copy small {
+    display: -webkit-box;
+    overflow: hidden;
+    color: rgba(255, 247, 232, .62);
+    font-size: 12px;
+    line-height: 1.42;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+  }
+
+  .sqc-mobile-web.desktop-community-discovery .sqc-row-status {
+    position: absolute;
+    top: 18px;
+    right: 16px;
+  }
+
+  .sqc-mobile-web.desktop-community-discovery > div:not(.sqc-mobile-backdrop) :is(a, summary, button, input, select):focus-visible {
+    outline: 3px solid rgba(96, 240, 175, .78);
+    outline-offset: 3px;
   }
 
   .sqc-mobile-web.desktop-solo-discovery :is(a, summary, button):focus-visible {

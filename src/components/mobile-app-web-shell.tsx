@@ -40,7 +40,7 @@ type AppTab = "home" | "sideQuests" | "multiplayerSideQuests" | "coatOfArms" | "
 type MobileAppWebShellProps = {
   activeTab: AppTab;
   signedIn: boolean;
-  desktopPresentation?: "solo-discovery";
+  desktopPresentation?: "solo-discovery" | "community-discovery";
   displayName?: string | null;
   profileImageUrl?: string | null;
   lichessUsername?: string | null;
@@ -227,9 +227,9 @@ export default function MobileAppWebShell({
     >
       <div className="sqc-mobile-backdrop" aria-hidden="true" />
 
-      {desktopPresentation === "solo-discovery" && !modalPresentation && !immersivePresentation && !loadingPresentation ? (
+      {desktopPresentation && !modalPresentation && !loadingPresentation ? (
         <div className="sqc-desktop-route-only">
-          <DesktopHomeHeader signedIn={signedIn} displayName={displayName} activeTab={activeTab} />
+          <DesktopHomeHeader signedIn={signedIn} displayName={displayName} activeTab={desktopPresentation === "community-discovery" ? null : activeTab} />
         </div>
       ) : null}
 
@@ -342,7 +342,7 @@ function GuestNavigation({ activeTab }: { activeTab: AppTab }) {
   );
 }
 
-function DesktopHomeHeader({ signedIn, displayName, activeTab }: { signedIn: boolean; displayName?: string | null; activeTab: AppTab }) {
+function DesktopHomeHeader({ signedIn, displayName, activeTab }: { signedIn: boolean; displayName?: string | null; activeTab: AppTab | null }) {
   const shortcuts = desktopHomeMenuItems.slice(0, 4);
 
   return (
@@ -356,12 +356,12 @@ function DesktopHomeHeader({ signedIn, displayName, activeTab }: { signedIn: boo
       </Link>
       <nav className="sqc-desktop-shortcuts" aria-label="Desktop shortcuts">
         {shortcuts.map((item) => (
-          <Link key={item.id} href={item.href} aria-current={isActiveMenuItem(item.id, activeTab) ? "page" : undefined}>
+          <Link key={item.id} href={item.href} aria-current={activeTab && isActiveMenuItem(item.id, activeTab) ? "page" : undefined}>
             {item.label}
           </Link>
         ))}
       </nav>
-      <DesktopHomeMenu items={desktopHomeMenuItems} activeItemId={activeTab === "multiplayerSideQuests" ? "multiplayer" : activeTab === "coatOfArms" ? "coats" : activeTab} />
+      <DesktopHomeMenu items={desktopHomeMenuItems} activeItemId={activeTab === "multiplayerSideQuests" ? "multiplayer" : activeTab === "coatOfArms" ? "coats" : activeTab ?? ""} />
       {signedIn ? (
         <Link href="/account" className="sqc-desktop-sign-in">{displayName || "My Account"}</Link>
       ) : (
@@ -1149,6 +1149,12 @@ export function MobileCommunitySideQuestsScreen({
         <Image className="sqc-screen-emblem-glow" alt="" src={mobileAsset.coatGlow} width={166} height={176} priority />
         <Image className="sqc-screen-emblem-image" alt="" src={mobileAsset.coat} width={132} height={148} priority />
       </div>
+
+      <header className="sqc-desktop-community-intro">
+        <span>Community Solo Side Quests</span>
+        <h1>Player-made rules, arranged for serious browsing.</h1>
+        <p>Search, compare, and sort every public Side Quest created by the Side Quest Chess community.</p>
+      </header>
 
       <nav className="sqc-brand-tabs sqc-solo-brand-tabs" aria-label="Solo Side Quest catalog">
         <Link href="/side-quests" className="sqc-brand-tab official">
