@@ -140,6 +140,30 @@ test("Community Solo detail switches from the mobile flow to one desktop task wo
   expect(geometry.overflow).toBe(0);
 });
 
+test("Custom library switches from the mobile flow to one desktop workshop", async ({ page }) => {
+  await page.setViewportSize({ width: 1179, height: 900 });
+  await expectHealthyNavigation(page, "/custom-side-quests");
+
+  const intro = page.getByRole("heading", { name: "Your Side Quest workshop, with room to think." });
+  await expect(intro).toBeHidden();
+  await expect(page.getByLabel("Close screen")).toBeVisible();
+  await expect(page.getByRole("navigation", { name: "Desktop shortcuts" })).toBeHidden();
+  await expect(page.getByRole("link", { name: "+ Create" })).toHaveCount(1);
+
+  await page.setViewportSize({ width: 1180, height: 900 });
+  await expect(intro).toBeVisible();
+  await expect(page.getByLabel("Close screen")).toBeHidden();
+  await expect(page.getByRole("navigation", { name: "Desktop shortcuts" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "+ Create" })).toHaveCount(1);
+
+  const geometry = await page.locator(".sqc-custom-library-screen").evaluate((element) => ({
+    columns: getComputedStyle(element).gridTemplateColumns.split(" ").filter(Boolean).length,
+    overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+  }));
+  expect(geometry.columns).toBe(2);
+  expect(geometry.overflow).toBe(0);
+});
+
 test("sign-in returns to the exact page and query where the user started", async ({ page }) => {
   await page.goto("/side-quests?tab=community");
   const signInLink = page.getByRole("link", { name: "Sign in", exact: true });

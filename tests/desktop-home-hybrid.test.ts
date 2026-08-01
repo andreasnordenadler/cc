@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import MobileAppWebShell, { desktopHomeMenuItems, mobileWebMenuItems, MobileCommunitySideQuestsScreen, MobileSoloSideQuestsScreen } from "../src/components/mobile-app-web-shell";
+import MobileAppWebShell, { desktopHomeMenuItems, mobileWebMenuItems, MobileCommunitySideQuestsScreen, MobileCustomSideQuestsScreen, MobileSoloSideQuestsScreen } from "../src/components/mobile-app-web-shell";
 import { CHALLENGES } from "../src/lib/challenges";
 
 test("desktop home menu preserves the app menu labels, destinations, and order", () => {
@@ -118,7 +118,7 @@ test("routes that share the Solo app tab do not inherit the desktop discovery co
 test("Solo discovery switches to a wide card grid only at the established desktop boundary", () => {
   const css = readFileSync("src/app/mobile-web.css", "utf8");
 
-  assert.match(css, /\.sqc-desktop-route-only,\s*\.sqc-desktop-catalog-intro,\s*\.sqc-desktop-community-intro\s*\{[^}]*display:\s*none;/);
+  assert.match(css, /\.sqc-desktop-route-only,\s*\.sqc-desktop-catalog-intro,\s*\.sqc-desktop-community-intro,\s*\.sqc-desktop-custom-intro\s*\{[^}]*display:\s*none;/);
   assert.match(css, /@media\s*\(min-width:\s*1180px\)[\s\S]*?\.sqc-mobile-web\.desktop-solo-discovery\s+\.sqc-screen\s*\{[^}]*width:\s*min\(1240px,\s*calc\(100%\s*-\s*64px\)\)/);
   assert.match(css, /\.sqc-mobile-web\.desktop-solo-discovery\s+\.sqc-catalog\s*\{[^}]*grid-template-columns:\s*repeat\(3,\s*minmax\(0,\s*1fr\)\);/);
   assert.match(css, /\.sqc-mobile-web\.desktop-solo-discovery\s+\.sqc-app-row\s*\{[^}]*position:\s*relative;[^}]*grid-template-columns:\s*68px\s+minmax\(0,\s*1fr\);/);
@@ -172,6 +172,47 @@ test("Community discovery uses a wide desktop grid only at the established bound
   assert.match(css, /\.sqc-mobile-web\.desktop-community-discovery\s+\.sqc-catalog\s*\{[^}]*grid-template-columns:\s*repeat\(2,\s*minmax\(0,\s*1fr\)\);/);
   assert.match(css, /\.sqc-mobile-web\.desktop-community-discovery\s+\.sqc-community-browse-panel\s*\{[^}]*grid-template-columns:\s*minmax\(260px,\s*1fr\)\s+auto;/);
   assert.match(css, /\.sqc-mobile-web\.desktop-community-discovery\s+\.sqc-community-controls\s*\{[^}]*display:\s*flex;/);
+});
+
+test("Custom library becomes one desktop workshop without duplicating its filters or create path", () => {
+  const rows = [{
+    id: "custom-one",
+    title: "Knight Errand",
+    meta: "Saved · Private to you · Move a knight before move 3. · No plays yet.",
+    href: "/custom-side-quests/custom-one",
+    image: "/badges/custom/community/community-coat-01.png",
+    sourceBadge: "Private",
+    status: "Ready",
+    lifecycle: "published" as const,
+    visibility: "private" as const,
+    updatedAt: "2026-08-01T08:00:00.000Z",
+  }];
+  const html = renderToStaticMarkup(
+    createElement(
+      MobileAppWebShell,
+      { activeTab: "sideQuests", signedIn: true, desktopPresentation: "custom-library" },
+      createElement(MobileCustomSideQuestsScreen, { rows }),
+    ),
+  );
+
+  assert.match(html, /class="sqc-desktop-route-only"/);
+  assert.match(html, /class="sqc-desktop-custom-intro"/);
+  assert.match(html, />Your Side Quest workshop, with room to think\.<\/h1>/);
+  assert.doesNotMatch(html, /<a[^>]*aria-current="page"[^>]*href="\/side-quests">Solo Side Quests<\/a>/);
+  assert.match(html, /<a[^>]*aria-current="page"[^>]*href="\/custom-side-quests"><span[^>]*><\/span>My Custom Side Quests<\/a>/);
+  assert.equal(html.match(/aria-label="My Custom Side Quest filters"/g)?.length, 1);
+  assert.equal(html.match(/>\+ Create<\/a>/g)?.length, 1);
+  assert.equal(html.match(/href="\/custom-side-quests\/custom-one"/g)?.length, 1);
+});
+
+test("Custom library keeps the mobile composition below 1180px and exposes a desktop two-column workspace at the boundary", () => {
+  const css = readFileSync("src/app/mobile-web.css", "utf8");
+
+  assert.match(css, /\.sqc-desktop-custom-intro\s*\{[^}]*display:\s*none;/);
+  assert.match(css, /@media\s*\(min-width:\s*1180px\)[\s\S]*?\.sqc-mobile-web\.desktop-custom-library\s+\.sqc-screen\s*\{[^}]*width:\s*min\(1320px,\s*calc\(100%\s*-\s*64px\)\)/);
+  assert.match(css, /\.sqc-mobile-web\.desktop-custom-library\s+\.sqc-custom-library-screen\s*\{[^}]*grid-template-columns:\s*240px\s+minmax\(0,\s*1fr\);/);
+  assert.match(css, /\.sqc-mobile-web\.desktop-custom-library\s+\.sqc-community-catalog-section\s*\{[^}]*grid-column:\s*2;/);
+  assert.match(css, /\.sqc-mobile-web\.desktop-custom-library\s+\.sqc-catalog\s*\{[^}]*grid-template-columns:\s*repeat\(2,\s*minmax\(0,\s*1fr\)\);/);
 });
 
 test("official Solo detail becomes one desktop workspace without duplicating its actions", () => {

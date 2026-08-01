@@ -5064,7 +5064,8 @@ body::after {
 
 .sqc-desktop-route-only,
 .sqc-desktop-catalog-intro,
-.sqc-desktop-community-intro {
+.sqc-desktop-community-intro,
+.sqc-desktop-custom-intro {
   display: none;
 }
 
@@ -6272,6 +6273,294 @@ body::after {
     position: absolute;
     top: 18px;
     right: 16px;
+  }
+
+  /* Custom library keeps Android's saved quests, filters, local drafts, and create
+     destination in one subtree while desktop turns the phone stack into a workshop. */
+  .sqc-mobile-web.desktop-custom-library .sqc-desktop-route-only {
+    display: block;
+  }
+
+  .sqc-mobile-web.desktop-custom-library {
+    display: block;
+    min-height: 100vh;
+    padding: 0;
+    background:
+      radial-gradient(circle at 14% 12%, rgba(118, 169, 255, .08), transparent 27%),
+      radial-gradient(circle at 82% 8%, rgba(245, 200, 106, .14), transparent 30%),
+      linear-gradient(180deg, #25180f 0%, #15100d 34%, #09090a 72%, #050506 100%);
+  }
+
+  .sqc-mobile-web.desktop-custom-library > div:not(.sqc-mobile-backdrop):not(.sqc-desktop-route-only) > :is(.sqc-menu, .sqc-app-header, .sqc-close-screen),
+  .sqc-mobile-web.desktop-custom-library .sqc-guest-nav {
+    display: none;
+  }
+
+  .sqc-mobile-web.desktop-custom-library .sqc-screen {
+    width: min(1320px, calc(100% - 64px));
+    margin: 0 auto;
+    padding: 46px 0 84px;
+  }
+
+  .sqc-mobile-web.desktop-custom-library .sqc-custom-library-screen {
+    display: grid;
+    grid-template-columns: 240px minmax(0, 1fr);
+    align-items: start;
+    gap: 22px 36px;
+  }
+
+  .sqc-mobile-web.desktop-custom-library .sqc-screen-emblem {
+    grid-column: 1;
+    grid-row: 1;
+    min-height: 194px;
+    padding: 0;
+  }
+
+  .sqc-mobile-web.desktop-custom-library .sqc-screen-emblem-glow {
+    width: 202px;
+    height: 214px;
+  }
+
+  .sqc-mobile-web.desktop-custom-library .sqc-screen-emblem-image {
+    width: 158px;
+    height: 178px;
+    filter: drop-shadow(0 22px 24px rgba(0, 0, 0, .46));
+  }
+
+  .sqc-mobile-web.desktop-custom-library .sqc-desktop-custom-intro {
+    grid-column: 2;
+    grid-row: 1;
+    display: grid;
+    align-content: end;
+    gap: 10px;
+    min-height: 194px;
+    padding: 0 90px 8px 0;
+  }
+
+  .sqc-mobile-web.desktop-custom-library .sqc-desktop-custom-intro > span {
+    color: var(--gold);
+    font-size: 11px;
+    font-weight: 950;
+    letter-spacing: .13em;
+    text-transform: uppercase;
+  }
+
+  .sqc-mobile-web.desktop-custom-library .sqc-desktop-custom-intro h1 {
+    max-width: 840px;
+    margin: 0;
+    font-family: ui-serif, Georgia, Cambria, "Times New Roman", serif;
+    font-size: clamp(40px, 3.4vw, 54px);
+    line-height: 1;
+    letter-spacing: -.04em;
+    text-wrap: balance;
+  }
+
+  .sqc-mobile-web.desktop-custom-library .sqc-desktop-custom-intro p {
+    max-width: 760px;
+    margin: 0;
+    color: rgba(255, 247, 232, .66);
+    font-size: 14px;
+    line-height: 1.55;
+  }
+
+  .sqc-mobile-web.desktop-custom-library .sqc-solo-brand-tabs {
+    grid-column: 1;
+    grid-row: 2 / span 3;
+    position: sticky;
+    top: 98px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 8px;
+    padding: 8px;
+    border: 1px solid rgba(255, 247, 232, .11);
+    border-radius: 22px;
+    background: rgba(8, 7, 8, .62);
+  }
+
+  .sqc-mobile-web.desktop-custom-library .sqc-solo-brand-tabs .sqc-brand-switch {
+    display: none;
+  }
+
+  .sqc-mobile-web.desktop-custom-library .sqc-brand-tab {
+    min-height: 54px;
+    border-radius: 15px;
+    font-size: 12px;
+    white-space: normal;
+  }
+
+  .sqc-mobile-web.desktop-custom-library .sqc-community-subtabs {
+    grid-column: 2;
+    grid-row: 2;
+    width: min(480px, 100%);
+    border-radius: 18px;
+  }
+
+  .sqc-mobile-web.desktop-custom-library .sqc-community-subtabs span,
+  .sqc-mobile-web.desktop-custom-library .sqc-community-subtabs a {
+    min-height: 42px;
+    border-radius: 13px;
+  }
+
+  .sqc-mobile-web.desktop-custom-library .sqc-action-success {
+    grid-column: 2;
+  }
+
+  .sqc-mobile-web.desktop-custom-library .sqc-community-catalog-section {
+    grid-column: 2;
+    gap: 16px;
+    min-width: 0;
+  }
+
+  .sqc-mobile-web.desktop-custom-library .sqc-community-section-header h2 {
+    font-family: ui-serif, Georgia, Cambria, "Times New Roman", serif;
+    font-size: 29px;
+    letter-spacing: -.025em;
+  }
+
+  .sqc-mobile-web.desktop-custom-library .sqc-community-section-header a {
+    min-height: 42px;
+    display: inline-flex;
+    align-items: center;
+    padding: 0 18px;
+    border-radius: 999px;
+    background: var(--gold);
+    color: #130f09;
+  }
+
+  .sqc-mobile-web.desktop-custom-library .sqc-custom-create-card {
+    grid-template-columns: 112px minmax(0, 1fr) auto;
+    gap: 20px;
+    min-height: 178px;
+    padding: 24px 28px;
+    border-color: rgba(245, 200, 106, .25);
+    border-radius: 26px;
+    background:
+      radial-gradient(circle at 8% 50%, rgba(245, 200, 106, .13), transparent 28%),
+      rgba(8, 7, 8, .7);
+  }
+
+  .sqc-mobile-web.desktop-custom-library .sqc-custom-create-mark {
+    width: 112px;
+    height: 118px;
+  }
+
+  .sqc-mobile-web.desktop-custom-library .sqc-custom-create-card > b {
+    grid-column: 3;
+    width: auto;
+    min-width: 174px;
+    justify-self: end;
+  }
+
+  .sqc-mobile-web.desktop-custom-library .sqc-community-browse-panel {
+    grid-template-columns: minmax(280px, 1fr) auto;
+    align-items: center;
+    gap: 14px;
+    padding: 14px;
+    border-radius: 20px;
+    background: rgba(0, 0, 0, .24);
+  }
+
+  .sqc-mobile-web.desktop-custom-library .sqc-community-controls,
+  .sqc-mobile-web.desktop-custom-library .sqc-filter-row {
+    flex-wrap: nowrap;
+  }
+
+  .sqc-mobile-web.desktop-custom-library .sqc-catalog {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+    overflow: visible;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+  }
+
+  .sqc-mobile-web.desktop-custom-library .sqc-app-row {
+    min-height: 166px;
+    position: relative;
+    grid-template-columns: 72px minmax(0, 1fr);
+    align-content: center;
+    gap: 14px;
+    padding: 22px 18px;
+    border: 1px solid rgba(255, 247, 232, .11);
+    border-radius: 22px;
+    background:
+      radial-gradient(circle at 10% 42%, rgba(245, 200, 106, .08), transparent 35%),
+      rgba(8, 7, 8, .74);
+    box-shadow: 0 18px 44px rgba(0, 0, 0, .16);
+  }
+
+  .sqc-mobile-web.desktop-custom-library .sqc-catalog .sqc-app-row + .sqc-app-row {
+    border-top: 1px solid rgba(255, 247, 232, .11);
+  }
+
+  .sqc-mobile-web.desktop-custom-library .sqc-app-row:hover {
+    border-color: rgba(245, 200, 106, .4);
+    background:
+      radial-gradient(circle at 10% 42%, rgba(245, 200, 106, .15), transparent 36%),
+      rgba(21, 17, 13, .9);
+    transform: translateY(-2px);
+  }
+
+  .sqc-mobile-web.desktop-custom-library .sqc-row-icon {
+    width: 72px;
+    height: 82px;
+  }
+
+  .sqc-mobile-web.desktop-custom-library .sqc-row-glow {
+    width: 86px;
+    height: 92px;
+    opacity: .84;
+  }
+
+  .sqc-mobile-web.desktop-custom-library .sqc-row-image {
+    width: 66px;
+    height: 74px;
+    filter: saturate(1.08) contrast(1.04) drop-shadow(0 12px 14px rgba(0, 0, 0, .46));
+  }
+
+  .sqc-mobile-web.desktop-custom-library .sqc-row-copy {
+    align-content: center;
+    gap: 7px;
+    padding-right: 58px;
+  }
+
+  .sqc-mobile-web.desktop-custom-library .sqc-row-title-line {
+    overflow: hidden;
+    font-family: ui-serif, Georgia, Cambria, "Times New Roman", serif;
+    font-size: 19px;
+    line-height: 1.08;
+    text-overflow: ellipsis;
+  }
+
+  .sqc-mobile-web.desktop-custom-library .sqc-row-copy small {
+    display: -webkit-box;
+    overflow: hidden;
+    color: rgba(255, 247, 232, .62);
+    font-size: 12px;
+    line-height: 1.42;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+  }
+
+  .sqc-mobile-web.desktop-custom-library .sqc-row-status {
+    position: absolute;
+    top: 18px;
+    right: 16px;
+  }
+
+  .sqc-mobile-web.desktop-custom-library .sqc-local-custom-empty {
+    min-height: 130px;
+    align-content: center;
+    padding: 24px;
+    border: 1px dashed rgba(255, 247, 232, .16);
+    border-radius: 22px;
+    background: rgba(0, 0, 0, .18);
+  }
+
+  .sqc-mobile-web.desktop-custom-library :is(a, summary, button, input, select):focus-visible {
+    outline: 3px solid rgba(245, 200, 106, .82);
+    outline-offset: 3px;
   }
 
   /* Official detail keeps the Android content and proof behavior in one subtree,

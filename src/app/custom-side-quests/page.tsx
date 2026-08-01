@@ -60,6 +60,7 @@ export default async function CustomSideQuestsPage({ searchParams }: { searchPar
     <MobileAppWebShell
       activeTab="sideQuests"
       signedIn={Boolean(user)}
+      desktopPresentation="custom-library"
       displayName={displayName}
       lichessUsername={getLichessUsername(metadataRecord)}
       chessComUsername={getChessComUsername(metadataRecord)}
