@@ -4210,6 +4210,7 @@ body::after {
   text-decoration: none;
 }
 
+.sqc-community-task-rail,
 .sqc-community-detail-actions,
 .sqc-community-share-actions {
   display: grid;
@@ -6468,6 +6469,165 @@ body::after {
     border: 1px solid rgba(255, 247, 232, .12);
     border-radius: 24px;
     background: rgba(0, 0, 0, .2);
+  }
+
+  /* Community detail retains one parity-backed content/action subtree while desktop
+     turns the modal phone stack into a navigable reading workspace with a task rail. */
+  .sqc-mobile-web.desktop-community-detail .sqc-desktop-route-only {
+    display: block;
+  }
+
+  .sqc-mobile-web.desktop-community-detail {
+    display: block;
+    min-height: 100vh;
+    padding: 0;
+    background:
+      radial-gradient(circle at 80% 8%, rgba(245, 200, 106, .13), transparent 30%),
+      radial-gradient(circle at 12% 28%, rgba(96, 240, 175, .06), transparent 30%),
+      linear-gradient(180deg, #25170f 0%, #15100d 36%, #09090a 74%, #050506 100%);
+  }
+
+  .sqc-mobile-web.desktop-community-detail > div:not(.sqc-mobile-backdrop):not(.sqc-desktop-route-only) > :is(.sqc-menu, .sqc-app-header, .sqc-close-screen),
+  .sqc-mobile-web.desktop-community-detail .sqc-guest-nav {
+    display: none;
+  }
+
+  .sqc-mobile-web.desktop-community-detail .sqc-screen {
+    width: min(1240px, calc(100% - 64px));
+    margin: 0 auto;
+    padding: 46px 0 84px;
+  }
+
+  .sqc-mobile-web.desktop-community-detail .sqc-community-detail-screen {
+    display: grid;
+    grid-template-columns: minmax(0, 1.35fr) minmax(340px, .65fr);
+    align-items: start;
+    gap: 18px 24px;
+  }
+
+  .sqc-mobile-web.desktop-community-detail .sqc-community-detail-hero {
+    grid-column: 1 / -1;
+    min-height: 286px;
+    display: grid;
+    grid-template-columns: 240px minmax(0, 1fr);
+    grid-template-rows: auto auto auto auto;
+    align-content: center;
+    justify-items: start;
+    gap: 10px 42px;
+    padding: 30px 42px;
+    border: 1px solid rgba(245, 200, 106, .2);
+    border-radius: 30px;
+    background:
+      radial-gradient(circle at 14% 48%, rgba(245, 200, 106, .17), transparent 24%),
+      linear-gradient(135deg, rgba(255, 247, 232, .09), rgba(255, 247, 232, .03));
+    box-shadow: 0 28px 80px rgba(0, 0, 0, .24);
+    text-align: left;
+  }
+
+  .sqc-mobile-web.desktop-community-detail .sqc-community-detail-hero > .sqc-section-mark {
+    grid-column: 1;
+    grid-row: 1 / span 4;
+    align-self: center;
+    width: 220px;
+    height: 220px;
+    min-height: 220px;
+  }
+
+  .sqc-mobile-web.desktop-community-detail .sqc-section-mark.community .sqc-mark-glow {
+    width: 236px;
+    height: 244px;
+  }
+
+  .sqc-mobile-web.desktop-community-detail .sqc-section-mark.community .sqc-mark-image {
+    width: 188px;
+    height: 188px;
+  }
+
+  .sqc-mobile-web.desktop-community-detail .sqc-community-detail-hero > :not(.sqc-section-mark) {
+    grid-column: 2;
+  }
+
+  .sqc-mobile-web.desktop-community-detail .sqc-community-detail-hero h1 {
+    max-width: 720px;
+    font-family: ui-serif, Georgia, Cambria, "Times New Roman", serif;
+    font-size: clamp(42px, 4vw, 60px);
+    line-height: 1;
+    letter-spacing: -.04em;
+  }
+
+  .sqc-mobile-web.desktop-community-detail .sqc-community-detail-hero p {
+    max-width: 680px;
+    color: rgba(255, 247, 232, .72);
+    font-size: 17px;
+    line-height: 1.55;
+  }
+
+  .sqc-mobile-web.desktop-community-detail .sqc-community-detail-screen > .sqc-native-card {
+    grid-column: 1;
+    gap: 14px;
+    padding: 26px 28px;
+    border-radius: 24px;
+  }
+
+  .sqc-mobile-web.desktop-community-detail .sqc-community-detail-screen > .sqc-native-card h2 {
+    font-family: ui-serif, Georgia, Cambria, "Times New Roman", serif;
+    font-size: 27px;
+    line-height: 1.1;
+  }
+
+  .sqc-mobile-web.desktop-community-detail .sqc-condition-compact-row {
+    min-height: 82px;
+    align-items: center;
+    padding: 14px;
+    border-radius: 16px;
+  }
+
+  .sqc-mobile-web.desktop-community-detail .sqc-multiplayer-score-grid {
+    grid-column: 1;
+  }
+
+  .sqc-mobile-web.desktop-community-detail .sqc-multiplayer-score-grid > div {
+    min-height: 92px;
+    align-content: center;
+    border-radius: 18px;
+  }
+
+  .sqc-mobile-web.desktop-community-detail .sqc-community-task-rail {
+    grid-column: 2;
+    grid-row: 2 / span 4;
+    position: sticky;
+    top: 108px;
+    gap: 12px;
+  }
+
+  .sqc-mobile-web.desktop-community-detail .sqc-community-task-rail > .sqc-native-card,
+  .sqc-mobile-web.desktop-community-detail .sqc-community-task-rail > .sqc-proof-action-card {
+    gap: 13px;
+    padding: 26px;
+    border-radius: 24px;
+    background:
+      radial-gradient(circle at 100% 0%, rgba(245, 200, 106, .12), transparent 44%),
+      rgba(245, 200, 106, .065);
+    box-shadow: 0 22px 56px rgba(0, 0, 0, .2);
+  }
+
+  .sqc-mobile-web.desktop-community-detail .sqc-community-task-rail h2 {
+    font-family: ui-serif, Georgia, Cambria, "Times New Roman", serif;
+    font-size: 26px;
+    line-height: 1.1;
+  }
+
+  .sqc-mobile-web.desktop-community-detail .sqc-community-detail-actions {
+    gap: 9px;
+    padding: 14px;
+    border: 1px solid rgba(255, 247, 232, .1);
+    border-radius: 22px;
+    background: rgba(0, 0, 0, .18);
+  }
+
+  .sqc-mobile-web.desktop-community-detail :is(a, summary, button):focus-visible {
+    outline: 3px solid rgba(245, 200, 106, .84);
+    outline-offset: 3px;
   }
 
   .sqc-mobile-web.desktop-official-detail :is(a, summary, button):focus-visible {

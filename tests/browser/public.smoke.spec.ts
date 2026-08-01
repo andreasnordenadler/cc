@@ -108,6 +108,38 @@ test("official Solo detail switches from the mobile flow to one desktop action w
   expect(geometry.overflow).toBe(0);
 });
 
+test("Community Solo detail switches from the mobile flow to one desktop task workspace", async ({ page }) => {
+  await page.setViewportSize({ width: 1179, height: 900 });
+  await expectHealthyNavigation(page, "/challenges/community/seed-castle-never-heard-of-it-05-1");
+
+  const detail = page.locator(".sqc-community-detail-screen");
+  const share = page.getByRole("button", { name: "Share Community Solo Side Quest" });
+  await expect(page.getByLabel("Close screen")).toBeVisible();
+  await expect(page.getByRole("navigation", { name: "Desktop shortcuts" })).toBeHidden();
+  await expect(share).toHaveCount(1);
+
+  await page.setViewportSize({ width: 1180, height: 900 });
+  await expect(page.getByLabel("Close screen")).toBeHidden();
+  await expect(page.getByRole("navigation", { name: "Desktop shortcuts" })).toBeVisible();
+  await expect(share).toHaveCount(1);
+
+  const geometry = await detail.evaluate((element) => {
+    const rect = element.getBoundingClientRect();
+    const style = getComputedStyle(element);
+    const taskRail = element.querySelector(".sqc-community-task-rail");
+    return {
+      width: Math.round(rect.width),
+      columns: style.gridTemplateColumns.split(" ").filter(Boolean).length,
+      taskRailPosition: taskRail ? getComputedStyle(taskRail).position : null,
+      overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+    };
+  });
+  expect(geometry.width).toBeGreaterThan(1000);
+  expect(geometry.columns).toBe(2);
+  expect(geometry.taskRailPosition).toBe("sticky");
+  expect(geometry.overflow).toBe(0);
+});
+
 test("sign-in returns to the exact page and query where the user started", async ({ page }) => {
   await page.goto("/side-quests?tab=community");
   const signInLink = page.getByRole("link", { name: "Sign in", exact: true });
