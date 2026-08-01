@@ -40,7 +40,7 @@ type AppTab = "home" | "sideQuests" | "multiplayerSideQuests" | "coatOfArms" | "
 type MobileAppWebShellProps = {
   activeTab: AppTab;
   signedIn: boolean;
-  desktopPresentation?: "solo-discovery" | "community-discovery" | "official-detail" | "community-detail";
+  desktopPresentation?: "solo-discovery" | "community-discovery" | "custom-library" | "official-detail" | "community-detail";
   displayName?: string | null;
   profileImageUrl?: string | null;
   lichessUsername?: string | null;
@@ -229,7 +229,12 @@ export default function MobileAppWebShell({
 
       {desktopPresentation && !loadingPresentation ? (
         <div className="sqc-desktop-route-only">
-          <DesktopHomeHeader signedIn={signedIn} displayName={displayName} activeTab={desktopPresentation.startsWith("community-") ? null : activeTab} />
+          <DesktopHomeHeader
+            signedIn={signedIn}
+            displayName={displayName}
+            activeTab={desktopPresentation.startsWith("community-") || desktopPresentation === "custom-library" ? null : activeTab}
+            activeItemId={desktopPresentation === "custom-library" ? "custom" : undefined}
+          />
         </div>
       ) : null}
 
@@ -342,8 +347,9 @@ function GuestNavigation({ activeTab }: { activeTab: AppTab }) {
   );
 }
 
-function DesktopHomeHeader({ signedIn, displayName, activeTab }: { signedIn: boolean; displayName?: string | null; activeTab: AppTab | null }) {
+function DesktopHomeHeader({ signedIn, displayName, activeTab, activeItemId }: { signedIn: boolean; displayName?: string | null; activeTab: AppTab | null; activeItemId?: string }) {
   const shortcuts = desktopHomeMenuItems.slice(0, 4);
+  const resolvedActiveItemId = activeItemId ?? (activeTab === "multiplayerSideQuests" ? "multiplayer" : activeTab === "coatOfArms" ? "coats" : activeTab ?? "");
 
   return (
     <header className="sqc-desktop-header">
@@ -361,7 +367,7 @@ function DesktopHomeHeader({ signedIn, displayName, activeTab }: { signedIn: boo
           </Link>
         ))}
       </nav>
-      <DesktopHomeMenu items={desktopHomeMenuItems} activeItemId={activeTab === "multiplayerSideQuests" ? "multiplayer" : activeTab === "coatOfArms" ? "coats" : activeTab ?? ""} />
+      <DesktopHomeMenu items={desktopHomeMenuItems} activeItemId={resolvedActiveItemId} />
       {signedIn ? (
         <Link href="/account" className="sqc-desktop-sign-in">{displayName || "My Account"}</Link>
       ) : (
@@ -1336,6 +1342,12 @@ export function MobileCustomSideQuestsScreen({
         <Image className="sqc-screen-emblem-glow" alt="" src={mobileAsset.coatGlow} width={166} height={176} priority />
         <Image className="sqc-screen-emblem-image" alt="" src={mobileAsset.coat} width={132} height={148} priority />
       </div>
+
+      <header className="sqc-desktop-custom-intro">
+        <span>Your custom collection</span>
+        <h1>Your Side Quest workshop, with room to think.</h1>
+        <p>Search saved rules, separate drafts from published quests, and open the exact Side Quest you want to play, share, or refine.</p>
+      </header>
 
       <nav className="sqc-brand-tabs sqc-solo-brand-tabs" aria-label="Solo Side Quest catalog">
         <Link href="/side-quests" className="sqc-brand-tab official">
