@@ -7524,6 +7524,7 @@ body::after {
   .sqc-mobile-web.desktop-multiplayer-detail .sqc-multiplayer-public-detail-screen {
     display: grid;
     grid-template-columns: minmax(0, 1.45fr) minmax(360px, .55fr);
+    grid-auto-flow: dense;
     align-items: start;
     gap: 18px 24px;
   }
