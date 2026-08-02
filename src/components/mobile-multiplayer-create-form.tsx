@@ -91,7 +91,7 @@ export default function MobileMultiplayerCreateForm({ signedIn, quests, stableNo
   return <form className="sqc-stack sqc-multiplayer-create-form" aria-label="Create Multiplayer Side Quest form" onSubmit={submit}>
     <fieldset className="sqc-hydration-gate" disabled={!hydrated}>
     {communityUnavailable ? <p className="sqc-native-card sqc-create-community-notice" role="status"><strong>Community Side Quests could not load.</strong> Official and your own published Side Quests are still available.</p> : null}
-    <section className="sqc-native-card"><div className="sqc-form-list">
+    <section className="sqc-native-card sqc-create-setup-card"><div className="sqc-form-list">
       <label className="sqc-form-row"><span>Quest name</span><input aria-describedby={signedIn ? "multiplayer-quest-name-help" : undefined} aria-label="Quest name" maxLength={54} onChange={(e) => setName(e.target.value)} placeholder={signedIn ? "Name this Multiplayer Side Quest" : undefined} required value={name} />{signedIn ? <small id="multiplayer-quest-name-help">Required. Make it clear enough that players know what they are joining.</small> : null}</label>
       <label className="sqc-form-row"><span>Intro text</span><textarea aria-describedby={signedIn ? "multiplayer-intro-text-help" : undefined} aria-label="Intro text" maxLength={260} onChange={(e) => setInviteCopy(e.target.value)} placeholder={signedIn ? "Explain what players are joining..." : undefined} value={inviteCopy} />{signedIn ? <small id="multiplayer-intro-text-help">Shown to players before they join.</small> : null}</label>
       <span className="sqc-form-label">Access</span>
