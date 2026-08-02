@@ -125,7 +125,7 @@ export default function MobileMultiplayerCreateForm({ signedIn, quests, stableNo
       {picker.visible.length ? <div className="sqc-catalog">{picker.visible.map((quest) => { const included = selected.includes(quest.id); const maxed = !included && selected.length >= 4; return <button aria-label={included ? `Remove ${quest.title} from Multiplayer Side Quest` : maxed ? `Maximum of 4 Side Quests reached; remove one before adding ${quest.title}` : `Add ${quest.title} to Multiplayer Side Quest`} className={included ? "sqc-option-card selected" : "sqc-option-card"} key={quest.id} onClick={() => toggle(quest.id)} type="button"><span aria-hidden="true" /><div className="sqc-option-card-copy"><small className="sqc-option-source">{quest.sourceLabel}</small><strong>{quest.title}</strong><b>{included ? "Remove" : maxed ? "Max 4" : "Add"}</b><small className="sqc-option-summary">{quest.summary}</small></div></button>; })}</div> : <div className="sqc-selection-empty"><strong>No matching Side Quests</strong><span>Adjust search, switch source, or turn off Selected to browse the catalog.</span></div>}
       {picker.hiddenCount ? <button className="sqc-detail-secondary-button" onClick={() => setQuestLimit((current) => current + 8)} type="button">Show more ({picker.hiddenCount})</button> : null}
     </section>
-    {error ? <p className="groupquest-join-error" role="alert">{error}</p> : null}
+    {error ? <p className="groupquest-join-error sqc-create-error" role="alert">{error}</p> : null}
     <div className="sqc-create-footer-bar">
       <div>
         <strong className="sqc-create-footer-title">{selected.length ? `${selected.length}/4 selected` : "Choose at least one Side Quest"}</strong>
