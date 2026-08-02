@@ -12,15 +12,16 @@ Scope: evidence-bound answers for Google Play's App content forms. This is a lau
 
 ## Candidate and evidence boundary
 
-- Current canonical source: `origin/main` at `cbee7b1d53111b4c9b55a957ec43c3e2d86655fc`; its latest mobile baseline is merged PR #168 at `0364be9e2f19a81de69716dbff04c0361a2b37a4` (`0.1.344`, checked-in code `344`). That same immutable commit is the EAS build source. Every later `origin/main` change is web-only; native app, tracked Android, Expo/EAS production configuration, dependency, release-script, and mobile-workflow inputs remain byte-identical to the build source.
+- Current canonical source: `origin/main` at `54834b2ea2ff880d6d1b95fe88329c81655d8fa5`; its latest mobile baseline is merged PR #168 at `0364be9e2f19a81de69716dbff04c0361a2b37a4` (`0.1.344`, checked-in code `344`). That same immutable commit is the EAS build source. Later `origin/main` changes add reviewed Google Play listing assets and change web-only product surfaces; native app, tracked Android, Expo/EAS production configuration, dependency, release-script, and mobile-workflow inputs remain byte-identical to the build source.
 - The current inspected AAB is `0.1.344 (345)`, SHA-256 `b4847e7b42817f1cc3109f37c1296465018edbce6aa65c390ab073ab21f8dc3d`, size 86,157,026 bytes, built by EAS build `4cfb5ba3-8795-4804-b111-a742a9fee483` from `0364be9e2f19a81de69716dbff04c0361a2b37a4`. It is the only current upload candidate; codes 342 through 344 are superseded.
 - Current AAB inspection confirms package `com.sidequestchess.app`, version `0.1.344` (345), min SDK 24, target/compile SDK 36, no enabled debuggable attribute, `allowBackup=false`, four ABIs, ZIP and bundletool validity, production API `https://sidequestchess.com`, bounded runtime permissions, and continuity with the established upload certificate. The Play app-signing certificate remains a separate console/read-back and Play-delivered-install gate.
 - Preserved Play Console evidence records `0.1.340 (341)` as available on Internal testing with no tester list selected. This is historical track state, not the current upload candidate and not production publication.
+- The repository now contains the reviewed listing-ready 512 × 512 store icon and 1,024 × 500 feature graphic. Current-candidate phone screenshots remain blocked on the authorized Play-delivered code-345 install and must not be substituted with responsive engineering captures.
 - The candidate uses Clerk authentication and the first-party SQC API. It reads public Lichess and Chess.com records for user-selected usernames/game references.
 - The candidate has no advertising, billing, subscription, or real-money-prize integration.
 - The candidate supports public/community content, Multiplayer participation, proof links, support/report messages, and permanent in-app account deletion.
 
-## Store setup and monetization — confirmed product facts
+## Store setup and monetization — confirmed product direction
 
 | Play field | Exact answer |
 |---|---|
@@ -32,10 +33,10 @@ Scope: evidence-bound answers for Google Play's App content forms. This is a lau
 | Subscriptions | **No** |
 | Real-money gambling, contests, or prizes | **No** |
 | Developer / publisher | **Crowdler AB** |
-| Support, privacy, and moderation email | `sam@crowdler.com` |
+| Intended support, privacy, and moderation email | `sam@crowdler.com` — owner-provided direction; public-policy adoption and an operable moderation delivery path remain **BLOCKED** |
 | Website | `https://sidequestchess.com` |
 | Privacy-policy URL | `https://sidequestchess.com/privacy` — URL is reachable, but public-policy adoption remains **BLOCKED** below |
-| Distribution | **Worldwide** |
+| Intended distribution | **Worldwide** — owner-provided direction; country availability and regional legal readiness require authorized Console read-back before submission |
 
 ## Target audience and children — confirmed product direction; legal adoption BLOCKED
 
@@ -62,19 +63,44 @@ Exact declaration:
 
 Because core review paths require sign-in, provide and verify one working disposable, non-sensitive SQC reviewer account and exact access instructions in Play Console. This is a submission blocker, not an optional convenience. Never put its password, session, recovery material, or private invite codes in Git, a PR, screenshots, or this pack. Use a disposable public chess identity with no private profile data.
 
+## Play App Signing and internal-test prerequisites — console read-back BLOCKED
+
+Use the existing **Side Quest Chess** Play Console app and package `com.sidequestchess.app`. Do not create another app, package, developer account, or listing.
+
+The following are confirmed before Console access:
+
+- upload candidate: `0.1.344` / version code `345`, AAB SHA-256 `b4847e7b42817f1cc3109f37c1296465018edbce6aa65c390ab073ab21f8dc3d`;
+- known upload-certificate SHA-256: `891fdc5a80601eaa2b6db1f3fcb26ab756650179b40b3a3f5f58dd921d753cf2`;
+- initial tester Google account: `samnordbot@gmail.com`;
+- intended tester-list name: `SQC Android internal`;
+- tester feedback contact: `sam@crowdler.com`;
+- a separate disposable, non-sensitive Google/SQC identity is required only for the bounded two-account Multiplayer test.
+
+The following must be read back from the existing Console app and remain **BLOCKED** until an explicitly authorized Console session:
+
+1. Confirm **App integrity** shows Play App Signing enabled and record the Play **app-signing key certificate** SHA-256 separately from the upload certificate. Never expose private keys, keystores, passwords, tokens, or recovery material.
+2. Confirm Internal testing still belongs to this exact package and that no code higher than `345` makes the candidate stale.
+3. Create or select `SQC Android internal`, add only `samnordbot@gmail.com` initially, attach the list to Internal testing, and verify the feedback contact.
+4. Upload only the bound code-345 AAB; require Play to parse package `com.sidequestchess.app`, version `0.1.344`, and code `345`. An APK or sideload is not an acceptable substitute.
+5. Stop before rollout unless the authorization explicitly includes internal-track publication. After an authorized rollout, install from the private Play opt-in path and require installer `com.android.vending`.
+6. Inspect the Play-delivered base/split APK signer and require it to match the Console's Play app-signing certificate, not the upload certificate.
+7. Complete the physical-device smoke and responsive regression on that Play-delivered install, then capture the privacy-safe 9:16 listing screenshots. The preserved seven-profile signed-APK matrix remains valid engineering evidence but does not prove Play delivery or app signing.
+
+Tester assignment, AAB upload, Console declaration entry, internal-track rollout, Play-delivered installation, and publication remain explicit owner gates. Until these read-backs pass, code 345 is a provenance-verified Play-format candidate, not a Play-accepted internal-test release.
+
 ## Content rating — exact factual posture
 
 Use these facts when completing the interactive IARC questionnaire; do not claim a final rating before Play calculates it:
 
 | Topic | Factual answer |
 |---|---|
-| Violence / graphic content | No product-authored violence or graphic content; ordinary abstract chess play only |
-| Sexual content / nudity | No |
-| Profanity / crude humor | No product-authored profanity; user-created quest names/descriptions may contain text until reported/moderated |
-| Controlled substances | No |
-| Fear / horror | No |
-| Gambling simulation | No |
-| Real-money gambling or prizes | No |
+| Violence / graphic content | No product-authored violence or graphic content; ordinary abstract chess play only. User-authored text is not pre-moderated and must be accounted for under the live IARC wording. |
+| Sexual content / nudity | No product-authored sexual content or media upload. User-authored text is not pre-moderated and must be accounted for under the live IARC wording. |
+| Profanity / crude humor | No product-authored profanity or crude humor. User-authored text is not pre-moderated and must be accounted for under the live IARC wording. |
+| Controlled substances | No product-authored controlled-substance content. User-authored text is not pre-moderated and must be accounted for under the live IARC wording. |
+| Fear / horror | No product-authored fear or horror content. User-authored text is not pre-moderated and must be accounted for under the live IARC wording. |
+| Gambling simulation | No product-authored gambling simulation. User-authored text is not pre-moderated and must be accounted for under the live IARC wording. |
+| Real-money gambling or prizes | No product-authored real-money gambling, contest, or prize feature. User-authored text is not pre-moderated and must be accounted for under the live IARC wording. |
 | Purchases | No |
 | Advertising | No |
 | User-generated content | **Yes** — Custom/Community and Multiplayer Side Quest names, descriptions, rules, profile/display material, participation, and proof/support/report context |
@@ -155,6 +181,8 @@ Do **not** declare collection solely because an Android permission or transitive
 - advertising IDs for advertising or behavioral profiling.
 
 The current code-345 AAB was inspected after the permission-hardening merge. Its manifest is limited to Internet, network state, vibration, and the app-scoped dynamic-receiver permission; storage, overlay, biometric, fingerprint, location, camera, microphone, contacts, SMS, phone, and Play install-referrer permissions are absent. Manifest presence or absence alone is not permission to answer a data-safety question inaccurately.
+
+The absence of a runtime permission does not resolve provider-generated telemetry. Before completing the collected/shared rows, obtain an exact production inventory for Clerk, selected OAuth providers, hosting/delivery/security infrastructure, and every bundled SDK. Explicitly classify IP-derived approximate location, device or other identifiers, authentication/session telemetry, crash/reliability records, and security/fraud signals. These determinations remain **BLOCKED**; this draft does not infer that they are absent merely because first-party source does not name them.
 
 ### Third-party sharing — BLOCKED before final submission
 
