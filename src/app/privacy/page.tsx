@@ -11,37 +11,51 @@ const LAST_UPDATED = "July 29, 2026";
 export default function PrivacyPage() {
   return (
     <main className="privacy-page">
-      <article className="privacy-policy" aria-labelledby="privacy-title">
-        <header className="privacy-hero">
-          <Link className="privacy-back" href="/">← Side Quest Chess</Link>
-          <span className="privacy-kicker">Side Quest Chess</span>
-          <h1 id="privacy-title">Privacy Policy</h1>
-          <p className="privacy-lede">This page describes how the current Side Quest Chess website and mobile app handle information. It is based on the product’s implemented data flows, not a promise to collect data the product does not use.</p>
-          <p className="privacy-effective"><strong>Launch draft updated:</strong> {LAST_UPDATED}</p>
-        </header>
+      <article className="privacy-policy privacy-workspace" aria-labelledby="privacy-title">
+        <div className="privacy-workspace-rail">
+          <header className="privacy-hero">
+            <Link className="privacy-back" href="/">← Side Quest Chess</Link>
+            <span className="privacy-kicker">Side Quest Chess</span>
+            <h1 id="privacy-title">Privacy Policy</h1>
+            <p className="privacy-lede">This page describes how the current Side Quest Chess website and mobile app handle information. It is based on the product’s implemented data flows, not a promise to collect data the product does not use.</p>
+            <p className="privacy-effective"><strong>Launch draft updated:</strong> {LAST_UPDATED}</p>
+          </header>
 
-        <nav className="privacy-contents" aria-label="Privacy policy sections">
-          <a href="#information">Information</a>
-          <a href="#verification">Verification</a>
-          <a href="#use">Use</a>
-          <a href="#sharing">Sharing</a>
-          <a href="#retention">Retention</a>
-          <a href="#choices">Choices</a>
-          <a href="#children">Children</a>
-          <a href="#contact">Contact</a>
-        </nav>
+          <nav className="privacy-contents" aria-label="Privacy policy sections">
+            <a href="#information">Information</a>
+            <a href="#verification">Verification</a>
+            <a href="#use">Use</a>
+            <a href="#sharing">Sharing</a>
+            <a href="#retention">Retention</a>
+            <a href="#choices">Choices</a>
+            <a href="#children">Children</a>
+            <a href="#contact">Contact</a>
+          </nav>
+        </div>
+
+        <div className="privacy-document-grid">
 
         <section id="information">
           <h2>Information Side Quest Chess handles</h2>
-          <h3>Account and profile information</h3>
-          <p>Side Quest Chess uses Clerk for sign-in and account management. Depending on how you sign in, Clerk and Side Quest Chess may handle an account identifier, email address, name, username, profile image, authentication session information, and the sign-in provider you choose. Authentication cookies or equivalent session storage are used where needed to keep you signed in and protect account-only features.</p>
-          <h3>Chess and quest information</h3>
-          <p>If you add one, Side Quest Chess stores your public Lichess or Chess.com username. Side Quest Chess also stores information needed to run the product, such as your display name and bio, active and completed quests, proof attempts and results, game identifiers, timestamps, ratings snapshots, unlocked rewards, custom quests, likes, and Multiplayer Side Quest participation, invitations, standings, and host records.</p>
-          <h3>Support messages</h3>
-          <p>Signed-in support messages are stored with your account and can include the text you submit, submission time, account email and display name, source (web or mobile), and any diagnostics you choose to include. Mobile diagnostics currently include app/build details and account-state summaries such as connected usernames and active-quest counts. Do not send passwords, private invite codes, or information you do not want included in a support thread.</p>
-          <h3>Product analytics and technical information</h3>
-          <p>Side Quest Chess records limited first-party product events, such as page views, profile saves, quest starts and outcomes, community browsing actions, the relevant path or quest/game identifier, event time, source, and a coarse device category inferred from the browser user agent. For signed-in users, compact event totals and a limited recent-event history are stored with the account. Anonymous events are written to application logs and are not attached to a Side Quest Chess account.</p>
-          <p>The current application does not include a third-party advertising or behavioral-analytics SDK. Standard hosting, security, and request logs may still be created by the services that operate Side Quest Chess.</p>
+          <div className="privacy-topic-grid">
+            <div>
+              <h3>Account and profile information</h3>
+              <p>Side Quest Chess uses Clerk for sign-in and account management. Depending on how you sign in, Clerk and Side Quest Chess may handle an account identifier, email address, name, username, profile image, authentication session information, and the sign-in provider you choose. Authentication cookies or equivalent session storage are used where needed to keep you signed in and protect account-only features.</p>
+            </div>
+            <div>
+              <h3>Chess and quest information</h3>
+              <p>If you add one, Side Quest Chess stores your public Lichess or Chess.com username. Side Quest Chess also stores information needed to run the product, such as your display name and bio, active and completed quests, proof attempts and results, game identifiers, timestamps, ratings snapshots, unlocked rewards, custom quests, likes, and Multiplayer Side Quest participation, invitations, standings, and host records.</p>
+            </div>
+            <div>
+              <h3>Support messages</h3>
+              <p>Signed-in support messages are stored with your account and can include the text you submit, submission time, account email and display name, source (web or mobile), and any diagnostics you choose to include. Mobile diagnostics currently include app/build details and account-state summaries such as connected usernames and active-quest counts. Do not send passwords, private invite codes, or information you do not want included in a support thread.</p>
+            </div>
+            <div>
+              <h3>Product analytics and technical information</h3>
+              <p>Side Quest Chess records limited first-party product events, such as page views, profile saves, quest starts and outcomes, community browsing actions, the relevant path or quest/game identifier, event time, source, and a coarse device category inferred from the browser user agent. For signed-in users, compact event totals and a limited recent-event history are stored with the account. Anonymous events are written to application logs and are not attached to a Side Quest Chess account.</p>
+              <p>The current application does not include a third-party advertising or behavioral-analytics SDK. Standard hosting, security, and request logs may still be created by the services that operate Side Quest Chess.</p>
+            </div>
+          </div>
         </section>
 
         <section id="verification">
@@ -100,6 +114,7 @@ export default function PrivacyPage() {
           <p>For privacy questions or requests, email the current Side Quest Chess support contact at <a href="mailto:andreas.nordenadler@gmail.com">andreas.nordenadler@gmail.com</a>. Signed-in users may also send an account-attached message from <Link href="/support">Help &amp; Support</Link>.</p>
           <a className="privacy-contact-link" href="mailto:andreas.nordenadler@gmail.com?subject=Side%20Quest%20Chess%20privacy%20request">Contact privacy support</a>
         </section>
+        </div>
 
         <aside className="privacy-notice" role="note" aria-label="Policy status">
           <strong>Policy status</strong>
