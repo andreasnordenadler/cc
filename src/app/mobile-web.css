@@ -5075,6 +5075,10 @@ body::after {
   display: none;
 }
 
+.sqc-desktop-trophy-intro {
+  display: none;
+}
+
 .sqc-responsive-signed-home {
   width: min(460px, 100%);
   margin-inline: auto;
@@ -7813,6 +7817,187 @@ body::after {
     box-shadow: 0 20px 60px rgba(0, 0, 0, .42);
   }
 
+  /* The Trophy Cabinet keeps the Android reward contracts and one set of links,
+     but presents them as a wide desktop collection instead of a narrow card stack. */
+  .sqc-mobile-web.desktop-trophy-cabinet .sqc-desktop-route-only {
+    display: block;
+  }
+
+  .sqc-mobile-web.desktop-trophy-cabinet {
+    display: block;
+    min-height: 100vh;
+    padding: 0;
+    background:
+      radial-gradient(circle at 18% 12%, rgba(245, 200, 106, .14), transparent 28%),
+      radial-gradient(circle at 86% 20%, rgba(96, 240, 175, .06), transparent 26%),
+      linear-gradient(180deg, #251b12 0%, #15110e 36%, #09090a 76%, #050506 100%);
+  }
+
+  .sqc-mobile-web.desktop-trophy-cabinet > div:not(.sqc-mobile-backdrop):not(.sqc-desktop-route-only) > :is(.sqc-menu, .sqc-app-header, .sqc-close-screen),
+  .sqc-mobile-web.desktop-trophy-cabinet .sqc-guest-nav {
+    display: none;
+  }
+
+  .sqc-mobile-web.desktop-trophy-cabinet .sqc-screen {
+    width: min(1320px, calc(100% - 64px));
+    margin: 0 auto;
+    padding: 44px 0 82px;
+  }
+
+  .sqc-mobile-web.desktop-trophy-cabinet .sqc-trophy-screen {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    align-items: stretch;
+    gap: 22px;
+  }
+
+  .sqc-mobile-web.desktop-trophy-cabinet .sqc-screen-emblem.trophy {
+    grid-column: 1 / span 3;
+    min-height: 220px;
+    padding: 0;
+  }
+
+  .sqc-mobile-web.desktop-trophy-cabinet .sqc-screen-emblem.trophy .sqc-screen-emblem-glow {
+    width: 220px;
+    height: 236px;
+  }
+
+  .sqc-mobile-web.desktop-trophy-cabinet .sqc-screen-emblem.trophy .sqc-screen-emblem-image {
+    width: 176px;
+    height: 198px;
+    filter: drop-shadow(0 24px 30px rgba(0, 0, 0, .45));
+  }
+
+  .sqc-mobile-web.desktop-trophy-cabinet .sqc-desktop-trophy-intro {
+    grid-column: 4 / -1;
+    display: grid;
+    align-content: center;
+    gap: 10px;
+    min-height: 220px;
+    padding-right: 90px;
+  }
+
+  .sqc-mobile-web.desktop-trophy-cabinet .sqc-desktop-trophy-intro > span {
+    color: var(--gold);
+    font-size: 11px;
+    font-weight: 950;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+  }
+
+  .sqc-mobile-web.desktop-trophy-cabinet .sqc-desktop-trophy-intro h1 {
+    max-width: 860px;
+    margin: 0;
+    font-family: ui-serif, Georgia, Cambria, "Times New Roman", serif;
+    font-size: clamp(42px, 3.8vw, 58px);
+    line-height: 1;
+    letter-spacing: -.04em;
+    text-wrap: balance;
+  }
+
+  .sqc-mobile-web.desktop-trophy-cabinet .sqc-desktop-trophy-intro p {
+    max-width: 760px;
+    margin: 0;
+    color: rgba(255, 247, 232, .67);
+    font-size: 15px;
+    line-height: 1.55;
+  }
+
+  .sqc-mobile-web.desktop-trophy-cabinet .sqc-native-card {
+    min-width: 0;
+    align-content: start;
+    gap: 10px;
+    padding: 24px;
+    border-radius: 24px;
+    background: rgba(255, 247, 232, .065);
+  }
+
+  .sqc-mobile-web.desktop-trophy-cabinet .sqc-native-card .sqc-card-eyebrow,
+  .sqc-mobile-web.desktop-trophy-cabinet .sqc-native-card h2 {
+    text-align: left;
+  }
+
+  .sqc-mobile-web.desktop-trophy-cabinet .sqc-native-card h2 {
+    font-family: ui-serif, Georgia, Cambria, "Times New Roman", serif;
+    font-size: 25px;
+    line-height: 1.08;
+  }
+
+  .sqc-mobile-web.desktop-trophy-cabinet .sqc-trophy-summary,
+  .sqc-mobile-web.desktop-trophy-cabinet .sqc-trophy-official-multiplayer,
+  .sqc-mobile-web.desktop-trophy-cabinet .sqc-trophy-community-multiplayer {
+    grid-column: span 4;
+    min-height: 176px;
+  }
+
+  .sqc-mobile-web.desktop-trophy-cabinet .sqc-trophy-summary {
+    border-color: rgba(245, 200, 106, .28);
+    background: linear-gradient(145deg, rgba(245, 200, 106, .13), rgba(255, 247, 232, .05));
+  }
+
+  .sqc-mobile-web.desktop-trophy-cabinet .sqc-trophy-solo-rewards {
+    grid-column: 1 / span 5;
+  }
+
+  .sqc-mobile-web.desktop-trophy-cabinet .sqc-trophy-collection-summary {
+    grid-column: 6 / -1;
+  }
+
+  .sqc-mobile-web.desktop-trophy-cabinet .sqc-trophy-solo-rewards,
+  .sqc-mobile-web.desktop-trophy-cabinet .sqc-trophy-collection-summary {
+    min-height: 164px;
+  }
+
+  .sqc-mobile-web.desktop-trophy-cabinet .sqc-trophy-solo-rewards .sqc-app-row {
+    min-height: 74px;
+    border-radius: 16px;
+  }
+
+  .sqc-mobile-web.desktop-trophy-cabinet .sqc-coat-grid {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 14px;
+  }
+
+  .sqc-mobile-web.desktop-trophy-cabinet .sqc-coat-tile {
+    min-height: 190px;
+    align-content: center;
+    gap: 9px;
+    padding: 20px 16px;
+    border-radius: 22px;
+    background: rgba(255, 247, 232, .052);
+    transition: transform 160ms ease, border-color 160ms ease, background 160ms ease;
+  }
+
+  .sqc-mobile-web.desktop-trophy-cabinet .sqc-coat-tile:hover {
+    border-color: rgba(245, 200, 106, .34);
+    background: rgba(245, 200, 106, .08);
+    transform: translateY(-3px);
+  }
+
+  .sqc-mobile-web.desktop-trophy-cabinet .sqc-coat-tile-art {
+    width: 96px;
+    height: 106px;
+  }
+
+  .sqc-mobile-web.desktop-trophy-cabinet .sqc-coat-tile-image {
+    width: 90px;
+    height: 102px;
+  }
+
+  .sqc-mobile-web.desktop-trophy-cabinet .sqc-coat-tile strong {
+    min-height: 0;
+    font-family: ui-serif, Georgia, Cambria, "Times New Roman", serif;
+    font-size: 16px;
+    line-height: 1.15;
+  }
+
+  .sqc-mobile-web.desktop-trophy-cabinet :is(a, summary, button):focus-visible {
+    outline: 3px solid rgba(245, 200, 106, .84);
+    outline-offset: 3px;
+  }
+
   .sqc-mobile-web.desktop-multiplayer-create :is(a, summary, button, input, textarea):focus-visible {
     outline: 3px solid rgba(245, 200, 106, .84);
     outline-offset: 3px;
@@ -7889,6 +8074,11 @@ body::after {
   }
 
   .sqc-mobile-web.desktop-custom-editor .sqc-template-card {
+    transition: none !important;
+    transform: none !important;
+  }
+
+  .sqc-mobile-web.desktop-trophy-cabinet .sqc-coat-tile {
     transition: none !important;
     transform: none !important;
   }

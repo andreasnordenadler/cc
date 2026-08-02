@@ -42,6 +42,7 @@ export default async function TrophyCabinetPage() {
     <MobileAppWebShell
       activeTab="coatOfArms"
       signedIn={Boolean(user)}
+      desktopPresentation="trophy-cabinet"
       displayName={displayName}
       lichessUsername={getLichessUsername(metadata)}
       chessComUsername={getChessComUsername(metadata)}
