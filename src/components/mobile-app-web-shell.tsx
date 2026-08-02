@@ -40,7 +40,7 @@ type AppTab = "home" | "sideQuests" | "multiplayerSideQuests" | "coatOfArms" | "
 type MobileAppWebShellProps = {
   activeTab: AppTab;
   signedIn: boolean;
-  desktopPresentation?: "solo-discovery" | "community-discovery" | "multiplayer-discovery" | "multiplayer-detail" | "multiplayer-create" | "custom-library" | "custom-detail" | "custom-editor" | "official-detail" | "community-detail";
+  desktopPresentation?: "solo-discovery" | "community-discovery" | "multiplayer-discovery" | "multiplayer-detail" | "multiplayer-create" | "custom-library" | "custom-detail" | "custom-editor" | "official-detail" | "community-detail" | "trophy-cabinet";
   displayName?: string | null;
   profileImageUrl?: string | null;
   lichessUsername?: string | null;
@@ -1056,7 +1056,13 @@ export function MobileTrophyCabinetScreen({
         <Image className="sqc-screen-emblem-image" alt="" src={mobileAsset.coat} width={132} height={148} priority />
       </div>
 
-      <section className="sqc-native-card" aria-label="Trophy Cabinet summary">
+      <header className="sqc-desktop-trophy-intro">
+        <span>Your reward archive</span>
+        <h1>Every ridiculous victory, filed in one grand collection.</h1>
+        <p>Review earned coats and podium finishes, then browse the complete Official Solo collection without leaving your cabinet.</p>
+      </header>
+
+      <section className="sqc-native-card sqc-trophy-summary" aria-label="Trophy Cabinet summary">
         <span className="sqc-card-eyebrow">Trophy Cabinet</span>
         <h2>{unlockedCount ? `${unlockedCount} unlocked: ${officialSoloRows.length} Official Solo Side Quest${officialSoloRows.length === 1 ? "" : "s"} · ${customSoloRows.length} Custom Solo Side Quest${customSoloRows.length === 1 ? "" : "s"} · ${communitySoloRows.length} Community Solo Side Quest${communitySoloRows.length === 1 ? "" : "s"} · ${officialMultiplayerRows.length} Official Multiplayer Side Quest${officialMultiplayerRows.length === 1 ? "" : "s"} · ${communityMultiplayerRows.length} Community Multiplayer Side Quest${communityMultiplayerRows.length === 1 ? "" : "s"}` : "No unlocked trophies yet."}</h2>
         <p>
@@ -1066,7 +1072,7 @@ export function MobileTrophyCabinetScreen({
         </p>
       </section>
 
-      <section className="sqc-native-card" aria-label="Official Multiplayer Side Quest trophies">
+      <section className="sqc-native-card sqc-trophy-official-multiplayer" aria-label="Official Multiplayer Side Quest trophies">
         <span className="sqc-card-eyebrow">Official Multiplayer trophies</span>
         <h2>{officialMultiplayerRows.length} Official Multiplayer Side Quest podium{officialMultiplayerRows.length === 1 ? "" : "s"}.</h2>
         {officialMultiplayerRows.length ? (
@@ -1080,7 +1086,7 @@ export function MobileTrophyCabinetScreen({
         )}
       </section>
 
-      <section className="sqc-native-card" aria-label="Community Multiplayer Side Quest trophies">
+      <section className="sqc-native-card sqc-trophy-community-multiplayer" aria-label="Community Multiplayer Side Quest trophies">
         <span className="sqc-card-eyebrow">Community Multiplayer trophies</span>
         <h2>{communityMultiplayerRows.length} Community Multiplayer Side Quest podium{communityMultiplayerRows.length === 1 ? "" : "s"}.</h2>
         {communityMultiplayerRows.length ? (
@@ -1094,7 +1100,7 @@ export function MobileTrophyCabinetScreen({
         )}
       </section>
 
-      <section className="sqc-native-card" aria-label="Unlocked Solo Side Quest rewards">
+      <section className="sqc-native-card sqc-trophy-solo-rewards" aria-label="Unlocked Solo Side Quest rewards">
         <span className="sqc-card-eyebrow">Unlocked Solo Side Quest rewards</span>
         <h2>{soloRows.length ? "Official, Custom, and Community Solo Side Quest Coats of Arms" : "No Solo coats yet."}</h2>
         <div className="sqc-catalog">
@@ -1106,7 +1112,7 @@ export function MobileTrophyCabinetScreen({
         </div>
       </section>
 
-      <section className="sqc-native-card" aria-label="Official Solo Side Quest collection">
+      <section className="sqc-native-card sqc-trophy-collection-summary" aria-label="Official Solo Side Quest collection">
         <span className="sqc-card-eyebrow">Official Solo Side Quest collection</span>
         <h2>{completedSoloCount} of {officialSoloCount} official Side Quest coats unlocked.</h2>
         <p>Locked official coats are previews. Custom and Community Solo Side Quest rewards appear above when earned.</p>
