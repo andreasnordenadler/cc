@@ -2081,6 +2081,10 @@ body::after {
   padding-top: 70px;
 }
 
+.sqc-support-overview {
+  display: contents;
+}
+
 .sqc-screen-emblem.support {
   min-height: 118px;
 }
@@ -8044,6 +8048,139 @@ body::after {
     outline-offset: 3px;
   }
 
+  /* Support keeps Android's help topics, diagnostics, privacy boundaries, and
+     message composer in one subtree while desktop exposes a scannable triage desk. */
+  .sqc-mobile-web.desktop-support .sqc-desktop-route-only { display: block; }
+
+  .sqc-mobile-web.desktop-support {
+    display: block;
+    min-height: 100vh;
+    padding: 0;
+    background:
+      radial-gradient(circle at 16% 10%, rgba(245, 200, 106, .13), transparent 27%),
+      radial-gradient(circle at 86% 22%, rgba(255, 122, 102, .075), transparent 29%),
+      linear-gradient(180deg, #2a1718 0%, #171011 38%, #080708 78%, #050506 100%);
+  }
+
+  .sqc-mobile-web.desktop-support > div:not(.sqc-mobile-backdrop):not(.sqc-desktop-route-only) > :is(.sqc-menu, .sqc-app-header, .sqc-close-screen),
+  .sqc-mobile-web.desktop-support .sqc-guest-nav { display: none; }
+
+  .sqc-mobile-web.desktop-support .sqc-screen {
+    width: min(1280px, calc(100% - 64px));
+    margin: 0 auto;
+    padding: 48px 0 88px;
+  }
+
+  .sqc-mobile-web.desktop-support .sqc-support-screen {
+    display: grid;
+    grid-template-columns: minmax(320px, .72fr) minmax(0, 1.28fr);
+    align-items: start;
+    gap: 22px 28px;
+    padding-top: 0;
+  }
+
+  .sqc-mobile-web.desktop-support .sqc-support-overview {
+    grid-column: 1;
+    grid-row: 1 / span 2;
+    position: sticky;
+    top: 108px;
+    display: grid;
+    gap: 14px;
+    padding: 26px;
+    border: 1px solid rgba(245, 200, 106, .18);
+    border-radius: 28px;
+    background: linear-gradient(150deg, rgba(82, 45, 40, .82), rgba(17, 13, 14, .9));
+    box-shadow: 0 28px 72px rgba(0, 0, 0, .28);
+  }
+
+  .sqc-mobile-web.desktop-support .sqc-screen-emblem.support {
+    min-height: 150px;
+    padding: 0;
+  }
+
+  .sqc-mobile-web.desktop-support .sqc-support-hero {
+    justify-items: start;
+    text-align: left;
+  }
+
+  .sqc-mobile-web.desktop-support .sqc-support-hero h2 {
+    font-family: ui-serif, Georgia, Cambria, "Times New Roman", serif;
+    font-size: 30px;
+  }
+
+  .sqc-mobile-web.desktop-support .sqc-support-hero p { width: auto; }
+
+  .sqc-mobile-web.desktop-support .sqc-support-quick,
+  .sqc-mobile-web.desktop-support .sqc-support-diagnostics {
+    border-radius: 16px;
+  }
+
+  .sqc-mobile-web.desktop-support .sqc-support-row-list {
+    grid-column: 2;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+    overflow: visible;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+  }
+
+  .sqc-mobile-web.desktop-support .sqc-support-row {
+    min-height: 164px;
+    align-content: start;
+    gap: 12px;
+    padding: 22px;
+    border: 1px solid rgba(255, 247, 232, .1);
+    border-radius: 20px;
+    background: rgba(9, 8, 10, .66);
+    transition: transform 150ms ease, border-color 150ms ease, background 150ms ease;
+  }
+
+  .sqc-mobile-web.desktop-support .sqc-support-row + .sqc-support-row { border-top: 1px solid rgba(255, 247, 232, .1); }
+  .sqc-mobile-web.desktop-support .sqc-support-row:hover {
+    border-color: rgba(245, 200, 106, .28);
+    background: rgba(245, 200, 106, .065);
+    transform: translateY(-2px);
+  }
+
+  .sqc-mobile-web.desktop-support .sqc-support-row h3 {
+    font-family: ui-serif, Georgia, Cambria, "Times New Roman", serif;
+    font-size: 22px;
+  }
+
+  .sqc-mobile-web.desktop-support .sqc-support-card {
+    min-width: 0;
+    padding: 24px;
+    border-radius: 22px;
+  }
+
+  .sqc-mobile-web.desktop-support .sqc-support-screen > .sqc-support-card:not(.sqc-support-report) { grid-column: 1; }
+
+  .sqc-mobile-web.desktop-support .sqc-support-report {
+    grid-column: 2;
+    gap: 14px;
+    border-color: rgba(245, 200, 106, .27);
+    background: linear-gradient(145deg, rgba(245, 200, 106, .1), rgba(10, 8, 11, .74));
+  }
+
+  .sqc-mobile-web.desktop-support .sqc-support-report h3 {
+    margin: 0;
+    font-family: ui-serif, Georgia, Cambria, "Times New Roman", serif;
+    font-size: 26px;
+    line-height: 1.08;
+  }
+
+  .sqc-mobile-web.desktop-support .sqc-support-form {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .sqc-mobile-web.desktop-support .sqc-support-form :is(label, textarea, .sqc-inline-success, .sqc-inline-error) { grid-column: 1 / -1; }
+  .sqc-mobile-web.desktop-support :is(a, summary, button, textarea):focus-visible {
+    outline: 3px solid rgba(245, 200, 106, .84);
+    outline-offset: 3px;
+  }
+
   /* The Trophy Cabinet keeps the Android reward contracts and one set of links,
      but presents them as a wide desktop collection instead of a narrow card stack. */
   .sqc-mobile-web.desktop-trophy-cabinet .sqc-desktop-route-only {
@@ -8318,5 +8455,10 @@ body::after {
 
   .sqc-mobile-web.desktop-account .sqc-account-row {
     transition: none !important;
+  }
+
+  .sqc-mobile-web.desktop-support .sqc-support-row {
+    transition: none !important;
+    transform: none !important;
   }
 }

@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import MobileAppWebShell, { desktopHomeMenuItems, mobileWebMenuItems, MobileCommunitySideQuestsScreen, MobileCreateCustomScreen, MobileCreateMultiplayerScreen, MobileCustomSideQuestsScreen, MobileMultiplayerSideQuestsScreen, MobileSoloSideQuestsScreen, MobileTrophyCabinetScreen } from "../src/components/mobile-app-web-shell";
+import MobileAppWebShell, { desktopHomeMenuItems, mobileWebMenuItems, MobileCommunitySideQuestsScreen, MobileCreateCustomScreen, MobileCreateMultiplayerScreen, MobileCustomSideQuestsScreen, MobileMultiplayerSideQuestsScreen, MobileSoloSideQuestsScreen, MobileSupportScreen, MobileTrophyCabinetScreen } from "../src/components/mobile-app-web-shell";
 import { CHALLENGES } from "../src/lib/challenges";
 
 test("desktop home menu preserves the app menu labels, destinations, and order", () => {
@@ -575,6 +575,39 @@ test("Account becomes one desktop command center while preserving the mobile acc
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-account\s+\.sqc-account-progress\s*\{[^}]*grid-column:\s*8\s*\/\s*-1;/);
   assert.match(reducedMotion, /\.sqc-mobile-web\.desktop-account\s+\.sqc-account-row\s*\{[^}]*transition:\s*none\s*!important;/);
   assert.equal(css.replace(desktopMedia, "").replace(reducedMotion, "").includes(".sqc-mobile-web.desktop-account"), false, "desktop Account rules must not leak below 1180px");
+});
+
+test("Help and Support uses persistent desktop navigation without duplicating its support content", () => {
+  const html = renderToStaticMarkup(
+    createElement(
+      MobileAppWebShell,
+      { activeTab: "account", signedIn: false, desktopPresentation: "support", modalPresentation: true },
+      createElement(MobileSupportScreen, { signedIn: false }),
+    ),
+  );
+
+  assert.match(html, /class="sqc-mobile-web desktop-support signed-out"/);
+  assert.match(html, /class="sqc-desktop-route-only"/);
+  assert.match(html, /<a[^>]*aria-current="page"[^>]*href="\/support"><span[^>]*><\/span>Help &amp; Support<\/a>/);
+  assert.equal(html.match(/aria-label="Help topics"/g)?.length, 1, "desktop and mobile share one support-content subtree");
+  assert.doesNotMatch(html, /sqc-desktop-support-intro/, "desktop composition must not invent support content beyond the Android contract");
+  assert.equal(html.match(/>How can we help\?<\/h2>/g)?.length, 1, "the Android support heading remains the single visible content authority");
+});
+
+test("Help and Support becomes a wide triage workspace only at the desktop boundary", () => {
+  const css = readFileSync("src/app/mobile-web.css", "utf8");
+  const route = readFileSync("src/app/support/page.tsx", "utf8");
+  const desktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1180px)"));
+  const reducedMotion = readCssBlock(css, css.lastIndexOf("@media (prefers-reduced-motion: reduce)"));
+
+  assert.match(route, /desktopPresentation="support"/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-support\s+\.sqc-screen\s*\{[^}]*width:\s*min\(1280px,\s*calc\(100%\s*-\s*64px\)\)/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-support\s+\.sqc-support-screen\s*\{[^}]*grid-template-columns:\s*minmax\(320px,\s*\.72fr\)\s+minmax\(0,\s*1\.28fr\);/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-support\s+\.sqc-support-row-list\s*\{[^}]*grid-template-columns:\s*repeat\(2,\s*minmax\(0,\s*1fr\)\);/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-support\s+\.sqc-support-report\s*\{[^}]*grid-column:\s*2;/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-support\s+\.sqc-support-overview\s*\{[^}]*position:\s*sticky;/);
+  assert.match(reducedMotion, /\.sqc-mobile-web\.desktop-support\s+\.sqc-support-row\s*\{[^}]*transition:\s*none\s*!important;/);
+  assert.equal(css.replace(desktopMedia, "").replace(reducedMotion, "").includes(".sqc-mobile-web.desktop-support"), false, "desktop Support rules must not leak below 1180px");
 });
 
 function readCssBlock(css: string, start: number) {

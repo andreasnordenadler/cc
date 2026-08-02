@@ -40,7 +40,7 @@ type AppTab = "home" | "sideQuests" | "multiplayerSideQuests" | "coatOfArms" | "
 type MobileAppWebShellProps = {
   activeTab: AppTab;
   signedIn: boolean;
-  desktopPresentation?: "solo-discovery" | "community-discovery" | "multiplayer-discovery" | "multiplayer-detail" | "multiplayer-create" | "custom-library" | "custom-detail" | "custom-editor" | "official-detail" | "community-detail" | "trophy-cabinet" | "account";
+  desktopPresentation?: "solo-discovery" | "community-discovery" | "multiplayer-discovery" | "multiplayer-detail" | "multiplayer-create" | "custom-library" | "custom-detail" | "custom-editor" | "official-detail" | "community-detail" | "trophy-cabinet" | "account" | "support";
   displayName?: string | null;
   profileImageUrl?: string | null;
   lichessUsername?: string | null;
@@ -233,7 +233,7 @@ export default function MobileAppWebShell({
             signedIn={signedIn}
             displayName={displayName}
             activeTab={desktopPresentation.startsWith("community-") || desktopPresentation.startsWith("custom-") || desktopPresentation === "multiplayer-create" ? null : activeTab}
-            activeItemId={desktopPresentation === "custom-editor" ? "createCustom" : desktopPresentation === "multiplayer-create" ? "createMultiplayer" : desktopPresentation.startsWith("custom-") ? "custom" : undefined}
+            activeItemId={desktopPresentation === "custom-editor" ? "createCustom" : desktopPresentation === "multiplayer-create" ? "createMultiplayer" : desktopPresentation === "support" ? "support" : desktopPresentation.startsWith("custom-") ? "custom" : undefined}
           />
         </div>
       ) : null}
@@ -956,35 +956,37 @@ export function MobileSupportScreen({
 
   return (
     <div className="sqc-stack sqc-support-screen">
-      <div className="sqc-screen-emblem support" aria-hidden="true">
-        <Image className="sqc-screen-emblem-glow" alt="" src={mobileAsset.coatGlow} width={166} height={176} priority />
-        <Image className="sqc-screen-emblem-image" alt="" src={mobileAsset.coat} width={132} height={148} priority />
+      <div className="sqc-support-overview">
+        <div className="sqc-screen-emblem support" aria-hidden="true">
+          <Image className="sqc-screen-emblem-glow" alt="" src={mobileAsset.coatGlow} width={166} height={176} priority />
+          <Image className="sqc-screen-emblem-image" alt="" src={mobileAsset.coat} width={132} height={148} priority />
+        </div>
+
+        <section className="sqc-support-hero" aria-label="Help and Support">
+          <span className="sqc-card-eyebrow">Help & Support</span>
+          <h2>How can we help?</h2>
+          <p>New to Side Quest Chess? Start here for Side Quests, proof, chess usernames, and Multiplayer.</p>
+        </section>
+
+        <section className="sqc-support-quick" aria-label="Quick answers">
+          <h3>Quick answers</h3>
+          <p>Side Quest Chess checks public Lichess or Chess.com games after you choose a Side Quest or join a Multiplayer Side Quest. If proof looks wrong, wait until the game is fully finished and refresh proof.</p>
+        </section>
+
+        <details className="sqc-support-diagnostics">
+          <summary>
+            <span>
+              <b>App diagnostics</b>
+              <small>Only needed if support asks for your build details.</small>
+            </span>
+          </summary>
+          <p><strong>Web app</strong></p>
+          <p>{accountContext ? `Signed in as ${accountContext.displayName ?? "Quest runner"}.` : "Not signed in."}</p>
+          <p>Lichess: {accountContext?.lichessUsername ?? "not connected"} · Chess.com: {accountContext?.chessComUsername ?? "not connected"}</p>
+          <p>Active Solo: {accountContext?.activeSoloQuestTitle ?? "none"} · Active Multiplayer: {accountContext?.activeMultiplayerQuestCount ?? 0} · Public hosted: {accountContext?.publicHostedMultiplayerQuestCount ?? 0}</p>
+          {!signedIn ? <SupportDiagnosticsCopy accountContext={accountContext} /> : null}
+        </details>
       </div>
-
-      <section className="sqc-support-hero" aria-label="Help and Support">
-        <span className="sqc-card-eyebrow">Help & Support</span>
-        <h2>How can we help?</h2>
-        <p>New to Side Quest Chess? Start here for Side Quests, proof, chess usernames, and Multiplayer.</p>
-      </section>
-
-      <section className="sqc-support-quick" aria-label="Quick answers">
-        <h3>Quick answers</h3>
-        <p>Side Quest Chess checks public Lichess or Chess.com games after you choose a Side Quest or join a Multiplayer Side Quest. If proof looks wrong, wait until the game is fully finished and refresh proof.</p>
-      </section>
-
-      <details className="sqc-support-diagnostics">
-        <summary>
-          <span>
-            <b>App diagnostics</b>
-            <small>Only needed if support asks for your build details.</small>
-          </span>
-        </summary>
-        <p><strong>Web app</strong></p>
-        <p>{accountContext ? `Signed in as ${accountContext.displayName ?? "Quest runner"}.` : "Not signed in."}</p>
-        <p>Lichess: {accountContext?.lichessUsername ?? "not connected"} · Chess.com: {accountContext?.chessComUsername ?? "not connected"}</p>
-        <p>Active Solo: {accountContext?.activeSoloQuestTitle ?? "none"} · Active Multiplayer: {accountContext?.activeMultiplayerQuestCount ?? 0} · Public hosted: {accountContext?.publicHostedMultiplayerQuestCount ?? 0}</p>
-        {!signedIn ? <SupportDiagnosticsCopy accountContext={accountContext} /> : null}
-      </details>
 
       <section className="sqc-support-row-list" aria-label="Help topics">
         {helpRows.map((row) => (

@@ -70,6 +70,7 @@ export default async function SupportPage({
       displayName={displayName}
       lichessUsername={lichessUsername}
       chessComUsername={chessComUsername}
+      desktopPresentation="support"
       modalPresentation
       theme={{
         backgroundTop: "#352021",
