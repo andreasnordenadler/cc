@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
 import test from "node:test";
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
@@ -17,4 +18,21 @@ test("Terms of Use has a dedicated public launch-draft destination", () => {
   assert.match(html, /href="\/privacy"/);
   assert.match(html, /href="\/support"/);
   assert.doesNotMatch(html, /NEXT_REDIRECT/);
+});
+
+test("Terms of Use becomes a desktop document workspace at the established boundary", async () => {
+  const html = renderToStaticMarkup(React.createElement(TermsPage));
+  const css = await readFile(new URL("../src/app/globals.css", import.meta.url), "utf8");
+  const desktopMedia = css.match(/@media \(min-width: 1180px\) \{[\s\S]*?\/\* End desktop Terms workspace \*\/[\s\S]*?\}/)?.[0] ?? "";
+
+  assert.match(html, /class="privacy-policy terms-policy"/);
+  assert.match(html, /class="terms-rail"/);
+  assert.match(html, /class="terms-document-grid"/);
+  assert.equal(html.match(/aria-label="Terms of Use sections"/g)?.length, 1, "desktop and mobile share one navigation subtree");
+  assert.equal(html.match(/<section /g)?.length, 8, "the desktop composition preserves every terms section");
+  assert.match(desktopMedia, /\.terms-policy\s*\{[^}]*width:\s*min\(1320px,\s*100%\)[^}]*grid-template-columns:\s*minmax\(300px,\s*\.7fr\)\s+minmax\(0,\s*1\.8fr\)/);
+  assert.match(desktopMedia, /\.terms-rail\s*\{[^}]*position:\s*sticky[^}]*top:\s*32px/);
+  assert.match(desktopMedia, /\.terms-document-grid\s*\{[^}]*grid-template-columns:\s*repeat\(2,\s*minmax\(0,\s*1fr\)\)/);
+  assert.match(desktopMedia, /\.terms-document-grid\s+\.privacy-contact\s*\{[^}]*grid-column:\s*1\s*\/\s*-1/);
+  assert.equal(css.replace(desktopMedia, "").includes(".terms-policy"), false, "Terms workspace rules must not alter mobile web below 1180px");
 });
