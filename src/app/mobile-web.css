@@ -7953,6 +7953,12 @@ body::after {
     border-radius: 16px;
   }
 
+  .sqc-mobile-web.desktop-trophy-cabinet.signed-out .sqc-trophy-solo-rewards .sqc-row-status {
+    border: 1px solid rgba(245, 200, 106, .34);
+    background: rgba(245, 200, 106, .16);
+    color: #f5c86a;
+  }
+
   .sqc-mobile-web.desktop-trophy-cabinet .sqc-coat-grid {
     grid-column: 1 / -1;
     display: grid;
