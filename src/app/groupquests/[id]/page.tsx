@@ -39,6 +39,7 @@ export default async function GroupQuestDetailPage({
     <MobileAppWebShell
       activeTab="multiplayerSideQuests"
       signedIn={Boolean(user)}
+      desktopPresentation="multiplayer-detail"
       displayName={displayName}
       lichessUsername={getLichessUsername(metadata)}
       chessComUsername={getChessComUsername(metadata)}
