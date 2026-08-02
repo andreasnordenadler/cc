@@ -7497,6 +7497,155 @@ body::after {
     outline-offset: 3px;
   }
 
+  .sqc-mobile-web.desktop-multiplayer-detail .sqc-desktop-route-only {
+    display: block;
+  }
+
+  .sqc-mobile-web.desktop-multiplayer-detail {
+    display: block;
+    min-height: 100vh;
+    padding: 0;
+    background:
+      radial-gradient(circle at 16% 8%, rgba(245, 200, 106, .12), transparent 30%),
+      linear-gradient(180deg, #25180f 0%, #15100d 38%, #070708 100%);
+  }
+
+  .sqc-mobile-web.desktop-multiplayer-detail > div:not(.sqc-mobile-backdrop):not(.sqc-desktop-route-only) > :is(.sqc-menu, .sqc-app-header, .sqc-close-screen),
+  .sqc-mobile-web.desktop-multiplayer-detail .sqc-guest-nav {
+    display: none;
+  }
+
+  .sqc-mobile-web.desktop-multiplayer-detail .sqc-screen {
+    width: min(1280px, calc(100% - 64px));
+    margin: 0 auto;
+    padding: 46px 0 96px;
+  }
+
+  .sqc-mobile-web.desktop-multiplayer-detail .sqc-multiplayer-public-detail-screen {
+    display: grid;
+    grid-template-columns: minmax(0, 1.45fr) minmax(360px, .55fr);
+    align-items: start;
+    gap: 18px 24px;
+  }
+
+  .sqc-mobile-web.desktop-multiplayer-detail .sqc-multiplayer-detail-hero {
+    grid-column: 1 / -1;
+    min-height: 294px;
+    display: grid;
+    grid-template-columns: 250px minmax(0, 1fr);
+    grid-template-rows: auto auto auto auto;
+    align-content: center;
+    justify-items: start;
+    gap: 10px 44px;
+    padding: 32px 46px;
+    border: 1px solid rgba(245, 200, 106, .2);
+    border-radius: 30px;
+    background:
+      radial-gradient(circle at 14% 50%, rgba(245, 200, 106, .18), transparent 25%),
+      linear-gradient(135deg, rgba(255, 247, 232, .09), rgba(255, 247, 232, .025));
+    box-shadow: 0 28px 80px rgba(0, 0, 0, .24);
+    text-align: left;
+  }
+
+  .sqc-mobile-web.desktop-multiplayer-detail .sqc-multiplayer-detail-hero > .sqc-section-mark {
+    grid-column: 1;
+    grid-row: 1 / span 4;
+    align-self: center;
+    width: 226px;
+    height: 226px;
+    min-height: 226px;
+    margin: 0;
+  }
+
+  .sqc-mobile-web.desktop-multiplayer-detail .sqc-multiplayer-detail-hero > :not(.sqc-section-mark) {
+    grid-column: 2;
+  }
+
+  .sqc-mobile-web.desktop-multiplayer-detail .sqc-section-mark.group .sqc-mark-glow {
+    width: 232px;
+    height: 232px;
+  }
+
+  .sqc-mobile-web.desktop-multiplayer-detail .sqc-section-mark.group .sqc-mark-image {
+    width: 188px;
+    height: 188px;
+  }
+
+  .sqc-mobile-web.desktop-multiplayer-detail .sqc-multiplayer-detail-hero h1 {
+    max-width: 760px;
+    font-family: ui-serif, Georgia, Cambria, "Times New Roman", serif;
+    font-size: clamp(42px, 4vw, 58px);
+    line-height: 1;
+    letter-spacing: -.04em;
+  }
+
+  .sqc-mobile-web.desktop-multiplayer-detail .sqc-multiplayer-detail-hero p {
+    max-width: 700px;
+    color: rgba(255, 247, 232, .72);
+    font-size: 17px;
+    line-height: 1.52;
+  }
+
+  .sqc-mobile-web.desktop-multiplayer-detail .sqc-multiplayer-score-grid {
+    grid-column: 1;
+  }
+
+  .sqc-mobile-web.desktop-multiplayer-detail .sqc-multiplayer-score-grid > div {
+    min-height: 96px;
+    align-content: center;
+    border-radius: 18px;
+  }
+
+  .sqc-mobile-web.desktop-multiplayer-detail .sqc-multiplayer-public-detail-screen > .sqc-native-card {
+    grid-column: 1;
+    gap: 14px;
+    padding: 26px 28px;
+    border-radius: 24px;
+  }
+
+  .sqc-mobile-web.desktop-multiplayer-detail .sqc-multiplayer-public-detail-screen > .sqc-native-card h2 {
+    font-family: ui-serif, Georgia, Cambria, "Times New Roman", serif;
+    font-size: 27px;
+    line-height: 1.1;
+  }
+
+  .sqc-mobile-web.desktop-multiplayer-detail .sqc-multiplayer-public-detail-screen > .sqc-multiplayer-primary-action {
+    grid-column: 2;
+    grid-row: 2 / span 2;
+    position: sticky;
+    top: 112px;
+    z-index: 2;
+    padding: 30px;
+    border-color: rgba(245, 200, 106, .34);
+    background: linear-gradient(150deg, rgba(92, 61, 35, .72), rgba(28, 21, 20, .92));
+    box-shadow: 0 24px 60px rgba(0, 0, 0, .28);
+  }
+
+  .sqc-mobile-web.desktop-multiplayer-detail .sqc-multiplayer-public-detail-screen > .sqc-multiplayer-share-card {
+    grid-column: 2;
+  }
+
+  .sqc-mobile-web.desktop-multiplayer-detail .sqc-multiplayer-quest-list {
+    grid-column: 1;
+  }
+
+  .sqc-mobile-web.desktop-multiplayer-detail .sqc-multiplayer-leaderboard,
+  .sqc-mobile-web.desktop-multiplayer-detail .sqc-multiplayer-rules {
+    grid-column: 1;
+  }
+
+  .sqc-mobile-web.desktop-multiplayer-detail .sqc-condition-compact-row {
+    min-height: 82px;
+    align-items: center;
+    padding: 14px 16px;
+    border-radius: 16px;
+  }
+
+  .sqc-mobile-web.desktop-multiplayer-detail :is(a, summary, button):focus-visible {
+    outline: 3px solid rgba(245, 200, 106, .84);
+    outline-offset: 3px;
+  }
+
   .sqc-mobile-web.desktop-custom-detail :is(a, summary, button, input):focus-visible,
   .sqc-mobile-web.desktop-custom-editor :is(a, summary, button, input, textarea, select):focus-visible {
     outline: 3px solid rgba(96, 240, 175, .82);

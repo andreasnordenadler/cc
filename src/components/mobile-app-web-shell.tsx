@@ -40,7 +40,7 @@ type AppTab = "home" | "sideQuests" | "multiplayerSideQuests" | "coatOfArms" | "
 type MobileAppWebShellProps = {
   activeTab: AppTab;
   signedIn: boolean;
-  desktopPresentation?: "solo-discovery" | "community-discovery" | "multiplayer-discovery" | "custom-library" | "custom-detail" | "custom-editor" | "official-detail" | "community-detail";
+  desktopPresentation?: "solo-discovery" | "community-discovery" | "multiplayer-discovery" | "multiplayer-detail" | "custom-library" | "custom-detail" | "custom-editor" | "official-detail" | "community-detail";
   displayName?: string | null;
   profileImageUrl?: string | null;
   lichessUsername?: string | null;
@@ -1808,7 +1808,7 @@ export function MobileMultiplayerDetailScreen({
         </section>
       ) : null}
 
-      <section className="sqc-native-card sqc-multiplayer-native-card">
+      <section className="sqc-native-card sqc-multiplayer-native-card sqc-multiplayer-primary-action">
         <span className="sqc-card-eyebrow">{quest.lifecycle === "finished" ? "Receipts locked" : participating ? "Next action" : signedIn ? "Join first" : "Sign in first"}</span>
         <h2>{quest.lifecycle === "finished" ? "Final standings are frozen." : participating ? "Refresh proof after your next eligible game." : hostedNeedsJoin ? "Join your Multiplayer Side Quest before playing your proof game." : "Join this Multiplayer Side Quest before playing your proof game."}</h2>
         <p>{quest.lifecycle === "finished" ? "The event window has ended, so Side Quest Chess keeps the leaderboard as the final proof record." : participating ? "Side Quest Chess checks only fresh public games inside this Multiplayer window." : "You can inspect the quests and rules below before joining."}</p>
@@ -1848,14 +1848,14 @@ export function MobileMultiplayerDetailScreen({
         <GroupQuestInviteKeyControl inviteKey={quest.inviteKey} />
       ) : null}
 
-      <section className="sqc-native-card sqc-multiplayer-native-card">
+      <section className="sqc-native-card sqc-multiplayer-native-card sqc-multiplayer-share-card">
         <span className="sqc-card-eyebrow">Share</span>
         <h2>Send this Multiplayer Side Quest to another player.</h2>
         <GroupQuestShareControls id={quest.id} title={quest.title} isOwner={joinState.kind === "hosted"} />
       </section>
 
       {quest.lifecycle === "finished" ? (
-        <section className="sqc-native-card sqc-multiplayer-native-card" aria-label="Final leaderboard">
+        <section className="sqc-native-card sqc-multiplayer-native-card sqc-multiplayer-leaderboard" aria-label="Final leaderboard">
           <span className="sqc-card-eyebrow">Final leaderboard</span>
           <h2>Frozen player standings.</h2>
           <div className="sqc-condition-list">
@@ -1898,7 +1898,7 @@ export function MobileMultiplayerDetailScreen({
         </section>
       ) : null}
 
-      <section className="sqc-native-card sqc-multiplayer-native-card">
+      <section className="sqc-native-card sqc-multiplayer-native-card sqc-multiplayer-quest-list">
         <span className="sqc-card-eyebrow">Quests in this Multiplayer Side Quest</span>
         <h2>{quest.quests.length} Side Quests to complete.</h2>
         <div className="sqc-condition-list">
@@ -1950,7 +1950,7 @@ export function MobileMultiplayerDetailScreen({
       </section>
 
       {quest.lifecycle === "open" ? (
-        <section className="sqc-native-card sqc-multiplayer-native-card" aria-label="Live leaderboard">
+        <section className="sqc-native-card sqc-multiplayer-native-card sqc-multiplayer-leaderboard" aria-label="Live leaderboard">
           <span className="sqc-card-eyebrow">Leaderboard</span>
           <h2>{participating ? "Current Multiplayer Side Quest standings." : "Who is in so far."}</h2>
           <div className="sqc-condition-list">
@@ -1978,7 +1978,7 @@ export function MobileMultiplayerDetailScreen({
         </section>
       ) : null}
 
-      <section className="sqc-native-card sqc-multiplayer-native-card">
+      <section className="sqc-native-card sqc-multiplayer-native-card sqc-multiplayer-rules">
         <span className="sqc-card-eyebrow">Rules and time</span>
         <div className="sqc-multiplayer-rule-list">
           {quest.rules.map(([label, value]) => (
