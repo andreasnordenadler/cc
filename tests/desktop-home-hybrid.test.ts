@@ -474,6 +474,26 @@ test("Multiplayer creation becomes one desktop planning workspace without duplic
   assert.match(html, /class="sqc-native-card sqc-create-catalog-card"/);
 });
 
+test("Multiplayer creation keeps status and error feedback ahead of its desktop action", () => {
+  const html = renderToStaticMarkup(
+    createElement(MobileCreateMultiplayerScreen, {
+      signedIn: false,
+      communityUnavailable: true,
+      quests: [{ id: "official-one", title: "Any Game Counts", summary: "Finish a game.", source: "official", sourceLabel: "Official" }],
+    }),
+  );
+  const css = readFileSync("src/app/mobile-web.css", "utf8");
+  const form = readFileSync("src/components/mobile-multiplayer-create-form.tsx", "utf8");
+  const desktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1180px)"));
+
+  assert.match(html, /class="sqc-native-card sqc-create-community-notice" role="status"/);
+  assert.ok(html.indexOf("sqc-create-community-notice") < html.indexOf("sqc-create-footer-bar"), "community status stays before the action in reading order");
+  assert.match(form, /className="groupquest-join-error sqc-create-error" role="alert"/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-multiplayer-create\s+\.sqc-hydration-gate\s*\{[^}]*grid-auto-flow:\s*row dense;/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-multiplayer-create\s+:is\(\.sqc-create-community-notice,\s*\.sqc-create-error\)\s*\{[^}]*grid-column:\s*1\s*\/\s*-1;/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-multiplayer-create\s+\.sqc-create-catalog-card\s*\{[^}]*grid-column:\s*2;[^}]*grid-row:\s*span\s*2;/);
+});
+
 test("Multiplayer creation becomes a wide two-column planner only at the desktop boundary", () => {
   const css = readFileSync("src/app/mobile-web.css", "utf8");
   const route = readFileSync("src/app/create-multiplayer-side-quest/page.tsx", "utf8");
@@ -485,7 +505,7 @@ test("Multiplayer creation becomes a wide two-column planner only at the desktop
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-multiplayer-create\s+\.sqc-create-multiplayer-hero\s*\{[^}]*grid-template-columns:\s*200px\s+minmax\(0,\s*1fr\);/);
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-multiplayer-create\s+\.sqc-hydration-gate\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1\.15fr\)\s+minmax\(420px,\s*\.85fr\);/);
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-multiplayer-create\s+\.sqc-create-setup-card\s+\.sqc-option-grid\s*\{[^}]*grid-template-columns:\s*repeat\(3,\s*minmax\(0,\s*1fr\)\);/);
-  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-multiplayer-create\s+\.sqc-create-catalog-card\s*\{[^}]*grid-column:\s*2;[^}]*grid-row:\s*1\s*\/\s*span\s*2;/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-multiplayer-create\s+\.sqc-create-catalog-card\s*\{[^}]*grid-column:\s*2;[^}]*grid-row:\s*span\s*2;/);
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-multiplayer-create\s+\.sqc-create-footer-bar\s*\{[^}]*grid-column:\s*1\s*\/\s*-1;[^}]*position:\s*static;/, "the creation action must not cover setup or catalog controls");
   assert.equal(css.replace(desktopMedia, "").includes(".sqc-mobile-web.desktop-multiplayer-create"), false, "desktop Multiplayer create rules must not leak below 1180px");
 });
