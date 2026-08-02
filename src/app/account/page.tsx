@@ -121,6 +121,7 @@ export default async function AccountPage() {
       profileImageUrl={user?.imageUrl ?? null}
       lichessUsername={lichessUsername}
       chessComUsername={chessComUsername}
+      desktopPresentation="account"
       controlsOnlyHeader
     >
       {user ? (
@@ -179,7 +180,7 @@ function SignedInAccountScreen({
 
   return (
     <div className="sqc-account-stack">
-      <section className="sqc-account-hero">
+      <section className="sqc-account-hero sqc-account-overview">
         <p className="sqc-account-kicker">My Account</p>
         <div className="sqc-account-identity-card">
           <span className="sqc-account-avatar">
@@ -205,7 +206,7 @@ function SignedInAccountScreen({
         </div>
       </section>
 
-      <AccountSection title="Your Side Quests" action={{ label: "Browse Solo", href: "/side-quests" }}>
+      <AccountSection className="sqc-account-quests" title="Your Side Quests" action={{ label: "Browse Solo", href: "/side-quests" }}>
         <AccountSoloRow
           activeChallenge={activeChallenge}
           checkedAt={activeAttempt?.checkedAt ?? activeChallenge?.verifiedAt}
@@ -217,7 +218,7 @@ function SignedInAccountScreen({
         <AccountCustomQuestRows customSideQuests={customSideQuests} />
       </AccountSection>
 
-      <AccountSection title="Progress & Stats" action={{ label: "Details", href: "/trophy-cabinet" }}>
+      <AccountSection className="sqc-account-progress" title="Progress & Stats" action={{ label: "Details", href: "/trophy-cabinet" }}>
         <div className="sqc-account-stats-panel">
           <div className="sqc-account-metric-grid">
             <Metric label="Completed" value={accountStats?.completedCount ?? 0} />
@@ -230,7 +231,7 @@ function SignedInAccountScreen({
         </div>
       </AccountSection>
 
-      <AccountSection title="Chess Strength">
+      <AccountSection className="sqc-account-strength" title="Chess Strength">
         <div className="sqc-chess-strength-card">
           <p className="sqc-account-kicker">Chess Strength</p>
           <h2>Public chess ratings</h2>
@@ -242,7 +243,7 @@ function SignedInAccountScreen({
         </div>
       </AccountSection>
 
-      <AccountSection title="Trophy Cabinet" action={{ label: "Open Trophy Cabinet", href: "/trophy-cabinet" }}>
+      <AccountSection className="sqc-account-trophies" title="Trophy Cabinet" action={{ label: "Open Trophy Cabinet", href: "/trophy-cabinet" }}>
         {trophyRows.length ? (
           trophyRows.map((row) => (
             <AccountRow
@@ -266,14 +267,16 @@ function SignedInAccountScreen({
         )}
       </AccountSection>
 
-      <ProfileEditorCard
-        displayName={displayName}
-        runnerBio={getRunnerBio(metadata)}
-        lichessUsername={lichessUsername}
-        chessComUsername={chessComUsername}
-      />
+      <div className="sqc-account-profile-editor">
+        <ProfileEditorCard
+          displayName={displayName}
+          runnerBio={getRunnerBio(metadata)}
+          lichessUsername={lichessUsername}
+          chessComUsername={chessComUsername}
+        />
+      </div>
 
-      <AccountSection title="Help & Support" action={{ label: "Open", href: "/support" }}>
+      <AccountSection className="sqc-account-support" title="Help & Support" action={{ label: "Open", href: "/support" }}>
         <AccountRow
           title="How Side Quest Chess works"
           meta="Start here for Side Quests, proof, chess usernames, and Multiplayer."
@@ -290,20 +293,41 @@ function SignedInAccountScreen({
         />
       </AccountSection>
 
-      <DeleteAccountControl />
-      <AccountLogoutButton />
+      <div className="sqc-account-security">
+        <DeleteAccountControl />
+        <AccountLogoutButton />
+      </div>
     </div>
   );
 }
 
 function SignedOutAccountScreen() {
   return (
-    <div className="sqc-account-stack">
-      <section className="sqc-account-hero">
-        <p className="sqc-account-kicker">My Account</p>
-        <h1>Sign in to sync your board.</h1>
-        <p className="sqc-account-copy">Sign in to save Side Quest progress, latest proof, Coat of Arms unlocks, and connected chess usernames.</p>
-        <CurrentPageSignInLink className="sqc-primary-action">Choose sign-in method</CurrentPageSignInLink>
+    <div className="sqc-account-stack sqc-account-signed-out">
+      <section className="sqc-account-hero sqc-account-sign-in-layout">
+        <div className="sqc-account-sign-in-copy">
+          <p className="sqc-account-kicker">My Account</p>
+          <h1>Sign in to sync your board.</h1>
+          <p className="sqc-account-copy">Sign in to save Side Quest progress, latest proof, Coat of Arms unlocks, and connected chess usernames.</p>
+          <CurrentPageSignInLink className="sqc-primary-action">Choose sign-in method</CurrentPageSignInLink>
+        </div>
+        <aside className="sqc-desktop-account-intro" aria-label="What your account keeps">
+          <Image src={mobileAsset.coat} alt="" width={154} height={172} priority />
+          <div>
+            <p className="sqc-account-kicker">Lightweight by design</p>
+            <h2>One account for every terrible chess decision.</h2>
+            <p>Side Quest Chess remembers your active quests, public-game proof, connected chess usernames, and earned heraldry.</p>
+            <ul>
+              <li>No Lichess or Chess.com password</li>
+              <li>Only public game records are checked</li>
+              <li>Browse first; sign in when you want progress saved</li>
+            </ul>
+            <div className="sqc-desktop-account-links">
+              <Link href="/side-quests">Browse Side Quests</Link>
+              <Link href="/support">How proof works</Link>
+            </div>
+          </div>
+        </aside>
       </section>
     </div>
   );
@@ -348,9 +372,9 @@ function ProfileEditorCard({
   );
 }
 
-function AccountSection({ title, action, children }: { title: string; action?: { label: string; href: string }; children: ReactNode }) {
+function AccountSection({ className, title, action, children }: { className?: string; title: string; action?: { label: string; href: string }; children: ReactNode }) {
   return (
-    <section className="sqc-account-section">
+    <section className={["sqc-account-section", className].filter(Boolean).join(" ")}>
       <div className="sqc-account-section-head">
         <h2>{title}</h2>
         {action ? <Link href={action.href}>{action.label}</Link> : null}

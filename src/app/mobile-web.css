@@ -4542,6 +4542,16 @@ body::after {
   gap: 14px;
 }
 
+.sqc-account-sign-in-copy {
+  display: grid;
+  gap: 14px;
+}
+
+.sqc-account-security {
+  display: grid;
+  gap: 14px;
+}
+
 .sqc-settings-stack {
   display: grid;
   gap: 10px;
@@ -5076,6 +5086,10 @@ body::after {
 }
 
 .sqc-desktop-trophy-intro {
+  display: none;
+}
+
+.sqc-desktop-account-intro {
   display: none;
 }
 
@@ -7817,6 +7831,219 @@ body::after {
     box-shadow: 0 20px 60px rgba(0, 0, 0, .42);
   }
 
+  /* Account keeps Android's data, actions, and reading order in one subtree,
+     but arranges that subtree as a desktop command center. */
+  .sqc-mobile-web.desktop-account .sqc-desktop-route-only { display: block; }
+
+  .sqc-mobile-web.desktop-account {
+    display: block;
+    min-height: 100vh;
+    padding: 0;
+    background:
+      radial-gradient(circle at 16% 10%, rgba(245, 200, 106, .13), transparent 27%),
+      radial-gradient(circle at 84% 18%, rgba(96, 240, 175, .075), transparent 28%),
+      linear-gradient(180deg, #251b12 0%, #14110f 38%, #08090a 78%, #050506 100%);
+  }
+
+  .sqc-mobile-web.desktop-account > div:not(.sqc-mobile-backdrop):not(.sqc-desktop-route-only) > :is(.sqc-menu, .sqc-app-header, .sqc-close-screen),
+  .sqc-mobile-web.desktop-account .sqc-guest-nav { display: none; }
+
+  .sqc-mobile-web.desktop-account .sqc-screen {
+    width: min(1280px, calc(100% - 64px));
+    margin: 0 auto;
+    padding: 48px 0 84px;
+  }
+
+  .sqc-mobile-web.desktop-account .sqc-account-stack {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    align-items: start;
+    gap: 24px;
+  }
+
+  .sqc-mobile-web.desktop-account .sqc-account-signed-out {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .sqc-mobile-web.desktop-account .sqc-account-sign-in-layout {
+    min-height: 560px;
+    display: grid;
+    grid-template-columns: minmax(0, .9fr) minmax(420px, 1.1fr);
+    align-items: stretch;
+    gap: 0;
+    overflow: hidden;
+    padding: 0;
+    border-radius: 30px;
+    background: rgba(255, 247, 232, .055);
+  }
+
+  .sqc-mobile-web.desktop-account .sqc-account-sign-in-copy {
+    display: grid;
+    align-content: center;
+    justify-items: start;
+    gap: 20px;
+    padding: 64px;
+  }
+
+  .sqc-mobile-web.desktop-account .sqc-account-sign-in-copy h1 {
+    max-width: 520px;
+    font-family: ui-serif, Georgia, Cambria, "Times New Roman", serif;
+    font-size: clamp(48px, 4.2vw, 66px);
+    line-height: .96;
+    letter-spacing: -.04em;
+    text-wrap: balance;
+  }
+
+  .sqc-mobile-web.desktop-account .sqc-account-sign-in-copy .sqc-account-copy {
+    max-width: 510px;
+    font-size: 16px;
+    line-height: 1.6;
+  }
+
+  .sqc-mobile-web.desktop-account .sqc-account-sign-in-copy .sqc-primary-action {
+    width: auto;
+    min-height: 50px;
+    padding-inline: 24px;
+    border-radius: 999px;
+  }
+
+  .sqc-mobile-web.desktop-account .sqc-desktop-account-intro {
+    display: grid;
+    grid-template-columns: 180px minmax(0, 1fr);
+    align-items: center;
+    gap: 28px;
+    padding: 54px 48px;
+    border-left: 1px solid rgba(245, 200, 106, .17);
+    background:
+      radial-gradient(circle at 24% 45%, rgba(245, 200, 106, .22), transparent 28%),
+      linear-gradient(145deg, rgba(245, 200, 106, .12), rgba(4, 28, 23, .44));
+  }
+
+  .sqc-mobile-web.desktop-account .sqc-desktop-account-intro > img {
+    width: 168px;
+    height: 188px;
+    object-fit: contain;
+    filter: drop-shadow(0 24px 28px rgba(0, 0, 0, .45));
+  }
+
+  .sqc-mobile-web.desktop-account .sqc-desktop-account-intro > div { display: grid; gap: 13px; }
+
+  .sqc-mobile-web.desktop-account .sqc-desktop-account-intro h2 {
+    margin: 0;
+    font-family: ui-serif, Georgia, Cambria, "Times New Roman", serif;
+    font-size: 32px;
+    line-height: 1.05;
+    letter-spacing: -.03em;
+  }
+
+  .sqc-mobile-web.desktop-account .sqc-desktop-account-intro p,
+  .sqc-mobile-web.desktop-account .sqc-desktop-account-intro li {
+    color: rgba(255, 247, 232, .7);
+    font-size: 13px;
+    line-height: 1.55;
+  }
+
+  .sqc-mobile-web.desktop-account .sqc-desktop-account-intro p,
+  .sqc-mobile-web.desktop-account .sqc-desktop-account-intro ul { margin: 0; }
+
+  .sqc-mobile-web.desktop-account .sqc-desktop-account-intro ul {
+    display: grid;
+    gap: 7px;
+    padding-left: 18px;
+  }
+
+  .sqc-mobile-web.desktop-account .sqc-desktop-account-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 18px;
+    margin-top: 6px;
+  }
+
+  .sqc-mobile-web.desktop-account .sqc-desktop-account-links a {
+    color: var(--gold);
+    font-size: 12px;
+    font-weight: 900;
+    text-decoration: none;
+  }
+
+  .sqc-mobile-web.desktop-account .sqc-account-overview {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) minmax(360px, .8fr);
+    gap: 16px 34px;
+    padding: 30px 34px;
+    border-radius: 26px;
+  }
+
+  .sqc-mobile-web.desktop-account .sqc-account-overview > .sqc-account-kicker,
+  .sqc-mobile-web.desktop-account .sqc-account-overview > .sqc-account-identity-card { grid-column: 1; }
+
+  .sqc-mobile-web.desktop-account .sqc-account-overview > .sqc-account-copy,
+  .sqc-mobile-web.desktop-account .sqc-account-overview > .sqc-readiness-row { grid-column: 2; }
+
+  .sqc-mobile-web.desktop-account .sqc-account-overview > .sqc-account-copy { align-self: end; }
+  .sqc-mobile-web.desktop-account .sqc-account-section { gap: 10px; min-width: 0; }
+
+  .sqc-mobile-web.desktop-account .sqc-account-section-head h2,
+  .sqc-mobile-web.desktop-account .sqc-username-editor-card h1,
+  .sqc-mobile-web.desktop-account .sqc-username-editor-card h2 {
+    font-family: ui-serif, Georgia, Cambria, "Times New Roman", serif;
+    font-size: 25px;
+    line-height: 1.08;
+  }
+
+  .sqc-mobile-web.desktop-account .sqc-account-list,
+  .sqc-mobile-web.desktop-account .sqc-account-stats-panel,
+  .sqc-mobile-web.desktop-account .sqc-chess-strength-card,
+  .sqc-mobile-web.desktop-account .sqc-username-editor-card { border-radius: 22px; }
+
+  .sqc-mobile-web.desktop-account .sqc-account-row {
+    min-height: 72px;
+    padding: 12px 16px;
+    transition: background 150ms ease;
+  }
+
+  .sqc-mobile-web.desktop-account .sqc-account-row:hover { background: rgba(245, 200, 106, .075); }
+  .sqc-mobile-web.desktop-account .sqc-account-quests { grid-column: 1 / span 7; }
+  .sqc-mobile-web.desktop-account .sqc-account-progress { grid-column: 8 / -1; }
+  .sqc-mobile-web.desktop-account .sqc-account-progress .sqc-account-metric-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .sqc-mobile-web.desktop-account .sqc-account-strength { grid-column: 1 / span 7; }
+  .sqc-mobile-web.desktop-account .sqc-account-strength .sqc-rating-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .sqc-mobile-web.desktop-account .sqc-account-trophies { grid-column: 8 / -1; }
+  .sqc-mobile-web.desktop-account .sqc-account-profile-editor { grid-column: 1 / span 7; }
+
+  .sqc-mobile-web.desktop-account .sqc-account-profile-editor .sqc-username-editor-card {
+    gap: 14px;
+    padding: 24px;
+  }
+
+  .sqc-mobile-web.desktop-account .sqc-account-profile-editor .sqc-input-stack {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .sqc-mobile-web.desktop-account .sqc-account-support { grid-column: 8 / -1; }
+
+  .sqc-mobile-web.desktop-account .sqc-account-security {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 180px;
+    align-items: end;
+    gap: 16px;
+  }
+
+  .sqc-mobile-web.desktop-account .sqc-account-security .sqc-username-editor-card {
+    gap: 10px;
+    padding: 20px 24px;
+    border-color: rgba(255, 122, 102, .25);
+    background: rgba(255, 122, 102, .06);
+  }
+
+  .sqc-mobile-web.desktop-account :is(a, summary, button, input, textarea):focus-visible {
+    outline: 3px solid rgba(245, 200, 106, .84);
+    outline-offset: 3px;
+  }
+
   /* The Trophy Cabinet keeps the Android reward contracts and one set of links,
      but presents them as a wide desktop collection instead of a narrow card stack. */
   .sqc-mobile-web.desktop-trophy-cabinet .sqc-desktop-route-only {
@@ -8087,5 +8314,9 @@ body::after {
   .sqc-mobile-web.desktop-trophy-cabinet .sqc-coat-tile {
     transition: none !important;
     transform: none !important;
+  }
+
+  .sqc-mobile-web.desktop-account .sqc-account-row {
+    transition: none !important;
   }
 }

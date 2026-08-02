@@ -551,6 +551,32 @@ test("Multiplayer creation becomes a wide two-column planner only at the desktop
   assert.equal(css.replace(desktopMedia, "").includes(".sqc-mobile-web.desktop-multiplayer-create"), false, "desktop Multiplayer create rules must not leak below 1180px");
 });
 
+test("Account becomes one desktop command center while preserving the mobile account stack", () => {
+  const css = readFileSync("src/app/mobile-web.css", "utf8");
+  const route = readFileSync("src/app/account/page.tsx", "utf8");
+  const shell = readFileSync("src/components/mobile-app-web-shell.tsx", "utf8");
+  const desktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1180px)"));
+  const reducedMotion = readCssBlock(css, css.lastIndexOf("@media (prefers-reduced-motion: reduce)"));
+
+  assert.match(shell, /\| "account";/);
+  assert.match(route, /desktopPresentation="account"/);
+  assert.match(route, /className="sqc-account-stack sqc-account-signed-out"/);
+  assert.match(route, /className="sqc-desktop-account-intro"/);
+  assert.match(route, /className="sqc-account-quests"/);
+  assert.match(route, /className="sqc-account-security"/);
+  assert.match(css, /\.sqc-desktop-account-intro\s*\{[^}]*display:\s*none;/);
+  assert.match(css, /\.sqc-account-sign-in-copy\s*\{[^}]*display:\s*grid;[^}]*gap:\s*14px;/, "the wrapper preserves the existing mobile hero rhythm");
+  assert.match(css, /\.sqc-account-security\s*\{[^}]*display:\s*grid;[^}]*gap:\s*14px;/, "signed-in mobile keeps danger-zone and logout separation");
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-account\s+\.sqc-screen\s*\{[^}]*width:\s*min\(1280px,\s*calc\(100%\s*-\s*64px\)\)/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-account\s+\.sqc-account-stack\s*\{[^}]*grid-template-columns:\s*repeat\(12,\s*minmax\(0,\s*1fr\)\);/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-account\s+\.sqc-account-signed-out\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\);/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-account\s+\.sqc-account-sign-in-layout\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*\.9fr\)\s+minmax\(420px,\s*1\.1fr\);/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-account\s+\.sqc-account-quests\s*\{[^}]*grid-column:\s*1\s*\/\s*span\s*7;/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-account\s+\.sqc-account-progress\s*\{[^}]*grid-column:\s*8\s*\/\s*-1;/);
+  assert.match(reducedMotion, /\.sqc-mobile-web\.desktop-account\s+\.sqc-account-row\s*\{[^}]*transition:\s*none\s*!important;/);
+  assert.equal(css.replace(desktopMedia, "").replace(reducedMotion, "").includes(".sqc-mobile-web.desktop-account"), false, "desktop Account rules must not leak below 1180px");
+});
+
 function readCssBlock(css: string, start: number) {
   assert.notEqual(start, -1, "expected CSS block start");
   const opening = css.indexOf("{", start);
