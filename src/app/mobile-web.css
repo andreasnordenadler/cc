@@ -7647,6 +7647,174 @@ body::after {
     outline-offset: 3px;
   }
 
+  /* The Android creation contract stays intact while desktop turns the single
+     phone-width stack into a planning desk: setup and draft at left, the
+     searchable quest catalog at right, with one shared interactive form. */
+  .sqc-mobile-web.desktop-multiplayer-create .sqc-desktop-route-only {
+    display: block;
+  }
+
+  .sqc-mobile-web.desktop-multiplayer-create {
+    display: block;
+    min-height: 100vh;
+    padding: 0;
+    background:
+      radial-gradient(circle at 15% 10%, rgba(245, 200, 106, .13), transparent 29%),
+      radial-gradient(circle at 88% 24%, rgba(96, 240, 175, .045), transparent 25%),
+      linear-gradient(180deg, #26180f 0%, #15100d 36%, #070708 100%);
+  }
+
+  .sqc-mobile-web.desktop-multiplayer-create > div:not(.sqc-mobile-backdrop):not(.sqc-desktop-route-only) > :is(.sqc-menu, .sqc-app-header, .sqc-close-screen),
+  .sqc-mobile-web.desktop-multiplayer-create .sqc-guest-nav {
+    display: none;
+  }
+
+  .sqc-mobile-web.desktop-multiplayer-create .sqc-screen {
+    width: min(1280px, calc(100% - 64px));
+    margin: 0 auto;
+    padding: 46px 0 96px;
+  }
+
+  .sqc-mobile-web.desktop-multiplayer-create .sqc-create-multiplayer-screen {
+    gap: 24px;
+  }
+
+  .sqc-mobile-web.desktop-multiplayer-create .sqc-create-multiplayer-hero {
+    min-height: 238px;
+    display: grid;
+    grid-template-columns: 200px minmax(0, 1fr);
+    grid-template-rows: auto auto auto;
+    align-content: center;
+    justify-items: start;
+    gap: 8px 36px;
+    padding: 28px 44px;
+    border: 1px solid rgba(245, 200, 106, .2);
+    border-radius: 30px;
+    background:
+      radial-gradient(circle at 12% 50%, rgba(245, 200, 106, .2), transparent 24%),
+      linear-gradient(135deg, rgba(255, 247, 232, .09), rgba(255, 247, 232, .025));
+    box-shadow: 0 28px 80px rgba(0, 0, 0, .22);
+    text-align: left;
+  }
+
+  .sqc-mobile-web.desktop-multiplayer-create .sqc-create-multiplayer-hero > .sqc-section-mark {
+    grid-column: 1;
+    grid-row: 1 / span 3;
+    align-self: center;
+    width: 176px;
+    height: 176px;
+    margin: 0;
+  }
+
+  .sqc-mobile-web.desktop-multiplayer-create .sqc-create-multiplayer-hero > :not(.sqc-section-mark) {
+    grid-column: 2;
+  }
+
+  .sqc-mobile-web.desktop-multiplayer-create .sqc-create-multiplayer-hero h1 {
+    max-width: 760px;
+    margin: 0;
+    font-family: ui-serif, Georgia, Cambria, "Times New Roman", serif;
+    font-size: clamp(42px, 4vw, 56px);
+    line-height: 1;
+    letter-spacing: -.04em;
+  }
+
+  .sqc-mobile-web.desktop-multiplayer-create .sqc-create-multiplayer-hero p {
+    width: auto;
+    max-width: 690px;
+    margin: 0;
+    color: rgba(255, 247, 232, .7);
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1.5;
+  }
+
+  .sqc-mobile-web.desktop-multiplayer-create .sqc-hydration-gate {
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(420px, .85fr);
+    align-items: start;
+    gap: 20px 24px;
+  }
+
+  .sqc-mobile-web.desktop-multiplayer-create .sqc-create-setup-card {
+    grid-column: 1;
+    grid-row: 1;
+    padding: 26px;
+    border-radius: 24px;
+  }
+
+  .sqc-mobile-web.desktop-multiplayer-create .sqc-create-setup-card .sqc-form-list {
+    gap: 14px;
+  }
+
+  .sqc-mobile-web.desktop-multiplayer-create .sqc-create-setup-card .sqc-option-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    align-items: stretch;
+  }
+
+  .sqc-mobile-web.desktop-multiplayer-create .sqc-create-setup-card .sqc-option-card {
+    min-height: 82px;
+    align-items: flex-start;
+    padding: 14px;
+  }
+
+  .sqc-mobile-web.desktop-multiplayer-create .sqc-create-setup-card .sqc-option-card-copy {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .sqc-mobile-web.desktop-multiplayer-create .sqc-create-setup-card .sqc-option-card-copy small {
+    grid-column: 1;
+  }
+
+  .sqc-mobile-web.desktop-multiplayer-create .sqc-create-selected-card {
+    grid-column: 1;
+    grid-row: 2;
+    padding: 22px 24px;
+    border-radius: 24px;
+  }
+
+  .sqc-mobile-web.desktop-multiplayer-create .sqc-create-catalog-card {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    gap: 14px;
+    min-width: 0;
+    padding: 24px;
+    border-radius: 24px;
+    background: rgba(8, 7, 8, .72);
+  }
+
+  .sqc-mobile-web.desktop-multiplayer-create .sqc-create-catalog-card h2,
+  .sqc-mobile-web.desktop-multiplayer-create .sqc-create-selection-head h2 {
+    font-family: ui-serif, Georgia, Cambria, "Times New Roman", serif;
+    font-size: 25px;
+    line-height: 1.08;
+  }
+
+  .sqc-mobile-web.desktop-multiplayer-create .sqc-create-catalog-card .sqc-catalog {
+    max-height: 820px;
+    overflow: auto;
+    overscroll-behavior: contain;
+    border-radius: 18px;
+  }
+
+  .sqc-mobile-web.desktop-multiplayer-create .sqc-create-catalog-card .sqc-option-card {
+    min-height: 88px;
+    padding: 14px 16px;
+  }
+
+  .sqc-mobile-web.desktop-multiplayer-create .sqc-create-footer-bar {
+    grid-column: 1 / -1;
+    position: static;
+    width: min(760px, 100%);
+    margin: 0 auto;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, .42);
+  }
+
+  .sqc-mobile-web.desktop-multiplayer-create :is(a, summary, button, input, textarea):focus-visible {
+    outline: 3px solid rgba(245, 200, 106, .84);
+    outline-offset: 3px;
+  }
+
   .sqc-mobile-web.desktop-custom-detail :is(a, summary, button, input):focus-visible,
   .sqc-mobile-web.desktop-custom-editor :is(a, summary, button, input, textarea, select):focus-visible {
     outline: 3px solid rgba(96, 240, 175, .82);

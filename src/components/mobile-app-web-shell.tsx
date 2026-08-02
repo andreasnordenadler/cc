@@ -40,7 +40,7 @@ type AppTab = "home" | "sideQuests" | "multiplayerSideQuests" | "coatOfArms" | "
 type MobileAppWebShellProps = {
   activeTab: AppTab;
   signedIn: boolean;
-  desktopPresentation?: "solo-discovery" | "community-discovery" | "multiplayer-discovery" | "multiplayer-detail" | "custom-library" | "custom-detail" | "custom-editor" | "official-detail" | "community-detail";
+  desktopPresentation?: "solo-discovery" | "community-discovery" | "multiplayer-discovery" | "multiplayer-detail" | "multiplayer-create" | "custom-library" | "custom-detail" | "custom-editor" | "official-detail" | "community-detail";
   displayName?: string | null;
   profileImageUrl?: string | null;
   lichessUsername?: string | null;
@@ -232,8 +232,8 @@ export default function MobileAppWebShell({
           <DesktopHomeHeader
             signedIn={signedIn}
             displayName={displayName}
-            activeTab={desktopPresentation.startsWith("community-") || desktopPresentation.startsWith("custom-") ? null : activeTab}
-            activeItemId={desktopPresentation === "custom-editor" ? "createCustom" : desktopPresentation.startsWith("custom-") ? "custom" : undefined}
+            activeTab={desktopPresentation.startsWith("community-") || desktopPresentation.startsWith("custom-") || desktopPresentation === "multiplayer-create" ? null : activeTab}
+            activeItemId={desktopPresentation === "custom-editor" ? "createCustom" : desktopPresentation === "multiplayer-create" ? "createMultiplayer" : desktopPresentation.startsWith("custom-") ? "custom" : undefined}
           />
         </div>
       ) : null}

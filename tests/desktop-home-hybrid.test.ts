@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import MobileAppWebShell, { desktopHomeMenuItems, mobileWebMenuItems, MobileCommunitySideQuestsScreen, MobileCreateCustomScreen, MobileCustomSideQuestsScreen, MobileMultiplayerSideQuestsScreen, MobileSoloSideQuestsScreen } from "../src/components/mobile-app-web-shell";
+import MobileAppWebShell, { desktopHomeMenuItems, mobileWebMenuItems, MobileCommunitySideQuestsScreen, MobileCreateCustomScreen, MobileCreateMultiplayerScreen, MobileCustomSideQuestsScreen, MobileMultiplayerSideQuestsScreen, MobileSoloSideQuestsScreen } from "../src/components/mobile-app-web-shell";
 import { CHALLENGES } from "../src/lib/challenges";
 
 test("desktop home menu preserves the app menu labels, destinations, and order", () => {
@@ -445,6 +445,49 @@ test("Multiplayer detail becomes one desktop tournament workspace without changi
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-multiplayer-detail\s+\.sqc-multiplayer-public-detail-screen\s*>\s*\.sqc-multiplayer-primary-action\s*\{[^}]*grid-column:\s*2;[^}]*grid-row:\s*2\s*\/\s*span\s*2;[^}]*position:\s*sticky;/);
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-multiplayer-detail\s+\.sqc-multiplayer-quest-list\s*\{[^}]*grid-column:\s*1;/);
   assert.equal(css.replace(desktopMedia, "").includes(".sqc-mobile-web.desktop-multiplayer-detail"), false, "desktop Multiplayer detail rules must not leak below 1180px");
+});
+
+test("Multiplayer creation becomes one desktop planning workspace without duplicating the form", () => {
+  const html = renderToStaticMarkup(
+    createElement(
+      MobileAppWebShell,
+      {
+        activeTab: "multiplayerSideQuests",
+        signedIn: false,
+        desktopPresentation: "multiplayer-create",
+        immersivePresentation: true,
+        closeHref: "/multiplayer",
+      },
+      createElement(MobileCreateMultiplayerScreen, {
+        signedIn: false,
+        quests: [{ id: "official-one", title: "Any Game Counts", summary: "Finish a game.", source: "official", sourceLabel: "Official" }],
+      }),
+    ),
+  );
+
+  assert.match(html, /class="sqc-mobile-web desktop-multiplayer-create immersive signed-out"/);
+  assert.match(html, /class="sqc-desktop-route-only"/);
+  assert.match(html, /<a[^>]*aria-current="page"[^>]*href="\/create-multiplayer-side-quest"><span[^>]*><\/span>Create Multiplayer Side Quest<\/a>/);
+  assert.equal(html.match(/aria-label="Create Multiplayer Side Quest form"/g)?.length, 1, "desktop and mobile share one creation form");
+  assert.match(html, /class="sqc-native-card sqc-create-setup-card"/);
+  assert.match(html, /class="sqc-native-card sqc-create-selected-card"/);
+  assert.match(html, /class="sqc-native-card sqc-create-catalog-card"/);
+});
+
+test("Multiplayer creation becomes a wide two-column planner only at the desktop boundary", () => {
+  const css = readFileSync("src/app/mobile-web.css", "utf8");
+  const route = readFileSync("src/app/create-multiplayer-side-quest/page.tsx", "utf8");
+  const desktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1180px)"));
+
+  assert.match(route, /desktopPresentation="multiplayer-create"/);
+  assert.match(route, /closeHref="\/multiplayer"/, "mobile close destination stays intact");
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-multiplayer-create\s+\.sqc-screen\s*\{[^}]*width:\s*min\(1280px,\s*calc\(100%\s*-\s*64px\)\)/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-multiplayer-create\s+\.sqc-create-multiplayer-hero\s*\{[^}]*grid-template-columns:\s*200px\s+minmax\(0,\s*1fr\);/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-multiplayer-create\s+\.sqc-hydration-gate\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1\.15fr\)\s+minmax\(420px,\s*\.85fr\);/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-multiplayer-create\s+\.sqc-create-setup-card\s+\.sqc-option-grid\s*\{[^}]*grid-template-columns:\s*repeat\(3,\s*minmax\(0,\s*1fr\)\);/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-multiplayer-create\s+\.sqc-create-catalog-card\s*\{[^}]*grid-column:\s*2;[^}]*grid-row:\s*1\s*\/\s*span\s*2;/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-multiplayer-create\s+\.sqc-create-footer-bar\s*\{[^}]*grid-column:\s*1\s*\/\s*-1;[^}]*position:\s*static;/, "the creation action must not cover setup or catalog controls");
+  assert.equal(css.replace(desktopMedia, "").includes(".sqc-mobile-web.desktop-multiplayer-create"), false, "desktop Multiplayer create rules must not leak below 1180px");
 });
 
 function readCssBlock(css: string, start: number) {

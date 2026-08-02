@@ -41,6 +41,7 @@ export default async function CreateMultiplayerSideQuestPage({
     <MobileAppWebShell
       activeTab="multiplayerSideQuests"
       signedIn={Boolean(user)}
+      desktopPresentation="multiplayer-create"
       displayName={displayName}
       lichessUsername={getLichessUsername(metadata)}
       chessComUsername={getChessComUsername(metadata)}
