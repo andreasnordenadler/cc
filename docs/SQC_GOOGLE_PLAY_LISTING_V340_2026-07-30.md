@@ -90,7 +90,7 @@ Authoritative references:
 | Play store icon | `apps/mobile/store-assets/google-play/store-icon-512.png`; 512 × 512 RGBA PNG; 434,516 bytes; SHA-256 `dece7654e1346e799a4ee39f4f1bc4dc399bf138ca96e2fea069d56e3d6a25e2` | **Listing-ready export.** It is a deterministic Lanczos downscale of the shipped `apps/mobile/assets/app-icon-light-blue.png` source, converted to 32-bit RGBA without changing the runtime asset. `tests/google-play-store-assets.test.ts` enforces the Play dimensions, format, alpha channel, and size limit. |
 | Launcher icon source | `apps/mobile/assets/app-icon-light-blue.png`; 1,024 × 1,024 RGB PNG; SHA-256 `885e46776ebe59366d17eab3bbcc62860af76537288503cf694079f2c9e3d52e` | Shipped source retained unchanged; not the file to upload in the Play listing. |
 | Adaptive foreground | `apps/mobile/assets/app-icon-foreground.png`; 1,024 × 1,024 RGBA PNG; SHA-256 `88b8a9585c1899c182b50b1874ff5b43b2ec9a94928cdbd451c54c5c319d1799` | Runtime asset only; not a substitute for the store icon. |
-| Feature graphic | No feature-graphic file found in the repository | **Missing.** Create and approve an original 1,024 × 500 no-alpha asset. Keep claims limited to shipped play: Side Quests, public-game proof checks, Multiplayer challenges, and collectible Coats of Arms. |
+| Feature graphic | `apps/mobile/store-assets/google-play/feature-graphic-1024x500.png`; 1,024 × 500 24-bit RGB PNG; 266,618 bytes; SHA-256 `f89001e2662f29196a53170a8ef2f1f2b8117dc134b71351b54550934e810fe2` | **Listing-ready original composition.** The graphic uses an original brand-blue/chessboard layout, claims only shipped Side Quests, proof checks, and trophies, and incorporates the unchanged shipped launcher artwork as its product mark. It has no alpha channel. `tests/google-play-store-assets.test.ts` enforces complete PNG structure, chunk CRCs, dimensions, bit depth, RGB color type, scanline integrity, and terminal IEND. Independent normal- and thumbnail-scale review found no blocking clipping, readability, composition, or claims issue. |
 | Phone screenshots | Responsive engineering captures exist for the signed v340/code-341 APK, including 1,080-pixel and 1,200-pixel-wide frames | **Evidence only, not listing-ready.** They were made for defect verification, are not a curated three-image 9:16 set, are not code-345 captures, and are not Play-delivered-build evidence. |
 | Tablet / Chromebook screenshots | No current-candidate listing set found | Optional for initial phone listing; do not claim large-screen listing readiness. |
 
@@ -119,8 +119,7 @@ For every final image, verify: exact dimensions/aspect ratio, no clipping or ove
 
 Blocking before this listing can be called upload-ready:
 
-1. The required 1,024 × 500 feature graphic is missing.
-2. Current-candidate store screenshots are missing; the preferred set depends on the authorized Play-delivered install.
-3. The live privacy/terms source still contains launch-draft status and older contact/controller text (`andreas.nordenadler@gmail.com`) that conflicts with the confirmed publisher and support facts above. Reconcile and legally adopt those pages before public store publication.
+1. Current-candidate store screenshots are missing; the preferred set depends on the authorized Play-delivered install.
+2. The live privacy/terms source still contains launch-draft status and older contact/controller text (`andreas.nordenadler@gmail.com`) that conflicts with the confirmed publisher and support facts above. Reconcile and legally adopt those pages before public store publication.
 
 Google Play upload/submission, listing edits, tester assignment, and publication remain explicit owner gates.

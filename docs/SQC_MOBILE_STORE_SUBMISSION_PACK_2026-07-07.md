@@ -150,9 +150,9 @@ Optional:
 
 Google Play assets:
 
-- App icon: already configured in `apps/mobile/assets/app-icon-light-blue.png`.
+- App icon: runtime source configured in `apps/mobile/assets/app-icon-light-blue.png`; Play export is `apps/mobile/store-assets/google-play/store-icon-512.png`.
 - Adaptive icon foreground: `apps/mobile/assets/app-icon-foreground.png`.
-- Feature graphic: PENDING creation/approval.
+- Feature graphic: `apps/mobile/store-assets/google-play/feature-graphic-1024x500.png`; 1,024 × 500 24-bit RGB PNG with no alpha; independently reviewed with no blocking visual or claims issue.
 - Screenshots: PENDING current-candidate capture.
 
 Apple assets:
