@@ -1,8 +1,8 @@
-# Side Quest Chess — exact Google Play listing pack (v340)
+# Side Quest Chess — exact Google Play listing pack
 
-Prepared: 2026-07-30
+Prepared: 2026-07-30; asset inventory refreshed 2026-08-02
 
-Candidate: `0.1.340 (341)` on Internal testing
+Candidate: `0.1.344 (345)` for Internal testing
 
 Package: `com.sidequestchess.app`
 
@@ -87,15 +87,16 @@ Authoritative references:
 
 | Asset | Current evidence | Acceptance status |
 |---|---|---|
-| Launcher icon source | `apps/mobile/assets/app-icon-light-blue.png`; 1,024 × 1,024 RGB PNG; SHA-256 `885e46776ebe59366d17eab3bbcc62860af76537288503cf694079f2c9e3d52e` | **Source exists, but not a Play store-icon upload file.** Export and visually approve a separate 512 × 512 32-bit PNG within the size limit. Do not overwrite the runtime source merely to satisfy the listing. |
+| Play store icon | `apps/mobile/store-assets/google-play/store-icon-512.png`; 512 × 512 RGBA PNG; 434,516 bytes; SHA-256 `dece7654e1346e799a4ee39f4f1bc4dc399bf138ca96e2fea069d56e3d6a25e2` | **Listing-ready export.** It is a deterministic Lanczos downscale of the shipped `apps/mobile/assets/app-icon-light-blue.png` source, converted to 32-bit RGBA without changing the runtime asset. `tests/google-play-store-assets.test.ts` enforces the Play dimensions, format, alpha channel, and size limit. |
+| Launcher icon source | `apps/mobile/assets/app-icon-light-blue.png`; 1,024 × 1,024 RGB PNG; SHA-256 `885e46776ebe59366d17eab3bbcc62860af76537288503cf694079f2c9e3d52e` | Shipped source retained unchanged; not the file to upload in the Play listing. |
 | Adaptive foreground | `apps/mobile/assets/app-icon-foreground.png`; 1,024 × 1,024 RGBA PNG; SHA-256 `88b8a9585c1899c182b50b1874ff5b43b2ec9a94928cdbd451c54c5c319d1799` | Runtime asset only; not a substitute for the store icon. |
 | Feature graphic | No feature-graphic file found in the repository | **Missing.** Create and approve an original 1,024 × 500 no-alpha asset. Keep claims limited to shipped play: Side Quests, public-game proof checks, Multiplayer challenges, and collectible Coats of Arms. |
-| Phone screenshots | Responsive engineering captures exist for the signed v340 APK, including 1,080-pixel and 1,200-pixel-wide frames | **Evidence only, not listing-ready.** They were made for defect verification, are not a curated three-image 9:16 set, and are not Play-delivered-build evidence. |
+| Phone screenshots | Responsive engineering captures exist for the signed v340/code-341 APK, including 1,080-pixel and 1,200-pixel-wide frames | **Evidence only, not listing-ready.** They were made for defect verification, are not a curated three-image 9:16 set, are not code-345 captures, and are not Play-delivered-build evidence. |
 | Tablet / Chromebook screenshots | No current-candidate listing set found | Optional for initial phone listing; do not claim large-screen listing readiness. |
 
 ### Required current-candidate screenshot set
 
-Capture from the Play-delivered code-341 install after tester access and signer verification. Use a non-sensitive disposable account, remove notifications and personal identifiers, and keep the system bars/rendering consistent.
+Capture from the Play-delivered code-345 install after tester access and signer verification. Use a non-sensitive disposable account, remove notifications and personal identifiers, and keep the system bars/rendering consistent.
 
 Minimum recommended portrait set (all 1,080 × 1,920 or greater at 9:16):
 
@@ -105,22 +106,21 @@ Minimum recommended portrait set (all 1,080 × 1,920 or greater at 9:16):
 4. **Build your Trophy Cabinet** — earned and locked Coats of Arms shown truthfully.
 5. **Create your own Side Quest** — executable Custom Side Quest form, not a decorative mockup.
 
-For every final image, verify: exact dimensions/aspect ratio, no clipping or overlap, no keyboard unless intentional, no debug UI, no stale version copy, no private account data, and correspondence with code 341 behavior. Do not use Carl's regression screenshot in the store listing.
+For every final image, verify: exact dimensions/aspect ratio, no clipping or overlap, no keyboard unless intentional, no debug UI, no stale version copy, no private account data, and correspondence with code 345 behavior. Do not use Carl's regression screenshot in the store listing.
 
 ## Release alignment and blockers
 
-- Frozen AAB: `side-quest-chess-android-v340-code341.aab`
-- AAB SHA-256: `26e7cfdd493308947876b5373f95a7d576e656e764027ad3ac41fd244f4b0483`
-- Reviewed source: `8eb128d81e6c05c0641ef3eb8f59704b12c38275`
+- Frozen AAB: `side-quest-chess-android-v344-code345.aab`
+- AAB SHA-256: `b4847e7b42817f1cc3109f37c1296465018edbce6aa65c390ab073ab21f8dc3d`
+- Reviewed source: `0364be9e2f19a81de69716dbff04c0361a2b37a4`
 - Merged responsive fix: PR #92
-- Current `origin/main` changes no runtime file under `apps/mobile` after that candidate; only `apps/mobile/REAL_DEVICE_SMOKE.md` changed.
-- Open PR #99 changes mobile strings and is not part of code 341. If it merges into a later mobile candidate, listing screenshots and responsive acceptance must be repeated against that new candidate.
+- Current `origin/main` changes no mobile runtime or release input after that candidate.
+- If a later change touches mobile runtime or release inputs, listing screenshots and responsive acceptance must be repeated against the replacement candidate.
 
 Blocking before this listing can be called upload-ready:
 
-1. An approved 512 × 512 store icon export is missing.
-2. The required 1,024 × 500 feature graphic is missing.
-3. Current-candidate store screenshots are missing; the preferred set depends on the authorized Play-delivered install.
-4. The live privacy/terms copy still contains launch-draft or older contact/controller text that conflicts with the confirmed publisher and support facts above. Reconcile and legally adopt those pages before public store publication.
+1. The required 1,024 × 500 feature graphic is missing.
+2. Current-candidate store screenshots are missing; the preferred set depends on the authorized Play-delivered install.
+3. The live privacy/terms source still contains launch-draft status and older contact/controller text (`andreas.nordenadler@gmail.com`) that conflicts with the confirmed publisher and support facts above. Reconcile and legally adopt those pages before public store publication.
 
 Google Play upload/submission, listing edits, tester assignment, and publication remain explicit owner gates.
