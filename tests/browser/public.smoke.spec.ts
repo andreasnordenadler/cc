@@ -61,6 +61,26 @@ test("signed-out desktop-native routes omit the phone menu and expose persistent
   await expect(page.getByRole("link", { name: "Sign in", exact: true })).toHaveAttribute("href", "/sign-in?redirect_url=%2Fside-quests");
 });
 
+test("desktop Solo discovery keeps every objective readable at the composition boundary", async ({ page }) => {
+  await page.setViewportSize({ width: 1180, height: 900 });
+  await expectHealthyNavigation(page, "/side-quests");
+
+  const cards = page.locator(".sqc-catalog .sqc-app-row");
+  expect(await cards.count()).toBeGreaterThan(0);
+  const geometry = await cards.evaluateAll((rows) => rows.map((row) => {
+    const objective = row.querySelector<HTMLElement>(".sqc-row-copy small");
+    return {
+      minHeight: Number.parseFloat(getComputedStyle(row).minHeight),
+      objectiveClientHeight: objective?.clientHeight ?? 0,
+      objectiveScrollHeight: objective?.scrollHeight ?? 0,
+    };
+  }));
+
+  expect(geometry.every(({ minHeight }) => minHeight === 176)).toBe(true);
+  expect(geometry.every(({ objectiveClientHeight, objectiveScrollHeight }) => objectiveScrollHeight <= objectiveClientHeight + 1)).toBe(true);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBe(0);
+});
+
 test("Community discovery switches between one mobile catalog and a desktop browsing workspace", async ({ page }) => {
   await page.setViewportSize({ width: 1179, height: 900 });
   await expectHealthyNavigation(page, "/community-side-quests");

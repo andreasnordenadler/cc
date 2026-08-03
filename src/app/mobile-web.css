@@ -6019,7 +6019,7 @@ body::after {
   }
 
   .sqc-mobile-web.desktop-solo-discovery .sqc-app-row {
-    min-height: 156px;
+    min-height: 176px;
     position: relative;
     grid-template-columns: 68px minmax(0, 1fr);
     align-content: center;
@@ -6082,6 +6082,7 @@ body::after {
   }
 
   .sqc-mobile-web.desktop-solo-discovery .sqc-row-copy small {
+    -webkit-line-clamp: 3;
     color: rgba(255, 247, 232, .62);
     font-size: 12px;
     line-height: 1.4;
