@@ -11,6 +11,7 @@ import { buildPublicProofPath } from "@/lib/proof-share";
 import { rankGroupQuestParticipants, listPublicGroupQuests, listUserRelatedGroupQuests, type ServerGroupQuest } from "@/lib/groupquests";
 import { getCustomSideQuestBadgeUrl, getCustomSideQuests } from "@/lib/custom-side-quests";
 import { buildCustomQuestStats } from "@/lib/custom-side-quest-activity";
+import { filterBlockedCommunityGroupQuests, getBlockedUserIds } from "@/lib/user-blocking";
 import {
   buildAttemptSummary,
   challengeBanner,
@@ -144,7 +145,9 @@ export async function GET(request: Request) {
     };
   }));
   const { relatedGroupQuests, publicGroupQuests } = await getMobileAccountGroupQuests(client, userId);
-  const communitySideQuests = await listPublicCommunitySideQuests(client, userId, dedupeGroupQuests([...relatedGroupQuests, ...publicGroupQuests]), likeSummaries);
+  const blockedUserIds = getBlockedUserIds(privateMetadata);
+  const visiblePublicGroupQuests = filterBlockedCommunityGroupQuests(publicGroupQuests, blockedUserIds);
+  const communitySideQuests = await listPublicCommunitySideQuests(client, userId, dedupeGroupQuests([...relatedGroupQuests, ...visiblePublicGroupQuests]), likeSummaries, blockedUserIds);
   const activeCommunityCustomQuestRecord = activeChallenge?.id ? communitySideQuests.find((quest) => quest.id === activeChallenge.id) ?? null : null;
   const mobileActiveChallengeRecord = activeChallengeRecord ?? activeCommunityCustomQuestRecord;
   const completedCommunityQuests = communitySideQuests.filter((quest) => completedSet.has(quest.id) && !customQuestMap.has(quest.id));
@@ -168,7 +171,7 @@ export async function GET(request: Request) {
     };
   }));
   const isOfficialGroupQuest = (quest: { id: string; official?: boolean | null }) => quest.official === true || quest.id.startsWith("official-");
-  const officialGroupQuestIds = new Set(publicGroupQuests.filter(isOfficialGroupQuest).map((quest) => quest.id));
+  const officialGroupQuestIds = new Set(visiblePublicGroupQuests.filter(isOfficialGroupQuest).map((quest) => quest.id));
   const relatedUserGroupQuestPayloads = relatedGroupQuests
     .filter((quest) => !officialGroupQuestIds.has(quest.id) && !isOfficialGroupQuest(quest))
     .filter((quest) => quest.participants.some((participant) => participant.userId === userId))
@@ -211,7 +214,7 @@ export async function GET(request: Request) {
     });
   const activeGroupQuests = relatedUserGroupQuestPayloads.filter((quest) => quest.status !== "Finished");
   const closedGroupQuests = relatedUserGroupQuestPayloads.filter((quest) => quest.status === "Finished").slice(0, 12);
-  const officialGroupQuestPayloads = publicGroupQuests
+  const officialGroupQuestPayloads = visiblePublicGroupQuests
     .filter(isOfficialGroupQuest)
     .map((quest) => {
       const joined = quest.participants.some((participant) => participant.userId === userId);
@@ -256,7 +259,7 @@ export async function GET(request: Request) {
     .filter((quest) => quest.status === "Finished")
     .slice(0, 3);
   const officialGroupQuestWeeks = buildOfficialGroupQuestWeeks(officialGroupQuestPayloads);
-  const publicUserGroupQuestPayloads = publicGroupQuests
+  const publicUserGroupQuestPayloads = visiblePublicGroupQuests
     .filter((quest) => !isOfficialGroupQuest(quest))
     .map((quest) => {
       const joined = quest.participants.some((participant) => participant.userId === userId);
@@ -441,10 +444,12 @@ async function listPublicCommunitySideQuests(
   currentUserId: string,
   groupQuests: ServerGroupQuest[],
   likeSummaries: Awaited<ReturnType<typeof getCommunityLikeSummaries>>,
+  blockedUserIds: ReadonlySet<string>,
 ) {
   try {
     const users = await client.users.getUserList({ limit: 100, orderBy: "-created_at" });
     const publicQuestRecords = users.data.flatMap((user) => {
+      if (blockedUserIds.has(user.id)) return [];
       const privateMetadata = user.privateMetadata && typeof user.privateMetadata === "object" ? (user.privateMetadata as UserMetadataRecord) : {};
       const publicMetadata = user.publicMetadata && typeof user.publicMetadata === "object" ? (user.publicMetadata as UserMetadataRecord) : {};
       const quests = getCustomSideQuests(privateMetadata).length ? getCustomSideQuests(privateMetadata) : getCustomSideQuests(publicMetadata);
