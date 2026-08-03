@@ -13,6 +13,10 @@ type DesktopMenuItem = {
 export default function DesktopHomeMenu({ items, activeItemId }: { items: readonly DesktopMenuItem[]; activeItemId: string }) {
   const detailsRef = useRef<HTMLDetailsElement>(null);
   const summaryRef = useRef<HTMLElement>(null);
+  const groups = [
+    { label: "Create & manage", items: items.slice(0, 3) },
+    { label: "Account & help", items: items.slice(3) },
+  ].filter((group) => group.items.length > 0);
 
   useEffect(() => {
     const closeMenu = (restoreFocus: boolean) => {
@@ -44,20 +48,28 @@ export default function DesktopHomeMenu({ items, activeItemId }: { items: readon
 
   return (
     <details className="sqc-desktop-menu" ref={detailsRef}>
-      <summary ref={summaryRef}>Menu</summary>
+      <summary ref={summaryRef}>
+        <span>Explore</span>
+        <span className="sqc-desktop-menu-chevron" aria-hidden="true">⌄</span>
+      </summary>
       <nav aria-label="Desktop main menu">
-        {items.map((item) => (
-          <Link
-            key={item.id}
-            href={item.href}
-            aria-current={item.id === activeItemId ? "page" : undefined}
-            onClick={() => {
-              if (detailsRef.current) detailsRef.current.open = false;
-            }}
-          >
-            <span className={`sqc-menu-icon ${item.icon}`} aria-hidden="true" />
-            {item.label}
-          </Link>
+        {groups.map((group) => (
+          <section key={group.label} className="sqc-desktop-menu-group" aria-label={group.label}>
+            <span className="sqc-desktop-menu-group-title">{group.label}</span>
+            {group.items.map((item) => (
+              <Link
+                key={item.id}
+                href={item.href}
+                aria-current={item.id === activeItemId ? "page" : undefined}
+                onClick={() => {
+                  if (detailsRef.current) detailsRef.current.open = false;
+                }}
+              >
+                <span className={`sqc-menu-icon ${item.icon}`} aria-hidden="true" />
+                {item.label}
+              </Link>
+            ))}
+          </section>
         ))}
       </nav>
     </details>
