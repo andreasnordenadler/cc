@@ -130,8 +130,8 @@ test("EAS production builds use the SDK 54 builder and pnpm 11 for the next Play
   }
 
   const app = JSON.parse(readRepoFile("apps/mobile/app.json")).expo;
-  assert.equal(app.version, "0.1.344");
-  assert.equal(app.android.versionCode, 344);
+  assert.equal(app.version, "0.1.345");
+  assert.equal(app.android.versionCode, 345);
 });
 
 test("EAS archives omit the partial generated Android tree so SDK 54 prebuild runs", () => {
