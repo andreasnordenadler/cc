@@ -651,6 +651,24 @@ test("Help and Support uses persistent desktop navigation without duplicating it
   assert.equal(html.match(/>How can we help\?<\/h2>/g)?.length, 1, "the Android support heading remains the single visible content authority");
 });
 
+test("Help and Support gives every desktop help topic a direct next destination without changing mobile", () => {
+  const html = renderToStaticMarkup(createElement(MobileSupportScreen, { signedIn: false }));
+  const css = readFileSync("src/app/mobile-web.css", "utf8");
+  const desktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1180px)"));
+
+  for (const [label, href] of [
+    ["Browse Solo Side Quests", "/side-quests"],
+    ["Choose a Side Quest", "/side-quests"],
+    ["Open chess account settings", "/account"],
+    ["Browse Multiplayer", "/multiplayer"],
+    ["Open Trophy Cabinet", "/trophy-cabinet"],
+  ]) {
+    assert.match(html, new RegExp(`href="${href}"[^>]*>${label}<`));
+  }
+  assert.match(css, /\.sqc-support-row-action\s*\{[^}]*display:\s*none;/, "topic actions remain absent from the mobile composition");
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-support\s+\.sqc-support-row-action\s*\{[^}]*display:\s*inline-flex;/);
+});
+
 test("Help and Support becomes a wide triage workspace only at the desktop boundary", () => {
   const css = readFileSync("src/app/mobile-web.css", "utf8");
   const route = readFileSync("src/app/support/page.tsx", "utf8");

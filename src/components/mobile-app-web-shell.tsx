@@ -936,22 +936,27 @@ export function MobileSupportScreen({
     {
       title: "How Side Quests work",
       body: "Pick one Solo Side Quest at a time. After you choose it, play a new public Lichess or Chess.com game so Side Quest Chess has a fresh game to check.",
+      action: { label: "Browse Solo Side Quests", href: "/side-quests" },
     },
     {
       title: "Why proof may not work yet",
       body: "Proof checks your newest public games after you choose a Side Quest. If it does not pass, make sure the game is finished, public, played on your connected username, and matches the rule.",
+      action: { label: "Choose a Side Quest", href: "/side-quests" },
     },
     {
       title: "Connecting a chess username",
       body: "Add your public Lichess or Chess.com username so Side Quest Chess knows which games belong to you. It only reads public game records and never needs your chess-site password.",
+      action: { label: "Open chess account settings", href: "/account" },
     },
     {
       title: "Multiplayer Side Quests",
       body: "Multiplayer Side Quests are shared challenges with their own rules, time window, players, and leaderboard. Join an official challenge, join a community challenge, or create one for friends.",
+      action: { label: "Browse Multiplayer", href: "/multiplayer" },
     },
     {
       title: "Coat of Arms",
       body: "Completing a Side Quest unlocks its Coat of Arms. Your unlocked coats stay in your account and appear in the Trophy Cabinet.",
+      action: { label: "Open Trophy Cabinet", href: "/trophy-cabinet" },
     },
   ];
 
@@ -994,6 +999,7 @@ export function MobileSupportScreen({
           <article className="sqc-support-row" key={row.title}>
             <h3>{row.title}</h3>
             <p>{row.body}</p>
+            <Link className="sqc-support-row-action" href={row.action.href}>{row.action.label}</Link>
           </article>
         ))}
       </section>
