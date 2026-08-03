@@ -56,7 +56,16 @@ function CommunitySoloCatalogRow({ row, signedIn, onLikeStateChange }: { row: Co
             onLikeStateChange={onLikeStateChange}
           />
         </span>
-        <small>{row.meta}</small>
+        <small className="sqc-community-row-mobile-meta">{row.meta}</small>
+        <span className="sqc-community-row-details">
+          {row.creatorName ? <span className="sqc-community-row-creator">By {row.creatorName}</span> : null}
+          <span className="sqc-community-row-summary">{row.summary}</span>
+          <span className="sqc-community-row-stats" role="group" aria-label="Quest activity">
+            <span className="sqc-community-row-stat">{row.stats.soloAttempts} {row.stats.soloAttempts === 1 ? "try" : "tries"}</span>
+            <span className="sqc-community-row-stat">{row.stats.soloCompletions} completed</span>
+            <span className="sqc-community-row-stat">Used in {row.stats.multiplayerLineups} multiplayer {row.stats.multiplayerLineups === 1 ? "quest" : "quests"}</span>
+          </span>
+        </span>
       </span>
       <span className="sqc-row-status">{row.status ?? "Ready"}</span>
     </div>
@@ -95,6 +104,12 @@ function MultiplayerCatalogRow({ row, status, signedIn, externallyBusy, stateGen
 export type CommunitySoloCatalogClientRow = SoloCatalogClientRow & {
   creatorKey?: string;
   creatorName?: string;
+  summary: string;
+  stats: {
+    soloAttempts: number;
+    soloCompletions: number;
+    multiplayerLineups: number;
+  };
   updatedAtMs: number;
   popularityScore: number;
   likeCount: number;

@@ -90,6 +90,11 @@ test("Community discovery switches between one mobile catalog and a desktop brow
   await expect(page.getByLabel("Close screen")).toBeVisible();
   await expect(page.getByRole("navigation", { name: "Desktop shortcuts" })).toBeHidden();
   await expect(page.getByLabel("Community Side Quest filters")).toHaveCount(1);
+  const firstRow = page.locator(".sqc-community-catalog-section .sqc-app-row").first();
+  if (await firstRow.count()) {
+    await expect(firstRow.locator(".sqc-community-row-mobile-meta")).toBeVisible();
+    await expect(firstRow.locator(".sqc-community-row-details")).toBeHidden();
+  }
 
   await page.setViewportSize({ width: 1180, height: 900 });
   await expect(desktopIntro).toBeVisible();
@@ -101,6 +106,11 @@ test("Community discovery switches between one mobile catalog and a desktop brow
   if (await catalog.count()) {
     const columns = await catalog.evaluate((element) => getComputedStyle(element).gridTemplateColumns.split(" ").length);
     expect(columns).toBe(2);
+    await expect(firstRow.locator(".sqc-community-row-mobile-meta")).toBeHidden();
+    await expect(firstRow.locator(".sqc-community-row-details")).toBeVisible();
+    await expect(firstRow.locator(".sqc-community-row-creator")).toContainText("By ");
+    await expect(firstRow.locator(".sqc-community-row-summary")).not.toBeEmpty();
+    await expect(firstRow.locator(".sqc-community-row-stat")).toHaveCount(3);
   } else {
     await expect(page.locator(".sqc-community-catalog-section .sqc-empty-panel.standalone")).toBeVisible();
   }

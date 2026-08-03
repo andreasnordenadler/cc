@@ -172,6 +172,9 @@ test("Community Solo route carries the creator shelf key from public data into t
   assert.match(page, /const \{ creator \} = await searchParams/);
   assert.match(page, /creatorKey: quest\.creatorKey/);
   assert.match(page, /creatorName: quest\.creatorName/);
+  assert.match(page, /listPublicGroupQuests/);
+  assert.match(page, /const publicGroupQuests = await listPublicGroupQuests\(client\)/);
+  assert.match(page, /listPublicCommunitySideQuests\(client, \{ limit: null, groupQuests: publicGroupQuests, viewerUserId:/);
   assert.match(page, /likedByViewer: likeSummary\.likedByViewer/);
   assert.match(page, /initialCreator=\{creator \?\? null\}/);
 });
@@ -179,6 +182,8 @@ test("Community Solo route carries the creator shelf key from public data into t
 test("Community Solo creator shelf shows only that creator and keeps a real clear action", () => {
   const base = {
     meta: "Community rule",
+    summary: "Community rule",
+    stats: { soloAttempts: 0, soloCompletions: 0, multiplayerLineups: 0 },
     image: "/badges/custom/community/community-coat-28.png",
     sourceBadge: "Community",
     status: "Ready",
@@ -213,6 +218,8 @@ test("Community Solo rows show their Coat of Arms like Android v338", () => {
       id: "community-solo",
       title: "Castle? Never Heard Of It",
       meta: "By Nora Skewer · Finish without castling.",
+      summary: "Finish without castling.",
+      stats: { soloAttempts: 0, soloCompletions: 0, multiplayerLineups: 0 },
       href: "/challenges/community/community-solo",
       image: "/badges/custom/community/community-coat-28.png",
       sourceBadge: "Community",
@@ -239,6 +246,8 @@ test("Community Solo catalog keeps the exact row link beside the Android like ac
       id: "community-solo",
       title: "Castle? Never Heard Of It",
       meta: "By Nora Skewer · Finish without castling.",
+      summary: "Finish without castling.",
+      stats: { soloAttempts: 0, soloCompletions: 0, multiplayerLineups: 0 },
       href: "/challenges/community/community-solo",
       image: "/badges/custom/community/community-coat-28.png",
       sourceBadge: "Community",

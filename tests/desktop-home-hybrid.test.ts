@@ -4,8 +4,23 @@ import test from "node:test";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import MobileAppWebShell, { desktopHomeMenuItems, mobileWebMenuItems, MobileCommunitySideQuestsScreen, MobileCreateCustomScreen, MobileCreateMultiplayerScreen, MobileCustomSideQuestsScreen, MobileMultiplayerSideQuestsScreen, MobileSoloSideQuestsScreen, MobileSupportScreen, MobileTrophyCabinetScreen } from "../src/components/mobile-app-web-shell";
+import type { CommunitySoloCatalogClientRow } from "../src/components/catalog-clients";
 import DesktopHomeMenu from "../src/components/desktop-home-menu";
 import { CHALLENGES } from "../src/lib/challenges";
+
+type IsRequired<T, Key extends keyof T> = Record<Key, T[Key]> extends Pick<T, Key> ? true : false;
+type CommunityScreenRow = Parameters<typeof MobileCommunitySideQuestsScreen>[0]["rows"][number];
+const communityScreenSummaryIsRequired: IsRequired<CommunityScreenRow, "summary"> = true;
+const communityScreenStatsAreRequired: IsRequired<CommunityScreenRow, "stats"> = true;
+const communityClientSummaryIsRequired: IsRequired<CommunitySoloCatalogClientRow, "summary"> = true;
+const communityClientStatsAreRequired: IsRequired<CommunitySoloCatalogClientRow, "stats"> = true;
+
+test("Community Solo structured row data stays required through the desktop view model", () => {
+  assert.equal(communityScreenSummaryIsRequired, true);
+  assert.equal(communityScreenStatsAreRequired, true);
+  assert.equal(communityClientSummaryIsRequired, true);
+  assert.equal(communityClientStatsAreRequired, true);
+});
 
 test("desktop navigation preserves app destinations without duplicating the dedicated account action", () => {
   assert.deepEqual(
@@ -173,6 +188,8 @@ test("Community discovery becomes a desktop workspace without duplicating its in
     status: "Ready",
     creatorKey: "nora",
     creatorName: "Nora Skewer",
+    summary: "Finish a game without castling.",
+    stats: { soloAttempts: 3, soloCompletions: 1, multiplayerLineups: 2 },
     updatedAtMs: 1,
     popularityScore: 1,
     likeCount: 1,
@@ -193,6 +210,12 @@ test("Community discovery becomes a desktop workspace without duplicating its in
   assert.doesNotMatch(html, /<a[^>]*aria-current="page"[^>]*href="\/side-quests">Solo Side Quests<\/a>/);
   assert.match(html, /class="sqc-desktop-community-intro"/);
   assert.match(html, />Player-made rules, arranged for serious browsing\.<\/h1>/);
+  assert.match(html, /class="sqc-community-row-creator">By Nora Skewer<\/span>/);
+  assert.match(html, /class="sqc-community-row-summary">Finish a game without castling\.<\/span>/);
+  assert.match(html, /class="sqc-community-row-stat">3 tries<\/span>/);
+  assert.match(html, /class="sqc-community-row-stat">1 completed<\/span>/);
+  assert.match(html, /class="sqc-community-row-stat">Used in 2 multiplayer quests<\/span>/);
+  assert.match(html, /class="sqc-community-row-stats" role="group" aria-label="Quest activity">/);
   assert.equal(html.match(/aria-label="Community Side Quest filters"/g)?.length, 1, "desktop and mobile share one filter subtree");
   assert.equal(html.match(/aria-label="Open Castle\? Never Heard Of It"/g)?.length, 1, "desktop and mobile share one catalog subtree");
 });
@@ -206,6 +229,17 @@ test("Community discovery uses a wide desktop grid only at the established bound
   assert.match(css, /\.sqc-mobile-web\.desktop-community-discovery\s+\.sqc-catalog\s*\{[^}]*grid-template-columns:\s*repeat\(2,\s*minmax\(0,\s*1fr\)\);/);
   assert.match(css, /\.sqc-mobile-web\.desktop-community-discovery\s+\.sqc-community-browse-panel\s*\{[^}]*grid-template-columns:\s*minmax\(260px,\s*1fr\)\s+auto;/);
   assert.match(css, /\.sqc-mobile-web\.desktop-community-discovery\s+\.sqc-community-controls\s*\{[^}]*display:\s*flex;/);
+});
+
+test("Community discovery uses structured activity cards only at the desktop boundary", () => {
+  const css = readFileSync("src/app/mobile-web.css", "utf8");
+  const desktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1180px)"));
+
+  assert.match(css, /\.sqc-community-row-details\s*\{[^}]*display:\s*none;/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-community-discovery\s+\.sqc-row-copy\s*>\s*\.sqc-community-row-mobile-meta\s*\{[^}]*display:\s*none;/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-community-discovery\s+\.sqc-community-row-details\s*\{[^}]*display:\s*grid;/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-community-discovery\s+\.sqc-community-row-stats\s*\{[^}]*display:\s*flex;/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-community-discovery\s+\.sqc-community-row-stat\s*\{[^}]*border-radius:\s*999px;/);
 });
 
 test("Multiplayer discovery becomes one desktop tournament desk without duplicating catalog actions", () => {

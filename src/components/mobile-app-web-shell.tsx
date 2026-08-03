@@ -109,6 +109,12 @@ type CommunitySideQuestRow = {
   status?: string | null;
   creatorKey?: string;
   creatorName?: string;
+  summary: string;
+  stats: {
+    soloAttempts: number;
+    soloCompletions: number;
+    multiplayerLineups: number;
+  };
   updatedAtMs: number;
   popularityScore: number;
   likeCount: number;
