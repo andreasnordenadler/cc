@@ -162,8 +162,8 @@ export const mobileWebMenuItems = [
   { id: "privacy", label: "Privacy Policy", href: "/privacy", icon: "shield" },
 ] as const;
 
-// Desktop uses the same source list so labels, destinations, and order cannot drift from the app menu.
-export const desktopHomeMenuItems = mobileWebMenuItems;
+// Desktop derives from the app menu, but its persistent account action owns that destination.
+export const desktopHomeMenuItems = mobileWebMenuItems.filter((item) => item.id !== "account");
 
 const menuItems = mobileWebMenuItems;
 
@@ -234,6 +234,7 @@ export default function MobileAppWebShell({
             displayName={displayName}
             activeTab={desktopPresentation.startsWith("community-") || desktopPresentation.startsWith("custom-") || desktopPresentation === "multiplayer-create" ? null : activeTab}
             activeItemId={desktopPresentation === "custom-editor" ? "createCustom" : desktopPresentation === "multiplayer-create" ? "createMultiplayer" : desktopPresentation === "support" ? "support" : desktopPresentation.startsWith("custom-") ? "custom" : undefined}
+            accountIsCurrent={desktopPresentation === "account"}
           />
         </div>
       ) : null}
@@ -347,7 +348,7 @@ function GuestNavigation({ activeTab }: { activeTab: AppTab }) {
   );
 }
 
-function DesktopHomeHeader({ signedIn, displayName, activeTab, activeItemId }: { signedIn: boolean; displayName?: string | null; activeTab: AppTab | null; activeItemId?: string }) {
+function DesktopHomeHeader({ signedIn, displayName, activeTab, activeItemId, accountIsCurrent = false }: { signedIn: boolean; displayName?: string | null; activeTab: AppTab | null; activeItemId?: string; accountIsCurrent?: boolean }) {
   const shortcuts = desktopHomeMenuItems.slice(0, 4);
   const resolvedActiveItemId = activeItemId ?? (activeTab === "multiplayerSideQuests" ? "multiplayer" : activeTab === "coatOfArms" ? "coats" : activeTab ?? "");
 
@@ -369,7 +370,7 @@ function DesktopHomeHeader({ signedIn, displayName, activeTab, activeItemId }: {
       </nav>
       <DesktopHomeMenu items={desktopHomeMenuItems.slice(shortcuts.length)} activeItemId={resolvedActiveItemId} />
       {signedIn ? (
-        <Link href="/account" className="sqc-desktop-sign-in">{displayName || "My Account"}</Link>
+        <Link href="/account" className="sqc-desktop-sign-in" aria-current={accountIsCurrent ? "page" : undefined}>{displayName || "My Account"}</Link>
       ) : (
         <CurrentPageSignInLink className="sqc-desktop-sign-in">Sign in</CurrentPageSignInLink>
       )}

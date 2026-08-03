@@ -31,6 +31,8 @@ test("desktop app menu dismisses with Escape and outside click", async ({ page }
   await expect(menu.getByText("Account & help", { exact: true })).toBeVisible();
   await expect(menu.getByRole("link", { name: "My Custom Side Quests" })).toHaveAttribute("href", "/custom-side-quests");
   await expect(menu.getByRole("link", { name: "Help & Support" })).toHaveAttribute("href", "/support");
+  await expect(menu.getByRole("link", { name: "My Account", exact: true })).toHaveCount(0);
+  await expect(page.getByRole("link", { name: "Sign in", exact: true })).toHaveCount(1);
   await expect(menu.getByRole("link", { name: "Home", exact: true })).toHaveCount(0);
   await page.keyboard.press("Escape");
   await expect(menu).toBeHidden();
