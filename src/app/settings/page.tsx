@@ -31,6 +31,7 @@ export default async function SettingsPage() {
       displayName={displayName}
       lichessUsername={getLichessUsername(metadataRecord)}
       chessComUsername={getChessComUsername(metadataRecord)}
+      desktopPresentation="settings"
     >
       {user ? (
         <SettingsEditor
@@ -46,7 +47,7 @@ export default async function SettingsPage() {
   );
 }
 
-function SettingsEditor({
+export function SettingsEditor({
   displayName,
   runnerBio,
   lichessUsername,
@@ -58,8 +59,8 @@ function SettingsEditor({
   chessComUsername: string;
 }) {
   return (
-    <div className="sqc-settings-stack">
-      <form action={saveRunnerProfile} className="sqc-username-editor-card">
+    <div className="sqc-settings-stack sqc-settings-editor-layout">
+      <form action={saveRunnerProfile} className="sqc-username-editor-card sqc-settings-profile-panel">
         <p className="sqc-account-kicker">Profile details</p>
         <h1>Edit profile and chess usernames</h1>
         <p>Save your public Side Quest Chess display name, brag line, and chess usernames from the app. Website and mobile stay in sync.</p>
@@ -83,19 +84,40 @@ function SettingsEditor({
         </div>
         <button className="sqc-primary-action" type="submit">Save usernames</button>
       </form>
+      <aside className="sqc-settings-proof-panel sqc-desktop-settings-context" aria-labelledby="settings-proof-title">
+        <p className="sqc-account-kicker">Proof account</p>
+        <h2 id="settings-proof-title">One public username is enough.</h2>
+        <p>Side Quest Chess reads finished public games to check your Side Quest. It never asks for your chess-site password.</p>
+        <ol>
+          <li><span>01</span><strong>Add Lichess or Chess.com</strong><small>Use the same public username you play with.</small></li>
+          <li><span>02</span><strong>Play a new public game</strong><small>Your next game becomes the proof candidate.</small></li>
+          <li><span>03</span><strong>Check proof</strong><small>Side Quest Chess compares the game with your active objective.</small></li>
+        </ol>
+        <p className="sqc-settings-sync-note">Saved changes sync with the Android app and your Account workspace.</p>
+      </aside>
     </div>
   );
 }
 
-function SignedOutSettings() {
+export function SignedOutSettings() {
   return (
-    <div className="sqc-settings-stack">
-      <section className="sqc-account-hero">
+    <div className="sqc-settings-stack sqc-settings-sign-in-layout">
+      <section className="sqc-account-hero sqc-settings-sign-in-copy">
         <p className="sqc-account-kicker">Profile details</p>
         <h1>Sign in to edit account details.</h1>
         <p className="sqc-account-copy">Sign in first to enable account edits and sync chess usernames with the app.</p>
         <CurrentPageSignInLink className="sqc-primary-action">Choose sign-in method</CurrentPageSignInLink>
       </section>
+      <aside className="sqc-settings-sign-in-context sqc-desktop-settings-context" aria-labelledby="settings-sign-in-context-title">
+        <p className="sqc-account-kicker">Account workspace</p>
+        <h2 id="settings-sign-in-context-title">Your profile and proof setup stay together.</h2>
+        <p>Manage the public name shown on Side Quest Chess, your brag line, and the chess usernames used for proof checks.</p>
+        <ul>
+          <li>Website and Android use the same saved account state.</li>
+          <li>Only public chess records are read.</li>
+          <li>Your chess-site password stays with your chess provider.</li>
+        </ul>
+      </aside>
     </div>
   );
 }
