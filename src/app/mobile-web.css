@@ -8864,6 +8864,16 @@ body::after {
   /* End desktop authentication workspace */
 }
 
+@media (min-width: 1680px) {
+  .sqc-mobile-web.desktop-community-discovery .sqc-screen {
+    width: min(1600px, calc(100% - 80px));
+  }
+
+  .sqc-mobile-web.desktop-community-discovery .sqc-catalog {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
 @media (min-width: 1180px) and (max-width: 1280px) {
   .sqc-desktop-shortcuts {
     gap: 12px;

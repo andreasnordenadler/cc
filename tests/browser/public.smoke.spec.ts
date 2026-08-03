@@ -111,6 +111,32 @@ test("Community discovery switches between one mobile catalog and a desktop brow
     await expect(firstRow.locator(".sqc-community-row-creator")).toContainText("By ");
     await expect(firstRow.locator(".sqc-community-row-summary")).not.toBeEmpty();
     await expect(firstRow.locator(".sqc-community-row-stat")).toHaveCount(3);
+
+    await page.setViewportSize({ width: 1440, height: 900 });
+    expect(await catalog.evaluate((element) => getComputedStyle(element).gridTemplateColumns.split(" ").length)).toBe(2);
+
+    await page.setViewportSize({ width: 1679, height: 900 });
+    expect(await catalog.evaluate((element) => getComputedStyle(element).gridTemplateColumns.split(" ").length)).toBe(2);
+
+    await page.setViewportSize({ width: 1680, height: 900 });
+    expect(await catalog.evaluate((element) => getComputedStyle(element).gridTemplateColumns.split(" ").length)).toBe(3);
+
+    await page.setViewportSize({ width: 1920, height: 1080 });
+    const wideGeometry = await catalog.evaluate((element) => {
+      const screen = element.closest(".sqc-screen");
+      const cards = Array.from(element.querySelectorAll<HTMLElement>(".sqc-app-row"));
+      return {
+        columns: getComputedStyle(element).gridTemplateColumns.split(" ").filter(Boolean).length,
+        screenWidth: screen?.getBoundingClientRect().width ?? 0,
+        cardWidths: cards.slice(0, 3).map((card) => card.getBoundingClientRect().width),
+        overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+      };
+    });
+    expect(wideGeometry.columns).toBe(3);
+    expect(wideGeometry.screenWidth).toBeGreaterThanOrEqual(1500);
+    expect(wideGeometry.cardWidths).toHaveLength(3);
+    expect(wideGeometry.cardWidths.every((width) => width >= 390)).toBe(true);
+    expect(wideGeometry.overflow).toBe(0);
   } else {
     await expect(page.locator(".sqc-community-catalog-section .sqc-empty-panel.standalone")).toBeVisible();
   }
