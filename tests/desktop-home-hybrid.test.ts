@@ -4,6 +4,7 @@ import test from "node:test";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import MobileAppWebShell, { desktopHomeMenuItems, mobileWebMenuItems, MobileCommunitySideQuestsScreen, MobileCreateCustomScreen, MobileCreateMultiplayerScreen, MobileCustomSideQuestsScreen, MobileMultiplayerSideQuestsScreen, MobileSoloSideQuestsScreen, MobileSupportScreen, MobileTrophyCabinetScreen } from "../src/components/mobile-app-web-shell";
+import DesktopHomeMenu from "../src/components/desktop-home-menu";
 import { CHALLENGES } from "../src/lib/challenges";
 
 test("desktop home menu preserves the app menu labels, destinations, and order", () => {
@@ -23,6 +24,24 @@ test("desktop home menu preserves the app menu labels, destinations, and order",
       { label: "Privacy Policy", href: "/privacy" },
     ],
   );
+});
+
+test("desktop Explore menu groups secondary destinations without repeating persistent shortcuts", () => {
+  const html = renderToStaticMarkup(
+    createElement(DesktopHomeMenu, {
+      items: desktopHomeMenuItems.slice(4),
+      activeItemId: "custom",
+    }),
+  );
+
+  assert.match(html, /<summary[^>]*><span>Explore<\/span>/);
+  assert.match(html, /<span class="sqc-desktop-menu-group-title">Create &amp; manage<\/span>/);
+  assert.match(html, /<span class="sqc-desktop-menu-group-title">Account &amp; help<\/span>/);
+  assert.match(html, /aria-current="page"[^>]*href="\/custom-side-quests"/);
+  assert.doesNotMatch(html, /href="\/">Home<\/a>/);
+  assert.doesNotMatch(html, /href="\/side-quests">Solo Side Quests<\/a>/);
+  assert.doesNotMatch(html, /href="\/multiplayer">Multiplayer Side Quests<\/a>/);
+  assert.doesNotMatch(html, /href="\/trophy-cabinet">Trophy Cabinet<\/a>/);
 });
 
 test("signed-out home renders an app surface plus a desktop-only guided experience", () => {
@@ -53,6 +72,7 @@ test("desktop home stays hidden until the full-desktop breakpoint", () => {
   assert.match(css, /@media\s*\(min-width:\s*1180px\)[\s\S]*?\.sqc-app-only\s*\{[^}]*display:\s*none;/);
   assert.match(css, /@media\s*\(min-width:\s*1180px\)[\s\S]*?\.sqc-desktop-home-only\s*\{[^}]*display:\s*block;/);
   assert.match(css, /@media\s*\(prefers-reduced-motion:\s*reduce\)[\s\S]*?html\s*\{[^}]*scroll-behavior:\s*auto;/);
+  assert.match(css, /@media\s*\(prefers-reduced-motion:\s*reduce\)[\s\S]*?\.sqc-desktop-menu-chevron\s*\{[^}]*transition:\s*none\s*!important;/);
   assert.match(css, /\.sqc-desktop-sign-in\s*\{[^}]*max-width:[^;}]+;[^}]*overflow:\s*hidden;[^}]*text-overflow:\s*ellipsis;[^}]*white-space:\s*nowrap;/);
 });
 
@@ -243,7 +263,7 @@ test("Trophy Cabinet becomes one desktop collection workspace without duplicatin
   assert.match(html, /class="sqc-desktop-trophy-intro"/);
   assert.match(html, />Every ridiculous victory, filed in one grand collection\.<\/h1>/);
   assert.equal(html.match(/href="\/challenges\//g)?.length, 1, "desktop and mobile share one official coat grid");
-  assert.equal(html.match(/href="\/side-quests"/g)?.length, 3, "shared shortcut, menu, and empty reward row each expose Solo discovery once");
+  assert.equal(html.match(/href="\/side-quests"/g)?.length, 2, "persistent shortcut and empty reward row expose Solo discovery without a duplicate Explore entry");
 });
 
 test("Trophy Cabinet keeps the mobile stack below 1180px and uses the desktop canvas at the boundary", () => {

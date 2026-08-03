@@ -367,7 +367,7 @@ function DesktopHomeHeader({ signedIn, displayName, activeTab, activeItemId }: {
           </Link>
         ))}
       </nav>
-      <DesktopHomeMenu items={desktopHomeMenuItems} activeItemId={resolvedActiveItemId} />
+      <DesktopHomeMenu items={desktopHomeMenuItems.slice(shortcuts.length)} activeItemId={resolvedActiveItemId} />
       {signedIn ? (
         <Link href="/account" className="sqc-desktop-sign-in">{displayName || "My Account"}</Link>
       ) : (
