@@ -737,6 +737,10 @@ body::after {
   padding: 14px;
 }
 
+.sqc-desktop-auth-context {
+  display: none;
+}
+
 .sqc-panel.hero {
   padding-top: 18px;
 }
@@ -8580,6 +8584,144 @@ body::after {
     outline: 3px solid rgba(245, 200, 106, .78);
     outline-offset: 3px;
   }
+
+  /* Authentication keeps Clerk's single interactive form and exact return path,
+     while desktop gives account context and sign-in equal visual weight. */
+  .sqc-mobile-web.desktop-auth .sqc-desktop-route-only { display: block; }
+
+  .sqc-mobile-web.desktop-auth {
+    display: block;
+    min-height: 100vh;
+    padding: 0;
+    background:
+      radial-gradient(circle at 16% 16%, rgba(245, 200, 106, .16), transparent 28%),
+      radial-gradient(circle at 84% 28%, rgba(96, 240, 175, .07), transparent 24%),
+      linear-gradient(180deg, #251b12 0%, #15110e 45%, #060708 100%);
+  }
+
+  .sqc-mobile-web.desktop-auth > div:not(.sqc-mobile-backdrop):not(.sqc-desktop-route-only) > :is(.sqc-menu, .sqc-app-header, .sqc-close-screen),
+  .sqc-mobile-web.desktop-auth .sqc-guest-nav { display: none; }
+
+  .sqc-mobile-web.desktop-auth .sqc-screen {
+    width: min(1280px, calc(100% - 64px));
+    margin: 0 auto;
+    padding: 48px 0 84px;
+  }
+
+  .sqc-mobile-web.desktop-auth .sqc-auth-workspace {
+    min-height: 650px;
+    display: grid;
+    grid-template-columns: minmax(0, 1.08fr) minmax(440px, .92fr);
+    align-items: stretch;
+    gap: 0;
+    overflow: hidden;
+    border: 1px solid rgba(245, 200, 106, .2);
+    border-radius: 32px;
+    background: rgba(255, 247, 232, .045);
+    box-shadow: 0 34px 100px rgba(0, 0, 0, .34);
+  }
+
+  .sqc-mobile-web.desktop-auth .sqc-auth-intro {
+    position: relative;
+    display: grid;
+    align-content: center;
+    gap: 24px;
+    padding: 64px clamp(48px, 5vw, 78px);
+    overflow: hidden;
+    border: 0;
+    border-radius: 0;
+    background:
+      radial-gradient(circle at 20% 18%, rgba(245, 200, 106, .2), transparent 34%),
+      linear-gradient(145deg, rgba(255, 247, 232, .07), rgba(4, 28, 23, .34));
+    text-align: left;
+  }
+
+  .sqc-mobile-web.desktop-auth .sqc-auth-intro::after {
+    position: absolute;
+    right: -72px;
+    bottom: -98px;
+    width: 360px;
+    height: 400px;
+    background: url("/mobile-source/sqc-coat-of-arms.png") center / contain no-repeat;
+    content: "";
+    opacity: .055;
+    transform: rotate(8deg);
+    pointer-events: none;
+  }
+
+  .sqc-mobile-web.desktop-auth .sqc-auth-intro > * { position: relative; z-index: 1; }
+
+  .sqc-mobile-web.desktop-auth .sqc-auth-intro h1 {
+    max-width: 680px;
+    margin: 0;
+    font-family: ui-serif, Georgia, Cambria, "Times New Roman", serif;
+    font-size: clamp(48px, 4.3vw, 66px);
+    line-height: .96;
+    letter-spacing: -.045em;
+    text-wrap: balance;
+  }
+
+  .sqc-mobile-web.desktop-auth .sqc-auth-intro > p {
+    max-width: 620px;
+    margin: 0;
+    color: rgba(255, 247, 232, .72);
+    font-size: 16px;
+    font-weight: 650;
+    line-height: 1.65;
+  }
+
+  .sqc-mobile-web.desktop-auth .sqc-desktop-auth-context {
+    display: grid;
+    gap: 0;
+    margin-top: 18px;
+    border-top: 1px solid rgba(245, 200, 106, .18);
+  }
+
+  .sqc-mobile-web.desktop-auth .sqc-desktop-auth-context > div {
+    min-width: 0;
+    display: grid;
+    grid-template-columns: 34px minmax(0, 1fr);
+    gap: 3px 14px;
+    padding: 16px 0;
+    border-bottom: 1px solid rgba(245, 200, 106, .13);
+  }
+
+  .sqc-mobile-web.desktop-auth .sqc-desktop-auth-context span {
+    grid-row: 1 / span 2;
+    color: var(--gold);
+    font-family: var(--font-geist-mono), monospace;
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: .08em;
+  }
+
+  .sqc-mobile-web.desktop-auth .sqc-desktop-auth-context strong { font-size: 14px; }
+
+  .sqc-mobile-web.desktop-auth .sqc-desktop-auth-context small {
+    color: rgba(255, 247, 232, .6);
+    font-size: 12px;
+    line-height: 1.45;
+  }
+
+  .sqc-mobile-web.desktop-auth .sqc-auth-card {
+    min-width: 0;
+    align-content: center;
+    padding: 44px;
+    overflow: visible;
+    border: 0;
+    border-left: 1px solid rgba(245, 200, 106, .17);
+    border-radius: 0;
+    background: rgba(7, 8, 8, .48);
+  }
+
+  .sqc-mobile-web.desktop-auth .sqc-auth-card > * { max-width: 100%; }
+
+  .sqc-mobile-web.desktop-auth :is(a, button, input):focus-visible {
+    outline: 3px solid rgba(245, 200, 106, .9);
+    outline-offset: 3px;
+  }
+
+  /* End desktop authentication workspace */
 }
 
 @media (min-width: 1180px) and (max-width: 1280px) {
