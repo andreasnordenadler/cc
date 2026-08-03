@@ -2,6 +2,7 @@ import MobileAppWebShell, { MobileCommunitySideQuestsScreen } from "@/components
 import { clerkClient, currentUser } from "@clerk/nextjs/server";
 import { unstable_noStore as noStore } from "next/cache";
 import { listPublicCommunitySideQuests } from "@/lib/community-side-quests";
+import { listPublicGroupQuests } from "@/lib/groupquests";
 import { getChallengeProgress, getChessComUsername, getLichessUsername, getPreferredRunnerName, type UserMetadataRecord } from "@/lib/user-metadata";
 
 export const dynamic = "force-dynamic";
@@ -20,7 +21,8 @@ export default async function CommunitySideQuestsPage({
   const { creator } = await searchParams;
   const client = await clerkClient();
   const user = await currentUser();
-  const communityQuests = await listPublicCommunitySideQuests(client, { limit: null, viewerUserId: user?.id ?? null });
+  const publicGroupQuests = await listPublicGroupQuests(client);
+  const communityQuests = await listPublicCommunitySideQuests(client, { limit: null, groupQuests: publicGroupQuests, viewerUserId: user?.id ?? null });
   const metadataRecord = user?.publicMetadata ? (user.publicMetadata as UserMetadataRecord) : {};
   const completedIds = new Set(getChallengeProgress(metadataRecord).completedChallengeIds);
   const newQuestCutoffMs = getCommunityNewCutoffMs();
@@ -64,6 +66,12 @@ export default async function CommunitySideQuestsPage({
             status: completedIds.has(quest.id) ? "Completed" : "Ready",
             creatorKey: quest.creatorKey,
             creatorName: quest.creatorName,
+            summary: quest.summary,
+            stats: {
+              soloAttempts: quest.stats.soloAttempts,
+              soloCompletions: quest.stats.soloCompletions,
+              multiplayerLineups: quest.stats.multiplayerLineups,
+            },
             updatedAtMs: quest.updatedAtMs,
             popularityScore: quest.popularityScore,
             likeCount: likeSummary.count,
