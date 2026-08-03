@@ -1,8 +1,8 @@
 # Side Quest Chess — Google Play declarations pack (current-source draft)
 
-Prepared: 2026-08-02
+Prepared: 2026-08-03
 
-Current checked-in release baseline: `0.1.344 (344)`; current inspected Google Play upload candidate: `0.1.344 (345)`
+Current checked-in release baseline: `0.1.346 (346)`; Current inspected Google Play upload candidate: `0.1.346 (347)`
 
 Package: `com.sidequestchess.app`
 
@@ -12,11 +12,11 @@ Scope: evidence-bound answers for Google Play's App content forms. This is a lau
 
 ## Candidate and evidence boundary
 
-- Current canonical source: `origin/main` at `54834b2ea2ff880d6d1b95fe88329c81655d8fa5`; its latest mobile baseline is merged PR #168 at `0364be9e2f19a81de69716dbff04c0361a2b37a4` (`0.1.344`, checked-in code `344`). That same immutable commit is the EAS build source. Later `origin/main` changes add reviewed Google Play listing assets and change web-only product surfaces; native app, tracked Android, Expo/EAS production configuration, dependency, release-script, and mobile-workflow inputs remain byte-identical to the build source.
-- The current inspected AAB is `0.1.344 (345)`, SHA-256 `b4847e7b42817f1cc3109f37c1296465018edbce6aa65c390ab073ab21f8dc3d`, size 86,157,026 bytes, built by EAS build `4cfb5ba3-8795-4804-b111-a742a9fee483` from `0364be9e2f19a81de69716dbff04c0361a2b37a4`. It is the only current upload candidate; codes 342 through 344 are superseded.
-- Current AAB inspection confirms package `com.sidequestchess.app`, version `0.1.344` (345), min SDK 24, target/compile SDK 36, no enabled debuggable attribute, `allowBackup=false`, four ABIs, ZIP and bundletool validity, production API `https://sidequestchess.com`, bounded runtime permissions, and continuity with the established upload certificate. The Play app-signing certificate remains a separate console/read-back and Play-delivered-install gate.
+- Current canonical source: `origin/main` at `647825c53fac16cef542f93c9f9c6f647a0a98c6`; its latest mobile baseline is merged PR #188 at `6a0888cb2b76a667168806b7da186dbd3583c451` (`0.1.346`, checked-in code `346`). That immutable commit is the EAS build source. Later `origin/main` changes are web-only; `apps/mobile` remains byte-identical to the build source.
+- The current inspected AAB is `0.1.346 (347)`, AAB SHA-256: `87353e5b90e6769063524fd830a663b449c4088b3c9c60a2310beca0cef6d316`, size 86,159,455 bytes. EAS build: `691d9598-fe32-4d8c-949a-ff840384869c`. Immutable EAS source: `6a0888cb2b76a667168806b7da186dbd3583c451`. It is the only current upload candidate; codes 342 through 346 are superseded.
+- Current AAB inspection confirms package `com.sidequestchess.app`, version `0.1.346` (347), min SDK 24, target SDK 36, no enabled debuggable attribute, `allowBackup=false`, four ABIs, ZIP and bundletool validity, production API `https://sidequestchess.com`, bounded runtime permissions, and continuity with the established upload certificate. The Play app-signing certificate remains a separate console/read-back and Play-delivered-install gate.
 - Preserved Play Console evidence records `0.1.340 (341)` as available on Internal testing with no tester list selected. This is historical track state, not the current upload candidate and not production publication.
-- The repository now contains the reviewed listing-ready 512 × 512 store icon and 1,024 × 500 feature graphic. Current-candidate phone screenshots remain blocked on the authorized Play-delivered code-345 install and must not be substituted with responsive engineering captures.
+- The repository now contains the reviewed listing-ready 512 × 512 store icon and 1,024 × 500 feature graphic. Current-candidate phone screenshots remain blocked on the authorized Play-delivered code-347 install and must not be substituted with responsive engineering captures.
 - The candidate uses Clerk authentication and the first-party SQC API. It reads public Lichess and Chess.com records for user-selected usernames/game references.
 - The candidate has no advertising, billing, subscription, or real-money-prize integration.
 - The candidate supports public/community content, Multiplayer participation, proof links, support/report messages, and permanent in-app account deletion.
@@ -69,7 +69,7 @@ Use the existing **Side Quest Chess** Play Console app and package `com.sideques
 
 The following are confirmed before Console access:
 
-- upload candidate: `0.1.344` / version code `345`, AAB SHA-256 `b4847e7b42817f1cc3109f37c1296465018edbce6aa65c390ab073ab21f8dc3d`;
+- upload candidate: `0.1.346` / version code `347`, AAB SHA-256 `87353e5b90e6769063524fd830a663b449c4088b3c9c60a2310beca0cef6d316`;
 - known upload-certificate SHA-256: `891fdc5a80601eaa2b6db1f3fcb26ab756650179b40b3a3f5f58dd921d753cf2`;
 - initial tester Google account: `samnordbot@gmail.com`;
 - intended tester-list name: `SQC Android internal`;
@@ -79,14 +79,14 @@ The following are confirmed before Console access:
 The following must be read back from the existing Console app and remain **BLOCKED** until an explicitly authorized Console session:
 
 1. Confirm **App integrity** shows Play App Signing enabled and record the Play **app-signing key certificate** SHA-256 separately from the upload certificate. Never expose private keys, keystores, passwords, tokens, or recovery material.
-2. Confirm Internal testing still belongs to this exact package and that no code higher than `345` makes the candidate stale.
+2. Confirm Internal testing still belongs to this exact package and that no code higher than `347` makes the candidate stale.
 3. Create or select `SQC Android internal`, add only `samnordbot@gmail.com` initially, attach the list to Internal testing, and verify the feedback contact.
-4. Upload only the bound code-345 AAB; require Play to parse package `com.sidequestchess.app`, version `0.1.344`, and code `345`. An APK or sideload is not an acceptable substitute.
+4. Upload only the bound code-347 AAB; require Play to parse package `com.sidequestchess.app`, version `0.1.346`, and code `347`. An APK or sideload is not an acceptable substitute.
 5. Stop before rollout unless the authorization explicitly includes internal-track publication. After an authorized rollout, install from the private Play opt-in path and require installer `com.android.vending`.
 6. Inspect the Play-delivered base/split APK signer and require it to match the Console's Play app-signing certificate, not the upload certificate.
 7. Complete the physical-device smoke and responsive regression on that Play-delivered install, then capture the privacy-safe 9:16 listing screenshots. The preserved seven-profile signed-APK matrix remains valid engineering evidence but does not prove Play delivery or app signing.
 
-Tester assignment, AAB upload, Console declaration entry, internal-track rollout, Play-delivered installation, and publication remain explicit owner gates. Until these read-backs pass, code 345 is a provenance-verified Play-format candidate, not a Play-accepted internal-test release.
+Tester assignment, AAB upload, Console declaration entry, declaration submission, internal-track rollout, Play-delivered installation, and publication each remain an explicit owner gate. Until these read-backs pass, code 347 is a provenance-verified Play-format candidate, not a Play-accepted internal-test release.
 
 ## Content rating — exact factual posture
 
@@ -107,7 +107,7 @@ Use these facts when completing the interactive IARC questionnaire; do not claim
 | Users communicate or exchange content | **Yes, bounded** — users publish/join shared quest content and participation; this is not an unrestricted live chat product |
 | Location sharing | No |
 
-Content-report entry points are available for non-owner Community Solo and Community Multiplayer content on Android and the website. Android and signed-in web Community Multiplayer reporting bind the exact target ID outside the editable reason and submit structured target data through the authenticated report API. Community Solo uses the account support flow; signed-out web handoffs do not submit a report, but require sign-in and then prefill editable context into the support composer. Merged PR #166 records the client-asserted source label as `mobile` when a request sends `x-side-quest-chess-client: android` and otherwise records `website`; executable route tests cover both branches. That header is requester-controlled, so the label is useful for diagnostics but is not trustworthy proof of Android-versus-website origin. The reviewed source still does not provide a distinct reported-user identity, user blocking, or an operable moderation queue. `sam@crowdler.com` is the owner-provided intended moderation contact, but the public privacy and terms pages still expose `andreas.nordenadler@gmail.com`. Do not answer that UGC is absent merely because the product has no open chat.
+Content-report entry points are available for non-owner Community Solo and Community Multiplayer content on Android and the website. Android and signed-in web Community Multiplayer reporting bind the exact target ID outside the editable reason and submit structured target data through the authenticated report API. Community Solo uses the account support flow; signed-out web handoffs do not submit a report, but require sign-in and then prefill editable context into the support composer. Merged PR #166 records a tested client-asserted source label. Merged PRs #184 and #187 add creator blocking and distinct creator reporting on Android from an eligible non-owner public Community Multiplayer detail: blocking then hides that creator’s public Community Solo and Multiplayer content from discovery, while reporting sends a bounded reason through the authenticated creator-report contract. There is no direct creator-report or block entry point for a creator represented only by Community Solo content. These controls still do not provide an operable moderation queue or make the requester-controlled source label trustworthy proof of origin. `sam@crowdler.com` is the owner-provided intended moderation contact, but the public privacy and terms pages still expose `andreas.nordenadler@gmail.com`. Do not answer that UGC is absent merely because the product has no open chat.
 
 ### UGC controls and moderation operations — implementation confirmed; adoption BLOCKED
 
@@ -116,13 +116,13 @@ Confirmed shipped controls:
 - public user-created Solo and Multiplayer Side Quests have content-report entry points on their detail surfaces;
 - only signed-in users can submit a report, and the server binds it to the authenticated SQC account;
 - Android and signed-in web Community Multiplayer reports bind an exact target ID separately from the bounded editable reason; Community Solo submissions remain account-attached support messages, while signed-out web handoffs require sign-in before prefilling that support flow;
+- Android provides distinct creator reporting and authenticated creator blocking from eligible non-owner public Community Multiplayer details; blocking hides that creator’s public Community Solo and Multiplayer content from discovery without transmitting the report reason;
 - every reporter receives an in-product submission result; support-thread reports remain readable by the reporter and the thread UI can display an admin-authored entry, but no current admin reply-authoring workflow was found;
 - the product deliberately has no unrestricted live chat, direct messaging, photo/video upload, or location-sharing surface.
 
 Confirmed operational gaps:
 
-- there is no user-blocking control;
-- there is no distinct in-app user-reporting control;
+- there is no separately evidenced creator-blocking or creator-reporting parity on every non-Android client;
 - structured reports persist a tested client-asserted source label, but the requester-controlled header cannot support a trustworthy origin-specific audit;
 - there is no dedicated moderation queue, role-gated removal tool, escalation log, or executable takedown workflow in the reviewed source;
 - no adopted prohibited-content rules, response target, emergency escalation path, repeat-abuse policy, appeal path, or retention rule for moderation records was found;
@@ -130,7 +130,7 @@ Confirmed operational gaps:
 
 Recommended owner/legal adoption decision before broad public UGC launch:
 
-1. Treat Play's current UGC policy as a definite submission blocker for the present public UGC model: implement and test distinct in-app reporting for users and content plus user blocking before submission.
+1. Reconcile the shipped Android creator-reporting and user-blocking controls against Play's current UGC wording, then close any required cross-client, moderation-delivery, or enforcement gaps before submission.
 2. Adopt the prohibited-content categories and identify who may hide/remove a quest or restrict an account.
 3. Set an explicit review target and urgent-harm escalation route that the named moderation owner can actually operate.
 4. Choose an auditable queue/notification mechanism; the existing private support-thread write alone is insufficient as an operations queue.
@@ -180,7 +180,7 @@ Do **not** declare collection solely because an Android permission or transitive
 - local documents/files as user data;
 - advertising IDs for advertising or behavioral profiling.
 
-The current code-345 AAB was inspected after the permission-hardening merge. Its manifest is limited to Internet, network state, vibration, and the app-scoped dynamic-receiver permission; storage, overlay, biometric, fingerprint, location, camera, microphone, contacts, SMS, phone, and Play install-referrer permissions are absent. Manifest presence or absence alone is not permission to answer a data-safety question inaccurately.
+The current code-347 AAB was inspected after the permission-hardening merge. Its manifest is limited to Internet, network state, vibration, and the app-scoped dynamic-receiver permission; storage, overlay, biometric, fingerprint, location, camera, microphone, contacts, SMS, phone, and Play install-referrer permissions are absent. Manifest presence or absence alone is not permission to answer a data-safety question inaccurately.
 
 The absence of a runtime permission does not resolve provider-generated telemetry. Before completing the collected/shared rows, obtain an exact production inventory for Clerk, selected OAuth providers, hosting/delivery/security infrastructure, and every bundled SDK. Explicitly classify IP-derived approximate location, device or other identifiers, authentication/session telemetry, crash/reliability records, and security/fraud signals. These determinations remain **BLOCKED**; this draft does not infer that they are absent merely because first-party source does not name them.
 
@@ -197,9 +197,9 @@ Google's form treatment can differ for processors/service providers and user-ini
 
 ## Persistent public-proof disclosure — BLOCKED
 
-Public proof links contain a readable signed payload that can include runner/display name, provider/game ID, timestamps, board position, and move evidence. A link already shared can remain readable independently of the Clerk account; current account deletion does not provide proof-link revocation. Draft PR #117 (`fix/account-deletion-proof-disclosure`, `18f580500ac67f6025714d9ca36e8d4791e93873`) corrects Android, web, and privacy deletion copy to disclose that boundary, but it remains a conflicting draft and has not been adopted or merged. Rebase and review that change against current `main`, then make the final policy and deletion disclosure consistent before submission.
+Public proof links contain a readable signed payload that can include runner/display name, provider/game ID, timestamps, board position, and move evidence. A link already shared can remain readable independently of the Clerk account; current account deletion does not provide proof-link revocation. Draft PR #117 (`fix/account-deletion-proof-disclosure`, `a674678e76936693d43c766c2b38f58bca349347`) corrects Android, web, and privacy deletion copy to disclose that boundary, but it has not been adopted or merged. Review that draft against current `main`, then make the final policy and deletion disclosure consistent before submission.
 
-PR #112 changed mobile support/report diagnostics from automatic attachment to explicit user consent. The code-345 AAB is bound to source containing that merged behavior; any console declaration must continue to describe diagnostics as opt-in. PR #166 subsequently added the client-asserted Android-versus-website source label, and the code-345 AAB includes that merged behavior; it did not make origin attribution tamper-resistant.
+PR #112 changed mobile support/report diagnostics from automatic attachment to explicit user consent. The code-347 AAB is bound to source containing that merged behavior; any console declaration must continue to describe diagnostics as opt-in. PR #166 subsequently added the client-asserted Android-versus-website source label; it did not make origin attribution tamper-resistant. PRs #184 and #187 added Android creator blocking and distinct creator reporting.
 
 ## Government, financial, health, and news declarations — READY
 
@@ -224,7 +224,7 @@ Before public store submission, an authorized owner/legal reviewer must approve 
 5. Deletion request URL/process, response timing, backup/log retention, and legal exceptions.
 6. `sam@crowdler.com` as the public support/privacy/moderation contact.
 7. Notice process and effective date.
-8. UGC rules and moderation operations: adopted acceptable-use terms, objectionable-content handling, an operable queue/removal/escalation process, report response ownership, and implementation of Play-required in-app user/content reporting and user blocking.
+8. UGC rules and moderation operations: adopted acceptable-use terms, objectionable-content handling, an operable queue/removal/escalation process, report response ownership, and confirmation that the shipped creator reporting and user blocking satisfy Play's current scope across supported clients.
 
 Green tests or a reachable policy URL do not adopt legal text.
 
@@ -251,8 +251,8 @@ Green tests or a reachable policy URL do not adopt legal text.
 - `src/lib/account-deletion-cleanup.ts`
 - `src/app/privacy/page.tsx`
 - `src/app/terms/page.tsx`
-- current code-345 AAB provenance: `apps/mobile/artifacts/android/mobile-v344-code345/evidence/AAB_PROVENANCE.md` in the mobile release lane
-- current internal tester and Play-delivered acceptance plan: `apps/mobile/artifacts/android/mobile-v344-code345/evidence/INTERNAL_TESTER_ACCOUNT_PLAN.md` in the mobile release lane
+- current code-347 AAB provenance: `apps/mobile/artifacts/android/mobile-v346-code347/evidence/AAB_PROVENANCE.md` in the mobile release lane
+- current internal tester and Play-delivered acceptance plan: `docs/SQC_GOOGLE_PLAY_INTERNAL_TEST_PLAN_V347_2026-08-03.md`
 - responsive Android matrix: `apps/mobile/artifacts/android/mobile-v340/evidence/RESPONSIVE_LAYOUT_MATRIX.md` in the responsive-release evidence lane
 - draft deletion-disclosure correction: PR #117 (`fix/account-deletion-proof-disclosure`)
 - exact listing pack: `docs/SQC_GOOGLE_PLAY_LISTING_V340_2026-07-30.md`
