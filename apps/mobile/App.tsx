@@ -44,6 +44,7 @@ import { loadMobileAccount } from "./src/account/loadMobileAccount";
 import { clerkPublishableKey, clerkTokenCache, isClerkMobileAuthConfigured } from "./src/auth/clerk";
 import { OFFLINE_MOBILE_BOOTSTRAP } from "./src/data/offlineBootstrap";
 import { shouldStackActiveQuestSummary } from "./src/layout/activeQuestLayout";
+import { createMobileCommunityCreatorReportSubmitter } from "./src/reports/communityCreatorReport";
 import { canReportCommunityMultiplayerQuest, createMobileCommunityReportSubmitter } from "./src/reports/communityMultiplayerReport";
 import { buildMobileSupportMessage } from "./src/support/buildMobileSupportMessage";
 import type { MobileAccountResponse, MobileAccountState, MobileBootstrap, MobileChallenge, MobileCustomSideQuest, MobileGroupQuestParticipantRow, MobileGroupQuestSummary, MobileSupportMessage } from "./src/types/sqc";
@@ -3731,6 +3732,7 @@ function CommunityMultiplayerReportModal({ visible, quest, authBridge, onClose, 
   const [reason, setReason] = useState("");
   const [submitState, setSubmitState] = useState<{ busy: boolean; message: string | null; error: string | null }>({ busy: false, message: null, error: null });
   const submitReportRequest = useRef(createMobileCommunityReportSubmitter()).current;
+  const submitCreatorReportRequest = useRef(createMobileCommunityCreatorReportSubmitter()).current;
 
   async function submitReport() {
     if (!quest || submitState.busy) return;
@@ -3752,6 +3754,27 @@ function CommunityMultiplayerReportModal({ visible, quest, authBridge, onClose, 
       setSubmitState({ busy: false, message: result.message, error: null });
     } catch (caught) {
       setSubmitState({ busy: false, message: null, error: caught instanceof Error ? caught.message : "Could not send the report. Try again." });
+    }
+  }
+
+  async function reportCreator() {
+    if (!quest || submitState.busy) return;
+    if (!authBridge.isSignedIn) {
+      setSubmitState({ busy: false, message: null, error: "Sign in before reporting a Community creator." });
+      return;
+    }
+    setSubmitState({ busy: true, message: null, error: null });
+    try {
+      const submission = await submitCreatorReportRequest(async () => ({
+        sessionToken: await authBridge.getSessionToken(),
+        targetId: quest.id,
+        reason,
+      }));
+      if (submission.kind === "busy") return;
+      setReason("");
+      setSubmitState({ busy: false, message: submission.result.message, error: null });
+    } catch (caught) {
+      setSubmitState({ busy: false, message: null, error: caught instanceof Error ? caught.message : "Could not send the creator report. Try again." });
     }
   }
 
@@ -3805,6 +3828,10 @@ function CommunityMultiplayerReportModal({ visible, quest, authBridge, onClose, 
             {submitState.error ? <Text accessibilityRole="alert" style={compactStyles.inlineError}>{submitState.error}</Text> : null}
             <Pressable accessibilityRole="button" accessibilityLabel="Send Community Multiplayer report" accessibilityState={{ disabled: submitState.busy }} style={[compactStyles.detailPrimaryButton, submitState.busy ? compactStyles.disabledAction : null]} disabled={submitState.busy} onPress={() => void submitReport()}>
               <Text style={compactStyles.detailPrimaryButtonText}>{submitState.busy ? "Sending..." : "Send report"}</Text>
+            </Pressable>
+            <Text style={compactStyles.detailPanelCopy}>To report repeated or account-level behavior by the person who created this Side Quest, send a separate creator report. The exact creator is attached by Side Quest Chess.</Text>
+            <Pressable accessibilityRole="button" accessibilityLabel="Report Community creator" accessibilityState={{ disabled: submitState.busy }} style={[compactStyles.detailSecondaryButton, submitState.busy ? compactStyles.disabledAction : null]} disabled={submitState.busy} onPress={() => void reportCreator()}>
+              <Text style={compactStyles.detailSecondaryButtonText}>Report creator</Text>
             </Pressable>
             <Text style={compactStyles.detailPanelCopy}>Blocking hides this creator’s public Community content from your discovery lists. Your report reason is not sent when you block.</Text>
             <Pressable accessibilityRole="button" accessibilityLabel="Block Community creator" accessibilityState={{ disabled: submitState.busy }} style={[compactStyles.detailSecondaryButton, submitState.busy ? compactStyles.disabledAction : null]} disabled={submitState.busy} onPress={() => void blockCreator()}>

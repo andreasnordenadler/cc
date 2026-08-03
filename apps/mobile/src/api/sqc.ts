@@ -285,6 +285,45 @@ export async function submitMobileCommunityMultiplayerReport({
   return { ok: true, reportId: result.reportId, submittedAt: result.submittedAt, message: "Report sent. We’ll review this Multiplayer Side Quest." };
 }
 
+export async function submitMobileCommunityCreatorReport({
+  sessionToken,
+  targetId,
+  reason,
+}: {
+  sessionToken?: string | null;
+  targetId: string;
+  reason: string;
+}): Promise<{ ok: true; reportId: string; submittedAt: string; message: string }> {
+  const cleanReason = reason.trim().replace(/\s+/g, " ");
+  if (cleanReason.length < 3) throw new Error("Add a short reason before reporting this Community creator.");
+  if (reason.length > 500) throw new Error("Keep the creator report reason to 500 characters or fewer.");
+  if (!/^[A-Za-z0-9][A-Za-z0-9_./:-]{0,119}$/.test(targetId)) throw new Error("Choose a valid Community creator.");
+
+  const response = await fetchWithTimeout(buildMobileUrl("/api/reports/creators"), {
+    method: "POST",
+    headers: { ...buildMobileAuthHeaders(sessionToken), "X-Side-Quest-Chess-Client": "android" },
+    body: JSON.stringify({ targetType: "community-multiplayer", targetId, reason: cleanReason }),
+  });
+  let result: { ok: boolean; reportId?: string; submittedAt?: string; message?: string };
+  try {
+    result = await readMobileJson(response, "Community creator report");
+  } catch {
+    throw new Error("Could not send the creator report. Try again.");
+  }
+  if (!response.ok || !result.ok || !result.reportId || !result.submittedAt) {
+    const safeMessages = new Set([
+      "Sign in before reporting a Community creator.",
+      "Choose a Community creator and add a short reason.",
+      "Choose a valid Community creator and add a short reason.",
+      "That Community creator is not available to report.",
+      "You cannot report yourself.",
+      "Could not safely store this creator report. Please contact support.",
+    ]);
+    throw new Error(result.message && safeMessages.has(result.message) ? result.message : "Could not send the creator report. Try again.");
+  }
+  return { ok: true, reportId: result.reportId, submittedAt: result.submittedAt, message: "Creator report sent. We’ll review this Community creator." };
+}
+
 export async function blockMobileCommunityCreator({
   sessionToken,
   targetId,
