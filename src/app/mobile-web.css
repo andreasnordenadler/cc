@@ -6795,6 +6795,30 @@ body::after {
 
   .sqc-mobile-web.desktop-official-detail .sqc-official-solo-detail-screen > .sqc-community-share-actions {
     grid-column: 1;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .sqc-mobile-web.desktop-official-detail .sqc-community-share-actions > button {
+    width: 100%;
+    min-height: 46px;
+    justify-content: center;
+    padding: 10px 18px;
+    border: 1px solid rgba(255, 247, 232, .24);
+    border-radius: 999px;
+    background: rgba(255, 247, 232, .055);
+    color: var(--paper);
+    font-size: 13px;
+    font-weight: 900;
+  }
+
+  .sqc-mobile-web.desktop-official-detail .sqc-community-share-actions > button:hover {
+    border-color: rgba(245, 200, 106, .44);
+    background: rgba(245, 200, 106, .1);
+  }
+
+  .sqc-mobile-web.desktop-official-detail .sqc-community-share-actions > small {
+    grid-column: 1 / -1;
   }
 
   .sqc-mobile-web.desktop-official-detail .sqc-active-solo-detail-screen {
