@@ -43,9 +43,9 @@ test("Google Play listing pack is aligned with the current code-347 candidate", 
   );
 
   assert.equal(appConfig.expo.name, "Side Quest Chess");
-  assert.equal(appConfig.expo.version, "0.1.346");
+  assert.equal(appConfig.expo.version, "0.1.347");
   assert.equal(appConfig.expo.android.package, "com.sidequestchess.app");
-  assert.equal(appConfig.expo.android.versionCode, 346);
+  assert.equal(appConfig.expo.android.versionCode, 347);
 });
 
 test("paste-ready Google Play copy stays within field limits", async () => {
