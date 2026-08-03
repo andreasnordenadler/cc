@@ -4561,6 +4561,10 @@ body::after {
   gap: 10px;
 }
 
+.sqc-desktop-settings-context {
+  display: none;
+}
+
 .sqc-username-editor-card {
   display: grid;
   gap: 6px;
@@ -8047,6 +8051,179 @@ body::after {
     outline: 3px solid rgba(245, 200, 106, .84);
     outline-offset: 3px;
   }
+
+  /* Settings keeps the same profile fields, save action, auth origin, and proof
+     boundary while desktop presents them as a focused account workspace. */
+  .sqc-mobile-web.desktop-settings .sqc-desktop-route-only { display: block; }
+
+  .sqc-mobile-web.desktop-settings {
+    display: block;
+    min-height: 100vh;
+    padding: 0;
+    background:
+      radial-gradient(circle at 16% 12%, rgba(245, 200, 106, .14), transparent 28%),
+      radial-gradient(circle at 84% 24%, rgba(96, 240, 175, .07), transparent 26%),
+      linear-gradient(180deg, #251b12 0%, #14110f 44%, #070809 100%);
+  }
+
+  .sqc-mobile-web.desktop-settings > div:not(.sqc-mobile-backdrop):not(.sqc-desktop-route-only) > :is(.sqc-menu, .sqc-app-header, .sqc-close-screen),
+  .sqc-mobile-web.desktop-settings .sqc-guest-nav { display: none; }
+
+  .sqc-mobile-web.desktop-settings .sqc-screen {
+    width: min(1240px, calc(100% - 64px));
+    margin: 0 auto;
+    padding: 56px 0 92px;
+  }
+
+  .sqc-mobile-web.desktop-settings .sqc-desktop-settings-context { display: grid; }
+
+  .sqc-mobile-web.desktop-settings .sqc-settings-editor-layout {
+    grid-template-columns: minmax(0, 1.35fr) minmax(340px, .65fr);
+    align-items: start;
+    gap: 24px;
+  }
+
+  .sqc-mobile-web.desktop-settings .sqc-settings-profile-panel {
+    gap: 18px;
+    padding: 36px;
+    border-radius: 28px;
+    background: rgba(255, 247, 232, .07);
+    box-shadow: 0 24px 70px rgba(0, 0, 0, .26);
+  }
+
+  .sqc-mobile-web.desktop-settings .sqc-settings-profile-panel h1,
+  .sqc-mobile-web.desktop-settings :is(.sqc-settings-proof-panel, .sqc-settings-sign-in-context) h2,
+  .sqc-mobile-web.desktop-settings .sqc-settings-sign-in-copy h1 {
+    font-family: ui-serif, Georgia, Cambria, "Times New Roman", serif;
+    letter-spacing: -.035em;
+  }
+
+  .sqc-mobile-web.desktop-settings .sqc-settings-profile-panel h1 {
+    max-width: 650px;
+    font-size: clamp(38px, 3.4vw, 52px);
+    line-height: .98;
+    text-wrap: balance;
+  }
+
+  .sqc-mobile-web.desktop-settings .sqc-settings-profile-panel > p:not(.sqc-account-kicker) {
+    max-width: 680px;
+    font-size: 15px;
+    line-height: 1.6;
+  }
+
+  .sqc-mobile-web.desktop-settings .sqc-settings-profile-panel .sqc-input-stack {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+  }
+
+  .sqc-mobile-web.desktop-settings .sqc-settings-profile-panel .sqc-form-row:nth-child(2) { grid-column: 1 / -1; }
+  .sqc-mobile-web.desktop-settings .sqc-settings-profile-panel .sqc-primary-action {
+    width: auto;
+    min-width: 190px;
+    justify-self: start;
+    border-radius: 999px;
+  }
+
+  .sqc-mobile-web.desktop-settings :is(.sqc-settings-proof-panel, .sqc-settings-sign-in-context) {
+    align-content: start;
+    gap: 18px;
+    padding: 34px;
+    border: 1px solid rgba(245, 200, 106, .22);
+    border-radius: 28px;
+    background: linear-gradient(145deg, rgba(245, 200, 106, .12), rgba(4, 28, 23, .42));
+  }
+
+  .sqc-mobile-web.desktop-settings :is(.sqc-settings-proof-panel, .sqc-settings-sign-in-context) h2 {
+    margin: 0;
+    font-size: 31px;
+    line-height: 1.04;
+  }
+
+  .sqc-mobile-web.desktop-settings :is(.sqc-settings-proof-panel, .sqc-settings-sign-in-context) > p,
+  .sqc-mobile-web.desktop-settings .sqc-settings-sign-in-context li {
+    margin: 0;
+    color: rgba(255, 247, 232, .72);
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  .sqc-mobile-web.desktop-settings .sqc-settings-proof-panel ol {
+    display: grid;
+    gap: 12px;
+    margin: 4px 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .sqc-mobile-web.desktop-settings .sqc-settings-proof-panel li {
+    display: grid;
+    grid-template-columns: 32px minmax(0, 1fr);
+    gap: 2px 12px;
+    padding-top: 12px;
+    border-top: 1px solid rgba(255, 247, 232, .1);
+  }
+
+  .sqc-mobile-web.desktop-settings .sqc-settings-proof-panel li span { grid-row: 1 / span 2; color: var(--gold); font-size: 11px; font-weight: 900; }
+  .sqc-mobile-web.desktop-settings .sqc-settings-proof-panel li small { color: rgba(255, 247, 232, .62); line-height: 1.45; }
+  .sqc-mobile-web.desktop-settings .sqc-settings-sync-note { padding-top: 16px; border-top: 1px solid rgba(255, 247, 232, .1); }
+
+  .sqc-mobile-web.desktop-settings .sqc-settings-sign-in-layout {
+    grid-template-columns: minmax(0, 1.05fr) minmax(380px, .95fr);
+    align-items: stretch;
+    gap: 0;
+    min-height: 570px;
+    overflow: hidden;
+    border: 1px solid rgba(245, 200, 106, .22);
+    border-radius: 30px;
+    background: rgba(255, 247, 232, .055);
+  }
+
+  .sqc-mobile-web.desktop-settings .sqc-settings-sign-in-copy {
+    display: grid;
+    align-content: center;
+    justify-items: start;
+    gap: 20px;
+    padding: 64px;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+  }
+
+  .sqc-mobile-web.desktop-settings .sqc-settings-sign-in-copy h1 {
+    max-width: 560px;
+    font-size: clamp(48px, 4.4vw, 68px);
+    line-height: .95;
+    text-wrap: balance;
+  }
+
+  .sqc-mobile-web.desktop-settings .sqc-settings-sign-in-copy .sqc-primary-action {
+    width: auto;
+    min-height: 50px;
+    padding-inline: 26px;
+    border-radius: 999px;
+  }
+
+  .sqc-mobile-web.desktop-settings .sqc-settings-sign-in-context {
+    align-content: center;
+    padding: 56px;
+    border: 0;
+    border-left: 1px solid rgba(245, 200, 106, .17);
+    border-radius: 0;
+  }
+
+  .sqc-mobile-web.desktop-settings .sqc-settings-sign-in-context ul {
+    display: grid;
+    gap: 10px;
+    margin: 0;
+    padding-left: 18px;
+  }
+
+  .sqc-mobile-web.desktop-settings :is(a, button, input, textarea):focus-visible {
+    outline: 3px solid rgba(245, 200, 106, .84);
+    outline-offset: 3px;
+  }
+
+  /* End desktop Settings workspace */
 
   /* Support keeps Android's help topics, diagnostics, privacy boundaries, and
      message composer in one subtree while desktop exposes a scannable triage desk. */
