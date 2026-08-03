@@ -193,15 +193,27 @@ test("signed-out support clearly requires an account before messaging", async ({
   await expect(report.getByRole("button", { name: "Send support message" })).toHaveCount(0);
 });
 
-test("account sign-in hero stays bounded on desktop", async ({ page }) => {
+test("account authentication uses a desktop workspace without duplicating the Clerk form", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await expectHealthyNavigation(page, "/sign-in");
 
   const heading = page.getByRole("heading", { name: "Sign in, then go make terrible chess decisions." });
+  const workspace = page.locator(".sqc-auth-workspace");
   await expect(heading).toBeVisible();
-  const fontSize = await heading.evaluate((element) => Number.parseFloat(getComputedStyle(element).fontSize));
-  expect(fontSize).toBeLessThanOrEqual(40);
+  await expect(page.getByRole("navigation", { name: "Desktop shortcuts" })).toBeVisible();
+  await expect(page.getByLabel("What your account keeps")).toBeVisible();
   await expect(page.getByRole("region", { name: "Sign in form" })).toBeInViewport();
+  await expect(page.locator(".sqc-auth-card form")).toHaveCount(1);
+
+  const geometry = await workspace.evaluate((element) => ({
+    columns: getComputedStyle(element).gridTemplateColumns.split(" ").filter(Boolean).length,
+    fontSize: Number.parseFloat(getComputedStyle(element.querySelector("h1")!).fontSize),
+    overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+  }));
+  expect(geometry.columns).toBe(2);
+  expect(geometry.fontSize).toBeGreaterThanOrEqual(48);
+  expect(geometry.fontSize).toBeLessThanOrEqual(66);
+  expect(geometry.overflow).toBe(0);
 });
 
 test("solo catalog is publicly browseable", async ({ page }) => {
