@@ -285,6 +285,30 @@ export async function submitMobileCommunityMultiplayerReport({
   return { ok: true, reportId: result.reportId, submittedAt: result.submittedAt, message: "Report sent. We’ll review this Multiplayer Side Quest." };
 }
 
+export async function blockMobileCommunityCreator({
+  sessionToken,
+  targetId,
+}: {
+  sessionToken?: string | null;
+  targetId: string;
+}): Promise<{ ok: true; action: "blocked"; message: string }> {
+  if (!/^[A-Za-z0-9][A-Za-z0-9_./:-]{0,119}$/.test(targetId)) throw new Error("Choose a valid Community Multiplayer creator.");
+  const response = await fetchWithTimeout(buildMobileUrl("/api/blocks/users"), {
+    method: "POST",
+    headers: { ...buildMobileAuthHeaders(sessionToken), "X-Side-Quest-Chess-Client": "android" },
+    body: JSON.stringify({ targetType: "community-multiplayer", targetId, action: "block" }),
+  });
+  const result = await readMobileJson<{ ok: boolean; action?: "blocked"; message?: string }>(response, "Community creator block");
+  if (!response.ok || !result.ok || result.action !== "blocked") {
+    throw new Error(result.message || "Could not block this creator. Try again.");
+  }
+  return {
+    ok: true,
+    action: "blocked",
+    message: result.message ?? "Creator blocked.",
+  };
+}
+
 export async function runMobileCommunityLikeAction({
   sessionToken,
   targetType,

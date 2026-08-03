@@ -38,7 +38,7 @@ import {
   type TextStyle,
 } from "react-native";
 import { SafeAreaProvider, SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
-import { buildMobileUrl, getApiBaseUrl, deleteMobileAccount, deleteMobileCustomSideQuest, fetchMobileAccountState, fetchMobileBootstrap, runMobileCommunityLikeAction, runMobileGroupQuestAction, runMobileQuestAction, saveMobileCustomSideQuest, submitMobileSupportMessage, updateMobileChessUsernames } from "./src/api/sqc";
+import { blockMobileCommunityCreator, buildMobileUrl, getApiBaseUrl, deleteMobileAccount, deleteMobileCustomSideQuest, fetchMobileAccountState, fetchMobileBootstrap, runMobileCommunityLikeAction, runMobileGroupQuestAction, runMobileQuestAction, saveMobileCustomSideQuest, submitMobileSupportMessage, updateMobileChessUsernames } from "./src/api/sqc";
 import { findSignedOutPublicMultiplayerQuest, getSignedOutPublicMultiplayerCatalog } from "./src/multiplayer/publicCatalog";
 import { loadMobileAccount } from "./src/account/loadMobileAccount";
 import { clerkPublishableKey, clerkTokenCache, isClerkMobileAuthConfigured } from "./src/auth/clerk";
@@ -3727,7 +3727,7 @@ function HelpSupportModal({ visible, onClose, signedIn, authBridge, initialMessa
   );
 }
 
-function CommunityMultiplayerReportModal({ visible, quest, authBridge, onClose }: { visible: boolean; quest: MobileGroupQuestSummary | null; authBridge: MobileAuthBridge; onClose: () => void }) {
+function CommunityMultiplayerReportModal({ visible, quest, authBridge, onClose, onBlocked }: { visible: boolean; quest: MobileGroupQuestSummary | null; authBridge: MobileAuthBridge; onClose: () => void; onBlocked: () => void | Promise<unknown> }) {
   const [reason, setReason] = useState("");
   const [submitState, setSubmitState] = useState<{ busy: boolean; message: string | null; error: string | null }>({ busy: false, message: null, error: null });
   const submitReportRequest = useRef(createMobileCommunityReportSubmitter()).current;
@@ -3752,6 +3752,22 @@ function CommunityMultiplayerReportModal({ visible, quest, authBridge, onClose }
       setSubmitState({ busy: false, message: result.message, error: null });
     } catch (caught) {
       setSubmitState({ busy: false, message: null, error: caught instanceof Error ? caught.message : "Could not send the report. Try again." });
+    }
+  }
+
+  async function blockCreator() {
+    if (!quest || submitState.busy) return;
+    setSubmitState({ busy: true, message: null, error: null });
+    try {
+      const result = await blockMobileCommunityCreator({
+        sessionToken: await authBridge.getSessionToken(),
+        targetId: quest.id,
+      });
+      await onBlocked();
+      setSubmitState({ busy: false, message: result.message, error: null });
+      onClose();
+    } catch (caught) {
+      setSubmitState({ busy: false, message: null, error: caught instanceof Error ? caught.message : "Could not block this creator. Try again." });
     }
   }
 
@@ -3789,6 +3805,10 @@ function CommunityMultiplayerReportModal({ visible, quest, authBridge, onClose }
             {submitState.error ? <Text accessibilityRole="alert" style={compactStyles.inlineError}>{submitState.error}</Text> : null}
             <Pressable accessibilityRole="button" accessibilityLabel="Send Community Multiplayer report" accessibilityState={{ disabled: submitState.busy }} style={[compactStyles.detailPrimaryButton, submitState.busy ? compactStyles.disabledAction : null]} disabled={submitState.busy} onPress={() => void submitReport()}>
               <Text style={compactStyles.detailPrimaryButtonText}>{submitState.busy ? "Sending..." : "Send report"}</Text>
+            </Pressable>
+            <Text style={compactStyles.detailPanelCopy}>Blocking hides this creator’s public Community content from your discovery lists. Your report reason is not sent when you block.</Text>
+            <Pressable accessibilityRole="button" accessibilityLabel="Block Community creator" accessibilityState={{ disabled: submitState.busy }} style={[compactStyles.detailSecondaryButton, submitState.busy ? compactStyles.disabledAction : null]} disabled={submitState.busy} onPress={() => void blockCreator()}>
+              <Text style={compactStyles.detailSecondaryButtonText}>Block creator</Text>
             </Pressable>
           </View>
         </ScrollHintedScrollView>
@@ -7674,7 +7694,11 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
         onViewHost={openMultiplayerHostShelf}
       />
 
-      <CommunityMultiplayerReportModal key={multiplayerReportQuest?.id ?? "multiplayer-report"} visible={Boolean(multiplayerReportQuest)} quest={multiplayerReportQuest} authBridge={authBridge} onClose={() => setMultiplayerReportQuest(null)} />
+      <CommunityMultiplayerReportModal key={multiplayerReportQuest?.id ?? "multiplayer-report"} visible={Boolean(multiplayerReportQuest)} quest={multiplayerReportQuest} authBridge={authBridge} onClose={() => setMultiplayerReportQuest(null)} onBlocked={async () => {
+        await Promise.resolve(onAccountUpdated());
+        setJoinedMultiplayerId(null);
+        setPublicMultiplayerId(null);
+      }} />
 
       {multiplayerCatalogTab === "official" ? (
         <>
