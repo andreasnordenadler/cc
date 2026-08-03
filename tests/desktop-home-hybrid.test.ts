@@ -7,8 +7,12 @@ import MobileAppWebShell, { desktopHomeMenuItems, mobileWebMenuItems, MobileComm
 import DesktopHomeMenu from "../src/components/desktop-home-menu";
 import { CHALLENGES } from "../src/lib/challenges";
 
-test("desktop home menu preserves the app menu labels, destinations, and order", () => {
-  assert.deepEqual(desktopHomeMenuItems, mobileWebMenuItems);
+test("desktop navigation preserves app destinations without duplicating the dedicated account action", () => {
+  assert.deepEqual(
+    desktopHomeMenuItems,
+    mobileWebMenuItems.filter((item) => item.id !== "account"),
+  );
+  assert.equal(mobileWebMenuItems.find((item) => item.id === "account")?.href, "/account", "mobile menu keeps its account destination");
   assert.deepEqual(
     desktopHomeMenuItems.map(({ label, href }) => ({ label, href })),
     [
@@ -19,7 +23,6 @@ test("desktop home menu preserves the app menu labels, destinations, and order",
       { label: "My Custom Side Quests", href: "/custom-side-quests" },
       { label: "Create Custom Side Quest", href: "/create-custom-side-quest" },
       { label: "Create Multiplayer Side Quest", href: "/create-multiplayer-side-quest" },
-      { label: "My Account", href: "/account" },
       { label: "Help & Support", href: "/support" },
       { label: "Privacy Policy", href: "/privacy" },
     ],
@@ -42,6 +45,7 @@ test("desktop Explore menu groups secondary destinations without repeating persi
   assert.doesNotMatch(html, /href="\/side-quests">Solo Side Quests<\/a>/);
   assert.doesNotMatch(html, /href="\/multiplayer">Multiplayer Side Quests<\/a>/);
   assert.doesNotMatch(html, /href="\/trophy-cabinet">Trophy Cabinet<\/a>/);
+  assert.doesNotMatch(html, /href="\/account">My Account<\/a>/);
 });
 
 test("signed-out home renders an app surface plus a desktop-only guided experience", () => {
@@ -64,6 +68,7 @@ test("signed-out home renders an app surface plus a desktop-only guided experien
   assert.match(html, /Knights Before Coffee/);
   assert.match(html, /href="\/side-quests"[^>]*>Choose your bad idea<\/a>/);
   assert.match(html, /href="\/sign-in\?redirect_url=%2F"[^>]*>Sign in<\/a>/);
+  assert.doesNotMatch(html, /href="\/account">My Account<\/a>/);
 });
 
 test("desktop home stays hidden until the full-desktop breakpoint", () => {
@@ -96,6 +101,7 @@ test("signed-in desktop home guides setup while retaining the existing app home"
   assert.match(html, />Play and verify<\/strong>/);
   assert.match(html, /class="sqc-current-card/);
   assert.equal(html.match(/class="sqc-current-card/g)?.length, 1, "signed-in Home should render one interactive current-card subtree");
+  assert.equal(html.match(/class="sqc-desktop-sign-in" href="\/account"/g)?.length, 1, "signed-in desktop header exposes one dedicated account destination");
 });
 
 test("Solo discovery renders one catalog plus desktop navigation with the correct current route", () => {
@@ -596,6 +602,36 @@ test("Account becomes one desktop command center while preserving the mobile acc
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-account\s+\.sqc-account-progress\s*\{[^}]*grid-column:\s*8\s*\/\s*-1;/);
   assert.match(reducedMotion, /\.sqc-mobile-web\.desktop-account\s+\.sqc-account-row\s*\{[^}]*transition:\s*none\s*!important;/);
   assert.equal(css.replace(desktopMedia, "").replace(reducedMotion, "").includes(".sqc-mobile-web.desktop-account"), false, "desktop Account rules must not leak below 1180px");
+});
+
+test("signed-in desktop Account marks its sole persistent account action as current", () => {
+  const html = renderToStaticMarkup(
+    createElement(
+      MobileAppWebShell,
+      { activeTab: "account", signedIn: true, displayName: "Sam", desktopPresentation: "account" },
+      createElement("p", null, "Account workspace"),
+    ),
+  );
+
+  assert.equal(html.match(/class="sqc-desktop-sign-in"[^>]*href="\/account"/g)?.length, 1);
+  assert.match(html, /class="sqc-desktop-sign-in"[^>]*aria-current="page"[^>]*href="\/account"/);
+  assert.doesNotMatch(html, /href="\/account"[^>]*>My Account<\/a>/);
+});
+
+test("signed-in Support and Settings do not mislabel the account action as the current page", () => {
+  for (const desktopPresentation of ["support", "settings"] as const) {
+    const html = renderToStaticMarkup(
+      createElement(
+        MobileAppWebShell,
+        { activeTab: "account", signedIn: true, displayName: "Sam", desktopPresentation },
+        createElement("p", null, `${desktopPresentation} workspace`),
+      ),
+    );
+    const accountAction = html.match(/<a class="sqc-desktop-sign-in"[^>]*href="\/account"[^>]*>/)?.[0] ?? "";
+
+    assert.ok(accountAction, `${desktopPresentation} keeps the persistent account action`);
+    assert.doesNotMatch(accountAction, /aria-current="page"/, `${desktopPresentation} must not claim that /account is current`);
+  }
 });
 
 test("Help and Support uses persistent desktop navigation without duplicating its support content", () => {
