@@ -236,7 +236,7 @@ test("Community discovery uses structured activity cards only at the desktop bou
   const desktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1180px)"));
 
   assert.match(css, /\.sqc-community-row-details\s*\{[^}]*display:\s*none;/);
-  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-community-discovery\s+\.sqc-community-row-mobile-meta\s*\{[^}]*display:\s*none;/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-community-discovery\s+\.sqc-row-copy\s*>\s*\.sqc-community-row-mobile-meta\s*\{[^}]*display:\s*none;/);
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-community-discovery\s+\.sqc-community-row-details\s*\{[^}]*display:\s*grid;/);
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-community-discovery\s+\.sqc-community-row-stats\s*\{[^}]*display:\s*flex;/);
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-community-discovery\s+\.sqc-community-row-stat\s*\{[^}]*border-radius:\s*999px;/);

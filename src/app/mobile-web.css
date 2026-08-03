@@ -6355,7 +6355,7 @@ body::after {
     -webkit-line-clamp: 3;
   }
 
-  .sqc-mobile-web.desktop-community-discovery .sqc-community-row-mobile-meta {
+  .sqc-mobile-web.desktop-community-discovery .sqc-row-copy > .sqc-community-row-mobile-meta {
     display: none;
   }
 
