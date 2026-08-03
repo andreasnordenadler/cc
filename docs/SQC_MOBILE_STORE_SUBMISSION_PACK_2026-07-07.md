@@ -1,6 +1,6 @@
 # SQC Mobile Store Submission Pack - 2026-07-07
 
-This is the working pack for Google Play and Apple App Store submission. Fields marked `PENDING ANDREAS` need owner confirmation before submission.
+This is the cross-store working pack. The exact paste-ready Google Play copy and Android asset checklist live in `docs/SQC_GOOGLE_PLAY_LISTING_V340_2026-07-30.md`. Console changes, policy answers, uploads, tester assignment, and publication remain owner-gated.
 
 ## App Identity
 
@@ -8,42 +8,23 @@ This is the working pack for Google Play and Apple App Store submission. Fields 
 - Subtitle / short positioning: Chess side quests, proof receipts, and playful challenge runs.
 - Android package: `com.sidequestchess.app`
 - iOS bundle ID: `com.sidequestchess.app`
-- Version: `0.1.336`
-- Android version code: `336`
+- Current Android candidate: `0.1.346 (347)`
+- Committed Android identity: version `0.1.346`, version code `346`; EAS production auto-increment reserved candidate code `347`
 - Website: `https://sidequestchess.com`
 - Privacy Policy: `https://sidequestchess.com/privacy`
 - Terms of Use: `https://sidequestchess.com/terms`
 - Support URL: `https://sidequestchess.com/support`
-- Developer / publisher public name: PENDING ANDREAS
-- Support email: PENDING ANDREAS
-- Countries / regions: PENDING ANDREAS
+- Developer / publisher public name: Crowdler AB
+- Support email: `sam@crowdler.com`
+- Countries / regions: Worldwide
 
-## Google Play Short Description
+## Google Play listing copy
 
-Turn normal chess games into playful side quests with proof receipts and rewards.
+Use the paste-ready app name, short description, and full description exactly as written in `docs/SQC_GOOGLE_PLAY_LISTING_V340_2026-07-30.md`. Do not copy a historical variant from this cross-store pack.
 
 ## App Store Subtitle
 
 Chess side quests and proof receipts.
-
-## Full Description
-
-Side Quest Chess gives chess players small, playful challenges to complete inside real games.
-
-Pick a Side Quest, play on your connected Lichess or Chess.com account, then let the app check the public game record. When a quest is completed, you can collect proof, build your Trophy Cabinet, and share the run.
-
-What you can do:
-
-- Browse official Solo Side Quests.
-- Create custom Side Quests for your own challenge runs.
-- Join or host Multiplayer Side Quests with friends.
-- Check public chess games for proof.
-- Save completed quests and proof receipts.
-- Build a Trophy Cabinet of coats and rewards.
-- Share public proof links when you want to show a run.
-- Send support requests from inside the product.
-
-Side Quest Chess is independent and is not affiliated with, endorsed by, or sponsored by Lichess, Chess.com, FIDE, Apple, or Google. Public chess data is checked only from the public username you connect. Do not enter chess-site passwords into Side Quest Chess.
 
 ## Keywords / Tags
 
@@ -53,7 +34,7 @@ chess, chess challenges, side quests, lichess, chess.com, multiplayer chess, che
 
 - Primary: Games
 - Secondary / subcategory candidate: Board / Strategy
-- Final category choice: PENDING ANDREAS
+- Google Play category: Board
 
 ## Content Rating Draft
 
@@ -94,18 +75,18 @@ Purpose:
 
 Likely declarations:
 
-- Ads: No, unless Andreas decides otherwise.
-- In-app purchases: No, unless Andreas decides otherwise.
-- Data deletion: Available by support request through `https://sidequestchess.com/support`.
+- Ads: No.
+- In-app purchases: No.
+- Subscriptions: No.
+- Data deletion: Self-service deletion is available in the app; support remains available through `https://sidequestchess.com/support`.
 - Children under 13: Not targeted.
 
-PENDING ANDREAS confirmation:
+Still requires an owner-authorized Play Console declaration:
 
-- Ads: no / yes.
-- In-app purchases: no / yes.
-- Analytics/crash providers beyond first-party hosting/Clerk: confirm.
-- Public developer support email.
-- Account deletion wording accepted.
+- Exact Data safety mapping for every production provider and transport.
+- Final content-rating questionnaire responses.
+- App access instructions and any reviewer credential.
+- Final policy/legal adoption; the live privacy and terms pages remain launch drafts.
 
 ## App Review Notes
 
@@ -115,8 +96,8 @@ No chess-site password is requested or stored. The app uses authentication for a
 
 Reviewer test account:
 
-- PENDING if required.
-- If a test account is created, include email, password, and any connected public chess usernames here before submission.
+- Do not commit credentials to this repository.
+- Use an owner-authorized disposable, non-sensitive account if Play review requires authenticated access; enter credentials only in the Console's protected App access field.
 
 Suggested smoke flow for reviewer:
 
@@ -164,24 +145,18 @@ Apple assets:
 
 Android internal testing candidate:
 
-- AAB: `artifacts/mobile-store/sqc-mobile-android-v336-2026-07-07.aab`
-- SHA256: `f29985c6f6944cb1da927c879c2266facd8953d0904507ca78888c59311321da`
-- Build command: `pnpm mobile:store:android`
+- AAB: `side-quest-chess-android-v346-code347.aab`
+- SHA256: `87353e5b90e6769063524fd830a663b449c4088b3c9c60a2310beca0cef6d316`
+- EAS build: `691d9598-fe32-4d8c-949a-ff840384869c`
+- Immutable source: `6a0888cb2b76a667168806b7da186dbd3583c451`
 
-Android APK candidate:
-
-- GitHub Release: `mobile-v336`
-- APK: `sqc-mobile-android-v336-2026-07-03.apk`
-- SHA256: `d4367b8aa64fb67726a26d2b8129eee4e04ee351a42c64a3e42a0052bc80a4f0`
-- Check command: `pnpm mobile:release:candidate-check`
+An APK or ADB install is not a substitute for AAB inspection or Play-delivered Internal testing acceptance.
 
 ## Submission Order
 
-1. Andreas confirms developer accounts/access.
-2. Andreas confirms public publisher name, support email, regions, ads/IAP, and age posture.
-3. Upload Android AAB to Play internal testing.
-4. Complete Play Console forms from this draft.
-5. Install from Play internal testing and run real-device smoke.
-6. Create App Store Connect app and EAS/TestFlight build path.
-7. Capture fresh screenshots from current Android and iOS candidates.
-8. Submit internal/test review first, then production review after smoke passes.
+1. Owner confirms Play App Signing in the existing `com.sidequestchess.app` Console app.
+2. Owner uploads the exact code-347 AAB and assigns the authorized Internal testing list.
+3. Install from the private Play opt-in path and run physical-device acceptance, including installer and Play signer checks.
+4. Capture the code-347 Google Play screenshot set and verify it against the exact listing checklist.
+5. Complete the owner-authorized policy, app-access, target-audience, and content-rating forms.
+6. Keep broader store publication blocked until legal/policy adoption and Internal testing acceptance are complete.
