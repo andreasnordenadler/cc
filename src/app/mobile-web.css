@@ -383,6 +383,10 @@ body::after {
   gap: 0;
 }
 
+.sqc-quest-command-rail {
+  display: contents;
+}
+
 .sqc-proof-image {
   display: block;
   width: 100%;
@@ -7065,11 +7069,16 @@ body::after {
     border-radius: 16px;
   }
 
-  .sqc-mobile-web.desktop-official-detail .sqc-official-solo-detail-screen > .sqc-proof-action-card {
+  .sqc-mobile-web.desktop-official-detail .sqc-official-solo-detail-screen > .sqc-quest-command-rail {
     grid-column: 2;
     grid-row: 2 / span 3;
     position: sticky;
     top: 108px;
+    display: grid;
+    gap: 12px;
+  }
+
+  .sqc-mobile-web.desktop-official-detail .sqc-quest-command-rail > .sqc-proof-action-card {
     gap: 14px;
     padding: 28px;
     border-radius: 26px;
@@ -7129,8 +7138,7 @@ body::after {
     grid-template-columns: 1fr;
   }
 
-  .sqc-mobile-web.desktop-official-detail .sqc-official-solo-detail-screen > .sqc-community-share-actions {
-    grid-column: 1;
+  .sqc-mobile-web.desktop-official-detail .sqc-quest-command-rail > .sqc-community-share-actions {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 12px;
   }
