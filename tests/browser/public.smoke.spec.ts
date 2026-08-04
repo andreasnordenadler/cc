@@ -61,23 +61,33 @@ test("signed-out desktop-native routes omit the phone menu and expose persistent
   await expect(page.getByRole("link", { name: "Sign in", exact: true })).toHaveAttribute("href", "/sign-in?redirect_url=%2Fside-quests");
 });
 
-test("desktop Solo discovery keeps every objective readable at the composition boundary", async ({ page }) => {
-  await page.setViewportSize({ width: 1180, height: 900 });
+test("desktop Solo discovery keeps every objective and Android opening hint readable at the composition boundary", async ({ page }) => {
+  await page.setViewportSize({ width: 1179, height: 900 });
   await expectHealthyNavigation(page, "/side-quests");
-
   const cards = page.locator(".sqc-catalog .sqc-app-row");
   expect(await cards.count()).toBeGreaterThan(0);
+  await expect(cards.first().locator(".sqc-solo-card-details")).toBeHidden();
+
+  await page.setViewportSize({ width: 1180, height: 900 });
+  await expect(cards.first().locator(".sqc-solo-card-details")).toBeVisible();
+  await expect(cards.first().locator(".sqc-solo-card-open")).toContainText("View quest details");
+  await expect(page.getByText("Horses first. Plans later.", { exact: true })).toBeVisible();
+
   const geometry = await cards.evaluateAll((rows) => rows.map((row) => {
     const objective = row.querySelector<HTMLElement>(".sqc-row-copy small");
+    const note = row.querySelector<HTMLElement>(".sqc-solo-card-note");
     return {
       minHeight: Number.parseFloat(getComputedStyle(row).minHeight),
       objectiveClientHeight: objective?.clientHeight ?? 0,
       objectiveScrollHeight: objective?.scrollHeight ?? 0,
+      noteClientHeight: note?.clientHeight ?? 0,
+      noteScrollHeight: note?.scrollHeight ?? 0,
     };
   }));
 
-  expect(geometry.every(({ minHeight }) => minHeight === 176)).toBe(true);
+  expect(geometry.every(({ minHeight }) => minHeight === 238)).toBe(true);
   expect(geometry.every(({ objectiveClientHeight, objectiveScrollHeight }) => objectiveScrollHeight <= objectiveClientHeight + 1)).toBe(true);
+  expect(geometry.every(({ noteClientHeight, noteScrollHeight }) => noteScrollHeight <= noteClientHeight + 1)).toBe(true);
   expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBe(0);
 });
 

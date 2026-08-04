@@ -190,7 +190,7 @@ test("Solo discovery switches to a wide card grid only at the established deskto
   assert.match(css, /\.sqc-mobile-web\.desktop-solo-discovery\s+\.sqc-app-row\s*\{[^}]*position:\s*relative;[^}]*grid-template-columns:\s*68px\s+minmax\(0,\s*1fr\);/);
   assert.match(css, /\.sqc-mobile-web\.desktop-solo-discovery\s+\.sqc-row-copy\s*\{[^}]*padding-right:\s*64px;/);
   assert.match(css, /\.sqc-mobile-web\.desktop-solo-discovery\s+\.sqc-row-title-line\s*>\s*strong\s*\{[^}]*-webkit-line-clamp:\s*2;[^}]*white-space:\s*normal;/);
-  assert.match(css, /@media\s*\(min-width:\s*1180px\)[\s\S]*?\.sqc-mobile-web\.desktop-solo-discovery\s+\.sqc-app-row\s*\{[^}]*min-height:\s*176px/);
+  assert.match(css, /@media\s*\(min-width:\s*1180px\)[\s\S]*?\.sqc-mobile-web\.desktop-solo-discovery\s+\.sqc-app-row\s*\{[^}]*min-height:\s*238px/);
   assert.match(css, /\.sqc-mobile-web\.desktop-solo-discovery:not\(\.signed-out\)\s+\.sqc-solo-brand-tabs\s+\.sqc-brand-switch\s*\{[^}]*position:\s*static;[^}]*margin:\s*0;/);
   assert.match(css, /\.sqc-mobile-web\.desktop-solo-discovery\s+\.sqc-solo-brand-tabs\s+\.sqc-brand-switch\s*\{[^}]*width:\s*44px;[^}]*height:\s*44px;[^}]*justify-self:\s*center;/);
 });
@@ -199,7 +199,7 @@ test("desktop Solo cards keep complete four-line objectives readable inside diff
   const css = readFileSync("src/app/mobile-web.css", "utf8");
   const desktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1180px)"));
 
-  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-solo-discovery\s+\.sqc-app-row\s*\{[^}]*min-height:\s*176px/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-solo-discovery\s+\.sqc-app-row\s*\{[^}]*min-height:\s*238px/);
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-solo-discovery\s+\.sqc-row-copy\s+small\s*\{[^}]*-webkit-line-clamp:\s*4;/);
 });
 
@@ -232,6 +232,21 @@ test("Solo discovery expands difficulty shelves to four columns on large desktop
 
   assert.match(wideDesktopMedia, /\.sqc-mobile-web\.desktop-solo-discovery\s+\.sqc-screen\s*\{[^}]*width:\s*min\(1600px,\s*calc\(100%\s*-\s*80px\)\)/);
   assert.match(wideDesktopMedia, /\.sqc-mobile-web\.desktop-solo-discovery\s+\.sqc-solo-difficulty-grid\s*\{[^}]*grid-template-columns:\s*repeat\(4,\s*minmax\(0,\s*1fr\)\);/);
+});
+
+test("desktop Solo cards expose Android opening hints and an explicit detail affordance without changing mobile rows", () => {
+  const html = renderToStaticMarkup(
+    createElement(MobileSoloSideQuestsScreen, { challenges: CHALLENGES, signedIn: false }),
+  );
+  const css = readFileSync("src/app/mobile-web.css", "utf8");
+  const desktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1180px)"));
+
+  assert.equal(html.match(/class="sqc-solo-card-details"/g)?.length, CHALLENGES.length);
+  assert.match(html, /class="sqc-solo-card-note">Horses first\. Plans later\.<\/span>/);
+  assert.equal(html.match(/class="sqc-solo-card-open">View quest details/g)?.length, CHALLENGES.length);
+  assert.match(css, /\.sqc-solo-card-details\s*\{[^}]*display:\s*none;/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-solo-discovery\s+\.sqc-solo-card-details\s*\{[^}]*display:\s*grid;/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-solo-discovery\s+\.sqc-solo-card-note\s*\{[^}]*color:\s*rgba\(255,\s*247,\s*232,\s*\.62\);[^}]*-webkit-line-clamp:\s*2;/);
 });
 
 test("Community discovery becomes a desktop workspace without duplicating its interactive catalog", () => {

@@ -865,6 +865,7 @@ export function MobileSoloSideQuestsScreen({
                     key={challenge.id}
                     title={challenge.title}
                     meta={challenge.objective}
+                    desktopNote={challenge.openingHint}
                     status={challenge.id === activeChallengeId ? "Active" : completedSet.has(challenge.id) ? "Completed" : challenge.difficulty}
                     href={`/challenges/${challenge.id}`}
                     image={toMobileAssetPath(challenge.badgeIdentity.image) ?? mobileAsset.fallbackBadge}
@@ -2090,6 +2091,7 @@ function MobileAssetMark({
 function AppRow({
   title,
   meta,
+  desktopNote,
   status,
   href,
   image,
@@ -2102,6 +2104,7 @@ function AppRow({
 }: {
   title: string;
   meta: string;
+  desktopNote?: string;
   status: string;
   href: string;
   image?: string;
@@ -2130,6 +2133,12 @@ function AppRow({
           {likeSummary && !likeAction ? <MobileRowLikeSummary summary={likeSummary} label={title} /> : null}
         </strong>
         <small>{meta}</small>
+        {desktopNote ? (
+          <span className="sqc-solo-card-details">
+            <span className="sqc-solo-card-note">{desktopNote}</span>
+            <span className="sqc-solo-card-open">View quest details <span aria-hidden="true">→</span></span>
+          </span>
+        ) : null}
       </span>
       {statusImage ? (
         <Image className="sqc-row-status-image" alt="" src={statusImage} width={38} height={38} />
@@ -2162,6 +2171,12 @@ function AppRow({
             />
           </span>
           <small>{meta}</small>
+          {desktopNote ? (
+            <span className="sqc-solo-card-details">
+              <span className="sqc-solo-card-note">{desktopNote}</span>
+              <span className="sqc-solo-card-open">View quest details <span aria-hidden="true">→</span></span>
+            </span>
+          ) : null}
         </span>
         {statusImage ? (
           <Image className="sqc-row-status-image" alt="" src={statusImage} width={38} height={38} />
