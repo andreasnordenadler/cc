@@ -6036,11 +6036,11 @@ body::after {
   }
 
   .sqc-mobile-web.desktop-solo-discovery .sqc-solo-difficulty-shelf {
-    grid-template-columns: 112px minmax(0, 1fr);
+    grid-template-columns: 90px minmax(0, 1fr);
     grid-column: 1 / -1;
     display: grid;
     align-items: start;
-    gap: 18px;
+    gap: 14px;
   }
 
   .sqc-mobile-web.desktop-solo-discovery .sqc-solo-difficulty-shelf + .sqc-solo-difficulty-shelf {
@@ -6060,6 +6060,10 @@ body::after {
     font-family: ui-serif, Georgia, Cambria, "Times New Roman", serif;
     font-size: 21px;
     letter-spacing: -.02em;
+  }
+
+  .sqc-mobile-web.desktop-solo-discovery .sqc-solo-difficulty-heading h3::before {
+    content: attr(data-label);
   }
 
   .sqc-mobile-web.desktop-solo-discovery .sqc-solo-difficulty-heading span {

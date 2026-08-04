@@ -850,9 +850,13 @@ export function MobileSoloSideQuestsScreen({
         </div>
         <div className="sqc-catalog">
           {difficultyShelves.map((shelf) => (
-            <section className="sqc-solo-difficulty-shelf" key={shelf.difficulty} aria-labelledby={`solo-difficulty-${shelf.difficulty.toLowerCase()}`}>
+            <div className="sqc-solo-difficulty-shelf" key={shelf.difficulty}>
               <header className="sqc-solo-difficulty-heading">
-                <h3 id={`solo-difficulty-${shelf.difficulty.toLowerCase()}`}>{shelf.difficulty}</h3>
+                <h3
+                  id={`solo-difficulty-${shelf.difficulty.toLowerCase()}`}
+                  aria-label={shelf.difficulty}
+                  data-label={shelf.difficulty}
+                />
                 <span>{shelf.challenges.length} {shelf.challenges.length === 1 ? "quest" : "quests"}</span>
               </header>
               <div className="sqc-solo-difficulty-grid">
@@ -876,7 +880,7 @@ export function MobileSoloSideQuestsScreen({
                   />
                 ))}
               </div>
-            </section>
+            </div>
           ))}
         </div>
       </section>
