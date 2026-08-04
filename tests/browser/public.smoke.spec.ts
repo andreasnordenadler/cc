@@ -100,6 +100,7 @@ test("Community discovery switches between one mobile catalog and a desktop brow
   await expect(page.getByLabel("Close screen")).toBeVisible();
   await expect(page.getByRole("navigation", { name: "Desktop shortcuts" })).toBeHidden();
   await expect(page.getByLabel("Community Side Quest filters")).toHaveCount(1);
+  await expect(page.getByRole("complementary", { name: "Creator shortcuts" })).toBeHidden();
   const firstRow = page.locator(".sqc-community-catalog-section .sqc-app-row").first();
   if (await firstRow.count()) {
     await expect(firstRow.locator(".sqc-community-row-mobile-meta")).toBeVisible();
@@ -111,6 +112,9 @@ test("Community discovery switches between one mobile catalog and a desktop brow
   await expect(page.getByLabel("Close screen")).toBeHidden();
   await expect(page.getByRole("navigation", { name: "Desktop shortcuts" })).toBeVisible();
   await expect(page.getByLabel("Community Side Quest filters")).toHaveCount(1);
+  const creatorDirectory = page.getByRole("complementary", { name: "Creator shortcuts" });
+  await expect(creatorDirectory).toBeVisible();
+  await expect(creatorDirectory.getByRole("link")).toHaveCount(6);
 
   const catalog = page.locator(".sqc-community-catalog-section .sqc-catalog");
   if (await catalog.count()) {
@@ -147,6 +151,16 @@ test("Community discovery switches between one mobile catalog and a desktop brow
     expect(wideGeometry.cardWidths).toHaveLength(3);
     expect(wideGeometry.cardWidths.every((width) => width >= 390)).toBe(true);
     expect(wideGeometry.overflow).toBe(0);
+
+    const firstCreatorShortcut = creatorDirectory.getByRole("link").first();
+    await expect(firstCreatorShortcut).toHaveAttribute("href", /\/community-side-quests\?creator=.+/);
+    await firstCreatorShortcut.focus();
+    await expect(firstCreatorShortcut).toBeFocused();
+    await expect(firstCreatorShortcut).toHaveCSS("outline-style", "solid");
+    await firstCreatorShortcut.click();
+    await expect(page).toHaveURL(/\/community-side-quests\?creator=.+/);
+    await expect(page.getByRole("complementary", { name: "Creator shelf" })).toBeVisible();
+    await expect(page.getByRole("complementary", { name: "Creator shortcuts" })).toHaveCount(0);
   } else {
     await expect(page.locator(".sqc-community-catalog-section .sqc-empty-panel.standalone")).toBeVisible();
   }
