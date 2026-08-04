@@ -515,6 +515,7 @@ function DesktopSignedInHome({
   proofReceiptCount: number;
 }) {
   const hasActiveSolo = Boolean(activeSolo?.title ?? activeSoloTitle);
+  const setupComplete = hasChessAccount && hasActiveSolo;
   const completedSteps = Number(hasChessAccount) + Number(hasActiveSolo);
 
   return (
@@ -522,13 +523,13 @@ function DesktopSignedInHome({
       <section className="sqc-desktop-dashboard-intro">
         <div>
           <span className="sqc-desktop-eyebrow">Today&apos;s quest log</span>
-          <h1>{hasActiveSolo ? `Welcome back${displayName ? `, ${displayName}` : ""}.` : "Let’s choose your first Side Quest."}</h1>
-          <p>{hasActiveSolo ? "Your active quest, latest proof, shared challenges, and unlocked coats are ready below." : "Connect a public chess username, choose one quest, then play a new public game."}</p>
+          <h1>{setupComplete ? `Welcome back${displayName ? `, ${displayName}` : ""}.` : hasActiveSolo ? "Let’s finish setting up your quest log." : "Let’s choose your first Side Quest."}</h1>
+          <p>{setupComplete ? "Your active quest, latest proof, shared challenges, and unlocked coats are ready below." : hasActiveSolo ? "Your active quest is ready below. Connect a public chess username before Side Quest Chess can check its proof." : "Connect a public chess username, choose one quest, then play a new public game."}</p>
         </div>
-        {!hasActiveSolo ? (
+        {!setupComplete ? (
           <ol className="sqc-desktop-onboarding-progress" aria-label="Getting started">
             <li className={hasChessAccount ? "done" : "current"}><span>1</span><Link href="/account">Connect chess account</Link></li>
-            <li className={hasChessAccount ? "current" : ""}><span>2</span><Link href="/side-quests">Choose a Side Quest</Link></li>
+            <li className={hasActiveSolo ? "done" : hasChessAccount ? "current" : ""}><span>2</span><Link href="/side-quests">Choose a Side Quest</Link></li>
             <li><span>3</span><strong>Play and verify</strong></li>
           </ol>
         ) : (

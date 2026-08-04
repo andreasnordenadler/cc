@@ -119,6 +119,31 @@ test("signed-in desktop home guides setup while retaining the existing app home"
   assert.equal(html.match(/class="sqc-desktop-sign-in" href="\/account"/g)?.length, 1, "signed-in desktop header exposes one dedicated account destination");
 });
 
+test("desktop home keeps account setup visible when a Solo quest is active without a chess username", () => {
+  const html = renderToStaticMarkup(
+    createElement(MobileAppWebShell, {
+      activeTab: "home",
+      signedIn: true,
+      displayName: "Sam",
+      activeSolo: {
+        id: "knights-before-coffee",
+        href: "/challenges/knights-before-coffee",
+        title: "Knights Before Coffee",
+        objective: "Move only knights for the first four moves, then win.",
+        instruction: "Play a new public game.",
+      },
+      activeMultiplayerRows: [],
+      trophyRows: [],
+    }),
+  );
+
+  assert.match(html, /Let’s finish setting up your quest log/);
+  assert.match(html, /aria-label="Getting started"/);
+  assert.match(html, /<li class="current"><span>1<\/span><a href="\/account">Connect chess account<\/a><\/li>/);
+  assert.doesNotMatch(html, /latest proof[^<]*ready below/);
+  assert.equal(html.match(/class="sqc-current-card/g)?.length, 1, "active Solo remains available while setup is incomplete");
+});
+
 test("Solo discovery renders one catalog plus desktop navigation with the correct current route", () => {
   const html = renderToStaticMarkup(
     createElement(
