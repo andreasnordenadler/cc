@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import MobileAppWebShell, { desktopHomeMenuItems, mobileWebMenuItems, MobileCommunitySideQuestsScreen, MobileCreateCustomScreen, MobileCreateMultiplayerScreen, MobileCustomSideQuestsScreen, MobileMultiplayerSideQuestsScreen, MobileSoloSideQuestsScreen, MobileSupportScreen, MobileTrophyCabinetScreen } from "../src/components/mobile-app-web-shell";
+import MobileAppWebShell, { desktopHomeMenuItems, mobileWebMenuItems, MobileCommunitySideQuestsScreen, MobileCreateCustomScreen, MobileCreateMultiplayerScreen, MobileCustomSideQuestsScreen, MobileMultiplayerDetailScreen, MobileMultiplayerSideQuestsScreen, MobileSoloSideQuestsScreen, MobileSupportScreen, MobileTrophyCabinetScreen } from "../src/components/mobile-app-web-shell";
 import type { CommunitySoloCatalogClientRow } from "../src/components/catalog-clients";
 import DesktopHomeMenu from "../src/components/desktop-home-menu";
 import { CHALLENGES } from "../src/lib/challenges";
@@ -817,9 +817,44 @@ test("Multiplayer detail becomes one desktop tournament workspace without changi
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-multiplayer-detail[^{}]*\.sqc-close-screen\)[^{}]*\{[^}]*display:\s*none;/);
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-multiplayer-detail\s+\.sqc-screen\s*\{[^}]*width:\s*min\(1280px,\s*calc\(100%\s*-\s*64px\)\)/);
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-multiplayer-detail\s+\.sqc-multiplayer-public-detail-screen\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1\.45fr\)\s+minmax\(360px,\s*\.55fr\);[^}]*grid-auto-flow:\s*dense;/);
-  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-multiplayer-detail\s+\.sqc-multiplayer-public-detail-screen\s*>\s*\.sqc-multiplayer-primary-action\s*\{[^}]*grid-column:\s*2;[^}]*grid-row:\s*2\s*\/\s*span\s*2;[^}]*position:\s*sticky;/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-multiplayer-detail\s+\.sqc-multiplayer-command-rail\s*\{[^}]*grid-column:\s*2;[^}]*grid-row:\s*2\s*\/\s*span\s*3;[^}]*position:\s*sticky;/);
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-multiplayer-detail\s+\.sqc-multiplayer-quest-list\s*\{[^}]*grid-column:\s*1;/);
   assert.equal(css.replace(desktopMedia, "").includes(".sqc-mobile-web.desktop-multiplayer-detail"), false, "desktop Multiplayer detail rules must not leak below 1180px");
+});
+
+test("Multiplayer detail groups its next action and sharing into one desktop command rail", () => {
+  const html = renderToStaticMarkup(createElement(MobileMultiplayerDetailScreen, {
+    signedIn: false,
+    quest: {
+      id: "official-starter",
+      title: "Official Starter Shield",
+      meta: "Official · 0 players · 12d left",
+      href: "/groupquests/official-starter",
+      sourceBadge: "Official",
+      publiclyListed: true,
+      inviteCopy: "Complete three Side Quests together.",
+      quests: ["Any Game Counts"],
+      rules: [["Games allowed", "Lichess or Chess.com"]],
+      status: "Not joined",
+      playerCount: 0,
+      playersLabel: "0 players",
+      timeLeftLabel: "12d left",
+      leaderboardRows: [],
+      likeSummary: { count: 0, likedByViewer: false },
+      lifecycle: "open",
+      createdAt: "2026-08-02T00:00:00.000Z",
+      startAt: "2026-08-02T00:00:00.000Z",
+      endAt: "2026-08-16T00:00:00.000Z",
+    },
+  }));
+  const css = readFileSync("src/app/mobile-web.css", "utf8");
+  const desktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1180px)"));
+
+  assert.equal(html.match(/class="sqc-multiplayer-command-rail"/g)?.length, 1);
+  assert.match(html, /<aside class="sqc-multiplayer-command-rail" aria-label="Multiplayer Side Quest actions">[\s\S]*sqc-multiplayer-primary-action[\s\S]*sqc-multiplayer-share-card[\s\S]*<\/aside>/);
+  assert.match(css, /\.sqc-multiplayer-command-rail\s*\{[^}]*display:\s*contents;/, "mobile keeps the established card stack");
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-multiplayer-detail\s+\.sqc-multiplayer-command-rail\s*\{[^}]*grid-column:\s*2;[^}]*grid-row:\s*2\s*\/\s*span\s*3;[^}]*position:\s*sticky;[^}]*display:\s*grid;/);
+  assert.equal(css.replace(desktopMedia, "").includes(".sqc-mobile-web.desktop-multiplayer-detail .sqc-multiplayer-command-rail"), false, "desktop command-rail layout must not leak below 1180px");
 });
 
 test("Multiplayer creation becomes one desktop planning workspace without duplicating the form", () => {

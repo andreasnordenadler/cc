@@ -387,6 +387,10 @@ body::after {
   display: contents;
 }
 
+.sqc-multiplayer-command-rail {
+  display: contents;
+}
+
 .sqc-proof-image {
   display: block;
   width: 100%;
@@ -8101,33 +8105,36 @@ body::after {
     border-radius: 18px;
   }
 
-  .sqc-mobile-web.desktop-multiplayer-detail .sqc-multiplayer-public-detail-screen > .sqc-native-card {
+  .sqc-mobile-web.desktop-multiplayer-detail .sqc-multiplayer-public-detail-screen > .sqc-native-card,
+  .sqc-mobile-web.desktop-multiplayer-detail .sqc-multiplayer-command-rail > .sqc-native-card {
     grid-column: 1;
     gap: 14px;
     padding: 26px 28px;
     border-radius: 24px;
   }
 
-  .sqc-mobile-web.desktop-multiplayer-detail .sqc-multiplayer-public-detail-screen > .sqc-native-card h2 {
+  .sqc-mobile-web.desktop-multiplayer-detail .sqc-multiplayer-public-detail-screen > .sqc-native-card h2,
+  .sqc-mobile-web.desktop-multiplayer-detail .sqc-multiplayer-command-rail > .sqc-native-card h2 {
     font-family: ui-serif, Georgia, Cambria, "Times New Roman", serif;
     font-size: 27px;
     line-height: 1.1;
   }
 
-  .sqc-mobile-web.desktop-multiplayer-detail .sqc-multiplayer-public-detail-screen > .sqc-multiplayer-primary-action {
+  .sqc-mobile-web.desktop-multiplayer-detail .sqc-multiplayer-command-rail {
     grid-column: 2;
-    grid-row: 2 / span 2;
+    grid-row: 2 / span 3;
     position: sticky;
     top: 112px;
     z-index: 2;
+    display: grid;
+    gap: 14px;
+  }
+
+  .sqc-mobile-web.desktop-multiplayer-detail .sqc-multiplayer-command-rail > .sqc-multiplayer-primary-action {
     padding: 30px;
     border-color: rgba(245, 200, 106, .34);
     background: linear-gradient(150deg, rgba(92, 61, 35, .72), rgba(28, 21, 20, .92));
     box-shadow: 0 24px 60px rgba(0, 0, 0, .28);
-  }
-
-  .sqc-mobile-web.desktop-multiplayer-detail .sqc-multiplayer-public-detail-screen > .sqc-multiplayer-share-card {
-    grid-column: 2;
   }
 
   .sqc-mobile-web.desktop-multiplayer-detail .sqc-multiplayer-quest-list {
