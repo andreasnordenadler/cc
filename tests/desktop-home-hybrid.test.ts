@@ -444,6 +444,9 @@ test("Multiplayer discovery becomes one desktop tournament desk without duplicat
     sourceBadge: "Official",
     status: "Join",
     likeSummary: { count: 0, likedByViewer: false },
+    quests: [],
+    playerCount: 0,
+    timeLeftLabel: "14d left",
   }];
   const html = renderToStaticMarkup(
     createElement(
@@ -467,7 +470,45 @@ test("Multiplayer discovery becomes one desktop tournament desk without duplicat
   assert.equal(html.match(/aria-label="Open Official 14-Day Starter Shield"/g)?.length, 1, "desktop and mobile share one quest action subtree");
 });
 
-test("Multiplayer discovery keeps mobile below 1180px and uses a wide desktop grid at the boundary", () => {
+test("Multiplayer discovery turns official rows into decision-ready desktop cards without duplicating links", () => {
+  const row = {
+    id: "official-one",
+    title: "Official 14-Day Starter Shield",
+    meta: "Official · 7 players · 12d left",
+    href: "/groupquests/official-one",
+    sourceBadge: "Official" as const,
+    status: "Not joined" as const,
+    likeSummary: { count: 2, likedByViewer: false },
+    publiclyListed: true,
+    inviteCopy: "Join the table.",
+    quests: ["Back Rank Goblin", "Knight Errand"],
+    rules: [],
+    playerCount: 7,
+    playersLabel: "7 players",
+    timeLeftLabel: "12d left",
+    leaderboardRows: [],
+    eventStatus: "Live" as const,
+    lifecycle: "open" as const,
+    createdAt: "2026-08-01T08:00:00.000Z",
+    startAt: "2026-08-01T08:00:00.000Z",
+    endAt: "2026-08-15T08:00:00.000Z",
+  };
+  const html = renderToStaticMarkup(createElement(MobileMultiplayerSideQuestsScreen, {
+    selectedTab: "official",
+    signedIn: false,
+    officialRows: [row],
+    communityRows: [],
+  }));
+
+  assert.equal(html.match(/aria-label="Open Official 14-Day Starter Shield"/g)?.length, 1);
+  assert.match(html, /class="sqc-multiplayer-row-facts" aria-label="Tournament facts"/);
+  assert.match(html, /<span>Players<\/span><strong>7<\/strong>/);
+  assert.match(html, /<span>Side Quests<\/span><strong>2<\/strong>/);
+  assert.match(html, /<span>Closes<\/span><strong>12d left<\/strong>/);
+  assert.match(html, /class="sqc-multiplayer-row-open">View tournament desk/);
+});
+
+test("Multiplayer discovery keeps mobile below 1180px and uses decision-ready cards at the desktop boundary", () => {
   const css = readFileSync("src/app/mobile-web.css", "utf8");
   const route = readFileSync("src/app/multiplayer/page.tsx", "utf8");
   const aliasRoute = readFileSync("src/app/multiplayer-side-quests/page.tsx", "utf8");
@@ -476,10 +517,13 @@ test("Multiplayer discovery keeps mobile below 1180px and uses a wide desktop gr
   assert.match(route, /desktopPresentation="multiplayer-discovery"/);
   assert.match(aliasRoute, /desktopPresentation="multiplayer-discovery"/, "the tab and like-return route must preserve the desktop workspace");
   assert.match(css, /\.sqc-desktop-multiplayer-intro\s*\{[^}]*display:\s*none;/);
+  assert.match(css, /\.sqc-multiplayer-row-details\s*\{[^}]*display:\s*none;/, "mobile keeps its compact row");
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-multiplayer-discovery\s+\.sqc-screen\s*\{[^}]*width:\s*min\(1320px,\s*calc\(100%\s*-\s*64px\)\)/);
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-multiplayer-discovery\s+\.sqc-stack\s*\{[^}]*grid-template-columns:\s*200px\s+minmax\(0,\s*1fr\);/);
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-multiplayer-discovery\s+\.sqc-panel\.list\s+\.sqc-catalog\s*\{[^}]*grid-template-columns:\s*repeat\(3,\s*minmax\(0,\s*1fr\)\);/);
-  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-multiplayer-discovery\s+\.sqc-app-row\s*\{[^}]*min-height:\s*156px;/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-multiplayer-discovery\s+\.sqc-multiplayer-row-details\s*\{[^}]*display:\s*grid;[^}]*position:\s*absolute;[^}]*left:\s*18px;[^}]*right:\s*18px;[^}]*bottom:\s*18px;/);
+  assert.doesNotMatch(desktopMedia, /\.sqc-mobile-web\.desktop-multiplayer-discovery\s+\.sqc-multiplayer-row-details\s*\{[^}]*margin:\s*[^;]*-/, "the tournament facts must not slide beneath the seal");
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-multiplayer-discovery\s+\.sqc-multiplayer-row-facts\s*\{[^}]*grid-template-columns:\s*repeat\(3,\s*minmax\(0,\s*1fr\)\);/);
   assert.equal(css.replace(desktopMedia, "").includes(".sqc-mobile-web.desktop-multiplayer-discovery"), false, "desktop Multiplayer rules must not leak below 1180px");
 });
 
