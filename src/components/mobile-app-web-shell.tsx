@@ -816,6 +816,13 @@ export function MobileSoloSideQuestsScreen({
     return a.title.localeCompare(b.title);
   });
 
+  const difficultyShelves = (["Easy", "Medium", "Hard", "Brutal", "Absurd"] as const)
+    .map((difficulty) => ({
+      difficulty,
+      challenges: sortedChallenges.filter((challenge) => challenge.difficulty === difficulty),
+    }))
+    .filter((shelf) => shelf.challenges.length > 0);
+
   return (
     <div className="sqc-stack sqc-catalog-screen">
       <header className="sqc-desktop-catalog-intro">
@@ -842,24 +849,34 @@ export function MobileSoloSideQuestsScreen({
           <span>{sortedChallenges.length} official</span>
         </div>
         <div className="sqc-catalog">
-          {sortedChallenges.map((challenge) => (
-            <AppRow
-              key={challenge.id}
-              title={challenge.title}
-              meta={challenge.objective}
-              status={challenge.id === activeChallengeId ? "Active" : completedSet.has(challenge.id) ? "Completed" : challenge.difficulty}
-              href={`/challenges/${challenge.id}`}
-              image={toMobileAssetPath(challenge.badgeIdentity.image) ?? mobileAsset.fallbackBadge}
-              glow={getChallengeGlowPath(challenge.id)}
-              glowColor={challenge.badgeIdentity.colors.glow}
-              likeSummary={likeSummaries?.[challenge.id]}
-              likeAction={{
-                signedIn,
-                targetType: "solo",
-                targetId: challenge.id,
-                returnTo: "/side-quests",
-              }}
-            />
+          {difficultyShelves.map((shelf) => (
+            <section className="sqc-solo-difficulty-shelf" key={shelf.difficulty} aria-labelledby={`solo-difficulty-${shelf.difficulty.toLowerCase()}`}>
+              <header className="sqc-solo-difficulty-heading">
+                <h3 id={`solo-difficulty-${shelf.difficulty.toLowerCase()}`}>{shelf.difficulty}</h3>
+                <span>{shelf.challenges.length} {shelf.challenges.length === 1 ? "quest" : "quests"}</span>
+              </header>
+              <div className="sqc-solo-difficulty-grid">
+                {shelf.challenges.map((challenge) => (
+                  <AppRow
+                    key={challenge.id}
+                    title={challenge.title}
+                    meta={challenge.objective}
+                    status={challenge.id === activeChallengeId ? "Active" : completedSet.has(challenge.id) ? "Completed" : challenge.difficulty}
+                    href={`/challenges/${challenge.id}`}
+                    image={toMobileAssetPath(challenge.badgeIdentity.image) ?? mobileAsset.fallbackBadge}
+                    glow={getChallengeGlowPath(challenge.id)}
+                    glowColor={challenge.badgeIdentity.colors.glow}
+                    likeSummary={likeSummaries?.[challenge.id]}
+                    likeAction={{
+                      signedIn,
+                      targetType: "solo",
+                      targetId: challenge.id,
+                      returnTo: "/side-quests",
+                    }}
+                  />
+                ))}
+              </div>
+            </section>
           ))}
         </div>
       </section>

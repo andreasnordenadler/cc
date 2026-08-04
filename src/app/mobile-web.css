@@ -1266,6 +1266,19 @@ body::after {
   background: rgba(13, 11, 14, .78);
 }
 
+.sqc-solo-difficulty-shelf,
+.sqc-solo-difficulty-grid {
+  display: contents;
+}
+
+.sqc-solo-difficulty-heading {
+  display: none;
+}
+
+.sqc-solo-difficulty-shelf + .sqc-solo-difficulty-shelf .sqc-app-row:first-child {
+  border-top: 1px solid rgba(255, 255, 255, .065);
+}
+
 .sqc-row-list.trophy-preview {
   gap: 0;
   overflow: hidden;
@@ -6015,11 +6028,54 @@ body::after {
   .sqc-mobile-web.desktop-solo-discovery .sqc-catalog {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 14px;
+    gap: 28px;
     overflow: visible;
     border: 0;
     border-radius: 0;
     background: transparent;
+  }
+
+  .sqc-mobile-web.desktop-solo-discovery .sqc-solo-difficulty-shelf {
+    grid-template-columns: 112px minmax(0, 1fr);
+    grid-column: 1 / -1;
+    display: grid;
+    align-items: start;
+    gap: 18px;
+  }
+
+  .sqc-mobile-web.desktop-solo-discovery .sqc-solo-difficulty-shelf + .sqc-solo-difficulty-shelf {
+    padding-top: 22px;
+    border-top: 1px solid rgba(255, 247, 232, .1);
+  }
+
+  .sqc-mobile-web.desktop-solo-discovery .sqc-solo-difficulty-heading {
+    display: grid;
+    gap: 6px;
+    padding-top: 18px;
+  }
+
+  .sqc-mobile-web.desktop-solo-discovery .sqc-solo-difficulty-heading h3 {
+    margin: 0;
+    color: rgba(255, 247, 232, .92);
+    font-family: ui-serif, Georgia, Cambria, "Times New Roman", serif;
+    font-size: 21px;
+    letter-spacing: -.02em;
+  }
+
+  .sqc-mobile-web.desktop-solo-discovery .sqc-solo-difficulty-heading span {
+    color: rgba(245, 200, 106, .7);
+    font-size: 11px;
+    font-weight: 850;
+    letter-spacing: .11em;
+    line-height: 1.35;
+    text-transform: uppercase;
+  }
+
+  .sqc-mobile-web.desktop-solo-discovery .sqc-solo-difficulty-grid {
+    grid-column: 2;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
   }
 
   .sqc-mobile-web.desktop-solo-discovery .sqc-app-row {
@@ -6086,7 +6142,7 @@ body::after {
   }
 
   .sqc-mobile-web.desktop-solo-discovery .sqc-row-copy small {
-    -webkit-line-clamp: 3;
+    -webkit-line-clamp: 4;
     color: rgba(255, 247, 232, .62);
     font-size: 12px;
     line-height: 1.4;
@@ -8865,8 +8921,16 @@ body::after {
 }
 
 @media (min-width: 1680px) {
+  .sqc-mobile-web.desktop-solo-discovery .sqc-screen {
+    width: min(1600px, calc(100% - 80px));
+  }
+
   .sqc-mobile-web.desktop-community-discovery .sqc-screen {
     width: min(1600px, calc(100% - 80px));
+  }
+
+  .sqc-mobile-web.desktop-solo-discovery .sqc-solo-difficulty-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 
   .sqc-mobile-web.desktop-community-discovery .sqc-catalog {
