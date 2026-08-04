@@ -1578,6 +1578,11 @@ function OfficialMultiplayerPanel({
                   targetId: row.id,
                   returnTo: "/multiplayer-side-quests",
                 }}
+                desktopMultiplayerFacts={{
+                  players: String(row.playerCount),
+                  quests: String(row.quests.length),
+                  closes: row.timeLeftLabel,
+                }}
               />
             ))}
           </div>
@@ -2143,6 +2148,7 @@ function AppRow({
   sourceBadge,
   likeSummary,
   likeAction,
+  desktopMultiplayerFacts,
 }: {
   title: string;
   meta: string;
@@ -2161,6 +2167,11 @@ function AppRow({
     targetId: string;
     returnTo: string;
   };
+  desktopMultiplayerFacts?: {
+    players: string;
+    quests: string;
+    closes: string;
+  };
 }) {
   const content = (
     <>
@@ -2175,6 +2186,7 @@ function AppRow({
           {likeSummary && !likeAction ? <MobileRowLikeSummary summary={likeSummary} label={title} /> : null}
         </strong>
         <small>{meta}</small>
+        {desktopMultiplayerFacts ? <MultiplayerRowDetails facts={desktopMultiplayerFacts} /> : null}
         {desktopNote ? (
           <span className="sqc-solo-card-details">
             <span className="sqc-solo-card-note">{desktopNote}</span>
@@ -2213,6 +2225,7 @@ function AppRow({
             />
           </span>
           <small>{meta}</small>
+        {desktopMultiplayerFacts ? <MultiplayerRowDetails facts={desktopMultiplayerFacts} /> : null}
           {desktopNote ? (
             <span className="sqc-solo-card-details">
               <span className="sqc-solo-card-note">{desktopNote}</span>
@@ -2230,6 +2243,19 @@ function AppRow({
   }
 
   return <Link href={href} className="sqc-app-row">{content}</Link>;
+}
+
+function MultiplayerRowDetails({ facts }: { facts: { players: string; quests: string; closes: string } }) {
+  return (
+    <span className="sqc-multiplayer-row-details">
+      <span className="sqc-multiplayer-row-facts" aria-label="Tournament facts">
+        <span><span>Players</span><strong>{facts.players}</strong></span>
+        <span><span>Side Quests</span><strong>{facts.quests}</strong></span>
+        <span><span>Closes</span><strong>{facts.closes}</strong></span>
+      </span>
+      <span className="sqc-multiplayer-row-open">View tournament desk <span aria-hidden="true">→</span></span>
+    </span>
+  );
 }
 
 function RowGlow({ glow, color }: { glow?: string | null; color?: string | null }) {
