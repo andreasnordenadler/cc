@@ -587,13 +587,26 @@ test("official Solo detail becomes one desktop workspace without duplicating its
 test("official Solo detail uses a wide two-column composition only at the desktop boundary", () => {
   const css = readFileSync("src/app/mobile-web.css", "utf8");
 
+  assert.match(css, /\.sqc-quest-command-rail\s*\{[^}]*display:\s*contents;/);
   assert.match(css, /@media\s*\(min-width:\s*1180px\)[\s\S]*?\.sqc-mobile-web\.desktop-official-detail\s+\.sqc-screen\s*\{[^}]*width:\s*min\(1240px,\s*calc\(100%\s*-\s*64px\)\)/);
   assert.match(css, /\.sqc-mobile-web\.desktop-official-detail\s+\.sqc-official-solo-detail-screen\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1\.35fr\)\s+minmax\(340px,\s*\.65fr\);/);
   assert.match(css, /\.sqc-mobile-web\.desktop-official-detail\s+\.sqc-official-quest-card\s*\{[^}]*grid-column:\s*1\s*\/\s*-1;/);
-  assert.match(css, /\.sqc-mobile-web\.desktop-official-detail\s+\.sqc-official-solo-detail-screen\s*>\s*\.sqc-proof-action-card\s*\{[^}]*grid-column:\s*2;[^}]*grid-row:\s*2\s*\/\s*span\s*3;/);
-  assert.match(css, /\.sqc-mobile-web\.desktop-official-detail\s+\.sqc-official-solo-detail-screen\s*>\s*\.sqc-community-share-actions\s*\{[^}]*grid-column:\s*1;[^}]*grid-template-columns:\s*repeat\(2,\s*minmax\(0,\s*1fr\)\);/);
+  assert.match(css, /\.sqc-mobile-web\.desktop-official-detail\s+\.sqc-official-solo-detail-screen\s*>\s*\.sqc-quest-command-rail\s*\{[^}]*grid-column:\s*2;[^}]*grid-row:\s*2\s*\/\s*span\s*3;[^}]*position:\s*sticky;[^}]*top:\s*108px;/);
+  assert.match(css, /\.sqc-mobile-web\.desktop-official-detail\s+\.sqc-quest-command-rail\s*>\s*\.sqc-community-share-actions\s*\{[^}]*grid-template-columns:\s*repeat\(2,\s*minmax\(0,\s*1fr\)\);/);
   assert.match(css, /\.sqc-mobile-web\.desktop-official-detail\s+\.sqc-community-share-actions\s*>\s*small\s*\{[^}]*grid-column:\s*1\s*\/\s*-1;/);
-  assert.doesNotMatch(css, /\.sqc-mobile-web\.desktop-official-detail\s+\.sqc-proof-action-card\s*\{/);
+  assert.doesNotMatch(css, /\.sqc-mobile-web\.desktop-official-detail\s+\.sqc-official-solo-detail-screen\s*>\s*\.sqc-proof-action-card\s*\{/);
+});
+
+test("official Solo detail groups its share and start controls in one contextual command rail", async () => {
+  const source = readFileSync("src/app/challenges/[id]/page.tsx", "utf8");
+  const rail = source.match(/<aside className="sqc-quest-command-rail"[^>]*>([\s\S]*?)<\/aside>/)?.[1] ?? "";
+
+  assert.match(rail, /<OfficialSoloShareControls id=\{challenge\.id\} title=\{challenge\.title\} \/>/);
+  assert.match(rail, /<section className="sqc-native-card sqc-proof-action-card">/);
+  assert.match(rail, /\{!isActiveChallenge && completed && user \? \([\s\S]*?<CompletedOfficialSoloControls challenge=\{challenge\} proofPath=\{completedProofPath\} \/>[\s\S]*?\) : null\}/);
+  assert.ok(rail.indexOf("OfficialSoloShareControls") < rail.indexOf("sqc-proof-action-card"));
+  assert.match(source, /\{isActiveChallenge && completed && user \? \([\s\S]*?<CompletedOfficialSoloControls challenge=\{challenge\} proofPath=\{completedProofPath\} \/>[\s\S]*?\) : null\}/);
+  assert.equal(source.match(/<CompletedOfficialSoloControls/g)?.length, 2);
 });
 
 test("official Solo detail gives desktop visitors a concise quest briefing without changing the mobile card", () => {

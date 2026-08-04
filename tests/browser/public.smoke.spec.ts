@@ -193,7 +193,8 @@ test("official Solo detail switches from the mobile flow to one desktop action w
   await expectHealthyNavigation(page, "/challenges/knights-before-coffee");
 
   const detail = page.locator(".sqc-official-solo-detail-screen");
-  const shareActions = detail.locator(":scope > .sqc-community-share-actions");
+  const commandRail = detail.locator(":scope > .sqc-quest-command-rail");
+  const shareActions = commandRail.locator(":scope > .sqc-community-share-actions");
   const briefing = detail.locator(".sqc-desktop-quest-briefing");
   await expect(page.getByLabel("Close screen")).toBeVisible();
   await expect(page.getByRole("navigation", { name: "Desktop shortcuts" })).toBeHidden();
@@ -218,11 +219,13 @@ test("official Solo detail switches from the mobile flow to one desktop action w
   const geometry = await detail.evaluate((element) => {
     const rect = element.getBoundingClientRect();
     const style = getComputedStyle(element);
-    const share = element.querySelector(":scope > .sqc-community-share-actions");
+    const commandRail = element.querySelector(":scope > .sqc-quest-command-rail");
+    const share = commandRail?.querySelector(":scope > .sqc-community-share-actions") ?? null;
     const shareButtons = share ? Array.from(share.querySelectorAll("button")) : [];
     return {
       width: Math.round(rect.width),
       columns: style.gridTemplateColumns.split(" ").filter(Boolean).length,
+      commandRailPosition: commandRail ? getComputedStyle(commandRail).position : null,
       shareColumns: share ? getComputedStyle(share).gridTemplateColumns.split(" ").filter(Boolean).length : 0,
       shareButtonWidths: shareButtons.map((button) => Math.round(button.getBoundingClientRect().width)),
       shareButtonHeights: shareButtons.map((button) => Math.round(button.getBoundingClientRect().height)),
@@ -232,6 +235,7 @@ test("official Solo detail switches from the mobile flow to one desktop action w
   });
   expect(geometry.width).toBeGreaterThan(1000);
   expect(geometry.columns).toBe(2);
+  expect(geometry.commandRailPosition).toBe("sticky");
   expect(geometry.shareColumns).toBe(2);
   expect(geometry.shareButtonWidths).toHaveLength(2);
   expect(Math.abs(geometry.shareButtonWidths[0] - geometry.shareButtonWidths[1])).toBeLessThanOrEqual(2);

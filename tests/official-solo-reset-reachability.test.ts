@@ -19,7 +19,8 @@ test("completed Official Solo detail keeps the Android reset capability reachabl
     fs.readFile(new URL("../src/app/challenges/[id]/page.tsx", import.meta.url), "utf8"),
   );
   assert.match(source, /import CompletedOfficialSoloControls from "@\/components\/completed-official-solo-controls"/);
-  assert.match(source, /\{completed && user \? \([\s\S]*?<CompletedOfficialSoloControls challenge=\{challenge\} proofPath=\{completedProofPath\} \/>[\s\S]*?\) : null\}/);
+  assert.match(source, /\{!isActiveChallenge && completed && user \? \([\s\S]*?<CompletedOfficialSoloControls challenge=\{challenge\} proofPath=\{completedProofPath\} \/>[\s\S]*?\) : null\}/);
+  assert.match(source, /\{isActiveChallenge && completed && user \? \([\s\S]*?<CompletedOfficialSoloControls challenge=\{challenge\} proofPath=\{completedProofPath\} \/>[\s\S]*?\) : null\}/);
 });
 
 test("completed Official Solo detail opens the latest accepted proof without inventing a legacy receipt", async () => {
