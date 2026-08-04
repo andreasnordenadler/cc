@@ -1899,6 +1899,7 @@ export function MobileMultiplayerDetailScreen({
         </section>
       ) : null}
 
+      <aside className="sqc-multiplayer-command-rail" aria-label="Multiplayer Side Quest actions">
       <section className="sqc-native-card sqc-multiplayer-native-card sqc-multiplayer-primary-action">
         <span className="sqc-card-eyebrow">{quest.lifecycle === "finished" ? "Receipts locked" : participating ? "Next action" : signedIn ? "Join first" : "Sign in first"}</span>
         <h2>{quest.lifecycle === "finished" ? "Final standings are frozen." : participating ? "Refresh proof after your next eligible game." : hostedNeedsJoin ? "Join your Multiplayer Side Quest before playing your proof game." : "Join this Multiplayer Side Quest before playing your proof game."}</h2>
@@ -1944,6 +1945,7 @@ export function MobileMultiplayerDetailScreen({
         <h2>Send this Multiplayer Side Quest to another player.</h2>
         <GroupQuestShareControls id={quest.id} title={quest.title} isOwner={joinState.kind === "hosted"} />
       </section>
+      </aside>
 
       {quest.lifecycle === "finished" ? (
         <section className="sqc-native-card sqc-multiplayer-native-card sqc-multiplayer-leaderboard" aria-label="Final leaderboard">
