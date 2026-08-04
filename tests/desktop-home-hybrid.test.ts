@@ -322,6 +322,90 @@ test("Community creator shelves become contextual desktop rail destinations", ()
   assert.equal(html.match(/>All creators<\/a>/g)?.length, 1, "one responsive creator-shelf action is rendered");
 });
 
+test("Community discovery gives desktop users a bounded creator directory without changing the catalog", () => {
+  const creators = [
+    ["nora", "Nora Skewer", 3],
+    ["oskar", "Oskar File", 2],
+    ["maja", "Maja Tactic", 1],
+    ["theo", "Theo Endgame", 1],
+    ["eli", "Eli Blitzy", 1],
+    ["felix", "Felix Knight", 1],
+    ["sofia", "Sofia Tempo", 1],
+  ] as const;
+  const rows = creators.flatMap(([creatorKey, creatorName, count]) => Array.from({ length: count }, (_, index) => ({
+    id: `${creatorKey}-${index}`,
+    title: `${creatorName} quest ${index + 1}`,
+    meta: `By ${creatorName} · A public rule.`,
+    href: `/challenges/community/${creatorKey}-${index}`,
+    sourceBadge: "Community",
+    status: "Ready",
+    creatorKey,
+    creatorName,
+    creatorBrowsePath: `/community-side-quests?creator=${creatorKey}#creator-${creatorKey}`,
+    summary: "A public rule.",
+    stats: { soloAttempts: 0, soloCompletions: 0, multiplayerLineups: 0 },
+    updatedAtMs: index,
+    popularityScore: index,
+    likeCount: 0,
+    likedByViewer: false,
+    completedByViewer: false,
+    isNew: false,
+  })));
+  const html = renderToStaticMarkup(
+    createElement(MobileCommunitySideQuestsScreen, { rows, signedIn: false }),
+  );
+
+  assert.match(html, /<aside class="sqc-community-creator-directory" aria-label="Creator shortcuts">/);
+  assert.match(html, />Browse creators<\/h2>/);
+  assert.match(html, /href="\/community-side-quests\?creator=nora#creator-nora"[^>]*><span>Nora Skewer<\/span><small>3 quests<\/small>/);
+  const directoryHtml = html.match(/<aside class="sqc-community-creator-directory"[\s\S]*?<\/aside>/)?.[0] ?? "";
+  assert.equal(directoryHtml.match(/class="sqc-community-creator-directory-link"/g)?.length, 6, "the desktop rail stays bounded");
+  assert.doesNotMatch(directoryHtml, /creator=theo/, "the seventh creator remains discoverable in cards rather than overfilling the rail");
+  assert.match(html, /aria-label="Browse Side Quests by Theo Endgame"/, "creators outside the shortcuts remain available in catalog cards");
+  assert.equal(html.match(/aria-label="Open /g)?.length, rows.length, "the directory must not duplicate quest actions");
+
+  const focusedHtml = renderToStaticMarkup(
+    createElement(MobileCommunitySideQuestsScreen, { rows, signedIn: false, initialCreator: "nora" }),
+  );
+  assert.match(focusedHtml, /aria-label="Creator shelf"/);
+  assert.doesNotMatch(focusedHtml, /aria-label="Creator shortcuts"/, "the focused creator shelf replaces the directory");
+
+  const unknownCreatorHtml = renderToStaticMarkup(
+    createElement(MobileCommunitySideQuestsScreen, { rows, signedIn: false, initialCreator: "retired-creator" }),
+  );
+  assert.doesNotMatch(unknownCreatorHtml, /aria-label="Creator shortcuts"/, "an unknown creator query must not silently restore generic shortcuts");
+});
+
+test("Community creator shortcuts resolve equal rankings with a stable creator-key order", () => {
+  const keys = ["zulu", "yankee", "xray", "whiskey", "victor", "bravo", "alpha"];
+  const rows = keys.map((creatorKey) => ({
+    id: `${creatorKey}-quest`,
+    title: "Shared creator name quest",
+    meta: "By Shared Name · A public rule.",
+    href: `/challenges/community/${creatorKey}-quest`,
+    sourceBadge: "Community",
+    status: "Ready",
+    creatorKey,
+    creatorName: "Shared Name",
+    creatorBrowsePath: `/community-side-quests?creator=${creatorKey}`,
+    summary: "A public rule.",
+    stats: { soloAttempts: 0, soloCompletions: 0, multiplayerLineups: 0 },
+    updatedAtMs: 0,
+    popularityScore: 0,
+    likeCount: 0,
+    likedByViewer: false,
+    completedByViewer: false,
+    isNew: false,
+  }));
+  const html = renderToStaticMarkup(
+    createElement(MobileCommunitySideQuestsScreen, { rows, signedIn: false }),
+  );
+  const directoryHtml = html.match(/<aside class="sqc-community-creator-directory"[\s\S]*?<\/aside>/)?.[0] ?? "";
+  const creatorKeys = Array.from(directoryHtml.matchAll(/creator=([a-z]+)/g), (match) => match[1]);
+
+  assert.deepEqual(creatorKeys, ["alpha", "bravo", "victor", "whiskey", "xray", "yankee"]);
+});
+
 test("Community discovery uses a wide desktop grid only at the established boundary", () => {
   const css = readFileSync("src/app/mobile-web.css", "utf8");
   const wideDesktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1680px)"));
@@ -332,6 +416,10 @@ test("Community discovery uses a wide desktop grid only at the established bound
   assert.match(css, /\.sqc-mobile-web\.desktop-community-discovery\s+\.sqc-catalog\s*\{[^}]*grid-template-columns:\s*repeat\(2,\s*minmax\(0,\s*1fr\)\);/);
   assert.match(css, /\.sqc-mobile-web\.desktop-community-discovery\s+\.sqc-community-browse-panel\s*\{[^}]*grid-template-columns:\s*minmax\(260px,\s*1fr\)\s+auto;/);
   assert.match(css, /\.sqc-mobile-web\.desktop-community-discovery\s+\.sqc-community-controls\s*\{[^}]*display:\s*flex;/);
+  assert.match(css, /\.sqc-community-creator-directory\s*\{[^}]*display:\s*none;/);
+  assert.match(css, /@media\s*\(min-width:\s*1180px\)[\s\S]*?\.sqc-mobile-web\.desktop-community-discovery\s+\.sqc-community-creator-directory\s*\{[^}]*display:\s*grid;[^}]*position:\s*sticky;[^}]*grid-column:\s*1;[^}]*grid-row:\s*3;/);
+  assert.match(css, /\.sqc-mobile-web\.desktop-community-discovery\s+\.sqc-community-creator-directory-link\s*\{[^}]*min-height:\s*44px;/);
+  assert.match(css, /\.sqc-mobile-web\.desktop-community-discovery\s+\.sqc-community-creator-directory-link:focus-visible\s*\{[^}]*outline:\s*3px\s+solid\s+rgba\(96,\s*240,\s*175,\s*\.88\);[^}]*outline-offset:\s*3px;/);
   assert.match(wideDesktopMedia, /\.sqc-mobile-web\.desktop-community-discovery\s+\.sqc-screen\s*\{[^}]*width:\s*min\(1600px,\s*calc\(100%\s*-\s*80px\)\)/);
   assert.match(wideDesktopMedia, /\.sqc-mobile-web\.desktop-community-discovery\s+\.sqc-catalog\s*\{[^}]*grid-template-columns:\s*repeat\(3,\s*minmax\(0,\s*1fr\)\);/);
 });

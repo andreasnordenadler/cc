@@ -1194,6 +1194,23 @@ export function MobileCommunitySideQuestsScreen({
   const creatorRowCount = creatorRow
     ? rows.filter((row) => row.creatorKey === initialCreator).length
     : rows.length;
+  const creatorDirectory = Array.from(rows.reduce((creators, row) => {
+    if (!row.creatorKey || !row.creatorName || !row.creatorBrowsePath) return creators;
+    const current = creators.get(row.creatorKey);
+    creators.set(row.creatorKey, {
+      key: row.creatorKey,
+      name: row.creatorName,
+      href: row.creatorBrowsePath,
+      questCount: (current?.questCount ?? 0) + 1,
+      popularity: (current?.popularity ?? 0) + row.popularityScore,
+    });
+    return creators;
+  }, new Map<string, { key: string; name: string; href: string; questCount: number; popularity: number }>()).values())
+    .sort((left, right) => right.questCount - left.questCount
+      || right.popularity - left.popularity
+      || (left.name < right.name ? -1 : left.name > right.name ? 1 : 0)
+      || (left.key < right.key ? -1 : left.key > right.key ? 1 : 0))
+    .slice(0, 6);
 
   return (
     <div className="sqc-stack sqc-community-solo-screen">
@@ -1234,6 +1251,20 @@ export function MobileCommunitySideQuestsScreen({
           <strong>{creatorRow.creatorName ?? "Quest runner"}</strong>
           <small>{creatorRowCount} public Side Quest{creatorRowCount === 1 ? "" : "s"}</small>
           <Link href="/community-side-quests">All creators</Link>
+        </aside>
+      ) : !initialCreator && creatorDirectory.length ? (
+        <aside className="sqc-community-creator-directory" aria-label="Creator shortcuts">
+          <span>Community directory</span>
+          <h2>Browse creators</h2>
+          <p>Jump to the most active public shelves.</p>
+          <div>
+            {creatorDirectory.map((creator) => (
+              <Link key={creator.key} className="sqc-community-creator-directory-link" href={creator.href}>
+                <span>{creator.name}</span>
+                <small>{creator.questCount} {creator.questCount === 1 ? "quest" : "quests"}</small>
+              </Link>
+            ))}
+          </div>
         </aside>
       ) : null}
 
