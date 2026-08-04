@@ -194,8 +194,10 @@ test("official Solo detail switches from the mobile flow to one desktop action w
 
   const detail = page.locator(".sqc-official-solo-detail-screen");
   const shareActions = detail.locator(":scope > .sqc-community-share-actions");
+  const briefing = detail.locator(".sqc-desktop-quest-briefing");
   await expect(page.getByLabel("Close screen")).toBeVisible();
   await expect(page.getByRole("navigation", { name: "Desktop shortcuts" })).toBeHidden();
+  await expect(briefing).toBeHidden();
   await expect(detail.locator(".sqc-proof-action-card").getByRole("link", { name: "Sign in", exact: true })).toHaveCount(1);
   await expect(shareActions).toHaveCSS("grid-template-columns", /\d+px/);
   const mobileShareColumnCount = await shareActions.evaluate((element) => getComputedStyle(element).gridTemplateColumns.split(" ").filter(Boolean).length);
@@ -204,6 +206,13 @@ test("official Solo detail switches from the mobile flow to one desktop action w
   await page.setViewportSize({ width: 1180, height: 900 });
   await expect(page.getByLabel("Close screen")).toBeHidden();
   await expect(page.getByRole("navigation", { name: "Desktop shortcuts" })).toBeVisible();
+  await expect(briefing).toBeVisible();
+  await expect(briefing.getByText("Difficulty", { exact: true })).toBeVisible();
+  await expect(briefing.getByText("Easy", { exact: true })).toBeVisible();
+  await expect(briefing.getByText("Conditions", { exact: true })).toBeVisible();
+  await expect(briefing.getByText("4", { exact: true })).toBeVisible();
+  await expect(briefing.getByText("Proof", { exact: true })).toBeVisible();
+  await expect(briefing.getByText("Automatic", { exact: true })).toBeVisible();
   await expect(detail.locator(".sqc-proof-action-card").getByRole("link", { name: "Sign in", exact: true })).toHaveCount(1);
 
   const geometry = await detail.evaluate((element) => {
@@ -217,6 +226,7 @@ test("official Solo detail switches from the mobile flow to one desktop action w
       shareColumns: share ? getComputedStyle(share).gridTemplateColumns.split(" ").filter(Boolean).length : 0,
       shareButtonWidths: shareButtons.map((button) => Math.round(button.getBoundingClientRect().width)),
       shareButtonHeights: shareButtons.map((button) => Math.round(button.getBoundingClientRect().height)),
+      briefingColumns: getComputedStyle(element.querySelector(".sqc-desktop-quest-briefing")!).gridTemplateColumns.split(" ").filter(Boolean).length,
       overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
     };
   });
@@ -226,6 +236,7 @@ test("official Solo detail switches from the mobile flow to one desktop action w
   expect(geometry.shareButtonWidths).toHaveLength(2);
   expect(Math.abs(geometry.shareButtonWidths[0] - geometry.shareButtonWidths[1])).toBeLessThanOrEqual(2);
   expect(geometry.shareButtonHeights.every((height) => height >= 46)).toBe(true);
+  expect(geometry.briefingColumns).toBe(3);
   expect(geometry.overflow).toBe(0);
 });
 

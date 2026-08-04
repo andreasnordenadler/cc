@@ -5173,6 +5173,10 @@ body::after {
   display: none;
 }
 
+.sqc-desktop-quest-briefing {
+  display: none;
+}
+
 .sqc-responsive-signed-home {
   width: min(460px, 100%);
   margin-inline: auto;
@@ -7085,6 +7089,40 @@ body::after {
     color: rgba(255, 247, 232, .68);
     font-size: 14px;
     line-height: 1.55;
+  }
+
+  .sqc-mobile-web.desktop-official-detail .sqc-desktop-quest-briefing {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+    margin: 4px 0 6px;
+  }
+
+  .sqc-mobile-web.desktop-official-detail .sqc-desktop-quest-briefing > div {
+    min-width: 0;
+    display: grid;
+    gap: 4px;
+    padding: 12px 10px;
+    border: 1px solid rgba(255, 247, 232, .1);
+    border-radius: 14px;
+    background: rgba(0, 0, 0, .18);
+  }
+
+  .sqc-mobile-web.desktop-official-detail .sqc-desktop-quest-briefing dt {
+    color: rgba(255, 247, 232, .5);
+    font-size: 10px;
+    font-weight: 850;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+  }
+
+  .sqc-mobile-web.desktop-official-detail .sqc-desktop-quest-briefing dd {
+    margin: 0;
+    color: var(--paper);
+    font-family: ui-serif, Georgia, Cambria, "Times New Roman", serif;
+    font-size: 16px;
+    font-weight: 800;
+    line-height: 1.1;
   }
 
   .sqc-mobile-web.desktop-official-detail .sqc-proof-action-card .sqc-action-pair {
