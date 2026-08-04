@@ -58,7 +58,15 @@ function CommunitySoloCatalogRow({ row, signedIn, onLikeStateChange }: { row: Co
         </span>
         <small className="sqc-community-row-mobile-meta">{row.meta}</small>
         <span className="sqc-community-row-details">
-          {row.creatorName ? <span className="sqc-community-row-creator">By {row.creatorName}</span> : null}
+          {row.creatorName && row.creatorBrowsePath ? (
+            <Link
+              className="sqc-community-row-creator"
+              href={row.creatorBrowsePath}
+              aria-label={`Browse Side Quests by ${row.creatorName}`}
+            >
+              By {row.creatorName}
+            </Link>
+          ) : row.creatorName ? <span className="sqc-community-row-creator">By {row.creatorName}</span> : null}
           <span className="sqc-community-row-summary">{row.summary}</span>
           <span className="sqc-community-row-stats" role="group" aria-label="Quest activity">
             <span className="sqc-community-row-stat">{row.stats.soloAttempts} {row.stats.soloAttempts === 1 ? "try" : "tries"}</span>
@@ -104,6 +112,7 @@ function MultiplayerCatalogRow({ row, status, signedIn, externallyBusy, stateGen
 export type CommunitySoloCatalogClientRow = SoloCatalogClientRow & {
   creatorKey?: string;
   creatorName?: string;
+  creatorBrowsePath?: string;
   summary: string;
   stats: {
     soloAttempts: number;
@@ -138,7 +147,6 @@ export function CommunitySoloCatalog({ rows, signedIn, initialCreator = null }: 
   return (
     <>
       <div className="sqc-community-browse-panel" aria-label="Community Side Quest filters">
-        {creatorRow ? <div className="sqc-empty-panel"><strong>Creator shelf: {creatorRow.creatorName ?? "Quest runner"}</strong><span>Showing public Community Solo Side Quests from this creator.</span><Link href="/community-side-quests" className="sqc-detail-secondary-button">Show all creators</Link></div> : null}
         <label className="sqc-search-shell">
           <span className="sr-only">Search Community Side Quests</span>
           <input value={query} onChange={(event) => { setQuery(event.target.value); setLimit(10); }} placeholder="Search by name or rule" aria-label="Search Community Side Quests" />

@@ -203,10 +203,10 @@ test("Community Solo creator shelf shows only that creator and keeps a real clea
     ],
   }));
 
-  assert.match(html, /Creator shelf: Ada/);
+  assert.match(html, /<aside class="sqc-community-creator-shelf" aria-label="Creator shelf"><span>Browsing creator<\/span><strong>Ada<\/strong>/);
   assert.match(html, />1\/1</);
   assert.doesNotMatch(html, />2\/2</);
-  assert.match(html, /href="\/community-side-quests"[^>]*>Show all creators/);
+  assert.match(html, /href="\/community-side-quests"[^>]*>All creators/);
   assert.match(html, /Ada Fork/);
   assert.doesNotMatch(html, /Nora Pin/);
 });

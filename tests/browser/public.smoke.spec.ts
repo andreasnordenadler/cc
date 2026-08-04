@@ -154,6 +154,26 @@ test("Community discovery switches between one mobile catalog and a desktop brow
   expect(overflow).toBe(0);
 });
 
+test("desktop Community creator bylines open one focused creator workspace", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await expectHealthyNavigation(page, "/community-side-quests");
+
+  const creatorLink = page.locator(".sqc-community-row-creator").first();
+  expect(await creatorLink.count()).toBeGreaterThan(0);
+  await expect(creatorLink).toBeVisible();
+  await expect(creatorLink).toHaveAttribute("href", /\/community-side-quests\?creator=.+/);
+  await creatorLink.focus();
+  await expect(creatorLink).toBeFocused();
+  await expect(creatorLink).toHaveCSS("outline-style", "solid");
+  await creatorLink.click();
+  await expect(page).toHaveURL(/\/community-side-quests\?creator=.+/);
+  const shelf = page.getByRole("complementary", { name: "Creator shelf" });
+  await expect(shelf).toBeVisible();
+  await expect(shelf.getByRole("link", { name: "All creators" })).toHaveAttribute("href", "/community-side-quests");
+  await expect(page.getByRole("heading", { name: "Community Side Quests", level: 2 })).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBe(0);
+});
+
 test("official Solo detail switches from the mobile flow to one desktop action workspace", async ({ page }) => {
   await page.setViewportSize({ width: 1179, height: 900 });
   await expectHealthyNavigation(page, "/challenges/knights-before-coffee");

@@ -259,6 +259,7 @@ test("Community discovery becomes a desktop workspace without duplicating its in
     status: "Ready",
     creatorKey: "nora",
     creatorName: "Nora Skewer",
+    creatorBrowsePath: "/community-side-quests?creator=nora#creator-nora",
     summary: "Finish a game without castling.",
     stats: { soloAttempts: 3, soloCompletions: 1, multiplayerLineups: 2 },
     updatedAtMs: 1,
@@ -281,7 +282,7 @@ test("Community discovery becomes a desktop workspace without duplicating its in
   assert.doesNotMatch(html, /<a[^>]*aria-current="page"[^>]*href="\/side-quests">Solo Side Quests<\/a>/);
   assert.match(html, /class="sqc-desktop-community-intro"/);
   assert.match(html, />Player-made rules, arranged for serious browsing\.<\/h1>/);
-  assert.match(html, /class="sqc-community-row-creator">By Nora Skewer<\/span>/);
+  assert.match(html, /<a class="sqc-community-row-creator" aria-label="Browse Side Quests by Nora Skewer" href="\/community-side-quests\?creator=nora#creator-nora">By Nora Skewer<\/a>/);
   assert.match(html, /class="sqc-community-row-summary">Finish a game without castling\.<\/span>/);
   assert.match(html, /class="sqc-community-row-stat">3 tries<\/span>/);
   assert.match(html, /class="sqc-community-row-stat">1 completed<\/span>/);
@@ -289,6 +290,36 @@ test("Community discovery becomes a desktop workspace without duplicating its in
   assert.match(html, /class="sqc-community-row-stats" role="group" aria-label="Quest activity">/);
   assert.equal(html.match(/aria-label="Community Side Quest filters"/g)?.length, 1, "desktop and mobile share one filter subtree");
   assert.equal(html.match(/aria-label="Open Castle\? Never Heard Of It"/g)?.length, 1, "desktop and mobile share one catalog subtree");
+});
+
+test("Community creator shelves become contextual desktop rail destinations", () => {
+  const rows = [{
+    id: "community-one",
+    title: "Castle? Never Heard Of It",
+    meta: "By Nora Skewer · Finish a game without castling.",
+    href: "/challenges/community/community-one",
+    sourceBadge: "Community",
+    status: "Ready",
+    creatorKey: "nora",
+    creatorName: "Nora Skewer",
+    creatorBrowsePath: "/community-side-quests?creator=nora#creator-nora",
+    summary: "Finish a game without castling.",
+    stats: { soloAttempts: 3, soloCompletions: 1, multiplayerLineups: 2 },
+    updatedAtMs: 1,
+    popularityScore: 1,
+    likeCount: 1,
+    likedByViewer: false,
+    completedByViewer: false,
+    isNew: false,
+  }];
+  const html = renderToStaticMarkup(
+    createElement(MobileCommunitySideQuestsScreen, { rows, signedIn: false, initialCreator: "nora" }),
+  );
+
+  assert.match(html, /<aside class="sqc-community-creator-shelf" aria-label="Creator shelf">/);
+  assert.match(html, /<span>Browsing creator<\/span><strong>Nora Skewer<\/strong><small>1 public Side Quest<\/small>/);
+  assert.match(html, /<a[^>]*href="\/community-side-quests">All creators<\/a>/);
+  assert.equal(html.match(/>All creators<\/a>/g)?.length, 1, "one responsive creator-shelf action is rendered");
 });
 
 test("Community discovery uses a wide desktop grid only at the established boundary", () => {
