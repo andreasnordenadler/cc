@@ -596,6 +596,21 @@ test("official Solo detail uses a wide two-column composition only at the deskto
   assert.doesNotMatch(css, /\.sqc-mobile-web\.desktop-official-detail\s+\.sqc-proof-action-card\s*\{/);
 });
 
+test("official Solo detail gives desktop visitors a concise quest briefing without changing the mobile card", () => {
+  const css = readFileSync("src/app/mobile-web.css", "utf8");
+  const route = readFileSync("src/app/challenges/[id]/page.tsx", "utf8");
+  const briefing = readFileSync("src/components/desktop-official-quest-briefing.tsx", "utf8");
+  const desktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1180px)"));
+
+  assert.match(route, /<DesktopOfficialQuestBriefing[\s\S]*active=\{isActiveChallenge\}[\s\S]*completed=\{completed\}[\s\S]*difficulty=\{challenge\.difficulty\}[\s\S]*conditionCount=\{conditionLines\.length\}/);
+  assert.match(briefing, /className="sqc-desktop-quest-briefing" aria-label="Quest briefing"/);
+  assert.match(briefing, /<dt>Difficulty<\/dt>\s*<dd>\{difficulty\}<\/dd>/);
+  assert.match(briefing, /<dt>Conditions<\/dt>\s*<dd>\{conditionCount\}<\/dd>/);
+  assert.match(briefing, /<dt>Proof<\/dt>\s*<dd>Automatic<\/dd>/);
+  assert.match(css, /\.sqc-desktop-quest-briefing\s*\{[^}]*display:\s*none;/, "mobile hides the desktop-only briefing");
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-official-detail\s+\.sqc-desktop-quest-briefing\s*\{[^}]*display:\s*grid;[^}]*grid-template-columns:\s*repeat\(3,\s*minmax\(0,\s*1fr\)\);/);
+});
+
 test("Community Solo detail opts into persistent desktop navigation without duplicating its actions", () => {
   const html = renderToStaticMarkup(
     createElement(

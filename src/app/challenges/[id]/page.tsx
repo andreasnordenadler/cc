@@ -7,6 +7,7 @@ import { notFound } from "next/navigation";
 import MobileAppWebShell, { MiniChessBoard } from "@/components/mobile-app-web-shell";
 import CompletedOfficialSoloControls from "@/components/completed-official-solo-controls";
 import DeactivateQuestControl from "@/components/deactivate-quest-control";
+import DesktopOfficialQuestBriefing from "@/components/desktop-official-quest-briefing";
 import { MobileWebRelativeTime } from "@/components/mobile-web-relative-time";
 import OfficialSoloDetailActions from "@/components/official-solo-detail-actions";
 import OfficialSoloLikeControl from "@/components/official-solo-like-control";
@@ -234,6 +235,12 @@ export default async function ChallengeDetailPage({
                 <span className="sqc-card-eyebrow">{user ? "Pick this Side Quest" : "Sign in to start this Side Quest"}</span>
                 <h2>{user ? `${challenge.title} is ready for the royal docket.` : "Sign in to save quest progress."}</h2>
                 <p>{user ? "Choose this rule so Side Quest Chess knows what to judge after your next public game." : "Browse the rules here. Sign in when you want Side Quest Chess to save this as your active Solo Side Quest and track proof."}</p>
+                <DesktopOfficialQuestBriefing
+                  active={isActiveChallenge}
+                  completed={completed}
+                  difficulty={challenge.difficulty}
+                  conditionCount={conditionLines.length}
+                />
                 <div className="sqc-action-pair one-or-two">
                   <Link href="/side-quests" className="sqc-secondary-action">Back to list</Link>
                   {user ? (
