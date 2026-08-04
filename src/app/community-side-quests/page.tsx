@@ -66,6 +66,7 @@ export default async function CommunitySideQuestsPage({
             status: completedIds.has(quest.id) ? "Completed" : "Ready",
             creatorKey: quest.creatorKey,
             creatorName: quest.creatorName,
+            creatorBrowsePath: quest.creatorBrowsePath,
             summary: quest.summary,
             stats: {
               soloAttempts: quest.stats.soloAttempts,

@@ -109,6 +109,7 @@ type CommunitySideQuestRow = {
   status?: string | null;
   creatorKey?: string;
   creatorName?: string;
+  creatorBrowsePath?: string;
   summary: string;
   stats: {
     soloAttempts: number;
@@ -1189,7 +1190,8 @@ export function MobileCommunitySideQuestsScreen({
   signedIn: boolean;
   initialCreator?: string | null;
 }) {
-  const creatorRowCount = initialCreator && rows.some((row) => row.creatorKey === initialCreator)
+  const creatorRow = initialCreator ? rows.find((row) => row.creatorKey === initialCreator) : null;
+  const creatorRowCount = creatorRow
     ? rows.filter((row) => row.creatorKey === initialCreator).length
     : rows.length;
 
@@ -1226,9 +1228,18 @@ export function MobileCommunitySideQuestsScreen({
         <Link href="/custom-side-quests">My Library</Link>
       </nav>
 
+      {creatorRow ? (
+        <aside className="sqc-community-creator-shelf" aria-label="Creator shelf">
+          <span>Browsing creator</span>
+          <strong>{creatorRow.creatorName ?? "Quest runner"}</strong>
+          <small>{creatorRowCount} public Side Quest{creatorRowCount === 1 ? "" : "s"}</small>
+          <Link href="/community-side-quests">All creators</Link>
+        </aside>
+      ) : null}
+
       <section className="sqc-community-catalog-section" aria-label="Community Solo Discover">
         <div className="sqc-community-section-header">
-          <h2>Community Solo Discover</h2>
+          <h2>Community Side Quests</h2>
           <span>{creatorRowCount ? `${creatorRowCount}/${creatorRowCount}` : "0 public"}</span>
         </div>
 
