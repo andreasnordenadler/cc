@@ -6,29 +6,46 @@ import { canReportCommunityMultiplayerQuest } from "../apps/mobile/src/reports/c
 import { filterBlockedCommunityGroupQuests } from "../src/lib/user-blocking";
 
 const declarationsPath = path.resolve("docs/SQC_GOOGLE_PLAY_DECLARATIONS_V340_2026-07-30.md");
-const internalPlanPath = path.resolve("docs/SQC_GOOGLE_PLAY_INTERNAL_TEST_PLAN_V347_2026-08-03.md");
+const internalPlanPath = path.resolve("docs/SQC_GOOGLE_PLAY_INTERNAL_TEST_PLAN_V348_2026-08-05.md");
+const listingPath = path.resolve("docs/SQC_GOOGLE_PLAY_LISTING_V340_2026-07-30.md");
 
-test("Google Play declarations are bound to the current code-347 AAB", async () => {
+test("Google Play declarations are bound to the current code-348 AAB", async () => {
   const [declarations, internalPlan] = await Promise.all([
     readFile(declarationsPath, "utf8"),
     readFile(internalPlanPath, "utf8"),
   ]);
 
-  assert.match(declarations, /Current inspected Google Play upload candidate: `0\.1\.346 \(347\)`/);
-  assert.match(declarations, /Immutable EAS source: `6a0888cb2b76a667168806b7da186dbd3583c451`/);
-  assert.match(declarations, /EAS build: `691d9598-fe32-4d8c-949a-ff840384869c`/);
-  assert.match(declarations, /AAB SHA-256: `87353e5b90e6769063524fd830a663b449c4088b3c9c60a2310beca0cef6d316`/);
-  assert.match(declarations, /size 86,159,455 bytes/);
-  assert.match(declarations, /upload only the bound code-347 AAB/i);
-  assert.doesNotMatch(declarations, /current inspected Google Play upload candidate: `0\.1\.344 \(345\)`/i);
+  assert.match(declarations, /Current inspected Google Play upload candidate: `0\.1\.347 \(348\)`/);
+  assert.match(declarations, /Immutable EAS source: `5ece97b95de996b630775359e312a001e58ff59c`/);
+  assert.match(declarations, /EAS build: `c8290195-f35b-48b5-961d-907b7adb532b`/);
+  assert.match(declarations, /AAB SHA-256: `c8755b7175fc6902ec391c8ba2dc69488faf13dd0be78d321507026c89bb5576`/);
+  assert.match(declarations, /size 86,159,689 bytes/);
+  assert.match(declarations, /upload only the bound code-348 AAB/i);
+  assert.doesNotMatch(declarations, /current inspected Google Play upload candidate: `0\.1\.346 \(347\)`/i);
 
   for (const identity of [
-    "6a0888cb2b76a667168806b7da186dbd3583c451",
-    "691d9598-fe32-4d8c-949a-ff840384869c",
-    "87353e5b90e6769063524fd830a663b449c4088b3c9c60a2310beca0cef6d316",
+    "5ece97b95de996b630775359e312a001e58ff59c",
+    "c8290195-f35b-48b5-961d-907b7adb532b",
+    "c8755b7175fc6902ec391c8ba2dc69488faf13dd0be78d321507026c89bb5576",
   ]) {
     assert.ok(internalPlan.includes(identity), `internal-test plan must independently contain ${identity}`);
   }
+});
+
+test("Google Play declarations quarantine superseded code-347 listing instructions", async () => {
+  const [declarations, listing] = await Promise.all([
+    readFile(declarationsPath, "utf8"),
+    readFile(listingPath, "utf8"),
+  ]);
+
+  assert.match(listing, /0\.1\.346 \(347\)/);
+  assert.match(listing, /legacy listing copy and asset evidence only/i);
+  assert.match(listing, /code-347 candidate and screenshot instructions are superseded/i);
+  assert.match(listing, /code-348 internal testing plan controls current candidate operations/i);
+  assert.doesNotMatch(listing, /^# Side Quest Chess — exact Google Play listing pack$/m);
+  assert.match(declarations, /legacy listing copy and asset evidence only/i);
+  assert.match(declarations, /code-347 candidate and screenshot instructions are superseded/i);
+  assert.match(declarations, /code-348 internal testing plan controls current candidate operations/i);
 });
 
 test("Google Play declarations describe the exact Android creator safety scope", async () => {
