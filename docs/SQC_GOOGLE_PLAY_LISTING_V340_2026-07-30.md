@@ -1,8 +1,8 @@
 # Side Quest Chess — exact Google Play listing pack
 
-Prepared: 2026-07-30; candidate and asset inventory refreshed 2026-08-03
+Prepared: 2026-07-30; candidate and asset inventory refreshed 2026-08-10
 
-Candidate: `0.1.346 (347)` for Internal testing
+Candidate: `0.1.347 (348)` for Internal testing
 
 Package: `com.sidequestchess.app`
 
@@ -91,12 +91,12 @@ Authoritative references:
 | Launcher icon source | `apps/mobile/assets/app-icon-light-blue.png`; 1,024 × 1,024 RGB PNG; SHA-256 `885e46776ebe59366d17eab3bbcc62860af76537288503cf694079f2c9e3d52e` | Shipped source retained unchanged; not the file to upload in the Play listing. |
 | Adaptive foreground | `apps/mobile/assets/app-icon-foreground.png`; 1,024 × 1,024 RGBA PNG; SHA-256 `88b8a9585c1899c182b50b1874ff5b43b2ec9a94928cdbd451c54c5c319d1799` | Runtime asset only; not a substitute for the store icon. |
 | Feature graphic | `apps/mobile/store-assets/google-play/feature-graphic-1024x500.png`; 1,024 × 500 24-bit RGB PNG; 266,618 bytes; SHA-256 `f89001e2662f29196a53170a8ef2f1f2b8117dc134b71351b54550934e810fe2` | **Listing-ready original composition.** The graphic uses an original brand-blue/chessboard layout, claims only shipped Side Quests, proof checks, and trophies, and incorporates the unchanged shipped launcher artwork as its product mark. It has no alpha channel. `tests/google-play-store-assets.test.ts` enforces complete PNG structure, chunk CRCs, dimensions, bit depth, RGB color type, scanline integrity, and terminal IEND. Independent normal- and thumbnail-scale review found no blocking clipping, readability, composition, or claims issue. |
-| Current-candidate store screenshots | No curated listing set exists for code 347 | **Missing.** Earlier responsive engineering captures prove the corrected layout across the required Android matrix, but they are not a listing-ready 9:16 set, are not code-347 captures, and are not Play-delivered-build evidence. |
+| Current-candidate store screenshots | No curated listing set exists for code 348 | **Missing.** Earlier responsive engineering captures prove the corrected layout across the required Android matrix, but they are not a listing-ready 9:16 set, are not code-348 captures, and are not Play-delivered-build evidence. |
 | Tablet / Chromebook screenshots | No current-candidate listing set found | Optional for initial phone listing; do not claim large-screen listing readiness. |
 
 ### Required current-candidate screenshot set
 
-Capture from the Play-delivered code-347 install after tester access and signer verification. Use a non-sensitive disposable account, remove notifications and personal identifiers, and keep the system bars/rendering consistent.
+Capture from the Play-delivered code-348 install after tester access and signer verification. Use a non-sensitive disposable account, remove notifications and personal identifiers, and keep the system bars/rendering consistent.
 
 Minimum recommended portrait set (all 1,080 × 1,920 or greater at 9:16):
 
@@ -106,15 +106,15 @@ Minimum recommended portrait set (all 1,080 × 1,920 or greater at 9:16):
 4. **Build your Trophy Cabinet** — earned and locked Coats of Arms shown truthfully.
 5. **Create your own Side Quest** — executable Custom Side Quest form, not a decorative mockup.
 
-For every final image, verify: exact dimensions/aspect ratio, no clipping or overlap, no keyboard unless intentional, no debug UI, no stale version copy, no private account data, and correspondence with code 347 behavior. Do not use Carl's regression screenshot in the store listing.
+For every final image, verify: exact dimensions/aspect ratio, no clipping or overlap, no keyboard unless intentional, no debug UI, no stale version copy, no private account data, and correspondence with code 348 behavior. Do not use Carl's regression screenshot in the store listing.
 
 ## Release alignment and blockers
 
-- Frozen AAB: `side-quest-chess-android-v346-code347.aab`
-- AAB SHA-256: `87353e5b90e6769063524fd830a663b449c4088b3c9c60a2310beca0cef6d316`
-- Immutable EAS source: `6a0888cb2b76a667168806b7da186dbd3583c451`
-- EAS build: `691d9598-fe32-4d8c-949a-ff840384869c` (`production` / `STORE`)
-- Committed app identity: `0.1.346` / code `346`; EAS production auto-increment reserved artifact code `347`
+- Frozen AAB: `side-quest-chess-android-v347-code348.aab`
+- AAB SHA-256: `c8755b7175fc6902ec391c8ba2dc69488faf13dd0be78d321507026c89bb5576`
+- Immutable EAS source: `5ece97b95de996b630775359e312a001e58ff59c`
+- EAS build: `c8290195-f35b-48b5-961d-907b7adb532b` (`production` / `STORE`)
+- Committed app identity: `0.1.347` / code `347`; EAS production auto-increment reserved artifact code `348`
 - Merged responsive fix: PR #92
 - Current `origin/main` changes no file under `apps/mobile` after the immutable candidate source.
 - If a later change touches mobile runtime or release inputs, listing screenshots and responsive acceptance must be repeated against the replacement candidate.
@@ -123,6 +123,6 @@ Blocking before this listing can be called upload-ready:
 
 1. Current-candidate store screenshots are missing; the preferred set depends on the authorized Play-delivered install.
 2. The live privacy/terms source still contains launch-draft status and older contact/controller text (`andreas.nordenadler@gmail.com`) that conflicts with the confirmed publisher and support facts above. Reconcile and legally adopt those pages before public store publication.
-3. Play App Signing, tester access, and the code-347 Internal testing install remain unverified owner-gated Console steps.
+3. Play App Signing, tester access, and the code-348 Internal testing install remain unverified owner-gated Console steps.
 
 Google Play upload/submission, listing edits, tester assignment, and publication remain explicit owner gates.

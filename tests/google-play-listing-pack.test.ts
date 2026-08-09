@@ -25,7 +25,7 @@ async function sha256(filePath: string) {
   return createHash("sha256").update(await readFile(filePath)).digest("hex");
 }
 
-test("Google Play listing pack is aligned with the current code-347 candidate", async () => {
+test("Google Play listing pack is aligned with the current code-348 candidate", async () => {
   const [listing, appConfigSource] = await Promise.all([
     readFile(listingPath, "utf8"),
     readFile(appConfigPath, "utf8"),
@@ -34,12 +34,18 @@ test("Google Play listing pack is aligned with the current code-347 candidate", 
     expo: { name: string; version: string; android: { package: string; versionCode: number } };
   };
 
-  assert.match(listing, /Candidate: `0\.1\.346 \(347\)` for Internal testing/);
-  assert.match(listing, /Immutable EAS source: `6a0888cb2b76a667168806b7da186dbd3583c451`/);
-  assert.match(listing, /AAB SHA-256: `87353e5b90e6769063524fd830a663b449c4088b3c9c60a2310beca0cef6d316`/);
+  assert.match(listing, /Candidate: `0\.1\.347 \(348\)` for Internal testing/);
+  assert.match(listing, /Frozen AAB: `side-quest-chess-android-v347-code348\.aab`/);
+  assert.match(listing, /Immutable EAS source: `5ece97b95de996b630775359e312a001e58ff59c`/);
+  assert.match(listing, /AAB SHA-256: `c8755b7175fc6902ec391c8ba2dc69488faf13dd0be78d321507026c89bb5576`/);
+  assert.match(listing, /EAS build: `c8290195-f35b-48b5-961d-907b7adb532b` \(`production` \/ `STORE`\)/);
+  assert.match(listing, /Committed app identity: `0\.1\.347` \/ code `347`; EAS production auto-increment reserved artifact code `348`/);
+  assert.match(listing, /Capture from the Play-delivered code-348 install/);
+  assert.match(listing, /correspondence with code 348 behavior/);
+  assert.match(listing, /Google Play upload\/submission, listing edits, tester assignment, and publication remain explicit owner gates/);
   assert.doesNotMatch(
     listing,
-    /code[- ]?34[15]|0\.1\.34[04]|android-v344-code345|b4847e7b42817f1cc3109f37c1296465018edbce6aa65c390ab073ab21f8dc3d/i,
+    /code[- ]?34[15]|0\.1\.34[04]|android-v344-code345|side-quest-chess-android-v346-code347|6a0888cb2b76a667168806b7da186dbd3583c451|87353e5b90e6769063524fd830a663b449c4088b3c9c60a2310beca0cef6d316|691d9598-fe32-4d8c-949a-ff840384869c|b4847e7b42817f1cc3109f37c1296465018edbce6aa65c390ab073ab21f8dc3d/i,
   );
 
   assert.equal(appConfig.expo.name, "Side Quest Chess");
@@ -78,7 +84,14 @@ test("listing asset inventory is bound to the reviewed repository files", async 
 test("legacy submission pack points to the current Play listing facts without stale Android identity", async () => {
   const submissionPack = await readFile(submissionPackPath, "utf8");
 
-  assert.match(submissionPack, /Current Android candidate: `0\.1\.346 \(347\)`/);
+  assert.match(submissionPack, /Current Android candidate: `0\.1\.347 \(348\)`/);
+  assert.match(submissionPack, /Committed Android identity: version `0\.1\.347`, version code `347`; EAS production auto-increment reserved candidate code `348`/);
+  assert.match(submissionPack, /AAB: `side-quest-chess-android-v347-code348\.aab`/);
+  assert.match(submissionPack, /SHA256: `c8755b7175fc6902ec391c8ba2dc69488faf13dd0be78d321507026c89bb5576`/);
+  assert.match(submissionPack, /EAS build: `c8290195-f35b-48b5-961d-907b7adb532b`/);
+  assert.match(submissionPack, /Immutable source: `5ece97b95de996b630775359e312a001e58ff59c`/);
+  assert.match(submissionPack, /Capture the code-348 Google Play screenshot set/);
+  assert.match(submissionPack, /Console changes, policy answers, uploads, tester assignment, and publication remain owner-gated/);
   assert.match(submissionPack, /Developer \/ publisher public name: Crowdler AB/);
   assert.match(submissionPack, /Support email: `sam@crowdler\.com`/);
   assert.match(submissionPack, /Countries \/ regions: Worldwide/);
@@ -90,6 +103,6 @@ test("legacy submission pack points to the current Play listing facts without st
   );
   assert.doesNotMatch(
     submissionPack,
-    /Version: `0\.1\.336`|Android version code: `336`|PENDING ANDREAS|code[- ]?34[15]|0\.1\.34[04]|android-v344-code345|Turn normal chess games into playful side quests/i,
+    /Version: `0\.1\.336`|Android version code: `336`|PENDING ANDREAS|code[- ]?34[15]|0\.1\.34[04]|android-v344-code345|side-quest-chess-android-v346-code347|6a0888cb2b76a667168806b7da186dbd3583c451|87353e5b90e6769063524fd830a663b449c4088b3c9c60a2310beca0cef6d316|691d9598-fe32-4d8c-949a-ff840384869c|Turn normal chess games into playful side quests/i,
   );
 });
