@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   description: "How Side Quest Chess handles account, public chess-game, support, and product-usage information.",
 };
 
-const LAST_UPDATED = "July 29, 2026";
+const LAST_UPDATED = "July 30, 2026";
 
 export default function PrivacyPage() {
   return (
@@ -86,6 +86,7 @@ export default function PrivacyPage() {
           <h2>Retention and deletion</h2>
           <p>Side Quest Chess keeps account and quest information while it is needed to provide the account and product features. Implemented limits currently keep up to 30 signed-in support messages, a compact analytics history of up to 12 recent events and 12 quest-stat records, and up to 500 account likes. Those limits do not by themselves delete the rest of an account.</p>
           <p>Signed-in users can permanently delete their Side Quest Chess account from My Account on the website or mobile app. This removes the Clerk sign-in and account-attached profile and progress data, and cleans hosted and participant references from replicated Multiplayer records. Deletion cannot be undone. If that cleanup cannot finish, Side Quest Chess reports an error instead of deleting the sign-in identity so the user can retry or contact privacy support.</p>
+          <p>Public proof links already shared can remain readable independently of the deleted account. Deleting an account does not revoke those links or remove the underlying public game from Lichess or Chess.com.</p>
           <p><strong>Current launch limitation:</strong> The exact backup/log deletion schedule and any legally required retention exceptions must still be confirmed by the product owner before this policy is treated as final.</p>
         </section>
 
