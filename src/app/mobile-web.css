@@ -2663,6 +2663,15 @@ body::after {
   filter: grayscale(.72) drop-shadow(0 8px 14px rgba(0, 0, 0, .16));
 }
 
+.sqc-coat-tile-details {
+  display: contents;
+}
+
+.sqc-coat-tile-context,
+.sqc-coat-tile-objective {
+  display: none;
+}
+
 .sqc-coat-tile strong {
   width: 100%;
   min-height: 30px;
@@ -9023,17 +9032,22 @@ body::after {
   .sqc-mobile-web.desktop-trophy-cabinet .sqc-coat-grid {
     grid-column: 1 / -1;
     display: grid;
-    grid-template-columns: repeat(5, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 14px;
   }
 
   .sqc-mobile-web.desktop-trophy-cabinet .sqc-coat-tile {
-    min-height: 190px;
-    align-content: center;
-    gap: 9px;
-    padding: 20px 16px;
+    min-height: 196px;
+    display: grid;
+    grid-template-columns: 112px minmax(0, 1fr);
+    align-content: stretch;
+    align-items: center;
+    justify-items: stretch;
+    gap: 18px;
+    padding: 20px;
     border-radius: 22px;
     background: rgba(255, 247, 232, .052);
+    text-align: left;
     transition: transform 160ms ease, border-color 160ms ease, background 160ms ease;
   }
 
@@ -9044,20 +9058,57 @@ body::after {
   }
 
   .sqc-mobile-web.desktop-trophy-cabinet .sqc-coat-tile-art {
-    width: 96px;
-    height: 106px;
+    width: 112px;
+    height: 124px;
   }
 
   .sqc-mobile-web.desktop-trophy-cabinet .sqc-coat-tile-image {
-    width: 90px;
-    height: 102px;
+    width: 104px;
+    height: 118px;
+  }
+
+  .sqc-mobile-web.desktop-trophy-cabinet .sqc-coat-tile-details {
+    min-width: 0;
+    display: grid;
+    align-content: center;
+    gap: 8px;
+  }
+
+  .sqc-mobile-web.desktop-trophy-cabinet .sqc-coat-tile-context {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .sqc-mobile-web.desktop-trophy-cabinet .sqc-coat-tile-context span {
+    padding: 4px 7px;
+    border: 1px solid rgba(96, 240, 175, .2);
+    border-radius: 999px;
+    color: var(--green);
+    font-size: 9px;
+    font-weight: 950;
+    letter-spacing: .055em;
+    line-height: 1;
+    text-transform: uppercase;
   }
 
   .sqc-mobile-web.desktop-trophy-cabinet .sqc-coat-tile strong {
     min-height: 0;
     font-family: ui-serif, Georgia, Cambria, "Times New Roman", serif;
-    font-size: 16px;
-    line-height: 1.15;
+    font-size: 19px;
+    line-height: 1.08;
+    -webkit-line-clamp: 3;
+  }
+
+  .sqc-mobile-web.desktop-trophy-cabinet .sqc-coat-tile-objective {
+    display: block;
+    color: rgba(255, 247, 232, .67);
+    font-size: 12px;
+    line-height: 1.45;
+  }
+
+  .sqc-mobile-web.desktop-trophy-cabinet .sqc-coat-tile:last-child:nth-child(3n + 1) {
+    grid-column: 2;
   }
 
   .sqc-mobile-web.desktop-trophy-cabinet :is(a, summary, button):focus-visible {

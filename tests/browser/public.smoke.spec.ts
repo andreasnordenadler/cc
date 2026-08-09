@@ -61,6 +61,30 @@ test("signed-out desktop-native routes omit the phone menu and expose persistent
   await expect(page.getByRole("link", { name: "Sign in", exact: true })).toHaveAttribute("href", "/sign-in?redirect_url=%2Fside-quests");
 });
 
+test("desktop Trophy Cabinet turns coat previews into decision-ready collection cards without changing mobile", async ({ page }) => {
+  await page.setViewportSize({ width: 1179, height: 900 });
+  await expectHealthyNavigation(page, "/trophy-cabinet");
+
+  const grid = page.getByLabel("Official Solo Side Quest coat grid");
+  const firstCoat = grid.getByRole("link").first();
+  await expect(firstCoat.locator(".sqc-coat-tile-context")).toBeHidden();
+  await expect(firstCoat.locator(".sqc-coat-tile-objective")).toBeHidden();
+  expect(await grid.evaluate((element) => getComputedStyle(element).gridTemplateColumns.split(" ").length)).toBe(3);
+
+  await page.setViewportSize({ width: 1180, height: 900 });
+  await expect(firstCoat.locator(".sqc-coat-tile-context")).toBeVisible();
+  await expect(firstCoat.locator(".sqc-coat-tile-objective")).toBeVisible();
+  await expect(firstCoat.locator(".sqc-coat-tile-objective")).toContainText("back-rank mate");
+  expect(await grid.evaluate((element) => getComputedStyle(element).gridTemplateColumns.split(" ").length)).toBe(3);
+  const objectiveGeometry = await grid.locator(".sqc-coat-tile-objective").evaluateAll((objectives) => objectives.map((objective) => ({
+    clientHeight: objective.clientHeight,
+    scrollHeight: objective.scrollHeight,
+  })));
+  expect(objectiveGeometry.every(({ clientHeight, scrollHeight }) => scrollHeight <= clientHeight + 1)).toBe(true);
+  expect(await grid.getByRole("link").last().evaluate((tile) => getComputedStyle(tile).gridColumnStart)).toBe("2");
+  expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBe(0);
+});
+
 test("desktop Solo discovery keeps every objective and Android opening hint readable at the composition boundary", async ({ page }) => {
   await page.setViewportSize({ width: 1179, height: 900 });
   await expectHealthyNavigation(page, "/side-quests");

@@ -553,6 +553,9 @@ test("Trophy Cabinet becomes one desktop collection workspace without duplicatin
   assert.match(html, /href="\/sign-in\?redirect_url=%2Ftrophy-cabinet"[^>]*>Sign in to view my rewards<\/a>/);
   assert.match(html, />Browse all 1 official Side Quest coat\.<\/h2>/);
   assert.doesNotMatch(html, /No unlocked trophies yet|No Solo coats yet|0 Official Multiplayer|0 Community Multiplayer|0 of 1 official|Locked preview|sqc-coat-tile-image locked/);
+  assert.match(html, /class="sqc-coat-tile-details"/);
+  assert.match(html, /class="sqc-coat-tile-context"[^>]*><span>Easy<\/span><span>Style Kill<\/span>/);
+  assert.match(html, /class="sqc-coat-tile-objective">Deliver a back-rank mate with maximum goblin energy\.<\/span>/);
   assert.match(html, />Official coat preview<\/small>/);
   assert.equal(html.match(/href="\/challenges\//g)?.length, 1, "desktop and mobile share one official coat grid");
   assert.equal(html.match(/href="\/side-quests"/g)?.length, 1, "signed-out cabinet keeps the persistent Solo discovery shortcut without a false empty-reward action");
@@ -568,8 +571,12 @@ test("Trophy Cabinet keeps the mobile stack below 1180px and uses the desktop ca
   assert.match(css, /\.sqc-desktop-trophy-intro\s*\{[^}]*display:\s*none;/);
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-trophy-cabinet\s+\.sqc-screen\s*\{[^}]*width:\s*min\(1320px,\s*calc\(100%\s*-\s*64px\)\)/);
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-trophy-cabinet\s+\.sqc-trophy-screen\s*\{[^}]*grid-template-columns:\s*repeat\(12,\s*minmax\(0,\s*1fr\)\);/);
-  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-trophy-cabinet\s+\.sqc-coat-grid\s*\{[^}]*grid-template-columns:\s*repeat\(5,\s*minmax\(0,\s*1fr\)\);/);
-  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-trophy-cabinet\s+\.sqc-coat-tile\s*\{[^}]*min-height:\s*190px;/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-trophy-cabinet\s+\.sqc-coat-grid\s*\{[^}]*grid-template-columns:\s*repeat\(3,\s*minmax\(0,\s*1fr\)\);/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-trophy-cabinet\s+\.sqc-coat-tile\s*\{[^}]*min-height:\s*196px;/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-trophy-cabinet\s+\.sqc-coat-tile\s*\{[^}]*grid-template-columns:\s*112px\s+minmax\(0,\s*1fr\);/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-trophy-cabinet\s+\.sqc-coat-tile-objective\s*\{[^}]*display:\s*block;/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-trophy-cabinet\s+\.sqc-coat-tile:last-child:nth-child\(3n\s*\+\s*1\)\s*\{[^}]*grid-column:\s*2;/);
+  assert.match(css, /\.sqc-coat-tile-objective\s*\{[^}]*display:\s*none;/);
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-trophy-cabinet\.signed-out\s+\.sqc-trophy-sign-in\s*\{[^}]*grid-column:\s*1\s*\/\s*span\s*4;/);
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-trophy-cabinet\.signed-out\s+\.sqc-trophy-collection-summary\s*\{[^}]*grid-column:\s*5\s*\/\s*-1;/);
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-trophy-cabinet\s+\.sqc-trophy-sign-in\s+\.sqc-primary-action\s*\{[^}]*width:\s*fit-content;/);
