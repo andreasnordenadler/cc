@@ -8982,6 +8982,20 @@ body::after {
     background: linear-gradient(145deg, rgba(245, 200, 106, .13), rgba(255, 247, 232, .05));
   }
 
+  .sqc-mobile-web.desktop-trophy-cabinet.signed-out .sqc-trophy-sign-in {
+    grid-column: 1 / span 4;
+  }
+
+  .sqc-mobile-web.desktop-trophy-cabinet.signed-out .sqc-trophy-collection-summary {
+    grid-column: 5 / -1;
+  }
+
+  .sqc-mobile-web.desktop-trophy-cabinet .sqc-trophy-sign-in .sqc-primary-action {
+    width: fit-content;
+    margin-top: auto;
+    border-radius: 999px;
+  }
+
   .sqc-mobile-web.desktop-trophy-cabinet .sqc-trophy-solo-rewards {
     grid-column: 1 / span 5;
   }
