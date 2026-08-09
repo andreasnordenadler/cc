@@ -17,6 +17,7 @@ const communityPodium = {
 
 test("community Multiplayer podiums are separated from official trophies", () => {
   const html = renderToStaticMarkup(React.createElement(MobileTrophyCabinetScreen, {
+    signedIn: true,
     trophyRows: [communityPodium],
     completedSoloCount: 0,
     proofReceiptCount: 0,
@@ -31,6 +32,7 @@ test("community Multiplayer podiums are separated from official trophies", () =>
 
 test("Custom and Community Solo rewards render in the Android-matched Solo cabinet section", () => {
   const html = renderToStaticMarkup(React.createElement(MobileTrophyCabinetScreen, {
+    signedIn: true,
     trophyRows: [
       {
         id: "solo-custom-alpha",

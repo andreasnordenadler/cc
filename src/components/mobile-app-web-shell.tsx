@@ -1065,12 +1065,14 @@ export function MobileSupportScreen({
 }
 
 export function MobileTrophyCabinetScreen({
+  signedIn,
   trophyRows,
   completedSoloCount,
   proofReceiptCount: _proofReceiptCount,
   officialSoloCount,
   officialChallenges,
 }: {
+  signedIn: boolean;
   trophyRows: TrophyRow[];
   completedSoloCount: number;
   proofReceiptCount: number;
@@ -1101,60 +1103,71 @@ export function MobileTrophyCabinetScreen({
         <p>Review earned coats and podium finishes, then browse the complete Official Solo collection without leaving your cabinet.</p>
       </header>
 
-      <section className="sqc-native-card sqc-trophy-summary" aria-label="Trophy Cabinet summary">
-        <span className="sqc-card-eyebrow">Trophy Cabinet</span>
-        <h2>{unlockedCount ? `${unlockedCount} unlocked: ${officialSoloRows.length} Official Solo Side Quest${officialSoloRows.length === 1 ? "" : "s"} · ${customSoloRows.length} Custom Solo Side Quest${customSoloRows.length === 1 ? "" : "s"} · ${communitySoloRows.length} Community Solo Side Quest${communitySoloRows.length === 1 ? "" : "s"} · ${officialMultiplayerRows.length} Official Multiplayer Side Quest${officialMultiplayerRows.length === 1 ? "" : "s"} · ${communityMultiplayerRows.length} Community Multiplayer Side Quest${communityMultiplayerRows.length === 1 ? "" : "s"}` : "No unlocked trophies yet."}</h2>
-        <p>
-          {unlockedCount
-            ? "This is your unified Side Quest Chess reward shelf. Official Solo coats and Official Multiplayer podiums are highlighted first; community and custom rewards still belong here."
-            : "Complete any Official Solo Side Quest, Custom Solo Side Quest, or Multiplayer Side Quest and it will appear on this shelf."}
-        </p>
-      </section>
+      {signedIn ? (
+        <section className="sqc-native-card sqc-trophy-summary" aria-label="Trophy Cabinet summary">
+          <span className="sqc-card-eyebrow">Trophy Cabinet</span>
+          <h2>{unlockedCount ? `${unlockedCount} unlocked: ${officialSoloRows.length} Official Solo Side Quest${officialSoloRows.length === 1 ? "" : "s"} · ${customSoloRows.length} Custom Solo Side Quest${customSoloRows.length === 1 ? "" : "s"} · ${communitySoloRows.length} Community Solo Side Quest${communitySoloRows.length === 1 ? "" : "s"} · ${officialMultiplayerRows.length} Official Multiplayer Side Quest${officialMultiplayerRows.length === 1 ? "" : "s"} · ${communityMultiplayerRows.length} Community Multiplayer Side Quest${communityMultiplayerRows.length === 1 ? "" : "s"}` : "No unlocked trophies yet."}</h2>
+          <p>
+            {unlockedCount
+              ? "This is your unified Side Quest Chess reward shelf. Official Solo coats and Official Multiplayer podiums are highlighted first; community and custom rewards still belong here."
+              : "Complete any Official Solo Side Quest, Custom Solo Side Quest, or Multiplayer Side Quest and it will appear on this shelf."}
+          </p>
+        </section>
+      ) : (
+        <section className="sqc-native-card sqc-trophy-summary sqc-trophy-sign-in" aria-label="Sign in to sync Trophy Cabinet">
+          <span className="sqc-card-eyebrow">Your Trophy Cabinet</span>
+          <h2>Sign in to sync your cabinet.</h2>
+          <p>Your earned coats and podium finishes are private account state. Sign in to view them here; the complete Official Solo collection remains open to browse below.</p>
+          <Link href="/sign-in?redirect_url=%2Ftrophy-cabinet" className="sqc-primary-action">Sign in to view my rewards</Link>
+        </section>
+      )}
 
-      <section className="sqc-native-card sqc-trophy-official-multiplayer" aria-label="Official Multiplayer Side Quest trophies">
-        <span className="sqc-card-eyebrow">Official Multiplayer trophies</span>
-        <h2>{officialMultiplayerRows.length} Official Multiplayer Side Quest podium{officialMultiplayerRows.length === 1 ? "" : "s"}.</h2>
-        {officialMultiplayerRows.length ? (
-          <div className="sqc-catalog">
-            {officialMultiplayerRows.map((row) => (
-            <AppRow key={row.id} title={row.title} meta={row.meta} status="Open" href={row.href} image={row.image ?? undefined} glow={row.glow} statusImage={row.statusImage} />
-            ))}
-          </div>
-        ) : (
-          <p>Place on the podium in an official Multiplayer Side Quest to earn one here.</p>
-        )}
-      </section>
-
-      <section className="sqc-native-card sqc-trophy-community-multiplayer" aria-label="Community Multiplayer Side Quest trophies">
-        <span className="sqc-card-eyebrow">Community Multiplayer trophies</span>
-        <h2>{communityMultiplayerRows.length} Community Multiplayer Side Quest podium{communityMultiplayerRows.length === 1 ? "" : "s"}.</h2>
-        {communityMultiplayerRows.length ? (
-          <div className="sqc-catalog">
-            {communityMultiplayerRows.map((row) => (
-              <AppRow key={row.id} title={row.title} meta={row.meta} status="Open" href={row.href} image={row.image ?? undefined} glow={row.glow} statusImage={row.statusImage} />
-            ))}
-          </div>
-        ) : (
-          <p>Place on the podium in a Community Multiplayer Side Quest to earn one here.</p>
-        )}
-      </section>
-
-      <section className="sqc-native-card sqc-trophy-solo-rewards" aria-label="Unlocked Solo Side Quest rewards">
-        <span className="sqc-card-eyebrow">Unlocked Solo Side Quest rewards</span>
-        <h2>{soloRows.length ? "Official, Custom, and Community Solo Side Quest Coats of Arms" : "No Solo coats yet."}</h2>
-        <div className="sqc-catalog">
-          {soloRows.length ? soloRows.map((row) => (
-            <AppRow key={row.id} title={row.title} meta={row.meta} status="Unlocked" href={row.href} image={row.image ?? undefined} glow={row.glow} statusImage={row.statusImage} />
-          )) : (
-            <AppRow title="No Coat of Arms yet" meta="Complete a Side Quest to unlock your first trophy." status="Explore" href="/side-quests" image={mobileAsset.coat} />
+      {signedIn ? <>
+        <section className="sqc-native-card sqc-trophy-official-multiplayer" aria-label="Official Multiplayer Side Quest trophies">
+          <span className="sqc-card-eyebrow">Official Multiplayer trophies</span>
+          <h2>{officialMultiplayerRows.length} Official Multiplayer Side Quest podium{officialMultiplayerRows.length === 1 ? "" : "s"}.</h2>
+          {officialMultiplayerRows.length ? (
+            <div className="sqc-catalog">
+              {officialMultiplayerRows.map((row) => (
+                <AppRow key={row.id} title={row.title} meta={row.meta} status="Open" href={row.href} image={row.image ?? undefined} glow={row.glow} statusImage={row.statusImage} />
+              ))}
+            </div>
+          ) : (
+            <p>Place on the podium in an official Multiplayer Side Quest to earn one here.</p>
           )}
-        </div>
-      </section>
+        </section>
+
+        <section className="sqc-native-card sqc-trophy-community-multiplayer" aria-label="Community Multiplayer Side Quest trophies">
+          <span className="sqc-card-eyebrow">Community Multiplayer trophies</span>
+          <h2>{communityMultiplayerRows.length} Community Multiplayer Side Quest podium{communityMultiplayerRows.length === 1 ? "" : "s"}.</h2>
+          {communityMultiplayerRows.length ? (
+            <div className="sqc-catalog">
+              {communityMultiplayerRows.map((row) => (
+                <AppRow key={row.id} title={row.title} meta={row.meta} status="Open" href={row.href} image={row.image ?? undefined} glow={row.glow} statusImage={row.statusImage} />
+              ))}
+            </div>
+          ) : (
+            <p>Place on the podium in a Community Multiplayer Side Quest to earn one here.</p>
+          )}
+        </section>
+
+        <section className="sqc-native-card sqc-trophy-solo-rewards" aria-label="Unlocked Solo Side Quest rewards">
+          <span className="sqc-card-eyebrow">Unlocked Solo Side Quest rewards</span>
+          <h2>{soloRows.length ? "Official, Custom, and Community Solo Side Quest Coats of Arms" : "No Solo coats yet."}</h2>
+          <div className="sqc-catalog">
+            {soloRows.length ? soloRows.map((row) => (
+              <AppRow key={row.id} title={row.title} meta={row.meta} status="Unlocked" href={row.href} image={row.image ?? undefined} glow={row.glow} statusImage={row.statusImage} />
+            )) : (
+              <AppRow title="No Coat of Arms yet" meta="Complete a Side Quest to unlock your first trophy." status="Explore" href="/side-quests" image={mobileAsset.coat} />
+            )}
+          </div>
+        </section>
+      </> : null}
 
       <section className="sqc-native-card sqc-trophy-collection-summary" aria-label="Official Solo Side Quest collection">
         <span className="sqc-card-eyebrow">Official Solo Side Quest collection</span>
-        <h2>{completedSoloCount} of {officialSoloCount} official Side Quest coats unlocked.</h2>
-        <p>Locked official coats are previews. Custom and Community Solo Side Quest rewards appear above when earned.</p>
+        <h2>{signedIn ? `${completedSoloCount} of ${officialSoloCount} official Side Quest coats unlocked.` : `Browse all ${officialSoloCount} official Side Quest coat${officialSoloCount === 1 ? "" : "s"}.`}</h2>
+        <p>{signedIn ? "Locked official coats are previews. Custom and Community Solo Side Quest rewards appear above when earned." : "Open any coat to inspect its Side Quest. Sign in to see which rewards you have unlocked."}</p>
       </section>
 
       <div className="sqc-coat-grid" aria-label="Official Solo Side Quest coat grid">
@@ -1164,7 +1177,7 @@ export function MobileTrophyCabinetScreen({
             <Link key={challenge.id} href={`/challenges/${challenge.id}`} className="sqc-coat-tile">
               <span className="sqc-coat-tile-art" aria-hidden="true">
                 <Image
-                  className={earned ? "sqc-coat-tile-image" : "sqc-coat-tile-image locked"}
+                  className={signedIn && !earned ? "sqc-coat-tile-image locked" : "sqc-coat-tile-image"}
                   alt=""
                   src={toMobileAssetPath(challenge.badgeIdentity.image) ?? mobileAsset.fallbackBadge}
                   width={74}
@@ -1172,7 +1185,7 @@ export function MobileTrophyCabinetScreen({
                 />
               </span>
               <strong>{challenge.title}</strong>
-              <small>{earned ? "Unlocked" : "Locked preview"}</small>
+              <small>{signedIn ? (earned ? "Unlocked" : "Locked preview") : "Official coat preview"}</small>
             </Link>
           );
         })}

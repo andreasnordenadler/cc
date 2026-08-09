@@ -55,6 +55,7 @@ export default async function TrophyCabinetPage() {
       }}
     >
       <MobileTrophyCabinetScreen
+        signedIn={Boolean(user)}
         trophyRows={trophyRows}
         completedSoloCount={CHALLENGES.filter((challenge) => progress.completedChallengeIds.includes(challenge.id)).length}
         proofReceiptCount={proofReceiptCount}

@@ -533,6 +533,7 @@ test("Trophy Cabinet becomes one desktop collection workspace without duplicatin
       MobileAppWebShell,
       { activeTab: "coatOfArms", signedIn: false, desktopPresentation: "trophy-cabinet", immersivePresentation: true },
       createElement(MobileTrophyCabinetScreen, {
+        signedIn: false,
         trophyRows: [],
         completedSoloCount: 0,
         proofReceiptCount: 0,
@@ -547,8 +548,14 @@ test("Trophy Cabinet becomes one desktop collection workspace without duplicatin
   assert.match(html, /<a[^>]*aria-current="page"[^>]*href="\/trophy-cabinet">Trophy Cabinet<\/a>/);
   assert.match(html, /class="sqc-desktop-trophy-intro"/);
   assert.match(html, />Every ridiculous victory, filed in one grand collection\.<\/h1>/);
+  assert.match(html, /aria-label="Sign in to sync Trophy Cabinet"/);
+  assert.match(html, />Sign in to sync your cabinet\.<\/h2>/);
+  assert.match(html, /href="\/sign-in\?redirect_url=%2Ftrophy-cabinet"[^>]*>Sign in to view my rewards<\/a>/);
+  assert.match(html, />Browse all 1 official Side Quest coat\.<\/h2>/);
+  assert.doesNotMatch(html, /No unlocked trophies yet|No Solo coats yet|0 Official Multiplayer|0 Community Multiplayer|0 of 1 official|Locked preview|sqc-coat-tile-image locked/);
+  assert.match(html, />Official coat preview<\/small>/);
   assert.equal(html.match(/href="\/challenges\//g)?.length, 1, "desktop and mobile share one official coat grid");
-  assert.equal(html.match(/href="\/side-quests"/g)?.length, 2, "persistent shortcut and empty reward row expose Solo discovery without a duplicate Explore entry");
+  assert.equal(html.match(/href="\/side-quests"/g)?.length, 1, "signed-out cabinet keeps the persistent Solo discovery shortcut without a false empty-reward action");
 });
 
 test("Trophy Cabinet keeps the mobile stack below 1180px and uses the desktop canvas at the boundary", () => {
@@ -563,7 +570,9 @@ test("Trophy Cabinet keeps the mobile stack below 1180px and uses the desktop ca
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-trophy-cabinet\s+\.sqc-trophy-screen\s*\{[^}]*grid-template-columns:\s*repeat\(12,\s*minmax\(0,\s*1fr\)\);/);
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-trophy-cabinet\s+\.sqc-coat-grid\s*\{[^}]*grid-template-columns:\s*repeat\(5,\s*minmax\(0,\s*1fr\)\);/);
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-trophy-cabinet\s+\.sqc-coat-tile\s*\{[^}]*min-height:\s*190px;/);
-  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-trophy-cabinet\.signed-out\s+\.sqc-trophy-solo-rewards\s+\.sqc-row-status\s*\{[^}]*background:\s*rgba\(245,\s*200,\s*106,\s*\.16\);[^}]*color:\s*#f5c86a;/, "the signed-out empty-row action must stay legible on the dark desktop card");
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-trophy-cabinet\.signed-out\s+\.sqc-trophy-sign-in\s*\{[^}]*grid-column:\s*1\s*\/\s*span\s*4;/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-trophy-cabinet\.signed-out\s+\.sqc-trophy-collection-summary\s*\{[^}]*grid-column:\s*5\s*\/\s*-1;/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-trophy-cabinet\s+\.sqc-trophy-sign-in\s+\.sqc-primary-action\s*\{[^}]*width:\s*fit-content;/);
   assert.match(css, /@media\s*\(prefers-reduced-motion:\s*reduce\)[\s\S]*?\.sqc-mobile-web\.desktop-trophy-cabinet\s+\.sqc-coat-tile\s*\{[^}]*transition:\s*none\s*!important;[^}]*transform:\s*none\s*!important;/);
   assert.equal(css.replace(desktopMedia, "").replace(reducedMotion, "").includes(".sqc-mobile-web.desktop-trophy-cabinet"), false, "desktop Trophy Cabinet rules must not leak below 1180px");
 });
