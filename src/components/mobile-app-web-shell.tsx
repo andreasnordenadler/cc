@@ -1184,8 +1184,15 @@ export function MobileTrophyCabinetScreen({
                   height={74}
                 />
               </span>
-              <strong>{challenge.title}</strong>
-              <small>{signedIn ? (earned ? "Unlocked" : "Locked preview") : "Official coat preview"}</small>
+              <span className="sqc-coat-tile-details">
+                <span className="sqc-coat-tile-context">
+                  <span>{challenge.difficulty}</span>
+                  <span>{challenge.category}</span>
+                </span>
+                <strong>{challenge.title}</strong>
+                <span className="sqc-coat-tile-objective">{challenge.objective}</span>
+                <small>{signedIn ? (earned ? "Unlocked" : "Locked preview") : "Official coat preview"}</small>
+              </span>
             </Link>
           );
         })}
