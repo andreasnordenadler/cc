@@ -30,6 +30,7 @@ import GroupQuestInviteKeyControl from "./group-quest-invite-key-control";
 import type { CustomEditQuestInput } from "@/lib/mobile-create-forms";
 import type { WebSupportAccountContext, WebSupportReportContext } from "@/lib/web-support-diagnostics";
 import DesktopHomeMenu from "./desktop-home-menu";
+import DesktopRandomQuestButton from "./desktop-random-quest-button";
 import MobileWebHamburgerMenu from "./mobile-web-hamburger-menu";
 import CurrentPageSignInLink from "./current-page-sign-in-link";
 import CommunitySoloDuplicateControl from "./community-solo-duplicate-control";
@@ -389,6 +390,26 @@ function DesktopGuestHome() {
   const featuredQuests = ["knights-before-coffee", "bishop-field-trip", "early-king-walk"]
     .map((id) => CHALLENGES.find((challenge) => challenge.id === id))
     .filter((challenge): challenge is Challenge => Boolean(challenge));
+  const heroismPaths = [
+    {
+      label: "Cautiously heroic",
+      copy: "I want chaos, but survivable.",
+      cta: "Start with Knights Before Coffee",
+      challenge: CHALLENGES.find((challenge) => challenge.id === "knights-before-coffee"),
+    },
+    {
+      label: "Recklessly meaningful",
+      copy: "I can handle one objectively bad idea.",
+      cta: "Try No Castle Club",
+      challenge: CHALLENGES.find((challenge) => challenge.id === "no-castle-club"),
+    },
+    {
+      label: "Historically unwise",
+      copy: "I am here to become a cautionary tale.",
+      cta: "Lose the queen, win anyway",
+      challenge: CHALLENGES.find((challenge) => challenge.id === "queen-never-heard-of-her"),
+    },
+  ].filter((path): path is { label: string; copy: string; cta: string; challenge: Challenge } => Boolean(path.challenge));
   const recommended = featuredQuests[0];
 
   return (
@@ -439,22 +460,28 @@ function DesktopGuestHome() {
       <section className="sqc-desktop-quest-shelf" aria-labelledby="desktop-quests-title">
         <div className="sqc-desktop-section-heading horizontal">
           <div>
-            <span className="sqc-desktop-eyebrow">Choose your level of regret</span>
-            <h2 id="desktop-quests-title">Three respectable ways to ruin a perfectly normal game.</h2>
+            <span className="sqc-desktop-eyebrow">Where to begin</span>
+            <h2 id="desktop-quests-title">How heroic are you feeling today?</h2>
+            <p>Pick a starting quest based on your current tolerance for terrible chess decisions.</p>
           </div>
-          <Link href="/side-quests">Show me worse ideas <span aria-hidden="true">→</span></Link>
+          <Link href="/side-quests">Or go find your own path.</Link>
         </div>
-        <div className="sqc-desktop-quest-grid">
-          {featuredQuests.map((quest) => (
-            <Link href={`/challenges/${quest.id}`} key={quest.id} className="sqc-desktop-quest-card">
-              <Image src={toMobileAssetPath(quest.badgeIdentity.image) ?? mobileAsset.fallbackBadge} alt="" width={116} height={130} />
+        <div className="sqc-desktop-quest-grid sqc-desktop-path-grid">
+          {heroismPaths.map(({ label, copy, cta, challenge }) => (
+            <Link href={`/challenges/${challenge.id}`} key={challenge.id} className="sqc-desktop-quest-card sqc-desktop-path-card">
+              <Image src={toMobileAssetPath(challenge.badgeIdentity.image) ?? mobileAsset.fallbackBadge} alt="" width={116} height={130} />
               <div>
-                <span>{quest.difficulty}</span>
-                <h3>{quest.title}</h3>
-                <p>{quest.objective}</p>
+                <span className="sqc-desktop-path-label">{label}</span>
+                <h3>{challenge.title}</h3>
+                <p>{copy}</p>
+                <strong>{cta} <span aria-hidden="true">→</span></strong>
               </div>
             </Link>
           ))}
+        </div>
+        <div className="sqc-desktop-path-footer">
+          <span>Not in a decision-making mood?</span>
+          <DesktopRandomQuestButton questIds={CHALLENGES.map((challenge) => challenge.id)} />
         </div>
       </section>
 

@@ -76,7 +76,16 @@ test("signed-out home renders an app surface plus a desktop-only guided experien
   assert.match(html, />The ritual is suspiciously simple\.<\/h2>/);
   assert.match(html, />Present evidence to the paperwork goblin<\/strong>/);
   assert.match(html, />Receive unnecessary heraldry<\/strong>/);
-  assert.match(html, />Three respectable ways to ruin a perfectly normal game\.<\/h2>/);
+  assert.match(html, />How heroic are you feeling today\?<\/h2>/);
+  assert.match(html, /Pick a starting quest based on your current tolerance for terrible chess decisions\./);
+  assert.match(html, /<span class="sqc-desktop-path-label">Cautiously heroic<\/span>/);
+  assert.match(html, /<span class="sqc-desktop-path-label">Recklessly meaningful<\/span>/);
+  assert.match(html, /<span class="sqc-desktop-path-label">Historically unwise<\/span>/);
+  assert.match(html, /href="\/challenges\/knights-before-coffee"[^>]*[\s\S]*?Start with Knights Before Coffee/);
+  assert.match(html, /href="\/challenges\/no-castle-club"[^>]*[\s\S]*?Try No Castle Club/);
+  assert.match(html, /href="\/challenges\/queen-never-heard-of-her"[^>]*[\s\S]*?Lose the queen, win anyway/);
+  assert.match(html, />Surprise me with a random Solo Side Quest<\/button>/);
+  assert.match(html, />Or go find your own path\.<\/a>/);
   assert.match(html, /Every bad idea deserves a coat of arms/);
   assert.match(html, />Open the Trophy Cabinet/);
   assert.match(html, />Start a Multiplayer Side Quest/);
@@ -94,6 +103,17 @@ test("desktop home stays hidden until the full-desktop breakpoint", () => {
   assert.match(css, /@media\s*\(prefers-reduced-motion:\s*reduce\)[\s\S]*?html\s*\{[^}]*scroll-behavior:\s*auto;/);
   assert.match(css, /@media\s*\(prefers-reduced-motion:\s*reduce\)[\s\S]*?\.sqc-desktop-menu-chevron\s*\{[^}]*transition:\s*none\s*!important;/);
   assert.match(css, /\.sqc-desktop-sign-in\s*\{[^}]*max-width:[^;}]+;[^}]*overflow:\s*hidden;[^}]*text-overflow:\s*ellipsis;[^}]*white-space:\s*nowrap;/);
+});
+
+test("desktop Home turns Android heroism choices into a decision workspace", () => {
+  const css = readFileSync("src/app/mobile-web.css", "utf8");
+  const desktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1180px)"));
+
+  assert.match(desktopMedia, /\.sqc-desktop-path-card\s*\{[^}]*grid-template-columns:\s*108px\s+minmax\(0,\s*1fr\);[^}]*min-height:\s*220px;/);
+  assert.match(desktopMedia, /\.sqc-desktop-path-card\s+strong\s*\{[^}]*color:\s*var\(--gold\);/);
+  assert.match(desktopMedia, /\.sqc-desktop-path-footer\s*\{[^}]*display:\s*flex;[^}]*justify-content:\s*space-between;/);
+  assert.match(desktopMedia, /\.sqc-desktop-random-quest\s*\{[^}]*min-height:\s*44px;/);
+  assert.match(desktopMedia, /\.sqc-desktop-random-quest:focus-visible\s*\{[^}]*outline:\s*3px\s+solid/);
 });
 
 test("signed-in desktop home guides setup while retaining the existing app home", () => {
