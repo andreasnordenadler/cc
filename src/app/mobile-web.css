@@ -391,6 +391,10 @@ body::after {
   display: none;
 }
 
+.sqc-multiplayer-context-nav {
+  display: none;
+}
+
 .sqc-multiplayer-command-rail {
   display: contents;
 }
@@ -8519,6 +8523,29 @@ body::after {
     gap: 18px 24px;
   }
 
+  .sqc-mobile-web.desktop-multiplayer-detail .sqc-multiplayer-context-nav {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+    color: rgba(255, 247, 232, .48);
+    font-size: 13px;
+    font-weight: 850;
+    letter-spacing: .02em;
+  }
+
+  .sqc-mobile-web.desktop-multiplayer-detail .sqc-multiplayer-context-nav a {
+    color: #f5c86a;
+    text-decoration: none;
+  }
+
+  .sqc-mobile-web.desktop-multiplayer-detail .sqc-multiplayer-context-nav [aria-current="page"] {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
   .sqc-mobile-web.desktop-multiplayer-detail .sqc-multiplayer-detail-hero {
     grid-column: 1 / -1;
     min-height: 294px;
@@ -8604,7 +8631,7 @@ body::after {
 
   .sqc-mobile-web.desktop-multiplayer-detail .sqc-multiplayer-command-rail {
     grid-column: 2;
-    grid-row: 2 / span 3;
+    grid-row: 3 / span 3;
     position: sticky;
     top: 112px;
     z-index: 2;
