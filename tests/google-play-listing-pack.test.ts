@@ -25,7 +25,7 @@ async function sha256(filePath: string) {
   return createHash("sha256").update(await readFile(filePath)).digest("hex");
 }
 
-test("Google Play listing pack is aligned with the current code-348 candidate", async () => {
+test("Google Play listing pack preserves the verified code-348 candidate while source reserves the next baseline", async () => {
   const [listing, appConfigSource] = await Promise.all([
     readFile(listingPath, "utf8"),
     readFile(appConfigPath, "utf8"),
@@ -49,9 +49,9 @@ test("Google Play listing pack is aligned with the current code-348 candidate", 
   );
 
   assert.equal(appConfig.expo.name, "Side Quest Chess");
-  assert.equal(appConfig.expo.version, "0.1.347");
+  assert.equal(appConfig.expo.version, "0.1.348");
   assert.equal(appConfig.expo.android.package, "com.sidequestchess.app");
-  assert.equal(appConfig.expo.android.versionCode, 347);
+  assert.equal(appConfig.expo.android.versionCode, 348);
 });
 
 test("paste-ready Google Play copy stays within field limits", async () => {
