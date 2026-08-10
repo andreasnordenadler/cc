@@ -43,7 +43,10 @@ function CommunitySoloCatalogRow({ row, signedIn, onLikeStateChange }: { row: Co
         <Image className="sqc-row-image" alt="" src={row.image ?? "/mobile-source/badges/custom-side-quest-crest.png"} width={42} height={42} />
       </span>
       <span className="sqc-row-copy">
-        {row.sourceBadge ? <span className="sqc-row-badge">{row.sourceBadge}</span> : null}
+        <span className="sqc-community-row-context">
+          {row.sourceBadge ? <span className="sqc-row-badge">{row.sourceBadge}</span> : null}
+          {row.isNew ? <span className="sqc-community-row-freshness">New this month</span> : null}
+        </span>
         <span className="sqc-row-title-line">
           <strong><span>{row.title}</span></strong>
           <OfficialSoloLikeControl
@@ -69,9 +72,9 @@ function CommunitySoloCatalogRow({ row, signedIn, onLikeStateChange }: { row: Co
           ) : row.creatorName ? <span className="sqc-community-row-creator">By {row.creatorName}</span> : null}
           <span className="sqc-community-row-summary">{row.summary}</span>
           <span className="sqc-community-row-stats" role="group" aria-label="Quest activity">
-            <span className="sqc-community-row-stat">{row.stats.soloAttempts} {row.stats.soloAttempts === 1 ? "try" : "tries"}</span>
-            <span className="sqc-community-row-stat">{row.stats.soloCompletions} completed</span>
-            <span className="sqc-community-row-stat">Used in {row.stats.multiplayerLineups} multiplayer {row.stats.multiplayerLineups === 1 ? "quest" : "quests"}</span>
+            <span className="sqc-community-row-stat"><strong>{row.stats.soloAttempts}</strong><small>{row.stats.soloAttempts === 1 ? "try" : "tries"}</small></span>
+            <span className="sqc-community-row-stat"><strong>{row.stats.soloCompletions}</strong><small>completed</small></span>
+            <span className="sqc-community-row-stat"><strong>{row.stats.multiplayerLineups}</strong><small>multiplayer {row.stats.multiplayerLineups === 1 ? "use" : "uses"}</small></span>
           </span>
         </span>
       </span>

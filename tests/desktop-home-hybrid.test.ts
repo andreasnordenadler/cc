@@ -266,7 +266,7 @@ test("desktop Solo cards expose Android opening hints and an explicit detail aff
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-solo-discovery\s+\.sqc-solo-card-note\s*\{[^}]*color:\s*rgba\(255,\s*247,\s*232,\s*\.62\);[^}]*-webkit-line-clamp:\s*2;/);
 });
 
-test("Community discovery becomes a desktop workspace without duplicating its interactive catalog", () => {
+test("Community discovery becomes a desktop browsing workspace without duplicating responsive controls", () => {
   const rows = [{
     id: "community-one",
     title: "Castle? Never Heard Of It",
@@ -284,7 +284,7 @@ test("Community discovery becomes a desktop workspace without duplicating its in
     likeCount: 1,
     likedByViewer: false,
     completedByViewer: false,
-    isNew: false,
+    isNew: true,
   }];
   const html = renderToStaticMarkup(
     createElement(
@@ -301,9 +301,10 @@ test("Community discovery becomes a desktop workspace without duplicating its in
   assert.match(html, />Player-made rules, arranged for serious browsing\.<\/h1>/);
   assert.match(html, /<a class="sqc-community-row-creator" aria-label="Browse Side Quests by Nora Skewer" href="\/community-side-quests\?creator=nora#creator-nora">By Nora Skewer<\/a>/);
   assert.match(html, /class="sqc-community-row-summary">Finish a game without castling\.<\/span>/);
-  assert.match(html, /class="sqc-community-row-stat">3 tries<\/span>/);
-  assert.match(html, /class="sqc-community-row-stat">1 completed<\/span>/);
-  assert.match(html, /class="sqc-community-row-stat">Used in 2 multiplayer quests<\/span>/);
+  assert.match(html, /class="sqc-community-row-freshness">New this month<\/span>/);
+  assert.match(html, /class="sqc-community-row-stat"><strong>3<\/strong><small>tries<\/small><\/span>/);
+  assert.match(html, /class="sqc-community-row-stat"><strong>1<\/strong><small>completed<\/small><\/span>/);
+  assert.match(html, /class="sqc-community-row-stat"><strong>2<\/strong><small>multiplayer uses<\/small><\/span>/);
   assert.match(html, /class="sqc-community-row-stats" role="group" aria-label="Quest activity">/);
   assert.equal(html.match(/aria-label="Community Side Quest filters"/g)?.length, 1, "desktop and mobile share one filter subtree");
   assert.equal(html.match(/aria-label="Open Castle\? Never Heard Of It"/g)?.length, 1, "desktop and mobile share one catalog subtree");
@@ -448,8 +449,10 @@ test("Community discovery uses structured activity cards only at the desktop bou
   assert.match(css, /\.sqc-community-row-details\s*\{[^}]*display:\s*none;/);
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-community-discovery\s+\.sqc-row-copy\s*>\s*\.sqc-community-row-mobile-meta\s*\{[^}]*display:\s*none;/);
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-community-discovery\s+\.sqc-community-row-details\s*\{[^}]*display:\s*grid;/);
-  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-community-discovery\s+\.sqc-community-row-stats\s*\{[^}]*display:\s*flex;/);
-  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-community-discovery\s+\.sqc-community-row-stat\s*\{[^}]*border-radius:\s*999px;/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-community-discovery\s+\.sqc-community-row-context\s*\{[^}]*display:\s*flex;/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-community-discovery\s+\.sqc-community-row-stats\s*\{[^}]*display:\s*grid;[^}]*grid-template-columns:\s*repeat\(3,\s*minmax\(0,\s*1fr\)\);/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-community-discovery\s+\.sqc-community-row-stat\s*\{[^}]*display:\s*grid;[^}]*border-top:\s*1px\s+solid/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-community-discovery\.signed-out\s+\.sqc-row-status\s*\{[^}]*border:\s*1px\s+solid[^}]*background:\s*rgba\(96,\s*240,\s*175,\s*\.1\);[^}]*color:\s*var\(--green\);/);
 });
 
 test("Multiplayer discovery becomes one desktop tournament desk without duplicating catalog actions", () => {
