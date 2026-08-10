@@ -8,8 +8,8 @@ This is the cross-store working pack. The exact paste-ready Google Play copy and
 - Subtitle / short positioning: Chess side quests, proof receipts, and playful challenge runs.
 - Android package: `com.sidequestchess.app`
 - iOS bundle ID: `com.sidequestchess.app`
-- Current Android candidate: `0.1.347 (348)`
-- Committed Android identity: version `0.1.347`, version code `347`; EAS production auto-increment reserved candidate code `348`
+- Current Android candidate: `0.1.348 (349)`
+- Committed Android identity: version `0.1.348`, version code `348`; EAS production auto-increment reserved candidate code `349`
 - Website: `https://sidequestchess.com`
 - Privacy Policy: `https://sidequestchess.com/privacy`
 - Terms of Use: `https://sidequestchess.com/terms`
@@ -145,18 +145,18 @@ Apple assets:
 
 Android internal testing candidate:
 
-- AAB: `side-quest-chess-android-v347-code348.aab`
-- SHA256: `c8755b7175fc6902ec391c8ba2dc69488faf13dd0be78d321507026c89bb5576`
-- EAS build: `c8290195-f35b-48b5-961d-907b7adb532b`
-- Immutable source: `5ece97b95de996b630775359e312a001e58ff59c`
+- AAB: `side-quest-chess-android-v348-code349.aab`
+- SHA256: `c416609b1240114612f888c8a0fff205fafe0a8821ee4065cb833b395f7cbf71`
+- EAS build: `dd277377-25fb-4923-a1ec-10b930c25563`
+- Immutable source: `4925cd13b6a39a8be1658ac46c0bea396260dbd2`
 
 An APK or ADB install is not a substitute for AAB inspection or Play-delivered Internal testing acceptance.
 
 ## Submission Order
 
 1. Owner confirms Play App Signing in the existing `com.sidequestchess.app` Console app.
-2. Owner uploads the exact code-348 AAB and assigns the authorized Internal testing list.
+2. Owner uploads the exact code-349 AAB and assigns the authorized Internal testing list.
 3. Install from the private Play opt-in path and run physical-device acceptance, including installer and Play signer checks.
-4. Capture the code-348 Google Play screenshot set and verify it against the exact listing checklist.
+4. Capture the code-349 Google Play screenshot set and verify it against the exact listing checklist.
 5. Complete the owner-authorized policy, app-access, target-audience, and content-rating forms.
 6. Keep broader store publication blocked until legal/policy adoption and Internal testing acceptance are complete.
