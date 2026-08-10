@@ -1578,6 +1578,10 @@ export function MobileMultiplayerSideQuestsScreen({
         <span>Multiplayer Side Quests</span>
         <h1>Shared challenges, arranged like a tournament desk.</h1>
         <p>Join an official challenge, browse community tables, or create one for friends. Every result still comes from fresh public games and checked proof.</p>
+        <nav className="sqc-desktop-multiplayer-launchpad" aria-label="Multiplayer quick actions">
+          <Link href="/create-multiplayer-side-quest">Create a Multiplayer Side Quest</Link>
+          <Link href="/multiplayer-side-quests?tab=community#join-private-multiplayer">Join with invite code</Link>
+        </nav>
       </div>
 
       <nav className="sqc-brand-tabs sqc-multiplayer-brand-tabs" aria-label="Multiplayer Side Quest catalog">
@@ -1773,7 +1777,7 @@ function CommunityMultiplayerPanel({ signedIn, rows, initialHost, catalogStatus 
         </section>
       ) : null}
 
-      <section className="sqc-native-card green" aria-label="Join private Multiplayer Side Quest">
+      <section id="join-private-multiplayer" className="sqc-native-card green" aria-label="Join private Multiplayer Side Quest">
         <span className="sqc-card-eyebrow">Invite Code</span>
         <h2>Join private Multiplayer Side Quest.</h2>
         <p>Paste an invite code from the host to join a private Multiplayer Side Quest.</p>
