@@ -5276,6 +5276,25 @@ body::after {
     box-sizing: border-box;
   }
 
+  .sqc-desktop-route-only {
+    position: sticky;
+    top: 0;
+    z-index: 30;
+  }
+
+  .sqc-desktop-home-header-only {
+    display: contents;
+  }
+
+  .sqc-desktop-header-shell {
+    position: sticky;
+    top: 0;
+    z-index: 30;
+    background: linear-gradient(180deg, rgba(20, 14, 11, .96), rgba(14, 10, 9, .9));
+    box-shadow: 0 16px 40px rgba(0, 0, 0, .18);
+    backdrop-filter: blur(18px);
+  }
+
   .sqc-desktop-header {
     width: min(1240px, calc(100% - 56px));
     min-height: 78px;
@@ -6650,7 +6669,7 @@ body::after {
 
   .sqc-mobile-web.desktop-community-discovery .sqc-community-browse-panel {
     position: sticky;
-    top: 16px;
+    top: 94px;
     z-index: 12;
     grid-template-columns: minmax(260px, 1fr) auto;
     align-items: center;

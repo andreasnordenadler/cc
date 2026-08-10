@@ -311,7 +311,7 @@ export default function MobileAppWebShell({
 
       {showDesktopHome && signedIn ? (
         <>
-          <div className="sqc-desktop-home-only">
+          <div className="sqc-desktop-home-only sqc-desktop-home-header-only">
             <DesktopHomeHeader signedIn displayName={displayName} activeTab="home" />
           </div>
           <DesktopSignedInHome
@@ -361,28 +361,30 @@ function DesktopHomeHeader({ signedIn, displayName, activeTab, activeItemId, acc
   const resolvedActiveItemId = activeItemId ?? (activeTab === "multiplayerSideQuests" ? "multiplayer" : activeTab === "coatOfArms" ? "coats" : activeTab ?? "");
 
   return (
-    <header className="sqc-desktop-header">
-      <Link href="/" className="sqc-desktop-brand" aria-label="Side Quest Chess home">
-        <Image src={mobileAsset.coat} alt="" width={42} height={47} />
-        <span>
-          <strong>Side Quest Chess</strong>
-          <small>Public games. Unreasonable objectives.</small>
-        </span>
-      </Link>
-      <nav className="sqc-desktop-shortcuts" aria-label="Desktop shortcuts">
-        {shortcuts.map((item) => (
-          <Link key={item.id} href={item.href} aria-current={activeTab && isActiveMenuItem(item.id, activeTab) ? "page" : undefined}>
-            {item.label}
-          </Link>
-        ))}
-      </nav>
-      <DesktopHomeMenu items={desktopHomeMenuItems.slice(shortcuts.length)} activeItemId={resolvedActiveItemId} />
-      {signedIn ? (
-        <Link href="/account" className="sqc-desktop-sign-in" aria-current={accountIsCurrent ? "page" : undefined}>{displayName || "My Account"}</Link>
-      ) : (
-        <CurrentPageSignInLink className="sqc-desktop-sign-in">Sign in</CurrentPageSignInLink>
-      )}
-    </header>
+    <div className="sqc-desktop-header-shell">
+      <header className="sqc-desktop-header">
+        <Link href="/" className="sqc-desktop-brand" aria-label="Side Quest Chess home">
+          <Image src={mobileAsset.coat} alt="" width={42} height={47} />
+          <span>
+            <strong>Side Quest Chess</strong>
+            <small>Public games. Unreasonable objectives.</small>
+          </span>
+        </Link>
+        <nav className="sqc-desktop-shortcuts" aria-label="Desktop shortcuts">
+          {shortcuts.map((item) => (
+            <Link key={item.id} href={item.href} aria-current={activeTab && isActiveMenuItem(item.id, activeTab) ? "page" : undefined}>
+              {item.label}
+            </Link>
+          ))}
+        </nav>
+        <DesktopHomeMenu items={desktopHomeMenuItems.slice(shortcuts.length)} activeItemId={resolvedActiveItemId} />
+        {signedIn ? (
+          <Link href="/account" className="sqc-desktop-sign-in" aria-current={accountIsCurrent ? "page" : undefined}>{displayName || "My Account"}</Link>
+        ) : (
+          <CurrentPageSignInLink className="sqc-desktop-sign-in">Sign in</CurrentPageSignInLink>
+        )}
+      </header>
+    </div>
   );
 }
 

@@ -105,6 +105,24 @@ test("desktop home stays hidden until the full-desktop breakpoint", () => {
   assert.match(css, /\.sqc-desktop-sign-in\s*\{[^}]*max-width:[^;}]+;[^}]*overflow:\s*hidden;[^}]*text-overflow:\s*ellipsis;[^}]*white-space:\s*nowrap;/);
 });
 
+test("desktop global navigation remains available while route workspaces scroll", () => {
+  const html = renderToStaticMarkup(
+    createElement(MobileAppWebShell, {
+      activeTab: "sideQuests",
+      signedIn: false,
+      desktopPresentation: "community-discovery",
+    }),
+  );
+  const css = readFileSync("src/app/mobile-web.css", "utf8");
+  const desktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1180px)"));
+
+  assert.equal(html.match(/class="sqc-desktop-header-shell"/g)?.length, 1);
+  assert.match(html, /<div class="sqc-desktop-header-shell"><header class="sqc-desktop-header">/);
+  assert.match(desktopMedia, /\.sqc-desktop-route-only\s*\{[^}]*position:\s*sticky;[^}]*top:\s*0;[^}]*z-index:\s*30;/);
+  assert.match(desktopMedia, /\.sqc-desktop-header-shell\s*\{[^}]*position:\s*sticky;[^}]*top:\s*0;[^}]*z-index:\s*30;[^}]*backdrop-filter:\s*blur\(18px\);/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-community-discovery\s+\.sqc-community-browse-panel\s*\{[^}]*top:\s*94px;/);
+});
+
 test("desktop Home turns Android heroism choices into a decision workspace", () => {
   const css = readFileSync("src/app/mobile-web.css", "utf8");
   const desktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1180px)"));
@@ -128,7 +146,10 @@ test("signed-in desktop home guides setup while retaining the existing app home"
   );
 
   assert.match(html, /class="sqc-app-only"/);
-  assert.match(html, /class="sqc-desktop-home-only"/);
+  assert.match(html, /class="sqc-desktop-home-only(?:\s[^"]*)?"/);
+  const css = readFileSync("src/app/mobile-web.css", "utf8");
+  const desktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1180px)"));
+
   assert.match(html, /Let’s choose your first Side Quest/);
   assert.match(html, /aria-label="Getting started"/);
   assert.match(html, />Connect chess account<\/a>/);
@@ -137,6 +158,9 @@ test("signed-in desktop home guides setup while retaining the existing app home"
   assert.match(html, /class="sqc-current-card/);
   assert.equal(html.match(/class="sqc-current-card/g)?.length, 1, "signed-in Home should render one interactive current-card subtree");
   assert.equal(html.match(/class="sqc-desktop-sign-in" href="\/account"/g)?.length, 1, "signed-in desktop header exposes one dedicated account destination");
+  assert.match(html, /class="sqc-desktop-home-only sqc-desktop-home-header-only"[\s\S]*class="sqc-desktop-header-shell"[\s\S]*<\/header><\/div><\/div><div class="sqc-desktop-signed-in sqc-responsive-signed-home">/);
+  assert.match(css, /\.sqc-responsive-signed-home\s*\{[^}]*width:\s*min\(460px,\s*100%\)/, "signed-in Home content remains in the responsive mobile flow");
+  assert.match(desktopMedia, /\.sqc-desktop-home-header-only\s*\{[^}]*display:\s*contents;/, "only the desktop header wrapper releases its sticky containing block");
 });
 
 test("desktop home keeps account setup visible when a Solo quest is active without a chess username", () => {
@@ -336,7 +360,7 @@ test("Community discovery keeps its shared search and filters available while de
   const desktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1180px)"));
 
   assert.doesNotMatch(mobilePanel, /position:\s*sticky;/, "mobile retains the established in-flow filter panel");
-  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-community-discovery\s+\.sqc-community-browse-panel\s*\{[^}]*position:\s*sticky;[^}]*top:\s*16px;[^}]*z-index:\s*12;/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-community-discovery\s+\.sqc-community-browse-panel\s*\{[^}]*position:\s*sticky;[^}]*top:\s*94px;[^}]*z-index:\s*12;/);
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-community-discovery\s+\.sqc-community-browse-panel\s*\{[^}]*backdrop-filter:\s*blur\(18px\);/);
 });
 
