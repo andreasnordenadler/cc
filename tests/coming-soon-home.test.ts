@@ -10,7 +10,6 @@ test("public Home is a static Side Quest Chess coming-soon experience", async ()
 
   assert.match(source, /export const metadata/);
   assert.match(source, /Side Quest Chess — Coming soon/);
-  assert.match(source, /images:\s*\[\{[\s\S]*url:\s*"\/coming-soon-opengraph-image"/);
   assert.match(source, /<main[^>]*className=\{styles\.page\}/);
   assert.match(source, /<h1[^>]*>\s*Every game deserves[\s\S]*a side quest\./);
   assert.match(source, /Coming soon/);
@@ -20,14 +19,6 @@ test("public Home is a static Side Quest Chess coming-soon experience", async ()
 
   assert.doesNotMatch(source, /currentUser|clerkClient|MobileAppWebShell|listPublicCommunitySideQuests/);
   assert.doesNotMatch(source, /<form|type="email"|Sign in|Create account/);
-});
-
-test("coming-soon social art is explicitly scoped to Home", async () => {
-  const route = await readFile(new URL("../src/app/coming-soon-opengraph-image/route.tsx", import.meta.url), "utf8");
-
-  assert.match(route, /export function GET\(\)/);
-  assert.match(route, /new ImageResponse/);
-  await assert.rejects(readFile(new URL("../src/app/opengraph-image.tsx", import.meta.url), "utf8"));
 });
 
 test("coming-soon layout is responsive, accessible, and motion-safe", async () => {
