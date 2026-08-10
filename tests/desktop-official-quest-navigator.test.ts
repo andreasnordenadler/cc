@@ -41,5 +41,13 @@ test("official quest navigator remains absent from responsive mobile composition
   assert.match(css, /\.sqc-mobile-web\.desktop-official-detail\s+\.sqc-official-solo-detail-screen\s*>\s*\.sqc-quest-command-rail\s*\{[^}]*grid-row:\s*3\s*\/\s*span\s*2;/);
   assert.match(css, /\.sqc-mobile-web\.desktop-official-detail\s+\.sqc-active-detail-hero\s*\{[^}]*grid-row:\s*2;/);
   assert.match(css, /\.sqc-mobile-web\.desktop-official-detail\s+\.sqc-active-proof-summary\s*\{[^}]*grid-row:\s*3;/);
-}
-);
+});
+
+test("official quest detail expands its existing desktop workspace on large displays", () => {
+  const css = readFileSync("src/app/mobile-web.css", "utf8");
+  const wideDesktop = css.slice(css.indexOf("@media (min-width: 1680px)"));
+
+  assert.match(wideDesktop, /\.sqc-mobile-web\.desktop-official-detail\s+\.sqc-screen\s*\{[^}]*width:\s*min\(1600px,\s*calc\(100%\s*-\s*80px\)\);/);
+  assert.match(wideDesktop, /\.sqc-mobile-web\.desktop-official-detail\s+\.sqc-official-solo-detail-screen\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\)\s+440px;/);
+  assert.match(wideDesktop, /\.sqc-mobile-web\.desktop-official-detail\s+\.sqc-active-solo-detail-screen\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\)\s+minmax\(440px,\s*\.72fr\);/);
+});
