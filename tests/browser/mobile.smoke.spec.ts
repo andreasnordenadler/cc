@@ -15,25 +15,16 @@ async function expectGuestMenu(page: Page) {
   await expect(page.getByRole("button", { name: "Open main menu" })).toHaveCount(0);
 }
 
-test("mobile homepage matches the signed-out app hierarchy", async ({ page }) => {
+test("mobile homepage presents the responsive coming-soon hierarchy", async ({ page }) => {
   const response = await page.goto("/", { waitUntil: "domcontentloaded" });
   expect(response?.status()).toBeLessThan(400);
 
-  await expect(page.getByRole("heading", { name: "Sign in to continue." })).toBeVisible();
-  await expect(page.getByRole("link", { name: "Browse Solo Side Quests" })).toBeVisible();
-  await expect(page.getByRole("link", { name: "Browse Multiplayer Side Quests" })).toBeVisible();
-  await expect(page.getByRole("link", { name: "Choose sign-in method" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Every game deserves a side quest." })).toBeVisible();
+  await expect(page.getByRole("img", { name: "Side Quest Chess coat of arms" })).toBeVisible();
+  await expect(page.getByText("The first quests are being prepared", { exact: true })).toBeVisible();
   await expect(page.getByRole("navigation", { name: "Guest menu" })).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Open main menu" })).toHaveCount(0);
-  await expect(page.locator(".sqc-mobile-web")).toHaveClass(/signed-out/);
-
-  const [soloBox, multiplayerBox] = await Promise.all([
-    page.getByRole("link", { name: "Browse Solo Side Quests" }).boundingBox(),
-    page.getByRole("link", { name: "Browse Multiplayer Side Quests" }).boundingBox(),
-  ]);
-  expect(soloBox).not.toBeNull();
-  expect(multiplayerBox).not.toBeNull();
-  expect(multiplayerBox!.y).toBeGreaterThan(soloBox!.y + soloBox!.height - 1);
+  await expect(page.getByText(/Sign in|Create account/)).toHaveCount(0);
   expect(await noHorizontalOverflow(page)).toBe(true);
 });
 
