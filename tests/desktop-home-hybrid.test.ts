@@ -697,6 +697,19 @@ test("official Solo detail uses a wide two-column composition only at the deskto
   assert.doesNotMatch(css, /\.sqc-mobile-web\.desktop-official-detail\s+\.sqc-official-solo-detail-screen\s*>\s*\.sqc-proof-action-card\s*\{/);
 });
 
+test("active Solo detail turns the centered phone hero into a left-to-right desktop proof workspace", () => {
+  const css = readFileSync("src/app/mobile-web.css", "utf8");
+  const desktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1180px)"));
+
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-official-detail\s+\.sqc-active-detail-hero\s*\{[^}]*grid-template-columns:\s*250px\s+minmax\(0,\s*1fr\);[^}]*grid-template-rows:\s*auto\s+auto\s+auto;[^}]*justify-items:\s*start;[^}]*text-align:\s*left;/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-official-detail\s+\.sqc-active-detail-hero\s*>\s*\.sqc-detail-coat-frame\s*\{[^}]*grid-column:\s*1;[^}]*grid-row:\s*1\s*\/\s*-1;/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-official-detail\s+\.sqc-active-detail-hero\s*>\s*:not\(\.sqc-detail-coat-frame\):not\(\.sqc-coat-lightbox\)\s*\{[^}]*grid-column:\s*2;/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-official-detail\s+\.sqc-active-detail-hero\s+p\s*\{[^}]*text-align:\s*left;/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-official-detail\s+\.sqc-detail-panel-strong\s*\{[^}]*grid-column:\s*1;[^}]*grid-row:\s*3;/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-official-detail\s+\.sqc-active-proof-summary\s*\{[^}]*grid-column:\s*2;[^}]*grid-row:\s*3;[^}]*grid-template-columns:\s*190px\s+minmax\(0,\s*1fr\);[^}]*width:\s*auto;[^}]*min-width:\s*0;/);
+  assert.equal(css.replace(desktopMedia, "").includes("grid-template-columns: 250px minmax(0, 1fr)"), false, "desktop active-hero composition must not leak below 1180px");
+});
+
 test("official Solo detail groups its share and start controls in one contextual command rail", async () => {
   const source = readFileSync("src/app/challenges/[id]/page.tsx", "utf8");
   const rail = source.match(/<aside className="sqc-quest-command-rail"[^>]*>([\s\S]*?)<\/aside>/)?.[1] ?? "";
