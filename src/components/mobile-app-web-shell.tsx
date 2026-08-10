@@ -1465,12 +1465,18 @@ export function MobileCommunitySideQuestDetailScreen({
         <div className="sqc-community-detail-actions" aria-label="Community Solo Side Quest actions">
           {!completed && !activeForViewer ? <CommunitySoloPickControl questId={quest.id} signedIn={signedIn} activeQuestId={activeQuestId} /> : null}
           <CommunitySoloSocialActions questId={quest.id} title={quest.title} creatorName={quest.creatorName} signedIn={signedIn} />
-          <Link href="/community-side-quests" className="sqc-detail-quiet-button">Back to list</Link>
-          <Link href={quest.creatorBrowsePath} className="sqc-detail-secondary-button">More by {quest.creatorName}</Link>
-          {signedIn ? <Link href={`/create-multiplayer-side-quest?quest=${encodeURIComponent(quest.id)}`} className="sqc-detail-secondary-button">Use in Multiplayer</Link> : null}
-          {signedIn && duplicateInput ? <CommunitySoloDuplicateControl quest={duplicateInput} /> : null}
-          {!signedIn ? <CurrentPageSignInLink aria-label="Sign in to duplicate custom Side Quest" className="sqc-detail-secondary-button">Duplicate</CurrentPageSignInLink> : null}
-          <CommunitySoloShareControls id={quest.id} title={quest.title} />
+          <div className="sqc-community-action-group sqc-community-next-actions" role="group" aria-labelledby="community-next-actions-label">
+            <span className="sqc-community-action-group-label" id="community-next-actions-label">Continue exploring</span>
+            <Link href="/community-side-quests" className="sqc-detail-quiet-button">Back to list</Link>
+            <Link href={quest.creatorBrowsePath} className="sqc-detail-secondary-button">More by {quest.creatorName}</Link>
+            {signedIn ? <Link href={`/create-multiplayer-side-quest?quest=${encodeURIComponent(quest.id)}`} className="sqc-detail-secondary-button">Use in Multiplayer</Link> : null}
+            {signedIn && duplicateInput ? <CommunitySoloDuplicateControl quest={duplicateInput} /> : null}
+            {!signedIn ? <CurrentPageSignInLink aria-label="Sign in to duplicate custom Side Quest" className="sqc-detail-secondary-button">Duplicate</CurrentPageSignInLink> : null}
+          </div>
+          <div className="sqc-community-action-group sqc-community-share-group" role="group" aria-labelledby="community-share-actions-label">
+            <span className="sqc-community-action-group-label" id="community-share-actions-label">Share this Side Quest</span>
+            <CommunitySoloShareControls id={quest.id} title={quest.title} />
+          </div>
         </div>
       </div>
     </div>
