@@ -13,27 +13,27 @@ function assertOwnerGateNotContradicted(text: string) {
   }
 }
 
-test("internal-test plan is bound to the current code-348 AAB and existing Play app", async () => {
+test("internal-test plan is bound to the current code-349 AAB and existing Play app", async () => {
   const plan = await readFile(planPath, "utf8");
 
   assert.match(plan, /Existing Play Console app: \*\*Side Quest Chess\*\* \(`com\.sidequestchess\.app`\), published by Crowdler AB/);
-  assert.match(plan, /Candidate: `0\.1\.347` \/ Android version code `348`/);
-  assert.match(plan, /EAS build: `c8290195-f35b-48b5-961d-907b7adb532b`/);
-  assert.match(plan, /Immutable source: `5ece97b95de996b630775359e312a001e58ff59c`/);
-  assert.match(plan, /AAB SHA-256: `c8755b7175fc6902ec391c8ba2dc69488faf13dd0be78d321507026c89bb5576`/);
-  assert.match(plan, /AAB: `apps\/mobile\/artifacts\/android\/mobile-v347-code348\/side-quest-chess-android-v347-code348\.aab`/);
+  assert.match(plan, /Candidate: `0\.1\.348` \/ Android version code `349`/);
+  assert.match(plan, /EAS build: `dd277377-25fb-4923-a1ec-10b930c25563`/);
+  assert.match(plan, /Immutable source: `4925cd13b6a39a8be1658ac46c0bea396260dbd2`/);
+  assert.match(plan, /AAB SHA-256: `c416609b1240114612f888c8a0fff205fafe0a8821ee4065cb833b395f7cbf71`/);
+  assert.match(plan, /AAB: `apps\/mobile\/artifacts\/android\/mobile-v348-code349\/side-quest-chess-android-v348-code349\.aab`/);
   assert.match(plan, /Never create another developer account, app, package, or listing/);
-  const supersededGuard = "do not upload the superseded `0.1.346 (347)` candidate";
+  const supersededGuard = "do not upload the superseded `0.1.347 (348)` candidate";
   const normalizedPlan = plan.toLowerCase();
   assert.equal(normalizedPlan.split(supersededGuard).length - 1, 1);
-  assert.equal(plan.match(/0\.1\.346 \(347\)/g)?.length, 1);
+  assert.equal(plan.match(/0\.1\.347 \(348\)/g)?.length, 1);
   const planWithoutSupersededGuard = normalizedPlan.replace(supersededGuard, "");
-  assert.doesNotMatch(planWithoutSupersededGuard, /0\.1\.346|android[- `:]*347|(?:android )?version(?: code)?[- `:]*347|code[- `:]*347|mobile-v346-code347/);
-  assert.match(plan, /parsed identity[^\n]*package `com\.sidequestchess\.app`, version name `0\.1\.347`, and version code `348`/i);
-  assert.match(plan, /installed version is `0\.1\.347 \(348\)`/i);
-  assert.match(plan, /Play delivered code 348 through Internal testing/);
-  assert.doesNotMatch(plan, /code[- ]?34[1-6]|0\.1\.34[0-5]|mobile-v34[0-5]-code34[1-6]/i);
-  assert.doesNotMatch(plan, /691d9598-fe32-4d8c-949a-ff840384869c|87353e5b90e6769063524fd830a663b449c4088b3c9c60a2310beca0cef6d316|6a0888cb2b76a667168806b7da186dbd3583c451/);
+  assert.doesNotMatch(planWithoutSupersededGuard, /0\.1\.347|android[- `:]*348|(?:android )?version(?: code)?[- `:]*348|code[- `:]*348|mobile-v347-code348/);
+  assert.match(plan, /parsed identity[^\n]*package `com\.sidequestchess\.app`, version name `0\.1\.348`, and version code `349`/i);
+  assert.match(plan, /installed version is `0\.1\.348 \(349\)`/i);
+  assert.match(plan, /Play delivered code 349 through Internal testing/);
+  assert.doesNotMatch(plan, /code[- ]?34[1-7]|0\.1\.34[0-6]|mobile-v34[0-6]-code34[1-7]/i);
+  assert.doesNotMatch(plan, /c8290195-f35b-48b5-961d-907b7adb532b|c8755b7175fc6902ec391c8ba2dc69488faf13dd0be78d321507026c89bb5576|5ece97b95de996b630775359e312a001e58ff59c/);
 });
 
 test("internal-test plan separates upload signing from Play app signing", async () => {

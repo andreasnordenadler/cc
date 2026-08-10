@@ -1,16 +1,16 @@
-# Google Play Internal testing plan — Android code 348
+# Google Play Internal testing plan — Android code 349
 
-Prepared: 2026-08-05
+Prepared: 2026-08-05; candidate refreshed 2026-08-10
 Status: paste-ready operating checklist; no Console state changed
 
 ## Fixed app and candidate identity
 
 - Existing Play Console app: **Side Quest Chess** (`com.sidequestchess.app`), published by Crowdler AB. Never create another developer account, app, package, or listing.
-- Candidate: `0.1.347` / Android version code `348`.
-- AAB: `apps/mobile/artifacts/android/mobile-v347-code348/side-quest-chess-android-v347-code348.aab`.
-- AAB SHA-256: `c8755b7175fc6902ec391c8ba2dc69488faf13dd0be78d321507026c89bb5576`.
-- EAS build: `c8290195-f35b-48b5-961d-907b7adb532b`.
-- Immutable source: `5ece97b95de996b630775359e312a001e58ff59c`.
+- Candidate: `0.1.348` / Android version code `349`.
+- AAB: `apps/mobile/artifacts/android/mobile-v348-code349/side-quest-chess-android-v348-code349.aab`.
+- AAB SHA-256: `c416609b1240114612f888c8a0fff205fafe0a8821ee4065cb833b395f7cbf71`.
+- EAS build: `dd277377-25fb-4923-a1ec-10b930c25563`.
+- Immutable source: `4925cd13b6a39a8be1658ac46c0bea396260dbd2`.
 - EAS profile/distribution: `production` / `STORE`.
 - Production API endpoint: `https://sidequestchess.com`.
 - Upload certificate SHA-256: `89:1F:DC:5A:80:60:1E:AA:2B:6D:B1:F3:FC:B2:6A:B7:56:65:01:79:B4:0B:3A:3F:5F:58:DD:92:1D:75:3C:F2`.
@@ -51,13 +51,13 @@ After that approval:
 1. Recompute the local AAB SHA-256 and require the exact value in **Fixed app and candidate identity**.
 2. In the existing app, select **Testing → Internal testing**. Do not create a new app, package, or developer account.
 3. Confirm or create the bounded tester list containing only the approved addresses, beginning with `samnordbot@gmail.com`.
-4. Create a new Internal testing release and upload only the exact code-348 AAB. Do not upload an APK or a superseded bundle. In particular, do not upload the superseded `0.1.346 (347)` candidate.
-5. Require Play's parsed identity to show package `com.sidequestchess.app`, version name `0.1.347`, and version code `348`. Stop on any mismatch or signing warning.
+4. Create a new Internal testing release and upload only the exact code-349 AAB. Do not upload an APK or a superseded bundle. In particular, do not upload the superseded `0.1.347 (348)` candidate.
+5. Require Play's parsed identity to show package `com.sidequestchess.app`, version name `0.1.348`, and version code `349`. Stop on any mismatch or signing warning.
 6. Review device-catalog, target-API, integrity, declaration, and policy warnings. Record each warning verbatim and resolve it from confirmed facts; do not guess.
 7. Attach the approved tester list and confirm the support contact is `sam@crowdler.com`.
 8. Review the release summary and stop before rollout unless the explicit approval includes Internal testing publication.
 9. Following an authorized rollout, open the opt-in link while signed into Google Play as `samnordbot@gmail.com`, opt in, and install or update through Google Play.
-10. Confirm the installer package is `com.android.vending`, installed version is `0.1.347 (348)`, and the installed signer matches the recorded Play app signing certificate.
+10. Confirm the installer package is `com.android.vending`, installed version is `0.1.348 (349)`, and the installed signer matches the recorded Play app signing certificate.
 
 ## Play-delivered acceptance matrix
 
@@ -89,7 +89,7 @@ For each profile:
 
 Pass only when:
 
-- Play delivered code 348 through Internal testing;
+- Play delivered code 349 through Internal testing;
 - package, version, installer, and Play app-signing certificate all match the recorded Console facts;
 - every responsive profile has complete screenshots and checks;
 - no severity-1/2 defect, unusably narrow active-Solo column, clipping, overlap, blocked button, navigation failure, keyboard obstruction, Android Back failure, crash, ANR, or freeze remains.
