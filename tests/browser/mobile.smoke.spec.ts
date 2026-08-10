@@ -47,7 +47,7 @@ test("mobile solo catalog matches the app catalog hierarchy", async ({ page }) =
   await expectGuestMenu(page);
   await expect(page.getByRole("link", { name: "Switch to Community Side Quests" })).toHaveAttribute("data-icon", "swap-horizontal");
 
-  const easy = page.getByText("Easy", { exact: true }).first();
+  const easy = page.locator(".sqc-row-status.easy").first();
   await expect(easy).toHaveCSS("background-color", "rgb(96, 240, 175)");
   await expect(easy).toHaveCSS("color", "rgb(10, 18, 14)");
   const [rowBox, officialTabBox, communityTabBox, swapBox] = await Promise.all([

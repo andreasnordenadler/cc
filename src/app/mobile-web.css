@@ -387,6 +387,10 @@ body::after {
   display: contents;
 }
 
+.sqc-desktop-quest-navigator {
+  display: none;
+}
+
 .sqc-multiplayer-command-rail {
   display: contents;
 }
@@ -7184,8 +7188,96 @@ body::after {
     gap: 18px 24px;
   }
 
+  .sqc-mobile-web.desktop-official-detail .sqc-desktop-quest-navigator {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: minmax(190px, .55fr) minmax(0, 1.45fr);
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .sqc-mobile-web.desktop-official-detail .sqc-desktop-quest-index-link,
+  .sqc-mobile-web.desktop-official-detail .sqc-desktop-quest-neighbor {
+    min-width: 0;
+    min-height: 58px;
+    border: 1px solid rgba(255, 247, 232, .12);
+    border-radius: 16px;
+    background: rgba(0, 0, 0, .18);
+    color: rgba(255, 247, 232, .76);
+    text-decoration: none;
+    transition: border-color .16s ease, background .16s ease, color .16s ease, transform .16s ease;
+  }
+
+  .sqc-mobile-web.desktop-official-detail .sqc-desktop-quest-index-link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 18px;
+    font-size: 13px;
+    font-weight: 850;
+  }
+
+  .sqc-mobile-web.desktop-official-detail .sqc-desktop-quest-index-link > span {
+    color: var(--gold);
+    font-size: 18px;
+  }
+
+  .sqc-mobile-web.desktop-official-detail .sqc-desktop-quest-neighbors {
+    min-width: 0;
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+  }
+
+  .sqc-mobile-web.desktop-official-detail .sqc-desktop-quest-neighbor {
+    width: min(280px, 50%);
+    display: grid;
+    align-content: center;
+    gap: 3px;
+    padding: 10px 16px;
+  }
+
+  .sqc-mobile-web.desktop-official-detail .sqc-desktop-quest-neighbor.previous {
+    text-align: left;
+  }
+
+  .sqc-mobile-web.desktop-official-detail .sqc-desktop-quest-neighbor.next {
+    text-align: right;
+  }
+
+  .sqc-mobile-web.desktop-official-detail .sqc-desktop-quest-neighbor > span {
+    color: rgba(245, 200, 106, .66);
+    font-size: 9px;
+    font-weight: 900;
+    letter-spacing: .11em;
+    text-transform: uppercase;
+  }
+
+  .sqc-mobile-web.desktop-official-detail .sqc-desktop-quest-neighbor > strong {
+    overflow: hidden;
+    color: var(--paper);
+    font-family: ui-serif, Georgia, Cambria, "Times New Roman", serif;
+    font-size: 15px;
+    line-height: 1.15;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .sqc-mobile-web.desktop-official-detail :is(.sqc-desktop-quest-index-link, .sqc-desktop-quest-neighbor):hover {
+    border-color: rgba(245, 200, 106, .38);
+    background: rgba(245, 200, 106, .08);
+    color: var(--paper);
+    transform: translateY(-1px);
+  }
+
+  .sqc-mobile-web.desktop-official-detail :is(.sqc-desktop-quest-index-link, .sqc-desktop-quest-neighbor):focus-visible {
+    outline: 3px solid rgba(245, 200, 106, .88);
+    outline-offset: 3px;
+  }
+
   .sqc-mobile-web.desktop-official-detail .sqc-official-quest-card {
     grid-column: 1 / -1;
+    grid-row: 2;
     min-height: 292px;
     padding: 34px 42px;
     border-color: rgba(245, 200, 106, .22);
@@ -7275,7 +7367,7 @@ body::after {
 
   .sqc-mobile-web.desktop-official-detail .sqc-official-solo-detail-screen > .sqc-quest-command-rail {
     grid-column: 2;
-    grid-row: 2 / span 3;
+    grid-row: 3 / span 2;
     position: sticky;
     top: 108px;
     display: grid;
@@ -7378,6 +7470,7 @@ body::after {
 
   .sqc-mobile-web.desktop-official-detail .sqc-active-detail-hero {
     grid-column: 1 / -1;
+    grid-row: 2;
     min-height: 300px;
     align-content: center;
     padding: 26px;
@@ -7402,7 +7495,7 @@ body::after {
 
   .sqc-mobile-web.desktop-official-detail .sqc-active-proof-summary {
     grid-column: 2;
-    grid-row: 2;
+    grid-row: 3;
     padding: 24px;
     border: 1px solid rgba(255, 247, 232, .12);
     border-radius: 24px;
@@ -9614,6 +9707,11 @@ body::after {
   }
 
   .sqc-mobile-web.desktop-solo-discovery .sqc-solo-difficulty-link {
+    transition: none !important;
+    transform: none !important;
+  }
+
+  .sqc-mobile-web.desktop-official-detail :is(.sqc-desktop-quest-index-link, .sqc-desktop-quest-neighbor) {
     transition: none !important;
     transform: none !important;
   }
