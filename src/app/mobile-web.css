@@ -395,6 +395,10 @@ body::after {
   display: none;
 }
 
+.sqc-multiplayer-create-context-nav {
+  display: none;
+}
+
 .sqc-multiplayer-command-rail {
   display: contents;
 }
@@ -8697,6 +8701,28 @@ body::after {
 
   .sqc-mobile-web.desktop-multiplayer-create .sqc-create-multiplayer-screen {
     gap: 24px;
+  }
+
+  .sqc-mobile-web.desktop-multiplayer-create .sqc-multiplayer-create-context-nav {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+    color: rgba(255, 247, 232, .48);
+    font-size: 13px;
+    font-weight: 850;
+    letter-spacing: .02em;
+  }
+
+  .sqc-mobile-web.desktop-multiplayer-create .sqc-multiplayer-create-context-nav a {
+    color: #f5c86a;
+    text-decoration: none;
+  }
+
+  .sqc-mobile-web.desktop-multiplayer-create .sqc-multiplayer-create-context-nav [aria-current="page"] {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .sqc-mobile-web.desktop-multiplayer-create .sqc-create-multiplayer-hero {

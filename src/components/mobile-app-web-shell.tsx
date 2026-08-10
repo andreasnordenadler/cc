@@ -1790,6 +1790,11 @@ function CommunityMultiplayerPanel({ signedIn, rows, initialHost, catalogStatus 
 export function MobileCreateMultiplayerScreen({ signedIn = false, quests = [], communityUnavailable = false, initialQuestId }: { signedIn?: boolean; quests?: MultiplayerCreateQuest[]; communityUnavailable?: boolean; initialQuestId?: string }) {
   return (
     <div className="sqc-stack sqc-create-multiplayer-screen">
+      <nav className="sqc-multiplayer-create-context-nav" aria-label="Multiplayer creation context">
+        <Link href="/multiplayer">Multiplayer Side Quests</Link>
+        <span aria-hidden="true">/</span>
+        <span aria-current="page">Create Multiplayer Side Quest</span>
+      </nav>
       <section className="sqc-multiplayer-detail-hero sqc-create-multiplayer-hero">
         <MobileAssetMark className="sqc-section-mark group" image={mobileAsset.multiplayerSeal} glow={mobileAsset.coatGlow} size={100} glowSize={142} />
         <span className="sqc-multiplayer-kicker">Create Multiplayer Side Quest</span>

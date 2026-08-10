@@ -1013,6 +1013,7 @@ test("Multiplayer creation becomes one desktop planning workspace without duplic
   assert.match(html, /class="sqc-mobile-web desktop-multiplayer-create immersive signed-out"/);
   assert.match(html, /class="sqc-desktop-route-only"/);
   assert.match(html, /<a[^>]*aria-current="page"[^>]*href="\/create-multiplayer-side-quest"><span[^>]*><\/span>Create Multiplayer Side Quest<\/a>/);
+  assert.match(html, /<nav class="sqc-multiplayer-create-context-nav" aria-label="Multiplayer creation context">[\s\S]*href="\/multiplayer"[\s\S]*Create Multiplayer Side Quest[\s\S]*<\/nav>/);
   assert.equal(html.match(/aria-label="Create Multiplayer Side Quest form"/g)?.length, 1, "desktop and mobile share one creation form");
   assert.match(html, /class="sqc-native-card sqc-create-setup-card"/);
   assert.match(html, /class="sqc-native-card sqc-create-selected-card"/);
@@ -1046,6 +1047,8 @@ test("Multiplayer creation becomes a wide two-column planner only at the desktop
 
   assert.match(route, /desktopPresentation="multiplayer-create"/);
   assert.match(route, /closeHref="\/multiplayer"/, "mobile close destination stays intact");
+  assert.match(css, /\.sqc-multiplayer-create-context-nav\s*\{[^}]*display:\s*none;/, "mobile does not duplicate its established close control");
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-multiplayer-create\s+\.sqc-multiplayer-create-context-nav\s*\{[^}]*display:\s*flex;/, "desktop exposes contextual return navigation");
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-multiplayer-create\s+\.sqc-screen\s*\{[^}]*width:\s*min\(1280px,\s*calc\(100%\s*-\s*64px\)\)/);
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-multiplayer-create\s+\.sqc-create-multiplayer-hero\s*\{[^}]*grid-template-columns:\s*200px\s+minmax\(0,\s*1fr\);/);
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-multiplayer-create\s+\.sqc-hydration-gate\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1\.15fr\)\s+minmax\(420px,\s*\.85fr\);/);
