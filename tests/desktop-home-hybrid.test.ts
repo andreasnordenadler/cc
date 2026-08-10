@@ -330,6 +330,16 @@ test("Community discovery becomes a desktop browsing workspace without duplicati
   assert.equal(html.match(/aria-label="Open Castle\? Never Heard Of It"/g)?.length, 1, "desktop and mobile share one catalog subtree");
 });
 
+test("Community discovery keeps its shared search and filters available while desktop users browse the long catalog", () => {
+  const css = readFileSync("src/app/mobile-web.css", "utf8");
+  const mobilePanel = readCssBlock(css, css.indexOf(".sqc-community-browse-panel"));
+  const desktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1180px)"));
+
+  assert.doesNotMatch(mobilePanel, /position:\s*sticky;/, "mobile retains the established in-flow filter panel");
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-community-discovery\s+\.sqc-community-browse-panel\s*\{[^}]*position:\s*sticky;[^}]*top:\s*16px;[^}]*z-index:\s*12;/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-community-discovery\s+\.sqc-community-browse-panel\s*\{[^}]*backdrop-filter:\s*blur\(18px\);/);
+});
+
 test("Community creator shelves become contextual desktop rail destinations", () => {
   const rows = [{
     id: "community-one",
