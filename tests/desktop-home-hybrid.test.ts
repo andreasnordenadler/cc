@@ -764,6 +764,20 @@ test("Community Solo detail becomes a wide reading workspace only at the desktop
   assert.match(css, /\.sqc-mobile-web\.desktop-community-detail\s+\.sqc-multiplayer-score-grid\s*\{[^}]*grid-column:\s*1;/);
 });
 
+test("Community Solo desktop action rail separates primary, navigation, sharing, and safety priorities", () => {
+  const css = readFileSync("src/app/mobile-web.css", "utf8");
+  const desktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1180px)"));
+
+  assert.match(css, /\.sqc-community-action-group\s*\{[^}]*display:\s*contents;/, "mobile keeps the established flat action stack");
+  assert.match(css, /\.sqc-community-action-group-label\s*\{[^}]*display:\s*none;/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-community-detail\s+\.sqc-community-action-group\s*\{[^}]*display:\s*grid;/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-community-detail\s+\.sqc-community-next-actions\s*\{[^}]*grid-template-columns:\s*repeat\(2,\s*minmax\(0,\s*1fr\)\);/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-community-detail\s+\.sqc-community-action-group-label\s*\{[^}]*display:\s*block;[^}]*grid-column:\s*1\s*\/\s*-1;/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-community-detail\s+\.sqc-community-share-actions\s*\{[^}]*grid-template-columns:\s*repeat\(2,\s*minmax\(0,\s*1fr\)\);/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-community-detail\s+\.sqc-community-report-action\s*\{[^}]*order:\s*4;[^}]*padding-top:\s*14px;[^}]*border-top:\s*1px\s+solid/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-community-detail\s+\.sqc-community-next-actions\s*>\s*p\s*\{[^}]*grid-column:\s*1\s*\/\s*-1;/);
+});
+
 test("Custom owner detail opts into one persistent desktop workspace", () => {
   const html = renderToStaticMarkup(
     createElement(

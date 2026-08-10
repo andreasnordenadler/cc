@@ -199,6 +199,32 @@ test("Community Solo detail exposes Android share and copy actions instead of a 
   assert.doesNotMatch(html, /<a[^>]*href="\/challenges\/community\/quest%2F42"[^>]*>Share public link<\/a>/);
 });
 
+test("Community Solo detail groups next steps, sharing, and safety without duplicating actions", () => {
+  const html = renderToStaticMarkup(React.createElement(MobileCommunitySideQuestDetailScreen, {
+    signedIn: false,
+    quest: {
+      id: "quest/42",
+      title: "Ada's Fork",
+      summary: "Win a fork.",
+      creatorName: "Ada",
+      creatorBrowsePath: "/community-side-quests?creator=ada",
+      ruleLabel: "Fork",
+      ruleDetails: ["Create a fork."],
+      stats: { soloAttempts: 0, soloSelections: 0, soloCompletions: 0, multiplayerLineups: 0, multiplayerAttempts: 0, multiplayerFulfillments: 0 },
+    },
+  }));
+
+  assert.match(html, /<div class="sqc-community-action-group sqc-community-next-actions" role="group" aria-labelledby="community-next-actions-label">/);
+  assert.match(html, /<div class="sqc-community-action-group sqc-community-share-group" role="group" aria-labelledby="community-share-actions-label">/);
+  assert.match(html, /<div class="sqc-community-detail-actions sqc-community-report-action">/);
+  assert.equal(html.match(/>Back to list<\/a>/g)?.length, 1);
+  assert.equal(html.match(/>More by Ada<\/a>/g)?.length, 1);
+  assert.equal(html.match(/>Report this Side Quest<\/a>/g)?.length, 1);
+  assert.equal(html.match(/>Share public link<\/button>/g)?.length, 1);
+  assert.equal(html.match(/>Copy public link<\/button>/g)?.length, 1);
+  assert.ok(html.indexOf(">Report this Side Quest</a>") < html.indexOf(">Back to list</a>"), "mobile preserves Android's report-before-navigation order");
+});
+
 test("signed-out Community Solo detail keeps Android's exact report handoff reachable", () => {
   const html = renderToStaticMarkup(React.createElement(MobileCommunitySideQuestDetailScreen, {
     signedIn: false,

@@ -11,7 +11,7 @@ export default function CommunitySoloSocialActions({ questId, title, creatorName
 
   if (!signedIn) {
     const reportParams = new URLSearchParams({ report: "community-solo", questId, title, creator: creatorName });
-    return <div className="sqc-community-detail-actions">
+    return <div className="sqc-community-detail-actions sqc-community-report-action">
       <Link className="sqc-detail-secondary-button" href={`/support?${reportParams.toString()}`}>Report this Side Quest</Link>
     </div>;
   }
@@ -29,7 +29,7 @@ export default function CommunitySoloSocialActions({ questId, title, creatorName
     finally { setReportBusy(false); }
   }
 
-  return <section className="sqc-native-card" aria-label="Report this Community Solo Side Quest">
+  return <section className="sqc-native-card sqc-community-report-action" aria-label="Report this Community Solo Side Quest">
     <label className="sqc-form-row"><span>Why are you reporting {title}?</span><textarea value={reason} maxLength={500} onChange={event => setReason(event.target.value)} placeholder="Describe the unsafe, misleading, or inappropriate content." /></label>
     <button type="button" className="sqc-detail-secondary-button" disabled={reportBusy} onClick={report}>{reportBusy ? "Sending…" : "Report this Side Quest"}</button>
     {status ? <p role="status" aria-live="polite">{status}</p> : null}

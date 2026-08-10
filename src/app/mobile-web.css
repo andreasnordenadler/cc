@@ -4332,6 +4332,14 @@ body::after {
   gap: 8px;
 }
 
+.sqc-community-action-group {
+  display: contents;
+}
+
+.sqc-community-action-group-label {
+  display: none;
+}
+
 .sqc-community-share-actions small {
   color: var(--muted);
   font-size: 12px;
@@ -7648,12 +7656,68 @@ body::after {
     line-height: 1.1;
   }
 
-  .sqc-mobile-web.desktop-community-detail .sqc-community-detail-actions {
+  .sqc-mobile-web.desktop-community-detail .sqc-community-task-rail > .sqc-community-detail-actions {
     gap: 9px;
-    padding: 14px;
+    padding: 16px;
     border: 1px solid rgba(255, 247, 232, .1);
     border-radius: 22px;
     background: rgba(0, 0, 0, .18);
+  }
+
+  .sqc-mobile-web.desktop-community-detail .sqc-community-action-group {
+    display: grid;
+    gap: 9px;
+  }
+
+  .sqc-mobile-web.desktop-community-detail .sqc-community-next-actions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    order: 2;
+  }
+
+  .sqc-mobile-web.desktop-community-detail .sqc-community-action-group-label {
+    display: block;
+    grid-column: 1 / -1;
+    color: rgba(245, 200, 106, .7);
+    font-size: 9px;
+    font-weight: 950;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+  }
+
+  .sqc-mobile-web.desktop-community-detail .sqc-community-next-actions > :is(a, button),
+  .sqc-mobile-web.desktop-community-detail .sqc-community-share-actions > :is(a, button) {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .sqc-mobile-web.desktop-community-detail .sqc-community-share-actions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .sqc-mobile-web.desktop-community-detail .sqc-community-share-group {
+    order: 3;
+  }
+
+  .sqc-mobile-web.desktop-community-detail .sqc-community-share-actions > small {
+    grid-column: 1 / -1;
+  }
+
+  .sqc-mobile-web.desktop-community-detail .sqc-community-report-action {
+    order: 4;
+    padding-top: 14px;
+    border-top: 1px solid rgba(255, 247, 232, .1);
+  }
+
+  .sqc-mobile-web.desktop-community-detail .sqc-community-next-actions > p {
+    grid-column: 1 / -1;
+  }
+
+  .sqc-mobile-web.desktop-community-detail .sqc-community-report-action > .sqc-detail-secondary-button {
+    min-height: 36px;
+    border-color: transparent;
+    background: transparent;
+    color: rgba(255, 247, 232, .58);
+    font-size: 11px;
   }
 
   /* The owner detail keeps Android's exact data and action subtree, but presents it
