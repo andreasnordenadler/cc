@@ -1133,6 +1133,11 @@ export function MobileTrophyCabinetScreen({
   const communitySoloRows = soloRows.filter((row) => row.source === "communitySolo");
   const earnedIds = new Set(soloRows.map((row) => row.id.replace(/^solo-/, "")));
   const unlockedCount = trophyRows.length;
+  const difficultyIndex = (["Easy", "Medium", "Hard", "Brutal", "Absurd"] as const).map((difficulty) => ({
+    difficulty,
+    count: officialChallenges.filter((challenge) => challenge.difficulty === difficulty).length,
+    firstChallengeId: officialChallenges.find((challenge) => challenge.difficulty === difficulty)?.id ?? null,
+  }));
 
   void _proofReceiptCount;
 
@@ -1216,11 +1221,27 @@ export function MobileTrophyCabinetScreen({
         <p>{signedIn ? "Locked official coats are previews. Custom and Community Solo Side Quest rewards appear above when earned." : "Open any coat to inspect its Side Quest. Sign in to see which rewards you have unlocked."}</p>
       </section>
 
-      <div className="sqc-coat-grid" aria-label="Official Solo Side Quest coat grid">
-        {officialChallenges.map((challenge) => {
-          const earned = earnedIds.has(challenge.id);
-          return (
-            <Link key={challenge.id} href={`/challenges/${challenge.id}`} className="sqc-coat-tile">
+      <div className="sqc-trophy-collection-workspace">
+        <nav className="sqc-trophy-difficulty-index" aria-label="Browse coats by difficulty">
+          <strong>Collection index</strong>
+          {difficultyIndex.map(({ difficulty, count }) => (
+            <a key={difficulty} href={`#trophy-difficulty-${difficulty.toLowerCase()}`}>
+              <span>{difficulty}</span>
+              <small>{count}</small>
+            </a>
+          ))}
+        </nav>
+        <div className="sqc-coat-grid" aria-label="Official Solo Side Quest coat grid">
+          {officialChallenges.map((challenge) => {
+            const earned = earnedIds.has(challenge.id);
+            const isDifficultyStart = difficultyIndex.some(({ difficulty, firstChallengeId }) => difficulty === challenge.difficulty && firstChallengeId === challenge.id);
+            return (
+              <Link
+                key={challenge.id}
+                id={isDifficultyStart ? `trophy-difficulty-${challenge.difficulty.toLowerCase()}` : undefined}
+                href={`/challenges/${challenge.id}`}
+                className="sqc-coat-tile"
+              >
               <span className="sqc-coat-tile-art" aria-hidden="true">
                 <Image
                   className={signedIn && !earned ? "sqc-coat-tile-image locked" : "sqc-coat-tile-image"}
@@ -1239,9 +1260,10 @@ export function MobileTrophyCabinetScreen({
                 <span className="sqc-coat-tile-objective">{challenge.objective}</span>
                 <small>{signedIn ? (earned ? "Unlocked" : "Locked preview") : "Official coat preview"}</small>
               </span>
-            </Link>
-          );
-        })}
+              </Link>
+            );
+          })}
+        </div>
       </div>
     </div>
   );

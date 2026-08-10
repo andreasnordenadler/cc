@@ -2627,6 +2627,14 @@ body::after {
   gap: 8px;
 }
 
+.sqc-trophy-collection-workspace {
+  display: contents;
+}
+
+.sqc-trophy-difficulty-index {
+  display: none;
+}
+
 .sqc-trophy-screen .sqc-native-card {
   gap: 8px;
   padding: 11px;
@@ -9616,10 +9624,65 @@ body::after {
   }
 
   .sqc-mobile-web.desktop-trophy-cabinet .sqc-coat-grid {
-    grid-column: 1 / -1;
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 14px;
+  }
+
+  .sqc-mobile-web.desktop-trophy-cabinet .sqc-trophy-collection-workspace {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: 180px minmax(0, 1fr);
+    align-items: start;
+    gap: 22px;
+  }
+
+  .sqc-mobile-web.desktop-trophy-cabinet .sqc-trophy-difficulty-index {
+    display: grid;
+    position: sticky;
+    top: 104px;
+    gap: 8px;
+    padding: 18px;
+    border: 1px solid rgba(245, 200, 106, .2);
+    border-radius: 20px;
+    background: rgba(12, 10, 9, .82);
+    backdrop-filter: blur(18px);
+  }
+
+  .sqc-mobile-web.desktop-trophy-cabinet .sqc-trophy-difficulty-index > strong {
+    margin-bottom: 4px;
+    color: rgba(255, 247, 232, .62);
+    font-size: 10px;
+    font-weight: 950;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+  }
+
+  .sqc-mobile-web.desktop-trophy-cabinet .sqc-trophy-difficulty-index a {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 0 11px;
+    border: 1px solid rgba(255, 247, 232, .1);
+    border-radius: 12px;
+    color: var(--paper);
+    font-size: 13px;
+    font-weight: 850;
+    text-decoration: none;
+    transition: border-color 160ms ease, background 160ms ease;
+  }
+
+  .sqc-mobile-web.desktop-trophy-cabinet .sqc-trophy-difficulty-index a:hover {
+    border-color: rgba(245, 200, 106, .34);
+    background: rgba(245, 200, 106, .08);
+  }
+
+  .sqc-mobile-web.desktop-trophy-cabinet .sqc-trophy-difficulty-index small {
+    color: var(--gold);
+    font-size: 11px;
+    font-weight: 950;
   }
 
   .sqc-mobile-web.desktop-trophy-cabinet .sqc-coat-tile {
@@ -9635,6 +9698,7 @@ body::after {
     background: rgba(255, 247, 232, .052);
     text-align: left;
     transition: transform 160ms ease, border-color 160ms ease, background 160ms ease;
+    scroll-margin-top: 104px;
   }
 
   .sqc-mobile-web.desktop-trophy-cabinet .sqc-coat-tile:hover {
@@ -9953,6 +10017,10 @@ body::after {
   .sqc-mobile-web.desktop-trophy-cabinet .sqc-coat-tile {
     transition: none !important;
     transform: none !important;
+  }
+
+  .sqc-mobile-web.desktop-trophy-cabinet .sqc-trophy-difficulty-index a {
+    transition: none !important;
   }
 
   .sqc-mobile-web.desktop-account .sqc-account-row {
