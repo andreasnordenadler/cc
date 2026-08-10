@@ -141,7 +141,7 @@ if (!shouldSkipBuild) {
 
 disableAndroidBackup();
 
-run("pnpm", ["audit", "--prod", "--audit-level", "high"]);
+run("node", ["scripts/check-production-audit.mjs"]);
 run("pnpm", ["mobile:doctor"]);
 run("pnpm", ["--dir", "apps/mobile", "typecheck"]);
 run("pnpm", ["lint", "--", "apps/mobile/App.tsx", "apps/mobile/src/api/sqc.ts", "apps/mobile/src/types/sqc.ts"]);

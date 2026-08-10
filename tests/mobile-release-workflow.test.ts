@@ -43,6 +43,23 @@ test("mobile release dependencies resolve newly disclosed uuid and tar vulnerabi
   assert.match(snapshotFor(/^  '@expo\/cli@54\.0\.26[^\n]*':\n/m), /^      tar: 7\.5\.21$/m);
 });
 
+test("mobile release audit patches available fixes and narrowly accepts only Metro image parser advisories", () => {
+  const workspace = readRepoFile("pnpm-workspace.yaml");
+  const lockfile = readRepoFile("pnpm-lock.yaml");
+  const releaseScript = readRepoFile("scripts/mobile-release.mjs");
+
+  assert.match(workspace, /^  js-yaml@>=3\.0\.0 <3\.15\.1: "3\.15\.1"$/m);
+  assert.match(workspace, /^  js-yaml@>=4\.0\.0 <4\.3\.1: "4\.3\.1"$/m);
+  assert.match(workspace, /^  nanoid@<3\.3\.17: "3\.3\.17"$/m);
+  assert.match(lockfile, /^  js-yaml@3\.15\.1:$/m);
+  assert.match(lockfile, /^  js-yaml@4\.3\.1:$/m);
+  assert.match(lockfile, /^  nanoid@3\.3\.17:$/m);
+
+  assert.match(releaseScript, /run\("node", \["scripts\/check-production-audit\.mjs"\]\)/);
+  assert.doesNotMatch(releaseScript, /pnpm[^\n]+audit/);
+  assert.doesNotMatch(releaseScript, /--ignore/);
+});
+
 test("Android signing stays fail-closed for direct and umbrella artifact tasks without blocking release lint", () => {
   const source = readRepoFile("apps/mobile/android/app/build.gradle");
 
