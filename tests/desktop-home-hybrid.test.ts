@@ -540,8 +540,23 @@ test("Multiplayer discovery becomes one desktop tournament desk without duplicat
   assert.match(html, /<a[^>]*aria-current="page"[^>]*href="\/multiplayer">Multiplayer Side Quests<\/a>/);
   assert.match(html, /class="sqc-desktop-multiplayer-intro"/);
   assert.match(html, />Shared challenges, arranged like a tournament desk\.<\/h1>/);
+  assert.match(html, /<nav class="sqc-desktop-multiplayer-launchpad" aria-label="Multiplayer quick actions">/);
+  assert.match(html, /href="\/create-multiplayer-side-quest"[^>]*>Create a Multiplayer Side Quest<\/a>/);
+  assert.match(html, /href="\/multiplayer-side-quests\?tab=community#join-private-multiplayer"[^>]*>Join with invite code<\/a>/);
   assert.equal(html.match(/aria-label="Multiplayer Side Quest catalog"/g)?.length, 1, "desktop and mobile share one catalog navigation subtree");
   assert.equal(html.match(/aria-label="Open Official 14-Day Starter Shield"/g)?.length, 1, "desktop and mobile share one quest action subtree");
+});
+
+test("Multiplayer quick actions stay desktop-only and point to the existing creation and invite flows", () => {
+  const css = readFileSync("src/app/mobile-web.css", "utf8");
+  const desktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1180px)"));
+  const reducedMotion = readCssBlock(css, css.lastIndexOf("@media (prefers-reduced-motion: reduce)"));
+
+  assert.match(css, /\.sqc-desktop-multiplayer-launchpad\s*\{[^}]*display:\s*none;/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-multiplayer-discovery\s+\.sqc-desktop-multiplayer-launchpad\s*\{[^}]*display:\s*flex;/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-multiplayer-discovery\s+\.sqc-desktop-multiplayer-launchpad\s+a:focus-visible\s*\{[^}]*outline:\s*3px\s+solid/);
+  assert.match(desktopMedia, /#join-private-multiplayer\s*\{[^}]*scroll-margin-top:\s*110px;/);
+  assert.match(reducedMotion, /\.sqc-desktop-multiplayer-launchpad\s+a\s*\{[^}]*transition:\s*none\s*!important;[^}]*transform:\s*none\s*!important;/);
 });
 
 test("Multiplayer discovery turns official rows into decision-ready desktop cards without duplicating links", () => {

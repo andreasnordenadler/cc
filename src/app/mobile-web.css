@@ -5207,6 +5207,10 @@ body::after {
   display: none;
 }
 
+.sqc-desktop-multiplayer-launchpad {
+  display: none;
+}
+
 .sqc-solo-browser {
   display: contents;
 }
@@ -8269,6 +8273,50 @@ body::after {
     line-height: 1.55;
   }
 
+  .sqc-mobile-web.desktop-multiplayer-discovery .sqc-desktop-multiplayer-launchpad {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 8px;
+  }
+
+  .sqc-mobile-web.desktop-multiplayer-discovery .sqc-desktop-multiplayer-launchpad a {
+    min-height: 42px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 18px;
+    border: 1px solid rgba(245, 200, 106, .34);
+    border-radius: 999px;
+    background: rgba(245, 200, 106, .1);
+    color: var(--gold);
+    font-size: 12px;
+    font-weight: 950;
+    text-decoration: none;
+    transition: border-color .16s ease, background .16s ease, color .16s ease, transform .16s ease;
+  }
+
+  .sqc-mobile-web.desktop-multiplayer-discovery .sqc-desktop-multiplayer-launchpad a:last-child {
+    border-color: rgba(96, 240, 175, .28);
+    background: rgba(96, 240, 175, .08);
+    color: var(--green);
+  }
+
+  .sqc-mobile-web.desktop-multiplayer-discovery .sqc-desktop-multiplayer-launchpad a:hover {
+    border-color: currentColor;
+    background: rgba(255, 247, 232, .1);
+    transform: translateY(-1px);
+  }
+
+  .sqc-mobile-web.desktop-multiplayer-discovery .sqc-desktop-multiplayer-launchpad a:focus-visible {
+    outline: 3px solid rgba(245, 200, 106, .88);
+    outline-offset: 3px;
+  }
+
+  .sqc-mobile-web.desktop-multiplayer-discovery #join-private-multiplayer {
+    scroll-margin-top: 110px;
+  }
+
   .sqc-mobile-web.desktop-multiplayer-discovery .sqc-multiplayer-brand-tabs {
     grid-column: 2;
     grid-row: 2;
@@ -9869,6 +9917,11 @@ body::after {
   }
 
   .sqc-mobile-web.desktop-official-detail :is(.sqc-desktop-quest-index-link, .sqc-desktop-quest-neighbor) {
+    transition: none !important;
+    transform: none !important;
+  }
+
+  .sqc-desktop-multiplayer-launchpad a {
     transition: none !important;
     transform: none !important;
   }
