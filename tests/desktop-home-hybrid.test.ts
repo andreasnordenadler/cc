@@ -1043,6 +1043,31 @@ test("Help and Support becomes a wide triage workspace only at the desktop bound
   assert.equal(css.replace(desktopMedia, "").replace(reducedMotion, "").includes(".sqc-mobile-web.desktop-support"), false, "desktop Support rules must not leak below 1180px");
 });
 
+test("desktop Support presents help topics as one numbered directory instead of five floating cards", () => {
+  const html = renderToStaticMarkup(createElement(MobileSupportScreen, { signedIn: false }));
+  const css = readFileSync("src/app/mobile-web.css", "utf8");
+  const desktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1180px)"));
+
+  assert.match(html, /class="sqc-support-directory-head"/);
+  assert.match(html, />Help directory<\/h2>/);
+  assert.equal(html.match(/class="sqc-support-row-index"/g)?.length, 5);
+  assert.match(css, /\.sqc-support-directory-head,\s*\.sqc-support-row-index\s*\{\s*display:\s*none;/, "desktop wayfinding stays out of the mobile composition");
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-support\s+\.sqc-support-directory-head\s*\{[^}]*display:\s*grid;/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-support\s+\.sqc-support-row-list\s*\{[^}]*overflow:\s*hidden;[^}]*border:\s*1px solid/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-support\s+\.sqc-support-row\s*\{[^}]*border-radius:\s*0;[^}]*background:\s*transparent;/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-support\s+\.sqc-support-row:last-of-type\s*\{[^}]*grid-column:\s*1\s*\/\s*-1;/);
+});
+
+test("desktop Support keeps the legal and report row directly below the taller help directory", () => {
+  const css = readFileSync("src/app/mobile-web.css", "utf8");
+  const desktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1180px)"));
+
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-support\s+\.sqc-support-overview\s*\{[^}]*grid-row:\s*1;/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-support\s+\.sqc-support-screen\s*>\s*\.sqc-support-card:not\(\.sqc-support-report\)\s*\{[^}]*grid-column:\s*1;[^}]*grid-row:\s*2;/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-support\s+\.sqc-support-report\s*\{[^}]*grid-column:\s*2;[^}]*grid-row:\s*2;/);
+  assert.doesNotMatch(desktopMedia, /\.sqc-mobile-web\.desktop-support\s+\.sqc-support-overview\s*\{[^}]*grid-row:\s*1\s*\/\s*span\s*2;/);
+});
+
 function readCssBlock(css: string, start: number) {
   assert.notEqual(start, -1, "expected CSS block start");
   const opening = css.indexOf("{", start);

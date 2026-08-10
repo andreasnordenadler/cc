@@ -1025,8 +1025,14 @@ export function MobileSupportScreen({
       </div>
 
       <section className="sqc-support-row-list" aria-label="Help topics">
-        {helpRows.map((row) => (
+        <header className="sqc-support-directory-head">
+          <span className="sqc-card-eyebrow">Five essentials</span>
+          <h2>Help directory</h2>
+          <p>Scan the essentials, then jump straight to the part of Side Quest Chess that can help.</p>
+        </header>
+        {helpRows.map((row, index) => (
           <article className="sqc-support-row" key={row.title}>
+            <span className="sqc-support-row-index" aria-hidden="true">{String(index + 1).padStart(2, "0")}</span>
             <h3>{row.title}</h3>
             <p>{row.body}</p>
             <Link className="sqc-support-row-action" href={row.action.href}>{row.action.label}</Link>
