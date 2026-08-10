@@ -1921,6 +1921,11 @@ export function MobileMultiplayerDetailScreen({
 
   return (
     <div className="sqc-stack sqc-multiplayer-public-detail-screen">
+      <nav className="sqc-multiplayer-context-nav" aria-label="Multiplayer context">
+        <Link href={official ? "/multiplayer" : "/multiplayer-side-quests"}>Multiplayer Side Quests</Link>
+        <span aria-hidden="true">/</span>
+        <span aria-current="page">{quest.title}</span>
+      </nav>
       <section className="sqc-multiplayer-detail-hero">
         <MobileAssetMark className="sqc-section-mark group" image={mobileAsset.multiplayerSeal} glow={mobileAsset.coatGlow} size={116} glowSize={146} />
         <span className="sqc-multiplayer-kicker">{official ? "Official Multiplayer Side Quest" : "Community Multiplayer Side Quest"}</span>

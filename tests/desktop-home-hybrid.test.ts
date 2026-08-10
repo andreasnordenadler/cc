@@ -949,7 +949,7 @@ test("Multiplayer detail becomes one desktop tournament workspace without changi
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-multiplayer-detail[^{}]*\.sqc-close-screen\)[^{}]*\{[^}]*display:\s*none;/);
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-multiplayer-detail\s+\.sqc-screen\s*\{[^}]*width:\s*min\(1280px,\s*calc\(100%\s*-\s*64px\)\)/);
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-multiplayer-detail\s+\.sqc-multiplayer-public-detail-screen\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1\.45fr\)\s+minmax\(360px,\s*\.55fr\);[^}]*grid-auto-flow:\s*dense;/);
-  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-multiplayer-detail\s+\.sqc-multiplayer-command-rail\s*\{[^}]*grid-column:\s*2;[^}]*grid-row:\s*2\s*\/\s*span\s*3;[^}]*position:\s*sticky;/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-multiplayer-detail\s+\.sqc-multiplayer-command-rail\s*\{[^}]*grid-column:\s*2;[^}]*grid-row:\s*3\s*\/\s*span\s*3;[^}]*position:\s*sticky;/);
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-multiplayer-detail\s+\.sqc-multiplayer-quest-list\s*\{[^}]*grid-column:\s*1;/);
   assert.equal(css.replace(desktopMedia, "").includes(".sqc-mobile-web.desktop-multiplayer-detail"), false, "desktop Multiplayer detail rules must not leak below 1180px");
 });
@@ -983,9 +983,12 @@ test("Multiplayer detail groups its next action and sharing into one desktop com
   const desktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1180px)"));
 
   assert.equal(html.match(/class="sqc-multiplayer-command-rail"/g)?.length, 1);
+  assert.match(html, /<nav class="sqc-multiplayer-context-nav" aria-label="Multiplayer context">[\s\S]*href="\/multiplayer"[\s\S]*Official Starter Shield[\s\S]*<\/nav>/);
   assert.match(html, /<aside class="sqc-multiplayer-command-rail" aria-label="Multiplayer Side Quest actions">[\s\S]*sqc-multiplayer-primary-action[\s\S]*sqc-multiplayer-share-card[\s\S]*<\/aside>/);
+  assert.match(css, /\.sqc-multiplayer-context-nav\s*\{[^}]*display:\s*none;/, "mobile keeps the established close control without a duplicate breadcrumb");
   assert.match(css, /\.sqc-multiplayer-command-rail\s*\{[^}]*display:\s*contents;/, "mobile keeps the established card stack");
-  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-multiplayer-detail\s+\.sqc-multiplayer-command-rail\s*\{[^}]*grid-column:\s*2;[^}]*grid-row:\s*2\s*\/\s*span\s*3;[^}]*position:\s*sticky;[^}]*display:\s*grid;/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-multiplayer-detail\s+\.sqc-multiplayer-context-nav\s*\{[^}]*grid-column:\s*1\s*\/\s*-1;[^}]*display:\s*flex;/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-multiplayer-detail\s+\.sqc-multiplayer-command-rail\s*\{[^}]*grid-column:\s*2;[^}]*grid-row:\s*3\s*\/\s*span\s*3;[^}]*position:\s*sticky;[^}]*display:\s*grid;/);
   assert.equal(css.replace(desktopMedia, "").includes(".sqc-mobile-web.desktop-multiplayer-detail .sqc-multiplayer-command-rail"), false, "desktop command-rail layout must not leak below 1180px");
 });
 
