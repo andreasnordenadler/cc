@@ -6,42 +6,22 @@ async function expectHealthyNavigation(page: import("@playwright/test").Page, pa
   expect(response!.status(), `${path} should not return an HTTP error`).toBeLessThan(400);
 }
 
-test("signed-out desktop homepage explains the loop and exposes public browsing plus auth", async ({ page }) => {
+test("signed-out desktop homepage presents the coming-soon launch surface", async ({ page }) => {
   await expectHealthyNavigation(page, "/");
 
-  await expect(page.getByRole("heading", { name: "Your next chess game needs a terrible side plot." })).toBeVisible();
-  await expect(page.getByRole("link", { name: "Choose your bad idea", exact: true })).toHaveAttribute("href", "/side-quests");
-  await expect(page.getByRole("navigation", { name: "Desktop shortcuts" }).getByRole("link", { name: "Multiplayer Side Quests" })).toHaveAttribute("href", "/multiplayer");
-  await expect(page.getByRole("link", { name: "Sign in", exact: true })).toHaveAttribute("href", "/sign-in?redirect_url=%2F");
-  await expect(page.getByRole("heading", { name: "The ritual is suspiciously simple." })).toBeVisible();
-  await expect(page.getByText("Present evidence to the paperwork goblin", { exact: true })).toBeVisible();
-  await expect(page.getByText("Receive unnecessary heraldry", { exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Every game deserves a side quest." })).toBeVisible();
+  await expect(page.getByRole("img", { name: "Side Quest Chess coat of arms" })).toBeVisible();
+  await expect(page.getByText("Coming soon", { exact: true })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Sign in", exact: true })).toHaveCount(0);
 });
 
-test("desktop app menu dismisses with Escape and outside click", async ({ page }) => {
+test("coming-soon homepage intentionally omits app navigation and account actions", async ({ page }) => {
   await expectHealthyNavigation(page, "/");
 
-  const trigger = page.locator(".sqc-desktop-menu summary");
-  const menu = page.getByRole("navigation", { name: "Desktop main menu" });
-
-  await trigger.click();
-  await expect(menu).toBeVisible();
-  await expect(trigger).toContainText("Explore");
-  await expect(menu.getByText("Create & manage", { exact: true })).toBeVisible();
-  await expect(menu.getByText("Account & help", { exact: true })).toBeVisible();
-  await expect(menu.getByRole("link", { name: "My Custom Side Quests" })).toHaveAttribute("href", "/custom-side-quests");
-  await expect(menu.getByRole("link", { name: "Help & Support" })).toHaveAttribute("href", "/support");
-  await expect(menu.getByRole("link", { name: "My Account", exact: true })).toHaveCount(0);
-  await expect(page.getByRole("link", { name: "Sign in", exact: true })).toHaveCount(1);
-  await expect(menu.getByRole("link", { name: "Home", exact: true })).toHaveCount(0);
-  await page.keyboard.press("Escape");
-  await expect(menu).toBeHidden();
-  await expect(trigger).toBeFocused();
-
-  await trigger.click();
-  await expect(menu).toBeVisible();
-  await page.getByRole("heading", { name: "Your next chess game needs a terrible side plot." }).click();
-  await expect(menu).toBeHidden();
+  await expect(page.getByRole("navigation", { name: "Desktop main menu" })).toHaveCount(0);
+  await expect(page.getByRole("navigation", { name: "Desktop shortcuts" })).toHaveCount(0);
+  await expect(page.getByRole("navigation", { name: "Guest menu" })).toHaveCount(0);
+  await expect(page.getByText(/Create account|Sign in/)).toHaveCount(0);
 });
 
 test("signed-out desktop-native routes omit the phone menu and expose persistent shortcuts", async ({ page }) => {

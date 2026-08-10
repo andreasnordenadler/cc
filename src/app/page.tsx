@@ -1,126 +1,78 @@
-import MobileAppWebShell from "@/components/mobile-app-web-shell";
-import { clerkClient, currentUser } from "@clerk/nextjs/server";
-import { unstable_noStore as noStore } from "next/cache";
-import { CHALLENGES } from "@/lib/challenges";
-import { listPublicCommunitySideQuests } from "@/lib/community-side-quests";
-import { getCustomSideQuests } from "@/lib/custom-side-quests";
-import { getMobileWebTheme } from "@/lib/mobile-web-theme";
-import { getChallengeGlowPath, loadOptionalCommunityTrophyQuests } from "@/lib/mobile-web-trophies";
-import { buildActiveMultiplayerHomeRows, buildHomeActiveSoloProofPath, loadHomeTrophyRows, resolveHomeActiveSoloQuest } from "@/lib/mobile-web-home";
-import { listUserRelatedGroupQuests } from "@/lib/groupquests";
-import {
-  buildAttemptSummary,
-  getActiveChallenge,
-  getChallengeAttempts,
-  getChallengeProgress,
-  getChessComUsername,
-  getLatestChallengeAttempt,
-  getLatestPassedChallengeAttempt,
-  getLichessUsername,
-  getPreferredRunnerName,
-  type UserMetadataRecord,
-} from "@/lib/user-metadata";
+import type { Metadata } from "next";
+import Image from "next/image";
+import Link from "next/link";
+import styles from "./page.module.css";
 
-export default async function Home() {
-  noStore();
-  const user = await currentUser();
-  const metadata = user?.publicMetadata ? (user.publicMetadata as UserMetadataRecord) : {};
-  const privateMetadata = user?.privateMetadata && typeof user.privateMetadata === "object"
-    ? (user.privateMetadata as UserMetadataRecord)
-    : {};
-  const activeChallenge = getActiveChallenge(metadata);
-  const activeOfficialChallenge = activeChallenge
-    ? CHALLENGES.find((challenge) => challenge.id === activeChallenge.id) ?? null
-    : null;
-  const privateCustomSideQuests = getCustomSideQuests(privateMetadata);
-  const customSideQuests = privateCustomSideQuests.length ? privateCustomSideQuests : getCustomSideQuests(metadata);
-  const client = user ? await clerkClient() : null;
-  const needsCommunityActiveQuest = Boolean(
-    activeChallenge?.id
-      && !activeOfficialChallenge
-      && !customSideQuests.some((quest) => quest.id === activeChallenge.id),
-  );
-  const communitySideQuests = user && client && needsCommunityActiveQuest
-    ? await loadOptionalCommunityTrophyQuests(() => listPublicCommunitySideQuests(client, {
-        limit: null,
-        viewerUserId: user.id,
-        maxPages: 10,
-      }))
-    : [];
-  const activeSoloQuest = resolveHomeActiveSoloQuest(activeChallenge?.id, customSideQuests, communitySideQuests, activeChallenge?.customQuestSnapshot);
-  const activeChallengeAttempt = activeChallenge?.id ? getLatestChallengeAttempt(metadata, activeChallenge.id) : null;
-  const activeChallengeSummary = buildAttemptSummary(activeChallengeAttempt);
-  const progress = getChallengeProgress(metadata);
-  const activeChallengeCompleted = Boolean(activeSoloQuest && progress.completedChallengeIds.includes(activeSoloQuest.id));
-  const activeChallengePassedAttempt = activeChallenge?.id ? getLatestPassedChallengeAttempt(metadata, activeChallenge.id) : null;
-  const activeCustomQuest = activeChallenge?.id && !activeOfficialChallenge
-    ? customSideQuests.find((quest) => quest.id === activeChallenge.id)
-      ?? communitySideQuests.find((quest) => quest.id === activeChallenge.id)
-      ?? null
-    : null;
-  const proofReceiptCount = getChallengeAttempts(metadata).length;
-  const displayName = user
-    ? getPreferredRunnerName(metadata, {
-        firstName: user.firstName,
-        lastName: user.lastName,
-        username: user.username,
-        emailAddress: user.primaryEmailAddress?.emailAddress,
-      }) || "Side Quest Chess"
-    : null;
-  const activeChallengeProofPath = await buildHomeActiveSoloProofPath({
-    completed: activeChallengeCompleted,
-    officialChallenge: activeOfficialChallenge,
-    customQuest: activeCustomQuest,
-    attempt: activeChallengePassedAttempt,
-    runnerName: displayName ?? undefined,
-  });
-  const [trophyRows, relatedGroupQuests] = user && client
-    ? await Promise.all([
-        loadHomeTrophyRows(client, user.id, progress.completedChallengeIds),
-        listUserRelatedGroupQuests(client, user.id),
-      ])
-    : [[], []];
-  const activeMultiplayerRows = user ? buildActiveMultiplayerHomeRows(relatedGroupQuests, user.id) : [];
+export const metadata: Metadata = {
+  title: "Side Quest Chess — Coming soon",
+  description: "Ordinary chess ends here. Side Quest Chess is opening soon.",
+  alternates: { canonical: "/" },
+  openGraph: {
+    title: "Side Quest Chess — Coming soon",
+    description: "Ordinary chess ends here. Side Quest Chess is opening soon.",
+    url: "/",
+    siteName: "Side Quest Chess",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Side Quest Chess — Coming soon",
+    description: "Ordinary chess ends here. Side Quest Chess is opening soon.",
+  },
+};
 
+export default function Home() {
   return (
-    <MobileAppWebShell
-      activeTab="home"
-      signedIn={Boolean(user)}
-      displayName={displayName}
-      profileImageUrl={user?.imageUrl ?? null}
-      lichessUsername={getLichessUsername(metadata)}
-      chessComUsername={getChessComUsername(metadata)}
-      activeSolo={activeSoloQuest ? {
-        id: activeSoloQuest.id,
-        source: activeSoloQuest.source,
-        href: activeSoloQuest.href,
-        title: activeSoloQuest.title,
-        objective: activeSoloQuest.objective,
-        instruction: activeSoloQuest.instruction,
-        badgeImage: activeSoloQuest.badgeImage,
-        glowImage: activeSoloQuest.source === "official" ? getChallengeGlowPath(activeSoloQuest.id) : null,
-        theme: getMobileWebTheme(activeSoloQuest.badgeColors),
-        pickedAt: activeChallenge?.startedAt ?? null,
-        verifiedAt: activeChallenge?.verifiedAt ?? null,
-        completed: activeChallengeCompleted,
-        proofHref: activeChallengeProofPath,
-        latestAttempt: activeChallengeAttempt ? {
-          status: activeChallengeAttempt.status ?? null,
-          checkedAt: activeChallengeAttempt.checkedAt ?? null,
-          finalPositionFen: activeChallengeAttempt.finalPositionFen ?? null,
-          lastMoveUci: activeChallengeAttempt.lastMoveUci ?? null,
-          lastMoveSan: activeChallengeAttempt.lastMoveSan ?? null,
-          playerColor: activeChallengeAttempt.failureDiagnostic?.playerColor ?? activeChallengeAttempt.playerColor ?? null,
-          failureFen: activeChallengeAttempt.failureDiagnostic?.fenAtBreak ?? null,
-          failureUci: activeChallengeAttempt.failureDiagnostic?.uci ?? null,
-          summary: activeChallengeAttempt.summary ?? activeChallengeSummary.detail,
-          headline: activeChallengeSummary.headline,
-        } : null,
-      } : null}
-      activeMultiplayerRows={activeMultiplayerRows}
-      trophyRows={trophyRows}
-      completedSoloCount={progress.totalCompletedChallenges}
-      proofReceiptCount={proofReceiptCount}
-    />
+    <main className={styles.page}>
+      <div className={styles.grid} aria-hidden="true" />
+      <div className={styles.glow} aria-hidden="true" />
+
+      <header className={styles.header}>
+        <Link className={styles.brand} href="/" aria-label="Side Quest Chess home">
+          <span className={styles.brandMark} aria-hidden="true">♞</span>
+          <span>Side Quest Chess</span>
+        </Link>
+        <span className={styles.status}>Coming soon</span>
+      </header>
+
+      <section className={styles.hero} aria-labelledby="coming-soon-title">
+        <div className={styles.copy}>
+          <p className={styles.eyebrow}>A new kind of chess challenge</p>
+          <h1 id="coming-soon-title">
+            Every game deserves
+            <span>a side quest.</span>
+          </h1>
+          <p className={styles.lede}>
+            Turn ordinary chess games into ridiculous missions worth remembering.
+            Pick the quest. Play the game. Bring proof.
+          </p>
+          <div className={styles.note}>
+            <span aria-hidden="true" />
+            The first quests are being prepared
+          </div>
+        </div>
+
+        <div className={styles.crestStage}>
+          <div className={styles.crestHalo} aria-hidden="true" />
+          <Image
+            className={styles.crest}
+            src="/mobile-source/sqc-coat-of-arms.png"
+            alt="Side Quest Chess coat of arms"
+            width={1280}
+            height={1280}
+            priority
+            sizes="(max-width: 760px) 76vw, 48vw"
+          />
+        </div>
+      </section>
+
+      <footer className={styles.footer}>
+        <span>© Crowdler AB</span>
+        <nav aria-label="Legal and support">
+          <Link href="/privacy">Privacy</Link>
+          <Link href="/support">Support</Link>
+        </nav>
+      </footer>
+    </main>
   );
 }
