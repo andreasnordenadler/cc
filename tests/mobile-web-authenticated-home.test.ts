@@ -325,12 +325,16 @@ test("authenticated Home tolerates a malformed legacy Custom summary", () => {
   assert.equal(resolved?.objective, "Complete your custom Side Quest rule in a fresh public game.");
 });
 
-test("public Home is decoupled from authenticated quest data while the app Home components remain testable", async () => {
+test("Home page feeds authenticated Custom and Community records into active Solo resolution", async () => {
   const source = await readFile(new URL("../src/app/page.tsx", import.meta.url), "utf8");
 
-  assert.match(source, /Side Quest Chess — Coming soon/);
-  assert.match(source, /Every game deserves/);
-  assert.doesNotMatch(source, /getCustomSideQuests|listPublicCommunitySideQuests|resolveHomeActiveSoloQuest|activeSolo=/);
+  assert.match(source, /getCustomSideQuests\(privateMetadata\)/);
+  assert.match(source, /listPublicCommunitySideQuests\([\s\S]*maxPages:\s*10/);
+  assert.match(source, /resolveHomeActiveSoloQuest\(activeChallenge\?\.id, customSideQuests, communitySideQuests, activeChallenge\?\.customQuestSnapshot\)/);
+  assert.match(source, /activeSolo=\{activeSoloQuest \? \{/);
+  assert.match(source, /href:\s*activeSoloQuest\.href/);
+  assert.match(source, /title:\s*activeSoloQuest\.title/);
+  assert.match(source, /objective:\s*activeSoloQuest\.objective/);
 });
 
 test("authenticated Home keeps Active Solo compact with one refresh control and one catalog action", () => {
