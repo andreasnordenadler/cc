@@ -8,6 +8,7 @@ import MobileAppWebShell, { MiniChessBoard } from "@/components/mobile-app-web-s
 import CompletedOfficialSoloControls from "@/components/completed-official-solo-controls";
 import DeactivateQuestControl from "@/components/deactivate-quest-control";
 import DesktopOfficialQuestBriefing from "@/components/desktop-official-quest-briefing";
+import DesktopOfficialQuestNavigator from "@/components/desktop-official-quest-navigator";
 import { MobileWebRelativeTime } from "@/components/mobile-web-relative-time";
 import OfficialSoloDetailActions from "@/components/official-solo-detail-actions";
 import OfficialSoloLikeControl from "@/components/official-solo-like-control";
@@ -123,6 +124,7 @@ export default async function ChallengeDetailPage({
       chessComUsername={getChessComUsername(metadata)}
     >
       <div className={isActiveChallenge ? "sqc-stack sqc-active-solo-detail-screen" : "sqc-stack sqc-official-solo-detail-screen"}>
+        <DesktopOfficialQuestNavigator challenges={CHALLENGES} currentId={challenge.id} />
         {isActiveChallenge ? (
           <section className="sqc-active-detail-hero">
             <SoloCoatLightbox
