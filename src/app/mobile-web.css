@@ -5187,6 +5187,14 @@ body::after {
   display: none;
 }
 
+.sqc-solo-browser {
+  display: contents;
+}
+
+.sqc-solo-difficulty-nav {
+  display: none;
+}
+
 .sqc-multiplayer-row-details {
   display: none;
 }
@@ -6102,9 +6110,67 @@ body::after {
     letter-spacing: -.025em;
   }
 
+  .sqc-mobile-web.desktop-solo-discovery .sqc-solo-browser {
+    display: grid;
+    grid-template-columns: 160px minmax(0, 1fr);
+    align-items: start;
+    gap: 24px;
+  }
+
+  .sqc-mobile-web.desktop-solo-discovery .sqc-solo-difficulty-nav {
+    display: grid;
+    position: sticky;
+    top: 104px;
+    gap: 6px;
+    padding: 16px;
+    border: 1px solid rgba(255, 247, 232, .1);
+    border-radius: 20px;
+    background: rgba(8, 7, 8, .72);
+    box-shadow: 0 18px 40px rgba(0, 0, 0, .16);
+  }
+
+  .sqc-mobile-web.desktop-solo-discovery .sqc-solo-difficulty-nav > span {
+    padding: 0 10px 8px;
+    color: rgba(245, 200, 106, .72);
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: .13em;
+    text-transform: uppercase;
+  }
+
+  .sqc-mobile-web.desktop-solo-discovery .sqc-solo-difficulty-link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 40px;
+    padding: 0 10px;
+    border-radius: 12px;
+    color: rgba(255, 247, 232, .78);
+    font-size: 13px;
+    font-weight: 780;
+    text-decoration: none;
+    transition: color .16s ease, background .16s ease, transform .16s ease;
+  }
+
+  .sqc-mobile-web.desktop-solo-discovery .sqc-solo-difficulty-link small {
+    color: rgba(255, 247, 232, .42);
+    font-size: 11px;
+  }
+
+  .sqc-mobile-web.desktop-solo-discovery .sqc-solo-difficulty-link:hover {
+    color: var(--gold);
+    background: rgba(245, 200, 106, .09);
+    transform: translateX(2px);
+  }
+
+  .sqc-mobile-web.desktop-solo-discovery .sqc-solo-difficulty-link:focus-visible {
+    outline: 3px solid rgba(245, 200, 106, .9);
+    outline-offset: 2px;
+  }
+
   .sqc-mobile-web.desktop-solo-discovery .sqc-catalog {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 28px;
     overflow: visible;
     border: 0;
@@ -6112,8 +6178,12 @@ body::after {
     background: transparent;
   }
 
+  .sqc-mobile-web.desktop-solo-discovery .sqc-solo-browser > .sqc-catalog {
+    grid-column: 2;
+  }
+
   .sqc-mobile-web.desktop-solo-discovery .sqc-solo-difficulty-shelf {
-    grid-template-columns: 90px minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr);
     grid-column: 1 / -1;
     display: grid;
     align-items: start;
@@ -6126,9 +6196,11 @@ body::after {
   }
 
   .sqc-mobile-web.desktop-solo-discovery .sqc-solo-difficulty-heading {
-    display: grid;
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
     gap: 6px;
-    padding-top: 18px;
+    padding: 2px 2px 0;
   }
 
   .sqc-mobile-web.desktop-solo-discovery .sqc-solo-difficulty-heading h3 {
@@ -6137,6 +6209,7 @@ body::after {
     font-family: ui-serif, Georgia, Cambria, "Times New Roman", serif;
     font-size: 21px;
     letter-spacing: -.02em;
+    scroll-margin-top: 104px;
   }
 
   .sqc-mobile-web.desktop-solo-discovery .sqc-solo-difficulty-heading h3::before {
@@ -6153,9 +6226,9 @@ body::after {
   }
 
   .sqc-mobile-web.desktop-solo-discovery .sqc-solo-difficulty-grid {
-    grid-column: 2;
+    grid-column: 1;
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 14px;
   }
 
@@ -9366,7 +9439,7 @@ body::after {
   }
 
   .sqc-mobile-web.desktop-solo-discovery .sqc-solo-difficulty-grid {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
   .sqc-mobile-web.desktop-community-discovery .sqc-catalog {
@@ -9427,6 +9500,11 @@ body::after {
   }
 
   .sqc-mobile-web.desktop-support .sqc-support-row {
+    transition: none !important;
+    transform: none !important;
+  }
+
+  .sqc-mobile-web.desktop-solo-discovery .sqc-solo-difficulty-link {
     transition: none !important;
     transform: none !important;
   }

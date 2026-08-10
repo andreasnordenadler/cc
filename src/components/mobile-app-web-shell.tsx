@@ -849,41 +849,52 @@ export function MobileSoloSideQuestsScreen({
           <h2>Official Side Quests</h2>
           <span>{sortedChallenges.length} official</span>
         </div>
-        <div className="sqc-catalog">
-          {difficultyShelves.map((shelf) => (
-            <div className="sqc-solo-difficulty-shelf" key={shelf.difficulty}>
-              <header className="sqc-solo-difficulty-heading">
-                <h3
-                  id={`solo-difficulty-${shelf.difficulty.toLowerCase()}`}
-                  aria-label={shelf.difficulty}
-                  data-label={shelf.difficulty}
-                />
-                <span>{shelf.challenges.length} {shelf.challenges.length === 1 ? "quest" : "quests"}</span>
-              </header>
-              <div className="sqc-solo-difficulty-grid">
-                {shelf.challenges.map((challenge) => (
-                  <AppRow
-                    key={challenge.id}
-                    title={challenge.title}
-                    meta={challenge.objective}
-                    desktopNote={challenge.openingHint}
-                    status={challenge.id === activeChallengeId ? "Active" : completedSet.has(challenge.id) ? "Completed" : challenge.difficulty}
-                    href={`/challenges/${challenge.id}`}
-                    image={toMobileAssetPath(challenge.badgeIdentity.image) ?? mobileAsset.fallbackBadge}
-                    glow={getChallengeGlowPath(challenge.id)}
-                    glowColor={challenge.badgeIdentity.colors.glow}
-                    likeSummary={likeSummaries?.[challenge.id]}
-                    likeAction={{
-                      signedIn,
-                      targetType: "solo",
-                      targetId: challenge.id,
-                      returnTo: "/side-quests",
-                    }}
+        <div className="sqc-solo-browser">
+          <nav className="sqc-solo-difficulty-nav" aria-label="Jump to quest difficulty">
+            <span>Difficulty</span>
+            {difficultyShelves.map((shelf) => (
+              <a className="sqc-solo-difficulty-link" href={`#solo-difficulty-${shelf.difficulty.toLowerCase()}`} key={shelf.difficulty}>
+                <span>{shelf.difficulty}</span>
+                <small>{shelf.challenges.length}</small>
+              </a>
+            ))}
+          </nav>
+          <div className="sqc-catalog">
+            {difficultyShelves.map((shelf) => (
+              <div className="sqc-solo-difficulty-shelf" key={shelf.difficulty}>
+                <header className="sqc-solo-difficulty-heading">
+                  <h3
+                    id={`solo-difficulty-${shelf.difficulty.toLowerCase()}`}
+                    aria-label={shelf.difficulty}
+                    data-label={shelf.difficulty}
                   />
-                ))}
+                  <span>{shelf.challenges.length} {shelf.challenges.length === 1 ? "quest" : "quests"}</span>
+                </header>
+                <div className="sqc-solo-difficulty-grid">
+                  {shelf.challenges.map((challenge) => (
+                    <AppRow
+                      key={challenge.id}
+                      title={challenge.title}
+                      meta={challenge.objective}
+                      desktopNote={challenge.openingHint}
+                      status={challenge.id === activeChallengeId ? "Active" : completedSet.has(challenge.id) ? "Completed" : challenge.difficulty}
+                      href={`/challenges/${challenge.id}`}
+                      image={toMobileAssetPath(challenge.badgeIdentity.image) ?? mobileAsset.fallbackBadge}
+                      glow={getChallengeGlowPath(challenge.id)}
+                      glowColor={challenge.badgeIdentity.colors.glow}
+                      likeSummary={likeSummaries?.[challenge.id]}
+                      likeAction={{
+                        signedIn,
+                        targetType: "solo",
+                        targetId: challenge.id,
+                        returnTo: "/side-quests",
+                      }}
+                    />
+                  ))}
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </section>
     </div>
