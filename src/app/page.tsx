@@ -13,11 +13,18 @@ export const metadata: Metadata = {
     url: "/",
     siteName: "Side Quest Chess",
     type: "website",
+    images: [{
+      url: "/coming-soon-opengraph-image",
+      width: 1200,
+      height: 630,
+      alt: "Side Quest Chess — Every game deserves a side quest. Coming soon.",
+    }],
   },
   twitter: {
     card: "summary_large_image",
     title: "Side Quest Chess — Coming soon",
     description: "Ordinary chess ends here. Side Quest Chess is opening soon.",
+    images: ["/coming-soon-opengraph-image"],
   },
 };
 
