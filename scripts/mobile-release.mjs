@@ -40,10 +40,10 @@ function run(command, commandArgs, options = {}) {
     stdio: "inherit",
     env: {
       ...process.env,
-      JAVA_HOME: process.env.JAVA_HOME ?? "/opt/homebrew/Cellar/openjdk@17/17.0.19/libexec/openjdk.jdk/Contents/Home",
+      JAVA_HOME: process.env.JAVA_HOME ?? "/opt/homebrew/opt/openjdk@17",
       ANDROID_HOME: process.env.ANDROID_HOME ?? "/opt/homebrew/share/android-commandlinetools",
       ANDROID_SDK_ROOT: process.env.ANDROID_SDK_ROOT ?? "/opt/homebrew/share/android-commandlinetools",
-      PATH: `${process.env.JAVA_HOME ?? "/opt/homebrew/Cellar/openjdk@17/17.0.19/libexec/openjdk.jdk/Contents/Home"}/bin:${process.env.ANDROID_HOME ?? "/opt/homebrew/share/android-commandlinetools"}/platform-tools:${process.env.ANDROID_HOME ?? "/opt/homebrew/share/android-commandlinetools"}/cmdline-tools/latest/bin:${process.env.PATH}`,
+      PATH: `${process.env.JAVA_HOME ?? "/opt/homebrew/opt/openjdk@17"}/bin:${process.env.ANDROID_HOME ?? "/opt/homebrew/share/android-commandlinetools"}/platform-tools:${process.env.ANDROID_HOME ?? "/opt/homebrew/share/android-commandlinetools"}/cmdline-tools/latest/bin:${process.env.PATH}`,
     },
   });
   if (result.status !== 0) {
@@ -57,10 +57,10 @@ function capture(command, commandArgs, options = {}) {
     encoding: "utf8",
     env: {
       ...process.env,
-      JAVA_HOME: process.env.JAVA_HOME ?? "/opt/homebrew/Cellar/openjdk@17/17.0.19/libexec/openjdk.jdk/Contents/Home",
+      JAVA_HOME: process.env.JAVA_HOME ?? "/opt/homebrew/opt/openjdk@17",
       ANDROID_HOME: process.env.ANDROID_HOME ?? "/opt/homebrew/share/android-commandlinetools",
       ANDROID_SDK_ROOT: process.env.ANDROID_SDK_ROOT ?? "/opt/homebrew/share/android-commandlinetools",
-      PATH: `${process.env.JAVA_HOME ?? "/opt/homebrew/Cellar/openjdk@17/17.0.19/libexec/openjdk.jdk/Contents/Home"}/bin:${process.env.ANDROID_HOME ?? "/opt/homebrew/share/android-commandlinetools"}/platform-tools:${process.env.ANDROID_HOME ?? "/opt/homebrew/share/android-commandlinetools"}/cmdline-tools/latest/bin:${process.env.PATH}`,
+      PATH: `${process.env.JAVA_HOME ?? "/opt/homebrew/opt/openjdk@17"}/bin:${process.env.ANDROID_HOME ?? "/opt/homebrew/share/android-commandlinetools"}/platform-tools:${process.env.ANDROID_HOME ?? "/opt/homebrew/share/android-commandlinetools"}/cmdline-tools/latest/bin:${process.env.PATH}`,
     },
   }).trim();
 }
