@@ -353,6 +353,33 @@ test("signed-out support clearly requires an account before messaging", async ({
   await expect(report.getByRole("button", { name: "Send support message" })).toHaveCount(0);
 });
 
+test("desktop Support overview clears the complete sticky account workspace", async ({ page }) => {
+  for (const viewport of [{ width: 1440, height: 900 }, { width: 1920, height: 1080 }]) {
+    await page.setViewportSize(viewport);
+    await expectHealthyNavigation(page, "/support");
+    await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+
+    const geometry = await page.evaluate(() => {
+      const workspace = document.querySelector<HTMLElement>(".sqc-desktop-route-only");
+      const overview = document.querySelector<HTMLElement>(".sqc-support-overview");
+      if (!workspace || !overview) return null;
+      const workspaceRect = workspace.getBoundingClientRect();
+      const overviewRect = overview.getBoundingClientRect();
+      return {
+        workspaceBottom: workspaceRect.bottom,
+        overviewTop: overviewRect.top,
+        workspaceBackground: getComputedStyle(workspace).backgroundImage,
+        overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+      };
+    });
+
+    expect(geometry).not.toBeNull();
+    expect(geometry!.workspaceBackground).not.toBe("none");
+    expect(geometry!.overviewTop).toBeGreaterThanOrEqual(geometry!.workspaceBottom + 24);
+    expect(geometry!.overflow).toBe(0);
+  }
+});
+
 test("account authentication uses a desktop workspace without duplicating the Clerk form", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await expectHealthyNavigation(page, "/sign-in");
