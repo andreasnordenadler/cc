@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import test from "node:test";
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
@@ -38,4 +39,30 @@ test("desktop quest briefing renders only for an incomplete quest that is not ac
   assert.equal(active, "");
   assert.equal(completed, "");
   assert.equal(activeAndCompleted, "");
+});
+
+test("desktop available quest puts the primary decision before supporting briefing", () => {
+  const css = readFileSync("src/app/mobile-web.css", "utf8");
+  const page = readFileSync("src/app/challenges/[id]/page.tsx", "utf8");
+  const sectionStart = css.indexOf("/* Official detail keeps the Android content");
+  const sectionEnd = css.indexOf("/* Community detail retains one parity-backed content/action subtree");
+
+  assert.notEqual(sectionStart, -1);
+  assert.notEqual(sectionEnd, -1);
+  assert.ok(sectionEnd > sectionStart);
+
+  const desktopOfficialDetail = css.slice(sectionStart, sectionEnd);
+  const availableCardStart = page.indexOf('className="sqc-native-card sqc-proof-action-card sqc-official-available-action-card"');
+  const availableCardEnd = page.indexOf("</section>", availableCardStart);
+  const availableCard = page.slice(availableCardStart, availableCardEnd);
+  const actionsIndex = availableCard.indexOf('className="sqc-action-pair one-or-two"');
+  const briefingIndex = availableCard.indexOf("<DesktopOfficialQuestBriefing");
+
+  assert.notEqual(availableCardStart, -1);
+  assert.notEqual(actionsIndex, -1);
+  assert.notEqual(briefingIndex, -1);
+  assert.ok(actionsIndex < briefingIndex);
+  assert.match(desktopOfficialDetail, /\.sqc-official-available-action-card\s*>\s*\.sqc-action-pair\s*\{[^}]*grid-template-columns:\s*repeat\(2,\s*minmax\(0,\s*1fr\)\);/);
+  assert.doesNotMatch(desktopOfficialDetail, /\.sqc-proof-action-card\s*>\s*:(?:is\()?\.sqc-card-eyebrow/);
+  assert.doesNotMatch(desktopOfficialDetail, /grid-template-areas:\s*"eyebrow"/);
 });
