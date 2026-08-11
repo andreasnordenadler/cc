@@ -75,11 +75,11 @@ export function SettingsEditor({
           </label>
           <label className="sqc-form-row">
             <span>Lichess username</span>
-            <input name="lichessUsername" defaultValue={lichessUsername} autoCapitalize="none" autoCorrect="off" />
+            <input id="lichess-username" name="lichessUsername" defaultValue={lichessUsername} autoCapitalize="none" autoCorrect="off" />
           </label>
           <label className="sqc-form-row">
             <span>Chess.com username</span>
-            <input name="chessComUsername" defaultValue={chessComUsername} autoCapitalize="none" autoCorrect="off" placeholder="optional" />
+            <input id="chesscom-username" name="chessComUsername" defaultValue={chessComUsername} autoCapitalize="none" autoCorrect="off" placeholder="optional" />
           </label>
         </div>
         <button className="sqc-primary-action" type="submit">Save usernames</button>

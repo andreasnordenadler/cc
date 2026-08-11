@@ -201,8 +201,8 @@ function SignedInAccountScreen({
             : "Add a public chess username before checking Side Quest proof."}
         </p>
         <div className="sqc-readiness-row">
-          <ReadinessChip label="Lichess" value={lichessUsername} href="#lichess-username" />
-          <ReadinessChip label="Chess.com" value={chessComUsername} href="#chesscom-username" />
+          <ReadinessChip label="Lichess" value={lichessUsername} href="/settings#lichess-username" />
+          <ReadinessChip label="Chess.com" value={chessComUsername} href="/settings#chesscom-username" />
         </div>
       </section>
 

@@ -4695,6 +4695,10 @@ body::after {
   display: none;
 }
 
+:is(#lichess-username, #chesscom-username) {
+  scroll-margin-top: 90px;
+}
+
 .sqc-username-editor-card {
   display: grid;
   gap: 6px;
@@ -9098,22 +9102,11 @@ body::after {
   .sqc-mobile-web.desktop-account .sqc-account-strength { grid-column: 1 / span 7; }
   .sqc-mobile-web.desktop-account .sqc-account-strength .sqc-rating-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .sqc-mobile-web.desktop-account .sqc-account-trophies { grid-column: 8 / -1; }
-  .sqc-mobile-web.desktop-account .sqc-account-profile-editor { grid-column: 1 / span 7; }
-
-  .sqc-mobile-web.desktop-account .sqc-account-profile-editor .sqc-username-editor-card {
-    gap: 14px;
-    padding: 24px;
-  }
-
-  .sqc-mobile-web.desktop-account .sqc-account-profile-editor .sqc-input-stack {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 12px;
-  }
-
-  .sqc-mobile-web.desktop-account .sqc-account-support { grid-column: 8 / -1; }
+  .sqc-mobile-web.desktop-account .sqc-account-profile-editor { display: none; }
+  .sqc-mobile-web.desktop-account .sqc-account-support { grid-column: 1 / span 5; }
 
   .sqc-mobile-web.desktop-account .sqc-account-security {
-    grid-column: 1 / -1;
+    grid-column: 6 / -1;
     display: grid;
     grid-template-columns: minmax(0, 1fr) 180px;
     align-items: end;
@@ -9153,6 +9146,10 @@ body::after {
     width: min(1240px, calc(100% - 64px));
     margin: 0 auto;
     padding: 56px 0 92px;
+  }
+
+  .sqc-mobile-web.desktop-settings :is(#lichess-username, #chesscom-username) {
+    scroll-margin-top: 156px;
   }
 
   .sqc-mobile-web.desktop-settings .sqc-desktop-settings-context { display: grid; }

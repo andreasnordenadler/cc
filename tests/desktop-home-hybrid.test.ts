@@ -1113,6 +1113,32 @@ test("Account becomes one desktop command center while preserving the mobile acc
   assert.equal(css.replace(desktopMedia, "").replace(reducedMotion, "").includes(".sqc-mobile-web.desktop-account"), false, "desktop Account rules must not leak below 1180px");
 });
 
+test("desktop Account keeps overview work separate from the dedicated profile workspace", () => {
+  const css = readFileSync("src/app/mobile-web.css", "utf8");
+  const route = readFileSync("src/app/account/page.tsx", "utf8");
+  const settings = readFileSync("src/app/settings/page.tsx", "utf8");
+  const desktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1180px)"));
+
+  assert.match(route, /href="\/settings#lichess-username"/);
+  assert.match(route, /href="\/settings#chesscom-username"/);
+  assert.match(settings, /id="lichess-username"/);
+  assert.match(settings, /id="chesscom-username"/);
+  assert.match(
+    desktopMedia,
+    /\.sqc-mobile-web\.desktop-account\s+\.sqc-account-profile-editor\s*\{[^}]*display:\s*none;/,
+    "desktop Overview delegates profile editing to the persistent Profile settings destination",
+  );
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-account\s+\.sqc-account-support\s*\{[^}]*grid-column:\s*1\s*\/\s*span\s*5;/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-account\s+\.sqc-account-security\s*\{[^}]*grid-column:\s*6\s*\/\s*-1;/);
+  assert.match(css, /:is\(#lichess-username,\s*#chesscom-username\)\s*\{[^}]*scroll-margin-top:\s*90px;/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-settings\s+:is\(#lichess-username,\s*#chesscom-username\)\s*\{[^}]*scroll-margin-top:\s*156px;/);
+  assert.doesNotMatch(
+    css.slice(0, css.indexOf("@media (min-width: 1180px)")),
+    /\.sqc-account-profile-editor\s*\{[^}]*display:\s*none;/,
+    "mobile Account keeps Android's inline profile editor",
+  );
+});
+
 test("signed-in desktop Account marks its sole persistent account action as current", () => {
   const html = renderToStaticMarkup(
     createElement(
