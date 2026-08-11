@@ -7743,6 +7743,16 @@ body::after {
     grid-column: 2;
   }
 
+  .sqc-mobile-web.desktop-community-detail .sqc-community-detail-hero .sqc-active-detail-title-row {
+    width: 100%;
+    max-width: 720px;
+    justify-content: space-between;
+  }
+
+  .sqc-mobile-web.desktop-community-detail .sqc-community-detail-hero .sqc-active-detail-title-row h1 {
+    min-width: 0;
+  }
+
   .sqc-mobile-web.desktop-community-detail .sqc-community-detail-hero h1 {
     max-width: 720px;
     font-family: ui-serif, Georgia, Cambria, "Times New Roman", serif;
