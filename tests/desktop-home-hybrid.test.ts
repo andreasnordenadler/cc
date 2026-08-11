@@ -1143,6 +1143,36 @@ test("signed-in Support and Settings do not mislabel the account action as the c
   }
 });
 
+test("desktop account surfaces share a persistent workspace navigator without duplicating mobile navigation", () => {
+  const css = readFileSync("src/app/mobile-web.css", "utf8");
+  const desktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1180px)"));
+  const surfaces = ["account", "settings", "support"] as const;
+
+  for (const desktopPresentation of surfaces) {
+    const html = renderToStaticMarkup(
+      createElement(
+        MobileAppWebShell,
+        { activeTab: "account", signedIn: true, displayName: "Sam", desktopPresentation },
+        createElement("p", null, `${desktopPresentation} workspace`),
+      ),
+    );
+
+    assert.equal(html.match(/aria-label="Account workspace"/g)?.length, 1);
+    for (const [label, href] of [["Overview", "/account"], ["Profile settings", "/settings"], ["Help &amp; Support", "/support"]]) {
+      assert.match(html, new RegExp(`href="${href}"[^>]*>${label}<`));
+    }
+    const currentHref = desktopPresentation === "account" ? "/account" : `/${desktopPresentation}`;
+    assert.match(html, new RegExp(`aria-current="page"[^>]*href="${currentHref}"|href="${currentHref}"[^>]*aria-current="page"`));
+  }
+
+  const unrelated = renderToStaticMarkup(
+    createElement(MobileAppWebShell, { activeTab: "sideQuests", signedIn: false, desktopPresentation: "solo-discovery" }, createElement("p", null, "Solo")),
+  );
+  assert.doesNotMatch(unrelated, /aria-label="Account workspace"/);
+  assert.match(css, /\.sqc-account-workspace-nav\s*\{\s*display:\s*none;/, "mobile keeps its established route navigation");
+  assert.match(desktopMedia, /\.sqc-mobile-web:is\(\.desktop-account,\s*\.desktop-settings,\s*\.desktop-support\)\s+\.sqc-account-workspace-nav\s*\{[^}]*display:\s*flex;/);
+});
+
 test("Help and Support uses persistent desktop navigation without duplicating its support content", () => {
   const html = renderToStaticMarkup(
     createElement(
