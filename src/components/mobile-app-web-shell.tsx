@@ -1423,6 +1423,17 @@ export function MobileCommunitySideQuestDetailScreen({
 
   return (
     <div className="sqc-stack sqc-community-detail-screen">
+      <nav className="sqc-community-detail-wayfinding" aria-label="Community Solo Side Quest navigation">
+        <Link href="/community-side-quests" className="sqc-community-detail-back">
+          <span aria-hidden="true">←</span>
+          All Community Side Quests
+        </Link>
+        <Link href={quest.creatorBrowsePath} className="sqc-community-detail-creator-link">
+          <span>More by</span>
+          <strong>{quest.creatorName}</strong>
+        </Link>
+      </nav>
+
       <section className="sqc-multiplayer-detail-hero sqc-community-detail-hero">
         <MobileAssetMark className="sqc-section-mark community" image={badge} glow={mobileAsset.coatGlow} size={118} glowSize={144} />
         <span className="sqc-detail-latest-check">{ownedByYou ? "Your Community Solo Side Quest" : "Community Solo Side Quest"}</span>
