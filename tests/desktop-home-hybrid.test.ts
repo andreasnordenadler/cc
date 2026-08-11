@@ -1173,6 +1173,22 @@ test("desktop account surfaces share a persistent workspace navigator without du
   assert.match(desktopMedia, /\.sqc-mobile-web:is\(\.desktop-account,\s*\.desktop-settings,\s*\.desktop-support\)\s+\.sqc-account-workspace-nav\s*\{[^}]*display:\s*flex;/);
 });
 
+test("desktop account workspace navigation clears the sticky Support overview", () => {
+  const css = readFileSync("src/app/mobile-web.css", "utf8");
+  const desktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1180px)"));
+
+  assert.match(
+    desktopMedia,
+    /\.sqc-mobile-web:is\(\.desktop-account,\s*\.desktop-settings,\s*\.desktop-support\)\s+\.sqc-desktop-route-only\s*\{[^}]*background:\s*linear-gradient/,
+    "the complete sticky navigation stack must remain visually opaque above scrolling content",
+  );
+  assert.match(
+    desktopMedia,
+    /\.sqc-mobile-web\.desktop-support\s+\.sqc-support-overview\s*\{[^}]*top:\s*156px;/,
+    "the Support overview must clear the 78px header, 48px workspace bar, and 30px breathing room",
+  );
+});
+
 test("Help and Support uses persistent desktop navigation without duplicating its support content", () => {
   const html = renderToStaticMarkup(
     createElement(

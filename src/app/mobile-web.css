@@ -5510,6 +5510,12 @@ body::after {
     background: #ffe29c;
   }
 
+  .sqc-mobile-web:is(.desktop-account, .desktop-settings, .desktop-support) .sqc-desktop-route-only {
+    background: linear-gradient(180deg, rgba(20, 14, 11, .98), rgba(14, 10, 9, .96));
+    box-shadow: 0 16px 40px rgba(0, 0, 0, .18);
+    backdrop-filter: blur(18px);
+  }
+
   .sqc-mobile-web:is(.desktop-account, .desktop-settings, .desktop-support) .sqc-account-workspace-nav {
     width: min(1240px, calc(100% - 56px));
     min-height: 48px;
@@ -9334,7 +9340,7 @@ body::after {
     grid-column: 1;
     grid-row: 1;
     position: sticky;
-    top: 108px;
+    top: 156px;
     display: grid;
     gap: 14px;
     padding: 26px;
