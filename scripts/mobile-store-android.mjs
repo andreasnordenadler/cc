@@ -14,7 +14,7 @@ const artifactDir = path.join(repoRoot, "artifacts/mobile-store");
 
 const androidEnv = {
   ...process.env,
-  JAVA_HOME: process.env.JAVA_HOME ?? "/opt/homebrew/Cellar/openjdk@17/17.0.19/libexec/openjdk.jdk/Contents/Home",
+  JAVA_HOME: process.env.JAVA_HOME ?? "/opt/homebrew/opt/openjdk@17",
   ANDROID_HOME: process.env.ANDROID_HOME ?? "/opt/homebrew/share/android-commandlinetools",
   ANDROID_SDK_ROOT: process.env.ANDROID_SDK_ROOT ?? "/opt/homebrew/share/android-commandlinetools",
 };

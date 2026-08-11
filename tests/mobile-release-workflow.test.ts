@@ -60,6 +60,18 @@ test("mobile release audit patches available fixes and narrowly accepts only Met
   assert.doesNotMatch(releaseScript, /--ignore/);
 });
 
+test("Android release entry points use the stable Homebrew Java 17 symlink", () => {
+  for (const script of [
+    "scripts/mobile-release.mjs",
+    "scripts/mobile-store-android.mjs",
+    "scripts/check-mobile-release-candidate.mjs",
+  ]) {
+    const source = readRepoFile(script);
+    assert.match(source, /\/opt\/homebrew\/opt\/openjdk@17/);
+    assert.doesNotMatch(source, /\/opt\/homebrew\/Cellar\/openjdk@17\/[^"']+/);
+  }
+});
+
 test("Android signing stays fail-closed for direct and umbrella artifact tasks without blocking release lint", () => {
   const source = readRepoFile("apps/mobile/android/app/build.gradle");
 
