@@ -799,7 +799,7 @@ test("official Solo detail groups its share and start controls in one contextual
   const rail = source.match(/<aside className="sqc-quest-command-rail"[^>]*>([\s\S]*?)<\/aside>/)?.[1] ?? "";
 
   assert.match(rail, /<OfficialSoloShareControls id=\{challenge\.id\} title=\{challenge\.title\} \/>/);
-  assert.match(rail, /<section className="sqc-native-card sqc-proof-action-card">/);
+  assert.match(rail, /<section className="sqc-native-card sqc-proof-action-card sqc-official-available-action-card">/);
   assert.match(rail, /\{!isActiveChallenge && completed && user \? \([\s\S]*?<CompletedOfficialSoloControls challenge=\{challenge\} proofPath=\{completedProofPath\} \/>[\s\S]*?\) : null\}/);
   assert.ok(rail.indexOf("OfficialSoloShareControls") < rail.indexOf("sqc-proof-action-card"));
   assert.match(source, /\{isActiveChallenge && completed && user \? \([\s\S]*?<CompletedOfficialSoloControls challenge=\{challenge\} proofPath=\{completedProofPath\} \/>[\s\S]*?\) : null\}/);
