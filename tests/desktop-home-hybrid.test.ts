@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import MobileAppWebShell, { desktopHomeMenuItems, mobileWebMenuItems, MobileCommunitySideQuestsScreen, MobileCreateCustomScreen, MobileCreateMultiplayerScreen, MobileCustomSideQuestsScreen, MobileMultiplayerDetailScreen, MobileMultiplayerSideQuestsScreen, MobileSoloSideQuestsScreen, MobileSupportScreen, MobileTrophyCabinetScreen } from "../src/components/mobile-app-web-shell";
+import MobileAppWebShell, { desktopHomeMenuItems, mobileWebMenuItems, MobileCommunitySideQuestDetailScreen, MobileCommunitySideQuestsScreen, MobileCreateCustomScreen, MobileCreateMultiplayerScreen, MobileCustomSideQuestsScreen, MobileMultiplayerDetailScreen, MobileMultiplayerSideQuestsScreen, MobileSoloSideQuestsScreen, MobileSupportScreen, MobileTrophyCabinetScreen } from "../src/components/mobile-app-web-shell";
 import type { CommunitySoloCatalogClientRow } from "../src/components/catalog-clients";
 import DesktopHomeMenu from "../src/components/desktop-home-menu";
 import { CHALLENGES } from "../src/lib/challenges";
@@ -849,6 +849,44 @@ test("Community Solo detail opts into persistent desktop navigation without dupl
   assert.equal(html.match(/>Share public link<\/button>/g)?.length, 1, "desktop and mobile share one action subtree");
 });
 
+test("Community Solo detail offers desktop contextual wayfinding before the quest hero", () => {
+  const html = renderToStaticMarkup(
+    createElement(MobileCommunitySideQuestDetailScreen, {
+      quest: {
+        id: "community-quest",
+        title: "Castle? Never Heard Of It",
+        summary: "Finish a game without castling.",
+        creatorName: "Nora Skewer",
+        creatorBrowsePath: "/community-side-quests?creator=nora-skewer#creator-nora-skewer",
+        ruleLabel: "No castling",
+        ruleDetails: ["Finish without castling."],
+        stats: {
+          soloAttempts: 0,
+          soloSelections: 0,
+          soloCompletions: 0,
+          multiplayerLineups: 0,
+          multiplayerAttempts: 0,
+          multiplayerFulfillments: 0,
+        },
+      },
+      signedIn: false,
+    }),
+  );
+  const css = readFileSync("src/app/mobile-web.css", "utf8");
+  const mobileCss = css.slice(0, css.indexOf("@media (min-width: 1180px)"));
+  const desktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1180px)"));
+
+  assert.match(html, /<nav class="sqc-community-detail-wayfinding" aria-label="Community Solo Side Quest navigation">/);
+  assert.ok(html.indexOf("sqc-community-detail-wayfinding") < html.indexOf("sqc-community-detail-hero"), "contextual navigation precedes the hero in reading and focus order");
+  assert.match(html, /href="\/community-side-quests"><span aria-hidden="true">←<\/span>All Community Side Quests<\/a>/);
+  assert.match(html, /href="\/community-side-quests\?creator=nora-skewer#creator-nora-skewer"><span>More by<\/span><strong>Nora Skewer<\/strong><\/a>/);
+  assert.match(mobileCss, /\.sqc-community-detail-wayfinding\s*\{[^}]*display:\s*none;/, "mobile keeps its existing detail composition below the desktop media query");
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-community-detail\s+\.sqc-community-detail-wayfinding\s*\{[^}]*grid-column:\s*1\s*\/\s*-1;[^}]*display:\s*flex;/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-community-detail\s+\.sqc-community-detail-hero\s*\{[^}]*grid-row:\s*2;/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-community-detail\s+\.sqc-community-task-rail\s*\{[^}]*grid-row:\s*3\s*\/\s*span\s*4;/);
+  assert.match(css, /@media\s*\(prefers-reduced-motion:\s*reduce\)[\s\S]*?\.sqc-mobile-web\.desktop-community-detail\s+\.sqc-community-detail-wayfinding\s*>\s*a\s*\{[^}]*transition:\s*none\s*!important;[^}]*transform:\s*none\s*!important;/);
+});
+
 test("Community Solo detail becomes a wide reading workspace only at the desktop boundary", () => {
   const css = readFileSync("src/app/mobile-web.css", "utf8");
   const route = readFileSync("src/app/challenges/community/[id]/page.tsx", "utf8");
@@ -859,7 +897,7 @@ test("Community Solo detail becomes a wide reading workspace only at the desktop
   assert.match(css, /\.sqc-mobile-web\.desktop-community-detail\s+\.sqc-community-detail-hero\s*\{[^}]*grid-column:\s*1\s*\/\s*-1;/);
   assert.match(css, /\.sqc-mobile-web\.desktop-community-detail\s+\.sqc-community-detail-hero\s+\.sqc-active-detail-title-row\s*\{[^}]*width:\s*100%;[^}]*max-width:\s*720px;[^}]*justify-content:\s*space-between;/);
   assert.match(css, /\.sqc-mobile-web\.desktop-community-detail\s+\.sqc-community-detail-hero\s+\.sqc-active-detail-title-row\s+h1\s*\{[^}]*min-width:\s*0;/);
-  assert.match(css, /\.sqc-mobile-web\.desktop-community-detail\s+\.sqc-community-task-rail\s*\{[^}]*grid-column:\s*2;[^}]*grid-row:\s*2\s*\/\s*span\s*4;[^}]*position:\s*sticky;/);
+  assert.match(css, /\.sqc-mobile-web\.desktop-community-detail\s+\.sqc-community-task-rail\s*\{[^}]*grid-column:\s*2;[^}]*grid-row:\s*3\s*\/\s*span\s*4;[^}]*position:\s*sticky;/);
   assert.match(css, /\.sqc-mobile-web\.desktop-community-detail\s+\.sqc-multiplayer-score-grid\s*\{[^}]*grid-column:\s*1;/);
 });
 
