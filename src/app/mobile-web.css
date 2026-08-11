@@ -9658,7 +9658,7 @@ body::after {
     text-transform: uppercase;
   }
 
-  .sqc-mobile-web.desktop-trophy-cabinet .sqc-trophy-difficulty-index a {
+  .sqc-mobile-web.desktop-trophy-cabinet .sqc-trophy-difficulty-count {
     min-height: 44px;
     display: flex;
     align-items: center;
@@ -9670,13 +9670,6 @@ body::after {
     color: var(--paper);
     font-size: 13px;
     font-weight: 850;
-    text-decoration: none;
-    transition: border-color 160ms ease, background 160ms ease;
-  }
-
-  .sqc-mobile-web.desktop-trophy-cabinet .sqc-trophy-difficulty-index a:hover {
-    border-color: rgba(245, 200, 106, .34);
-    background: rgba(245, 200, 106, .08);
   }
 
   .sqc-mobile-web.desktop-trophy-cabinet .sqc-trophy-difficulty-index small {
@@ -10019,9 +10012,6 @@ body::after {
     transform: none !important;
   }
 
-  .sqc-mobile-web.desktop-trophy-cabinet .sqc-trophy-difficulty-index a {
-    transition: none !important;
-  }
 
   .sqc-mobile-web.desktop-account .sqc-account-row {
     transition: none !important;
