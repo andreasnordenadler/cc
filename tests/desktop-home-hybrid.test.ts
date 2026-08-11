@@ -650,7 +650,7 @@ test("Trophy Cabinet becomes one desktop collection workspace without duplicatin
   assert.equal(html.match(/href="\/side-quests"/g)?.length, 1, "signed-out cabinet keeps the persistent Solo discovery shortcut without a false empty-reward action");
 });
 
-test("Trophy Cabinet gives desktop collectors a difficulty index without duplicating coat destinations", () => {
+test("Trophy Cabinet gives desktop collectors a truthful difficulty key without fake collection navigation", () => {
   const html = renderToStaticMarkup(
     createElement(MobileTrophyCabinetScreen, {
       signedIn: false,
@@ -663,20 +663,20 @@ test("Trophy Cabinet gives desktop collectors a difficulty index without duplica
   );
   const css = readFileSync("src/app/mobile-web.css", "utf8");
   const desktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1180px)"));
-  const reducedMotion = readCssBlock(css, css.lastIndexOf("@media (prefers-reduced-motion: reduce)"));
 
   assert.match(html, /<div class="sqc-trophy-collection-workspace">/);
-  assert.match(html, /<nav class="sqc-trophy-difficulty-index" aria-label="Browse coats by difficulty">/);
+  assert.match(html, /<aside class="sqc-trophy-difficulty-index" aria-label="Coat difficulty counts">/);
+  assert.match(html, /<strong>Difficulty key<\/strong>/);
   for (const difficulty of ["Easy", "Medium", "Hard", "Brutal", "Absurd"]) {
     const count = CHALLENGES.filter((challenge) => challenge.difficulty === difficulty).length;
-    assert.match(html, new RegExp(`href="#trophy-difficulty-${difficulty.toLowerCase()}"[^>]*><span>${difficulty}<\\/span><small>${count}<\\/small>`));
+    assert.match(html, new RegExp(`<span class="sqc-trophy-difficulty-count"><span>${difficulty}<\\/span><small>${count}<\\/small><\\/span>`));
   }
-  assert.equal(html.match(/href="\/challenges\//g)?.length, CHALLENGES.length, "the index must not duplicate coat destinations");
+  assert.doesNotMatch(html, /href="#trophy-difficulty-|id="trophy-difficulty-/);
+  assert.equal(html.match(/href="\/challenges\//g)?.length, CHALLENGES.length, "the difficulty key must not duplicate coat destinations");
   assert.match(css, /\.sqc-trophy-difficulty-index\s*\{[^}]*display:\s*none;/, "mobile keeps the current coat grid without a desktop rail");
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-trophy-cabinet\s+\.sqc-trophy-collection-workspace\s*\{[^}]*grid-template-columns:\s*180px\s+minmax\(0,\s*1fr\);/);
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-trophy-cabinet\s+\.sqc-trophy-difficulty-index\s*\{[^}]*display:\s*grid;[^}]*position:\s*sticky;[^}]*top:\s*104px;/);
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-trophy-cabinet\s+\.sqc-coat-grid\s*\{[^}]*grid-template-columns:\s*repeat\(3,\s*minmax\(0,\s*1fr\)\);/);
-  assert.match(reducedMotion, /\.sqc-mobile-web\.desktop-trophy-cabinet\s+\.sqc-trophy-difficulty-index\s+a\s*\{[^}]*transition:\s*none\s*!important;/);
 });
 
 test("Trophy Cabinet keeps the mobile stack below 1180px and uses the desktop canvas at the boundary", () => {

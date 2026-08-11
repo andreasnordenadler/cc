@@ -1136,7 +1136,6 @@ export function MobileTrophyCabinetScreen({
   const difficultyIndex = (["Easy", "Medium", "Hard", "Brutal", "Absurd"] as const).map((difficulty) => ({
     difficulty,
     count: officialChallenges.filter((challenge) => challenge.difficulty === difficulty).length,
-    firstChallengeId: officialChallenges.find((challenge) => challenge.difficulty === difficulty)?.id ?? null,
   }));
 
   void _proofReceiptCount;
@@ -1222,23 +1221,21 @@ export function MobileTrophyCabinetScreen({
       </section>
 
       <div className="sqc-trophy-collection-workspace">
-        <nav className="sqc-trophy-difficulty-index" aria-label="Browse coats by difficulty">
-          <strong>Collection index</strong>
+        <aside className="sqc-trophy-difficulty-index" aria-label="Coat difficulty counts">
+          <strong>Difficulty key</strong>
           {difficultyIndex.map(({ difficulty, count }) => (
-            <a key={difficulty} href={`#trophy-difficulty-${difficulty.toLowerCase()}`}>
+            <span className="sqc-trophy-difficulty-count" key={difficulty}>
               <span>{difficulty}</span>
               <small>{count}</small>
-            </a>
+            </span>
           ))}
-        </nav>
+        </aside>
         <div className="sqc-coat-grid" aria-label="Official Solo Side Quest coat grid">
           {officialChallenges.map((challenge) => {
             const earned = earnedIds.has(challenge.id);
-            const isDifficultyStart = difficultyIndex.some(({ difficulty, firstChallengeId }) => difficulty === challenge.difficulty && firstChallengeId === challenge.id);
             return (
               <Link
                 key={challenge.id}
-                id={isDifficultyStart ? `trophy-difficulty-${challenge.difficulty.toLowerCase()}` : undefined}
                 href={`/challenges/${challenge.id}`}
                 className="sqc-coat-tile"
               >
