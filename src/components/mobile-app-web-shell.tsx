@@ -220,6 +220,7 @@ export default function MobileAppWebShell({
   } as CSSProperties;
 
   const showDesktopHome = activeTab === "home" && children == null && !modalPresentation && !immersivePresentation && !loadingPresentation;
+  const showDesktopAccountWorkspace = desktopPresentation === "account" || desktopPresentation === "settings" || desktopPresentation === "support";
 
   return (
     <main
@@ -244,6 +245,7 @@ export default function MobileAppWebShell({
             activeItemId={desktopPresentation === "custom-editor" ? "createCustom" : desktopPresentation === "multiplayer-create" ? "createMultiplayer" : desktopPresentation === "support" ? "support" : desktopPresentation.startsWith("custom-") ? "custom" : undefined}
             accountIsCurrent={desktopPresentation === "account"}
           />
+          {showDesktopAccountWorkspace ? <DesktopAccountWorkspaceNav current={desktopPresentation} /> : null}
         </div>
       ) : null}
 
@@ -385,6 +387,25 @@ function DesktopHomeHeader({ signedIn, displayName, activeTab, activeItemId, acc
         )}
       </header>
     </div>
+  );
+}
+
+const desktopAccountWorkspaceItems = [
+  { id: "account", label: "Overview", href: "/account" },
+  { id: "settings", label: "Profile settings", href: "/settings" },
+  { id: "support", label: "Help & Support", href: "/support" },
+] as const;
+
+function DesktopAccountWorkspaceNav({ current }: { current: "account" | "settings" | "support" }) {
+  return (
+    <nav className="sqc-account-workspace-nav" aria-label="Account workspace">
+      <span>Account workspace</span>
+      {desktopAccountWorkspaceItems.map((item) => (
+        <Link key={item.id} href={item.href} aria-current={item.id === current ? "page" : undefined}>
+          {item.label}
+        </Link>
+      ))}
+    </nav>
   );
 }
 
