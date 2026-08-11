@@ -288,12 +288,17 @@ test("Solo discovery groups the one shared catalog into desktop difficulty shelv
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-solo-discovery\s+\.sqc-solo-difficulty-grid\s*\{[^}]*grid-template-columns:\s*repeat\(2,\s*minmax\(0,\s*1fr\)\);/);
 });
 
-test("Solo discovery expands difficulty shelves to three readable columns on large desktops", () => {
+test("Solo discovery expands difficulty shelves to three denser readable columns on large desktops", () => {
   const css = readFileSync("src/app/mobile-web.css", "utf8");
   const wideDesktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1680px)"));
 
   assert.match(wideDesktopMedia, /\.sqc-mobile-web\.desktop-solo-discovery\s+\.sqc-screen\s*\{[^}]*width:\s*min\(1600px,\s*calc\(100%\s*-\s*80px\)\)/);
   assert.match(wideDesktopMedia, /\.sqc-mobile-web\.desktop-solo-discovery\s+\.sqc-solo-difficulty-grid\s*\{[^}]*grid-template-columns:\s*repeat\(3,\s*minmax\(0,\s*1fr\)\);/);
+  assert.match(
+    wideDesktopMedia,
+    /\.sqc-mobile-web\.desktop-solo-discovery\s+\.sqc-app-row\s*\{[^}]*min-height:\s*198px/,
+    "wide three-column cards should use desktop density instead of keeping the roomy two-column height",
+  );
 });
 
 test("desktop Solo cards expose Android opening hints and an explicit detail affordance without changing mobile rows", () => {

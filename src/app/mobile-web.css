@@ -10008,6 +10008,10 @@ body::after {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
+  .sqc-mobile-web.desktop-solo-discovery .sqc-app-row {
+    min-height: 198px;
+  }
+
   .sqc-mobile-web.desktop-community-discovery .sqc-catalog {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
