@@ -2,6 +2,7 @@ import MobileAppWebShell from "@/components/mobile-app-web-shell";
 import AccountLogoutButton from "@/components/account-logout-button";
 import DeleteAccountControl from "@/components/delete-account-control";
 import CurrentPageSignInLink from "@/components/current-page-sign-in-link";
+import AccountReadinessLink from "@/components/account-readiness-link";
 import { saveRunnerProfile } from "@/app/actions";
 import type { ActiveMultiplayerAccountSummary, MobileWebAccountStats, MobileWebTrophyRow } from "@/lib/mobile-web-trophies";
 import Image from "next/image";
@@ -201,8 +202,8 @@ function SignedInAccountScreen({
             : "Add a public chess username before checking Side Quest proof."}
         </p>
         <div className="sqc-readiness-row">
-          <ReadinessChip label="Lichess" value={lichessUsername} href="/settings#lichess-username" />
-          <ReadinessChip label="Chess.com" value={chessComUsername} href="/settings#chesscom-username" />
+          <AccountReadinessLink field="lichess-username" label="Lichess" value={lichessUsername} />
+          <AccountReadinessLink field="chesscom-username" label="Chess.com" value={chessComUsername} />
         </div>
       </section>
 
@@ -384,14 +385,6 @@ function AccountSection({ className, title, action, children }: { className?: st
   );
 }
 
-function ReadinessChip({ label, value, href }: { label: string; value: string; href: string }) {
-  return (
-    <Link href={href} className="sqc-readiness-chip">
-      <span>{label}</span>
-      <strong>{value || "Add"}</strong>
-    </Link>
-  );
-}
 
 export function AccountSoloRow({
   activeChallenge,
