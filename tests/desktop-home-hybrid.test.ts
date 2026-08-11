@@ -7,6 +7,7 @@ import MobileAppWebShell, { desktopHomeMenuItems, mobileWebMenuItems, MobileComm
 import type { CommunitySoloCatalogClientRow } from "../src/components/catalog-clients";
 import DesktopHomeMenu from "../src/components/desktop-home-menu";
 import { CHALLENGES } from "../src/lib/challenges";
+import { getAccountReadinessHref } from "../src/lib/account-readiness-navigation";
 
 type IsRequired<T, Key extends keyof T> = Record<Key, T[Key]> extends Pick<T, Key> ? true : false;
 type CommunityScreenRow = Parameters<typeof MobileCommunitySideQuestsScreen>[0]["rows"][number];
@@ -1113,14 +1114,23 @@ test("Account becomes one desktop command center while preserving the mobile acc
   assert.equal(css.replace(desktopMedia, "").replace(reducedMotion, "").includes(".sqc-mobile-web.desktop-account"), false, "desktop Account rules must not leak below 1180px");
 });
 
+test("Account readiness links preserve the inline mobile editor and use Settings on desktop", () => {
+  for (const field of ["lichess-username", "chesscom-username"] as const) {
+    assert.equal(getAccountReadinessHref(field, false), `#${field}`);
+    assert.equal(getAccountReadinessHref(field, true), `/settings#${field}`);
+  }
+});
+
 test("desktop Account keeps overview work separate from the dedicated profile workspace", () => {
   const css = readFileSync("src/app/mobile-web.css", "utf8");
   const route = readFileSync("src/app/account/page.tsx", "utf8");
   const settings = readFileSync("src/app/settings/page.tsx", "utf8");
+  const navigation = readFileSync("src/lib/account-readiness-navigation.ts", "utf8");
   const desktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1180px)"));
 
-  assert.match(route, /href="\/settings#lichess-username"/);
-  assert.match(route, /href="\/settings#chesscom-username"/);
+  assert.match(route, /field="lichess-username"/);
+  assert.match(route, /field="chesscom-username"/);
+  assert.match(navigation, /desktop\s*\?\s*`\/settings#\$\{field\}`\s*:\s*`#\$\{field\}`/);
   assert.match(settings, /id="lichess-username"/);
   assert.match(settings, /id="chesscom-username"/);
   assert.match(
