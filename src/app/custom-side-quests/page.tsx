@@ -67,7 +67,7 @@ export default async function CustomSideQuestsPage({ searchParams }: { searchPar
     >
       <MobileCustomSideQuestsScreen
         rows={customSideQuests}
-        localDrafts={<LocalCustomDraftLibrary />}
+        localDrafts={<LocalCustomDraftLibrary hasAccountQuests={customSideQuests.length > 0} />}
         successMessage={successMessage}
       />
     </MobileAppWebShell>

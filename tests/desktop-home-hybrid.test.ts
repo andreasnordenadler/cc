@@ -6,6 +6,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import MobileAppWebShell, { desktopHomeMenuItems, mobileWebMenuItems, MobileCommunitySideQuestDetailScreen, MobileCommunitySideQuestsScreen, MobileCreateCustomScreen, MobileCreateMultiplayerScreen, MobileCustomSideQuestsScreen, MobileMultiplayerDetailScreen, MobileMultiplayerSideQuestsScreen, MobileSoloSideQuestsScreen, MobileSupportScreen, MobileTrophyCabinetScreen } from "../src/components/mobile-app-web-shell";
 import type { CommunitySoloCatalogClientRow } from "../src/components/catalog-clients";
 import DesktopHomeMenu from "../src/components/desktop-home-menu";
+import { LocalCustomDraftList } from "../src/components/local-custom-draft-library";
 import { CHALLENGES } from "../src/lib/challenges";
 import { getAccountReadinessHref } from "../src/lib/account-readiness-navigation";
 
@@ -747,6 +748,41 @@ test("Custom library keeps the mobile composition below 1180px and exposes a des
   assert.match(css, /\.sqc-mobile-web\.desktop-custom-library\s+\.sqc-custom-library-screen\s*\{[^}]*grid-template-columns:\s*240px\s+minmax\(0,\s*1fr\);/);
   assert.match(css, /\.sqc-mobile-web\.desktop-custom-library\s+\.sqc-community-catalog-section\s*\{[^}]*grid-column:\s*2;/);
   assert.match(css, /\.sqc-mobile-web\.desktop-custom-library\s+\.sqc-catalog\s*\{[^}]*grid-template-columns:\s*repeat\(2,\s*minmax\(0,\s*1fr\)\);/);
+});
+
+test("empty Custom library explains the local workshop path without replacing the existing create destination", () => {
+  const html = renderToStaticMarkup(createElement(LocalCustomDraftList, { drafts: [] }));
+
+  assert.match(html, /class="sqc-local-custom-empty-copy"/);
+  assert.match(html, />No custom Side Quests yet\.<\/strong>/);
+  assert.match(html, />Create your own chess challenge and give it a Coat of Arms\.<\/small>/);
+  assert.match(html, /<ol class="sqc-local-custom-workflow" aria-label="Custom Side Quest workflow">/);
+  assert.match(html, />Shape the rule<\/strong>/);
+  assert.match(html, />Choose visibility later<\/strong>/);
+  assert.match(html, />Play Solo or host<\/strong>/);
+  assert.match(html, /class="sqc-local-custom-start" href="\/create-custom-side-quest">Create a private Side Quest<\/a>/);
+  assert.equal(html.match(/href="\/create-custom-side-quest"/g)?.length, 1);
+});
+
+test("empty browser drafts stay truthful when the signed-in account already has Custom Side Quests", () => {
+  const html = renderToStaticMarkup(createElement(LocalCustomDraftList, { drafts: [], hasAccountQuests: true }));
+
+  assert.match(html, />No local drafts yet\.<\/strong>/);
+  assert.match(html, />Build a Side Quest and save it in this browser\.<\/small>/);
+  assert.doesNotMatch(html, /No custom Side Quests yet/);
+  assert.doesNotMatch(html, /sqc-local-custom-workflow/);
+  assert.doesNotMatch(html, /href="\/create-custom-side-quest"/);
+});
+
+test("empty Custom library becomes a side-by-side desktop onboarding workspace only at 1180px", () => {
+  const css = readFileSync("src/app/mobile-web.css", "utf8");
+  const desktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1180px)"));
+
+  assert.match(css, /\.sqc-local-custom-workflow,\s*\.sqc-local-custom-start,\s*\.sqc-local-custom-empty-copy\s*>\s*span\s*\{[^}]*display:\s*none;/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-custom-library\s+\.sqc-local-custom-empty\s*\{[^}]*grid-template-columns:\s*260px\s+minmax\(0,\s*1fr\);/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-custom-library\s+\.sqc-local-custom-workflow\s*\{[^}]*display:\s*grid;[^}]*grid-template-columns:\s*repeat\(3,\s*minmax\(0,\s*1fr\)\);[^}]*grid-column:\s*2;[^}]*grid-row:\s*1\s*\/\s*span\s*2;/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-custom-library\s+\.sqc-local-custom-start\s*\{[^}]*display:\s*inline-flex;[^}]*grid-column:\s*1;/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-custom-library\s+\.sqc-local-custom-start:hover,[^}]*\.sqc-mobile-web\.desktop-custom-library\s+\.sqc-local-custom-start:focus-visible\s*\{[^}]*transform:\s*translateY\(-2px\);/);
 });
 
 test("official Solo detail becomes one desktop workspace without duplicating its actions", () => {

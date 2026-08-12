@@ -4,12 +4,32 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { getLocalCustomDraftEditHref, readLocalCustomDrafts, type LocalCustomDraft } from "@/lib/local-custom-drafts";
 
-export function LocalCustomDraftList({ drafts }: { drafts: LocalCustomDraft[] }) {
+export function LocalCustomDraftList({ drafts, hasAccountQuests = false }: { drafts: LocalCustomDraft[]; hasAccountQuests?: boolean }) {
+  if (!drafts.length && hasAccountQuests) {
+    return (
+      <div className="sqc-local-custom-empty">
+        <div className="sqc-local-custom-empty-copy">
+          <strong>No local drafts yet.</strong>
+          <small>Build a Side Quest and save it in this browser.</small>
+        </div>
+      </div>
+    );
+  }
+
   if (!drafts.length) {
     return (
       <div className="sqc-local-custom-empty">
-        <strong>No local drafts yet.</strong>
-        <small>Build a Side Quest and save it in this browser.</small>
+        <div className="sqc-local-custom-empty-copy">
+          <span>Empty workshop</span>
+          <strong>No custom Side Quests yet.</strong>
+          <small>Create your own chess challenge and give it a Coat of Arms.</small>
+        </div>
+        <ol className="sqc-local-custom-workflow" aria-label="Custom Side Quest workflow">
+          <li><b>01</b><strong>Shape the rule</strong><small>Start with the chess idea you want proof to check.</small></li>
+          <li><b>02</b><strong>Choose visibility later</strong><small>Keep it private while you refine it, then publish when ready.</small></li>
+          <li><b>03</b><strong>Play Solo or host</strong><small>Saved Side Quests work alone or in Multiplayer Side Quests.</small></li>
+        </ol>
+        <Link className="sqc-local-custom-start" href="/create-custom-side-quest">Create a private Side Quest</Link>
       </div>
     );
   }
@@ -36,7 +56,7 @@ export function LocalCustomDraftList({ drafts }: { drafts: LocalCustomDraft[] })
   );
 }
 
-export default function LocalCustomDraftLibrary() {
+export default function LocalCustomDraftLibrary({ hasAccountQuests = false }: { hasAccountQuests?: boolean }) {
   const [drafts, setDrafts] = useState<LocalCustomDraft[] | null>(null);
 
   useEffect(() => {
@@ -51,5 +71,5 @@ export default function LocalCustomDraftLibrary() {
     return <p className="sqc-local-draft-loading" role="status">Loading drafts saved in this browser…</p>;
   }
 
-  return <LocalCustomDraftList drafts={drafts} />;
+  return <LocalCustomDraftList drafts={drafts} hasAccountQuests={hasAccountQuests} />;
 }

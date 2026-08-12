@@ -1153,10 +1153,10 @@ test("signed-out custom library slot replaces the account-backed empty state", (
   assert.doesNotMatch(html, /role="(?:tablist|tab)"|aria-selected=/);
 });
 
-test("signed-out custom library route loads browser-local drafts", async () => {
+test("custom library route keeps browser-local drafts truthful beside account-backed quests", async () => {
   const route = await source("src/app/custom-side-quests/page.tsx");
   assert.match(route, /LocalCustomDraftLibrary/);
-  assert.match(route, /localDrafts=\{<LocalCustomDraftLibrary \/>\}/);
+  assert.match(route, /localDrafts=\{<LocalCustomDraftLibrary hasAccountQuests=\{customSideQuests\.length > 0\} \/>\}/);
 });
 
 test("custom builder restores and updates the exact local draft from its URL", async () => {
