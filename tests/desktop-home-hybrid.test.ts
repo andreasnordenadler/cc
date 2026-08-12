@@ -524,6 +524,37 @@ test("Community discovery uses structured activity cards only at the desktop bou
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-community-discovery\.signed-out\s+\.sqc-row-status\s*\{[^}]*border:\s*1px\s+solid[^}]*background:\s*rgba\(96,\s*240,\s*175,\s*\.1\);[^}]*color:\s*var\(--green\);/);
 });
 
+test("Community discovery gives desktop cards an explicit detail affordance without changing mobile rows", () => {
+  const rows = [{
+    id: "community-one",
+    title: "Castle? Never Heard Of It",
+    meta: "By Nora Skewer · Finish a game without castling.",
+    href: "/challenges/community/community-one",
+    sourceBadge: "Community",
+    status: "Ready",
+    creatorKey: "nora",
+    creatorName: "Nora Skewer",
+    creatorBrowsePath: "/community-side-quests?creator=nora#creator-nora",
+    summary: "Finish a game without castling.",
+    stats: { soloAttempts: 3, soloCompletions: 1, multiplayerLineups: 2 },
+    updatedAtMs: 1,
+    popularityScore: 1,
+    likeCount: 1,
+    likedByViewer: false,
+    completedByViewer: false,
+    isNew: false,
+  }];
+  const html = renderToStaticMarkup(createElement(MobileCommunitySideQuestsScreen, { rows, signedIn: false }));
+  const css = readFileSync("src/app/mobile-web.css", "utf8");
+  const desktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1180px)"));
+
+  assert.equal(html.match(/aria-label="Open Castle\? Never Heard Of It"/g)?.length, 1, "the existing card link remains the only detail destination");
+  assert.match(html, /class="sqc-community-row-open"[^>]*>View Side Quest details <span aria-hidden="true">→<\/span><\/span>/);
+  assert.match(css, /\.sqc-community-row-open\s*\{[^}]*display:\s*none;/, "mobile rows do not gain desktop CTA copy");
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-community-discovery\s+\.sqc-community-row-open\s*\{[^}]*display:\s*inline-flex;[^}]*color:\s*var\(--green\);/);
+  assert.match(css, /@media\s*\(prefers-reduced-motion:\s*reduce\)[\s\S]*?\.sqc-community-row-open\s+span\s*\{[^}]*transition:\s*none\s*!important;[^}]*transform:\s*none\s*!important;/);
+});
+
 test("Multiplayer discovery becomes one desktop tournament desk without duplicating catalog actions", () => {
   const rows = [{
     id: "official-one",

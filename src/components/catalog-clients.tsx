@@ -76,6 +76,7 @@ function CommunitySoloCatalogRow({ row, signedIn, onLikeStateChange }: { row: Co
             <span className="sqc-community-row-stat"><strong>{row.stats.soloCompletions}</strong><small>completed</small></span>
             <span className="sqc-community-row-stat"><strong>{row.stats.multiplayerLineups}</strong><small>multiplayer {row.stats.multiplayerLineups === 1 ? "use" : "uses"}</small></span>
           </span>
+          <span className="sqc-community-row-open">View Side Quest details <span aria-hidden="true">→</span></span>
         </span>
       </span>
       <span className="sqc-row-status">{row.status ?? "Ready"}</span>
