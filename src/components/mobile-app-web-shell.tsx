@@ -587,6 +587,23 @@ function DesktopSignedInHome({
           <Link href="/side-quests" className="sqc-desktop-secondary">Explore more Side Quests</Link>
         )}
       </section>
+      <nav className="sqc-desktop-dashboard-summary" aria-label="Quest log summary">
+        <Link href={activeSolo?.href ?? "/side-quests"}>
+          <span>Solo focus</span>
+          <strong>{activeSolo?.completed ? "Proof complete" : hasActiveSolo ? "In progress" : "Choose a quest"}</strong>
+          <small>{activeSolo?.title ?? activeSoloTitle ?? "Start your next public-game objective"}</small>
+        </Link>
+        <Link href="/multiplayer">
+          <span>Shared tables</span>
+          <strong>{activeMultiplayerRows.length} active</strong>
+          <small>{activeMultiplayerRows.length ? "Open your current Multiplayer Side Quests" : "Join or host a Multiplayer Side Quest"}</small>
+        </Link>
+        <Link href="/trophy-cabinet">
+          <span>Cabinet</span>
+          <strong>{completedSoloCount} coat{completedSoloCount === 1 ? "" : "s"}</strong>
+          <small>{proofReceiptCount} proof receipt{proofReceiptCount === 1 ? "" : "s"} recorded</small>
+        </Link>
+      </nav>
       <div className="sqc-desktop-dashboard-grid">
         <SignedInHome
           hasChessAccount={hasChessAccount}

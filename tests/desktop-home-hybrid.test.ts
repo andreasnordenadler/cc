@@ -161,8 +161,16 @@ test("signed-in desktop home guides setup while retaining the existing app home"
   assert.equal(html.match(/class="sqc-current-card/g)?.length, 1, "signed-in Home should render one interactive current-card subtree");
   assert.equal(html.match(/class="sqc-desktop-sign-in" href="\/account"/g)?.length, 1, "signed-in desktop header exposes one dedicated account destination");
   assert.match(html, /class="sqc-desktop-home-only sqc-desktop-home-header-only"[\s\S]*class="sqc-desktop-header-shell"[\s\S]*<\/header><\/div><\/div><div class="sqc-desktop-signed-in sqc-responsive-signed-home">/);
+  assert.match(html, /<nav class="sqc-desktop-dashboard-summary" aria-label="Quest log summary">/);
+  assert.match(html, /<a href="\/side-quests"><span>Solo focus<\/span><strong>Choose a quest<\/strong><small>Start your next public-game objective<\/small><\/a>/);
+  assert.match(html, /<a href="\/multiplayer"><span>Shared tables<\/span><strong>0 active<\/strong><small>Join or host a Multiplayer Side Quest<\/small><\/a>/);
+  assert.match(html, /<a href="\/trophy-cabinet"><span>Cabinet<\/span><strong>0 coats<\/strong><small>0 proof receipts recorded<\/small><\/a>/);
   assert.match(css, /\.sqc-responsive-signed-home\s*\{[^}]*width:\s*min\(460px,\s*100%\)/, "signed-in Home content remains in the responsive mobile flow");
+  assert.match(css, /\.sqc-desktop-dashboard-summary\s*\{[^}]*display:\s*none;/, "desktop summary is absent from the mobile web composition");
   assert.match(desktopMedia, /\.sqc-desktop-home-header-only\s*\{[^}]*display:\s*contents;/, "only the desktop header wrapper releases its sticky containing block");
+  assert.match(desktopMedia, /\.sqc-desktop-dashboard-summary\s*\{[^}]*display:\s*grid;[^}]*grid-template-columns:\s*repeat\(3,\s*minmax\(0,\s*1fr\)\);/);
+  assert.match(desktopMedia, /\.sqc-desktop-dashboard-grid\s+\.sqc-current-card\s*\{[^}]*margin:\s*0;[^}]*grid-column:\s*1;[^}]*grid-row:\s*span\s*2;/, "desktop active quest must not retain the mobile emblem offset and escape its grid");
+  assert.match(desktopMedia, /\.sqc-desktop-dashboard-grid\s+\.sqc-active-solo-emblem\s*\{[^}]*top:\s*18px;[^}]*right:\s*68px;[^}]*left:\s*auto;[^}]*width:\s*90px;[^}]*height:\s*90px;/, "desktop emblem stays inside the active quest card instead of covering the summary rail");
 });
 
 test("desktop home keeps account setup visible when a Solo quest is active without a chess username", () => {
