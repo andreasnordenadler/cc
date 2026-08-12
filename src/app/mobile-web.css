@@ -1398,6 +1398,17 @@ body::after {
   gap: 4px;
 }
 
+.sqc-local-custom-empty-copy {
+  display: grid;
+  gap: 4px;
+}
+
+.sqc-local-custom-workflow,
+.sqc-local-custom-start,
+.sqc-local-custom-empty-copy > span {
+  display: none;
+}
+
 .sqc-local-custom-empty strong {
   color: var(--paper);
 }
@@ -7254,12 +7265,112 @@ body::after {
   }
 
   .sqc-mobile-web.desktop-custom-library .sqc-local-custom-empty {
-    min-height: 130px;
+    min-height: 240px;
+    grid-template-columns: 260px minmax(0, 1fr);
     align-content: center;
-    padding: 24px;
-    border: 1px dashed rgba(255, 247, 232, .16);
-    border-radius: 22px;
-    background: rgba(0, 0, 0, .18);
+    align-items: stretch;
+    gap: 18px 28px;
+    padding: 30px;
+    border: 1px solid rgba(245, 200, 106, .2);
+    border-radius: 26px;
+    background:
+      radial-gradient(circle at 0% 50%, rgba(245, 200, 106, .12), transparent 30%),
+      linear-gradient(135deg, rgba(255, 247, 232, .055), rgba(0, 0, 0, .24));
+  }
+
+  .sqc-mobile-web.desktop-custom-library .sqc-local-custom-empty-copy {
+    align-content: center;
+    gap: 8px;
+  }
+
+  .sqc-mobile-web.desktop-custom-library .sqc-local-custom-empty-copy > span {
+    display: block;
+    color: var(--gold);
+    font-size: 10px;
+    font-weight: 950;
+    letter-spacing: .13em;
+    text-transform: uppercase;
+  }
+
+  .sqc-mobile-web.desktop-custom-library .sqc-local-custom-empty-copy > strong {
+    font-family: ui-serif, Georgia, Cambria, "Times New Roman", serif;
+    font-size: 27px;
+    line-height: 1.04;
+  }
+
+  .sqc-mobile-web.desktop-custom-library .sqc-local-custom-empty-copy > small {
+    color: rgba(255, 247, 232, .65);
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  .sqc-mobile-web.desktop-custom-library .sqc-local-custom-workflow {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    gap: 0;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    border: 1px solid rgba(255, 247, 232, .1);
+    border-radius: 20px;
+    background: rgba(0, 0, 0, .22);
+    list-style: none;
+  }
+
+  .sqc-mobile-web.desktop-custom-library .sqc-local-custom-workflow > li {
+    display: grid;
+    align-content: center;
+    gap: 7px;
+    min-width: 0;
+    padding: 22px 18px;
+  }
+
+  .sqc-mobile-web.desktop-custom-library .sqc-local-custom-workflow > li + li {
+    border-left: 1px solid rgba(255, 247, 232, .1);
+  }
+
+  .sqc-mobile-web.desktop-custom-library .sqc-local-custom-workflow b {
+    color: rgba(245, 200, 106, .7);
+    font-size: 10px;
+    letter-spacing: .12em;
+  }
+
+  .sqc-mobile-web.desktop-custom-library .sqc-local-custom-workflow strong {
+    font-size: 13px;
+    line-height: 1.2;
+  }
+
+  .sqc-mobile-web.desktop-custom-library .sqc-local-custom-workflow small {
+    color: rgba(255, 247, 232, .57);
+    font-size: 11px;
+    line-height: 1.45;
+  }
+
+  .sqc-mobile-web.desktop-custom-library .sqc-local-custom-start {
+    min-height: 44px;
+    display: inline-flex;
+    grid-column: 1;
+    align-items: center;
+    justify-content: center;
+    width: fit-content;
+    padding: 0 18px;
+    border: 1px solid rgba(245, 200, 106, .42);
+    border-radius: 999px;
+    background: rgba(245, 200, 106, .12);
+    color: var(--gold);
+    font-size: 12px;
+    font-weight: 950;
+    text-decoration: none;
+    transition: transform 150ms ease, border-color 150ms ease, background 150ms ease;
+  }
+
+  .sqc-mobile-web.desktop-custom-library .sqc-local-custom-start:hover,
+  .sqc-mobile-web.desktop-custom-library .sqc-local-custom-start:focus-visible {
+    border-color: rgba(245, 200, 106, .72);
+    background: rgba(245, 200, 106, .18);
+    transform: translateY(-2px);
   }
 
   .sqc-mobile-web.desktop-custom-library :is(a, summary, button, input, select):focus-visible {
@@ -10137,6 +10248,11 @@ body::after {
   }
 
   .sqc-mobile-web.desktop-custom-editor .sqc-template-card {
+    transition: none !important;
+    transform: none !important;
+  }
+
+  .sqc-mobile-web.desktop-custom-library .sqc-local-custom-start {
     transition: none !important;
     transform: none !important;
   }
