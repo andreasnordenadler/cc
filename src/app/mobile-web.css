@@ -10359,6 +10359,15 @@ body::after {
     grid-template-columns: minmax(0, 1fr) minmax(440px, .72fr);
   }
 
+  .sqc-mobile-web.desktop-official-detail.signed-out .sqc-quest-instruction-card .sqc-condition-list {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .sqc-mobile-web.desktop-official-detail.signed-out .sqc-quest-instruction-card .sqc-condition-compact-row {
+    min-height: 118px;
+    align-items: start;
+  }
+
   .sqc-mobile-web.desktop-solo-discovery .sqc-solo-difficulty-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
