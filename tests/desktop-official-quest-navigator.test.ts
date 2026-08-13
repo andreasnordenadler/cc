@@ -51,3 +51,19 @@ test("official quest detail expands its existing desktop workspace on large disp
   assert.match(wideDesktop, /\.sqc-mobile-web\.desktop-official-detail\s+\.sqc-official-solo-detail-screen\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\)\s+440px;/);
   assert.match(wideDesktop, /\.sqc-mobile-web\.desktop-official-detail\s+\.sqc-active-solo-detail-screen\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\)\s+minmax\(440px,\s*\.72fr\);/);
 });
+
+test("active quest desktop workspace keeps proof evidence in the reading column and the next action in a sticky command rail", () => {
+  const css = readFileSync("src/app/mobile-web.css", "utf8");
+  const page = readFileSync("src/app/challenges/[id]/page.tsx", "utf8");
+  const desktopStart = css.indexOf("/* Official detail keeps the Android content");
+  const desktopEnd = css.indexOf("/* Community detail retains one parity-backed content/action subtree");
+  const desktopOfficialDetail = css.slice(desktopStart, desktopEnd);
+
+  assert.notEqual(desktopStart, -1);
+  assert.notEqual(desktopEnd, -1);
+  assert.match(page, /className="sqc-native-card sqc-detail-panel-strong sqc-active-command-panel"/);
+  assert.match(page, /className="sqc-native-card sqc-active-conditions-panel"/);
+  assert.match(desktopOfficialDetail, /\.sqc-mobile-web\.desktop-official-detail\s+\.sqc-active-command-panel\s*\{[^}]*grid-column:\s*2;[^}]*grid-row:\s*3\s*\/\s*span\s*2;[^}]*position:\s*sticky;[^}]*top:\s*108px;/);
+  assert.match(desktopOfficialDetail, /\.sqc-mobile-web\.desktop-official-detail\s+\.sqc-active-proof-summary\s*\{[^}]*grid-column:\s*1;[^}]*grid-row:\s*3;/);
+  assert.match(desktopOfficialDetail, /\.sqc-mobile-web\.desktop-official-detail\s+\.sqc-active-conditions-panel\s*\{[^}]*grid-column:\s*1;[^}]*grid-row:\s*4;/);
+});

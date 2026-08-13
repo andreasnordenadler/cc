@@ -177,7 +177,7 @@ export default async function ChallengeDetailPage({
         )}
 
         {isActiveChallenge ? (
-          <section className="sqc-native-card sqc-detail-panel-strong">
+          <section className="sqc-native-card sqc-detail-panel-strong sqc-active-command-panel">
             <span className="sqc-card-eyebrow">Current Side Quest</span>
             <h2>{activePassed ? "Completed - proof accepted" : "Do this next"}</h2>
             <div className="sqc-proof-step-list">
@@ -268,7 +268,7 @@ export default async function ChallengeDetailPage({
         )}
 
         {isActiveChallenge ? (
-          <section className="sqc-native-card">
+          <section className="sqc-native-card sqc-active-conditions-panel">
             <span className="sqc-card-eyebrow">How to complete it</span>
             <h2>Conditions</h2>
             <p>{conditionLines.length === 1 ? "Complete this condition in one eligible public game." : "Complete every condition in one eligible public game."}</p>
