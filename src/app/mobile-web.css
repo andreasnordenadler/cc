@@ -10280,6 +10280,61 @@ body::after {
     outline-offset: 3px;
   }
 
+  /* Standard desktop widths can scan the compact official catalog in one row per
+     difficulty without waiting for an ultrawide viewport. Mobile and the 1180px
+     transition keep the existing roomy two-column composition. */
+  @media (min-width: 1380px) and (max-width: 1679px) {
+    .sqc-mobile-web.desktop-solo-discovery .sqc-screen {
+      width: min(1320px, calc(100% - 48px));
+    }
+
+    .sqc-mobile-web.desktop-solo-discovery .sqc-solo-browser {
+      grid-template-columns: 148px minmax(0, 1fr);
+      gap: 20px;
+    }
+
+    .sqc-mobile-web.desktop-solo-discovery .sqc-solo-difficulty-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .sqc-mobile-web.desktop-solo-discovery .sqc-app-row {
+      min-height: 210px;
+      grid-template-columns: 58px minmax(0, 1fr);
+      gap: 10px;
+      padding: 18px 15px;
+    }
+
+    .sqc-mobile-web.desktop-solo-discovery .sqc-row-icon {
+      width: 58px;
+      height: 68px;
+    }
+
+    .sqc-mobile-web.desktop-solo-discovery .sqc-row-glow {
+      width: 72px;
+      height: 78px;
+    }
+
+    .sqc-mobile-web.desktop-solo-discovery .sqc-row-image {
+      width: 54px;
+      height: 62px;
+    }
+
+    .sqc-mobile-web.desktop-solo-discovery .sqc-row-copy {
+      gap: 6px;
+      padding-right: 54px;
+    }
+
+    .sqc-mobile-web.desktop-solo-discovery .sqc-row-copy strong {
+      font-size: 16px;
+    }
+
+    .sqc-mobile-web.desktop-solo-discovery .sqc-row-copy small,
+    .sqc-mobile-web.desktop-solo-discovery .sqc-solo-card-note {
+      font-size: 11px;
+    }
+  }
+
   /* End desktop authentication workspace */
 }
 
