@@ -188,3 +188,35 @@ test("Android release blocks permissions that the product does not use", () => {
     "com.google.android.finsky.permission.BIND_GET_INSTALL_REFERRER_SERVICE",
   ]);
 });
+
+test("iOS release identity, callback, and export-compliance declarations stay aligned", () => {
+  const config = JSON.parse(readRepoFile("apps/mobile/app.json")).expo;
+  const appSource = readRepoFile("apps/mobile/App.tsx");
+
+  assert.equal(config.name, "Side Quest Chess");
+  assert.equal(config.scheme, "sidequestchess");
+  assert.equal(config.ios.bundleIdentifier, "com.sidequestchess.app");
+  assert.equal(config.ios.supportsTablet, true);
+  assert.equal(config.ios.config.usesNonExemptEncryption, false);
+  assert.equal(config.ios.infoPlist.NSAppTransportSecurity.NSAllowsArbitraryLoads, false);
+  assert.match(appSource, /native:\s*["']sidequestchess:\/\/sso-callback["']/);
+});
+
+test("iOS release does not declare unused sensitive permissions", () => {
+  const config = JSON.parse(readRepoFile("apps/mobile/app.json")).expo;
+  const infoPlist = config.ios.infoPlist ?? {};
+  const sensitiveUsageDescriptions = [
+    "NSCameraUsageDescription",
+    "NSContactsUsageDescription",
+    "NSFaceIDUsageDescription",
+    "NSLocationAlwaysAndWhenInUseUsageDescription",
+    "NSLocationWhenInUseUsageDescription",
+    "NSMicrophoneUsageDescription",
+    "NSPhotoLibraryAddUsageDescription",
+    "NSPhotoLibraryUsageDescription",
+  ];
+
+  for (const key of sensitiveUsageDescriptions) {
+    assert.equal(infoPlist[key], undefined, `${key} requires product and privacy review before release`);
+  }
+});

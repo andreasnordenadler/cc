@@ -66,7 +66,7 @@ export async function POST(request: Request) {
   const blockedUser: BlockedUser = {
     userId: target.userId,
     blockedAt,
-    source: request.headers.get("x-side-quest-chess-client") === "android" ? "mobile" : "website",
+    source: ["android", "ios", "mobile"].includes(request.headers.get("x-side-quest-chess-client") ?? "") ? "mobile" : "website",
   };
   const existing = getBlockedUsers(privateMetadata).filter((entry) => entry.userId !== target.userId);
   const nextMetadata = fitWithinMetadataBudget(privateMetadata, [...existing, blockedUser].slice(-MAX_BLOCKED_USERS));
