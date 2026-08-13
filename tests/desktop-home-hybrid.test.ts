@@ -898,8 +898,9 @@ test("active Solo detail turns the centered phone hero into a left-to-right desk
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-official-detail\s+\.sqc-active-detail-hero\s*>\s*\.sqc-detail-coat-frame\s*\{[^}]*grid-column:\s*1;[^}]*grid-row:\s*1\s*\/\s*-1;/);
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-official-detail\s+\.sqc-active-detail-hero\s*>\s*:not\(\.sqc-detail-coat-frame\):not\(\.sqc-coat-lightbox\)\s*\{[^}]*grid-column:\s*2;/);
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-official-detail\s+\.sqc-active-detail-hero\s+p\s*\{[^}]*text-align:\s*left;/);
-  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-official-detail\s+\.sqc-detail-panel-strong\s*\{[^}]*grid-column:\s*1;[^}]*grid-row:\s*3;/);
-  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-official-detail\s+\.sqc-active-proof-summary\s*\{[^}]*grid-column:\s*2;[^}]*grid-row:\s*3;[^}]*grid-template-columns:\s*190px\s+minmax\(0,\s*1fr\);[^}]*width:\s*auto;[^}]*min-width:\s*0;/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-official-detail\s+\.sqc-active-command-panel\s*\{[^}]*grid-column:\s*2;[^}]*grid-row:\s*3\s*\/\s*span\s*2;[^}]*position:\s*sticky;/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-official-detail\s+\.sqc-active-proof-summary\s*\{[^}]*grid-column:\s*1;[^}]*grid-row:\s*3;[^}]*grid-template-columns:\s*minmax\(210px,\s*\.72fr\)\s+minmax\(0,\s*1fr\);[^}]*width:\s*auto;[^}]*min-width:\s*0;/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-official-detail\s+\.sqc-active-conditions-panel\s*\{[^}]*grid-column:\s*1;[^}]*grid-row:\s*4;/);
   assert.equal(css.replace(desktopMedia, "").includes("grid-template-columns: 250px minmax(0, 1fr)"), false, "desktop active-hero composition must not leak below 1180px");
 });
 
