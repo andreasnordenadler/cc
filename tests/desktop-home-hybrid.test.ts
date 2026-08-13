@@ -164,7 +164,7 @@ test("signed-in desktop home guides setup while retaining the existing app home"
   assert.match(html, /<nav class="sqc-desktop-dashboard-summary" aria-label="Quest log summary">/);
   assert.match(html, /<a href="\/side-quests"><span>Solo focus<\/span><strong>Choose a quest<\/strong><small>Start your next public-game objective<\/small><\/a>/);
   assert.match(html, /<a href="\/multiplayer"><span>Shared tables<\/span><strong>0 active<\/strong><small>Join or host a Multiplayer Side Quest<\/small><\/a>/);
-  assert.match(html, /<a href="\/trophy-cabinet"><span>Cabinet<\/span><strong>0 coats<\/strong><small>0 proof receipts recorded<\/small><\/a>/);
+  assert.match(html, /<a href="\/trophy-cabinet"><span>Cabinet<\/span><strong>0 coat of arms<\/strong><small>0 proof receipts recorded<\/small><\/a>/);
   assert.match(css, /\.sqc-responsive-signed-home\s*\{[^}]*width:\s*min\(460px,\s*100%\)/, "signed-in Home content remains in the responsive mobile flow");
   assert.match(css, /\.sqc-desktop-dashboard-summary\s*\{[^}]*display:\s*none;/, "desktop summary is absent from the mobile web composition");
   assert.match(desktopMedia, /\.sqc-desktop-home-header-only\s*\{[^}]*display:\s*contents;/, "only the desktop header wrapper releases its sticky containing block");

@@ -600,7 +600,7 @@ function DesktopSignedInHome({
         </Link>
         <Link href="/trophy-cabinet">
           <span>Cabinet</span>
-          <strong>{completedSoloCount} coat{completedSoloCount === 1 ? "" : "s"}</strong>
+          <strong>{completedSoloCount} coat of arms</strong>
           <small>{proofReceiptCount} proof receipt{proofReceiptCount === 1 ? "" : "s"} recorded</small>
         </Link>
       </nav>
