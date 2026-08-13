@@ -85,6 +85,26 @@ test("desktop Trophy Cabinet turns coat previews into decision-ready collection 
   expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBe(0);
 });
 
+test("desktop Trophy Cabinet difficulty directory filters the shared coat collection", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await expectHealthyNavigation(page, "/trophy-cabinet");
+
+  const directory = page.getByRole("complementary", { name: "Filter coats by difficulty" });
+  const grid = page.getByLabel("Official Solo Side Quest coat grid");
+  await expect(directory).toBeVisible();
+  await expect(grid.getByRole("link")).toHaveCount(13);
+
+  await directory.getByRole("button", { name: "Hard 3" }).click();
+  await expect(directory.getByRole("button", { name: "Hard 3" })).toHaveAttribute("aria-pressed", "true");
+  await expect(grid.getByRole("link")).toHaveCount(3);
+  await expect(grid.getByText("No Castle Club", { exact: true })).toHaveCount(0);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBe(0);
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expect(directory).toBeHidden();
+  await expect(grid.getByRole("link")).toHaveCount(13);
+});
+
 test("desktop Solo discovery keeps every objective and Android opening hint readable at the composition boundary", async ({ page }) => {
   await page.setViewportSize({ width: 1179, height: 900 });
   await expectHealthyNavigation(page, "/side-quests");
