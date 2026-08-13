@@ -155,8 +155,9 @@ export async function POST(request: Request) {
     });
   }
 
+  const targetUserIds = new Set(found.targets.map((target) => target.user.id));
   for (const user of users) {
-    if (removedUserIds.has(user.id)) continue;
+    if (removedUserIds.has(user.id) || targetUserIds.has(user.id)) continue;
     const publicMetadata = cleanReferences(record(user.publicMetadata), found.generatedQuestIds, found.generatedGroupIds, removedUserIds);
     const privateMetadata = cleanReferences(record(user.privateMetadata), found.generatedQuestIds, found.generatedGroupIds, removedUserIds);
     await client.users.updateUserMetadata(user.id, { publicMetadata, privateMetadata });
