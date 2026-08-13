@@ -42,6 +42,8 @@ test("authenticated Solo and Multiplayer catalogs match the Android swap control
   assert.match(authenticatedSwitch, /margin-top:\s*-22px/);
   assert.match(authenticatedSwitch, /margin-left:\s*-22px/);
 
+  assert.match(css, /\.sqc-mobile-web\.desktop-multiplayer-discovery\s+\.sqc-multiplayer-brand-tabs\s+\.sqc-brand-switch\[data-icon="swap-horizontal"\]\s*\{[^}]*position:\s*static;[^}]*margin:\s*0;/);
+
   const signedOutTabs = cssBlock(css, ".sqc-mobile-web.signed-out .sqc-brand-tabs");
   assert.match(signedOutTabs, /grid-template-columns:\s*minmax\(0,1fr\) 36px minmax\(0,1fr\)/);
   const signedOutSwitch = cssBlock(css, '.sqc-mobile-web.signed-out .sqc-brand-switch[data-icon="swap-horizontal"]');

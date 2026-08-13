@@ -8697,7 +8697,7 @@ body::after {
     gap: 0;
   }
 
-  .sqc-mobile-web.desktop-multiplayer-discovery .sqc-multiplayer-brand-tabs .sqc-brand-switch {
+  .sqc-mobile-web.desktop-multiplayer-discovery .sqc-multiplayer-brand-tabs .sqc-brand-switch[data-icon="swap-horizontal"] {
     position: static;
     width: 44px;
     height: 44px;
