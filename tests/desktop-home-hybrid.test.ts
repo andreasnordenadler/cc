@@ -310,6 +310,26 @@ test("Solo discovery expands difficulty shelves to three denser readable columns
   );
 });
 
+test("Solo discovery uses three scan-friendly columns at a standard 1440px desktop", () => {
+  const css = readFileSync("src/app/mobile-web.css", "utf8");
+  const standardDesktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1380px)"));
+
+  assert.match(
+    standardDesktopMedia,
+    /\.sqc-mobile-web\.desktop-solo-discovery\s+\.sqc-solo-difficulty-grid\s*\{[^}]*grid-template-columns:\s*repeat\(3,\s*minmax\(0,\s*1fr\)\);/,
+  );
+  assert.match(
+    standardDesktopMedia,
+    /\.sqc-mobile-web\.desktop-solo-discovery\s+\.sqc-app-row\s*\{[^}]*min-height:\s*210px/,
+    "standard desktop cards should not retain the roomy two-column height",
+  );
+  assert.match(
+    standardDesktopMedia,
+    /\.sqc-mobile-web\.desktop-solo-discovery\s+\.sqc-row-copy\s*\{[^}]*padding-right:\s*54px/,
+    "the denser card should still reserve space for quest status",
+  );
+});
+
 test("desktop Solo cards expose Android opening hints and an explicit detail affordance without changing mobile rows", () => {
   const html = renderToStaticMarkup(
     createElement(MobileSoloSideQuestsScreen, { challenges: CHALLENGES, signedIn: false }),
