@@ -6,15 +6,16 @@ import { renderToStaticMarkup } from "react-dom/server";
 
 import PrivacyPage, { metadata } from "../src/app/privacy/page";
 
-test("Privacy Policy keeps its public launch-draft content and actions", () => {
+test("Privacy Policy keeps its adopted public content and actions", () => {
   const html = renderToStaticMarkup(React.createElement(PrivacyPage));
 
   assert.equal(metadata.title, "Privacy Policy — Side Quest Chess");
   assert.match(html, /<h1[^>]*>Privacy Policy<\/h1>/);
-  assert.match(html, /Launch draft updated:/);
+  assert.match(html, /<strong>Effective:<\/strong> August 13, 2026/);
   assert.match(html, /Chess game verification/);
   assert.match(html, /Retention and deletion/);
-  assert.match(html, /href="mailto:andreas\.nordenadler@gmail\.com\?subject=Side%20Quest%20Chess%20privacy%20request"/);
+  assert.match(html, /href="mailto:sam@crowdler\.com\?subject=Side%20Quest%20Chess%20privacy%20request"/);
+  assert.match(html, /aria-label="Controller information"/);
   assert.equal(html.match(/aria-label="Privacy policy sections"/g)?.length, 1);
   assert.equal(html.match(/<section /g)?.length, 9, "the redesign preserves every policy section");
 });

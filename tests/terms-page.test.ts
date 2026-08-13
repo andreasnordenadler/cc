@@ -6,15 +6,16 @@ import { renderToStaticMarkup } from "react-dom/server";
 
 import TermsPage, { metadata } from "../src/app/terms/page";
 
-test("Terms of Use has a dedicated public launch-draft destination", () => {
+test("Terms of Use has a dedicated adopted public destination", () => {
   const html = renderToStaticMarkup(React.createElement(TermsPage));
 
   assert.equal(metadata.title, "Terms of Use — Side Quest Chess");
   assert.match(html, /<h1[^>]*>Terms of Use<\/h1>/);
   assert.match(html, /class="terms-brand-row"/);
-  assert.match(html, /Launch draft updated:/);
-  assert.match(html, /not legal advice/i);
-  assert.match(html, /owner\/legal review/i);
+  assert.match(html, /<strong>Effective:<\/strong> August 13, 2026/);
+  assert.match(html, /Side Quest Chess is provided by Crowdler AB/);
+  assert.match(html, /governed by Swedish law/);
+  assert.match(html, /aria-label="Provider information"/);
   assert.match(html, /href="\/privacy"/);
   assert.match(html, /href="\/support"/);
   assert.doesNotMatch(html, /NEXT_REDIRECT/);
@@ -29,7 +30,7 @@ test("Terms of Use becomes a desktop document workspace at the established bound
   assert.match(html, /class="terms-rail"/);
   assert.match(html, /class="terms-document-grid"/);
   assert.equal(html.match(/aria-label="Terms of Use sections"/g)?.length, 1, "desktop and mobile share one navigation subtree");
-  assert.equal(html.match(/<section /g)?.length, 8, "the desktop composition preserves every terms section");
+  assert.equal(html.match(/<section /g)?.length, 9, "the desktop composition preserves every terms section");
   assert.match(desktopMedia, /\.terms-policy\s*\{[^}]*width:\s*min\(1320px,\s*100%\)[^}]*grid-template-columns:\s*minmax\(300px,\s*\.7fr\)\s+minmax\(0,\s*1\.8fr\)/);
   assert.match(desktopMedia, /\.terms-rail\s*\{[^}]*position:\s*sticky[^}]*top:\s*32px/);
   assert.match(desktopMedia, /\.terms-document-grid\s*\{[^}]*grid-template-columns:\s*repeat\(2,\s*minmax\(0,\s*1fr\)\)/);
