@@ -719,7 +719,7 @@ test("Trophy Cabinet becomes one desktop collection workspace without duplicatin
   assert.equal(html.match(/href="\/side-quests"/g)?.length, 1, "signed-out cabinet keeps the persistent Solo discovery shortcut without a false empty-reward action");
 });
 
-test("Trophy Cabinet gives desktop collectors a truthful difficulty key without fake collection navigation", () => {
+test("Trophy Cabinet gives desktop collectors an actionable difficulty directory without duplicating coat destinations", () => {
   const html = renderToStaticMarkup(
     createElement(MobileTrophyCabinetScreen, {
       signedIn: false,
@@ -734,14 +734,14 @@ test("Trophy Cabinet gives desktop collectors a truthful difficulty key without 
   const desktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1180px)"));
 
   assert.match(html, /<div class="sqc-trophy-collection-workspace">/);
-  assert.match(html, /<aside class="sqc-trophy-difficulty-index" aria-label="Coat difficulty counts">/);
-  assert.match(html, /<strong>Difficulty key<\/strong>/);
+  assert.match(html, /<aside class="sqc-trophy-difficulty-index" aria-label="Filter coats by difficulty">/);
+  assert.match(html, /<strong>Browse by difficulty<\/strong>/);
+  assert.match(html, /<button[^>]*aria-pressed="true"[^>]*><span>All coats<\/span><small>13<\/small><\/button>/);
   for (const difficulty of ["Easy", "Medium", "Hard", "Brutal", "Absurd"]) {
     const count = CHALLENGES.filter((challenge) => challenge.difficulty === difficulty).length;
-    assert.match(html, new RegExp(`<span class="sqc-trophy-difficulty-count"><span>${difficulty}<\\/span><small>${count}<\\/small><\\/span>`));
+    assert.match(html, new RegExp(`<button[^>]*aria-pressed="false"[^>]*><span>${difficulty}<\\/span><small>${count}<\\/small><\\/button>`));
   }
-  assert.doesNotMatch(html, /href="#trophy-difficulty-|id="trophy-difficulty-/);
-  assert.equal(html.match(/href="\/challenges\//g)?.length, CHALLENGES.length, "the difficulty key must not duplicate coat destinations");
+  assert.equal(html.match(/href="\/challenges\//g)?.length, CHALLENGES.length, "the difficulty directory must not duplicate coat destinations");
   assert.match(css, /\.sqc-trophy-difficulty-index\s*\{[^}]*display:\s*none;/, "mobile keeps the current coat grid without a desktop rail");
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-trophy-cabinet\s+\.sqc-trophy-collection-workspace\s*\{[^}]*grid-template-columns:\s*180px\s+minmax\(0,\s*1fr\);/);
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-trophy-cabinet\s+\.sqc-trophy-difficulty-index\s*\{[^}]*display:\s*grid;[^}]*position:\s*sticky;[^}]*top:\s*104px;/);

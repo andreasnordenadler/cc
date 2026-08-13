@@ -35,6 +35,7 @@ import MobileWebHamburgerMenu from "./mobile-web-hamburger-menu";
 import CurrentPageSignInLink from "./current-page-sign-in-link";
 import CommunitySoloDuplicateControl from "./community-solo-duplicate-control";
 import type { CustomOwnerSaveInput } from "@/lib/custom-owner-controls";
+import DesktopTrophyCollection from "./desktop-trophy-collection";
 
 type AppTab = "home" | "sideQuests" | "multiplayerSideQuests" | "coatOfArms" | "account";
 
@@ -1171,10 +1172,6 @@ export function MobileTrophyCabinetScreen({
   const communitySoloRows = soloRows.filter((row) => row.source === "communitySolo");
   const earnedIds = new Set(soloRows.map((row) => row.id.replace(/^solo-/, "")));
   const unlockedCount = trophyRows.length;
-  const difficultyIndex = (["Easy", "Medium", "Hard", "Brutal", "Absurd"] as const).map((difficulty) => ({
-    difficulty,
-    count: officialChallenges.filter((challenge) => challenge.difficulty === difficulty).length,
-  }));
 
   void _proofReceiptCount;
 
@@ -1258,48 +1255,18 @@ export function MobileTrophyCabinetScreen({
         <p>{signedIn ? "Locked official coats are previews. Custom and Community Solo Side Quest rewards appear above when earned." : "Open any coat to inspect its Side Quest. Sign in to see which rewards you have unlocked."}</p>
       </section>
 
-      <div className="sqc-trophy-collection-workspace">
-        <aside className="sqc-trophy-difficulty-index" aria-label="Coat difficulty counts">
-          <strong>Difficulty key</strong>
-          {difficultyIndex.map(({ difficulty, count }) => (
-            <span className="sqc-trophy-difficulty-count" key={difficulty}>
-              <span>{difficulty}</span>
-              <small>{count}</small>
-            </span>
-          ))}
-        </aside>
-        <div className="sqc-coat-grid" aria-label="Official Solo Side Quest coat grid">
-          {officialChallenges.map((challenge) => {
-            const earned = earnedIds.has(challenge.id);
-            return (
-              <Link
-                key={challenge.id}
-                href={`/challenges/${challenge.id}`}
-                className="sqc-coat-tile"
-              >
-              <span className="sqc-coat-tile-art" aria-hidden="true">
-                <Image
-                  className={signedIn && !earned ? "sqc-coat-tile-image locked" : "sqc-coat-tile-image"}
-                  alt=""
-                  src={toMobileAssetPath(challenge.badgeIdentity.image) ?? mobileAsset.fallbackBadge}
-                  width={74}
-                  height={74}
-                />
-              </span>
-              <span className="sqc-coat-tile-details">
-                <span className="sqc-coat-tile-context">
-                  <span>{challenge.difficulty}</span>
-                  <span>{challenge.category}</span>
-                </span>
-                <strong>{challenge.title}</strong>
-                <span className="sqc-coat-tile-objective">{challenge.objective}</span>
-                <small>{signedIn ? (earned ? "Unlocked" : "Locked preview") : "Official coat preview"}</small>
-              </span>
-              </Link>
-            );
-          })}
-        </div>
-      </div>
+      <DesktopTrophyCollection
+        signedIn={signedIn}
+        coats={officialChallenges.map((challenge) => ({
+          id: challenge.id,
+          title: challenge.title,
+          objective: challenge.objective,
+          difficulty: challenge.difficulty,
+          category: challenge.category,
+          image: toMobileAssetPath(challenge.badgeIdentity.image) ?? mobileAsset.fallbackBadge,
+          earned: earnedIds.has(challenge.id),
+        }))}
+      />
     </div>
   );
 }
