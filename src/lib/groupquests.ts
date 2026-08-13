@@ -55,8 +55,8 @@ export type GroupQuestHostRecord = {
 
 const OFFICIAL_GROUP_QUEST_HOST_USER_ID = "official-sqc";
 const OFFICIAL_GROUP_QUEST_HOST_NAME = "Side Quest Chess";
-const OFFICIAL_GROUP_QUEST_DURATION_DAYS = 14;
-const OFFICIAL_GROUP_QUEST_ANCHOR = Date.UTC(2026, 5, 21);
+const OFFICIAL_GROUP_QUEST_DURATION_DAYS = 7;
+const OFFICIAL_GROUP_QUEST_ANCHOR = Date.UTC(2026, 5, 22);
 const MAX_HOST_QUESTS = 4;
 const MAX_PARTICIPANT_STORED_QUESTS = 12;
 const MAX_PARTICIPANTS = 80;
@@ -83,20 +83,20 @@ type OfficialGroupQuestTemplate = {
 const officialGroupQuestTemplates: OfficialGroupQuestTemplate[] = [
   {
     slug: "starter-shield",
-    name: "Official 14-Day Starter Shield",
-    inviteCopy: "A two-week official Multiplayer Side Quest for proving the clean fundamentals: finish a game, win with both knights, and give a bishop a real journey.",
+    name: "Official Weekly Starter Shield",
+    inviteCopy: "A weekly official Multiplayer Side Quest for proving the clean fundamentals: finish a game, win with both knights, and give a bishop a real journey.",
     questIds: ["finish-any-game", "knights-before-coffee", "bishop-field-trip"],
   },
   {
     slug: "royal-route",
-    name: "Official 14-Day Royal Route",
-    inviteCopy: "A two-week official Multiplayer Side Quest for bold king movement, no-castle confidence, and winning with one bishop doing the heavy lifting.",
+    name: "Official Weekly Royal Route",
+    inviteCopy: "A weekly official Multiplayer Side Quest for bold king movement, no-castle confidence, and winning with one bishop doing the heavy lifting.",
     questIds: ["early-king-walk", "no-castle-club", "one-bishop-to-rule-them-all"],
   },
   {
     slug: "chaos-ladder",
-    name: "Official 14-Day Chaos Ladder",
-    inviteCopy: "A two-week official Multiplayer Side Quest for sharp recovery, queenless bravery, and knight-only chaos.",
+    name: "Official Weekly Chaos Ladder",
+    inviteCopy: "A weekly official Multiplayer Side Quest for sharp recovery, queenless bravery, and knight-only chaos.",
     questIds: ["the-blunder-gambit", "queen-never-heard-of-her", "knightmare-mode"],
   },
 ];
@@ -205,7 +205,7 @@ export function getBuiltInOfficialGroupQuests(now = new Date()): ServerGroupQues
     providerMode: "both",
     providerLabel: "Lichess or Chess.com",
     official: true,
-    officialLabel: "Official · 14 days",
+    officialLabel: "Official · Weekly",
     startAt,
     endAt,
     rules: defaultRules,
@@ -238,7 +238,7 @@ function getBuiltInOfficialGroupQuestDefinitionById(id: string): ServerGroupQues
     providerMode: "both",
     providerLabel: "Lichess or Chess.com",
     official: true,
-    officialLabel: "Official · 14 days",
+    officialLabel: "Official · Weekly",
     startAt: start.toISOString(),
     endAt: end.toISOString(),
     rules: defaultRules,

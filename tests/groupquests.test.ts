@@ -557,6 +557,22 @@ test("rejoining clears a legacy left tombstone under Clerk deep merge", () => {
   assert.equal(getStoredOfficialGroupQuestParticipations(deeplyMergedMetadata, "current-user").length, 1);
 });
 
+test("official Multiplayer Side Quests run in weekly windows", () => {
+  const thursday = getBuiltInOfficialGroupQuests(new Date("2026-08-13T12:00:00.000Z"));
+  const sunday = getBuiltInOfficialGroupQuests(new Date("2026-08-16T23:59:59.000Z"));
+  const monday = getBuiltInOfficialGroupQuests(new Date("2026-08-17T00:00:00.000Z"));
+
+  assert.equal(thursday.length, 3);
+  assert.deepEqual(thursday.map((quest) => [quest.startAt, quest.endAt]), [
+    ["2026-08-10T00:00:00.000Z", "2026-08-17T00:00:00.000Z"],
+    ["2026-08-10T00:00:00.000Z", "2026-08-17T00:00:00.000Z"],
+    ["2026-08-10T00:00:00.000Z", "2026-08-17T00:00:00.000Z"],
+  ]);
+  assert.deepEqual(sunday.map((quest) => quest.id), thursday.map((quest) => quest.id));
+  assert.notDeepEqual(monday.map((quest) => quest.id), thursday.map((quest) => quest.id));
+  assert.ok(monday.every((quest) => quest.startAt === "2026-08-17T00:00:00.000Z" && quest.endAt === "2026-08-24T00:00:00.000Z"));
+});
+
 test("rejects calendar-rollover official metadata ids", () => {
   const malformedId = "official-royal-route-2026-02-31";
   const metadata = { [OFFICIAL_GROUP_QUEST_METADATA_KEY]: { [malformedId]: {

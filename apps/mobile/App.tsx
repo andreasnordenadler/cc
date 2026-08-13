@@ -10105,7 +10105,7 @@ function getDevTrackerPreviewAccount(account: MobileAccountResponse | null, boot
     previousOfficialGroupQuests: [
       {
         id: "official-preview-starter-shield-finished",
-        title: "Official 14-Day Starter Shield",
+        title: "Official Weekly Starter Shield",
         official: true,
         status: "Finished",
         copy: "14 players · final",
@@ -10127,7 +10127,7 @@ function getDevTrackerPreviewAccount(account: MobileAccountResponse | null, boot
       },
       {
         id: "official-preview-royal-route-finished",
-        title: "Official 14-Day Royal Route",
+        title: "Official Weekly Royal Route",
         official: true,
         status: "Finished",
         copy: "11 players · final",
@@ -10149,7 +10149,7 @@ function getDevTrackerPreviewAccount(account: MobileAccountResponse | null, boot
       },
       {
         id: "official-preview-chaos-ladder-finished",
-        title: "Official 14-Day Chaos Ladder",
+        title: "Official Weekly Chaos Ladder",
         official: true,
         status: "Finished",
         copy: "9 players · final",
