@@ -3,10 +3,10 @@ import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "Terms of Use — Side Quest Chess",
-  description: "Launch-draft terms for using the Side Quest Chess website and mobile app.",
+  description: "Terms for using the Side Quest Chess website and mobile app.",
 };
 
-const LAST_UPDATED = "July 29, 2026";
+const LAST_UPDATED = "August 13, 2026";
 
 export default function TermsPage() {
   return (
@@ -19,12 +19,12 @@ export default function TermsPage() {
               <span className="privacy-kicker">Side Quest Chess</span>
             </div>
             <h1 id="terms-title">Terms of Use</h1>
-            <p className="privacy-lede">These launch-draft terms describe the current Side Quest Chess product and the basic expectations for using its website and mobile app.</p>
-            <p className="privacy-effective"><strong>Launch draft updated:</strong> {LAST_UPDATED}</p>
+            <p className="privacy-lede">These terms describe Side Quest Chess and the expectations for using its website and mobile app.</p>
+            <p className="privacy-effective"><strong>Effective:</strong> {LAST_UPDATED}</p>
           </header>
 
           <nav className="privacy-contents" aria-label="Terms of Use sections">
-            <a href="#status">Status</a>
+            <a href="#provider">Provider</a>
             <a href="#service">Service</a>
             <a href="#accounts">Accounts</a>
             <a href="#content">Content</a>
@@ -36,9 +36,9 @@ export default function TermsPage() {
         </div>
 
         <div className="terms-document-grid">
-          <section id="status">
-            <h2>Draft status</h2>
-            <p>This page is an implementation-based launch draft, not legal advice or a final adopted agreement. Legal entity, minimum-age, governing-law, dispute, warranty, liability, termination, and other legal terms still require owner/legal review before adoption.</p>
+          <section id="provider">
+            <h2>Provider and eligibility</h2>
+            <p>Side Quest Chess is provided by Crowdler AB, Kvarnängsvägen 15, 182 47 Enebyberg, Sweden. You must be at least 13 years old to use the service. By using Side Quest Chess, you agree to these terms.</p>
           </section>
 
           <section id="service">
@@ -71,19 +71,25 @@ export default function TermsPage() {
 
           <section id="changes">
             <h2>Product and terms changes</h2>
-            <p>Side Quest Chess is actively developed, so features and this draft may change. A final effective date, notice process, termination policy, and treatment of existing users require owner/legal confirmation before these terms are adopted.</p>
+            <p>Side Quest Chess is actively developed, so features may change. We may suspend or terminate access when reasonably necessary to protect users, the service, or comply with law. We may update these terms and will identify material changes with a new effective date and, where appropriate, an in-product notice.</p>
+          </section>
+
+          <section id="law">
+            <h2>Availability, liability, and governing law</h2>
+            <p>Side Quest Chess is provided as available. We do not guarantee uninterrupted operation, provider availability, or that every automated quest check will be correct. Nothing in these terms limits liability that cannot legally be limited. To the extent permitted by law, Crowdler AB is not liable for indirect or consequential loss arising from use of the service.</p>
+            <p>These terms are governed by Swedish law. Disputes should first be raised with us at the contact below. Mandatory consumer protections and the jurisdiction rights available to consumers remain unaffected.</p>
           </section>
 
           <section id="contact" className="privacy-contact">
             <h2>Questions or problems</h2>
-            <p>Use <Link href="/support">Help &amp; Support</Link> for product questions. Signed-out users can email <a href="mailto:andreas.nordenadler@gmail.com">andreas.nordenadler@gmail.com</a>.</p>
+            <p>Use <Link href="/support">Help &amp; Support</Link> for product questions. You can also contact Crowdler AB at <a href="mailto:sam@crowdler.com">sam@crowdler.com</a> or Kvarnängsvägen 15, 182 47 Enebyberg, Sweden.</p>
             <Link className="privacy-contact-link" href="/support">Open Help &amp; Support</Link>
           </section>
         </div>
 
-        <aside className="privacy-notice" role="note" aria-label="Terms status">
-          <strong>Terms status</strong>
-          <p>This launch draft has not been adopted as final Terms of Use. The unresolved decisions above must be confirmed through owner/legal review before publication as a binding agreement.</p>
+        <aside className="privacy-notice" role="note" aria-label="Provider information">
+          <strong>Provider</strong>
+          <p>Crowdler AB, Kvarnängsvägen 15, 182 47 Enebyberg, Sweden · sam@crowdler.com</p>
         </aside>
       </article>
     </main>
