@@ -515,6 +515,7 @@ test("Community creator shortcuts resolve equal rankings with a stable creator-k
 
 test("Community discovery uses a wide desktop grid only at the established boundary", () => {
   const css = readFileSync("src/app/mobile-web.css", "utf8");
+  const standardDesktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1380px)"));
   const wideDesktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1680px)"));
 
   assert.match(css, /@media\s*\(min-width:\s*1180px\)[\s\S]*?\.sqc-mobile-web\.desktop-community-discovery\s+\.sqc-screen\s*\{[^}]*width:\s*min\(1320px,\s*calc\(100%\s*-\s*64px\)\)/);
@@ -527,6 +528,8 @@ test("Community discovery uses a wide desktop grid only at the established bound
   assert.match(css, /@media\s*\(min-width:\s*1180px\)[\s\S]*?\.sqc-mobile-web\.desktop-community-discovery\s+\.sqc-community-creator-directory\s*\{[^}]*display:\s*grid;[^}]*position:\s*sticky;[^}]*grid-column:\s*1;[^}]*grid-row:\s*3;/);
   assert.match(css, /\.sqc-mobile-web\.desktop-community-discovery\s+\.sqc-community-creator-directory-link\s*\{[^}]*min-height:\s*44px;/);
   assert.match(css, /\.sqc-mobile-web\.desktop-community-discovery\s+\.sqc-community-creator-directory-link:focus-visible\s*\{[^}]*outline:\s*3px\s+solid\s+rgba\(96,\s*240,\s*175,\s*\.88\);[^}]*outline-offset:\s*3px;/);
+  assert.match(standardDesktopMedia, /\.sqc-mobile-web\.desktop-community-discovery\s+\.sqc-catalog\s*\{[^}]*grid-template-columns:\s*repeat\(3,\s*minmax\(0,\s*1fr\)\);/, "a standard 1440px desktop should show three comparable quests per row");
+  assert.match(standardDesktopMedia, /\.sqc-mobile-web\.desktop-community-discovery\s+\.sqc-app-row\s*\{[^}]*grid-template-columns:\s*58px\s+minmax\(0,\s*1fr\);[^}]*padding:\s*18px\s+14px;/, "standard desktop cards should stay readable at the denser width");
   assert.match(wideDesktopMedia, /\.sqc-mobile-web\.desktop-community-discovery\s+\.sqc-screen\s*\{[^}]*width:\s*min\(1600px,\s*calc\(100%\s*-\s*80px\)\)/);
   assert.match(wideDesktopMedia, /\.sqc-mobile-web\.desktop-community-discovery\s+\.sqc-catalog\s*\{[^}]*grid-template-columns:\s*repeat\(3,\s*minmax\(0,\s*1fr\)\);/);
 });
