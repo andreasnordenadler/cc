@@ -29,7 +29,7 @@ This packet supersedes candidate/version claims in the July 2026 Apple and store
 | Source candidate frozen | NOT FROZEN | Approved release commit and clean-tree receipt |
 | Signed IPA identity inspected | BLOCKED | IPA checksum, bundle/version/build, signature, entitlements, privacy manifests, SDK list |
 | iOS auth/deep link | SOURCE-ALIGNED, DEVICE-UNVERIFIED | All submitted sign-in methods returning through the callback on a real iPhone |
-| Sign in with Apple policy | BLOCKED | Implement and test Apple sign-in, or document that submitted login options qualify for an App Review exception |
+| Sign in with Apple policy | BLOCKED | Google and Facebook sign-in are present. Implement and test Sign in with Apple, or remove third-party social login from the submitted iOS UI; rely on an exception only after a specific qualifying basis is documented and reviewed |
 | Privacy labels | DRAFT ONLY | Binary/SDK inspection plus adopted App Store Connect answers |
 | Current screenshots | BLOCKED | Captures from the exact TestFlight candidate on required Apple display sizes |
 | TestFlight real-iPhone smoke | BLOCKED | Store-delivered install and signed-in checklist receipt |
@@ -161,18 +161,20 @@ Suggested ordered frames: Home/active Side Quest; Solo catalog; quest detail and
 
 Run clean install and update install on current supported OS versions. Record device, OS, TestFlight build, source SHA, orientation/window size, tester, timestamp, and result.
 
-| Surface | iPhone portrait | iPhone landscape | iPad portrait | iPad landscape/full | iPad split view/Stage Manager |
-| --- | --- | --- | --- | --- | --- |
-| Cold launch, bootstrap, offline/reconnect | Required | Required | Required | Required | Required |
-| Signed-out Home/Solo/Multiplayer | Required | Required | Required | Required | Required |
-| Auth sheets and OAuth browser return | Required | Required | Required | Required | Required |
-| Account/profile/keyboard | Required | Required | Required | Required | Required |
-| Solo detail, proof, share, reset | Required | Required | Required | Required | Required |
-| Custom builder and unsaved changes | Required | Required | Required | Required | Required |
-| Multiplayer create/detail/join/proof | Required | Required | Required | Required | Required |
-| Trophy Cabinet and modals | Required | Required | Required | Required | Required |
-| Help/legal/support and deletion | Required | Required | Required | Required | Required |
-| VoiceOver, Dynamic Type, contrast, targets | Required | Required | Required | Required | Required |
+The current Expo configuration restricts iPhone to portrait. Do not claim iPhone landscape support unless that configuration is deliberately changed and reverified.
+
+| Surface | iPhone portrait | iPad portrait | iPad landscape/full | iPad split view/Stage Manager |
+| --- | --- | --- | --- | --- |
+| Cold launch, bootstrap, offline/reconnect | Required | Required | Required | Required |
+| Signed-out Home/Solo/Multiplayer | Required | Required | Required | Required |
+| Auth sheets and OAuth browser return | Required | Required | Required | Required |
+| Account/profile/keyboard | Required | Required | Required | Required |
+| Solo detail, proof, share, reset | Required | Required | Required | Required |
+| Custom builder and unsaved changes | Required | Required | Required | Required |
+| Multiplayer create/detail/join/proof | Required | Required | Required | Required |
+| Trophy Cabinet and modals | Required | Required | Required | Required |
+| Help/legal/support and deletion | Required | Required | Required | Required |
+| VoiceOver, Dynamic Type, contrast, targets | Required | Required | Required | Required |
 
 Fail for clipped or unreachable controls, content hidden under safe areas/keyboard, unusable modal sizing, unexpected orientation resets, lost form state, broken callback routing, or layout overlap. If the iPad matrix cannot pass, disable tablet support in a separately approved candidate before screenshots/build freeze.
 
@@ -193,6 +195,8 @@ Fail for clipped or unreachable controls, content hidden under safe areas/keyboa
 ## Least-privilege Apple access packet
 
 Use a dedicated Sam/Crowdler operational Apple Account with multi-factor authentication and Crowdler-controlled recovery methods. Do not invite Andreas's personal identity for operational work.
+
+The Expo project is currently configured with owner `and72nor` and project ID `9af73cb2-dcd5-4429-b194-67fc81206937`. Before any cloud build, separately verify and authorize least-privilege access for the dedicated Crowdler operator or an approved organization-level transfer. Do not run EAS build, credentials, or submit commands through Andreas's personal session.
 
 Owner-approved sequence:
 
