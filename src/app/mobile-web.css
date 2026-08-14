@@ -6540,7 +6540,7 @@ body::after {
   }
 
   .sqc-mobile-web.desktop-solo-discovery .sqc-app-row {
-    min-height: 238px;
+    min-height: 190px;
     position: relative;
     grid-template-columns: 68px minmax(0, 1fr);
     align-content: center;
@@ -10352,8 +10352,8 @@ body::after {
   }
 
   /* Standard desktop widths can scan the compact official catalog in one row per
-     difficulty without waiting for an ultrawide viewport. Mobile and the 1180px
-     transition keep the existing roomy two-column composition. */
+     difficulty without waiting for an ultrawide viewport. Mobile keeps its existing
+     composition while the 1180px transition uses a readable two-column grid. */
   @media (min-width: 1380px) and (max-width: 1679px) {
     .sqc-mobile-web.desktop-solo-discovery .sqc-screen {
       width: min(1320px, calc(100% - 48px));
@@ -10370,7 +10370,7 @@ body::after {
     }
 
     .sqc-mobile-web.desktop-solo-discovery .sqc-app-row {
-      min-height: 210px;
+      min-height: 178px;
       grid-template-columns: 58px minmax(0, 1fr);
       gap: 10px;
       padding: 18px 15px;
@@ -10548,7 +10548,7 @@ body::after {
   }
 
   .sqc-mobile-web.desktop-solo-discovery .sqc-app-row {
-    min-height: 198px;
+    min-height: 176px;
   }
 
   .sqc-mobile-web.desktop-community-discovery .sqc-catalog {

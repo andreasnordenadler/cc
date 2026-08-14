@@ -155,9 +155,27 @@ test("desktop Solo discovery keeps every objective and Android opening hint read
     };
   }));
 
-  expect(geometry.every(({ minHeight }) => minHeight === 238)).toBe(true);
+  expect(geometry.every(({ minHeight }) => minHeight === 190)).toBe(true);
   expect(geometry.every(({ objectiveClientHeight, objectiveScrollHeight }) => objectiveScrollHeight <= objectiveClientHeight + 1)).toBe(true);
   expect(geometry.every(({ noteClientHeight, noteScrollHeight }) => noteScrollHeight <= noteClientHeight + 1)).toBe(true);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBe(0);
+
+  await page.setViewportSize({ width: 1440, height: 900 });
+  const standardDesktop = await cards.evaluateAll((rows) => rows.map((row) => ({
+    minHeight: Number.parseFloat(getComputedStyle(row).minHeight),
+    height: row.getBoundingClientRect().height,
+    overflow: row.scrollHeight - row.clientHeight,
+  })));
+  expect(standardDesktop.every(({ minHeight }) => minHeight === 178)).toBe(true);
+  expect(standardDesktop.every(({ height, overflow }) => height >= 178 && overflow === 0)).toBe(true);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBe(0);
+
+  await page.setViewportSize({ width: 1920, height: 1080 });
+  const wideDesktop = await cards.evaluateAll((rows) => rows.map((row) => ({
+    minHeight: Number.parseFloat(getComputedStyle(row).minHeight),
+    overflow: row.scrollHeight - row.clientHeight,
+  })));
+  expect(wideDesktop.every(({ minHeight, overflow }) => minHeight === 176 && overflow === 0)).toBe(true);
   expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBe(0);
 });
 
