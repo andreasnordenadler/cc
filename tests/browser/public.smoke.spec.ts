@@ -61,6 +61,32 @@ test("signed-out desktop-native routes omit the phone menu and expose persistent
   await expect(page.getByRole("link", { name: "Sign in", exact: true })).toHaveAttribute("href", "/sign-in?redirect_url=%2Fside-quests");
 });
 
+test("desktop Multiplayer creation keeps its live draft action in view without changing the mobile footer", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await expectHealthyNavigation(page, "/create-multiplayer-side-quest");
+
+  const action = page.getByRole("form", { name: "Create Multiplayer Side Quest form" }).locator(".sqc-create-footer-bar");
+  await expect(action).toBeVisible();
+  const desktopGeometry = await action.evaluate((element) => {
+    const rect = element.getBoundingClientRect();
+    return {
+      position: getComputedStyle(element).position,
+      bottom: Math.round(window.innerHeight - rect.bottom),
+      overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+    };
+  });
+  expect(desktopGeometry).toEqual({ position: "fixed", bottom: 24, overflow: 0 });
+  await expect(action.getByRole("button", { name: "Sign in to create Multiplayer Side Quest" })).toBeVisible();
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  const mobileGeometry = await action.evaluate((element) => ({
+    position: getComputedStyle(element).position,
+    bottom: getComputedStyle(element).bottom,
+    overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+  }));
+  expect(mobileGeometry).toEqual({ position: "sticky", bottom: "10px", overflow: 0 });
+});
+
 test("desktop Trophy Cabinet turns coat previews into decision-ready collection cards without changing mobile", async ({ page }) => {
   await page.setViewportSize({ width: 1179, height: 900 });
   await expectHealthyNavigation(page, "/trophy-cabinet");
