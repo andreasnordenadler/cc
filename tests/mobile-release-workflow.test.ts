@@ -50,10 +50,10 @@ test("mobile release audit patches available fixes and narrowly accepts only Met
 
   assert.match(workspace, /^  js-yaml@>=3\.0\.0 <3\.15\.1: "3\.15\.1"$/m);
   assert.match(workspace, /^  js-yaml@>=4\.0\.0 <4\.3\.1: "4\.3\.1"$/m);
-  assert.match(workspace, /^  nanoid@<3\.3\.17: "3\.3\.17"$/m);
+  assert.match(workspace, /^  nanoid@<3\.3\.18: "3\.3\.18"$/m);
   assert.match(lockfile, /^  js-yaml@3\.15\.1:$/m);
   assert.match(lockfile, /^  js-yaml@4\.3\.1:$/m);
-  assert.match(lockfile, /^  nanoid@3\.3\.17:$/m);
+  assert.match(lockfile, /^  nanoid@3\.3\.18:$/m);
 
   assert.match(releaseScript, /run\("node", \["scripts\/check-production-audit\.mjs"\]\)/);
   assert.doesNotMatch(releaseScript, /pnpm[^\n]+audit/);
