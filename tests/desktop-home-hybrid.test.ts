@@ -1295,7 +1295,8 @@ test("Multiplayer creation becomes a wide two-column planner only at the desktop
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-multiplayer-create\s+\.sqc-hydration-gate\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1\.15fr\)\s+minmax\(420px,\s*\.85fr\);/);
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-multiplayer-create\s+\.sqc-create-setup-card\s+\.sqc-option-grid\s*\{[^}]*grid-template-columns:\s*repeat\(3,\s*minmax\(0,\s*1fr\)\);/);
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-multiplayer-create\s+\.sqc-create-catalog-card\s*\{[^}]*grid-column:\s*2;[^}]*grid-row:\s*span\s*2;/);
-  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-multiplayer-create\s+\.sqc-create-footer-bar\s*\{[^}]*grid-column:\s*1\s*\/\s*-1;[^}]*position:\s*static;/, "the creation action must not cover setup or catalog controls");
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-multiplayer-create\s+\.sqc-screen\s*\{[^}]*padding:\s*46px\s+0\s+180px;/, "the desktop planner reserves space for its persistent action bar");
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-multiplayer-create\s+\.sqc-create-footer-bar\s*\{[^}]*grid-column:\s*1\s*\/\s*-1;[^}]*position:\s*fixed;[^}]*bottom:\s*24px;[^}]*left:\s*50%;[^}]*z-index:\s*20;[^}]*width:\s*min\(760px,\s*calc\(100%\s*-\s*64px\)\);[^}]*transform:\s*translateX\(-50%\);/, "the desktop creation action stays visible without changing the mobile footer");
   assert.equal(css.replace(desktopMedia, "").includes(".sqc-mobile-web.desktop-multiplayer-create"), false, "desktop Multiplayer create rules must not leak below 1180px");
 });
 
