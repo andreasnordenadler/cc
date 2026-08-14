@@ -399,6 +399,37 @@ test("Community discovery keeps its shared search and filters available while de
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-community-discovery\s+\.sqc-community-browse-panel\s*\{[^}]*backdrop-filter:\s*blur\(18px\);/);
 });
 
+test("Community discovery gives a lone real result a deliberate desktop reading width", () => {
+  const rows = [{
+    id: "community-one",
+    title: "Castle? Never Heard Of It",
+    meta: "By Nora Skewer · Finish a game without castling.",
+    href: "/challenges/community/community-one",
+    sourceBadge: "Community",
+    status: "Ready",
+    creatorKey: "nora",
+    creatorName: "Nora Skewer",
+    creatorBrowsePath: "/community-side-quests?creator=nora#creator-nora",
+    summary: "Finish a game without castling.",
+    stats: { soloAttempts: 3, soloCompletions: 1, multiplayerLineups: 2 },
+    updatedAtMs: 1,
+    popularityScore: 1,
+    likeCount: 1,
+    likedByViewer: false,
+    completedByViewer: false,
+    isNew: true,
+  }];
+  const singleHtml = renderToStaticMarkup(createElement(MobileCommunitySideQuestsScreen, { rows, signedIn: false }));
+  const twoResultHtml = renderToStaticMarkup(createElement(MobileCommunitySideQuestsScreen, { rows: [...rows, { ...rows[0], id: "community-two", title: "Second quest" }], signedIn: false }));
+  const css = readFileSync("src/app/mobile-web.css", "utf8");
+  const desktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1180px)"));
+
+  assert.match(singleHtml, /class="sqc-catalog single-result"/);
+  assert.doesNotMatch(twoResultHtml, /class="sqc-catalog single-result"/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-community-discovery\s+\.sqc-catalog\.single-result\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*760px\);/);
+  assert.equal(css.slice(0, css.indexOf("@media (min-width: 1180px)")).includes(".sqc-catalog.single-result"), false, "mobile keeps the established full-width card flow");
+});
+
 test("Community creator shelves become contextual desktop rail destinations", () => {
   const rows = [{
     id: "community-one",

@@ -6893,6 +6893,10 @@ body::after {
     background: transparent;
   }
 
+  .sqc-mobile-web.desktop-community-discovery .sqc-catalog.single-result {
+    grid-template-columns: minmax(0, 760px);
+  }
+
   .sqc-mobile-web.desktop-community-discovery .sqc-app-row {
     min-height: 190px;
     position: relative;
