@@ -19,7 +19,13 @@ test("iOS provides native Sign in with Apple alongside existing account methods"
   const appleFlowEnd = appSource.indexOf("const startPasswordSignIn", appleFlowStart);
   assert.ok(appleFlowStart >= 0 && appleFlowEnd > appleFlowStart, "Apple sign-in callback must be discoverable");
   const appleFlowSource = appSource.slice(appleFlowStart, appleFlowEnd);
-  assert.doesNotMatch(appleFlowSource, /Sign-in did not finish/, "Clerk represents Apple-sheet cancellation as a no-session result");
+  assert.match(appleFlowSource, /if \(!signInLoaded \|\| !signUpLoaded\)/);
+  assert.match(appleFlowSource, /Apple sign-in is still getting ready/);
+  assert.match(appleFlowSource, /if \(appleSignInInFlightRef\.current\) return/);
+  assert.match(appleFlowSource, /appleSignInInFlightRef\.current = true/);
+  assert.doesNotMatch(appleFlowSource, /Sign-in did not finish/, "Clerk represents Apple-sheet cancellation as a loaded no-session result");
+  assert.match(appleFlowSource, /code === ["']ERR_REQUEST_CANCELED["']/);
+  assert.match(appleFlowSource, /finally[\s\S]*appleSignInInFlightRef\.current = false/);
   assert.match(appSource, /startAppleSignIn:\s*Platform\.OS\s*===\s*["']ios["']\s*\?\s*startAppleSignIn\s*:\s*undefined/);
   assert.match(appSource, /AppleAuthenticationButtonType\.SIGN_IN/);
   assert.match(appSource, /AppleAuthenticationButtonStyle\.WHITE_OUTLINE/);

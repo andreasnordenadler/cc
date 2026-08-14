@@ -4,10 +4,11 @@ Status: source-preparation packet only. It is not evidence of an Apple build, Te
 
 ## Candidate reconciled from `origin/main`
 
-- Reconciled `origin/main` baseline: `d4e2cb7b83df0d0697f1873f229dde04471c41d5` (fetched 2026-08-14)
+- Reconciled `origin/main` baseline: `6870f8a92a3e5e740f358cf50cd85ee15f0df83b` (fetched 2026-08-14)
 - Current Android launch baseline: Google Play Internal testing accepted build `0.1.349` / code `350`; Android production remains inactive and separately approval-gated
 - App name: Side Quest Chess
 - Expo source version: `0.1.349`
+- Source-controlled iOS build number: `1` (candidate only; must be reconciled against App Store Connect before freeze)
 - Bundle ID candidate: `com.sidequestchess.app`
 - Scheme: `sidequestchess`
 - Authentication callback: `sidequestchess://sso-callback`
@@ -216,7 +217,7 @@ This packet does not authorize an invite, acceptance, credential generation, app
 
 ## Build and binary acceptance
 
-Before upload, freeze the commit and record EAS build ID, source SHA, version/build, archive/IPA SHA-256, builder image, and dependency lock hash. Inspect the IPA for:
+Before upload, reconcile build number `1` against the correct Crowdler AB App Store Connect record, then freeze the commit and record EAS build ID, source SHA, version/build, archive/IPA SHA-256, builder image, and dependency lock hash. Run EAS only from `apps/mobile` with the `ios-production` profile; that profile deliberately disables auto-increment so the frozen source and archive cannot silently diverge. Inspect the IPA for:
 
 - `CFBundleIdentifier = com.sidequestchess.app`
 - `CFBundleDisplayName = Side Quest Chess`
@@ -234,15 +235,16 @@ Submission, App Review acceptance, release approval, and public storefront avail
 
 ## Local source-readiness receipt — 2026-08-14
 
-- The dedicated iOS worktree was clean before reconciliation and was rebased onto fetched `origin/main` `d4e2cb7b83df0d0697f1873f229dde04471c41d5`; the dirty canonical checkout was not modified or cleaned.
-- Full canonical test suite: 736/736 passed.
+- The dedicated iOS worktree was clean before reconciliation and was rebased onto fetched `origin/main` `6870f8a92a3e5e740f358cf50cd85ee15f0df83b`; the dirty canonical checkout was not modified or cleaned.
+- Full canonical test suite: 739/739 passed.
 - Full lint: passed with zero errors and four pre-existing warnings.
 - Full Next production build: passed and generated all 88 static pages.
 - `expo-doctor --verbose`: 18/18 checks passed.
 - Mobile TypeScript check: passed.
-- Focused iOS configuration, authentication, deletion, and privacy tests: 25/25 passed.
-- Expo config introspection produced `com.sidequestchess.app`, URL schemes `sidequestchess` and `com.sidequestchess.app`, `com.apple.developer.applesignin = Default`, and `ITSAppUsesNonExemptEncryption = false`.
-- A local iOS JavaScript export completed: 853 modules bundled into a 3.71 MB Hermes bytecode file; export directory size 53 MB; bytecode SHA-256 `a8b57cdc063fb8a6ff6eddb73bf384bbfedcaffae4b7c453caebad6163dddb5d`. This is not a native archive or IPA.
+- Focused iOS release-profile and social-authentication tests after the final config change: 15/15 passed; deletion and privacy coverage also passed in the full suite.
+- A fresh native `expo prebuild --platform ios --no-install` succeeded. Generated source produced bundle `com.sidequestchess.app`, version/build `0.1.349 (1)`, URL schemes `sidequestchess` and `com.sidequestchess.app`, Sign in with Apple entitlement `Default`, `ITSAppUsesNonExemptEncryption = false`, iPhone/iPad device families, iOS deployment target 15.1, iPhone portrait orientations, and all four iPad orientations. No app-owned `PrivacyInfo.xcprivacy` was generated at this no-Pods stage; embedded SDK manifests and required-reason API declarations remain an archive/Pods inspection gate.
+- EAS CLI configuration resolution from `apps/mobile` validated the `ios-production` store profile with local app-version source, build `1`, production API/Clerk environment, and `autoIncrement: false`. This read-only check did not request Apple credentials or start a build.
+- A fresh local iOS JavaScript export completed: 853 modules bundled into a 3,706,917-byte Hermes bytecode file; export directory size 53 MB; bytecode SHA-256 `aa89094582829a8b7a93ecb96e650fe88f30e5497e52de595152acbf6ecc396a`. This is not a native archive or IPA.
 - App Store draft field lengths are within current limits: subtitle 22 characters, keywords 91 UTF-8 bytes, promotional text 164 characters.
 - Lockfile SHA-256 after reconciliation: `35f1e3fa53d7b0f7652929b4f9217586e9a46174ae502d500cb7645ad392af15`.
 - Local Apple toolchain remains blocked: selected developer directory is Command Line Tools, `xcodebuild` requires full Xcode, and zero valid code-signing identities are installed.

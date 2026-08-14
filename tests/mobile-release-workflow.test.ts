@@ -196,10 +196,25 @@ test("iOS release identity, callback, and export-compliance declarations stay al
   assert.equal(config.name, "Side Quest Chess");
   assert.equal(config.scheme, "sidequestchess");
   assert.equal(config.ios.bundleIdentifier, "com.sidequestchess.app");
+  assert.equal(config.ios.buildNumber, "1");
   assert.equal(config.ios.supportsTablet, true);
   assert.equal(config.ios.config.usesNonExemptEncryption, false);
   assert.equal(config.ios.infoPlist.NSAppTransportSecurity.NSAllowsArbitraryLoads, false);
   assert.match(appSource, /native:\s*["']sidequestchess:\/\/sso-callback["']/);
+});
+
+test("iOS production builds preserve the source-controlled build identity", () => {
+  const rootConfig = JSON.parse(readRepoFile("eas.json"));
+  const mobileConfig = JSON.parse(readRepoFile("apps/mobile/eas.json"));
+  assert.deepEqual(rootConfig, mobileConfig, "duplicate EAS entry points must remain byte-semantically equivalent");
+
+  for (const [path, config] of [["eas.json", rootConfig], ["apps/mobile/eas.json", mobileConfig]] as const) {
+    const profile = config.build["ios-production"];
+
+    assert.equal(config.cli.appVersionSource, "local", `${path} must read the iOS version from source`);
+    assert.equal(profile.extends, "production", `${path} must inherit the reviewed production environment`);
+    assert.equal(profile.autoIncrement, false, `${path} must not silently change the frozen iOS build number`);
+  }
 });
 
 test("iOS release does not declare unused sensitive permissions", () => {

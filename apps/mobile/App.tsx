@@ -1296,6 +1296,7 @@ function ClerkMobileShell() {
   const { signIn, setActive: setSignInActive, isLoaded: signInLoaded } = useSignIn();
   const { signUp, setActive: setSignUpActive, isLoaded: signUpLoaded } = useSignUp();
   const { user } = useUser();
+  const appleSignInInFlightRef = useRef(false);
   const signedInLabel = user?.fullName || user?.username || user?.primaryEmailAddress?.emailAddress || null;
 
   const startSocialSignIn = useCallback(async (strategy: "oauth_google" | "oauth_facebook", providerLabel: "Google" | "Facebook") => {
@@ -1326,18 +1327,27 @@ function ClerkMobileShell() {
   const startGoogleSignIn = useCallback(() => startSocialSignIn("oauth_google", "Google"), [startSocialSignIn]);
   const startFacebookSignIn = useCallback(() => startSocialSignIn("oauth_facebook", "Facebook"), [startSocialSignIn]);
   const startAppleSignIn = useCallback(async () => {
+    if (!signInLoaded || !signUpLoaded) {
+      Alert.alert("Sign-in is loading", "Apple sign-in is still getting ready. Try again in a moment.");
+      return;
+    }
+    if (appleSignInInFlightRef.current) return;
+    appleSignInInFlightRef.current = true;
     try {
       const result = await startAppleAuthenticationFlow();
       if (result.createdSessionId && result.setActive) {
         await result.setActive({ session: result.createdSessionId });
+        return;
       }
     } catch (caught) {
       const code = typeof caught === "object" && caught !== null && "code" in caught ? String(caught.code) : "";
       if (code === "ERR_REQUEST_CANCELED") return;
       const message = caught instanceof Error ? caught.message : "Unknown Apple sign-in error.";
       Alert.alert("Sign-in error", message);
+    } finally {
+      appleSignInInFlightRef.current = false;
     }
-  }, [startAppleAuthenticationFlow]);
+  }, [signInLoaded, signUpLoaded, startAppleAuthenticationFlow]);
 
   const startPasswordSignIn = useCallback(async ({ identifier, password }: { identifier: string; password: string }) => {
     if (!signInLoaded) throw new Error("Sign-in is still loading. Try again in a moment.");
