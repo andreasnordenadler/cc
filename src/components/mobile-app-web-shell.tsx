@@ -359,7 +359,7 @@ function GuestNavigation({ activeTab }: { activeTab: AppTab }) {
   );
 }
 
-function DesktopHomeHeader({ signedIn, displayName, activeTab, activeItemId, accountIsCurrent = false }: { signedIn: boolean; displayName?: string | null; activeTab: AppTab | null; activeItemId?: string; accountIsCurrent?: boolean }) {
+export function DesktopHomeHeader({ signedIn, displayName, activeTab, activeItemId, accountIsCurrent = false }: { signedIn: boolean; displayName?: string | null; activeTab: AppTab | null; activeItemId?: string; accountIsCurrent?: boolean }) {
   const shortcuts = desktopHomeMenuItems.slice(0, 4);
   const resolvedActiveItemId = activeItemId ?? (activeTab === "multiplayerSideQuests" ? "multiplayer" : activeTab === "coatOfArms" ? "coats" : activeTab ?? "");
 

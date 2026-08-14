@@ -493,6 +493,26 @@ test("multiplayer catalog is publicly browseable", async ({ page }) => {
   await expect(page.getByText(/official/, { exact: true }).first()).toBeVisible();
 });
 
+test("Privacy Policy keeps desktop navigation at 1180px without changing the mobile composition below it", async ({ page }) => {
+  await page.setViewportSize({ width: 1180, height: 900 });
+  await expectHealthyNavigation(page, "/privacy");
+
+  const shortcuts = page.getByRole("navigation", { name: "Desktop shortcuts" });
+  await expect(shortcuts).toBeVisible();
+  const explore = page.locator(".sqc-desktop-menu");
+  await explore.locator("summary").click();
+  await expect(explore.getByRole("link", { name: "Privacy Policy", exact: true })).toHaveAttribute("aria-current", "page");
+  await expect(page.getByRole("link", { name: "Sign in", exact: true })).toHaveAttribute("href", "/sign-in?redirect_url=%2Fprivacy");
+  await expect(page.getByRole("heading", { name: "Privacy Policy", exact: true })).toHaveCount(1);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBe(0);
+
+  await page.setViewportSize({ width: 1179, height: 900 });
+  await expect(shortcuts).toBeHidden();
+  await expect(page.getByRole("link", { name: "← Side Quest Chess" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Privacy Policy", exact: true })).toHaveCount(1);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBe(0);
+});
+
 test("privacy policy is public, dedicated, and links to privacy support", async ({ page }) => {
   await expectHealthyNavigation(page, "/privacy");
 
@@ -502,7 +522,7 @@ test("privacy policy is public, dedicated, and links to privacy support", async 
   await expect(page.getByRole("heading", { name: "Chess game verification" })).toBeVisible();
   await expect(page.getByRole("link", { name: "Contact privacy support" })).toHaveAttribute(
     "href",
-    "mailto:andreas.nordenadler@gmail.com?subject=Side%20Quest%20Chess%20privacy%20request",
+    "mailto:sam@crowdler.com?subject=Side%20Quest%20Chess%20privacy%20request",
   );
 });
 
