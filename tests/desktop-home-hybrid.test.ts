@@ -1462,7 +1462,7 @@ test("Help and Support gives every desktop help topic a direct next destination 
   for (const [label, href] of [
     ["Browse Solo Side Quests", "/side-quests"],
     ["Choose a Side Quest", "/side-quests"],
-    ["Open chess account settings", "/account"],
+    ["Open chess account settings", "/settings#lichess-username"],
     ["Browse Multiplayer", "/multiplayer"],
     ["Open Trophy Cabinet", "/trophy-cabinet"],
   ]) {

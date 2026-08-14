@@ -1055,7 +1055,7 @@ export function MobileSupportScreen({
     {
       title: "Connecting a chess username",
       body: "Add your public Lichess or Chess.com username so Side Quest Chess knows which games belong to you. It only reads public game records and never needs your chess-site password.",
-      action: { label: "Open chess account settings", href: "/account" },
+      action: { label: "Open chess account settings", href: "/settings#lichess-username" },
     },
     {
       title: "Multiplayer Side Quests",
