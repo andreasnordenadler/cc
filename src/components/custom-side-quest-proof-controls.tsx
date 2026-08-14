@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { ProofPositionMiniBoard } from "./proof-position-board";
 
 type QuestAction = "start" | "check" | "submit" | "deactivate" | "reset";
 
@@ -88,6 +89,7 @@ export default function CustomSideQuestProofControls({
         <p>{latestAttempt.summary}</p>
         {latestAttempt.failureExplanation ? <p>{latestAttempt.failureExplanation}</p> : null}
         {latestAttempt.lastMoveSan ? <small>Last move: {latestAttempt.lastMoveSan}</small> : null}
+        <ProofPositionMiniBoard fen={latestAttempt.finalPositionFen} label="Latest checked proof chess board" />
       </div>
     ) : null}
     <div className="sqc-community-detail-actions" aria-label="Custom Side Quest proof actions">
