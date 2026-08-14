@@ -58,20 +58,20 @@ export default async function PublicProofPage({
   const { payload } = decoded;
 
   return (
-    <MobileAppWebShell activeTab="sideQuests" signedIn={false}>
-      <div className="sqc-stack">
-        <section className="sqc-native-card">
+    <MobileAppWebShell activeTab="sideQuests" signedIn={false} desktopPresentation="proof">
+      <div className="sqc-stack sqc-public-proof-workspace">
+        <section className="sqc-native-card sqc-public-proof-hero">
           <span className="sqc-card-eyebrow">Victory scroll</span>
           <h1>{payload.challengeTitle}</h1>
           <h2>The clerks accept this proof.</h2>
           <p>{payload.badgeName} unlocked</p>
         </section>
 
-        <section className="sqc-native-card" aria-label="Victory scroll">
+        <section className="sqc-native-card sqc-public-proof-scroll-card" aria-label="Victory scroll">
           <ProofImage imagePath={publicProofImagePath(token)} alt={`Victory scroll image for ${payload.challengeTitle}`} className="sqc-proof-image" />
         </section>
 
-        <section className="sqc-native-card">
+        <section className="sqc-native-card sqc-public-proof-command-rail">
           <span className="sqc-card-eyebrow">Receipt details</span>
           <h2>Latest verified proof</h2>
           <p>The app keeps the same proof receipt data as your Side Quest Chess account: provider, game reference, final move, completion time, and canonical proof link when available.</p>

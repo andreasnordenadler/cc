@@ -10554,7 +10554,144 @@ body::after {
   }
 }
 
+/* Public proof keeps one shareable receipt subtree at every width. Desktop adds
+   persistent navigation and separates evidence from contextual actions. */
+@media (min-width: 1180px) {
+  .sqc-mobile-web.desktop-proof {
+    display: block;
+    min-height: 100vh;
+    padding: 0;
+    background:
+      radial-gradient(circle at 18% 15%, rgba(245, 200, 106, .15), transparent 26%),
+      radial-gradient(circle at 82% 44%, rgba(96, 240, 175, .07), transparent 24%),
+      linear-gradient(180deg, #25180f 0%, #15100d 38%, #09090a 76%, #050506 100%);
+  }
+
+  .sqc-mobile-web.desktop-proof .sqc-desktop-route-only {
+    display: block;
+  }
+
+  .sqc-mobile-web.desktop-proof > div:not(.sqc-mobile-backdrop):not(.sqc-desktop-route-only) > :is(.sqc-menu, .sqc-app-header, .sqc-close-screen),
+  .sqc-mobile-web.desktop-proof .sqc-guest-nav {
+    display: none;
+  }
+
+  .sqc-mobile-web.desktop-proof .sqc-screen {
+    width: min(1240px, calc(100% - 64px));
+    margin: 0 auto;
+    padding: 52px 0 88px;
+  }
+
+  .sqc-mobile-web.desktop-proof .sqc-public-proof-workspace {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(320px, .48fr);
+    align-items: start;
+    gap: 22px 26px;
+  }
+
+  .sqc-mobile-web.desktop-proof .sqc-public-proof-hero {
+    grid-column: 1;
+    grid-row: 1;
+    min-height: 226px;
+    align-content: end;
+    padding: 34px 38px;
+    border-color: rgba(245, 200, 106, .28);
+    background:
+      linear-gradient(135deg, rgba(245, 200, 106, .13), transparent 60%),
+      rgba(20, 16, 14, .86);
+  }
+
+  .sqc-mobile-web.desktop-proof .sqc-public-proof-hero h1 {
+    max-width: 780px;
+    margin: 8px 0 12px;
+    color: var(--paper);
+    font-family: ui-serif, Georgia, Cambria, "Times New Roman", serif;
+    font-size: clamp(46px, 4.5vw, 68px);
+    line-height: .92;
+    letter-spacing: -.045em;
+  }
+
+  .sqc-mobile-web.desktop-proof .sqc-public-proof-hero h2 {
+    margin: 0 0 8px;
+    color: #60f0af;
+    font-size: 17px;
+  }
+
+  .sqc-mobile-web.desktop-proof .sqc-public-proof-hero p {
+    margin: 0;
+    color: rgba(255, 247, 232, .72);
+    font-weight: 800;
+  }
+
+  .sqc-mobile-web.desktop-proof .sqc-public-proof-scroll-card {
+    grid-column: 1;
+    grid-row: 2 / span 2;
+    display: grid;
+    place-items: center;
+    min-width: 0;
+    padding: 22px;
+    overflow: hidden;
+    background: rgba(8, 8, 9, .68);
+  }
+
+  .sqc-mobile-web.desktop-proof .sqc-public-proof-scroll-card .sqc-proof-image,
+  .sqc-mobile-web.desktop-proof .sqc-public-proof-scroll-card .proof-generated-image-placeholder {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 20px;
+    box-shadow: 0 28px 70px rgba(0, 0, 0, .34);
+  }
+
+  .sqc-mobile-web.desktop-proof .sqc-public-proof-command-rail {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    position: sticky;
+    top: 108px;
+    display: grid;
+    gap: 18px;
+    padding: 30px;
+    border-color: rgba(96, 240, 175, .2);
+    background:
+      linear-gradient(145deg, rgba(96, 240, 175, .08), transparent 54%),
+      rgba(15, 14, 14, .9);
+  }
+
+  .sqc-mobile-web.desktop-proof .sqc-public-proof-command-rail h2 {
+    margin: 0;
+    color: var(--paper);
+    font-family: ui-serif, Georgia, Cambria, "Times New Roman", serif;
+    font-size: 34px;
+    line-height: 1;
+  }
+
+  .sqc-mobile-web.desktop-proof .sqc-public-proof-command-rail > p {
+    margin: 0;
+    color: rgba(255, 247, 232, .7);
+    line-height: 1.65;
+  }
+
+  .sqc-mobile-web.desktop-proof .sqc-public-proof-command-rail .sqc-action-pair {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .sqc-mobile-web.desktop-proof .sqc-public-proof-command-rail :is(button, a) {
+    transition: border-color .16s ease, background .16s ease, color .16s ease, transform .16s ease;
+  }
+
+  .sqc-mobile-web.desktop-proof .sqc-public-proof-command-rail :is(button, a):hover {
+    transform: translateY(-1px);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
+  .sqc-mobile-web.desktop-proof .sqc-public-proof-command-rail :is(button, a) {
+    transition: none !important;
+    transform: none !important;
+  }
+
   html {
     scroll-behavior: auto;
   }
