@@ -1,12 +1,13 @@
-# Side Quest Chess iOS release packet — 2026-08-13
+# Side Quest Chess iOS release packet — updated 2026-08-14
 
 Status: source-preparation packet only. It is not evidence of an Apple build, TestFlight delivery, App Review submission, or public release.
 
 ## Candidate reconciled from `origin/main`
 
-- Reconciled `origin/main` baseline: `69bb4f15b4f77c1a0f88a5e43a6d63607fc86051`
+- Reconciled `origin/main` baseline: `6f46600f8dbdb9f2f60b15f2d9dc3f4f4d36630c`
+- Current Android launch baseline: Google Play Internal testing accepted build `0.1.349` / code `350`; Android production remains inactive and separately approval-gated
 - App name: Side Quest Chess
-- Expo version: `0.1.349`
+- Expo source version: `0.1.349`
 - Bundle ID candidate: `com.sidequestchess.app`
 - Scheme: `sidequestchess`
 - Authentication callback: `sidequestchess://sso-callback`
