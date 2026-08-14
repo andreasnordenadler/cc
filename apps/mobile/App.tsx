@@ -42,6 +42,7 @@ import { blockMobileCommunityCreator, buildMobileUrl, getApiBaseUrl, deleteMobil
 import { findSignedOutPublicMultiplayerQuest, getSignedOutPublicMultiplayerCatalog } from "./src/multiplayer/publicCatalog";
 import { loadMobileAccount } from "./src/account/loadMobileAccount";
 import { clerkPublishableKey, clerkTokenCache, isClerkMobileAuthConfigured } from "./src/auth/clerk";
+import { allowsThirdPartySocialSignIn } from "./src/auth/socialSignIn";
 import { OFFLINE_MOBILE_BOOTSTRAP } from "./src/data/offlineBootstrap";
 import { shouldStackActiveQuestSummary } from "./src/layout/activeQuestLayout";
 import { createMobileCommunityCreatorReportSubmitter } from "./src/reports/communityCreatorReport";
@@ -1294,6 +1295,7 @@ function ClerkMobileShell() {
   const { signUp, setActive: setSignUpActive, isLoaded: signUpLoaded } = useSignUp();
   const { user } = useUser();
   const signedInLabel = user?.fullName || user?.username || user?.primaryEmailAddress?.emailAddress || null;
+  const socialSignInAllowed = allowsThirdPartySocialSignIn(Platform.OS);
 
   const startSocialSignIn = useCallback(async (strategy: "oauth_google" | "oauth_facebook", providerLabel: "Google" | "Facebook") => {
     try {
@@ -1384,15 +1386,15 @@ function ClerkMobileShell() {
       isLoaded,
       isSignedIn: Boolean(isSignedIn),
       getSessionToken: async () => getToken(),
-      startGoogleSignIn,
-      startFacebookSignIn,
+      startGoogleSignIn: socialSignInAllowed ? startGoogleSignIn : undefined,
+      startFacebookSignIn: socialSignInAllowed ? startFacebookSignIn : undefined,
       startPasswordSignIn,
       startPasswordSignUp,
       attemptPasswordSignUpVerification,
       signOut,
       signedInLabel,
     }),
-    [attemptPasswordSignUpVerification, getToken, isLoaded, isSignedIn, signOut, signedInLabel, startFacebookSignIn, startGoogleSignIn, startPasswordSignIn, startPasswordSignUp],
+    [attemptPasswordSignUpVerification, getToken, isLoaded, isSignedIn, signOut, signedInLabel, socialSignInAllowed, startFacebookSignIn, startGoogleSignIn, startPasswordSignIn, startPasswordSignUp],
   );
 
   return <MobileShell authBridge={authBridge} />;
@@ -5963,9 +5965,11 @@ function AccountTrackerDashboard({ bootstrap, account, authBridge, onSelectTab, 
           </View>
           <Text style={compactStyles.heroTitle}>Sign in to sync your board.</Text>
           <Text style={compactStyles.heroCopy}>Sign in to save Side Quest progress, latest proof, Coat of Arms unlocks, and connected chess usernames.</Text>
-          <Pressable accessibilityRole="button" accessibilityLabel="Continue with Google" style={styles.secondaryButtonWide} onPress={() => authBridge.startGoogleSignIn ? void authBridge.startGoogleSignIn() : showNativeOnlyNotice("Sign-in is unavailable right now.")}>
-            <SocialSignInButtonContent provider="google" label="Continue with Google" textStyle={styles.secondaryButtonText} />
-          </Pressable>
+          {authBridge.startGoogleSignIn ? (
+            <Pressable accessibilityRole="button" accessibilityLabel="Continue with Google" style={styles.secondaryButtonWide} onPress={() => void authBridge.startGoogleSignIn?.()}>
+              <SocialSignInButtonContent provider="google" label="Continue with Google" textStyle={styles.secondaryButtonText} />
+            </Pressable>
+          ) : null}
           {authBridge.startFacebookSignIn ? (
             <Pressable accessibilityRole="button" accessibilityLabel="Continue with Facebook" style={styles.secondaryButtonWide} onPress={() => void authBridge.startFacebookSignIn?.()}>
               <SocialSignInButtonContent provider="facebook" label="Continue with Facebook" textStyle={styles.secondaryButtonText} />
@@ -9334,17 +9338,6 @@ function AccountShell({
 }) {
   if (!isAuthenticatedAccount(account)) {
     const signedInButRejected = authBridge.isSignedIn && account?.authenticated === false;
-    const primaryLabel = signedInButRejected ? "Sync account" : "Continue with Google";
-    const handlePrimaryPress = () => {
-      if (signedInButRejected) {
-        return onAccountUpdated();
-      }
-
-      if (authBridge.startGoogleSignIn) {
-        return void authBridge.startGoogleSignIn();
-      }
-      return showNativeOnlyNotice("Sign-in is unavailable right now. Please try again in a moment.");
-    };
 
     return (
       <View style={styles.screenStack}>
@@ -9363,9 +9356,16 @@ function AccountShell({
           <Text style={styles.eyebrow}>Account</Text>
           <Text style={styles.cardTitle}>{signedInButRejected ? "Finish syncing your account." : "Choose how to sign in."}</Text>
           <Text style={styles.cardBody}>{signedInButRejected ? "Your sign-in is active, but Side Quest Chess needs to refresh your account before saving progress." : "Sign in to save progress, verify proof, manage Multiplayer Quests, and keep your Coat of Arms progress synced."}</Text>
-          <Pressable accessibilityRole="button" accessibilityLabel={primaryLabel} testID="account-primary-sign-in" style={signedInButRejected ? styles.primaryButtonWide : styles.secondaryButtonWide} onPress={handlePrimaryPress}>
-            {signedInButRejected ? <Text style={styles.primaryButtonText}>{primaryLabel}</Text> : <SocialSignInButtonContent provider="google" label={primaryLabel} textStyle={styles.secondaryButtonText} />}
-          </Pressable>
+          {signedInButRejected ? (
+            <Pressable accessibilityRole="button" accessibilityLabel="Sync account" testID="account-primary-sign-in" style={styles.primaryButtonWide} onPress={onAccountUpdated}>
+              <Text style={styles.primaryButtonText}>Sync account</Text>
+            </Pressable>
+          ) : null}
+          {!signedInButRejected && authBridge.startGoogleSignIn ? (
+            <Pressable accessibilityRole="button" accessibilityLabel="Continue with Google" testID="account-primary-sign-in" style={styles.secondaryButtonWide} onPress={() => void authBridge.startGoogleSignIn?.()}>
+              <SocialSignInButtonContent provider="google" label="Continue with Google" textStyle={styles.secondaryButtonText} />
+            </Pressable>
+          ) : null}
           {!signedInButRejected && authBridge.startFacebookSignIn ? (
             <Pressable accessibilityRole="button" accessibilityLabel="Continue with Facebook" style={styles.secondaryButtonWide} onPress={() => void authBridge.startFacebookSignIn?.()}>
               <SocialSignInButtonContent provider="facebook" label="Continue with Facebook" textStyle={styles.secondaryButtonText} />
