@@ -165,7 +165,7 @@ export function CommunitySoloCatalog({ rows, signedIn, initialCreator = null }: 
         </div>
       </div>
       <span>{page.total} result{page.total === 1 ? "" : "s"}</span>
-      {page.rows.length ? <div className="sqc-catalog">{page.rows.map(row => <CommunitySoloCatalogRow key={row.id} row={row} signedIn={signedIn} onLikeStateChange={(liked) => setLiveRows((current) => applyCommunitySoloLikeState(current, row.id, liked))} />)}</div> : (() => {
+      {page.rows.length ? <div className={page.rows.length === 1 ? "sqc-catalog single-result" : "sqc-catalog"}>{page.rows.map(row => <CommunitySoloCatalogRow key={row.id} row={row} signedIn={signedIn} onLikeStateChange={(liked) => setLiveRows((current) => applyCommunitySoloLikeState(current, row.id, liked))} />)}</div> : (() => {
         const emptyState = getCommunitySoloEmptyState({ hasCatalogRows: liveRows.length > 0, signedIn });
         return <div className="sqc-empty-panel standalone"><strong>{emptyState.title}</strong><span>{emptyState.guidance}</span></div>;
       })()}

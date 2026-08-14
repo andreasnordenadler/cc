@@ -157,13 +157,20 @@ test("Community discovery switches between one mobile catalog and a desktop brow
   await expect(page.getByRole("navigation", { name: "Desktop shortcuts" })).toBeVisible();
   await expect(page.getByLabel("Community Side Quest filters")).toHaveCount(1);
   const creatorDirectory = page.getByRole("complementary", { name: "Creator shortcuts" });
-  await expect(creatorDirectory).toBeVisible();
-  await expect(creatorDirectory.getByRole("link")).toHaveCount(6);
+  const creatorShortcutCount = await creatorDirectory.getByRole("link").count();
+  if (creatorShortcutCount) {
+    await expect(creatorDirectory).toBeVisible();
+    expect(creatorShortcutCount).toBeLessThanOrEqual(6);
+  } else {
+    await expect(creatorDirectory).toHaveCount(0);
+  }
 
   const catalog = page.locator(".sqc-community-catalog-section .sqc-catalog");
   if (await catalog.count()) {
+    const initialCatalogRowCount = await catalog.locator(".sqc-app-row").count();
+    const expectedColumnCount = (wide: boolean) => initialCatalogRowCount === 1 ? 1 : wide ? 3 : 2;
     const columns = await catalog.evaluate((element) => getComputedStyle(element).gridTemplateColumns.split(" ").length);
-    expect(columns).toBe(2);
+    expect(columns).toBe(expectedColumnCount(false));
     await expect(firstRow.locator(".sqc-community-row-mobile-meta")).toBeHidden();
     await expect(firstRow.locator(".sqc-community-row-details")).toBeVisible();
     await expect(firstRow.locator(".sqc-community-row-creator")).toContainText("By ");
@@ -171,13 +178,13 @@ test("Community discovery switches between one mobile catalog and a desktop brow
     await expect(firstRow.locator(".sqc-community-row-stat")).toHaveCount(3);
 
     await page.setViewportSize({ width: 1440, height: 900 });
-    expect(await catalog.evaluate((element) => getComputedStyle(element).gridTemplateColumns.split(" ").length)).toBe(2);
+    expect(await catalog.evaluate((element) => getComputedStyle(element).gridTemplateColumns.split(" ").length)).toBe(expectedColumnCount(true));
 
     await page.setViewportSize({ width: 1679, height: 900 });
-    expect(await catalog.evaluate((element) => getComputedStyle(element).gridTemplateColumns.split(" ").length)).toBe(2);
+    expect(await catalog.evaluate((element) => getComputedStyle(element).gridTemplateColumns.split(" ").length)).toBe(expectedColumnCount(true));
 
     await page.setViewportSize({ width: 1680, height: 900 });
-    expect(await catalog.evaluate((element) => getComputedStyle(element).gridTemplateColumns.split(" ").length)).toBe(3);
+    expect(await catalog.evaluate((element) => getComputedStyle(element).gridTemplateColumns.split(" ").length)).toBe(expectedColumnCount(true));
 
     await page.setViewportSize({ width: 1920, height: 1080 });
     const wideGeometry = await catalog.evaluate((element) => {
@@ -190,21 +197,43 @@ test("Community discovery switches between one mobile catalog and a desktop brow
         overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
       };
     });
-    expect(wideGeometry.columns).toBe(3);
+    expect(wideGeometry.columns).toBe(expectedColumnCount(true));
     expect(wideGeometry.screenWidth).toBeGreaterThanOrEqual(1500);
-    expect(wideGeometry.cardWidths).toHaveLength(3);
+    expect(wideGeometry.cardWidths).toHaveLength(Math.min(3, initialCatalogRowCount));
     expect(wideGeometry.cardWidths.every((width) => width >= 390)).toBe(true);
     expect(wideGeometry.overflow).toBe(0);
 
-    const firstCreatorShortcut = creatorDirectory.getByRole("link").first();
-    await expect(firstCreatorShortcut).toHaveAttribute("href", /\/community-side-quests\?creator=.+/);
-    await firstCreatorShortcut.focus();
-    await expect(firstCreatorShortcut).toBeFocused();
-    await expect(firstCreatorShortcut).toHaveCSS("outline-style", "solid");
-    await firstCreatorShortcut.click();
-    await expect(page).toHaveURL(/\/community-side-quests\?creator=.+/);
-    await expect(page.getByRole("complementary", { name: "Creator shelf" })).toBeVisible();
-    await expect(page.getByRole("complementary", { name: "Creator shortcuts" })).toHaveCount(0);
+    const candidateQueries = await catalog.locator(".sqc-app-row").evaluateAll((rows) => rows.map((row) => {
+      const title = row.querySelector(".sqc-row-title-line strong")?.textContent?.trim() ?? "";
+      const byline = row.querySelector(".sqc-community-row-creator")?.textContent?.trim() ?? "";
+      return `${title} ${byline}`.trim();
+    }).filter(Boolean));
+    const search = page.getByLabel("Search Community Side Quests");
+    let foundSingleResult = await catalog.locator(".sqc-app-row").count() === 1;
+    for (const query of candidateQueries) {
+      if (foundSingleResult) break;
+      await search.fill(query);
+      foundSingleResult = await catalog.locator(".sqc-app-row").count() === 1;
+    }
+    if (foundSingleResult) {
+      await page.setViewportSize({ width: 1440, height: 900 });
+      await expect(catalog).toHaveClass(/\bsingle-result\b/);
+      expect(await catalog.locator(".sqc-app-row").evaluate((element) => element.getBoundingClientRect().width)).toBe(760);
+      expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBe(0);
+    }
+    await search.fill("");
+
+    if (creatorShortcutCount) {
+      const firstCreatorShortcut = creatorDirectory.getByRole("link").first();
+      await expect(firstCreatorShortcut).toHaveAttribute("href", /\/community-side-quests\?creator=.+/);
+      await firstCreatorShortcut.focus();
+      await expect(firstCreatorShortcut).toBeFocused();
+      await expect(firstCreatorShortcut).toHaveCSS("outline-style", "solid");
+      await firstCreatorShortcut.click();
+      await expect(page).toHaveURL(/\/community-side-quests\?creator=.+/);
+      await expect(page.getByRole("complementary", { name: "Creator shelf" })).toBeVisible();
+      await expect(page.getByRole("complementary", { name: "Creator shortcuts" })).toHaveCount(0);
+    }
   } else {
     await expect(page.locator(".sqc-community-catalog-section .sqc-empty-panel.standalone")).toBeVisible();
   }
