@@ -4,7 +4,7 @@ Status: source-preparation packet only. It is not evidence of an Apple build, Te
 
 ## Candidate reconciled from `origin/main`
 
-- Reconciled `origin/main` baseline: `6f46600f8dbdb9f2f60b15f2d9dc3f4f4d36630c`
+- Reconciled `origin/main` baseline: `d4e2cb7b83df0d0697f1873f229dde04471c41d5` (fetched 2026-08-14)
 - Current Android launch baseline: Google Play Internal testing accepted build `0.1.349` / code `350`; Android production remains inactive and separately approval-gated
 - App name: Side Quest Chess
 - Expo source version: `0.1.349`
@@ -61,6 +61,9 @@ Do not perform any of the following without explicit approval: enroll or pay; ac
 | Terms URL | https://sidequestchess.com/terms |
 | SKU | Owner to assign; suggested `sidequestchess-ios` |
 | Primary locale | Owner to confirm; suggested English (U.S.) |
+| Content rights | Yes, the app accesses third-party public chess records; owner must attest that Side Quest Chess has the necessary rights before adoption |
+| Territories | Worldwide target; owner/legal must resolve any storefront-specific game authorization requirement before selecting affected territories |
+| Release method | Manual release recommended; App Review submission and public release require separate approvals |
 
 ### Keywords
 
@@ -118,9 +121,10 @@ Conservative linked-data draft:
 | Identifiers | User ID | App functionality, account management, security |
 | User Content | Customer support; other user content | Support and app functionality |
 | Usage Data | Product interaction for signed-in events | Analytics, functionality, personalization |
+| Diagnostics | Other diagnostic data in an optional, user-approved support bundle | Customer support and app functionality |
 | Other Data | Public chess usernames, public game/profile records, game IDs, proof/quest state and timestamps where no narrower Apple type fits | App functionality |
 
-Anonymous product-interaction events may be not linked to an account. Do not declare crash, performance, other diagnostics, device ID, location, photos, contacts, purchases, browsing/search history, or sensitive information until the exact IPA, Clerk, Expo, React Native, and embedded privacy manifests have been inspected. Adopted answers must match `https://sidequestchess.com/privacy` and actual production behavior.
+Anonymous product-interaction events may be not linked to an account. Do not declare crash data, performance data, device ID, location, photos, contacts, purchases, browsing/search history, or sensitive information until the exact IPA, Clerk, Expo, React Native, and embedded privacy manifests have been inspected. The optional support bundle is user-approved before transmission but is still collected when sent and must not be omitted from the adopted label. Adopted answers must match `https://sidequestchess.com/privacy` and actual production behavior.
 
 Account deletion wording: My Account → Delete account permanently removes the sign-in identity and account-attached profile/progress data after replicated multiplayer references are cleaned. A cleanup failure must preserve the sign-in identity and return an error.
 
@@ -140,7 +144,7 @@ The app lets users choose playful chess challenges and verify eligible results a
 
 Public Side Quests can be browsed while signed out. Sign-in is required to save progress, check proof, create or join account-backed quests, send support messages, report or block Community creators, and manage or delete an account.
 
-Suggested review flow: browse Solo and Multiplayer while signed out; sign in under My Account; inspect the connected public chess username; start a Solo Side Quest and open proof controls; inspect Custom and Multiplayer creation; open Trophy Cabinet; verify Privacy Policy, Support, and Terms under Help & Support; then inspect My Account → Delete account. Do not complete deletion unless account-removal testing is intended.
+Suggested review flow: browse Solo and Multiplayer while signed out; sign in under My Account; inspect the connected public chess username; start a Solo Side Quest and open proof controls; create a Custom Side Quest; create or join a Multiplayer Side Quest; open a Community creator, use its report and block controls, and note that blocked creators can be managed from My Account; open Trophy Cabinet; send a support note and optionally preview the diagnostics bundle; verify Privacy Policy, Support, and Terms under Help & Support; then inspect My Account → Delete account. The supplied account is disposable and may be deleted by review; deletion permanently removes its Side Quest Chess identity and account-attached data.
 
 The app has no advertising, in-app purchases, subscriptions, gambling, or real-money prizes. It is intended for users aged 13 and older. The expected native OAuth callback is `sidequestchess://sso-callback`.
 
@@ -227,3 +231,20 @@ Before upload, freeze the commit and record EAS build ID, source SHA, version/bu
 - no unexpected advertising, tracking, purchase, location, camera, microphone, photo, contact, or biometric SDK/capability
 
 Submission, App Review acceptance, release approval, and public storefront availability are four distinct states and must be reported separately.
+
+## Local source-readiness receipt — 2026-08-14
+
+- The dedicated iOS worktree was clean before reconciliation and was rebased onto fetched `origin/main` `d4e2cb7b83df0d0697f1873f229dde04471c41d5`; the dirty canonical checkout was not modified or cleaned.
+- Full canonical test suite: 736/736 passed.
+- Full lint: passed with zero errors and four pre-existing warnings.
+- Full Next production build: passed and generated all 88 static pages.
+- `expo-doctor --verbose`: 18/18 checks passed.
+- Mobile TypeScript check: passed.
+- Focused iOS configuration, authentication, deletion, and privacy tests: 25/25 passed.
+- Expo config introspection produced `com.sidequestchess.app`, URL schemes `sidequestchess` and `com.sidequestchess.app`, `com.apple.developer.applesignin = Default`, and `ITSAppUsesNonExemptEncryption = false`.
+- A local iOS JavaScript export completed: 853 modules bundled into a 3.71 MB Hermes bytecode file; export directory size 53 MB; bytecode SHA-256 `a8b57cdc063fb8a6ff6eddb73bf384bbfedcaffae4b7c453caebad6163dddb5d`. This is not a native archive or IPA.
+- App Store draft field lengths are within current limits: subtitle 22 characters, keywords 91 UTF-8 bytes, promotional text 164 characters.
+- Lockfile SHA-256 after reconciliation: `35f1e3fa53d7b0f7652929b4f9217586e9a46174ae502d500cb7645ad392af15`.
+- Local Apple toolchain remains blocked: selected developer directory is Command Line Tools, `xcodebuild` requires full Xcode, and zero valid code-signing identities are installed.
+- EAS remains authenticated as `and72nor` / `andreas.nordenadler@gmail.com`; this identity is prohibited for new Apple operational access or credentials. No EAS build, credential, submit, App Store Connect, or Apple account mutation was attempted.
+- This is source/config evidence only. No archive, IPA, signing, TestFlight, real-device, screenshot, review, or storefront claim is implied.
