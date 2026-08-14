@@ -10414,50 +10414,50 @@ body::after {
       right: 12px;
     }
 
-    /* A saved-rule library is a scanning task, not a phone feed. Keep the
-       established two-column boundary composition, then use standard desktop
-       width to expose a third comparable quest without changing row content. */
-    .sqc-mobile-web.desktop-custom-library .sqc-catalog {
+    /* A populated account library is a scanning task, not a phone feed. Keep
+       signed-out and local-draft layouts unchanged while standard desktop width
+       exposes a third comparable saved quest without changing row content. */
+    .sqc-mobile-web.desktop-custom-library.signed-in:has(.sqc-community-catalog-section > .sqc-catalog:not(.sqc-local-custom-drafts)) .sqc-community-catalog-section > .sqc-catalog:not(.sqc-local-custom-drafts) {
       grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 12px;
     }
 
-    .sqc-mobile-web.desktop-custom-library .sqc-app-row {
+    .sqc-mobile-web.desktop-custom-library.signed-in:has(.sqc-community-catalog-section > .sqc-catalog:not(.sqc-local-custom-drafts)) .sqc-community-catalog-section > .sqc-catalog:not(.sqc-local-custom-drafts) .sqc-app-row {
       min-height: 150px;
       grid-template-columns: 58px minmax(0, 1fr);
       gap: 10px;
       padding: 18px 14px;
     }
 
-    .sqc-mobile-web.desktop-custom-library .sqc-row-icon {
+    .sqc-mobile-web.desktop-custom-library.signed-in:has(.sqc-community-catalog-section > .sqc-catalog:not(.sqc-local-custom-drafts)) .sqc-community-catalog-section > .sqc-catalog:not(.sqc-local-custom-drafts) .sqc-row-icon {
       width: 58px;
       height: 68px;
     }
 
-    .sqc-mobile-web.desktop-custom-library .sqc-row-glow {
+    .sqc-mobile-web.desktop-custom-library.signed-in:has(.sqc-community-catalog-section > .sqc-catalog:not(.sqc-local-custom-drafts)) .sqc-community-catalog-section > .sqc-catalog:not(.sqc-local-custom-drafts) .sqc-row-glow {
       width: 72px;
       height: 78px;
     }
 
-    .sqc-mobile-web.desktop-custom-library .sqc-row-image {
+    .sqc-mobile-web.desktop-custom-library.signed-in:has(.sqc-community-catalog-section > .sqc-catalog:not(.sqc-local-custom-drafts)) .sqc-community-catalog-section > .sqc-catalog:not(.sqc-local-custom-drafts) .sqc-row-image {
       width: 54px;
       height: 62px;
     }
 
-    .sqc-mobile-web.desktop-custom-library .sqc-row-copy {
+    .sqc-mobile-web.desktop-custom-library.signed-in:has(.sqc-community-catalog-section > .sqc-catalog:not(.sqc-local-custom-drafts)) .sqc-community-catalog-section > .sqc-catalog:not(.sqc-local-custom-drafts) .sqc-row-copy {
       gap: 6px;
       padding-right: 48px;
     }
 
-    .sqc-mobile-web.desktop-custom-library .sqc-row-title-line {
+    .sqc-mobile-web.desktop-custom-library.signed-in:has(.sqc-community-catalog-section > .sqc-catalog:not(.sqc-local-custom-drafts)) .sqc-community-catalog-section > .sqc-catalog:not(.sqc-local-custom-drafts) .sqc-row-title-line {
       font-size: 16px;
     }
 
-    .sqc-mobile-web.desktop-custom-library .sqc-row-copy small {
+    .sqc-mobile-web.desktop-custom-library.signed-in:has(.sqc-community-catalog-section > .sqc-catalog:not(.sqc-local-custom-drafts)) .sqc-community-catalog-section > .sqc-catalog:not(.sqc-local-custom-drafts) .sqc-row-copy small {
       font-size: 11px;
     }
 
-    .sqc-mobile-web.desktop-custom-library .sqc-row-status {
+    .sqc-mobile-web.desktop-custom-library.signed-in:has(.sqc-community-catalog-section > .sqc-catalog:not(.sqc-local-custom-drafts)) .sqc-community-catalog-section > .sqc-catalog:not(.sqc-local-custom-drafts) .sqc-row-status {
       top: 14px;
       right: 12px;
     }
@@ -10475,7 +10475,7 @@ body::after {
     width: min(1600px, calc(100% - 80px));
   }
 
-  .sqc-mobile-web.desktop-custom-library .sqc-screen {
+  .sqc-mobile-web.desktop-custom-library.signed-in:has(.sqc-community-catalog-section > .sqc-catalog:not(.sqc-local-custom-drafts)) .sqc-screen {
     width: min(1600px, calc(100% - 80px));
   }
 
@@ -10512,7 +10512,7 @@ body::after {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
-  .sqc-mobile-web.desktop-custom-library .sqc-catalog {
+  .sqc-mobile-web.desktop-custom-library.signed-in:has(.sqc-community-catalog-section > .sqc-catalog:not(.sqc-local-custom-drafts)) .sqc-community-catalog-section > .sqc-catalog:not(.sqc-local-custom-drafts) {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
