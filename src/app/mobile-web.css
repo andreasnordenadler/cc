@@ -5290,6 +5290,20 @@ body::after {
 }
 
 @media (min-width: 1180px) {
+  .privacy-desktop-shell .sqc-desktop-route-only {
+    display: block;
+  }
+
+  .privacy-desktop-shell .privacy-workspace-rail {
+    top: 110px;
+    max-height: calc(100vh - 142px);
+  }
+
+  .privacy-desktop-shell .privacy-workspace .privacy-document-grid section {
+    scroll-margin-top: 110px;
+  }
+  /* End desktop Privacy shell */
+
   .sqc-mobile-web:has(.sqc-desktop-home-only) {
     display: block;
     min-height: 100vh;

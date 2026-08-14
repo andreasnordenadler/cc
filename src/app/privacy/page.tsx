@@ -1,5 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { currentUser } from "@clerk/nextjs/server";
+import { unstable_noStore as noStore } from "next/cache";
+import { DesktopHomeHeader } from "@/components/mobile-app-web-shell";
+import { getPreferredRunnerName, type UserMetadataRecord } from "@/lib/user-metadata";
 
 export const metadata: Metadata = {
   title: "Privacy Policy — Side Quest Chess",
@@ -8,9 +12,29 @@ export const metadata: Metadata = {
 
 const LAST_UPDATED = "August 13, 2026";
 
-export default function PrivacyPage() {
+export default async function PrivacyPage() {
+  noStore();
+  const user = await currentUser();
+  const metadata = user?.publicMetadata ? user.publicMetadata as UserMetadataRecord : {};
+  const displayName = user
+    ? getPreferredRunnerName(metadata, {
+        firstName: user.firstName,
+        lastName: user.lastName,
+        username: user.username,
+        emailAddress: user.primaryEmailAddress?.emailAddress,
+      }) || "Side Quest Chess"
+    : null;
+
+  return <PrivacyPageView signedIn={Boolean(user)} displayName={displayName} />;
+}
+
+export function PrivacyPageView({ signedIn, displayName }: { signedIn: boolean; displayName?: string | null }) {
   return (
-    <main className="privacy-page">
+    <div className="privacy-desktop-shell">
+      <div className="sqc-desktop-route-only">
+        <DesktopHomeHeader signedIn={signedIn} displayName={displayName} activeTab={null} activeItemId="privacy" />
+      </div>
+      <main className="privacy-page">
       <article className="privacy-policy privacy-workspace" aria-labelledby="privacy-title">
         <div className="privacy-workspace-rail">
           <header className="privacy-hero">
@@ -122,6 +146,7 @@ export default function PrivacyPage() {
           <p>Crowdler AB, Kvarnängsvägen 15, 182 47 Enebyberg, Sweden · sam@crowdler.com</p>
         </aside>
       </article>
-    </main>
+      </main>
+    </div>
   );
 }
