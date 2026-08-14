@@ -812,16 +812,29 @@ test("Custom library keeps the mobile composition below 1180px and exposes a des
   assert.match(css, /\.sqc-mobile-web\.desktop-custom-library\s+\.sqc-catalog\s*\{[^}]*grid-template-columns:\s*repeat\(2,\s*minmax\(0,\s*1fr\)\);/);
 });
 
-test("populated Custom libraries use the wide desktop canvas for scan-friendly density", () => {
+test("populated signed-in Custom libraries use the wide desktop canvas without changing signed-out layouts", () => {
   const css = readFileSync("src/app/mobile-web.css", "utf8");
   const standardDesktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1380px)"));
   const wideDesktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1680px)"));
+  const accountCatalog = String.raw`\.sqc-community-catalog-section\s*>\s*\.sqc-catalog:not\(\.sqc-local-custom-drafts\)`;
+  const signedInLibrary = String.raw`\.sqc-mobile-web\.desktop-custom-library\.signed-in:has\(${accountCatalog}\)`;
+  const unscopedLibrary = String.raw`\.sqc-mobile-web\.desktop-custom-library(?!\.signed-in:has)`;
 
-  assert.match(standardDesktopMedia, /\.sqc-mobile-web\.desktop-custom-library\s+\.sqc-catalog\s*\{[^}]*grid-template-columns:\s*repeat\(3,\s*minmax\(0,\s*1fr\)\);/);
-  assert.match(standardDesktopMedia, /\.sqc-mobile-web\.desktop-custom-library\s+\.sqc-app-row\s*\{[^}]*min-height:\s*150px;[^}]*grid-template-columns:\s*58px\s+minmax\(0,\s*1fr\);[^}]*padding:\s*18px\s+14px;/);
-  assert.match(wideDesktopMedia, /\.sqc-mobile-web\.desktop-custom-library\s+\.sqc-screen\s*\{[^}]*width:\s*min\(1600px,\s*calc\(100%\s*-\s*80px\)\)/);
-  assert.match(wideDesktopMedia, /\.sqc-mobile-web\.desktop-custom-library\s+\.sqc-catalog\s*\{[^}]*grid-template-columns:\s*repeat\(3,\s*minmax\(0,\s*1fr\)\);/);
-  assert.doesNotMatch(wideDesktopMedia, /\.sqc-mobile-web\.desktop-custom-library\s+\.sqc-app-row\s*\{/, "wide cards retain the readable standard-desktop geometry");
+  assert.match(standardDesktopMedia, new RegExp(`${signedInLibrary}\\s+${accountCatalog}\\s*\\{[^}]*grid-template-columns:\\s*repeat\\(3,\\s*minmax\\(0,\\s*1fr\\)\\);`));
+  assert.match(standardDesktopMedia, new RegExp(`${signedInLibrary}\\s+${accountCatalog}\\s+\\.sqc-app-row\\s*\\{[^}]*min-height:\\s*150px;[^}]*grid-template-columns:\\s*58px\\s+minmax\\(0,\\s*1fr\\);[^}]*padding:\\s*18px\\s+14px;`));
+  assert.match(wideDesktopMedia, new RegExp(`${signedInLibrary}\\s+\\.sqc-screen\\s*\\{[^}]*width:\\s*min\\(1600px,\\s*calc\\(100%\\s*-\\s*80px\\)\\)`));
+  assert.match(wideDesktopMedia, new RegExp(`${signedInLibrary}\\s+${accountCatalog}\\s*\\{[^}]*grid-template-columns:\\s*repeat\\(3,\\s*minmax\\(0,\\s*1fr\\)\\);`));
+  assert.doesNotMatch(standardDesktopMedia, new RegExp(`${unscopedLibrary}[^,{]*\\s+\\.sqc-catalog`));
+  for (const descendant of ["\\.sqc-app-row", "\\.sqc-row-icon", "\\.sqc-row-glow", "\\.sqc-row-image", "\\.sqc-row-copy", "\\.sqc-row-copy\\s+small", "\\.sqc-row-title-line", "\\.sqc-row-status"]) {
+    assert.doesNotMatch(
+      standardDesktopMedia,
+      new RegExp(`${signedInLibrary}\\s+${descendant}\\s*\\{`),
+      `account density must not reach local drafts through broad descendant selector ${descendant}`,
+    );
+  }
+  assert.doesNotMatch(standardDesktopMedia, /\.sqc-local-custom-drafts\s+\.sqc-app-row\s*\{/);
+  assert.doesNotMatch(wideDesktopMedia, new RegExp(`${unscopedLibrary}[^,{]*\\s+\\.sqc-screen`));
+  assert.doesNotMatch(wideDesktopMedia, new RegExp(`${signedInLibrary}\\s+${accountCatalog}\\s+\\.sqc-app-row\\s*\\{`), "wide cards retain the readable standard-desktop geometry");
 });
 
 test("empty Custom library explains the local workshop path without replacing the existing create destination", () => {
