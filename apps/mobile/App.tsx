@@ -1,12 +1,13 @@
 /* eslint-disable jsx-a11y/alt-text, @typescript-eslint/no-unused-vars, @typescript-eslint/no-require-imports */
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { ClerkProvider, useAuth, useClerk, useSSO, useSignIn, useSignUp, useUser } from "@clerk/clerk-expo";
+import { ClerkProvider, useAuth, useClerk, useSignInWithApple, useSSO, useSignIn, useSignUp, useUser } from "@clerk/clerk-expo";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import DateTimePicker, { type DateTimePickerEvent } from "@react-native-community/datetimepicker";
 import * as AuthSession from "expo-auth-session";
 import * as WebBrowser from "expo-web-browser";
 import * as Clipboard from "expo-clipboard";
 import * as Application from "expo-application";
+import * as AppleAuthentication from "expo-apple-authentication";
 import { LinearGradient } from "expo-linear-gradient";
 import {
   ActivityIndicator,
@@ -42,7 +43,6 @@ import { blockMobileCommunityCreator, buildMobileUrl, getApiBaseUrl, deleteMobil
 import { findSignedOutPublicMultiplayerQuest, getSignedOutPublicMultiplayerCatalog } from "./src/multiplayer/publicCatalog";
 import { loadMobileAccount } from "./src/account/loadMobileAccount";
 import { clerkPublishableKey, clerkTokenCache, isClerkMobileAuthConfigured } from "./src/auth/clerk";
-import { allowsThirdPartySocialSignIn } from "./src/auth/socialSignIn";
 import { OFFLINE_MOBILE_BOOTSTRAP } from "./src/data/offlineBootstrap";
 import { shouldStackActiveQuestSummary } from "./src/layout/activeQuestLayout";
 import { createMobileCommunityCreatorReportSubmitter } from "./src/reports/communityCreatorReport";
@@ -1071,6 +1071,7 @@ type MobileAuthBridge = {
   getSessionToken: () => Promise<string | null>;
   startGoogleSignIn?: () => Promise<void>;
   startFacebookSignIn?: () => Promise<void>;
+  startAppleSignIn?: () => Promise<void>;
   startPasswordSignIn?: (credentials: { identifier: string; password: string }) => Promise<void>;
   startPasswordSignUp?: (credentials: { identifier: string; password: string }) => Promise<PasswordSignUpResult>;
   attemptPasswordSignUpVerification?: (params: { code: string }) => Promise<void>;
@@ -1291,11 +1292,11 @@ function ClerkMobileShell() {
   const { getToken, isLoaded, isSignedIn } = useAuth();
   const { signOut } = useClerk();
   const { startSSOFlow } = useSSO();
+  const { startAppleAuthenticationFlow } = useSignInWithApple();
   const { signIn, setActive: setSignInActive, isLoaded: signInLoaded } = useSignIn();
   const { signUp, setActive: setSignUpActive, isLoaded: signUpLoaded } = useSignUp();
   const { user } = useUser();
   const signedInLabel = user?.fullName || user?.username || user?.primaryEmailAddress?.emailAddress || null;
-  const socialSignInAllowed = allowsThirdPartySocialSignIn(Platform.OS);
 
   const startSocialSignIn = useCallback(async (strategy: "oauth_google" | "oauth_facebook", providerLabel: "Google" | "Facebook") => {
     try {
@@ -1324,6 +1325,21 @@ function ClerkMobileShell() {
 
   const startGoogleSignIn = useCallback(() => startSocialSignIn("oauth_google", "Google"), [startSocialSignIn]);
   const startFacebookSignIn = useCallback(() => startSocialSignIn("oauth_facebook", "Facebook"), [startSocialSignIn]);
+  const startAppleSignIn = useCallback(async () => {
+    try {
+      const result = await startAppleAuthenticationFlow();
+      if (result.createdSessionId && result.setActive) {
+        await result.setActive({ session: result.createdSessionId });
+        return;
+      }
+      Alert.alert("Sign-in did not finish", "Apple returned to Side Quest Chess, but Clerk did not create a mobile session yet.");
+    } catch (caught) {
+      const code = typeof caught === "object" && caught !== null && "code" in caught ? String(caught.code) : "";
+      if (code === "ERR_REQUEST_CANCELED") return;
+      const message = caught instanceof Error ? caught.message : "Unknown Apple sign-in error.";
+      Alert.alert("Sign-in error", message);
+    }
+  }, [startAppleAuthenticationFlow]);
 
   const startPasswordSignIn = useCallback(async ({ identifier, password }: { identifier: string; password: string }) => {
     if (!signInLoaded) throw new Error("Sign-in is still loading. Try again in a moment.");
@@ -1386,15 +1402,16 @@ function ClerkMobileShell() {
       isLoaded,
       isSignedIn: Boolean(isSignedIn),
       getSessionToken: async () => getToken(),
-      startGoogleSignIn: socialSignInAllowed ? startGoogleSignIn : undefined,
-      startFacebookSignIn: socialSignInAllowed ? startFacebookSignIn : undefined,
+      startGoogleSignIn,
+      startFacebookSignIn,
+      startAppleSignIn: Platform.OS === "ios" ? startAppleSignIn : undefined,
       startPasswordSignIn,
       startPasswordSignUp,
       attemptPasswordSignUpVerification,
       signOut,
       signedInLabel,
     }),
-    [attemptPasswordSignUpVerification, getToken, isLoaded, isSignedIn, signOut, signedInLabel, socialSignInAllowed, startFacebookSignIn, startGoogleSignIn, startPasswordSignIn, startPasswordSignUp],
+    [attemptPasswordSignUpVerification, getToken, isLoaded, isSignedIn, signOut, signedInLabel, startAppleSignIn, startFacebookSignIn, startGoogleSignIn, startPasswordSignIn, startPasswordSignUp],
   );
 
   return <MobileShell authBridge={authBridge} />;
@@ -5948,6 +5965,18 @@ function SocialSignInButtonContent({ provider, label, textStyle }: { provider: "
   );
 }
 
+function NativeAppleSignInButton({ onPress }: { onPress: () => Promise<void> }) {
+  return (
+    <AppleAuthentication.AppleAuthenticationButton
+      buttonType={AppleAuthentication.AppleAuthenticationButtonType.SIGN_IN}
+      buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.WHITE_OUTLINE}
+      cornerRadius={24}
+      style={styles.appleAuthenticationButton}
+      onPress={() => void onPress()}
+    />
+  );
+}
+
 function AccountTrackerDashboard({ bootstrap, account, authBridge, onSelectTab, onSelectChallenge, onOpenCompletedQuestDetail, onAccountUpdated, onScrollToY }: { bootstrap: MobileBootstrap; account: MobileAccountResponse | null; authBridge: MobileAuthBridge; onSelectTab: (tab: AppTab) => void; onSelectChallenge: (challengeId: string, nextTab?: AppTab) => void; onOpenChallengeDetail: (challengeId: string) => void; onOpenCompletedQuestDetail: (challengeId: string) => void; onAccountUpdated: AccountUpdatedCallback; onScrollToY: (y: number, animated?: boolean) => void }) {
   const signedIn = isAuthenticatedAccount(account) ? account : null;
   const [helpOpen, setHelpOpen] = useState(false);
@@ -5965,6 +5994,7 @@ function AccountTrackerDashboard({ bootstrap, account, authBridge, onSelectTab, 
           </View>
           <Text style={compactStyles.heroTitle}>Sign in to sync your board.</Text>
           <Text style={compactStyles.heroCopy}>Sign in to save Side Quest progress, latest proof, Coat of Arms unlocks, and connected chess usernames.</Text>
+          {authBridge.startAppleSignIn ? <NativeAppleSignInButton onPress={authBridge.startAppleSignIn} /> : null}
           {authBridge.startGoogleSignIn ? (
             <Pressable accessibilityRole="button" accessibilityLabel="Continue with Google" style={styles.secondaryButtonWide} onPress={() => void authBridge.startGoogleSignIn?.()}>
               <SocialSignInButtonContent provider="google" label="Continue with Google" textStyle={styles.secondaryButtonText} />
@@ -9361,6 +9391,7 @@ function AccountShell({
               <Text style={styles.primaryButtonText}>Sync account</Text>
             </Pressable>
           ) : null}
+          {!signedInButRejected && authBridge.startAppleSignIn ? <NativeAppleSignInButton onPress={authBridge.startAppleSignIn} /> : null}
           {!signedInButRejected && authBridge.startGoogleSignIn ? (
             <Pressable accessibilityRole="button" accessibilityLabel="Continue with Google" testID="account-primary-sign-in" style={styles.secondaryButtonWide} onPress={() => void authBridge.startGoogleSignIn?.()}>
               <SocialSignInButtonContent provider="google" label="Continue with Google" textStyle={styles.secondaryButtonText} />
@@ -11123,6 +11154,7 @@ const styles = StyleSheet.create({
   disabledWideButton: { alignItems: "center", justifyContent: "center", paddingHorizontal: 14, paddingVertical: 12, borderRadius: 999, borderWidth: 1, borderColor: "rgba(255,247,232,.12)", backgroundColor: "rgba(255,247,232,.045)", opacity: 0.68 },
   disabledSecondaryButtonText: { color: "rgba(255,247,232,.62)", fontWeight: "900" },
   secondaryButtonText: { backgroundColor: "transparent", color: colors.paper, fontWeight: "900" },
+  appleAuthenticationButton: { width: "100%", height: 48 },
   socialButtonContent: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 9 },
   socialButtonIconBadge: { width: 26, height: 26, alignItems: "center", justifyContent: "center", borderRadius: 13, backgroundColor: "rgba(255,255,255,.94)" },
   quickStartCard: { gap: 13, padding: 16, borderRadius: 24, borderWidth: 1, borderColor: "rgba(245,200,106,.34)", backgroundColor: "rgba(255,247,232,.08)" },

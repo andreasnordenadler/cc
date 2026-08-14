@@ -29,7 +29,7 @@ This packet supersedes candidate/version claims in the July 2026 Apple and store
 | Source candidate frozen | NOT FROZEN | Approved release commit and clean-tree receipt |
 | Signed IPA identity inspected | BLOCKED | IPA checksum, bundle/version/build, signature, entitlements, privacy manifests, SDK list |
 | iOS auth/deep link | BLOCKED — CONFIG AND DEVICE UNVERIFIED | Verify the production Clerk redirect allowlist, then verify every submitted sign-in method and cold-start callback on a real iPhone |
-| Sign in with Apple policy | SOURCE-ALIGNED, DEVICE-UNVERIFIED | The iOS UI now omits Google and Facebook and retains email/password sign-in. Verify the exact iOS candidate exposes no third-party social login; adding any such provider requires implementing and testing Sign in with Apple first |
+| Sign in with Apple policy | SOURCE-PREPARED, ACCOUNT/DEVICE BLOCKED | Source declares the Sign in with Apple capability and uses Clerk's native Apple flow while retaining Google, Facebook, and email/password. The dedicated Crowdler Apple team must configure the bundle capability and Clerk provider/account linking, then every method must pass on the exact iPhone candidate |
 | Privacy labels | DRAFT ONLY | Binary/SDK inspection plus adopted App Store Connect answers |
 | Current screenshots | BLOCKED | Captures from the exact TestFlight candidate on required Apple display sizes |
 | TestFlight real-iPhone smoke | BLOCKED | Store-delivered install and signed-in checklist receipt |
@@ -182,7 +182,7 @@ Fail for clipped or unreachable controls, content hidden under safe areas/keyboa
 
 1. Verify TestFlight-delivered install, app name, icon, version/build, clean launch, and production API.
 2. Browse signed out; open Privacy, Support, and Terms.
-3. Create/verify a disposable email/password account, including email verification, session persistence, and cold-start relaunch. Exercise the `sidequestchess://sso-callback` route separately. Confirm Google and Facebook are absent from the iOS UI; if any social provider is later added, implement and test Sign in with Apple before submission.
+3. Create/verify a disposable email/password account, including email verification, session persistence, and cold-start relaunch. Test native Sign in with Apple plus Google and Facebook through `sidequestchess://sso-callback`, including cancellation, private-relay email behavior, and cold-start return. Confirm an existing social-only account remains accessible and that provider account linking does not create an unintended duplicate.
 4. Confirm session persistence, account API bearer acceptance, profile edits, website sync, sign-out, and sign-in restoration.
 5. Exercise Solo start/check/explicit proof/failure/success/view/share/reset.
 6. Exercise Custom create/edit/start/check/reset and Community detail/share/report/block.
