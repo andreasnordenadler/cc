@@ -290,6 +290,24 @@ test("custom exact-game submission targets only the active quest with a trimmed 
   assert.throws(() => buildCustomProofRequestBody("submit", "custom-win", "   "), /paste a Lichess game ID or Chess\.com game URL first/i);
 });
 
+test("active custom proof controls show the latest checked chess position when one is available", () => {
+  const html = renderToStaticMarkup(React.createElement(CustomSideQuestProofControls, {
+    questId: "custom-win",
+    active: true,
+    playable: true,
+    latestAttempt: {
+      status: "failed",
+      summary: "The result condition was not met.",
+      checkedAt: "2026-08-14T08:00:00.000Z",
+      finalPositionFen: "8/8/8/8/8/8/4K3/7k w - - 0 1",
+      lastMoveSan: "Kh1",
+    },
+  }));
+
+  assert.match(html, /aria-label="Latest checked proof chess board"/);
+  assert.match(html, /data-board-state="ready"/);
+});
+
 test("completed custom proof controls expose the Android result action instead of restart", () => {
   const html = renderToStaticMarkup(React.createElement(CustomSideQuestProofControls, {
     questId: "custom-win",
