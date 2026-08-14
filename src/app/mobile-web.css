@@ -317,6 +317,10 @@ body::after {
   --icon: url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20M7.8 6.4l2.8 2.8a4 4 0 0 1 2.8 0l2.8-2.8a8 8 0 0 1 1.4 1.4l-2.8 2.8a4 4 0 0 1 0 2.8l2.8 2.8a8 8 0 0 1-1.4 1.4l-2.8-2.8a4 4 0 0 1-2.8 0l-2.8 2.8a8 8 0 0 1-1.4-1.4l2.8-2.8a4 4 0 0 1 0-2.8L6.4 7.8a8 8 0 0 1 1.4-1.4M12 11a1 1 0 1 0 0 2 1 1 0 0 0 0-2'/%3E%3C/svg%3E");
 }
 
+.sqc-menu-icon.document {
+  --icon: url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M6 2h8l4 4v16H6zm8 2.8V8h3.2zM9 11v2h6v-2zm0 4v2h6v-2z'/%3E%3C/svg%3E");
+}
+
 .sqc-account-dot {
   position: absolute;
   top: 3px;
@@ -5290,6 +5294,20 @@ body::after {
 }
 
 @media (min-width: 1180px) {
+  .terms-desktop-shell .sqc-desktop-route-only {
+    display: block;
+  }
+
+  .terms-desktop-shell .terms-rail {
+    top: 110px;
+    max-height: calc(100vh - 142px);
+  }
+
+  .terms-desktop-shell .terms-document-grid section {
+    scroll-margin-top: 110px;
+  }
+  /* End desktop Terms shell */
+
   .privacy-desktop-shell .sqc-desktop-route-only {
     display: block;
   }

@@ -172,7 +172,11 @@ export const mobileWebMenuItems = [
 ] as const;
 
 // Desktop derives from the app menu, but its persistent account action owns that destination.
-export const desktopHomeMenuItems = mobileWebMenuItems.filter((item) => item.id !== "account");
+// Terms remains available in the public footer on mobile and joins the roomier desktop menu.
+export const desktopHomeMenuItems = [
+  ...mobileWebMenuItems.filter((item) => item.id !== "account"),
+  { id: "terms", label: "Terms of Use", href: "/terms", icon: "document" },
+] as const;
 
 const menuItems = mobileWebMenuItems;
 

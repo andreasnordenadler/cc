@@ -26,9 +26,12 @@ test("Community Solo structured row data stays required through the desktop view
 
 test("desktop navigation preserves app destinations without duplicating the dedicated account action", () => {
   assert.deepEqual(
-    desktopHomeMenuItems,
+    desktopHomeMenuItems.slice(0, -1),
     mobileWebMenuItems.filter((item) => item.id !== "account"),
   );
+  assert.deepEqual(desktopHomeMenuItems.at(-1), { id: "terms", label: "Terms of Use", href: "/terms", icon: "document" });
+  const menuCss = readFileSync("src/app/mobile-web.css", "utf8");
+  assert.match(menuCss, /\.sqc-menu-icon\.document\s*\{[^}]*--icon:\s*url\("data:image\/svg\+xml/);
   assert.equal(mobileWebMenuItems.find((item) => item.id === "account")?.href, "/account", "mobile menu keeps its account destination");
   assert.deepEqual(
     desktopHomeMenuItems.map(({ label, href }) => ({ label, href })),
@@ -42,6 +45,7 @@ test("desktop navigation preserves app destinations without duplicating the dedi
       { label: "Create Multiplayer Side Quest", href: "/create-multiplayer-side-quest" },
       { label: "Help & Support", href: "/support" },
       { label: "Privacy Policy", href: "/privacy" },
+      { label: "Terms of Use", href: "/terms" },
     ],
   );
 });
