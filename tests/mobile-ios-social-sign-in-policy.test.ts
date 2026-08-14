@@ -15,6 +15,11 @@ test("iOS provides native Sign in with Apple alongside existing account methods"
 
   assert.match(appSource, /useSignInWithApple/);
   assert.match(appSource, /startAppleAuthenticationFlow\(\)/);
+  const appleFlowStart = appSource.indexOf("const startAppleSignIn = useCallback");
+  const appleFlowEnd = appSource.indexOf("const startPasswordSignIn", appleFlowStart);
+  assert.ok(appleFlowStart >= 0 && appleFlowEnd > appleFlowStart, "Apple sign-in callback must be discoverable");
+  const appleFlowSource = appSource.slice(appleFlowStart, appleFlowEnd);
+  assert.doesNotMatch(appleFlowSource, /Sign-in did not finish/, "Clerk represents Apple-sheet cancellation as a no-session result");
   assert.match(appSource, /startAppleSignIn:\s*Platform\.OS\s*===\s*["']ios["']\s*\?\s*startAppleSignIn\s*:\s*undefined/);
   assert.match(appSource, /AppleAuthenticationButtonType\.SIGN_IN/);
   assert.match(appSource, /AppleAuthenticationButtonStyle\.WHITE_OUTLINE/);
@@ -23,6 +28,12 @@ test("iOS provides native Sign in with Apple alongside existing account methods"
   assert.doesNotMatch(appSource, /startGoogleSignIn:\s*Platform\.OS/);
   assert.doesNotMatch(appSource, /startFacebookSignIn:\s*Platform\.OS/);
 
-  const appleButtonUses = appSource.match(/<NativeAppleSignInButton onPress=\{authBridge\.startAppleSignIn\}/g) ?? [];
-  assert.equal(appleButtonUses.length, 2, "both signed-out account surfaces must expose the native Apple button on iOS");
+  const liveAccountStart = appSource.indexOf("function AccountTrackerDashboard(");
+  const liveAccountEnd = appSource.indexOf("function CompactStatusRow(", liveAccountStart);
+  assert.ok(liveAccountStart >= 0 && liveAccountEnd > liveAccountStart, "live account surface must be discoverable");
+  const liveAccountSource = appSource.slice(liveAccountStart, liveAccountEnd);
+  assert.match(liveAccountSource, /<NativeAppleSignInButton onPress=\{authBridge\.startAppleSignIn\}/);
+  assert.match(liveAccountSource, /Continue with Google/);
+  assert.match(liveAccountSource, /Continue with Facebook/);
+  assert.match(liveAccountSource, /<PasswordAuthPanel/);
 });

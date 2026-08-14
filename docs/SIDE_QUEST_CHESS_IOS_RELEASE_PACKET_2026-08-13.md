@@ -182,7 +182,7 @@ Fail for clipped or unreachable controls, content hidden under safe areas/keyboa
 
 1. Verify TestFlight-delivered install, app name, icon, version/build, clean launch, and production API.
 2. Browse signed out; open Privacy, Support, and Terms.
-3. Create/verify a disposable email/password account, including email verification, session persistence, and cold-start relaunch. Test native Sign in with Apple plus Google and Facebook through `sidequestchess://sso-callback`, including cancellation, private-relay email behavior, and cold-start return. Confirm an existing social-only account remains accessible and that provider account linking does not create an unintended duplicate.
+3. Create/verify a disposable email/password account, including email verification, session persistence, and cold-start relaunch. Test native Sign in with Apple, including cancellation and private-relay email behavior. Separately test Google and Facebook through `sidequestchess://sso-callback`, including cancellation and cold-start return. Confirm an existing social-only account remains accessible and that provider account linking does not create an unintended duplicate.
 4. Confirm session persistence, account API bearer acceptance, profile edits, website sync, sign-out, and sign-in restoration.
 5. Exercise Solo start/check/explicit proof/failure/success/view/share/reset.
 6. Exercise Custom create/edit/start/check/reset and Community detail/share/report/block.
