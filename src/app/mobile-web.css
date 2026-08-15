@@ -5890,6 +5890,10 @@ body::after {
     background: rgba(255, 247, 232, .045);
   }
 
+  .sqc-desktop-loop {
+    scroll-margin-top: 104px;
+  }
+
   .sqc-desktop-section-heading {
     max-width: 700px;
     display: grid;

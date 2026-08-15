@@ -36,6 +36,22 @@ test("desktop Home switches composition exactly at the established boundary", as
   await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBe(0);
 });
 
+test("desktop Home ritual link reveals the complete section below sticky navigation", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/", { waitUntil: "domcontentloaded" });
+
+  await page.getByRole("link", { name: "Inspect the ritual" }).click();
+  await expect(page).toHaveURL(/#how-it-works$/);
+  await expect(page.getByText("The official procedure", { exact: true })).toBeVisible();
+
+  await expect.poll(async () => page.evaluate(() => {
+    const header = document.querySelector<HTMLElement>(".sqc-desktop-header-shell");
+    const target = document.querySelector<HTMLElement>("#how-it-works");
+    if (!header || !target) return false;
+    return target.getBoundingClientRect().top >= header.getBoundingClientRect().bottom + 20;
+  })).toBe(true);
+});
+
 test("mobile Home retains the app composition without the desktop quest picker", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/", { waitUntil: "domcontentloaded" });
