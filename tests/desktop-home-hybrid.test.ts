@@ -393,6 +393,45 @@ test("Community discovery becomes a desktop browsing workspace without duplicati
   assert.equal(html.match(/aria-label="Open Castle\? Never Heard Of It"/g)?.length, 1, "desktop and mobile share one catalog subtree");
 });
 
+test("Community discovery exposes URL-backed controls and carries the workspace into quest details", () => {
+  const html = renderToStaticMarkup(
+    createElement(MobileCommunitySideQuestsScreen, {
+      signedIn: false,
+      initialState: {
+        query: "castle",
+        filter: "new",
+        sort: "liked",
+        limit: 20,
+        creator: null,
+      },
+      rows: [{
+        id: "community-one",
+        title: "Castle? Never Heard Of It",
+        meta: "By Nora Skewer · Finish a game without castling.",
+        href: "/challenges/community/community-one",
+        sourceBadge: "Community",
+        status: "Ready",
+        creatorKey: "nora",
+        creatorName: "Nora Skewer",
+        creatorBrowsePath: "/community-side-quests?creator=nora",
+        summary: "Finish a game without castling.",
+        stats: { soloAttempts: 3, soloCompletions: 1, multiplayerLineups: 2 },
+        updatedAtMs: 100,
+        popularityScore: 4,
+        likeCount: 2,
+        likedByViewer: false,
+        completedByViewer: false,
+        isNew: true,
+      }],
+    }),
+  );
+
+  assert.match(html, /aria-label="Search Community Side Quests"[^>]*value="castle"/);
+  assert.match(html, /<button[^>]*class="active"[^>]*aria-pressed="true"[^>]*>New<\/button>/);
+  assert.match(html, /<option value="liked" selected="">Liked<\/option>/);
+  assert.match(html, /href="\/challenges\/community\/community-one\?returnTo=%2Fcommunity-side-quests%3Fq%3Dcastle%26filter%3Dnew%26sort%3Dliked%26limit%3D20"/);
+});
+
 test("Community discovery keeps its shared search and filters available while desktop users browse the long catalog", () => {
   const css = readFileSync("src/app/mobile-web.css", "utf8");
   const mobilePanel = readCssBlock(css, css.indexOf(".sqc-community-browse-panel"));
@@ -1040,6 +1079,7 @@ test("Community Solo detail offers desktop contextual wayfinding before the ques
         },
       },
       signedIn: false,
+      returnHref: "/community-side-quests?q=castle&filter=new&sort=liked",
     }),
   );
   const css = readFileSync("src/app/mobile-web.css", "utf8");
@@ -1048,7 +1088,8 @@ test("Community Solo detail offers desktop contextual wayfinding before the ques
 
   assert.match(html, /<nav class="sqc-community-detail-wayfinding" aria-label="Community Solo Side Quest navigation">/);
   assert.ok(html.indexOf("sqc-community-detail-wayfinding") < html.indexOf("sqc-community-detail-hero"), "contextual navigation precedes the hero in reading and focus order");
-  assert.match(html, /href="\/community-side-quests"><span aria-hidden="true">←<\/span>All Community Side Quests<\/a>/);
+  assert.match(html, /href="\/community-side-quests\?q=castle&amp;filter=new&amp;sort=liked"><span aria-hidden="true">←<\/span>Back to filtered results<\/a>/);
+  assert.match(html, /href="\/sign-in\?redirect_url=%2Fchallenges%2Fcommunity%2Fcommunity-quest%3FreturnTo%3D%252Fcommunity-side-quests%253Fq%253Dcastle%2526filter%253Dnew%2526sort%253Dliked"[^>]*>Sign in<\/a>/);
   assert.match(html, /href="\/community-side-quests\?creator=nora-skewer#creator-nora-skewer"><span>More by<\/span><strong>Nora Skewer<\/strong><\/a>/);
   assert.match(mobileCss, /\.sqc-community-detail-wayfinding\s*\{[^}]*display:\s*none;/, "mobile keeps its existing detail composition below the desktop media query");
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-community-detail\s+\.sqc-community-detail-wayfinding\s*\{[^}]*grid-column:\s*1\s*\/\s*-1;[^}]*display:\s*flex;/);

@@ -305,6 +305,43 @@ test("desktop Community creator bylines open one focused creator workspace", asy
   expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBe(0);
 });
 
+test("desktop Community discovery keeps search and sort context through detail navigation", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await expectHealthyNavigation(page, "/community-side-quests");
+
+  const initialResult = page.locator(".sqc-community-catalog-section .sqc-app-row").first();
+  await expect(initialResult).toBeVisible();
+  const query = (await initialResult.locator(".sqc-row-title-line strong").innerText()).trim();
+  const expectedReturnHref = `/community-side-quests?${new URLSearchParams({ q: query, sort: "liked" }).toString()}`;
+
+  const search = page.getByLabel("Search Community Side Quests");
+  await search.fill(query);
+  await page.getByLabel("Sort Community Side Quests").selectOption("liked");
+  await expect(page).toHaveURL(new RegExp(`${expectedReturnHref.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`));
+
+  const result = page.locator(".sqc-community-catalog-section .sqc-app-row").first();
+  await expect(result).toBeVisible();
+  await result.getByRole("link", { name: /^Open / }).click();
+  await expect(page).toHaveURL(/\/challenges\/community\/.+\?returnTo=/);
+
+  const returnLink = page.getByRole("link", { name: "Back to filtered results" });
+  await expect(returnLink).toHaveAttribute("href", expectedReturnHref);
+  await returnLink.click();
+
+  await expect(page).toHaveURL(new RegExp(`${expectedReturnHref.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`));
+  await expect(search).toHaveValue(query);
+  await expect(page.getByLabel("Sort Community Side Quests")).toHaveValue("liked");
+  await expect(result).toBeVisible();
+
+  const creatorShortcut = page.getByRole("complementary", { name: "Creator shortcuts" }).getByRole("link").first();
+  await creatorShortcut.click();
+  await expect(page).toHaveURL(/\/community-side-quests\?creator=[^&]+(?:#.+)?$/);
+  await expect(page.getByLabel("Search Community Side Quests")).toHaveValue("");
+  await expect(page.getByLabel("Sort Community Side Quests")).toHaveValue("popular");
+  await expect(page.getByRole("complementary", { name: "Creator shelf" })).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBe(0);
+});
+
 test("official Solo detail switches from the mobile flow to one desktop action workspace", async ({ page }) => {
   await page.setViewportSize({ width: 1179, height: 900 });
   await expectHealthyNavigation(page, "/challenges/knights-before-coffee");

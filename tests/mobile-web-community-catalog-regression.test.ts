@@ -168,15 +168,16 @@ test("Community Multiplayer discovery initially shows four rows and a real Andro
 
 test("Community Solo route carries the creator shelf key from public data into the rendered catalog", () => {
   const page = readFileSync(new URL("../src/app/community-side-quests/page.tsx", import.meta.url), "utf8");
-  assert.match(page, /searchParams:\s*Promise<\{ creator\?: string \}>/);
-  assert.match(page, /const \{ creator \} = await searchParams/);
+  assert.match(page, /searchParams:\s*Promise<Record<string, string \| string\[\] \| undefined>>/);
+  assert.match(page, /const discoveryState = parseCommunityDiscoveryState\(await searchParams\)/);
   assert.match(page, /creatorKey: quest\.creatorKey/);
   assert.match(page, /creatorName: quest\.creatorName/);
   assert.match(page, /listPublicGroupQuests/);
   assert.match(page, /const publicGroupQuests = await listPublicGroupQuests\(client\)/);
   assert.match(page, /listPublicCommunitySideQuests\(client, \{ limit: null, groupQuests: publicGroupQuests, viewerUserId:/);
   assert.match(page, /likedByViewer: likeSummary\.likedByViewer/);
-  assert.match(page, /initialCreator=\{creator \?\? null\}/);
+  assert.match(page, /key=\{buildCommunityDiscoveryHref\(discoveryState\)\}/);
+  assert.match(page, /initialCreator=\{discoveryState\.creator\}/);
 });
 
 test("Community Solo creator shelf shows only that creator and keeps a real clear action", () => {
@@ -262,7 +263,7 @@ test("Community Solo catalog keeps the exact row link beside the Android like ac
   }));
 
   assert.match(solo, /class="sqc-app-row sqc-app-row-with-like"/);
-  assert.match(solo, /aria-label="Open Castle\? Never Heard Of It"[^>]*href="\/challenges\/community\/community-solo"/);
+  assert.match(solo, /aria-label="Open Castle\? Never Heard Of It"[^>]*href="\/challenges\/community\/community-solo\?returnTo=%2Fcommunity-side-quests"/);
   assert.match(solo, /aria-label="Unlike Castle\? Never Heard Of It\. 7 likes\."/);
   assert.match(solo, /data-icon="thumb-up"/);
 });

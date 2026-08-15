@@ -6,6 +6,7 @@ import { useLayoutEffect, useMemo, useRef, useState } from "react";
 import OfficialSoloLikeControl from "./official-solo-like-control";
 import { applyCommunitySoloLikeState, applyMultiplayerLikeState, filterCommunitySoloCatalog, filterCustomCatalog, filterMultiplayerCatalog, getCommunityMultiplayerEmptyState, getCommunitySoloEmptyState, paginateCatalog, type CommunitySoloCatalogFilter, type CommunitySoloCatalogSort } from "@/lib/catalog-models";
 import type { MobileWebMultiplayerPreview } from "@/lib/mobile-web-multiplayer";
+import { buildCommunityDiscoveryHref, buildCommunityQuestDetailHref, type CommunityDiscoveryState } from "@/lib/community-discovery-state";
 
 export type SoloCatalogClientRow = {
   id: string; title: string; meta: string; href: string; image?: string | null; sourceBadge?: string | null; status?: string | null;
@@ -34,10 +35,11 @@ function CatalogRow({ row, status, showImage = false }: { row: SoloCatalogClient
   );
 }
 
-function CommunitySoloCatalogRow({ row, signedIn, onLikeStateChange }: { row: CommunitySoloCatalogClientRow; signedIn: boolean; onLikeStateChange: (liked: boolean) => void }) {
+function CommunitySoloCatalogRow({ row, signedIn, returnTo, onLikeStateChange }: { row: CommunitySoloCatalogClientRow; signedIn: boolean; returnTo: string; onLikeStateChange: (liked: boolean) => void }) {
+  const detailHref = buildCommunityQuestDetailHref(row.id, returnTo);
   return (
     <div className="sqc-app-row sqc-app-row-with-like">
-      <Link href={row.href} className="sqc-app-row-main" aria-label={`Open ${row.title}`} />
+      <Link href={detailHref} className="sqc-app-row-main" aria-label={`Open ${row.title}`} />
       <span className="sqc-row-icon" aria-hidden="true">
         <Image className="sqc-row-glow generic" alt="" src="/mobile-source/badges/glow/sqc-coat-generic-glow.png" width={50} height={50} />
         <Image className="sqc-row-image" alt="" src={row.image ?? "/mobile-source/badges/custom-side-quest-crest.png"} width={42} height={42} />
@@ -54,7 +56,7 @@ function CommunitySoloCatalogRow({ row, signedIn, onLikeStateChange }: { row: Co
             count={row.likeCount}
             likedByViewer={row.likedByViewer}
             signedIn={signedIn}
-            returnTo="/community-side-quests"
+            returnTo={returnTo}
             label={row.title}
             onLikeStateChange={onLikeStateChange}
           />
@@ -131,12 +133,12 @@ export type CommunitySoloCatalogClientRow = SoloCatalogClientRow & {
   isNew: boolean;
 };
 
-export function CommunitySoloCatalog({ rows, signedIn, initialCreator = null }: { rows: CommunitySoloCatalogClientRow[]; signedIn: boolean; initialCreator?: string | null }) {
+export function CommunitySoloCatalog({ rows, signedIn, initialCreator = null, initialState }: { rows: CommunitySoloCatalogClientRow[]; signedIn: boolean; initialCreator?: string | null; initialState?: CommunityDiscoveryState }) {
   const [liveRows, setLiveRows] = useState(rows);
-  const [query, setQuery] = useState("");
-  const [filter, setFilter] = useState<CommunitySoloCatalogFilter>("all");
-  const [sort, setSort] = useState<CommunitySoloCatalogSort>("popular");
-  const [limit, setLimit] = useState(10);
+  const [query, setQuery] = useState(initialState?.query ?? "");
+  const [filter, setFilter] = useState<CommunitySoloCatalogFilter>(initialState?.filter ?? "all");
+  const [sort, setSort] = useState<CommunitySoloCatalogSort>(initialState?.sort ?? "popular");
+  const [limit, setLimit] = useState(initialState?.limit ?? 10);
   const creatorRow = initialCreator ? liveRows.find((row) => row.creatorKey === initialCreator) : null;
   const creator = creatorRow?.creatorKey ?? null;
   const filtered = useMemo(() => filterCommunitySoloCatalog(liveRows, { query, filter, sort, creator }), [liveRows, query, filter, sort, creator]);
@@ -147,29 +149,35 @@ export function CommunitySoloCatalog({ rows, signedIn, initialCreator = null }: 
     { value: "new", label: "New" },
     { value: "completed", label: "Completed" },
   ];
+  const discoveryHref = buildCommunityDiscoveryHref({ query, filter, sort, limit, creator });
+
+  function replaceDiscoveryState(next: Partial<CommunityDiscoveryState>) {
+    const href = buildCommunityDiscoveryHref({ query, filter, sort, limit, creator, ...next });
+    window.history.replaceState(null, "", href);
+  }
 
   return (
     <>
       <div className="sqc-community-browse-panel" aria-label="Community Side Quest filters">
         <label className="sqc-search-shell">
           <span className="sr-only">Search Community Side Quests</span>
-          <input value={query} onChange={(event) => { setQuery(event.target.value); setLimit(10); }} placeholder="Search by name or rule" aria-label="Search Community Side Quests" />
+          <input value={query} onChange={(event) => { const nextQuery = event.target.value; setQuery(nextQuery); setLimit(10); replaceDiscoveryState({ query: nextQuery, limit: 10 }); }} placeholder="Search by name or rule" aria-label="Search Community Side Quests" />
         </label>
         <div className="sqc-community-controls">
           <div className="sqc-filter-row" aria-label="Filter Community Side Quests">
             {filters.map(({ value, label }) => (
-              <button type="button" key={value} className={filter === value ? "active" : ""} aria-pressed={filter === value} onClick={() => { setFilter(value); setLimit(10); }}>{label}</button>
+              <button type="button" key={value} className={filter === value ? "active" : ""} aria-pressed={filter === value} onClick={() => { setFilter(value); setLimit(10); replaceDiscoveryState({ filter: value, limit: 10 }); }}>{label}</button>
             ))}
           </div>
-          <label className="sqc-sort-pill">Sort <select aria-label="Sort Community Side Quests" value={sort} onChange={(event) => { setSort(event.target.value as CommunitySoloCatalogSort); setLimit(10); }}><option value="popular">Top</option><option value="liked">Liked</option><option value="newest">Newest</option><option value="name">A–Z</option></select></label>
+          <label className="sqc-sort-pill">Sort <select aria-label="Sort Community Side Quests" value={sort} onChange={(event) => { const nextSort = event.target.value as CommunitySoloCatalogSort; setSort(nextSort); setLimit(10); replaceDiscoveryState({ sort: nextSort, limit: 10 }); }}><option value="popular">Top</option><option value="liked">Liked</option><option value="newest">Newest</option><option value="name">A–Z</option></select></label>
         </div>
       </div>
       <span>{page.total} result{page.total === 1 ? "" : "s"}</span>
-      {page.rows.length ? <div className={page.rows.length === 1 ? "sqc-catalog single-result" : "sqc-catalog"}>{page.rows.map(row => <CommunitySoloCatalogRow key={row.id} row={row} signedIn={signedIn} onLikeStateChange={(liked) => setLiveRows((current) => applyCommunitySoloLikeState(current, row.id, liked))} />)}</div> : (() => {
+      {page.rows.length ? <div className={page.rows.length === 1 ? "sqc-catalog single-result" : "sqc-catalog"}>{page.rows.map(row => <CommunitySoloCatalogRow key={row.id} row={row} signedIn={signedIn} returnTo={discoveryHref} onLikeStateChange={(liked) => setLiveRows((current) => applyCommunitySoloLikeState(current, row.id, liked))} />)}</div> : (() => {
         const emptyState = getCommunitySoloEmptyState({ hasCatalogRows: liveRows.length > 0, signedIn });
         return <div className="sqc-empty-panel standalone"><strong>{emptyState.title}</strong><span>{emptyState.guidance}</span></div>;
       })()}
-      {page.hasMore ? <button type="button" className="sqc-detail-secondary-button" onClick={() => setLimit(value => value + 10)}>Load more</button> : null}
+      {page.hasMore ? <button type="button" className="sqc-detail-secondary-button" onClick={() => { const nextLimit = limit + 10; setLimit(nextLimit); replaceDiscoveryState({ limit: nextLimit }); }}>Load more</button> : null}
     </>
   );
 }
