@@ -4,7 +4,7 @@ Status: source-preparation packet only. It is not evidence of an Apple build, Te
 
 ## Candidate reconciled from `origin/main`
 
-- Reconciled `origin/main` baseline: `e3e3e19a0d8350b9b51403955e927bd7f83067b9` (fetched 2026-08-15)
+- Reconciled `origin/main` baseline: `ba2cd3c0ca340c5053f53e4f6672c7d38d348f88` (fetched and merged 2026-08-15)
 - Current Android distribution baseline: Google Play Internal testing accepted build `0.1.349` / code `350`, built from immutable source `189c93a350eb48d2a325f3a3f4edd99ed110c4b5`; Android production/public launch remains inactive and separately approval-gated. The current iOS-preparation branch still has Android source code `349` and is not the code-350 Android artifact.
 - App name: Side Quest Chess
 - Expo source version: `0.1.349`
@@ -252,8 +252,8 @@ Submission, App Review acceptance, release approval, and public storefront avail
 
 ## Local source-readiness receipt — 2026-08-15
 
-- The dedicated iOS worktree was clean before reconciliation and was rebased onto fetched `origin/main` `e3e3e19a0d8350b9b51403955e927bd7f83067b9`; the dirty canonical checkout was not modified or cleaned.
-- Full canonical test suite after the 2026-08-15 rebase: 740/740 passed.
+- The dedicated iOS worktree was clean before reconciliation and merged fetched `origin/main` `ba2cd3c0ca340c5053f53e4f6672c7d38d348f88`; the dirty canonical checkout was not modified or cleaned.
+- Full canonical test suite after the latest 2026-08-15 merge: 750/750 passed.
 - Full lint: passed with zero errors and four pre-existing warnings.
 - Full Next production build: passed and generated all 88 static pages.
 - `expo-doctor --verbose`: 18/18 checks passed.
