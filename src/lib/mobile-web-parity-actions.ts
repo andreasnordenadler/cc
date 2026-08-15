@@ -2,6 +2,7 @@ type CommunitySoloPickInput = {
   questId: string;
   signedIn: boolean;
   activeQuestId?: string | null;
+  detailHref?: string;
 };
 
 type MultiplayerJoinInput = {
@@ -18,8 +19,12 @@ function signInPath(returnPath: string) {
   return `/sign-in?redirect_url=${encodeURIComponent(returnPath)}`;
 }
 
-export function getCommunitySoloPickState({ questId, signedIn, activeQuestId }: CommunitySoloPickInput) {
-  const href = detailPath("/challenges/community", questId);
+export function getCommunitySoloDetailHref(questId: string, detailHref?: string) {
+  return detailHref ?? detailPath("/challenges/community", questId);
+}
+
+export function getCommunitySoloPickState({ questId, signedIn, activeQuestId, detailHref: requestedDetailHref }: CommunitySoloPickInput) {
+  const href = getCommunitySoloDetailHref(questId, requestedDetailHref);
   if (!signedIn) return { kind: "signed-out" as const, href: signInPath(href), label: "Sign in" };
   if (activeQuestId === questId) return { kind: "active" as const, href, label: "Active Side Quest" };
   return { kind: "pick" as const, label: "Pick this Side Quest" };

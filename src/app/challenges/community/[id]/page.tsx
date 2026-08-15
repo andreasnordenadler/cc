@@ -6,16 +6,21 @@ import { findPublicCommunitySideQuestById } from "@/lib/community-side-quests";
 import { getChessComUsername, getLichessUsername, getPreferredRunnerName, type UserMetadataRecord } from "@/lib/user-metadata";
 import { getCommunityLikeSummaries } from "@/lib/community-likes";
 import { buildCommunitySoloCompletionState } from "@/lib/community-solo-detail-state";
+import { resolveCommunityDiscoveryReturnHref } from "@/lib/community-discovery-state";
 
 export const dynamic = "force-dynamic";
 
 export default async function CommunitySideQuestDetailPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ returnTo?: string | string[] }>;
 }) {
   noStore();
   const { id } = await params;
+  const returnToValue = (await searchParams).returnTo;
+  const returnHref = resolveCommunityDiscoveryReturnHref(Array.isArray(returnToValue) ? returnToValue[0] : returnToValue);
   const [user, client] = await Promise.all([currentUser(), clerkClient()]);
   const quest = await findPublicCommunitySideQuestById(client, id);
 
@@ -45,7 +50,7 @@ export default async function CommunitySideQuestDetailPage({
       chessComUsername={getChessComUsername(metadataRecord)}
       modalPresentation
       immersivePresentation
-      closeHref="/community-side-quests"
+      closeHref={returnHref}
       theme={{
         backgroundTop: "#352021",
         backgroundMid: "#171011",
@@ -71,6 +76,7 @@ export default async function CommunitySideQuestDetailPage({
         completedAt={completionState.completedAt}
         resultHref={completionState.resultHref}
         latestAttempt={completionState.latestAttempt}
+        returnHref={returnHref}
       />
     </MobileAppWebShell>
   );

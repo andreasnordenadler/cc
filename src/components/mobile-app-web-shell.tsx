@@ -34,6 +34,7 @@ import DesktopRandomQuestButton from "./desktop-random-quest-button";
 import MobileWebHamburgerMenu from "./mobile-web-hamburger-menu";
 import CurrentPageSignInLink from "./current-page-sign-in-link";
 import CommunitySoloDuplicateControl from "./community-solo-duplicate-control";
+import { buildCommunityQuestDetailHref, type CommunityDiscoveryState } from "@/lib/community-discovery-state";
 import type { CustomOwnerSaveInput } from "@/lib/custom-owner-controls";
 import DesktopTrophyCollection from "./desktop-trophy-collection";
 
@@ -1279,10 +1280,12 @@ export function MobileCommunitySideQuestsScreen({
   rows,
   signedIn,
   initialCreator = null,
+  initialState,
 }: {
   rows: CommunitySideQuestRow[];
   signedIn: boolean;
   initialCreator?: string | null;
+  initialState?: CommunityDiscoveryState;
 }) {
   const creatorRow = initialCreator ? rows.find((row) => row.creatorKey === initialCreator) : null;
   const creatorRowCount = creatorRow
@@ -1368,7 +1371,7 @@ export function MobileCommunitySideQuestsScreen({
           <span>{creatorRowCount ? `${creatorRowCount}/${creatorRowCount}` : "0 public"}</span>
         </div>
 
-        <CommunitySoloCatalog rows={rows} signedIn={signedIn} initialCreator={initialCreator} />
+        <CommunitySoloCatalog rows={rows} signedIn={signedIn} initialCreator={initialCreator} initialState={initialState} />
       </section>
     </div>
   );
@@ -1385,6 +1388,7 @@ export function MobileCommunitySideQuestDetailScreen({
   completedAt,
   resultHref,
   latestAttempt,
+  returnHref = "/community-side-quests",
 }: {
   quest: CommunitySideQuestDetail;
   signedIn: boolean;
@@ -1404,17 +1408,20 @@ export function MobileCommunitySideQuestDetailScreen({
     failureLabel?: string;
     failureExplanation?: string;
   } | null;
+  returnHref?: string;
 }) {
   const badge = toMobileAssetPath(quest.badgeImageUrl) ?? mobileAsset.customCrest;
   const totalSolo = quest.stats.soloAttempts + quest.stats.soloSelections + quest.stats.soloCompletions;
   const activeForViewer = signedIn && activeQuestId === quest.id;
+  const hasDiscoveryContext = returnHref !== "/community-side-quests";
+  const detailHref = buildCommunityQuestDetailHref(quest.id, returnHref);
 
   return (
     <div className="sqc-stack sqc-community-detail-screen">
       <nav className="sqc-community-detail-wayfinding" aria-label="Community Solo Side Quest navigation">
-        <Link href="/community-side-quests" className="sqc-community-detail-back">
+        <Link href={returnHref} className="sqc-community-detail-back">
           <span aria-hidden="true">←</span>
-          All Community Side Quests
+          {hasDiscoveryContext ? "Back to filtered results" : "All Community Side Quests"}
         </Link>
         <Link href={quest.creatorBrowsePath} className="sqc-community-detail-creator-link">
           <span>More by</span>
@@ -1432,7 +1439,7 @@ export function MobileCommunitySideQuestDetailScreen({
             count={likeSummary.count}
             likedByViewer={likeSummary.likedByViewer}
             signedIn={signedIn}
-            returnTo={`/challenges/community/${encodeURIComponent(quest.id)}`}
+            returnTo={detailHref}
             label={quest.title}
           />
         </div>
@@ -1504,11 +1511,11 @@ export function MobileCommunitySideQuestDetailScreen({
         )}
 
         <div className="sqc-community-detail-actions" aria-label="Community Solo Side Quest actions">
-          {!completed && !activeForViewer ? <CommunitySoloPickControl questId={quest.id} signedIn={signedIn} activeQuestId={activeQuestId} /> : null}
+          {!completed && !activeForViewer ? <CommunitySoloPickControl questId={quest.id} signedIn={signedIn} activeQuestId={activeQuestId} detailHref={detailHref} /> : null}
           <CommunitySoloSocialActions questId={quest.id} title={quest.title} creatorName={quest.creatorName} signedIn={signedIn} />
           <div className="sqc-community-action-group sqc-community-next-actions" role="group" aria-labelledby="community-next-actions-label">
             <span className="sqc-community-action-group-label" id="community-next-actions-label">Continue exploring</span>
-            <Link href="/community-side-quests" className="sqc-detail-quiet-button">Back to list</Link>
+            <Link href={returnHref} className="sqc-detail-quiet-button">{hasDiscoveryContext ? "Back to results" : "Back to list"}</Link>
             <Link href={quest.creatorBrowsePath} className="sqc-detail-secondary-button">More by {quest.creatorName}</Link>
             {signedIn ? <Link href={`/create-multiplayer-side-quest?quest=${encodeURIComponent(quest.id)}`} className="sqc-detail-secondary-button">Use in Multiplayer</Link> : null}
             {signedIn && duplicateInput ? <CommunitySoloDuplicateControl quest={duplicateInput} /> : null}

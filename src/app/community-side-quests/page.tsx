@@ -4,6 +4,7 @@ import { unstable_noStore as noStore } from "next/cache";
 import { listPublicCommunitySideQuests } from "@/lib/community-side-quests";
 import { listPublicGroupQuests } from "@/lib/groupquests";
 import { getChallengeProgress, getChessComUsername, getLichessUsername, getPreferredRunnerName, type UserMetadataRecord } from "@/lib/user-metadata";
+import { buildCommunityDiscoveryHref, parseCommunityDiscoveryState } from "@/lib/community-discovery-state";
 
 export const dynamic = "force-dynamic";
 
@@ -15,10 +16,10 @@ export const metadata = {
 export default async function CommunitySideQuestsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ creator?: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   noStore();
-  const { creator } = await searchParams;
+  const discoveryState = parseCommunityDiscoveryState(await searchParams);
   const client = await clerkClient();
   const user = await currentUser();
   const publicGroupQuests = await listPublicGroupQuests(client);
@@ -52,8 +53,10 @@ export default async function CommunitySideQuestsPage({
       }}
     >
       <MobileCommunitySideQuestsScreen
+        key={buildCommunityDiscoveryHref(discoveryState)}
         signedIn={Boolean(user)}
-        initialCreator={creator ?? null}
+        initialCreator={discoveryState.creator}
+        initialState={discoveryState}
         rows={communityQuests.map((quest) => {
           const likeSummary = quest.likeSummary;
           return {
