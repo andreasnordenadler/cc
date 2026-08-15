@@ -66,3 +66,12 @@ test("desktop available quest puts the primary decision before supporting briefi
   assert.doesNotMatch(desktopOfficialDetail, /\.sqc-proof-action-card\s*>\s*:(?:is\()?\.sqc-card-eyebrow/);
   assert.doesNotMatch(desktopOfficialDetail, /grid-template-areas:\s*"eyebrow"/);
 });
+
+test("official quest coat requests enough source pixels for its desktop render", () => {
+  const page = readFileSync("src/app/challenges/[id]/page.tsx", "utf8");
+  const coatImage = page.match(/<Image className="sqc-official-coat-image"[\s\S]*?\/>/)?.[0] ?? "";
+
+  assert.match(coatImage, /width=\{190\}/);
+  assert.match(coatImage, /height=\{214\}/);
+  assert.match(coatImage, /sizes="\(min-width: 1180px\) 190px, 92px"/);
+});
