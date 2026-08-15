@@ -2662,11 +2662,13 @@ body::after {
   gap: 8px;
 }
 
-.sqc-trophy-collection-workspace {
+.sqc-trophy-collection-workspace,
+.sqc-trophy-results-column {
   display: contents;
 }
 
-.sqc-trophy-difficulty-index {
+.sqc-trophy-difficulty-index,
+.sqc-trophy-results-bar {
   display: none;
 }
 
@@ -10448,6 +10450,56 @@ body::after {
     color: var(--gold);
     font-size: 11px;
     font-weight: 950;
+  }
+
+  .sqc-mobile-web.desktop-trophy-cabinet .sqc-trophy-results-column {
+    min-width: 0;
+    display: grid;
+    gap: 14px;
+  }
+
+  .sqc-mobile-web.desktop-trophy-cabinet .sqc-trophy-results-bar {
+    min-height: 68px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    padding: 12px 16px;
+    border: 1px solid rgba(255, 247, 232, .1);
+    border-radius: 18px;
+    background: rgba(255, 247, 232, .045);
+  }
+
+  .sqc-mobile-web.desktop-trophy-cabinet .sqc-trophy-results-bar > div {
+    display: grid;
+    gap: 4px;
+  }
+
+  .sqc-mobile-web.desktop-trophy-cabinet .sqc-trophy-results-bar span {
+    color: rgba(255, 247, 232, .52);
+    font-size: 9px;
+    font-weight: 950;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+  }
+
+  .sqc-mobile-web.desktop-trophy-cabinet .sqc-trophy-results-bar strong {
+    color: var(--paper);
+    font-family: ui-serif, Georgia, Cambria, "Times New Roman", serif;
+    font-size: 20px;
+    line-height: 1.1;
+  }
+
+  .sqc-mobile-web.desktop-trophy-cabinet .sqc-trophy-results-bar button {
+    min-height: 40px;
+    padding: 0 14px;
+    border: 1px solid rgba(245, 200, 106, .35);
+    border-radius: 999px;
+    background: rgba(245, 200, 106, .1);
+    color: var(--gold);
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 900;
   }
 
   .sqc-mobile-web.desktop-trophy-cabinet .sqc-coat-tile {

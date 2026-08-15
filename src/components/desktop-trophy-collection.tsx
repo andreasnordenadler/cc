@@ -21,6 +21,9 @@ export default function DesktopTrophyCollection({ coats, signedIn }: { coats: Tr
   const [difficulty, setDifficulty] = useState<TrophyDifficulty | "All">("All");
   const [desktopFiltering, setDesktopFiltering] = useState(false);
   const visibleCoats = desktopFiltering && difficulty !== "All" ? coats.filter((coat) => coat.difficulty === difficulty) : coats;
+  const resultLabel = difficulty === "All"
+    ? `${visibleCoats.length} ${visibleCoats.length === 1 ? "coat" : "coats"} on display`
+    : `${visibleCoats.length} ${difficulty} ${visibleCoats.length === 1 ? "coat" : "coats"}`;
   const filters: Array<{ label: TrophyDifficulty | "All coats"; value: TrophyDifficulty | "All"; count: number }> = [
     { label: "All coats", value: "All", count: coats.length },
     ...DIFFICULTIES.map((value) => ({ label: value, value, count: coats.filter((coat) => coat.difficulty === value).length })),
@@ -54,29 +57,40 @@ export default function DesktopTrophyCollection({ coats, signedIn }: { coats: Tr
           </button>
         ))}
       </aside>
-      <div className="sqc-coat-grid" aria-label="Official Solo Side Quest coat grid">
-        {visibleCoats.map((coat) => (
-          <Link key={coat.id} href={`/challenges/${coat.id}`} className="sqc-coat-tile">
-            <span className="sqc-coat-tile-art" aria-hidden="true">
-              <Image
-                className={signedIn && !coat.earned ? "sqc-coat-tile-image locked" : "sqc-coat-tile-image"}
-                alt=""
-                src={coat.image}
-                width={74}
-                height={74}
-              />
-            </span>
-            <span className="sqc-coat-tile-details">
-              <span className="sqc-coat-tile-context">
-                <span>{coat.difficulty}</span>
-                <span>{coat.category}</span>
+      <div className="sqc-trophy-results-column">
+        <section className="sqc-trophy-results-bar" aria-label="Coat collection results">
+          <div>
+            <span>Collection view</span>
+            <strong aria-live="polite">{resultLabel}</strong>
+          </div>
+          {difficulty !== "All" ? (
+            <button type="button" onClick={() => setDifficulty("All")}>Show all coats</button>
+          ) : null}
+        </section>
+        <div className="sqc-coat-grid" aria-label="Official Solo Side Quest coat grid">
+          {visibleCoats.map((coat) => (
+            <Link key={coat.id} href={`/challenges/${coat.id}`} className="sqc-coat-tile">
+              <span className="sqc-coat-tile-art" aria-hidden="true">
+                <Image
+                  className={signedIn && !coat.earned ? "sqc-coat-tile-image locked" : "sqc-coat-tile-image"}
+                  alt=""
+                  src={coat.image}
+                  width={74}
+                  height={74}
+                />
               </span>
-              <strong>{coat.title}</strong>
-              <span className="sqc-coat-tile-objective">{coat.objective}</span>
-              <small>{signedIn ? (coat.earned ? "Unlocked" : "Locked preview") : "Official coat preview"}</small>
-            </span>
-          </Link>
-        ))}
+              <span className="sqc-coat-tile-details">
+                <span className="sqc-coat-tile-context">
+                  <span>{coat.difficulty}</span>
+                  <span>{coat.category}</span>
+                </span>
+                <strong>{coat.title}</strong>
+                <span className="sqc-coat-tile-objective">{coat.objective}</span>
+                <small>{signedIn ? (coat.earned ? "Unlocked" : "Locked preview") : "Official coat preview"}</small>
+              </span>
+            </Link>
+          ))}
+        </div>
       </div>
     </div>
   );
