@@ -111,6 +111,15 @@ test("desktop home stays hidden until the full-desktop breakpoint", () => {
   assert.match(css, /\.sqc-desktop-sign-in\s*\{[^}]*max-width:[^;}]+;[^}]*overflow:\s*hidden;[^}]*text-overflow:\s*ellipsis;[^}]*white-space:\s*nowrap;/);
 });
 
+test("desktop Home ritual anchor clears the sticky navigation while mobile keeps native flow", () => {
+  const css = readFileSync("src/app/mobile-web.css", "utf8");
+  const desktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1180px)"));
+  const preDesktopCss = css.slice(0, css.indexOf("@media (min-width: 1180px)"));
+
+  assert.match(desktopMedia, /\.sqc-desktop-loop\s*\{[^}]*scroll-margin-top:\s*104px;/);
+  assert.doesNotMatch(preDesktopCss, /\.sqc-desktop-loop\s*\{[^}]*scroll-margin-top:/);
+});
+
 test("desktop global navigation remains available while route workspaces scroll", () => {
   const html = renderToStaticMarkup(
     createElement(MobileAppWebShell, {
