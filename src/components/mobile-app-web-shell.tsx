@@ -1817,7 +1817,7 @@ function getOfficialPodiumSeal(placement: "Gold" | "Silver" | "Bronze") {
 
 function CommunityMultiplayerPanel({ signedIn, rows, initialHost, catalogStatus }: { signedIn: boolean; rows: MobileWebMultiplayerPreview[]; initialHost?: string | null; catalogStatus: "available" | "unavailable" }) {
   return (
-    <>
+    <div className="sqc-multiplayer-community-workspace">
       <section className="sqc-empty-panel standalone">
         <strong>Community Multiplayer Side Quests</strong>
         <span>
@@ -1844,7 +1844,7 @@ function CommunityMultiplayerPanel({ signedIn, rows, initialHost, catalogStatus 
         <p>Paste an invite code from the host to join a private Multiplayer Side Quest.</p>
         <GroupQuestInviteKeyJoin isSignedIn={signedIn} />
       </section>
-    </>
+    </div>
   );
 }
 

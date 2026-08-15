@@ -776,6 +776,58 @@ test("Multiplayer discovery keeps mobile below 1180px and uses decision-ready ca
   assert.equal(css.replace(desktopMedia, "").includes(".sqc-mobile-web.desktop-multiplayer-discovery"), false, "desktop Multiplayer rules must not leak below 1180px");
 });
 
+test("signed-out Community Multiplayer discovery uses a desktop catalog and invite workspace without duplicating actions", () => {
+  const row = {
+    id: "community-one",
+    title: "Friday Knight Table",
+    meta: "Community public · 3 players · 2d left",
+    href: "/groupquests/community-one",
+    sourceBadge: "Community" as const,
+    status: "View" as const,
+    likeSummary: { count: 2, likedByViewer: false },
+    publiclyListed: true,
+    inviteCopy: "Join the table.",
+    quests: ["Knight Errand"],
+    rules: [],
+    playerCount: 3,
+    playersLabel: "3 players",
+    timeLeftLabel: "2d left",
+    leaderboardRows: [],
+    eventStatus: "Live" as const,
+    lifecycle: "open" as const,
+    createdAt: "2026-08-01T08:00:00.000Z",
+    startAt: "2026-08-01T08:00:00.000Z",
+    endAt: "2026-08-03T08:00:00.000Z",
+  };
+  const html = renderToStaticMarkup(
+    createElement(
+      MobileAppWebShell,
+      { activeTab: "multiplayerSideQuests", signedIn: false, desktopPresentation: "multiplayer-discovery" },
+      createElement(MobileMultiplayerSideQuestsScreen, {
+        selectedTab: "community",
+        signedIn: false,
+        officialRows: [],
+        communityRows: [row] as never,
+      }),
+    ),
+  );
+  const css = readFileSync("src/app/mobile-web.css", "utf8");
+  const desktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1180px)"));
+
+  assert.match(html, /<div class="sqc-multiplayer-community-workspace">/);
+  assert.equal(html.match(/aria-label="Community Multiplayer Side Quests"/g)?.length, 1);
+  assert.equal(html.match(/aria-label="Join private Multiplayer Side Quest"/g)?.length, 1);
+  assert.equal(html.match(/aria-label="Open Friday Knight Table"/g)?.length, 1);
+  assert.match(css, /\.sqc-multiplayer-community-workspace\s*\{[^}]*display:\s*contents;/, "mobile keeps the established stack");
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-multiplayer-discovery\s+\.sqc-multiplayer-community-workspace\s*\{[^}]*grid-column:\s*1\s*\/\s*-1;[^}]*display:\s*grid;[^}]*gap:\s*18px;/, "signed-in Community sections stay in the full-width content area with the established row rhythm");
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-multiplayer-discovery\.signed-out\s+\.sqc-multiplayer-community-workspace\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\)\s+360px;/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-multiplayer-discovery\.signed-out\s+\.sqc-multiplayer-community-workspace\s*>\s*\.sqc-native-card\[aria-label="Community Multiplayer Side Quests"\]\s*\{[^}]*grid-column:\s*1;/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-multiplayer-discovery\.signed-out\s+#join-private-multiplayer\s*\{[^}]*grid-column:\s*2;[^}]*position:\s*sticky;[^}]*top:\s*110px;/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-multiplayer-discovery\.signed-out\s+\.sqc-multiplayer-community-workspace\s+\.sqc-community-browse-panel\s*\{[^}]*display:\s*grid;[^}]*grid-template-columns:\s*minmax\(260px,\s*1fr\)\s+auto;/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-multiplayer-discovery\.signed-out\s+\.sqc-multiplayer-community-workspace\s+\.sqc-community-browse-panel\s*>\s*\.sqc-empty-panel\s*\{[^}]*grid-column:\s*1\s*\/\s*-1;/, "host shelves keep search and controls on the row below");
+  assert.doesNotMatch(desktopMedia, /\.sqc-mobile-web\.desktop-multiplayer-discovery\.signed-out\s+\.sqc-multiplayer-community-workspace\s+\.sqc-app-row\s*\{[^}]*min-height:/, "desktop result details must keep the established non-overlapping card height");
+});
+
 test("Trophy Cabinet becomes one desktop collection workspace without duplicating reward links", () => {
   const html = renderToStaticMarkup(
     createElement(
