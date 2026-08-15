@@ -421,10 +421,12 @@ test("Community Solo detail switches from the mobile flow to one desktop task wo
   await expectHealthyNavigation(page, "/challenges/community/seed-castle-never-heard-of-it-05-1");
 
   const detail = page.locator(".sqc-community-detail-screen");
+  const readingPanel = detail.locator(".sqc-community-reading-panel");
   const share = page.getByRole("button", { name: "Share Community Solo Side Quest" });
   await expect(page.getByLabel("Close screen")).toBeVisible();
   await expect(page.getByRole("navigation", { name: "Desktop shortcuts" })).toBeHidden();
   await expect(share).toHaveCount(1);
+  await expect(readingPanel).toHaveCSS("display", "contents");
 
   await page.setViewportSize({ width: 1180, height: 900 });
   await expect(page.getByLabel("Close screen")).toBeHidden();
@@ -435,16 +437,32 @@ test("Community Solo detail switches from the mobile flow to one desktop task wo
     const rect = element.getBoundingClientRect();
     const style = getComputedStyle(element);
     const taskRail = element.querySelector(".sqc-community-task-rail");
+    const readingPanel = element.querySelector<HTMLElement>(".sqc-community-reading-panel");
+    const readingSections = readingPanel ? Array.from(readingPanel.children) as HTMLElement[] : [];
+    const readingRect = readingPanel?.getBoundingClientRect();
     return {
       width: Math.round(rect.width),
       columns: style.gridTemplateColumns.split(" ").filter(Boolean).length,
       taskRailPosition: taskRail ? getComputedStyle(taskRail).position : null,
+      readingDisplay: readingPanel ? getComputedStyle(readingPanel).display : null,
+      readingBorderStyle: readingPanel ? getComputedStyle(readingPanel).borderTopStyle : null,
+      readingSectionCount: readingSections.length,
+      readingSectionsInsidePanel: readingRect ? readingSections.every((section) => {
+        const sectionRect = section.getBoundingClientRect();
+        return sectionRect.left >= readingRect.left && sectionRect.right <= readingRect.right;
+      }) : false,
+      readingDividerStyle: readingSections[1] ? getComputedStyle(readingSections[1]).borderTopStyle : null,
       overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
     };
   });
   expect(geometry.width).toBeGreaterThan(1000);
   expect(geometry.columns).toBe(2);
   expect(geometry.taskRailPosition).toBe("sticky");
+  expect(geometry.readingDisplay).toBe("grid");
+  expect(geometry.readingBorderStyle).toBe("solid");
+  expect(geometry.readingSectionCount).toBe(2);
+  expect(geometry.readingSectionsInsidePanel).toBe(true);
+  expect(geometry.readingDividerStyle).toBe("solid");
   expect(geometry.overflow).toBe(0);
 });
 
