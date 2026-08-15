@@ -1288,6 +1288,26 @@ test("Custom editor becomes a wide two-column workbench only at the desktop boun
   assert.equal(css.replace(desktopMedia, "").replace(reducedMotion, "").includes(".sqc-mobile-web.desktop-custom-editor"), false, "desktop Custom editor composition rules must not leak below 1180px");
 });
 
+test("Custom editor adds a desktop workbench navigator to the one shared form", () => {
+  const html = renderToStaticMarkup(createElement(MobileCreateCustomScreen, { signedIn: false }));
+  const css = readFileSync("src/app/mobile-web.css", "utf8");
+  const desktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1180px)"));
+  const reducedMotion = readCssBlock(css, css.lastIndexOf("@media (prefers-reduced-motion: reduce)"));
+
+  assert.equal(html.match(/aria-label="Custom Side Quest builder steps"/g)?.length, 1);
+  assert.ok(html.indexOf("aria-label=\"Custom Side Quest builder steps\"") < html.indexOf("Start from a template"), "desktop wayfinding stays discoverable before the scrollable template library");
+  assert.match(html, /<button[^>]*data-builder-target="custom-builder-conditions"[^>]*>[\s\S]*Shape the rules/);
+  assert.match(html, /<button[^>]*data-builder-target="custom-builder-identity"[^>]*>[\s\S]*Name the quest/);
+  assert.match(html, /<button[^>]*data-builder-target="custom-builder-save"[^>]*>[\s\S]*Save &amp; continue/);
+  assert.match(html, /id="custom-builder-conditions"/);
+  assert.match(html, /id="custom-builder-identity"/);
+  assert.match(html, /id="custom-builder-save"/);
+  assert.match(css, /\.sqc-custom-builder-steps\s*\{[^}]*display:\s*none;/, "mobile keeps the established editor without desktop-only wayfinding");
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-custom-editor\s+\.sqc-custom-builder-steps\s*\{[^}]*display:\s*grid;/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-custom-editor\s+:is\(#custom-builder-conditions,\s*#custom-builder-identity,\s*#custom-builder-save\)\s*\{[^}]*scroll-margin-top:\s*110px;/);
+  assert.match(reducedMotion, /\.sqc-mobile-web\.desktop-custom-editor\s+\.sqc-custom-builder-steps\s+button\s*\{[^}]*transition:\s*none\s*!important;[^}]*transform:\s*none\s*!important;/);
+});
+
 test("Multiplayer detail becomes one desktop tournament workspace without changing the mobile stack", () => {
   const css = readFileSync("src/app/mobile-web.css", "utf8");
   const route = readFileSync("src/app/groupquests/[id]/page.tsx", "utf8");
