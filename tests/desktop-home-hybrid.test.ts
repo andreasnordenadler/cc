@@ -879,7 +879,7 @@ test("Custom library becomes one desktop workshop without duplicating its filter
     createElement(
       MobileAppWebShell,
       { activeTab: "sideQuests", signedIn: true, desktopPresentation: "custom-library" },
-      createElement(MobileCustomSideQuestsScreen, { rows }),
+      createElement(MobileCustomSideQuestsScreen, { rows, signedIn: true }),
     ),
   );
 
@@ -891,6 +891,25 @@ test("Custom library becomes one desktop workshop without duplicating its filter
   assert.equal(html.match(/aria-label="My Custom Side Quest filters"/g)?.length, 1);
   assert.equal(html.match(/>\+ Create<\/a>/g)?.length, 1);
   assert.equal(html.match(/href="\/custom-side-quests\/custom-one"/g)?.length, 1);
+});
+
+test("signed-out desktop Custom library separates local drafting from account-backed play", () => {
+  const signedOutHtml = renderToStaticMarkup(
+    createElement(MobileCustomSideQuestsScreen, { rows: [], signedIn: false }),
+  );
+  const signedInHtml = renderToStaticMarkup(
+    createElement(MobileCustomSideQuestsScreen, { rows: [], signedIn: true }),
+  );
+  const css = readFileSync("src/app/mobile-web.css", "utf8");
+  const desktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1180px)"));
+
+  assert.match(signedOutHtml, /<aside class="sqc-custom-account-bridge" aria-label="Custom Side Quest account sync">/);
+  assert.match(signedOutHtml, />Draft here\. Play anywhere\.<\/strong>/);
+  assert.match(signedOutHtml, /This browser can keep local drafts\. Sign in to sync saved Side Quests, pick one for proof, and use it in Multiplayer\./);
+  assert.match(signedOutHtml, /href="\/sign-in\?redirect_url=%2Fcustom-side-quests"[^>]*>Sign in to sync my workshop<\/a>/);
+  assert.doesNotMatch(signedInHtml, /sqc-custom-account-bridge/);
+  assert.match(css, /\.sqc-custom-account-bridge\s*\{[^}]*display:\s*none;/, "mobile keeps the established local-draft composition");
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-custom-library\.signed-out\s+\.sqc-custom-account-bridge\s*\{[^}]*display:\s*grid;/);
 });
 
 test("Custom library keeps the mobile composition below 1180px and exposes a desktop two-column workspace at the boundary", () => {
