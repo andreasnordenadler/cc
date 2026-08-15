@@ -499,6 +499,54 @@ test("Custom library switches from the mobile flow to one desktop workshop", asy
   expect(geometry.overflow).toBe(0);
 });
 
+test("desktop Custom builder steps move focus through the long workbench without leaking into mobile", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await expectHealthyNavigation(page, "/create-custom-side-quest");
+
+  const steps = page.getByRole("navigation", { name: "Custom Side Quest builder steps" });
+  await expect(steps).toBeVisible();
+
+  for (const [label, targetId] of [
+    ["Shape the rules", "custom-builder-conditions"],
+    ["Name the quest", "custom-builder-identity"],
+    ["Save & continue", "custom-builder-save"],
+  ] as const) {
+    await steps.getByRole("button", { name: new RegExp(label) }).click();
+    await expect(page.locator(`#${targetId}`)).toBeFocused();
+  }
+
+  await page.evaluate(() => window.scrollTo(0, 520));
+  const stickyRail = await page.locator(".sqc-custom-builder-setup").evaluate((element) => {
+    const rect = element.getBoundingClientRect();
+    return { top: rect.top, bottom: rect.bottom, viewportBottom: window.innerHeight };
+  });
+  expect(stickyRail.top).toBeGreaterThanOrEqual(16);
+  expect(stickyRail.bottom).toBeLessThanOrEqual(stickyRail.viewportBottom - 16);
+
+  await page.setViewportSize({ width: 1440, height: 768 });
+  await page.evaluate(() => window.scrollTo(0, 520));
+  const shortViewportRail = await page.locator(".sqc-custom-builder-setup").evaluate((element) => {
+    const rect = element.getBoundingClientRect();
+    const style = getComputedStyle(element);
+    return {
+      top: rect.top,
+      bottom: rect.bottom,
+      viewportBottom: window.innerHeight,
+      overflowY: style.overflowY,
+      clientHeight: element.clientHeight,
+      scrollHeight: element.scrollHeight,
+    };
+  });
+  expect(shortViewportRail.top).toBeGreaterThanOrEqual(96);
+  expect(shortViewportRail.bottom).toBeLessThanOrEqual(shortViewportRail.viewportBottom - 16);
+  expect(shortViewportRail.overflowY).toBe("auto");
+  expect(shortViewportRail.scrollHeight).toBeGreaterThan(shortViewportRail.clientHeight);
+
+  await page.setViewportSize({ width: 1179, height: 900 });
+  await expect(steps).toBeHidden();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBe(0);
+});
+
 test("sign-in returns to the exact page and query where the user started", async ({ page }) => {
   await page.goto("/side-quests?tab=community");
   const signInLink = page.getByRole("link", { name: "Sign in", exact: true });
