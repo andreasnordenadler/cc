@@ -25,6 +25,8 @@ test("iOS provides native Sign in with Apple alongside existing account methods"
   assert.match(appleFlowSource, /appleSignInInFlightRef\.current = true/);
   assert.doesNotMatch(appleFlowSource, /Sign-in did not finish/, "Clerk represents Apple-sheet cancellation as a loaded no-session result");
   assert.match(appleFlowSource, /code === ["']ERR_REQUEST_CANCELED["']/);
+  assert.match(appleFlowSource, /Apple sign-in could not be completed/);
+  assert.doesNotMatch(appleFlowSource, /caught instanceof Error \? caught\.message/);
   assert.match(appleFlowSource, /finally[\s\S]*appleSignInInFlightRef\.current = false/);
   assert.match(appSource, /startAppleSignIn:\s*Platform\.OS\s*===\s*["']ios["']\s*\?\s*startAppleSignIn\s*:\s*undefined/);
   assert.match(appSource, /AppleAuthenticationButtonType\.SIGN_IN/);
@@ -33,6 +35,12 @@ test("iOS provides native Sign in with Apple alongside existing account methods"
   assert.match(appSource, /startGoogleSignIn,\s*\n\s*startFacebookSignIn,/);
   assert.doesNotMatch(appSource, /startGoogleSignIn:\s*Platform\.OS/);
   assert.doesNotMatch(appSource, /startFacebookSignIn:\s*Platform\.OS/);
+
+  const socialFlowStart = appSource.indexOf("const startSocialSignIn = useCallback");
+  assert.ok(socialFlowStart >= 0 && appleFlowStart > socialFlowStart, "social sign-in callback must be discoverable");
+  const socialFlowSource = appSource.slice(socialFlowStart, appleFlowStart);
+  assert.match(socialFlowSource, /sign-in could not be completed/);
+  assert.doesNotMatch(socialFlowSource, /caught instanceof Error \? caught\.message/);
 
   const liveAccountStart = appSource.indexOf("function AccountTrackerDashboard(");
   const liveAccountEnd = appSource.indexOf("function CompactStatusRow(", liveAccountStart);

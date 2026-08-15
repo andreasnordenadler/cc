@@ -1319,9 +1319,11 @@ function ClerkMobileShell() {
         "Sign-in did not finish",
         `${providerLabel} returned to Side Quest Chess, but Clerk did not create a mobile session yet. Details: auth=${authResultType}, signIn=${signInStatus}, signUp=${signUpStatus}.`,
       );
-    } catch (caught) {
-      const message = caught instanceof Error ? caught.message : "Unknown mobile sign-in error.";
-      Alert.alert("Sign-in error", message);
+    } catch {
+      Alert.alert(
+        "Sign-in error",
+        `${providerLabel} sign-in could not be completed. Please try again. If the problem continues, contact Side Quest Chess support.`,
+      );
     }
   }, [startSSOFlow]);
 
@@ -1343,8 +1345,10 @@ function ClerkMobileShell() {
     } catch (caught) {
       const code = typeof caught === "object" && caught !== null && "code" in caught ? String(caught.code) : "";
       if (code === "ERR_REQUEST_CANCELED") return;
-      const message = caught instanceof Error ? caught.message : "Unknown Apple sign-in error.";
-      Alert.alert("Sign-in error", message);
+      Alert.alert(
+        "Sign-in error",
+        "Apple sign-in could not be completed. Please try again. If the problem continues, contact Side Quest Chess support.",
+      );
     } finally {
       appleSignInInFlightRef.current = false;
     }

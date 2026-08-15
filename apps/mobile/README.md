@@ -19,11 +19,11 @@ Bootstrap returns the live quest catalog and mobile compatibility metadata from 
 
 ## Distribution status
 
-Current public/internal distribution is GitHub Releases APK-only. There is no verified Play Store, App Store, TestFlight, or EAS Update production channel yet.
+Android build `0.1.349` / code `350` has been accepted to the private Google Play Internal testing track. Android production/public launch is not verified. There is no verified App Store, TestFlight, or EAS Update production channel yet. GitHub Releases APKs remain historical/direct QA artifacts rather than evidence of a store launch.
 
-Launch-channel rule: until Andreas explicitly cuts a store/test-track channel, the latest GitHub Release APK is the only supported mobile install candidate. Treat EAS, local APK builds, emulator installs, and Expo dev-client sessions as QA tools only; they are not distribution channels for testers or launch users.
+Launch-channel rule: treat a candidate as distributed only when the exact store/test-track state and artifact identity have been verified. EAS/local builds, emulator installs, Expo dev-client sessions, and GitHub artifacts are QA inputs unless a release receipt explicitly promotes them. Apple account, signing, build, TestFlight, submission, and release actions remain separately approval-gated.
 
-Use the latest `mobile-v*` GitHub Release as the install candidate until a store track is explicitly cut. For each release candidate, verify and record:
+For every mobile release candidate, verify and record:
 
 - GitHub release tag, APK filename, version name, and Android version code.
 - APK SHA256.
@@ -72,7 +72,7 @@ The app also displays that redirect in the auth card so an on-device tester can 
 
 ## Current scope
 
-This is the Android launch-candidate shell. It currently:
+This is the shared Android/iOS mobile shell. It currently:
 
 - loads the live web-backed quest catalog;
 - renders native Home, Solo Side Quests, Multiplayer Side Quests, Account, Support, and Coat of Arms surfaces;
@@ -86,6 +86,6 @@ This is the Android launch-candidate shell. It currently:
 
 Next app milestones:
 
-1. Run the latest GitHub Release APK on a real signed Android device and complete the full launch smoke checklist above.
-2. Decide and document the first store/public distribution channel beyond GitHub Releases APKs.
+1. Complete the approval-gated Android production launch and verify public storefront availability.
+2. Reconcile the iOS candidate with the correct Crowdler AB Apple team and dedicated operational identity, then complete signing, TestFlight, and exact-candidate real-device QA.
 3. Keep closing standalone parity gaps only when they directly affect app-first launch readiness.
