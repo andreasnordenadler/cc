@@ -170,7 +170,7 @@ export default async function ChallengeDetailPage({
               </div>
               <span className="sqc-official-coat-frame" aria-hidden="true">
                 {glowPath ? <Image className="sqc-official-coat-glow" alt="" src={glowPath} width={132} height={144} priority /> : null}
-                <Image className="sqc-official-coat-image" alt="" src={badgePath} width={92} height={102} priority />
+                <Image className="sqc-official-coat-image" alt="" src={badgePath} width={190} height={214} sizes="(min-width: 1180px) 190px, 92px" priority />
               </span>
             </div>
           </section>
