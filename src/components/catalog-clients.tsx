@@ -143,6 +143,21 @@ export function CommunitySoloCatalog({ rows, signedIn, initialCreator = null, in
   const creator = creatorRow?.creatorKey ?? null;
   const filtered = useMemo(() => filterCommunitySoloCatalog(liveRows, { query, filter, sort, creator }), [liveRows, query, filter, sort, creator]);
   const page = paginateCatalog(filtered, limit);
+  const catalogSummary = useMemo(() => {
+    const creators = new Set(liveRows.map((row) => row.creatorKey ?? row.creatorName ?? `quest:${row.id}`));
+    return liveRows.reduce((summary, row) => {
+      summary.attempts += row.stats.soloAttempts;
+      summary.completions += row.stats.soloCompletions;
+      summary.multiplayerUses += row.stats.multiplayerLineups;
+      return summary;
+    }, {
+      quests: liveRows.length,
+      creators: creators.size,
+      attempts: 0,
+      completions: 0,
+      multiplayerUses: 0,
+    });
+  }, [liveRows]);
   const filters: Array<{ value: CommunitySoloCatalogFilter; label: string }> = [
     { value: "all", label: "All" },
     { value: "popular", label: "Popular" },
@@ -173,7 +188,27 @@ export function CommunitySoloCatalog({ rows, signedIn, initialCreator = null, in
         </div>
       </div>
       <span>{page.total} result{page.total === 1 ? "" : "s"}</span>
-      {page.rows.length ? <div className={page.rows.length === 1 ? "sqc-catalog single-result" : "sqc-catalog"}>{page.rows.map(row => <CommunitySoloCatalogRow key={row.id} row={row} signedIn={signedIn} returnTo={discoveryHref} onLikeStateChange={(liked) => setLiveRows((current) => applyCommunitySoloLikeState(current, row.id, liked))} />)}</div> : (() => {
+      {page.rows.length ? (
+        <div className={page.rows.length === 1 ? "sqc-community-results-layout single-result" : "sqc-community-results-layout"}>
+          <div className={page.rows.length === 1 ? "sqc-catalog single-result" : "sqc-catalog"}>
+            {page.rows.map(row => <CommunitySoloCatalogRow key={row.id} row={row} signedIn={signedIn} returnTo={discoveryHref} onLikeStateChange={(liked) => setLiveRows((current) => applyCommunitySoloLikeState(current, row.id, liked))} />)}
+          </div>
+          {page.rows.length === 1 ? (
+            <aside className="sqc-community-catalog-summary" aria-label="Public catalog at a glance">
+              <span>Across the full public catalog</span>
+              <h3>Community at a glance</h3>
+              <p>Real activity from every public Community Side Quest.</p>
+              <div>
+                <span><strong>{catalogSummary.quests}</strong><span>public {catalogSummary.quests === 1 ? "quest" : "quests"}</span></span>
+                <span><strong>{catalogSummary.creators}</strong><span>{catalogSummary.creators === 1 ? "creator" : "creators"}</span></span>
+                <span><strong>{catalogSummary.attempts}</strong><span>attempts</span></span>
+                <span><strong>{catalogSummary.completions}</strong><span>{catalogSummary.completions === 1 ? "completion" : "completions"}</span></span>
+                <span><strong>{catalogSummary.multiplayerUses}</strong><span>multiplayer uses</span></span>
+              </div>
+            </aside>
+          ) : null}
+        </div>
+      ) : (() => {
         const emptyState = getCommunitySoloEmptyState({ hasCatalogRows: liveRows.length > 0, signedIn });
         return <div className="sqc-empty-panel standalone"><strong>{emptyState.title}</strong><span>{emptyState.guidance}</span></div>;
       })()}
