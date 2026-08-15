@@ -6,6 +6,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { MobileCommunitySideQuestDetailScreen, MobileMultiplayerSideQuestsScreen } from "../src/components/mobile-app-web-shell";
 import {
   continuePrivateInviteJoin,
+  getCommunitySoloDetailHref,
   getCommunitySoloPickState,
   getMultiplayerJoinState,
   getPrivateInviteJoinState,
@@ -22,6 +23,28 @@ test("community solo pick state sends signed-out viewers to the exact detail sig
     kind: "signed-out",
     href: "/sign-in?redirect_url=%2Fchallenges%2Fcommunity%2Ffork%2520%2526%2520pin",
     label: "Sign in",
+  });
+});
+
+test("community solo detail target preserves discovery context after a successful pick", () => {
+  assert.equal(
+    getCommunitySoloDetailHref("fork", "/challenges/community/fork?returnTo=%2Fcommunity-side-quests%3Fq%3Dcastle"),
+    "/challenges/community/fork?returnTo=%2Fcommunity-side-quests%3Fq%3Dcastle",
+  );
+  assert.equal(getCommunitySoloDetailHref("fork & pin"), "/challenges/community/fork%20%26%20pin");
+});
+
+test("community solo pick state preserves the filtered detail return path through sign-in and active state", () => {
+  const detailHref = "/challenges/community/fork?returnTo=%2Fcommunity-side-quests%3Fq%3Dcastle%26sort%3Dliked";
+  assert.deepEqual(getCommunitySoloPickState({ questId: "fork", signedIn: false, activeQuestId: null, detailHref }), {
+    kind: "signed-out",
+    href: `/sign-in?redirect_url=${encodeURIComponent(detailHref)}`,
+    label: "Sign in",
+  });
+  assert.deepEqual(getCommunitySoloPickState({ questId: "fork", signedIn: true, activeQuestId: "fork", detailHref }), {
+    kind: "active",
+    href: detailHref,
+    label: "Active Side Quest",
   });
 });
 
