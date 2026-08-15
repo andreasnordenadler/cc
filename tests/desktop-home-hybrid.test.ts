@@ -1296,9 +1296,9 @@ test("Custom editor adds a desktop workbench navigator to the one shared form", 
 
   assert.equal(html.match(/aria-label="Custom Side Quest builder steps"/g)?.length, 1);
   assert.ok(html.indexOf("aria-label=\"Custom Side Quest builder steps\"") < html.indexOf("Start from a template"), "desktop wayfinding stays discoverable before the scrollable template library");
-  assert.match(html, /<button[^>]*data-builder-target="custom-builder-conditions"[^>]*>[\s\S]*Shape the rules/);
-  assert.match(html, /<button[^>]*data-builder-target="custom-builder-identity"[^>]*>[\s\S]*Name the quest/);
-  assert.match(html, /<button[^>]*data-builder-target="custom-builder-save"[^>]*>[\s\S]*Save &amp; continue/);
+  assert.match(html, /<button[^>]*data-builder-target="custom-builder-conditions"[^>]*disabled=""[^>]*>[\s\S]*Shape the rules/);
+  assert.match(html, /<button[^>]*data-builder-target="custom-builder-identity"[^>]*disabled=""[^>]*>[\s\S]*Name the quest/);
+  assert.match(html, /<button[^>]*data-builder-target="custom-builder-save"[^>]*disabled=""[^>]*>[\s\S]*Save &amp; continue/);
   assert.match(html, /id="custom-builder-conditions"/);
   assert.match(html, /id="custom-builder-identity"/);
   assert.match(html, /id="custom-builder-save"/);
