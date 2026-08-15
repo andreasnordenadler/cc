@@ -442,7 +442,7 @@ test("Community discovery keeps its shared search and filters available while de
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-community-discovery\s+\.sqc-community-browse-panel\s*\{[^}]*backdrop-filter:\s*blur\(18px\);/);
 });
 
-test("Community discovery gives a lone real result a deliberate desktop reading width", () => {
+test("Community discovery balances a lone result with a real desktop catalog summary", () => {
   const rows = [{
     id: "community-one",
     title: "Castle? Never Heard Of It",
@@ -465,12 +465,20 @@ test("Community discovery gives a lone real result a deliberate desktop reading 
   const singleHtml = renderToStaticMarkup(createElement(MobileCommunitySideQuestsScreen, { rows, signedIn: false }));
   const twoResultHtml = renderToStaticMarkup(createElement(MobileCommunitySideQuestsScreen, { rows: [...rows, { ...rows[0], id: "community-two", title: "Second quest" }], signedIn: false }));
   const css = readFileSync("src/app/mobile-web.css", "utf8");
+  const mobileCss = css.slice(0, css.indexOf("@media (min-width: 1180px)"));
   const desktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1180px)"));
 
-  assert.match(singleHtml, /class="sqc-catalog single-result"/);
-  assert.doesNotMatch(twoResultHtml, /class="sqc-catalog single-result"/);
-  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-community-discovery\s+\.sqc-catalog\.single-result\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*760px\);/);
-  assert.equal(css.slice(0, css.indexOf("@media (min-width: 1180px)")).includes(".sqc-catalog.single-result"), false, "mobile keeps the established full-width card flow");
+  assert.match(singleHtml, /class="sqc-community-results-layout single-result"/);
+  assert.match(singleHtml, /<aside class="sqc-community-catalog-summary" aria-label="Public catalog at a glance">/);
+  assert.match(singleHtml, /<strong>1<\/strong><span>public quest<\/span>/);
+  assert.match(singleHtml, /<strong>1<\/strong><span>creator<\/span>/);
+  assert.match(singleHtml, /<strong>3<\/strong><span>attempts<\/span>/);
+  assert.match(singleHtml, /<strong>1<\/strong><span>completion<\/span>/);
+  assert.match(singleHtml, /<strong>2<\/strong><span>multiplayer uses<\/span>/);
+  assert.doesNotMatch(twoResultHtml, /aria-label="Public catalog at a glance"/);
+  assert.match(mobileCss, /\.sqc-community-catalog-summary\s*\{[^}]*display:\s*none;/, "mobile retains the established single-card flow");
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-community-discovery\s+\.sqc-community-results-layout\.single-result\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*760px\)\s+minmax\(240px,\s*1fr\);/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-community-discovery\s+\.sqc-community-catalog-summary\s*\{[^}]*display:\s*grid;/);
 });
 
 test("Community creator shelves become contextual desktop rail destinations", () => {
@@ -1110,6 +1118,40 @@ test("Community Solo detail becomes a wide reading workspace only at the desktop
   assert.match(css, /\.sqc-mobile-web\.desktop-community-detail\s+\.sqc-community-detail-hero\s+\.sqc-active-detail-title-row\s+h1\s*\{[^}]*min-width:\s*0;/);
   assert.match(css, /\.sqc-mobile-web\.desktop-community-detail\s+\.sqc-community-task-rail\s*\{[^}]*grid-column:\s*2;[^}]*grid-row:\s*3\s*\/\s*span\s*4;[^}]*position:\s*sticky;/);
   assert.match(css, /\.sqc-mobile-web\.desktop-community-detail\s+\.sqc-multiplayer-score-grid\s*\{[^}]*grid-column:\s*1;/);
+});
+
+test("Community Solo desktop groups briefing and conditions into one reading panel without changing the mobile stack", () => {
+  const html = renderToStaticMarkup(
+    createElement(MobileCommunitySideQuestDetailScreen, {
+      quest: {
+        id: "community-quest",
+        title: "Castle? Never Heard Of It",
+        summary: "Finish a game without castling.",
+        creatorName: "Nora Skewer",
+        creatorBrowsePath: "/community-side-quests?creator=nora-skewer#creator-nora-skewer",
+        ruleLabel: "No castling",
+        ruleDetails: ["Finish without castling."],
+        stats: {
+          soloAttempts: 0,
+          soloSelections: 0,
+          soloCompletions: 0,
+          multiplayerLineups: 0,
+          multiplayerAttempts: 0,
+          multiplayerFulfillments: 0,
+        },
+      },
+      signedIn: false,
+    }),
+  );
+  const css = readFileSync("src/app/mobile-web.css", "utf8");
+  const mobileCss = css.slice(0, css.indexOf("@media (min-width: 1180px)"));
+  const desktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1180px)"));
+
+  assert.match(html, /<div class="sqc-community-reading-panel">[\s\S]*?<span class="sqc-card-eyebrow">Challenge<\/span>[\s\S]*?<span class="sqc-card-eyebrow">Rule details<\/span>[\s\S]*?<\/div>/);
+  assert.match(mobileCss, /\.sqc-community-reading-panel\s*\{[^}]*display:\s*contents;/, "mobile retains the existing separate-card flow");
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-community-detail\s+\.sqc-community-reading-panel\s*\{[^}]*grid-column:\s*1;[^}]*display:\s*grid;[^}]*border:\s*1px\s+solid/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-community-detail\s+\.sqc-community-reading-panel\s*>\s*\.sqc-native-card\s*\{[^}]*border:\s*0;[^}]*background:\s*transparent;[^}]*box-shadow:\s*none;/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-community-detail\s+\.sqc-community-reading-panel\s*>\s*\.sqc-native-card\s*\+\s*\.sqc-native-card\s*\{[^}]*border-top:\s*1px\s+solid/);
 });
 
 test("Community Solo desktop action rail separates primary, navigation, sharing, and safety priorities", () => {

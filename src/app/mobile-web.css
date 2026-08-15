@@ -1643,6 +1643,10 @@ body::after {
   display: none;
 }
 
+.sqc-community-catalog-summary {
+  display: none;
+}
+
 .sqc-community-row-open {
   display: none;
 }
@@ -2994,6 +2998,10 @@ body::after {
 
 .sqc-community-detail-screen {
   gap: 8px;
+}
+
+.sqc-community-reading-panel {
+  display: contents;
 }
 
 .sqc-community-detail-hero {
@@ -6925,8 +6933,90 @@ body::after {
     background: transparent;
   }
 
-  .sqc-mobile-web.desktop-community-discovery .sqc-catalog.single-result {
-    grid-template-columns: minmax(0, 760px);
+  .sqc-mobile-web.desktop-community-discovery .sqc-community-results-layout.single-result {
+    display: grid;
+    grid-template-columns: minmax(0, 760px) minmax(240px, 1fr);
+    align-items: stretch;
+    gap: 14px;
+  }
+
+  .sqc-mobile-web.desktop-community-discovery .sqc-community-results-layout.single-result .sqc-catalog {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .sqc-mobile-web.desktop-community-discovery .sqc-community-catalog-summary {
+    min-width: 0;
+    display: grid;
+    align-content: center;
+    gap: 8px;
+    padding: 22px;
+    border: 1px solid rgba(245, 200, 106, .18);
+    border-radius: 22px;
+    background:
+      radial-gradient(circle at 88% 14%, rgba(245, 200, 106, .14), transparent 38%),
+      linear-gradient(155deg, rgba(37, 25, 17, .94), rgba(8, 7, 8, .82));
+    box-shadow: 0 18px 44px rgba(0, 0, 0, .16);
+  }
+
+  .sqc-mobile-web.desktop-community-discovery .sqc-community-catalog-summary > span {
+    color: var(--gold);
+    font-size: 10px;
+    font-weight: 950;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+  }
+
+  .sqc-mobile-web.desktop-community-discovery .sqc-community-catalog-summary h3 {
+    margin: 0;
+    color: var(--paper);
+    font-family: ui-serif, Georgia, Cambria, "Times New Roman", serif;
+    font-size: 24px;
+    line-height: 1.05;
+  }
+
+  .sqc-mobile-web.desktop-community-discovery .sqc-community-catalog-summary > p {
+    margin: 0 0 4px;
+    color: rgba(255, 247, 232, .58);
+    font-size: 11px;
+    line-height: 1.45;
+  }
+
+  .sqc-mobile-web.desktop-community-discovery .sqc-community-catalog-summary > div {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 247, 232, .1);
+    border-radius: 14px;
+    background: rgba(255, 247, 232, .1);
+  }
+
+  .sqc-mobile-web.desktop-community-discovery .sqc-community-catalog-summary > div > span {
+    min-width: 0;
+    display: grid;
+    gap: 2px;
+    padding: 10px;
+    background: rgba(8, 7, 8, .78);
+  }
+
+  .sqc-mobile-web.desktop-community-discovery .sqc-community-catalog-summary > div > span:last-child {
+    grid-column: 1 / -1;
+  }
+
+  .sqc-mobile-web.desktop-community-discovery .sqc-community-catalog-summary strong {
+    color: var(--paper);
+    font-family: ui-serif, Georgia, Cambria, "Times New Roman", serif;
+    font-size: 19px;
+    line-height: 1;
+  }
+
+  .sqc-mobile-web.desktop-community-discovery .sqc-community-catalog-summary > div > span > span {
+    overflow: hidden;
+    color: rgba(255, 247, 232, .54);
+    font-size: 9px;
+    font-weight: 800;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .sqc-mobile-web.desktop-community-discovery .sqc-app-row {
@@ -8111,6 +8201,38 @@ body::after {
     gap: 14px;
     padding: 26px 28px;
     border-radius: 24px;
+  }
+
+  .sqc-mobile-web.desktop-community-detail .sqc-community-reading-panel {
+    grid-column: 1;
+    display: grid;
+    gap: 0;
+    overflow: hidden;
+    border: 1px solid rgba(245, 200, 106, .22);
+    border-radius: 26px;
+    background:
+      radial-gradient(circle at 0 0, rgba(245, 200, 106, .11), transparent 42%),
+      rgba(255, 247, 232, .045);
+    box-shadow: 0 24px 64px rgba(0, 0, 0, .22);
+  }
+
+  .sqc-mobile-web.desktop-community-detail .sqc-community-reading-panel > .sqc-native-card {
+    gap: 14px;
+    padding: 26px 28px;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  .sqc-mobile-web.desktop-community-detail .sqc-community-reading-panel h2 {
+    font-family: ui-serif, Georgia, Cambria, "Times New Roman", serif;
+    font-size: 27px;
+    line-height: 1.1;
+  }
+
+  .sqc-mobile-web.desktop-community-detail .sqc-community-reading-panel > .sqc-native-card + .sqc-native-card {
+    border-top: 1px solid rgba(255, 247, 232, .12);
   }
 
   .sqc-mobile-web.desktop-community-detail .sqc-community-detail-screen > .sqc-native-card h2 {

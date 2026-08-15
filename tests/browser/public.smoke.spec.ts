@@ -190,10 +190,12 @@ test("Community discovery switches between one mobile catalog and a desktop brow
   await expect(page.getByLabel("Community Side Quest filters")).toHaveCount(1);
   await expect(page.getByRole("complementary", { name: "Creator shortcuts" })).toBeHidden();
   const firstRow = page.locator(".sqc-community-catalog-section .sqc-app-row").first();
+  const catalogSummary = page.getByRole("complementary", { name: "Public catalog at a glance" });
   if (await firstRow.count()) {
     await expect(firstRow.locator(".sqc-community-row-mobile-meta")).toBeVisible();
     await expect(firstRow.locator(".sqc-community-row-details")).toBeHidden();
   }
+  if (await catalogSummary.count()) await expect(catalogSummary).toBeHidden();
 
   await page.setViewportSize({ width: 1180, height: 900 });
   await expect(desktopIntro).toBeVisible();
@@ -262,7 +264,23 @@ test("Community discovery switches between one mobile catalog and a desktop brow
     if (foundSingleResult) {
       await page.setViewportSize({ width: 1440, height: 900 });
       await expect(catalog).toHaveClass(/\bsingle-result\b/);
-      expect(await catalog.locator(".sqc-app-row").evaluate((element) => element.getBoundingClientRect().width)).toBe(760);
+      await expect(catalogSummary).toBeVisible();
+      await expect(catalogSummary).toContainText("Across the full public catalog");
+      await expect(catalogSummary.locator("strong")).toHaveCount(5);
+      const sparseGeometry = await page.locator(".sqc-community-results-layout.single-result").evaluate((element) => {
+        const card = element.querySelector<HTMLElement>(".sqc-app-row")?.getBoundingClientRect();
+        const summary = element.querySelector<HTMLElement>(".sqc-community-catalog-summary")?.getBoundingClientRect();
+        return {
+          columns: getComputedStyle(element).gridTemplateColumns.split(" ").filter(Boolean).length,
+          cardWidth: card?.width ?? 0,
+          summaryWidth: summary?.width ?? 0,
+          gap: summary && card ? summary.left - card.right : 0,
+        };
+      });
+      expect(sparseGeometry.columns).toBe(2);
+      expect(sparseGeometry.cardWidth).toBe(760);
+      expect(sparseGeometry.summaryWidth).toBeGreaterThanOrEqual(240);
+      expect(sparseGeometry.gap).toBeGreaterThanOrEqual(14);
       expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBe(0);
     }
     await search.fill("");
@@ -403,10 +421,12 @@ test("Community Solo detail switches from the mobile flow to one desktop task wo
   await expectHealthyNavigation(page, "/challenges/community/seed-castle-never-heard-of-it-05-1");
 
   const detail = page.locator(".sqc-community-detail-screen");
+  const readingPanel = detail.locator(".sqc-community-reading-panel");
   const share = page.getByRole("button", { name: "Share Community Solo Side Quest" });
   await expect(page.getByLabel("Close screen")).toBeVisible();
   await expect(page.getByRole("navigation", { name: "Desktop shortcuts" })).toBeHidden();
   await expect(share).toHaveCount(1);
+  await expect(readingPanel).toHaveCSS("display", "contents");
 
   await page.setViewportSize({ width: 1180, height: 900 });
   await expect(page.getByLabel("Close screen")).toBeHidden();
@@ -417,16 +437,32 @@ test("Community Solo detail switches from the mobile flow to one desktop task wo
     const rect = element.getBoundingClientRect();
     const style = getComputedStyle(element);
     const taskRail = element.querySelector(".sqc-community-task-rail");
+    const readingPanel = element.querySelector<HTMLElement>(".sqc-community-reading-panel");
+    const readingSections = readingPanel ? Array.from(readingPanel.children) as HTMLElement[] : [];
+    const readingRect = readingPanel?.getBoundingClientRect();
     return {
       width: Math.round(rect.width),
       columns: style.gridTemplateColumns.split(" ").filter(Boolean).length,
       taskRailPosition: taskRail ? getComputedStyle(taskRail).position : null,
+      readingDisplay: readingPanel ? getComputedStyle(readingPanel).display : null,
+      readingBorderStyle: readingPanel ? getComputedStyle(readingPanel).borderTopStyle : null,
+      readingSectionCount: readingSections.length,
+      readingSectionsInsidePanel: readingRect ? readingSections.every((section) => {
+        const sectionRect = section.getBoundingClientRect();
+        return sectionRect.left >= readingRect.left && sectionRect.right <= readingRect.right;
+      }) : false,
+      readingDividerStyle: readingSections[1] ? getComputedStyle(readingSections[1]).borderTopStyle : null,
       overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
     };
   });
   expect(geometry.width).toBeGreaterThan(1000);
   expect(geometry.columns).toBe(2);
   expect(geometry.taskRailPosition).toBe("sticky");
+  expect(geometry.readingDisplay).toBe("grid");
+  expect(geometry.readingBorderStyle).toBe("solid");
+  expect(geometry.readingSectionCount).toBe(2);
+  expect(geometry.readingSectionsInsidePanel).toBe(true);
+  expect(geometry.readingDividerStyle).toBe("solid");
   expect(geometry.overflow).toBe(0);
 });
 

@@ -1447,28 +1447,30 @@ export function MobileCommunitySideQuestDetailScreen({
         <small>{completed ? "Completed · Public" : "Ready · Public"}</small>
       </section>
 
-      <section className="sqc-native-card sqc-detail-panel-strong">
-        <span className="sqc-card-eyebrow">Challenge</span>
-        <h2>What to do</h2>
-        <p>{quest.summary}</p>
-        <small>Play a new public game after picking this Side Quest.</small>
-      </section>
+      <div className="sqc-community-reading-panel">
+        <section className="sqc-native-card sqc-detail-panel-strong">
+          <span className="sqc-card-eyebrow">Challenge</span>
+          <h2>What to do</h2>
+          <p>{quest.summary}</p>
+          <small>Play a new public game after picking this Side Quest.</small>
+        </section>
 
-      <section className="sqc-native-card sqc-multiplayer-native-card">
-        <span className="sqc-card-eyebrow">Rule details</span>
-        <h2>{quest.ruleLabel}</h2>
-        <div className="sqc-condition-list">
-          {quest.ruleDetails.map((line, index) => (
-            <div key={`${quest.id}-rule-${index}`} className="sqc-condition-compact-row">
-              <span>{index + 1}</span>
-              <div>
-                <strong>{getConditionLabel(index)}</strong>
-                <p>{line}</p>
+        <section className="sqc-native-card sqc-multiplayer-native-card">
+          <span className="sqc-card-eyebrow">Rule details</span>
+          <h2>{quest.ruleLabel}</h2>
+          <div className="sqc-condition-list">
+            {quest.ruleDetails.map((line, index) => (
+              <div key={`${quest.id}-rule-${index}`} className="sqc-condition-compact-row">
+                <span>{index + 1}</span>
+                <div>
+                  <strong>{getConditionLabel(index)}</strong>
+                  <p>{line}</p>
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
-      </section>
+            ))}
+          </div>
+        </section>
+      </div>
 
       <section className="sqc-multiplayer-score-grid" aria-label="Community Solo Side Quest summary">
         <div>
