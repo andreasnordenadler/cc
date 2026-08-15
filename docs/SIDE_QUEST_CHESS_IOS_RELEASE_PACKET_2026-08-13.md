@@ -4,7 +4,7 @@ Status: source-preparation packet only. It is not evidence of an Apple build, Te
 
 ## Candidate reconciled from `origin/main`
 
-- Reconciled `origin/main` baseline: `d9e09bb801257da869dde20bde4e44e4f7e9dbf9` (fetched and merged 2026-08-15). Working-branch reconciliation merge: `9e78ab40546bfd967151d07aeaf5b18b676c6a85`. The candidate remains unfrozen.
+- Reconciled `origin/main` baseline: `bea1dfb8fc5b003760eb622a5d0dde28c9f7e7ac` (fetched and merged 2026-08-15). Working-branch reconciliation merge: `30a2d47f77e0978354e42a0481f018b92fd58f1a`. The candidate remains unfrozen.
 - Current Android distribution baseline: Google Play Internal testing accepted build `0.1.349` / code `350`, built from immutable source `189c93a350eb48d2a325f3a3f4edd99ed110c4b5`; Android production/public launch remains inactive and separately approval-gated. The current iOS-preparation branch still has Android source code `349` and is not the code-350 Android artifact.
 - App name: Side Quest Chess
 - Expo source version: `0.1.349`
@@ -292,9 +292,9 @@ Submission, App Review acceptance, release approval, and public storefront avail
 
 ## Local source-readiness receipt — 2026-08-15
 
-- The dedicated iOS worktree was clean before reconciliation and merged fetched `origin/main` `d9e09bb801257da869dde20bde4e44e4f7e9dbf9` as `9e78ab40546bfd967151d07aeaf5b18b676c6a85`; the dirty canonical checkout was not modified or cleaned. The candidate remains unfrozen.
+- The dedicated iOS worktree was clean before reconciliation and merged fetched `origin/main` `bea1dfb8fc5b003760eb622a5d0dde28c9f7e7ac` as `30a2d47f77e0978354e42a0481f018b92fd58f1a`; the dirty canonical checkout was not modified or cleaned. The candidate remains unfrozen.
 - Source commit `f615820c368bf70a44038ab99a3ccab1dfcda0ac` discloses account-linked safety-report/block data in the source privacy policy and adds a regression assertion. The disclosure is not public until the branch lands and the web policy is deployed; no deployment was attempted.
-- Fresh full canonical suite after reconciliation and the policy disclosure: 756/756 passed.
+- Fresh full canonical suite after reconciliation and the policy disclosure: 760/760 passed.
 - Fresh full lint: passed with zero errors and four pre-existing warnings.
 - Fresh full Next production build: passed and generated all 88 static pages.
 - Fresh mobile TypeScript check: passed; `expo-doctor --verbose`: 18/18 checks passed.
@@ -304,6 +304,7 @@ Submission, App Review acceptance, release approval, and public storefront avail
 - The prior native `expo prebuild --platform ios --no-install`, local iOS JavaScript export, and EAS local-config receipt were produced from source/config commit `5457d59cb14543e8d28687ded5fb02994471e9e6`. Mobile source/config and the lockfile are unchanged since that commit, but those artifacts are not a signed archive and must be regenerated from the eventual frozen commit.
 - That prior no-Pods prebuild generated no app-owned `PrivacyInfo.xcprivacy`; embedded SDK manifests, SDK signatures, and required-reason API declarations remain an archive/Pods inspection gate.
 - App Store draft field lengths are within current limits: subtitle 22 characters, keywords 85 UTF-8 bytes, promotional text 164 characters.
+- A focused App Store packet contract test now binds the Expo identity and standing product facts, enforces the 30-character name/subtitle and 100-byte keyword limits, rejects public `SQC` in listing copy, requires the listing/privacy/review/QA/access/binary sections, and keeps archive, TestFlight, review, and public-release evidence fail-closed.
 - The source marketing icon is 1024×1024 with no alpha; exact-archive generated icon-set inspection remains required.
 - Current lockfile SHA-256: `35f1e3fa53d7b0f7652929b4f9217586e9a46174ae502d500cb7645ad392af15`.
 - Local Apple toolchain remains blocked: selected developer directory is Command Line Tools, full Xcode is unavailable, and zero valid code-signing identities are installed.
