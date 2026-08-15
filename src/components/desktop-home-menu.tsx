@@ -19,6 +19,9 @@ export default function DesktopHomeMenu({ items, activeItemId }: { items: readon
   ].filter((group) => group.items.length > 0);
 
   useEffect(() => {
+    const details = detailsRef.current;
+    details?.removeAttribute("inert");
+
     const closeMenu = (restoreFocus: boolean) => {
       const details = detailsRef.current;
       if (!details?.open) return;
@@ -38,16 +41,24 @@ export default function DesktopHomeMenu({ items, activeItemId }: { items: readon
       closeMenu(false);
     };
 
+    const onFocusIn = (event: FocusEvent) => {
+      const details = detailsRef.current;
+      if (!details?.open || details.contains(event.target as Node)) return;
+      closeMenu(false);
+    };
+
     document.addEventListener("keydown", onKeyDown);
     document.addEventListener("pointerdown", onPointerDown);
+    document.addEventListener("focusin", onFocusIn);
     return () => {
       document.removeEventListener("keydown", onKeyDown);
       document.removeEventListener("pointerdown", onPointerDown);
+      document.removeEventListener("focusin", onFocusIn);
     };
   }, []);
 
   return (
-    <details className="sqc-desktop-menu" ref={detailsRef}>
+    <details className="sqc-desktop-menu" ref={detailsRef} inert>
       <summary ref={summaryRef}>
         <span>Explore</span>
         <span className="sqc-desktop-menu-chevron" aria-hidden="true">⌄</span>
