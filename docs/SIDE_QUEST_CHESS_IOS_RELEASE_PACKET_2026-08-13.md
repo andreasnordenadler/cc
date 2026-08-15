@@ -4,7 +4,7 @@ Status: source-preparation packet only. It is not evidence of an Apple build, Te
 
 ## Candidate reconciled from `origin/main`
 
-- Reconciled `origin/main` baseline: `695f76e35c137ed5b38e3a1dc18ed96405b3c5ba` (fetched and merged 2026-08-15). Working-branch reconciliation merge before the edits in this packet: `847e50dd5700a35d82e5e28ddce31e16fb857d7a`. The candidate remains unfrozen.
+- Reconciled `origin/main` baseline: `878241770d793511ef5833100b80cf2c2e857d2f` (fetched and merged 2026-08-15). Working-branch reconciliation merge: `77fbd471ebd7dc9cc82b1141cd97e9f5946f6dd4`. The candidate remains unfrozen.
 - Current Android distribution baseline: Google Play Internal testing accepted build `0.1.349` / code `350`, built from immutable source `189c93a350eb48d2a325f3a3f4edd99ed110c4b5`; Android production/public launch remains inactive and separately approval-gated. The current iOS-preparation branch still has Android source code `349` and is not the code-350 Android artifact.
 - App name: Side Quest Chess
 - Expo source version: `0.1.349`
@@ -36,6 +36,7 @@ This packet supersedes candidate/version claims in the July 2026 Apple and store
 | TestFlight real-iPhone smoke | BLOCKED | Store-delivered install and signed-in checklist receipt |
 | iPad acceptance | BLOCKED | Responsive matrix and exact-candidate screenshots, or approved source change disabling tablet support |
 | Review account and deletion path | PARTIAL | Disposable reviewer account and successful disposable-account deletion on TestFlight |
+| UGC safety and content rights | BLOCKED | Exact-candidate filtering/reporting/blocking verification across Community Solo and Multiplayer, published contact path, and owner/legal evidence that Lichess/Chess.com access and displayed material are authorized |
 | App Review submission | NOT STARTED | Separate approval and App Store Connect state receipt |
 | Public availability | NOT STARTED | Separate release approval and storefront availability receipt |
 
@@ -65,7 +66,7 @@ Do not perform any of the following without explicit approval: enroll or pay; ac
 | Primary locale | Owner to confirm; suggested English (U.S.) |
 | Bundle/App Store association | Unverified; discover existing bundle/app records and Apple app ID before creation |
 | Secondary category | None recommended initially; category fields must be reconciled against the live App Store Connect form |
-| Content rights | Yes, the app accesses third-party public chess records; owner must attest that Side Quest Chess has the necessary rights before adoption |
+| Content rights | Yes, the app accesses third-party public chess records; owner/legal must verify applicable Lichess and Chess.com API/terms compliance, public-record use, displayed names/marks, and retain review-ready authorization evidence before attesting |
 | Territories | Worldwide target; owner/legal must resolve any storefront-specific game authorization requirement before selecting affected territories |
 | Release method | Manual release recommended; App Review submission and public release require separate approvals |
 | License agreement | Standard Apple agreement recommended; any custom agreement requires owner/legal approval |
@@ -106,16 +107,18 @@ Use this in review context if requested; do not assume App Store Connect exposes
 
 Owner must adopt the answers in App Store Connect after checking the current questionnaire wording. Product-fact draft:
 
-- Gambling, simulated gambling, contests, loot boxes, and real-money prizes: none
+- Gambling, simulated gambling, sweepstakes, loot boxes, and real-money prizes: none. **Contests: Yes** under Apple's broad current definition because users compete for rankings, goals, and podium/trophy outcomes, even though there are no prizes.
 - In-app purchases and advertising: none
 - Publisher-authored sexual content, nudity, alcohol, tobacco, drugs, horror, profanity, violence, and medical content: none
-- User-generated content: yes — profile names/bios, custom/community quest text, multiplayer text, and support messages. Answer every frequency/content question for the entire reachable UGC experience rather than treating publisher-authored content as the whole app; reporting and blocking controls are present.
+- User-generated content: yes — profile names/bios, custom/community quest text, multiplayer text, and support messages. Answer every frequency/content question for the entire reachable UGC experience rather than treating publisher-authored content as the whole app. Community Multiplayer has native content/creator reporting and blocking; Community Solo currently uses a support-report handoff and does not expose an equivalent adjacent native block control. No objectionable-text filter is currently verified, so do not answer mature-content frequency as None or claim Guideline 1.2 readiness until that gap is closed and tested.
 - Unrestricted web access: no general browser; the app opens specific legal/support pages and public proof/share destinations
-- Messaging/chat: no general real-time chat; signed-in users can send support notes
+- Messaging/chat: **Yes under Apple's current questionnaire definition**, which includes public posting, even though there is no direct or real-time user-to-user chat
+- Social media: **Yes** because Community discovery, public posting, likes, profiles, and creator attribution are reachable
 - Location sharing: none
-- Product distribution posture: intended for ages 13 and older. Record and use Apple's calculated rating from the then-current questionnaire; do not represent the product posture as a predicted calculated rating.
+- Social media disabled for users under 13: no; in-app age assurance: no
+- Product distribution posture: intended for ages 13 and older. Record Apple's calculated rating from the then-current questionnaire and apply an age-rating override to at least 13+ if Apple calculates lower, so the store rating does not contradict the Terms minimum age.
 
-Capability-answer draft to map field-by-field onto the live dated questionnaire: user-generated content **Yes**; reporting controls **Yes**; blocking controls **Yes**; general messaging/chat **No**; unrestricted web access **No**; advertising **No**; in-app purchases **No**; loot boxes **No**; gambling/simulated gambling/real-money gaming **No**; contests/sweepstakes **No**; location sharing **No**; parental controls **No**; age-assurance mechanism inside the app **No**; publisher-authored mature-content descriptors listed above **None**. Record the exact questionnaire version/date, every displayed question and selected frequency, Apple-calculated rating, and any regional override before adoption. UGC frequency/exposure cannot be safely preselected without the live Apple wording and an owner review of the reachable Community/profile text.
+Capability-answer draft to map field-by-field onto the live dated questionnaire: user-generated content **Yes**; social media **Yes**; messaging/chat **Yes** under the public-posting definition; contests **Yes**; unrestricted web access **No**; advertising **No**; in-app purchases **No**; loot boxes **No**; gambling/simulated gambling/real-money gaming **No**; sweepstakes **No**; location sharing **No**; parental controls **No**; social media disabled for users under 13 **No**; age-assurance mechanism inside the app **No**; publisher-authored mature-content descriptors listed above **None**. Do not adopt reporting/filtering/blocking answers more broadly than the exact tested surfaces. Record the exact questionnaire version/date, every displayed question and selected frequency, Apple-calculated rating, 13+ minimum override if needed, and any regional override before adoption. UGC frequency/exposure cannot be safely preselected while arbitrary public text lacks a verified filter.
 
 ## App Privacy draft
 
@@ -125,16 +128,16 @@ Conservative per-type draft. All listed rows are **collected**, **linked to the 
 
 | Apple category / type | Purpose(s) | Source and behavior to reconcile |
 | --- | --- | --- |
-| Contact Info / Name | App functionality, account management | Clerk account and runner display name |
-| Contact Info / Email Address | App functionality, account management, customer support | Email/password or Apple/Google/Facebook provider identity; Apple private-relay addresses are possible |
-| Identifiers / User ID | App functionality, account management, security | Clerk user/session identity and application records |
-| User Content / Photos or Videos | App functionality | Profile image supplied by Clerk or the selected sign-in provider; no native photo-library access is requested |
-| User Content / Customer Support | Customer support, app functionality | Signed-in support messages and any user-approved diagnostics included with them |
-| User Content / Other User Content | App functionality, safety | Profile text, public chess usernames, custom/community quest text, Multiplayer text, reports, blocks, report-target identifiers, proof/game IDs, proof and quest state, and timestamps |
-| Usage Data / Product Interaction | Analytics, app functionality, personalization | Signed-in event totals/recent events, quest IDs/status, and coarse device type stored in account metadata |
-| Diagnostics / Other Diagnostic Data | Customer support, app functionality | Optional support bundle: app build/version, package, platform/device, API destination, connected chess usernames, active quest, and Multiplayer counts; default off and previewed before send |
+| Contact Info / Name | App Functionality | Clerk account and runner display name |
+| Contact Info / Email Address | App Functionality | Email/password or Apple/Google/Facebook provider identity; Apple private-relay addresses are possible |
+| Identifiers / User ID | App Functionality | Clerk user/session identity and application records |
+| User Content / Photos or Videos | App Functionality | Profile image supplied by Clerk or the selected sign-in provider; no native photo-library access is requested |
+| User Content / Customer Support | App Functionality | Signed-in support messages and any user-approved diagnostics included with them |
+| User Content / Gameplay Content | App Functionality | Quest saves/state, proof attempts and receipts, game IDs, Multiplayer participation/standings, and saved custom quests |
+| User Content / Other User Content | App Functionality | Profile text, public chess usernames, custom/community free text, Multiplayer text, reports, blocks, report-target identifiers, and timestamps |
+| Diagnostics / Other Diagnostic Data | App Functionality | Optional support bundle: app build/version, package, platform/device, API destination, connected chess usernames, active quest, and Multiplayer counts; default off and previewed before send |
 
-Anonymous product-interaction events may be not linked to an account; verify the production analytics path before adoption. Display names, usernames, provider profile images, standings, Community content, and proof details may be publicly visible by product design. Clerk and the selected Apple, Google, Facebook, or email/password sign-in path process authentication data; hosting and chess-record providers process the data described by the public policy. Reports and blocks are retained for safety/abuse handling as applicable. Account deletion removes account-attached identity/profile/progress after required cleanup, subject to security, legal, fraud-prevention, backup, and de-identified/aggregate exceptions stated in the adopted policy. Do not declare crash data, performance data, device ID, location, contacts, purchases, browsing/search history, or sensitive information until the exact IPA, Clerk, Expo, React Native, and embedded privacy manifests have been inspected. The optional support bundle is collected when sent despite being opt-in. Adopted answers must match `https://sidequestchess.com/privacy`, provider contracts, retention behavior, and the production binary.
+The mobile source does not currently establish mobile-origin Product Interaction collection for Analytics; do not declare that type/purpose merely because the combined web/mobile policy describes first-party web analytics. Add it only if exact-IPA network/provider inspection proves it. Display names, usernames, provider profile images, standings, Community content, and proof details may be publicly visible by product design. Clerk and the selected Apple, Google, Facebook, or email/password sign-in path process authentication data; hosting and chess-record providers process the data described by the public policy. Reports and blocks are retained for safety/abuse handling as applicable. Account deletion removes account-attached identity/profile/progress after required cleanup, subject to security, legal, fraud-prevention, backup, and de-identified/aggregate exceptions stated in the adopted policy. Do not declare crash data, performance data, device ID, location, contacts, purchases, browsing/search history, or sensitive information until the exact IPA, Clerk, Expo, React Native, and embedded privacy manifests have been inspected. The optional support bundle is collected when sent despite being opt-in. Adopted answers must match `https://sidequestchess.com/privacy`, provider contracts, retention behavior, and the production binary. Supply `https://sidequestchess.com/privacy#choices` as the optional User Privacy Choices URL after confirming that anchor remains live.
 
 Account deletion wording: My Account → Delete account permanently removes the sign-in identity and account-attached profile/progress data after replicated multiplayer references are cleaned. A cleanup failure must preserve the sign-in identity and return an error.
 
@@ -143,10 +146,10 @@ Account deletion wording: My Account → Delete account permanently removes the 
 - Organization: Crowdler AB
 - Review contact: owner must provide an authorized person's name and reachable phone
 - Contact email candidate: `sam@crowdler.com` (owner must confirm)
-- Credentials: create owner-authorized disposable primary and secondary review accounts; enter credentials only in App Store Connect
+- Credentials: create owner-authorized disposable primary, secondary, and deletion-only review accounts; enter credentials only in App Store Connect and keep them active, non-expiring, and MFA-free (or provide a deterministic review-safe bypass) for the entire review window
 - Primary account: verified email/password, deterministic seeded Solo/Custom/Trophy state, and a valid non-personal public Lichess or Chess.com username
 - Secondary account: deterministic Multiplayer participant; use a separate deletion-only account if deletion must be exercised
-- Record whether MFA is disabled/absent for each review account, exact expected fixtures/results, reset owner, and reachable review contact before submission
+- Record exact fixture IDs, expected proof result, reset instructions/owner, fallback route, and reachable review contact before submission; keep backend services and provider fixtures live for the entire review window
 
 ### Paste-ready review notes
 
@@ -154,30 +157,31 @@ Side Quest Chess began as a web product. Android has a private Internal-testing 
 
 The app lets users choose playful chess challenges and verify eligible results against public game records from Lichess or Chess.com usernames supplied by the user. Side Quest Chess does not request or store Lichess or Chess.com passwords and is independent from those services.
 
-Public Side Quests can be browsed while signed out. Sign-in is required to save progress, check proof, create or join account-backed quests, send support messages, report or block Community creators, and manage or delete an account.
+Public Side Quests can be browsed while signed out. Sign-in is required to save progress, check proof, create or join account-backed quests, send support messages, use Community safety controls, and manage or delete an account. Community Multiplayer provides native report/block controls; Community Solo currently provides a support-report handoff.
 
-Suggested review flow: browse Solo and Multiplayer while signed out; sign in under My Account; inspect the connected public chess username; open the seeded Solo Side Quest and its proof controls/receipt; inspect the seeded Custom Side Quest and deterministic Multiplayer fixture using the supplied second account; open a Community creator and inspect report/block controls; open Trophy Cabinet; preview support diagnostics (off by default); and verify Privacy Policy, Support, Terms, and My Account → Delete account. Reporting, blocking, support submission, quest mutation, and deletion are optional demonstrations because they mutate shared review state. If deletion testing is required, use the separate deletion-only account; deletion permanently removes that account's Side Quest Chess identity and account-attached data. Review credentials, fixture IDs, expected results, reset instructions, and fallback routes must be completed in App Store Connect before submission.
+Suggested review flow: browse Solo and Multiplayer while signed out; sign in under My Account; inspect the connected public chess username; open the seeded Solo Side Quest and its proof controls/receipt; inspect the seeded Custom Side Quest and deterministic Multiplayer fixture using the supplied second account; open a Community Multiplayer Side Quest and inspect content report, creator report, and block controls; open a Community Solo Side Quest and inspect its support-report handoff; open Trophy Cabinet; preview support diagnostics (off by default); and verify Privacy Policy, Support, Terms, and My Account → Delete account. Reports, blocks, likes, support submission, quest mutation, and deletion mutate shared state. Use the separate deletion-only account for deletion: My Account → Delete account requires typing `DELETE MY ACCOUNT`, then deletes replicated account data before deleting the Clerk identity; cleanup failure preserves the identity and shows an error. Review credentials, fixture IDs, expected results, reset instructions, and fallback routes must be completed in App Store Connect before submission.
 
 The app has no advertising, in-app purchases, subscriptions, gambling, or real-money prizes. It is intended for users aged 13 and older. Sign in with Apple uses Apple's native sheet through Clerk. Google and Facebook use the expected OAuth callback `sidequestchess://sso-callback`.
 
 ## Screenshot and preview plan
 
-Capture only from the exact binary selected for App Review, with production-like non-personal data and no debug overlays. App Store Connect determines the currently required dimensions, formats, counts, display classes, and locale slots; record those requirements at capture time rather than relying on stale pixel lists.
+Capture only from the exact binary selected for App Review, with production-like non-personal data and no debug overlays. Supply 1–10 JPEG/JPG/PNG screenshots with no alpha per adopted device/locale set. Confirm the live form at capture time; current principal sets are the 6.9-inch iPhone and, while tablet support remains enabled, the 13-inch iPad.
 
 Required device families while `supportsTablet` remains true:
 
-- Largest required iPhone display class, portrait
-- Any additional iPhone class required by App Store Connect
-- Largest required iPad display class, portrait and landscape where the UI supports it
-- Localized sets for every submitted locale; initial recommendation is English only until localization is product-approved
+- 6.9-inch iPhone set, portrait
+- 13-inch iPad set, using the orientation that truthfully represents the app; both portrait and landscape sets are not mandatory
+- Initial recommendation: English only. Description and keywords require locale-specific copy when more locales are added; screenshots may default from the primary locale unless deliberately localized.
 
 Suggested ordered frames: Home/active Side Quest; Solo catalog; quest detail and proof receipt; Multiplayer discovery/detail; Trophy Cabinet; Custom Side Quest builder. Avoid login forms, deletion confirmations, support threads, empty/error states, third-party trademarks as the focal claim, and real user data. App previews are optional; do not prepare one unless current-candidate interaction footage materially improves the listing.
 
 Maintain a screenshot manifest with App Store version/build, source SHA, TestFlight/build ID, device/display class, OS, orientation, locale, account/fixture state, caption, filename, exact dimensions, and SHA-256 for every frame. Acceptance checks: no clipping or safe-area overlap; no keyboard/modal residue; consistent status bar; baseline and larger Dynamic Type legibility; no personal identifiers, invite codes, stale Android/GitHub labels, or debug data; and truthful earned/locked trophy and proof states.
 
+Complete App Store Connect's Accessibility Nutrition Label decision from exact-candidate evidence. Do not claim VoiceOver, Larger Text, sufficient contrast, reduced motion, or other accessibility support until the corresponding matrix passes.
+
 ## Same-candidate responsive QA matrix
 
-Run clean install and update install on current supported OS versions. Record device, OS, TestFlight build, source SHA, orientation/window size, tester, timestamp, and result.
+Run clean install and update install from the exact TestFlight build on physical iPhone and physical iPad. Cover the latest OS and the oldest supported deployment target where practical. Record device, OS, TestFlight build, source SHA, orientation/window size, tester, timestamp, and result.
 
 The current Expo configuration restricts iPhone to portrait. Do not claim iPhone landscape support unless that configuration is deliberately changed and reverified.
 
@@ -203,11 +207,11 @@ Fail for clipped or unreachable controls, content hidden under safe areas/keyboa
 3. Create/verify a disposable email/password account, including email verification, session persistence, and cold-start relaunch. Test native Sign in with Apple, including cancellation and private-relay email behavior. Separately test Google and Facebook through `sidequestchess://sso-callback`, including cancellation and cold-start return. Confirm an existing social-only account remains accessible and that provider account linking does not create an unintended duplicate.
 4. Confirm session persistence, account API bearer acceptance, profile edits, website sync, sign-out, and sign-in restoration.
 5. Exercise Solo start/check/explicit proof/failure/success/view/share/reset.
-6. Exercise Custom create/edit/start/check/reset and Community detail/share/report/block.
-7. Exercise Multiplayer create/share/join with a second account, refresh, proof, leave, report, and block.
+6. Exercise Custom create/edit/start/check/reset, including objectionable-text rejection once implemented; exercise Community Solo detail/share/report-support handoff.
+7. Exercise Multiplayer create/share/join with a second account, refresh, proof, leave, content report, creator report, and block. Confirm blocked creators/content disappear from both Solo and Multiplayer discovery.
 8. Verify Trophy Cabinet, signed-in support message, diagnostics default-off and opt-in behavior.
 9. Test offline launch/reconnect, background/foreground, forced termination/relaunch, keyboard, rotation, VoiceOver, and Dynamic Type.
-10. Delete a disposable account in-app; confirm signed-out relaunch and server/identity cleanup behavior.
+10. Delete a disposable account in-app; confirm signed-out relaunch and server/identity cleanup behavior. Separately induce/verify a cleanup failure in a non-production fixture and confirm the Clerk identity is preserved.
 11. Inspect runtime/network logs for secrets, tokens, passwords, or unexpected personal data.
 
 ## Least-privilege Apple access packet
@@ -223,20 +227,20 @@ Owner-approved sequence:
 3. Grant **Developer** instead if the immediate task is build/TestFlight technical work only; elevate to App Manager only when metadata/submission work is authorized.
 4. Do not grant Admin, Finance, Legal, banking, tax, or Account Holder privileges for routine release operations.
 5. Apple Developer resources (bundle IDs, certificates, profiles, Sign in with Apple) may require separate developer-resource permission. Grant only after the exact credential operation is approved.
-6. Prefer App Store Connect API access scoped to the minimum role and app when automation is approved. Keep private keys outside the repository, record issuer/key IDs in the approved secret manager, and revoke unused keys.
+6. Treat App Store Connect API access as a separate authorization. The Account Holder alone can request access, and team-key creation remains approval-gated. If a team key is approved, assign only the minimum role but recognize that team keys apply across all apps. App-level restriction requires an approved individual key inheriting an app-scoped user's access. Keep all private keys outside the repository, record issuer/key IDs in the approved secret manager, and revoke unused keys.
 7. Record inviter, invitee, role, app scope, Team ID, date, review date, and revocation owner.
 
 This packet does not authorize an invite, acceptance, credential generation, app-record mutation, or upload.
 
 ### Owner authorization packets — discovery and mutation are separate
 
-**Discovery authorization:** authorize read-only inspection only if the dedicated Crowdler/Sam operational Apple Account is already provisioned on the correct Crowdler AB team. Do not send passwords, recovery codes, private keys, certificates, or review credentials.
+Discovery authorization: authorize inspection without mutations only if the dedicated Crowdler/Sam operational Apple Account is already provisioned on the correct Crowdler AB team. Do not send passwords, recovery codes, private keys, certificates, or review credentials.
 
 **Why:** source preparation cannot verify the fail-closed legal-team, duplicate bundle/app identity, and least-privilege operator gates without read access to the correct Crowdler AB Apple Developer and App Store Connect context.
 
-**Requested authorization (no mutation):** using only an already provisioned dedicated Crowdler/Sam identity, authorize read-only discovery of Team ID/membership status, existing bundle ID `com.sidequestchess.app`, existing Side Quest Chess App Store Connect records/SKUs, highest existing iOS build number, and current EAS project ownership/access. Do **not** authorize an invitation or acceptance, enrollment, payment, agreements, tax/banking, Admin/Finance/Legal access, app-record creation or edits, certificate/profile/key generation, Sign in with Apple configuration, EAS/Apple credential access, builds, uploads, testers, metadata adoption, submission, or release.
+**Requested Apple authorization (no mutation):** using only an already provisioned dedicated Crowdler/Sam identity, authorize read-only discovery of Team ID/membership status, existing bundle ID `com.sidequestchess.app`, existing Side Quest Chess App Store Connect records/SKUs, and highest existing iOS build number. Do **not** authorize an invitation or acceptance, enrollment, payment, agreements, tax/banking, Admin/Finance/Legal access, app-record creation or edits, certificate/profile/key generation, Sign in with Apple configuration, Apple credential access, builds, uploads, testers, metadata adoption, submission, or release.
 
-**Return receipt required:** legal entity, Team ID, membership expiry/status, dedicated operator address, existing role and app scope, duplicate-search results for bundle ID and app name, any existing app-record ID/SKU/bundle association, highest existing iOS build number, EAS owner/project access result, and screenshots with personal/security data redacted.
+**Return receipt required:** legal entity, Team ID, membership expiry/status, dedicated operator address, existing role and app scope, duplicate-search results for bundle ID and app name, any existing app-record ID/SKU/bundle association, highest existing iOS build number, and screenshots with personal/security data redacted.
 
 **Stop conditions:** stop and report without accepting or mutating anything if the identity is not already provisioned, the legal entity is not exactly Crowdler AB, the account lands on a personal team, Apple presents an attestation/agreement, the requested least-privilege scope is unavailable, a duplicate identity exists, or any fee is requested.
 
@@ -245,6 +249,8 @@ This packet does not authorize an invite, acceptance, credential generation, app
 **What this unblocks:** choosing a non-colliding build number and preparing separate, exact approvals for bundle capability/signing, Clerk Sign in with Apple configuration, and the first iOS build. It does not authorize any of those later actions.
 
 **Separate future invitation/acceptance packet (not authorized here):** if the dedicated identity is not provisioned, request explicit approval naming inviter, invitee, exact Crowdler AB Team ID/legal entity, proposed Developer or app-scoped App Manager role, app scope, cost, any terms/attestation, and stop conditions. Invitation issuance and acceptance are mutations and must not be described as read-only discovery.
+
+**Separate Expo authorization packet (not authorized here):** Apple access does not grant Expo access. For owner `and72nor` and project `9af73cb2-dcd5-4429-b194-67fc81206937`, request an explicit least-privilege Expo organization invitation or owner-approved project transfer for the dedicated Crowdler operator, naming inviter, invitee, scope, cost, any terms, and revocation owner. Do not use Andreas's personal EAS session for Apple credentials or the iOS build.
 
 ## Build and binary acceptance
 
@@ -266,20 +272,18 @@ Submission, App Review acceptance, release approval, and public storefront avail
 
 ## Local source-readiness receipt — 2026-08-15
 
-- The dedicated iOS worktree was clean before reconciliation and merged fetched `origin/main` `695f76e35c137ed5b38e3a1dc18ed96405b3c5ba`; the dirty canonical checkout was not modified or cleaned.
-- Exact source/config preparation commit verified below: `5457d59cb14543e8d28687ded5fb02994471e9e6`. This is not the approval-gated release freeze because Apple identity and build-number reconciliation remain blocked.
-- Full canonical test suite at that commit after the final merge and auth-error hardening: 752/752 passed.
-- Full lint: passed with zero errors and four pre-existing warnings.
-- Full Next production build: passed and generated all 88 static pages.
-- `expo-doctor --verbose`: 18/18 checks passed.
-- Mobile TypeScript check: passed.
-- Focused iOS release-profile, social-authentication, and account-deletion tests: 19/19 passed. Social-provider failures now show a stable user-safe support message instead of raw provider exception text; Apple-sheet cancellation remains silent.
-- A fresh native `expo prebuild --platform ios --no-install` succeeded. Generated source produced bundle `com.sidequestchess.app`, version/build `0.1.349 (1)`, URL schemes `sidequestchess` and `com.sidequestchess.app`, Sign in with Apple entitlement `Default`, `ITSAppUsesNonExemptEncryption = false`, iPhone/iPad device families, iOS deployment target 15.1, iPhone portrait orientations, and all four iPad orientations. No app-owned `PrivacyInfo.xcprivacy` was generated at this no-Pods stage; embedded SDK manifests and required-reason API declarations remain an archive/Pods inspection gate.
-- EAS CLI configuration resolution from `apps/mobile` validated the `ios-production` store profile with local app-version source, build `1`, production API/Clerk environment, and `autoIncrement: false`. This read-only check did not request Apple credentials or start a build.
-- A fresh local iOS JavaScript export completed: 854 modules bundled into a 3,708,246-byte Hermes bytecode file; export directory size 53 MB; bytecode SHA-256 `3e65fc554ce9ab11679b40f43538f4d9f8477c2f8f6715cad13a1a14ac8f2207`. This is not a native archive or IPA.
+- The dedicated iOS worktree was clean before reconciliation and merged fetched `origin/main` `878241770d793511ef5833100b80cf2c2e857d2f` as `77fbd471ebd7dc9cc82b1141cd97e9f5946f6dd4`; the dirty canonical checkout was not modified or cleaned. The candidate remains unfrozen.
+- Fresh full canonical suite after reconciliation: 754/754 passed.
+- Fresh full lint: passed with zero errors and four pre-existing warnings.
+- Fresh full Next production build: passed and generated all 88 static pages.
+- Fresh mobile TypeScript check: passed; `expo-doctor --verbose`: 18/18 checks passed.
+- Fresh focused iOS release-profile, social-authentication, and account-deletion tests: 19/19 passed.
+- Fresh production dependency gate passed with no unaccepted high/critical advisories; only the two narrowly accepted unpatched Expo/Metro build-tool image-parser advisories remain.
+- Fresh Expo iOS introspection resolved name `Side Quest Chess`, bundle `com.sidequestchess.app`, version/build `0.1.349 (1)`, schemes `sidequestchess` and `com.sidequestchess.app`, `supportsTablet: true`, Sign in with Apple entitlement `Default`, `ITSAppUsesNonExemptEncryption = false`, ATS arbitrary loads disabled, iPhone portrait orientations, and all four iPad orientations.
+- The prior native `expo prebuild --platform ios --no-install`, local iOS JavaScript export, and EAS local-config receipt were produced from source/config commit `5457d59cb14543e8d28687ded5fb02994471e9e6`. Mobile source/config and the lockfile are unchanged since that commit, but those artifacts are not a signed archive and must be regenerated from the eventual frozen commit.
+- That prior no-Pods prebuild generated no app-owned `PrivacyInfo.xcprivacy`; embedded SDK manifests, SDK signatures, and required-reason API declarations remain an archive/Pods inspection gate.
 - App Store draft field lengths are within current limits: subtitle 22 characters, keywords 85 UTF-8 bytes, promotional text 164 characters.
-- Lockfile SHA-256 after reconciliation: `35f1e3fa53d7b0f7652929b4f9217586e9a46174ae502d500cb7645ad392af15`.
-- The current EAS CLI is available through an ephemeral `npx eas-cli` invocation (`eas-cli/22.0.0`); no global/direct `eas` executable was found on the active PATH. Read-only EAS config resolution succeeded, but no build, credential, or submit command was run.
-- Local Apple toolchain remains blocked: selected developer directory is Command Line Tools, `xcodebuild` requires full Xcode, and zero valid code-signing identities are installed.
+- Current lockfile SHA-256: `35f1e3fa53d7b0f7652929b4f9217586e9a46174ae502d500cb7645ad392af15`.
+- Local Apple toolchain remains blocked: selected developer directory is Command Line Tools, full Xcode is unavailable, and zero valid code-signing identities are installed.
 - Operator-observed EAS status before this packet identified Andreas's personal session; source configuration independently names Expo owner `and72nor`. That personal identity is prohibited for new Apple operational access or credentials. No EAS build, credential, submit, App Store Connect, or Apple account mutation was attempted.
 - This is source/config evidence only. No archive, IPA, signing, TestFlight, real-device, screenshot, review, or storefront claim is implied.
