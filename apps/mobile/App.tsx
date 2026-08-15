@@ -39,7 +39,8 @@ import {
   type TextStyle,
 } from "react-native";
 import { SafeAreaProvider, SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
-import { blockMobileCommunityCreator, buildMobileUrl, getApiBaseUrl, deleteMobileAccount, deleteMobileCustomSideQuest, fetchMobileAccountState, fetchMobileBootstrap, runMobileCommunityLikeAction, runMobileGroupQuestAction, runMobileQuestAction, saveMobileCustomSideQuest, submitMobileSupportMessage, updateMobileChessUsernames } from "./src/api/sqc";
+import { blockMobileCommunityCreator, buildMobileUrl, getApiBaseUrl, deleteMobileCustomSideQuest, fetchMobileAccountState, fetchMobileBootstrap, runMobileCommunityLikeAction, runMobileGroupQuestAction, runMobileQuestAction, saveMobileCustomSideQuest, submitMobileSupportMessage, updateMobileChessUsernames } from "./src/api/sqc";
+import { deleteMobileAccountAndEndSession } from "./src/account/deleteMobileAccount";
 import { findSignedOutPublicMultiplayerQuest, getSignedOutPublicMultiplayerCatalog } from "./src/multiplayer/publicCatalog";
 import { loadMobileAccount } from "./src/account/loadMobileAccount";
 import { clerkPublishableKey, clerkTokenCache, isClerkMobileAuthConfigured } from "./src/auth/clerk";
@@ -1489,6 +1490,10 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
     fallbackAccount: MOBILE_ACCOUNT_FALLBACK,
   }), [authBridge.getSessionToken, authBridge.isLoaded, authBridge.isSignedIn]);
 
+  const clearDeletedAccount = useCallback(() => {
+    setShell((current) => ({ ...current, account: MOBILE_ACCOUNT_FALLBACK }));
+  }, []);
+
   const refreshBoardAndAccount = useCallback(async () => {
     await Promise.all([loadBootstrap({ refresh: true }), loadAccount()]);
   }, [loadAccount, loadBootstrap]);
@@ -1674,6 +1679,7 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
                 setPendingMultiplayerCreateQuestId(null);
               }}
               onAccountUpdated={loadAccount}
+              onAccountDeleted={clearDeletedAccount}
               onScrollToY={(y, animated = true) => scrollViewRef.current?.scrollTo({ y, animated })}
             />
           </>
@@ -5968,7 +5974,7 @@ function NativeAppleSignInButton({ onPress }: { onPress: () => Promise<void> }) 
   );
 }
 
-function AccountTrackerDashboard({ bootstrap, account, authBridge, onSelectTab, onSelectChallenge, onOpenCompletedQuestDetail, onAccountUpdated, onScrollToY }: { bootstrap: MobileBootstrap; account: MobileAccountResponse | null; authBridge: MobileAuthBridge; onSelectTab: (tab: AppTab) => void; onSelectChallenge: (challengeId: string, nextTab?: AppTab) => void; onOpenChallengeDetail: (challengeId: string) => void; onOpenCompletedQuestDetail: (challengeId: string) => void; onAccountUpdated: AccountUpdatedCallback; onScrollToY: (y: number, animated?: boolean) => void }) {
+function AccountTrackerDashboard({ bootstrap, account, authBridge, onSelectTab, onSelectChallenge, onOpenCompletedQuestDetail, onAccountUpdated, onAccountDeleted, onScrollToY }: { bootstrap: MobileBootstrap; account: MobileAccountResponse | null; authBridge: MobileAuthBridge; onSelectTab: (tab: AppTab) => void; onSelectChallenge: (challengeId: string, nextTab?: AppTab) => void; onOpenChallengeDetail: (challengeId: string) => void; onOpenCompletedQuestDetail: (challengeId: string) => void; onAccountUpdated: AccountUpdatedCallback; onAccountDeleted: () => void; onScrollToY: (y: number, animated?: boolean) => void }) {
   const signedIn = isAuthenticatedAccount(account) ? account : null;
   const [helpOpen, setHelpOpen] = useState(false);
   const [usernameEditorY, setUsernameEditorY] = useState(0);
@@ -6025,12 +6031,20 @@ function AccountTrackerDashboard({ bootstrap, account, authBridge, onSelectTab, 
     if (deleteConfirmation !== "DELETE MY ACCOUNT" || deletingAccount) return;
     setDeletingAccount(true);
     try {
-      const sessionToken = await authBridge.getSessionToken();
-      await deleteMobileAccount({ sessionToken, confirmation: deleteConfirmation });
-      await authBridge.signOut?.();
+      const { sessionEnded } = await deleteMobileAccountAndEndSession({
+        confirmation: deleteConfirmation,
+        getSessionToken: authBridge.getSessionToken,
+        signOut: authBridge.signOut,
+      });
       setDeleteConfirmation("");
       setShowDeleteAccount(false);
-      Alert.alert("Account deleted", "Your Side Quest Chess account and saved data were permanently deleted.");
+      onAccountDeleted();
+      Alert.alert(
+        "Account deleted",
+        sessionEnded
+          ? "Your Side Quest Chess account and saved data were permanently deleted."
+          : "Your Side Quest Chess account and saved data were permanently deleted. Close and reopen the app to clear the expired sign-in session.",
+      );
       onSelectTab("home");
     } catch (caught) {
       Alert.alert("Account not deleted", caught instanceof Error ? caught.message : "Please try again.");
@@ -6559,6 +6573,7 @@ function ActiveScreen({
   pendingMultiplayerCreateQuestId,
   onConsumePendingMultiplayerCreate,
   onAccountUpdated,
+  onAccountDeleted,
   onScrollToY,
 }: {
   activeTab: AppTab;
@@ -6581,6 +6596,7 @@ function ActiveScreen({
   pendingMultiplayerCreateQuestId: string | null;
   onConsumePendingMultiplayerCreate: () => void;
   onAccountUpdated: AccountUpdatedCallback;
+  onAccountDeleted: () => void;
   onScrollToY: (y: number, animated?: boolean) => void;
 }) {
   switch (activeTab) {
@@ -6595,7 +6611,7 @@ function ActiveScreen({
     case "coatOfArms":
       return <CoatBoardDashboard bootstrap={bootstrap} account={account} onOpenChallengeDetail={onOpenChallengeDetail} onOpenCompletedQuestDetail={onOpenCompletedQuestDetail} onClose={() => onSelectTab("home")} />;
     case "account":
-      return <AccountTrackerDashboard bootstrap={bootstrap} account={account} authBridge={authBridge} onSelectTab={onSelectTab} onSelectChallenge={onSelectChallenge} onOpenChallengeDetail={onOpenChallengeDetail} onOpenCompletedQuestDetail={onOpenCompletedQuestDetail} onAccountUpdated={onAccountUpdated} onScrollToY={onScrollToY} />;
+      return <AccountTrackerDashboard bootstrap={bootstrap} account={account} authBridge={authBridge} onSelectTab={onSelectTab} onSelectChallenge={onSelectChallenge} onOpenChallengeDetail={onOpenChallengeDetail} onOpenCompletedQuestDetail={onOpenCompletedQuestDetail} onAccountUpdated={onAccountUpdated} onAccountDeleted={onAccountDeleted} onScrollToY={onScrollToY} />;
   }
 }
 
