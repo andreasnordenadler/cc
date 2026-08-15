@@ -1535,10 +1535,12 @@ export function MobileCommunitySideQuestDetailScreen({
 
 export function MobileCustomSideQuestsScreen({
   rows,
+  signedIn = false,
   localDrafts,
   successMessage,
 }: {
   rows: CustomSideQuestLibraryRow[];
+  signedIn?: boolean;
   localDrafts?: ReactNode;
   successMessage?: string | null;
 }) {
@@ -1569,6 +1571,17 @@ export function MobileCustomSideQuestsScreen({
         <Link href="/community-side-quests">Discover</Link>
         <span className="active" aria-current="page">My Library</span>
       </nav>
+
+      {!signedIn ? (
+        <aside className="sqc-custom-account-bridge" aria-label="Custom Side Quest account sync">
+          <span aria-hidden="true">LOCAL WORKSHOP</span>
+          <div>
+            <strong>Draft here. Play anywhere.</strong>
+            <p>This browser can keep local drafts. Sign in to sync saved Side Quests, pick one for proof, and use it in Multiplayer.</p>
+          </div>
+          <Link href="/sign-in?redirect_url=%2Fcustom-side-quests">Sign in to sync my workshop</Link>
+        </aside>
+      ) : null}
 
       {successMessage ? <p className="sqc-action-success" role="status">{successMessage}</p> : null}
 

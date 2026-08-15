@@ -471,13 +471,22 @@ test("Custom library switches from the mobile flow to one desktop workshop", asy
   await expectHealthyNavigation(page, "/custom-side-quests");
 
   const intro = page.getByRole("heading", { name: "Your Side Quest workshop, with room to think." });
+  const accountBridge = page.getByRole("complementary", { name: "Custom Side Quest account sync" });
+  const syncLink = accountBridge.getByRole("link", { name: "Sign in to sync my workshop" });
   await expect(intro).toBeHidden();
+  await expect(accountBridge).toBeHidden();
   await expect(page.getByLabel("Close screen")).toBeVisible();
   await expect(page.getByRole("navigation", { name: "Desktop shortcuts" })).toBeHidden();
   await expect(page.getByRole("link", { name: "+ Create" })).toHaveCount(1);
 
   await page.setViewportSize({ width: 1180, height: 900 });
   await expect(intro).toBeVisible();
+  await expect(accountBridge).toBeVisible();
+  await expect(accountBridge.getByText("Draft here. Play anywhere.", { exact: true })).toBeVisible();
+  await expect(syncLink).toHaveAttribute("href", "/sign-in?redirect_url=%2Fcustom-side-quests");
+  await syncLink.focus();
+  await expect(syncLink).toBeFocused();
+  await expect(syncLink).toHaveCSS("outline-style", "solid");
   await expect(page.getByLabel("Close screen")).toBeHidden();
   await expect(page.getByRole("navigation", { name: "Desktop shortcuts" })).toBeVisible();
   await expect(page.getByRole("link", { name: "+ Create" })).toHaveCount(1);
