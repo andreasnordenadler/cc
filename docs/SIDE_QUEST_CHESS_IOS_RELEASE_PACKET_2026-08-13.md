@@ -267,18 +267,19 @@ Submission, App Review acceptance, release approval, and public storefront avail
 ## Local source-readiness receipt — 2026-08-15
 
 - The dedicated iOS worktree was clean before reconciliation and merged fetched `origin/main` `695f76e35c137ed5b38e3a1dc18ed96405b3c5ba`; the dirty canonical checkout was not modified or cleaned.
-- Receipts below through the lockfile hash were produced before the final `origin/main` reconciliation and are retained only as historical source-preparation evidence until refreshed against the post-edit candidate. They must not be used as exact-candidate build or submission evidence.
-- Historical full canonical test suite receipt: 750/750 passed. A post-reconciliation independent run observed 751/751 before the packet/auth-error edits; final exact-tree verification is pending.
+- Exact source/config preparation commit verified below: `5457d59cb14543e8d28687ded5fb02994471e9e6`. This is not the approval-gated release freeze because Apple identity and build-number reconciliation remain blocked.
+- Full canonical test suite at that commit after the final merge and auth-error hardening: 752/752 passed.
 - Full lint: passed with zero errors and four pre-existing warnings.
 - Full Next production build: passed and generated all 88 static pages.
 - `expo-doctor --verbose`: 18/18 checks passed.
 - Mobile TypeScript check: passed.
-- Focused iOS release-profile and social-authentication tests after the final config change: 15/15 passed; deletion and privacy coverage also passed in the full suite.
+- Focused iOS release-profile, social-authentication, and account-deletion tests: 19/19 passed. Social-provider failures now show a stable user-safe support message instead of raw provider exception text; Apple-sheet cancellation remains silent.
 - A fresh native `expo prebuild --platform ios --no-install` succeeded. Generated source produced bundle `com.sidequestchess.app`, version/build `0.1.349 (1)`, URL schemes `sidequestchess` and `com.sidequestchess.app`, Sign in with Apple entitlement `Default`, `ITSAppUsesNonExemptEncryption = false`, iPhone/iPad device families, iOS deployment target 15.1, iPhone portrait orientations, and all four iPad orientations. No app-owned `PrivacyInfo.xcprivacy` was generated at this no-Pods stage; embedded SDK manifests and required-reason API declarations remain an archive/Pods inspection gate.
 - EAS CLI configuration resolution from `apps/mobile` validated the `ios-production` store profile with local app-version source, build `1`, production API/Clerk environment, and `autoIncrement: false`. This read-only check did not request Apple credentials or start a build.
-- A fresh local iOS JavaScript export completed: 853 modules bundled into a 3,706,917-byte Hermes bytecode file; export directory size 53 MB; bytecode SHA-256 `aa89094582829a8b7a93ecb96e650fe88f30e5497e52de595152acbf6ecc396a`. This is not a native archive or IPA.
-- App Store draft field lengths are within current limits: subtitle 22 characters, keywords 91 UTF-8 bytes, promotional text 164 characters.
+- A fresh local iOS JavaScript export completed: 854 modules bundled into a 3,708,246-byte Hermes bytecode file; export directory size 53 MB; bytecode SHA-256 `3e65fc554ce9ab11679b40f43538f4d9f8477c2f8f6715cad13a1a14ac8f2207`. This is not a native archive or IPA.
+- App Store draft field lengths are within current limits: subtitle 22 characters, keywords 85 UTF-8 bytes, promotional text 164 characters.
 - Lockfile SHA-256 after reconciliation: `35f1e3fa53d7b0f7652929b4f9217586e9a46174ae502d500cb7645ad392af15`.
+- The current EAS CLI is available through an ephemeral `npx eas-cli` invocation (`eas-cli/22.0.0`); no global/direct `eas` executable was found on the active PATH. Read-only EAS config resolution succeeded, but no build, credential, or submit command was run.
 - Local Apple toolchain remains blocked: selected developer directory is Command Line Tools, `xcodebuild` requires full Xcode, and zero valid code-signing identities are installed.
 - Operator-observed EAS status before this packet identified Andreas's personal session; source configuration independently names Expo owner `and72nor`. That personal identity is prohibited for new Apple operational access or credentials. No EAS build, credential, submit, App Store Connect, or Apple account mutation was attempted.
 - This is source/config evidence only. No archive, IPA, signing, TestFlight, real-device, screenshot, review, or storefront claim is implied.
