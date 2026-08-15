@@ -52,6 +52,17 @@ test("official quest detail expands its existing desktop workspace on large disp
   assert.match(wideDesktop, /\.sqc-mobile-web\.desktop-official-detail\s+\.sqc-active-solo-detail-screen\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\)\s+minmax\(440px,\s*\.72fr\);/);
 });
 
+test("available quest desktop utilities and primary action share one command surface", () => {
+  const css = readFileSync("src/app/mobile-web.css", "utf8");
+  const desktopStart = css.indexOf("/* Official detail keeps the Android content");
+  const desktopEnd = css.indexOf("/* Community detail retains one parity-backed content/action subtree");
+  const desktopOfficialDetail = css.slice(desktopStart, desktopEnd);
+
+  assert.match(css, /\.sqc-quest-command-rail\s*\{[^}]*display:\s*contents;/);
+  assert.match(desktopOfficialDetail, /\.sqc-mobile-web\.desktop-official-detail\s+\.sqc-official-solo-detail-screen\s*>\s*\.sqc-quest-command-rail\s*\{[^}]*padding:\s*12px;[^}]*border:\s*1px\s+solid\s+rgba\(245,\s*200,\s*106,\s*\.2\);[^}]*border-radius:\s*30px;[^}]*background:\s*rgba\(0,\s*0,\s*0,\s*\.22\);/);
+  assert.match(desktopOfficialDetail, /\.sqc-mobile-web\.desktop-official-detail\s+\.sqc-quest-command-rail\s*>\s*\.sqc-proof-action-card\s*\{[^}]*border:\s*0;/);
+});
+
 test("active quest desktop workspace keeps proof evidence in the reading column and the next action in a sticky command rail", () => {
   const css = readFileSync("src/app/mobile-web.css", "utf8");
   const page = readFileSync("src/app/challenges/[id]/page.tsx", "utf8");

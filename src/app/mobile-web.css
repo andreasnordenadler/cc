@@ -7834,16 +7834,22 @@ body::after {
     top: 108px;
     display: grid;
     gap: 12px;
+    padding: 12px;
+    border: 1px solid rgba(245, 200, 106, .2);
+    border-radius: 30px;
+    background: rgba(0, 0, 0, .22);
+    box-shadow: 0 24px 64px rgba(0, 0, 0, .24);
   }
 
   .sqc-mobile-web.desktop-official-detail .sqc-quest-command-rail > .sqc-proof-action-card {
     gap: 14px;
-    padding: 28px;
-    border-radius: 26px;
+    padding: 16px;
+    border: 0;
+    border-radius: 20px;
     background:
       radial-gradient(circle at 100% 0%, rgba(245, 200, 106, .14), transparent 42%),
       rgba(245, 200, 106, .075);
-    box-shadow: 0 22px 56px rgba(0, 0, 0, .22);
+    box-shadow: none;
   }
 
   .sqc-mobile-web.desktop-official-detail .sqc-proof-action-card h2 {
