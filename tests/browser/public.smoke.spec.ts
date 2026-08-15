@@ -18,11 +18,31 @@ test("signed-out desktop homepage explains the loop and exposes public browsing 
   await expect(page.getByText("Receive unnecessary heraldry", { exact: true })).toBeVisible();
 });
 
-test("desktop app menu dismisses with Escape and outside click", async ({ page }) => {
+test("desktop app menu dismisses with Escape, focus departure, and outside click", async ({ page, browser }, testInfo) => {
+  const noJavaScriptContext = await browser.newContext({
+    javaScriptEnabled: false,
+    baseURL: testInfo.project.use.baseURL as string,
+  });
+  const noJavaScriptPage = await noJavaScriptContext.newPage();
+  await expectHealthyNavigation(noJavaScriptPage, "/");
+  const serverRenderedMenu = noJavaScriptPage.locator(".sqc-desktop-menu");
+  const serverRenderedTrigger = serverRenderedMenu.locator("summary");
+  await expect(serverRenderedMenu).toHaveAttribute("inert", "");
+  const triggerBox = await serverRenderedTrigger.evaluate((element) => {
+    const rect = element.getBoundingClientRect();
+    return { x: rect.x, y: rect.y, width: rect.width, height: rect.height };
+  });
+  await noJavaScriptPage.mouse.click(triggerBox.x + triggerBox.width / 2, triggerBox.y + triggerBox.height / 2);
+  await expect(serverRenderedMenu).not.toHaveAttribute("open", "");
+  await serverRenderedTrigger.focus();
+  await expect(serverRenderedTrigger).not.toBeFocused();
+  await noJavaScriptContext.close();
+
   await expectHealthyNavigation(page, "/");
 
   const trigger = page.locator(".sqc-desktop-menu summary");
   const menu = page.getByRole("navigation", { name: "Desktop main menu" });
+  await expect(page.locator(".sqc-desktop-menu")).not.toHaveAttribute("inert", "");
 
   await trigger.click();
   await expect(menu).toBeVisible();
@@ -37,6 +57,12 @@ test("desktop app menu dismisses with Escape and outside click", async ({ page }
   await page.keyboard.press("Escape");
   await expect(menu).toBeHidden();
   await expect(trigger).toBeFocused();
+
+  await trigger.press("Enter");
+  await expect(menu).toBeVisible();
+  await page.keyboard.press("Shift+Tab");
+  await expect(page.getByRole("link", { name: "Trophy Cabinet", exact: true })).toBeFocused();
+  await expect(menu).toBeHidden();
 
   await trigger.click();
   await expect(menu).toBeVisible();

@@ -411,6 +411,10 @@ body::after {
   display: contents;
 }
 
+.sqc-multiplayer-community-workspace {
+  display: contents;
+}
+
 .sqc-proof-image {
   display: block;
   width: 100%;
@@ -9050,6 +9054,65 @@ body::after {
 
   .sqc-mobile-web.desktop-multiplayer-discovery .sqc-stack > :not(.sqc-screen-emblem):not(.sqc-desktop-multiplayer-intro):not(.sqc-multiplayer-brand-tabs) {
     grid-column: 1 / -1;
+  }
+
+  /* Public Community discovery is a browse-and-join workspace on desktop.
+     Keep the existing mobile stack and one shared interactive subtree while
+     placing the catalog beside the independent invite-code action. */
+  .sqc-mobile-web.desktop-multiplayer-discovery .sqc-multiplayer-community-workspace {
+    grid-column: 1 / -1;
+    display: grid;
+    gap: 18px;
+  }
+
+  .sqc-mobile-web.desktop-multiplayer-discovery.signed-out .sqc-multiplayer-community-workspace {
+    grid-template-columns: minmax(0, 1fr) 360px;
+    align-items: start;
+    gap: 18px 24px;
+    margin-top: 20px;
+  }
+
+  .sqc-mobile-web.desktop-multiplayer-discovery.signed-out .sqc-multiplayer-community-workspace > .sqc-empty-panel.standalone {
+    grid-column: 1 / -1;
+    margin: 0;
+    padding: 16px 18px;
+  }
+
+  .sqc-mobile-web.desktop-multiplayer-discovery.signed-out .sqc-multiplayer-community-workspace > .sqc-native-card[aria-label="Community Multiplayer Side Quests"] {
+    grid-column: 1;
+    min-width: 0;
+    margin: 0;
+    padding: 22px;
+  }
+
+  .sqc-mobile-web.desktop-multiplayer-discovery.signed-out #join-private-multiplayer {
+    grid-column: 2;
+    position: sticky;
+    top: 110px;
+    margin: 0;
+    padding: 24px;
+  }
+
+  .sqc-mobile-web.desktop-multiplayer-discovery.signed-out .sqc-multiplayer-community-workspace .sqc-community-browse-panel {
+    display: grid;
+    grid-template-columns: minmax(260px, 1fr) auto;
+    align-items: center;
+    gap: 12px;
+    padding: 10px;
+  }
+
+  .sqc-mobile-web.desktop-multiplayer-discovery.signed-out .sqc-multiplayer-community-workspace .sqc-community-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .sqc-mobile-web.desktop-multiplayer-discovery.signed-out .sqc-multiplayer-community-workspace .sqc-community-browse-panel > .sqc-empty-panel {
+    grid-column: 1 / -1;
+  }
+
+  .sqc-mobile-web.desktop-multiplayer-discovery.signed-out #join-private-multiplayer .groupquests-invite-key-form .button {
+    width: 100%;
   }
 
   .sqc-mobile-web.desktop-multiplayer-discovery .sqc-panel.list {
