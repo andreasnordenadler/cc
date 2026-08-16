@@ -29,7 +29,7 @@ test("code 350 production packet binds one immutable release and listing asset s
     ["apps/mobile/store-assets/google-play/store-icon-512.png", "dece7654e1346e799a4ee39f4f1bc4dc399bf138ca96e2fea069d56e3d6a25e2"],
     ["apps/mobile/store-assets/google-play/feature-graphic-1024x500.png", "f89001e2662f29196a53170a8ef2f1f2b8117dc134b71351b54550934e810fe2"],
     ["apps/mobile/store-assets/google-play/code350-phone-screenshots/01-choose-a-solo-side-quest.png", "7c7093ec7c32f53628642d5982342c6b74e37585a178369926e9c9b781aa08ce"],
-    ["apps/mobile/store-assets/google-play/code350-phone-screenshots/02-see-the-rules-and-reward.png", "daec0a3dbe9c6e93601b943027f27054591569b9917f23bb2e0b196f5ab4ec1f"],
+    ["apps/mobile/store-assets/google-play/code350-phone-screenshots/02-back-rank-goblin.png", "d2a8c1feb6331f344d09224096904dcc34ed59f4f50fbd59ab51bd813d1cf94b"],
     ["apps/mobile/store-assets/google-play/code350-phone-screenshots/03-play-multiplayer-side-quests.png", "3435d056c1acc5fb61962863e1853b1e853edeef0bb31f9b12469a0219f0ec4d"],
   ] as const;
 
