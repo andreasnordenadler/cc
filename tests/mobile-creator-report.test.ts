@@ -44,7 +44,7 @@ function routeDependencies({ reporterUserId = "reporter", targetUserId = "creato
 
 test.afterEach(() => { globalThis.fetch = originalFetch; });
 
-test("Android creator reporting sends only immutable evidence fields with bearer provenance", async () => {
+test("mobile creator reporting sends only immutable evidence fields with bearer provenance", async () => {
   let sent: Request | null = null;
   globalThis.fetch = async (input, init) => {
     sent = new Request(input, init);
@@ -56,12 +56,12 @@ test("Android creator reporting sends only immutable evidence fields with bearer
   const sentRequest = sent as unknown as Request;
   assert.equal(new URL(sentRequest.url).pathname, "/api/reports/creators");
   assert.equal(sentRequest.headers.get("authorization"), "Bearer session-token");
-  assert.equal(sentRequest.headers.get("x-side-quest-chess-client"), "android");
+  assert.equal(sentRequest.headers.get("x-side-quest-chess-client"), "mobile");
   assert.deepEqual(await sentRequest.json(), { targetType: "community-multiplayer", targetId: "community/table", reason: "repeated abusive behavior" });
   assert.equal(result.reportId, "creator-report-1");
 });
 
-test("Android creator reporting validates before network and rejects overlapping activation", async () => {
+test("mobile creator reporting validates before network and rejects overlapping activation", async () => {
   let requests = 0;
   globalThis.fetch = async () => { requests += 1; return Response.json({ ok: true }); };
   await assert.rejects(submitMobileCommunityCreatorReport({ sessionToken: "token", targetId: " community/table", reason: "abuse" }), /valid Community creator/);
@@ -127,7 +127,7 @@ test("creator report route fails closed for anonymous, spoofed, replica, self, a
   assert.equal(base.writes.length, 0);
 });
 
-test("Android safety sheet exposes distinct Side Quest report, creator report, and block controls", async () => {
+test("mobile safety sheet exposes distinct Side Quest report, creator report, and block controls", async () => {
   const source = await readFile(new URL("../apps/mobile/App.tsx", import.meta.url), "utf8");
   assert.match(source, /createMobileCommunityCreatorReportSubmitter/);
   assert.match(source, /accessibilityLabel="Send Community Multiplayer report"/);

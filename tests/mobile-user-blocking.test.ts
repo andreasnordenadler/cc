@@ -63,7 +63,7 @@ test("blocked creators are removed from Community Multiplayer discovery without 
   );
 });
 
-test("Android block action sends only the exact Community Multiplayer target", async (t) => {
+test("mobile block action sends only the exact Community Multiplayer target", async (t) => {
   const originalFetch = globalThis.fetch;
   t.after(() => { globalThis.fetch = originalFetch; });
   let captured: { url: string; authorization: string | null; client: string | null; body: unknown } | null = null;
@@ -82,13 +82,13 @@ test("Android block action sends only the exact Community Multiplayer target", a
   assert.deepEqual(captured, {
     url: "https://sidequestchess.com/api/blocks/users",
     authorization: "Bearer session-token",
-    client: "android",
+    client: "mobile",
     body: { targetType: "community-multiplayer", targetId: "community/table", action: "block" },
   });
   assert.equal(result.action, "blocked");
 });
 
-test("Android Community Multiplayer safety sheet exposes a distinct creator-blocking control", () => {
+test("mobile Community Multiplayer safety sheet exposes a distinct creator-blocking control", () => {
   const source = readFileSync(new URL("../apps/mobile/App.tsx", import.meta.url), "utf8");
   assert.match(source, /accessibilityLabel="Block Community creator"/);
   assert.match(source, /blockMobileCommunityCreator\(/);

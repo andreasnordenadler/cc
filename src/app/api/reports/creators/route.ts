@@ -72,7 +72,7 @@ export async function POST(request: Request) {
     evidenceTargetType: "community-multiplayer",
     evidenceTargetId: target.groupQuest.id,
     reason,
-    source: request.headers.get("x-side-quest-chess-client") === "android" ? "mobile" : "website",
+    source: ["android", "mobile"].includes(request.headers.get("x-side-quest-chess-client") ?? "") ? "mobile" : "website",
   };
   const nextMetadata = fitWithinMetadataBudget(privateMetadata, report);
   if (!nextMetadata) return Response.json({ ok: false, message: "Could not safely store this creator report. Please contact support." }, { status: 507 });

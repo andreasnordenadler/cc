@@ -3511,29 +3511,26 @@ function AccountHelpSupportSection({ onOpenHelp }: { onOpenHelp: () => void }) {
 }
 
 const MOBILE_SUPPORT_NOTE_MAX_LENGTH = 900;
-const MOBILE_RELEASE_BASE_URL = "https://github.com/andreasnordenadler/cc/releases/tag";
-const MOBILE_APP_CONFIG = require("./app.json") as { expo?: { version?: string; android?: { package?: string; versionCode?: number } } };
+const MOBILE_APP_CONFIG = require("./app.json") as { expo?: { version?: string; ios?: { bundleIdentifier?: string }; android?: { package?: string; versionCode?: number } } };
 
 function getMobileCandidateIdentity() {
   const appVersion = Application.nativeApplicationVersion ?? MOBILE_APP_CONFIG.expo?.version ?? "unknown";
-  const androidPackage = Application.applicationId ?? MOBILE_APP_CONFIG.expo?.android?.package ?? "unknown";
-  const nativeBuildVersion = Application.nativeBuildVersion ? Number(Application.nativeBuildVersion) : undefined;
-  const androidVersionCode = Number.isFinite(nativeBuildVersion) ? nativeBuildVersion : MOBILE_APP_CONFIG.expo?.android?.versionCode;
-  const releaseCandidate = androidVersionCode ? `mobile-v${androidVersionCode}` : "unknown";
-  const releaseUrl = androidVersionCode ? `${MOBILE_RELEASE_BASE_URL}/${releaseCandidate}` : null;
+  const configuredApplicationId = Platform.OS === "ios"
+    ? MOBILE_APP_CONFIG.expo?.ios?.bundleIdentifier
+    : MOBILE_APP_CONFIG.expo?.android?.package;
+  const applicationId = Application.applicationId ?? configuredApplicationId ?? "unknown";
+  const nativeBuildVersion = Application.nativeBuildVersion ?? (Platform.OS === "android" ? String(MOBILE_APP_CONFIG.expo?.android?.versionCode ?? "") : null) ?? "unknown";
 
-  return { appVersion, androidPackage, androidVersionCode, releaseCandidate, releaseUrl };
+  return { appVersion, applicationId, nativeBuildVersion };
 }
 
 function buildMobileSupportDiagnostics(signedIn: MobileAccountState | null) {
-  const { appVersion, androidPackage, androidVersionCode, releaseCandidate, releaseUrl } = getMobileCandidateIdentity();
+  const { appVersion, applicationId, nativeBuildVersion } = getMobileCandidateIdentity();
 
   return [
     "Side Quest Chess mobile diagnostics",
-    `App version: ${appVersion}${androidVersionCode ? ` (${androidVersionCode})` : ""}`,
-    `Package ID: ${androidPackage}`,
-    `Release candidate: ${releaseCandidate} GitHub Release APK`,
-    `Release URL: ${releaseUrl ?? "unknown"}`,
+    `App version: ${appVersion} (build ${nativeBuildVersion})`,
+    `Bundle ID: ${applicationId}`,
     `Platform: ${Platform.OS} ${Platform.Version}`,
     `API base: ${getApiBaseUrl()}`,
     `Account: ${signedIn ? signedIn.profile.displayName ? `signed in as ${signedIn.profile.displayName}` : "signed in" : "not signed in"}`,
@@ -3639,9 +3636,8 @@ function HelpSupportModal({ visible, onClose, signedIn, authBridge, initialMessa
             </Pressable>
             {diagnosticsOpen ? (
               <View style={compactStyles.diagnosticsBody}>
-                <Text style={compactStyles.detailPanelTitle}>{candidateIdentity.releaseCandidate}</Text>
-                <Text style={compactStyles.detailPanelCopy}>App version {candidateIdentity.appVersion}{candidateIdentity.androidVersionCode ? ` (${candidateIdentity.androidVersionCode})` : ""}. Package {candidateIdentity.androidPackage}.</Text>
-                {candidateIdentity.releaseUrl ? <Text style={compactStyles.detailPanelCopy}>{candidateIdentity.releaseUrl}</Text> : null}
+                <Text style={compactStyles.detailPanelTitle}>Installed app identity</Text>
+                <Text style={compactStyles.detailPanelCopy}>App version {candidateIdentity.appVersion} (build {candidateIdentity.nativeBuildVersion}). Bundle ID {candidateIdentity.applicationId}.</Text>
               </View>
             ) : null}
           </View>

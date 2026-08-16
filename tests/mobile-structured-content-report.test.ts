@@ -9,7 +9,7 @@ test.afterEach(() => {
   globalThis.fetch = originalFetch;
 });
 
-test("Android Community Multiplayer reporting sends bearer auth and immutable target fields", async () => {
+test("mobile Community Multiplayer reporting sends bearer auth and immutable target fields", async () => {
   let request: Request | null = null;
   globalThis.fetch = async (input, init) => {
     request = new Request(input, init);
@@ -26,7 +26,7 @@ test("Android Community Multiplayer reporting sends bearer auth and immutable ta
   const sentRequest = request as unknown as Request;
   assert.equal(sentRequest.method, "POST");
   assert.equal(sentRequest.headers.get("authorization"), "Bearer session-token");
-  assert.equal(sentRequest.headers.get("x-side-quest-chess-client"), "android");
+  assert.equal(sentRequest.headers.get("x-side-quest-chess-client"), "mobile");
   assert.equal(new URL(sentRequest.url).pathname, "/api/reports/content");
   assert.deepEqual(await sentRequest.json(), {
     targetType: "community-multiplayer",
@@ -36,7 +36,7 @@ test("Android Community Multiplayer reporting sends bearer auth and immutable ta
   assert.equal(result.reportId, "report-1");
 });
 
-test("Android Community Multiplayer reporting rejects invalid input without a request", async () => {
+test("mobile Community Multiplayer reporting rejects invalid input without a request", async () => {
   let requests = 0;
   globalThis.fetch = async () => {
     requests += 1;
@@ -54,7 +54,7 @@ test("Android Community Multiplayer reporting rejects invalid input without a re
   assert.equal(requests, 0);
 });
 
-test("Android Community Multiplayer detail wires a dedicated structured report form instead of support messaging", async () => {
+test("mobile Community Multiplayer detail wires a dedicated structured report form instead of support messaging", async () => {
   const appSource = await import("node:fs/promises").then(({ readFile }) => readFile(new URL("../apps/mobile/App.tsx", import.meta.url), "utf8"));
 
   assert.match(appSource, /createMobileCommunityReportSubmitter/);
@@ -65,7 +65,7 @@ test("Android Community Multiplayer detail wires a dedicated structured report f
   assert.doesNotMatch(appSource, /HelpSupportModal key=\{multiplayerReportMessage/);
 });
 
-test("Android report action is limited to signed-in public Community Multiplayer guests", () => {
+test("mobile report action is limited to signed-in public Community Multiplayer guests", () => {
   const base = { official: false, inviteMode: "public" as const, isOwner: false };
   assert.equal(canReportCommunityMultiplayerQuest(base, true), true);
   assert.equal(canReportCommunityMultiplayerQuest({ ...base, official: true }, true), false);
@@ -75,7 +75,7 @@ test("Android report action is limited to signed-in public Community Multiplayer
   assert.equal(canReportCommunityMultiplayerQuest(base, false), false);
 });
 
-test("Android report submitter rejects overlapping activation until the first request settles", async () => {
+test("mobile report submitter rejects overlapping activation until the first request settles", async () => {
   let resolve!: () => void;
   let requests = 0;
   const submit = createMobileCommunityReportSubmitter(async () => {
@@ -98,7 +98,7 @@ test("Android report submitter rejects overlapping activation until the first re
   assert.equal((await first).kind, "success");
 });
 
-test("Android Community Multiplayer reporting exposes only the server safe message", async () => {
+test("mobile Community Multiplayer reporting exposes only the server safe message", async () => {
   globalThis.fetch = async () => Response.json({ ok: false, message: "You cannot report your own Multiplayer Side Quest.", providerDetail: "private" }, { status: 403 });
 
   await assert.rejects(
@@ -107,7 +107,7 @@ test("Android Community Multiplayer reporting exposes only the server safe messa
   );
 });
 
-test("Android Community Multiplayer reporting hides unexpected upstream details", async () => {
+test("mobile Community Multiplayer reporting hides unexpected upstream details", async () => {
   globalThis.fetch = async () => Response.json({ ok: false, message: "private provider detail" }, { status: 503 });
   await assert.rejects(
     submitMobileCommunityMultiplayerReport({ sessionToken: "session-token", targetId: "community/table", reason: "misleading rules" }),
