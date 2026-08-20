@@ -87,6 +87,12 @@ test("Android signing stays fail-closed for direct and umbrella artifact tasks w
 });
 
 test("CI uses a pnpm release whose audit client supports the registry bulk advisory endpoint", () => {
+  const rootPackage = JSON.parse(readRepoFile("package.json"));
+  const vercelConfig = JSON.parse(readRepoFile("vercel.json"));
+
+  assert.equal(rootPackage.packageManager, "pnpm@11.12.0");
+  assert.equal(vercelConfig.installCommand, "corepack pnpm@11.12.0 install --frozen-lockfile");
+
   for (const workflow of [".github/workflows/ci.yml", ".github/workflows/mobile-release-gate.yml"]) {
     const source = readRepoFile(workflow);
     const pinnedVersions = [...source.matchAll(/version:\s*(\d+\.\d+\.\d+)/g)].map((match) => match[1]);
