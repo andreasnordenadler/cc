@@ -133,7 +133,7 @@ test("age, privacy, review, screenshot, and access drafts retain their release c
     /user-generated content \*\*Yes\*\*/,
     /social media \*\*Yes\*\*/,
     /messaging\/chat \*\*Yes\*\*/,
-    /contests \*\*Yes\*\*/,
+    /contests \*\*Frequent\*\*/,
     /unrestricted web access \*\*No\*\*/,
     /gambling\/simulated gambling\/real-money gaming \*\*No\*\*/,
   ]) {
@@ -147,12 +147,19 @@ test("age, privacy, review, screenshot, and access drafts retain their release c
     "User Content / Customer Support",
     "User Content / Gameplay Content",
     "User Content / Other User Content",
+    "Usage Data / Product Interaction",
     "Diagnostics / Other Diagnostic Data",
   ]) {
     assert.ok(privacy.includes(`| ${privacyType} | App Functionality |`), `missing privacy row: ${privacyType}`);
   }
   assert.match(privacy, /Tracking: \*\*No\*\*, provided binary and provider review confirms/);
   assert.match(privacy, /platform and OS version/);
+  assert.match(privacy, /Mobile-origin Product Interaction is collected for App Functionality/);
+  assert.match(privacy, /Do not add Analytics as a purpose unless Crowdler verifies/);
+  assert.match(privacy, /Before adoption, obtain a dated Clerk\/Vercel\/hosting inventory for retained IP addresses, user agents, session\/device identifiers, retention, linkage, and purpose/);
+  assert.match(ageRating, /This is not a promise of a uniform worldwide storefront rating/);
+  assert.match(ageRating, /AU 16\+, VN 16\+, and KR 15\+/);
+  assert.match(ageRating, /Re-evaluate the exact frequency against the frozen candidate and live questionnaire before adoption/);
 
   assert.match(review, /blocked until Android is public/i);
   assert.match(review, /disposable primary, secondary, and deletion-only review accounts/);
