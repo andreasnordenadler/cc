@@ -1573,6 +1573,24 @@ test("desktop Account keeps overview work separate from the dedicated profile wo
   );
 });
 
+test("desktop Settings separates profile identity from proof accounts without duplicating the mobile form", () => {
+  const css = readFileSync("src/app/mobile-web.css", "utf8");
+  const route = readFileSync("src/app/settings/page.tsx", "utf8");
+  const desktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1180px)"));
+
+  assert.equal(route.match(/<form action=\{saveRunnerProfile\}/g)?.length, 1, "all account fields keep one authenticated mutation subtree");
+  assert.match(route, /className="sqc-settings-field-group sqc-settings-identity-group"/);
+  assert.match(route, /className="sqc-settings-field-group sqc-settings-proof-group"/);
+  assert.match(route, /<h2[^>]*>Public profile<\/h2>/);
+  assert.match(route, /<h2[^>]*>Proof accounts<\/h2>/);
+  assert.match(css, /\.sqc-settings-field-group\s*\{[^}]*display:\s*contents;/, "mobile retains the Android field order without nested card styling");
+  assert.match(css, /\.sqc-settings-group-heading\s*\{[^}]*display:\s*none;/, "desktop-only wayfinding stays out of the mobile composition");
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-settings\s+\.sqc-settings-profile-panel\s+\.sqc-input-stack\s*\{[^}]*grid-template-columns:\s*170px\s+minmax\(0,\s*1fr\);/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-settings\s+\.sqc-settings-field-group\s*\{[^}]*grid-column:\s*1\s*\/\s*-1;[^}]*display:\s*grid;[^}]*grid-template-columns:\s*170px\s+minmax\(0,\s*1fr\);/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-settings\s+\.sqc-settings-group-fields\s*\{[^}]*grid-template-columns:\s*repeat\(2,\s*minmax\(0,\s*1fr\)\);/);
+  assert.equal(css.replace(desktopMedia, "").includes(".sqc-mobile-web.desktop-settings .sqc-settings-field-group"), false, "desktop form composition cannot leak below 1180px");
+});
+
 test("signed-in desktop Account marks its sole persistent account action as current", () => {
   const html = renderToStaticMarkup(
     createElement(
