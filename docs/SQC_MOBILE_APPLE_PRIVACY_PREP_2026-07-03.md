@@ -1,5 +1,7 @@
 # SQC Mobile Apple and privacy prep - 2026-07-03
 
+> **Historical evidence cutoff (2026-07-03).** Candidate versions, account ownership, readiness claims, and owner actions below are superseded by `SIDE_QUEST_CHESS_IOS_RELEASE_PACKET_2026-08-13.md`. Do not use this file to authorize Apple access, credentials, builds, App Store Connect changes, or submission.
+
 ## Action taken
 
 - Added a dedicated web Privacy Policy route at `/privacy`.

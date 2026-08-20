@@ -56,7 +56,7 @@ test("Android creator reporting sends only immutable evidence fields with bearer
   const sentRequest = sent as unknown as Request;
   assert.equal(new URL(sentRequest.url).pathname, "/api/reports/creators");
   assert.equal(sentRequest.headers.get("authorization"), "Bearer session-token");
-  assert.equal(sentRequest.headers.get("x-side-quest-chess-client"), "android");
+  assert.equal(sentRequest.headers.get("x-side-quest-chess-client"), "mobile");
   assert.deepEqual(await sentRequest.json(), { targetType: "community-multiplayer", targetId: "community/table", reason: "repeated abusive behavior" });
   assert.equal(result.reportId, "creator-report-1");
 });

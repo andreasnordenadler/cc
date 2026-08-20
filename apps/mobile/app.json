@@ -14,7 +14,17 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.sidequestchess.app"
+      "bundleIdentifier": "com.sidequestchess.app",
+      "buildNumber": "1",
+      "usesAppleSignIn": true,
+      "config": {
+        "usesNonExemptEncryption": false
+      },
+      "infoPlist": {
+        "NSAppTransportSecurity": {
+          "NSAllowsArbitraryLoads": false
+        }
+      }
     },
     "android": {
       "package": "com.sidequestchess.app",
@@ -35,6 +45,9 @@
         "backgroundColor": "#9ED8FF"
       }
     },
+    "plugins": [
+      "expo-apple-authentication"
+    ],
     "extra": {
       "apiBaseUrl": "https://sidequestchess.com",
       "eas": {

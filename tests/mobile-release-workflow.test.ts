@@ -40,7 +40,7 @@ test("mobile release dependencies resolve newly disclosed uuid and tar vulnerabi
   assert.deepEqual(resolvedVersions("tar"), ["7.5.21"]);
   assert.match(snapshotFor(/^  jayson@[^\n]*:\n/m), /^      uuid: 11\.1\.1$/m);
   assert.match(snapshotFor(/^  xcode@3\.0\.1:\n/m), /^      uuid: 11\.1\.1$/m);
-  assert.match(snapshotFor(/^  '@expo\/cli@54\.0\.26[^\n]*':\n/m), /^      tar: 7\.5\.21$/m);
+  assert.match(snapshotFor(/^  '@expo\/cli@54\.0\.27[^\n]*':\n/m), /^      tar: 7\.5\.21$/m);
 });
 
 test("mobile release audit patches available fixes and narrowly accepts only Metro image parser advisories", () => {
@@ -50,10 +50,10 @@ test("mobile release audit patches available fixes and narrowly accepts only Met
 
   assert.match(workspace, /^  js-yaml@>=3\.0\.0 <3\.15\.1: "3\.15\.1"$/m);
   assert.match(workspace, /^  js-yaml@>=4\.0\.0 <4\.3\.1: "4\.3\.1"$/m);
-  assert.match(workspace, /^  nanoid@<3\.3\.17: "3\.3\.17"$/m);
+  assert.match(workspace, /^  nanoid@<3\.3\.18: "3\.3\.18"$/m);
   assert.match(lockfile, /^  js-yaml@3\.15\.1:$/m);
   assert.match(lockfile, /^  js-yaml@4\.3\.1:$/m);
-  assert.match(lockfile, /^  nanoid@3\.3\.17:$/m);
+  assert.match(lockfile, /^  nanoid@3\.3\.18:$/m);
 
   assert.match(releaseScript, /run\("node", \["scripts\/check-production-audit\.mjs"\]\)/);
   assert.doesNotMatch(releaseScript, /pnpm[^\n]+audit/);
@@ -87,6 +87,12 @@ test("Android signing stays fail-closed for direct and umbrella artifact tasks w
 });
 
 test("CI uses a pnpm release whose audit client supports the registry bulk advisory endpoint", () => {
+  const rootPackage = JSON.parse(readRepoFile("package.json"));
+  const vercelConfig = JSON.parse(readRepoFile("vercel.json"));
+
+  assert.equal(rootPackage.packageManager, "pnpm@11.12.0");
+  assert.equal(vercelConfig.installCommand, "corepack pnpm@11.12.0 install --frozen-lockfile");
+
   for (const workflow of [".github/workflows/ci.yml", ".github/workflows/mobile-release-gate.yml"]) {
     const source = readRepoFile(workflow);
     const pinnedVersions = [...source.matchAll(/version:\s*(\d+\.\d+\.\d+)/g)].map((match) => match[1]);
@@ -103,7 +109,7 @@ test("CI uses a pnpm release whose audit client supports the registry bulk advis
 test("pnpm 11 keeps the release-age guard except for the reviewed Expo patch set", () => {
   const source = readRepoFile("pnpm-workspace.yaml");
   const reviewedExpoPatchSet = [
-    "@expo/cli@54.0.26",
+    "@expo/cli@54.0.27",
     "@expo/config-plugins@54.0.5",
     "@expo/config@12.0.14",
     "@expo/env@2.0.12",
@@ -111,7 +117,10 @@ test("pnpm 11 keeps the release-age guard except for the reviewed Expo patch set
     "@expo/prebuild-config@54.0.9",
     "@expo/schema-utils@0.1.9",
     "babel-preset-expo@54.0.12",
-    "expo@54.0.36",
+    "expo@54.0.37",
+    "expo-constants@18.0.14",
+    "expo-file-system@19.0.24",
+    "expo-modules-autolinking@3.0.27",
   ];
 
   assert.doesNotMatch(source, /minimumReleaseAge:\s*0/);
@@ -187,4 +196,51 @@ test("Android release blocks permissions that the product does not use", () => {
     "android.permission.USE_FINGERPRINT",
     "com.google.android.finsky.permission.BIND_GET_INSTALL_REFERRER_SERVICE",
   ]);
+});
+
+test("iOS release identity, callback, and export-compliance declarations stay aligned", () => {
+  const config = JSON.parse(readRepoFile("apps/mobile/app.json")).expo;
+  const appSource = readRepoFile("apps/mobile/App.tsx");
+
+  assert.equal(config.name, "Side Quest Chess");
+  assert.equal(config.scheme, "sidequestchess");
+  assert.equal(config.ios.bundleIdentifier, "com.sidequestchess.app");
+  assert.equal(config.ios.buildNumber, "1");
+  assert.equal(config.ios.supportsTablet, true);
+  assert.equal(config.ios.config.usesNonExemptEncryption, false);
+  assert.equal(config.ios.infoPlist.NSAppTransportSecurity.NSAllowsArbitraryLoads, false);
+  assert.match(appSource, /native:\s*["']sidequestchess:\/\/sso-callback["']/);
+});
+
+test("iOS production builds preserve the source-controlled build identity", () => {
+  const rootConfig = JSON.parse(readRepoFile("eas.json"));
+  const mobileConfig = JSON.parse(readRepoFile("apps/mobile/eas.json"));
+  assert.deepEqual(rootConfig, mobileConfig, "duplicate EAS entry points must remain byte-semantically equivalent");
+
+  for (const [path, config] of [["eas.json", rootConfig], ["apps/mobile/eas.json", mobileConfig]] as const) {
+    const profile = config.build["ios-production"];
+
+    assert.equal(config.cli.appVersionSource, "local", `${path} must read the iOS version from source`);
+    assert.equal(profile.extends, "production", `${path} must inherit the reviewed production environment`);
+    assert.equal(profile.autoIncrement, false, `${path} must not silently change the frozen iOS build number`);
+  }
+});
+
+test("iOS release does not declare unused sensitive permissions", () => {
+  const config = JSON.parse(readRepoFile("apps/mobile/app.json")).expo;
+  const infoPlist = config.ios.infoPlist ?? {};
+  const sensitiveUsageDescriptions = [
+    "NSCameraUsageDescription",
+    "NSContactsUsageDescription",
+    "NSFaceIDUsageDescription",
+    "NSLocationAlwaysAndWhenInUseUsageDescription",
+    "NSLocationWhenInUseUsageDescription",
+    "NSMicrophoneUsageDescription",
+    "NSPhotoLibraryAddUsageDescription",
+    "NSPhotoLibraryUsageDescription",
+  ];
+
+  for (const key of sensitiveUsageDescriptions) {
+    assert.equal(infoPlist[key], undefined, `${key} requires product and privacy review before release`);
+  }
 });

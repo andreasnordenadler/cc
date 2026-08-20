@@ -2,12 +2,14 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { readFile } from "node:fs/promises";
 
-test("privacy launch draft describes the implemented web and Android account deletion controls", async () => {
+test("privacy policy describes implemented web and mobile account deletion controls", async () => {
   const source = await readFile(new URL("../src/app/privacy/page.tsx", import.meta.url), "utf8");
 
   assert.doesNotMatch(source, /does not yet expose self-service account deletion/i);
   assert.match(source, /permanently delete their Side Quest Chess account from My Account on the website or mobile app/i);
-  assert.match(source, /removes the Clerk sign-in and account-attached profile and progress data/i);
+  assert.match(source, /removes the Clerk sign-in and account-attached profile, saved progress and proof receipts, custom Side Quests, report, and block data/i);
+  assert.match(source, /Public proof links already shared use self-contained signed data and may remain accessible after account deletion/i);
+  assert.match(source, /report and block records are not retained in an independent moderation system/i);
   assert.match(source, /cleans hosted and participant references from replicated Multiplayer records/i);
   assert.match(source, /If that cleanup cannot finish, Side Quest Chess reports an error instead of deleting the sign-in identity/i);
   assert.match(source, /while keeping the account, account settings require at least one public chess username to remain/i);

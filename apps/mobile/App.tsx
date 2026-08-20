@@ -1,12 +1,13 @@
 /* eslint-disable jsx-a11y/alt-text, @typescript-eslint/no-unused-vars, @typescript-eslint/no-require-imports */
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { ClerkProvider, useAuth, useClerk, useSSO, useSignIn, useSignUp, useUser } from "@clerk/clerk-expo";
+import { ClerkProvider, useAuth, useClerk, useSignInWithApple, useSSO, useSignIn, useSignUp, useUser } from "@clerk/clerk-expo";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import DateTimePicker, { type DateTimePickerEvent } from "@react-native-community/datetimepicker";
 import * as AuthSession from "expo-auth-session";
 import * as WebBrowser from "expo-web-browser";
 import * as Clipboard from "expo-clipboard";
 import * as Application from "expo-application";
+import * as AppleAuthentication from "expo-apple-authentication";
 import { LinearGradient } from "expo-linear-gradient";
 import {
   ActivityIndicator,
@@ -38,7 +39,8 @@ import {
   type TextStyle,
 } from "react-native";
 import { SafeAreaProvider, SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
-import { blockMobileCommunityCreator, buildMobileUrl, getApiBaseUrl, deleteMobileAccount, deleteMobileCustomSideQuest, fetchMobileAccountState, fetchMobileBootstrap, runMobileCommunityLikeAction, runMobileGroupQuestAction, runMobileQuestAction, saveMobileCustomSideQuest, submitMobileSupportMessage, updateMobileChessUsernames } from "./src/api/sqc";
+import { blockMobileCommunityCreator, buildMobileUrl, getApiBaseUrl, deleteMobileCustomSideQuest, fetchMobileAccountState, fetchMobileBootstrap, runMobileCommunityLikeAction, runMobileGroupQuestAction, runMobileQuestAction, saveMobileCustomSideQuest, submitMobileSupportMessage, updateMobileChessUsernames } from "./src/api/sqc";
+import { deleteMobileAccountAndEndSession } from "./src/account/deleteMobileAccount";
 import { findSignedOutPublicMultiplayerQuest, getSignedOutPublicMultiplayerCatalog } from "./src/multiplayer/publicCatalog";
 import { loadMobileAccount } from "./src/account/loadMobileAccount";
 import { clerkPublishableKey, clerkTokenCache, isClerkMobileAuthConfigured } from "./src/auth/clerk";
@@ -1070,6 +1072,7 @@ type MobileAuthBridge = {
   getSessionToken: () => Promise<string | null>;
   startGoogleSignIn?: () => Promise<void>;
   startFacebookSignIn?: () => Promise<void>;
+  startAppleSignIn?: () => Promise<void>;
   startPasswordSignIn?: (credentials: { identifier: string; password: string }) => Promise<void>;
   startPasswordSignUp?: (credentials: { identifier: string; password: string }) => Promise<PasswordSignUpResult>;
   attemptPasswordSignUpVerification?: (params: { code: string }) => Promise<void>;
@@ -1290,9 +1293,11 @@ function ClerkMobileShell() {
   const { getToken, isLoaded, isSignedIn } = useAuth();
   const { signOut } = useClerk();
   const { startSSOFlow } = useSSO();
+  const { startAppleAuthenticationFlow } = useSignInWithApple();
   const { signIn, setActive: setSignInActive, isLoaded: signInLoaded } = useSignIn();
   const { signUp, setActive: setSignUpActive, isLoaded: signUpLoaded } = useSignUp();
   const { user } = useUser();
+  const appleSignInInFlightRef = useRef(false);
   const signedInLabel = user?.fullName || user?.username || user?.primaryEmailAddress?.emailAddress || null;
 
   const startSocialSignIn = useCallback(async (strategy: "oauth_google" | "oauth_facebook", providerLabel: "Google" | "Facebook") => {
@@ -1314,14 +1319,40 @@ function ClerkMobileShell() {
         "Sign-in did not finish",
         `${providerLabel} returned to Side Quest Chess, but Clerk did not create a mobile session yet. Details: auth=${authResultType}, signIn=${signInStatus}, signUp=${signUpStatus}.`,
       );
-    } catch (caught) {
-      const message = caught instanceof Error ? caught.message : "Unknown mobile sign-in error.";
-      Alert.alert("Sign-in error", message);
+    } catch {
+      Alert.alert(
+        "Sign-in error",
+        `${providerLabel} sign-in could not be completed. Please try again. If the problem continues, contact Side Quest Chess support.`,
+      );
     }
   }, [startSSOFlow]);
 
   const startGoogleSignIn = useCallback(() => startSocialSignIn("oauth_google", "Google"), [startSocialSignIn]);
   const startFacebookSignIn = useCallback(() => startSocialSignIn("oauth_facebook", "Facebook"), [startSocialSignIn]);
+  const startAppleSignIn = useCallback(async () => {
+    if (!signInLoaded || !signUpLoaded) {
+      Alert.alert("Sign-in is loading", "Apple sign-in is still getting ready. Try again in a moment.");
+      return;
+    }
+    if (appleSignInInFlightRef.current) return;
+    appleSignInInFlightRef.current = true;
+    try {
+      const result = await startAppleAuthenticationFlow();
+      if (result.createdSessionId && result.setActive) {
+        await result.setActive({ session: result.createdSessionId });
+        return;
+      }
+    } catch (caught) {
+      const code = typeof caught === "object" && caught !== null && "code" in caught ? String(caught.code) : "";
+      if (code === "ERR_REQUEST_CANCELED") return;
+      Alert.alert(
+        "Sign-in error",
+        "Apple sign-in could not be completed. Please try again. If the problem continues, contact Side Quest Chess support.",
+      );
+    } finally {
+      appleSignInInFlightRef.current = false;
+    }
+  }, [signInLoaded, signUpLoaded, startAppleAuthenticationFlow]);
 
   const startPasswordSignIn = useCallback(async ({ identifier, password }: { identifier: string; password: string }) => {
     if (!signInLoaded) throw new Error("Sign-in is still loading. Try again in a moment.");
@@ -1386,13 +1417,14 @@ function ClerkMobileShell() {
       getSessionToken: async () => getToken(),
       startGoogleSignIn,
       startFacebookSignIn,
+      startAppleSignIn: Platform.OS === "ios" ? startAppleSignIn : undefined,
       startPasswordSignIn,
       startPasswordSignUp,
       attemptPasswordSignUpVerification,
       signOut,
       signedInLabel,
     }),
-    [attemptPasswordSignUpVerification, getToken, isLoaded, isSignedIn, signOut, signedInLabel, startFacebookSignIn, startGoogleSignIn, startPasswordSignIn, startPasswordSignUp],
+    [attemptPasswordSignUpVerification, getToken, isLoaded, isSignedIn, signOut, signedInLabel, startAppleSignIn, startFacebookSignIn, startGoogleSignIn, startPasswordSignIn, startPasswordSignUp],
   );
 
   return <MobileShell authBridge={authBridge} />;
@@ -1471,6 +1503,10 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
     applyFallback: () => setShell((current) => ({ ...current, account: current.account ?? MOBILE_ACCOUNT_FALLBACK })),
     fallbackAccount: MOBILE_ACCOUNT_FALLBACK,
   }), [authBridge.getSessionToken, authBridge.isLoaded, authBridge.isSignedIn]);
+
+  const clearDeletedAccount = useCallback(() => {
+    setShell((current) => ({ ...current, account: MOBILE_ACCOUNT_FALLBACK }));
+  }, []);
 
   const refreshBoardAndAccount = useCallback(async () => {
     await Promise.all([loadBootstrap({ refresh: true }), loadAccount()]);
@@ -1657,6 +1693,7 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
                 setPendingMultiplayerCreateQuestId(null);
               }}
               onAccountUpdated={loadAccount}
+              onAccountDeleted={clearDeletedAccount}
               onScrollToY={(y, animated = true) => scrollViewRef.current?.scrollTo({ y, animated })}
             />
           </>
@@ -3512,27 +3549,30 @@ function AccountHelpSupportSection({ onOpenHelp }: { onOpenHelp: () => void }) {
 
 const MOBILE_SUPPORT_NOTE_MAX_LENGTH = 900;
 const MOBILE_RELEASE_BASE_URL = "https://github.com/andreasnordenadler/cc/releases/tag";
-const MOBILE_APP_CONFIG = require("./app.json") as { expo?: { version?: string; android?: { package?: string; versionCode?: number } } };
+const MOBILE_APP_CONFIG = require("./app.json") as { expo?: { version?: string; android?: { package?: string; versionCode?: number }; ios?: { bundleIdentifier?: string } } };
 
 function getMobileCandidateIdentity() {
   const appVersion = Application.nativeApplicationVersion ?? MOBILE_APP_CONFIG.expo?.version ?? "unknown";
-  const androidPackage = Application.applicationId ?? MOBILE_APP_CONFIG.expo?.android?.package ?? "unknown";
-  const nativeBuildVersion = Application.nativeBuildVersion ? Number(Application.nativeBuildVersion) : undefined;
-  const androidVersionCode = Number.isFinite(nativeBuildVersion) ? nativeBuildVersion : MOBILE_APP_CONFIG.expo?.android?.versionCode;
-  const releaseCandidate = androidVersionCode ? `mobile-v${androidVersionCode}` : "unknown";
-  const releaseUrl = androidVersionCode ? `${MOBILE_RELEASE_BASE_URL}/${releaseCandidate}` : null;
+  const packageId = Application.applicationId
+    ?? (Platform.OS === "ios" ? MOBILE_APP_CONFIG.expo?.ios?.bundleIdentifier : MOBILE_APP_CONFIG.expo?.android?.package)
+    ?? "unknown";
+  const nativeBuildVersion = Application.nativeBuildVersion ?? (Platform.OS === "android" ? String(MOBILE_APP_CONFIG.expo?.android?.versionCode ?? "") : "");
+  const buildVersion = nativeBuildVersion || "unknown";
+  const androidVersionCode = Platform.OS === "android" ? Number(buildVersion) : undefined;
+  const releaseCandidate = Number.isFinite(androidVersionCode) ? `mobile-v${androidVersionCode}` : `${Platform.OS}-${appVersion}-${buildVersion}`;
+  const releaseUrl = Number.isFinite(androidVersionCode) ? `${MOBILE_RELEASE_BASE_URL}/${releaseCandidate}` : null;
 
-  return { appVersion, androidPackage, androidVersionCode, releaseCandidate, releaseUrl };
+  return { appVersion, buildVersion, packageId, releaseCandidate, releaseUrl };
 }
 
 function buildMobileSupportDiagnostics(signedIn: MobileAccountState | null) {
-  const { appVersion, androidPackage, androidVersionCode, releaseCandidate, releaseUrl } = getMobileCandidateIdentity();
+  const { appVersion, buildVersion, packageId, releaseCandidate, releaseUrl } = getMobileCandidateIdentity();
 
   return [
     "Side Quest Chess mobile diagnostics",
-    `App version: ${appVersion}${androidVersionCode ? ` (${androidVersionCode})` : ""}`,
-    `Package ID: ${androidPackage}`,
-    `Release candidate: ${releaseCandidate} GitHub Release APK`,
+    `App version: ${appVersion} (${buildVersion})`,
+    `Package ID: ${packageId}`,
+    `Release candidate: ${releaseCandidate}`,
     `Release URL: ${releaseUrl ?? "unknown"}`,
     `Platform: ${Platform.OS} ${Platform.Version}`,
     `API base: ${getApiBaseUrl()}`,
@@ -3640,7 +3680,7 @@ function HelpSupportModal({ visible, onClose, signedIn, authBridge, initialMessa
             {diagnosticsOpen ? (
               <View style={compactStyles.diagnosticsBody}>
                 <Text style={compactStyles.detailPanelTitle}>{candidateIdentity.releaseCandidate}</Text>
-                <Text style={compactStyles.detailPanelCopy}>App version {candidateIdentity.appVersion}{candidateIdentity.androidVersionCode ? ` (${candidateIdentity.androidVersionCode})` : ""}. Package {candidateIdentity.androidPackage}.</Text>
+                <Text style={compactStyles.detailPanelCopy}>App version {candidateIdentity.appVersion} ({candidateIdentity.buildVersion}). Package {candidateIdentity.packageId}.</Text>
                 {candidateIdentity.releaseUrl ? <Text style={compactStyles.detailPanelCopy}>{candidateIdentity.releaseUrl}</Text> : null}
               </View>
             ) : null}
@@ -5943,7 +5983,19 @@ function SocialSignInButtonContent({ provider, label, textStyle }: { provider: "
   );
 }
 
-function AccountTrackerDashboard({ bootstrap, account, authBridge, onSelectTab, onSelectChallenge, onOpenCompletedQuestDetail, onAccountUpdated, onScrollToY }: { bootstrap: MobileBootstrap; account: MobileAccountResponse | null; authBridge: MobileAuthBridge; onSelectTab: (tab: AppTab) => void; onSelectChallenge: (challengeId: string, nextTab?: AppTab) => void; onOpenChallengeDetail: (challengeId: string) => void; onOpenCompletedQuestDetail: (challengeId: string) => void; onAccountUpdated: AccountUpdatedCallback; onScrollToY: (y: number, animated?: boolean) => void }) {
+function NativeAppleSignInButton({ onPress }: { onPress: () => Promise<void> }) {
+  return (
+    <AppleAuthentication.AppleAuthenticationButton
+      buttonType={AppleAuthentication.AppleAuthenticationButtonType.SIGN_IN}
+      buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.WHITE_OUTLINE}
+      cornerRadius={24}
+      style={styles.appleAuthenticationButton}
+      onPress={() => void onPress()}
+    />
+  );
+}
+
+function AccountTrackerDashboard({ bootstrap, account, authBridge, onSelectTab, onSelectChallenge, onOpenCompletedQuestDetail, onAccountUpdated, onAccountDeleted, onScrollToY }: { bootstrap: MobileBootstrap; account: MobileAccountResponse | null; authBridge: MobileAuthBridge; onSelectTab: (tab: AppTab) => void; onSelectChallenge: (challengeId: string, nextTab?: AppTab) => void; onOpenChallengeDetail: (challengeId: string) => void; onOpenCompletedQuestDetail: (challengeId: string) => void; onAccountUpdated: AccountUpdatedCallback; onAccountDeleted: () => void; onScrollToY: (y: number, animated?: boolean) => void }) {
   const signedIn = isAuthenticatedAccount(account) ? account : null;
   const [helpOpen, setHelpOpen] = useState(false);
   const [usernameEditorY, setUsernameEditorY] = useState(0);
@@ -5960,9 +6012,12 @@ function AccountTrackerDashboard({ bootstrap, account, authBridge, onSelectTab, 
           </View>
           <Text style={compactStyles.heroTitle}>Sign in to sync your board.</Text>
           <Text style={compactStyles.heroCopy}>Sign in to save Side Quest progress, latest proof, Coat of Arms unlocks, and connected chess usernames.</Text>
-          <Pressable accessibilityRole="button" accessibilityLabel="Continue with Google" style={styles.secondaryButtonWide} onPress={() => authBridge.startGoogleSignIn ? void authBridge.startGoogleSignIn() : showNativeOnlyNotice("Sign-in is unavailable right now.")}>
-            <SocialSignInButtonContent provider="google" label="Continue with Google" textStyle={styles.secondaryButtonText} />
-          </Pressable>
+          {authBridge.startAppleSignIn ? <NativeAppleSignInButton onPress={authBridge.startAppleSignIn} /> : null}
+          {authBridge.startGoogleSignIn ? (
+            <Pressable accessibilityRole="button" accessibilityLabel="Continue with Google" style={styles.secondaryButtonWide} onPress={() => void authBridge.startGoogleSignIn?.()}>
+              <SocialSignInButtonContent provider="google" label="Continue with Google" textStyle={styles.secondaryButtonText} />
+            </Pressable>
+          ) : null}
           {authBridge.startFacebookSignIn ? (
             <Pressable accessibilityRole="button" accessibilityLabel="Continue with Facebook" style={styles.secondaryButtonWide} onPress={() => void authBridge.startFacebookSignIn?.()}>
               <SocialSignInButtonContent provider="facebook" label="Continue with Facebook" textStyle={styles.secondaryButtonText} />
@@ -5999,12 +6054,20 @@ function AccountTrackerDashboard({ bootstrap, account, authBridge, onSelectTab, 
     if (deleteConfirmation !== "DELETE MY ACCOUNT" || deletingAccount) return;
     setDeletingAccount(true);
     try {
-      const sessionToken = await authBridge.getSessionToken();
-      await deleteMobileAccount({ sessionToken, confirmation: deleteConfirmation });
-      await authBridge.signOut?.();
+      const { sessionEnded } = await deleteMobileAccountAndEndSession({
+        confirmation: deleteConfirmation,
+        getSessionToken: authBridge.getSessionToken,
+        signOut: authBridge.signOut,
+      });
       setDeleteConfirmation("");
       setShowDeleteAccount(false);
-      Alert.alert("Account deleted", "Your Side Quest Chess account and saved data were permanently deleted.");
+      onAccountDeleted();
+      Alert.alert(
+        "Account deleted",
+        sessionEnded
+          ? "Your Side Quest Chess account and saved data were permanently deleted."
+          : "Your Side Quest Chess account and saved data were permanently deleted. Close and reopen the app to clear the expired sign-in session.",
+      );
       onSelectTab("home");
     } catch (caught) {
       Alert.alert("Account not deleted", caught instanceof Error ? caught.message : "Please try again.");
@@ -6051,7 +6114,7 @@ function AccountTrackerDashboard({ bootstrap, account, authBridge, onSelectTab, 
       <HelpSupportModal visible={helpOpen} onClose={() => setHelpOpen(false)} signedIn={accountState} authBridge={authBridge} />
       <View style={compactStyles.heroPanel}>
         <Text style={compactStyles.kicker}>Danger zone</Text>
-        <Text style={compactStyles.heroCopy}>Permanently delete your Side Quest Chess account, profile, progress, proofs, and Clerk sign-in. This cannot be undone.</Text>
+        <Text style={compactStyles.heroCopy}>Permanently delete your Side Quest Chess account, profile, saved progress and proof receipts, custom Side Quests, reports, blocks, and Clerk sign-in. Public proof links you already shared may remain accessible. This cannot be undone.</Text>
         {showDeleteAccount ? (
           <View style={styles.inputStack}>
             <Text style={styles.inputLabel}>Type DELETE MY ACCOUNT to confirm</Text>
@@ -6533,6 +6596,7 @@ function ActiveScreen({
   pendingMultiplayerCreateQuestId,
   onConsumePendingMultiplayerCreate,
   onAccountUpdated,
+  onAccountDeleted,
   onScrollToY,
 }: {
   activeTab: AppTab;
@@ -6555,6 +6619,7 @@ function ActiveScreen({
   pendingMultiplayerCreateQuestId: string | null;
   onConsumePendingMultiplayerCreate: () => void;
   onAccountUpdated: AccountUpdatedCallback;
+  onAccountDeleted: () => void;
   onScrollToY: (y: number, animated?: boolean) => void;
 }) {
   switch (activeTab) {
@@ -6569,7 +6634,7 @@ function ActiveScreen({
     case "coatOfArms":
       return <CoatBoardDashboard bootstrap={bootstrap} account={account} onOpenChallengeDetail={onOpenChallengeDetail} onOpenCompletedQuestDetail={onOpenCompletedQuestDetail} onClose={() => onSelectTab("home")} />;
     case "account":
-      return <AccountTrackerDashboard bootstrap={bootstrap} account={account} authBridge={authBridge} onSelectTab={onSelectTab} onSelectChallenge={onSelectChallenge} onOpenChallengeDetail={onOpenChallengeDetail} onOpenCompletedQuestDetail={onOpenCompletedQuestDetail} onAccountUpdated={onAccountUpdated} onScrollToY={onScrollToY} />;
+      return <AccountTrackerDashboard bootstrap={bootstrap} account={account} authBridge={authBridge} onSelectTab={onSelectTab} onSelectChallenge={onSelectChallenge} onOpenChallengeDetail={onOpenChallengeDetail} onOpenCompletedQuestDetail={onOpenCompletedQuestDetail} onAccountUpdated={onAccountUpdated} onAccountDeleted={onAccountDeleted} onScrollToY={onScrollToY} />;
   }
 }
 
@@ -9331,17 +9396,6 @@ function AccountShell({
 }) {
   if (!isAuthenticatedAccount(account)) {
     const signedInButRejected = authBridge.isSignedIn && account?.authenticated === false;
-    const primaryLabel = signedInButRejected ? "Sync account" : "Continue with Google";
-    const handlePrimaryPress = () => {
-      if (signedInButRejected) {
-        return onAccountUpdated();
-      }
-
-      if (authBridge.startGoogleSignIn) {
-        return void authBridge.startGoogleSignIn();
-      }
-      return showNativeOnlyNotice("Sign-in is unavailable right now. Please try again in a moment.");
-    };
 
     return (
       <View style={styles.screenStack}>
@@ -9360,9 +9414,17 @@ function AccountShell({
           <Text style={styles.eyebrow}>Account</Text>
           <Text style={styles.cardTitle}>{signedInButRejected ? "Finish syncing your account." : "Choose how to sign in."}</Text>
           <Text style={styles.cardBody}>{signedInButRejected ? "Your sign-in is active, but Side Quest Chess needs to refresh your account before saving progress." : "Sign in to save progress, verify proof, manage Multiplayer Quests, and keep your Coat of Arms progress synced."}</Text>
-          <Pressable accessibilityRole="button" accessibilityLabel={primaryLabel} testID="account-primary-sign-in" style={signedInButRejected ? styles.primaryButtonWide : styles.secondaryButtonWide} onPress={handlePrimaryPress}>
-            {signedInButRejected ? <Text style={styles.primaryButtonText}>{primaryLabel}</Text> : <SocialSignInButtonContent provider="google" label={primaryLabel} textStyle={styles.secondaryButtonText} />}
-          </Pressable>
+          {signedInButRejected ? (
+            <Pressable accessibilityRole="button" accessibilityLabel="Sync account" testID="account-primary-sign-in" style={styles.primaryButtonWide} onPress={onAccountUpdated}>
+              <Text style={styles.primaryButtonText}>Sync account</Text>
+            </Pressable>
+          ) : null}
+          {!signedInButRejected && authBridge.startAppleSignIn ? <NativeAppleSignInButton onPress={authBridge.startAppleSignIn} /> : null}
+          {!signedInButRejected && authBridge.startGoogleSignIn ? (
+            <Pressable accessibilityRole="button" accessibilityLabel="Continue with Google" testID="account-primary-sign-in" style={styles.secondaryButtonWide} onPress={() => void authBridge.startGoogleSignIn?.()}>
+              <SocialSignInButtonContent provider="google" label="Continue with Google" textStyle={styles.secondaryButtonText} />
+            </Pressable>
+          ) : null}
           {!signedInButRejected && authBridge.startFacebookSignIn ? (
             <Pressable accessibilityRole="button" accessibilityLabel="Continue with Facebook" style={styles.secondaryButtonWide} onPress={() => void authBridge.startFacebookSignIn?.()}>
               <SocialSignInButtonContent provider="facebook" label="Continue with Facebook" textStyle={styles.secondaryButtonText} />
@@ -10330,7 +10392,7 @@ const compactStyles = StyleSheet.create({
   celebrationBadge: { color: colors.gold, fontSize: 13, lineHeight: 17, fontWeight: "900", textAlign: "center" },
   celebrationFlavor: { color: colors.paper, opacity: .84, fontSize: 13, lineHeight: 18, fontWeight: "700", textAlign: "center", paddingHorizontal: 6 },
   celebrationMeta: { color: colors.green, fontSize: 12, lineHeight: 16, fontWeight: "800", textAlign: "center" },
-  celebrationCloseButton: { position: "absolute", top: 12, right: 12, width: 34, height: 34, borderRadius: 17, alignItems: "center", justifyContent: "center", backgroundColor: "rgba(255,247,232,.10)" },
+  celebrationCloseButton: { position: "absolute", top: 12, right: 12, width: 44, height: 44, borderRadius: 22, alignItems: "center", justifyContent: "center", backgroundColor: "rgba(255,247,232,.10)" },
   stack: { gap: 8 },
   freshShell: { gap: 12 },
   freshHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 10, paddingHorizontal: 2, paddingTop: 0 },
@@ -10353,7 +10415,7 @@ const compactStyles = StyleSheet.create({
   accountDotText: { color: colors.gold, fontSize: 16, fontWeight: "900" },
   globalMenuLayer: { position: "absolute", left: 16, zIndex: 120, elevation: 24 },
   globalMenuButton: { shadowColor: "#000", shadowOpacity: .18, shadowRadius: 8, shadowOffset: { width: 0, height: 0 }, elevation: 4 },
-  homeMenuButton: { width: 40, height: 40, borderRadius: 20, alignItems: "center", justifyContent: "center", backgroundColor: "rgba(6,5,7,.58)", borderWidth: 1, borderColor: "rgba(255,247,232,.16)" },
+  homeMenuButton: { width: 44, height: 44, borderRadius: 22, alignItems: "center", justifyContent: "center", backgroundColor: "rgba(6,5,7,.58)", borderWidth: 1, borderColor: "rgba(255,247,232,.16)" },
   homeMenuButtonActive: { backgroundColor: "rgba(245,200,106,.18)", borderColor: "rgba(245,200,106,.28)" },
   homeMenuSpacer: { width: 40, height: 40 },
   homeMenuOverlay: { flex: 1, backgroundColor: "rgba(14,10,7,.018)", justifyContent: "flex-start", alignItems: "stretch", paddingTop: 112, paddingHorizontal: 18 },
@@ -10361,7 +10423,7 @@ const compactStyles = StyleSheet.create({
   homeMenuBackdrop: { ...StyleSheet.absoluteFillObject, zIndex: 0, elevation: 0 },
   homeMenuPanel: { alignSelf: "flex-start", width: 232, marginLeft: 2, gap: 2, paddingVertical: 4, paddingHorizontal: 4, borderRadius: 13, backgroundColor: "rgba(78,54,33,.93)", borderWidth: 1, borderColor: "rgba(245,200,106,.16)", shadowColor: "#000", shadowOpacity: .10, shadowRadius: 7, shadowOffset: { width: 0, height: 5 }, zIndex: 2, elevation: 8 },
   homeMenuItems: { gap: 2 },
-  homeMenuItem: { minHeight: 30, flexDirection: "row", alignItems: "center", gap: 7, paddingHorizontal: 9, paddingVertical: 5, borderRadius: 9, backgroundColor: "transparent" },
+  homeMenuItem: { minHeight: 44, flexDirection: "row", alignItems: "center", gap: 7, paddingHorizontal: 9, paddingVertical: 5, borderRadius: 9, backgroundColor: "transparent" },
   homeMenuItemActive: { backgroundColor: "rgba(245,200,106,.14)" },
   homeMenuItemText: { flex: 1, color: colors.paper, fontSize: 11.5, lineHeight: 15, fontWeight: "900" },
   readinessRow: { flexDirection: "row", gap: 8 },
@@ -10403,7 +10465,7 @@ const compactStyles = StyleSheet.create({
   emptyMultiplayerActions: { flexDirection: "row", flexWrap: "wrap", alignItems: "center", justifyContent: "center", gap: 8 },
   emptyMultiplayerCreateButton: { alignSelf: "center" },
   panelHeaderRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 10 },
-  headerIconButton: { width: 34, height: 34, borderRadius: 17, alignItems: "center", justifyContent: "center", backgroundColor: "rgba(245,200,106,.1)", borderWidth: 1, borderColor: "rgba(245,200,106,.24)" },
+  headerIconButton: { width: 44, height: 44, borderRadius: 22, alignItems: "center", justifyContent: "center", backgroundColor: "rgba(245,200,106,.1)", borderWidth: 1, borderColor: "rgba(245,200,106,.24)" },
   currentStatusRow: { flexDirection: "row", justifyContent: "flex-end" },
   freshSectionTitle: { color: colors.paper, fontSize: 15, fontWeight: "900", letterSpacing: -.15 },
   freshBody: { color: colors.muted, fontSize: 13, lineHeight: 18 },
@@ -10490,7 +10552,7 @@ const compactStyles = StyleSheet.create({
   appRowMeta: { color: colors.muted, fontSize: 12 },
   sourceBadge: { alignSelf: "flex-start", overflow: "hidden", color: colors.gold, fontSize: 9, lineHeight: 12, fontWeight: "900", textTransform: "uppercase", letterSpacing: .65, paddingHorizontal: 6, paddingVertical: 2, borderRadius: 999, backgroundColor: "rgba(245,200,106,.12)", borderWidth: 1, borderColor: "rgba(245,200,106,.22)" },
   communitySubTabs: { flexDirection: "row", gap: 8, padding: 4, borderRadius: 18, backgroundColor: "rgba(255,247,232,.055)", borderWidth: 1, borderColor: "rgba(255,247,232,.09)" },
-  communitySubTab: { flex: 1, alignItems: "center", justifyContent: "center", minHeight: 38, paddingHorizontal: 8, borderRadius: 14, borderWidth: 1, borderColor: "transparent" },
+  communitySubTab: { flex: 1, alignItems: "center", justifyContent: "center", minHeight: 44, paddingHorizontal: 8, borderRadius: 14, borderWidth: 1, borderColor: "transparent" },
   communitySubTabActive: { backgroundColor: "rgba(96,240,175,.16)", borderColor: "rgba(96,240,175,.3)" },
   communitySubTabText: { backgroundColor: "transparent", color: colors.paper, opacity: .74, fontSize: 12, lineHeight: 15, fontWeight: "900", textAlign: "center" },
   communitySubTabTextActive: { color: colors.green, opacity: 1 },
@@ -10498,7 +10560,7 @@ const compactStyles = StyleSheet.create({
   communitySearchBox: { minHeight: 44, flexDirection: "row", alignItems: "center", gap: 8, paddingHorizontal: 12, borderRadius: 16, backgroundColor: "rgba(0,0,0,.22)", borderWidth: 1, borderColor: "rgba(255,247,232,.12)" },
   communitySearchInput: { flex: 1, minWidth: 0, color: colors.paper, fontSize: 14, lineHeight: 18, fontWeight: "800", paddingVertical: Platform.OS === "ios" ? 10 : 6 },
   communityChipRow: { gap: 7, paddingRight: 4 },
-  communityChip: { paddingHorizontal: 11, paddingVertical: 7, borderRadius: 999, backgroundColor: "rgba(255,247,232,.055)", borderWidth: 1, borderColor: "rgba(255,247,232,.1)" },
+  communityChip: { minHeight: 44, justifyContent: "center", paddingHorizontal: 11, paddingVertical: 7, borderRadius: 999, backgroundColor: "rgba(255,247,232,.055)", borderWidth: 1, borderColor: "rgba(255,247,232,.1)" },
   communityChipActive: { backgroundColor: "rgba(96,240,175,.16)", borderColor: "rgba(96,240,175,.34)" },
   communityChipText: { color: "rgba(255,247,232,.68)", fontSize: 11, lineHeight: 14, fontWeight: "900" },
   communityChipTextActive: { color: colors.green },
@@ -10510,7 +10572,7 @@ const compactStyles = StyleSheet.create({
   communitySortButtonActive: { backgroundColor: "rgba(245,200,106,.14)", borderColor: "rgba(245,200,106,.28)" },
   communitySortText: { color: "rgba(255,247,232,.62)", fontSize: 10, lineHeight: 13, fontWeight: "900" },
   communitySortTextActive: { color: colors.gold },
-  communitySortCompact: { flexShrink: 0, paddingHorizontal: 10, paddingVertical: 7, borderRadius: 999, backgroundColor: "rgba(245,200,106,.12)", borderWidth: 1, borderColor: "rgba(245,200,106,.24)" },
+  communitySortCompact: { flexShrink: 0, minHeight: 44, justifyContent: "center", paddingHorizontal: 10, paddingVertical: 7, borderRadius: 999, backgroundColor: "rgba(245,200,106,.12)", borderWidth: 1, borderColor: "rgba(245,200,106,.24)" },
   communitySortCompactText: { color: colors.gold, fontSize: 11, lineHeight: 14, fontWeight: "900" },
   communityEmptyPanel: { gap: 5, padding: 12, borderRadius: 18, backgroundColor: "rgba(255,255,255,.055)", borderWidth: 1, borderColor: "rgba(255,255,255,.1)" },
   communityEmptyTitle: { color: colors.paper, fontSize: 14, lineHeight: 18, fontWeight: "900" },
@@ -10529,13 +10591,13 @@ const compactStyles = StyleSheet.create({
   helpSupportMessageMeta: { color: colors.gold, fontSize: 10, lineHeight: 13, fontWeight: "900", textTransform: "uppercase", letterSpacing: .5 },
   helpSupportBody: { color: colors.muted, fontSize: 12, lineHeight: 17, fontWeight: "700" },
   screenCloseRow: { minHeight: 40, flexDirection: "row", justifyContent: "flex-end", alignItems: "center", marginTop: -36, marginBottom: 14, zIndex: 20 },
-  fixedScreenCloseLayer: { position: "absolute", right: 16, width: 40, height: 40, zIndex: 160, elevation: 16 },
+  fixedScreenCloseLayer: { position: "absolute", right: 16, width: 44, height: 44, zIndex: 160, elevation: 16 },
   sideQuestListEmblemWrap: { alignItems: "center", justifyContent: "center", paddingTop: 0, paddingBottom: 2, overflow: "visible" },
   sideQuestListEmblemGlow: { position: "absolute", width: 142, height: 154, opacity: .9, transform: [{ translateY: 5 }] },
   sideQuestListEmblem: { width: 112, height: 124 },
   detailScreen: { flex: 1, backgroundColor: colors.bg },
   detailTopBar: { position: "absolute", top: 56, right: 16, zIndex: 50, minHeight: 40, paddingHorizontal: 0, paddingTop: 0, flexDirection: "row", justifyContent: "flex-end", alignItems: "center" },
-  detailCloseButton: { width: 40, height: 40, borderRadius: 20, alignItems: "center", justifyContent: "center", backgroundColor: "rgba(6,5,7,.72)", borderWidth: 1, borderColor: "rgba(255,247,232,.24)", shadowColor: "#000", shadowOpacity: .25, shadowRadius: 10, shadowOffset: { width: 0, height: 4 }, elevation: 6 },
+  detailCloseButton: { width: 44, height: 44, borderRadius: 22, alignItems: "center", justifyContent: "center", backgroundColor: "rgba(6,5,7,.72)", borderWidth: 1, borderColor: "rgba(255,247,232,.24)", shadowColor: "#000", shadowOpacity: .25, shadowRadius: 10, shadowOffset: { width: 0, height: 4 }, elevation: 6 },
   detailContent: { paddingTop: 72, paddingHorizontal: 16, paddingBottom: 104, gap: 8 },
   detailContentWithBottomSafe: { paddingBottom: 148 },
   detailContentWithCreateFooter: { paddingBottom: 208 },
@@ -10572,7 +10634,7 @@ const compactStyles = StyleSheet.create({
   createSelectionHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 10 },
   createSelectionHeaderCopy: { flex: 1, minWidth: 0, gap: 2 },
   createSelectionMeta: { color: colors.green, fontSize: 11, lineHeight: 14, fontWeight: "900", textTransform: "uppercase", letterSpacing: .7 },
-  createClearSelectionButton: { alignItems: "center", justifyContent: "center", minHeight: 32, paddingHorizontal: 10, borderRadius: 999, backgroundColor: "rgba(255,247,232,.08)", borderWidth: 1, borderColor: "rgba(255,247,232,.13)" },
+  createClearSelectionButton: { alignItems: "center", justifyContent: "center", minHeight: 44, paddingHorizontal: 10, borderRadius: 999, backgroundColor: "rgba(255,247,232,.08)", borderWidth: 1, borderColor: "rgba(255,247,232,.13)" },
   createClearSelectionText: { color: colors.paper, fontSize: 12, lineHeight: 15, fontWeight: "900" },
   createSelectedTray: { gap: 6, padding: 8, borderRadius: 17, backgroundColor: "rgba(0,0,0,.18)", borderWidth: 1, borderColor: "rgba(255,247,232,.1)" },
   createSelectedPill: { minHeight: 34, flexDirection: "row", alignItems: "center", gap: 7, paddingVertical: 6, paddingHorizontal: 9, borderRadius: 999, backgroundColor: "rgba(245,200,106,.12)", borderWidth: 1, borderColor: "rgba(245,200,106,.26)" },
@@ -10581,14 +10643,14 @@ const compactStyles = StyleSheet.create({
   createSelectedCopy: { flex: 1, minWidth: 0, gap: 1 },
   createSelectedTitle: { flex: 1, minWidth: 0, color: colors.paper, fontSize: 12, lineHeight: 15, fontWeight: "900" },
   createSelectedMeta: { color: colors.muted, fontSize: 10, lineHeight: 13, fontWeight: "900", textTransform: "uppercase", letterSpacing: .45 },
-  createSelectedRemoveIcon: { width: 26, height: 26, alignItems: "center", justifyContent: "center", borderRadius: 13, backgroundColor: "rgba(0,0,0,.18)" },
+  createSelectedRemoveIcon: { width: 44, height: 44, alignItems: "center", justifyContent: "center", borderRadius: 22, backgroundColor: "rgba(0,0,0,.18)" },
   createSelectionEmptyPanel: { gap: 3, alignItems: "center", paddingVertical: 5, paddingHorizontal: 8 },
   createSelectionEmptyTitle: { color: colors.paper, fontSize: 13, lineHeight: 17, fontWeight: "900", textAlign: "center" },
   createSelectionEmpty: { color: colors.muted, fontSize: 12, lineHeight: 16, fontWeight: "800", textAlign: "center" },
   createSearchShell: { minHeight: 44, flexDirection: "row", alignItems: "center", gap: 8, paddingHorizontal: 11, borderRadius: 16, backgroundColor: "rgba(0,0,0,.22)", borderWidth: 1, borderColor: "rgba(255,247,232,.13)" },
   createSearchInput: { flex: 1, minWidth: 0, color: colors.paper, fontSize: 14, lineHeight: 18, fontWeight: "800", paddingVertical: 9 },
   createFilterRow: { flexDirection: "row", gap: 7 },
-  createFilterChip: { flex: 1, minHeight: 34, alignItems: "center", justifyContent: "center", paddingHorizontal: 10, borderRadius: 999, borderWidth: 1, borderColor: "rgba(255,247,232,.11)", backgroundColor: "rgba(255,247,232,.055)" },
+  createFilterChip: { flex: 1, minHeight: 44, alignItems: "center", justifyContent: "center", paddingHorizontal: 10, borderRadius: 999, borderWidth: 1, borderColor: "rgba(255,247,232,.11)", backgroundColor: "rgba(255,247,232,.055)" },
   createFilterChipActive: { borderColor: "rgba(96,240,175,.36)", backgroundColor: "rgba(96,240,175,.14)" },
   createFilterChipText: { color: colors.muted, fontSize: 12, lineHeight: 15, fontWeight: "900" },
   createFilterChipTextActive: { color: colors.green },
@@ -10619,7 +10681,7 @@ const compactStyles = StyleSheet.create({
   conditionCompactTitle: { color: colors.paper, fontSize: 14, lineHeight: 18, fontWeight: "900" },
   conditionCompactMeta: { color: colors.muted, fontSize: 12, lineHeight: 16, fontWeight: "700" },
   conditionCompactActions: { flexDirection: "row", flexWrap: "wrap", alignItems: "center", justifyContent: "flex-start", gap: 6, marginLeft: 37 },
-  conditionCompactAction: { alignItems: "center", justifyContent: "center", minHeight: 32, paddingVertical: 6, paddingHorizontal: 10, borderRadius: 999, backgroundColor: "rgba(255,255,255,.07)", borderWidth: 1, borderColor: "rgba(255,255,255,.12)" },
+  conditionCompactAction: { alignItems: "center", justifyContent: "center", minHeight: 44, paddingVertical: 6, paddingHorizontal: 10, borderRadius: 999, backgroundColor: "rgba(255,255,255,.07)", borderWidth: 1, borderColor: "rgba(255,255,255,.12)" },
   conditionCompactActionText: { backgroundColor: "transparent", color: colors.paper, fontSize: 12, lineHeight: 15, fontWeight: "900" },
   multiplayerOptionCard: { flexDirection: "row", alignItems: "center", gap: 9, minHeight: 52, paddingVertical: 9, paddingHorizontal: 10, borderRadius: 16, borderWidth: 1, borderColor: "rgba(255,247,232,.13)", backgroundColor: "rgba(0,0,0,.16)" },
   multiplayerOptionCardSelected: { borderColor: "rgba(245,200,106,.48)", backgroundColor: "rgba(245,200,106,.13)" },
@@ -10961,8 +11023,8 @@ const styles = StyleSheet.create({
   groupquestsHeroHeaderRow: { flexDirection: "row", alignItems: "flex-start", justifyContent: "space-between", gap: 12 },
   groupquestsHeroTitle: { color: colors.paper, fontSize: 34, fontWeight: "900", letterSpacing: -1.7, lineHeight: 37 },
   groupquestsHeroTitleWithClose: { flex: 1 },
-  screenCloseButton: { width: 38, height: 38, borderRadius: 19, alignItems: "center", justifyContent: "center", borderWidth: 1, borderColor: "rgba(255,247,232,.16)", backgroundColor: "rgba(0,0,0,.26)" },
-  floatingScreenCloseButton: { position: "absolute", top: 54, right: 16, zIndex: 50, width: 38, height: 38, borderRadius: 19, alignItems: "center", justifyContent: "center", borderWidth: 1, borderColor: "rgba(255,247,232,.18)", backgroundColor: "rgba(10,8,10,.74)", shadowColor: "#000", shadowOpacity: 0.26, shadowRadius: 12, shadowOffset: { width: 0, height: 6 }, elevation: 8 },
+  screenCloseButton: { width: 44, height: 44, borderRadius: 22, alignItems: "center", justifyContent: "center", borderWidth: 1, borderColor: "rgba(255,247,232,.16)", backgroundColor: "rgba(0,0,0,.26)" },
+  floatingScreenCloseButton: { position: "absolute", top: 54, right: 16, zIndex: 50, width: 44, height: 44, borderRadius: 22, alignItems: "center", justifyContent: "center", borderWidth: 1, borderColor: "rgba(255,247,232,.18)", backgroundColor: "rgba(10,8,10,.74)", shadowColor: "#000", shadowOpacity: 0.26, shadowRadius: 12, shadowOffset: { width: 0, height: 6 }, elevation: 8 },
   groupquestsHeroCopy: { color: colors.muted, fontSize: 16, lineHeight: 24 },
   multiplayerLobbyHero: { alignItems: "center", gap: 4, marginHorizontal: -12, paddingHorizontal: 16, paddingTop: 0, paddingBottom: 4 },
   multiplayerLobbyHeroGraphic: { width: 172, height: 132 },
@@ -10972,7 +11034,7 @@ const styles = StyleSheet.create({
   multiplayerLobbyStatValue: { color: colors.paper, fontSize: 24, lineHeight: 27, fontWeight: "900", textAlign: "center" },
   multiplayerLobbyStatLabel: { color: colors.gold, fontSize: 11, lineHeight: 14, fontWeight: "900", textAlign: "center", textTransform: "uppercase", letterSpacing: .7 },
   multiplayerLobbyTabs: { flexDirection: "row", flexWrap: "wrap", gap: 7, padding: 6, borderRadius: 22, borderWidth: 1, borderColor: "rgba(255,247,232,.12)", backgroundColor: "rgba(0,0,0,.16)" },
-  multiplayerLobbyTab: { flexBasis: "48%", flexGrow: 1, minHeight: 39, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 6, paddingVertical: 9, paddingHorizontal: 10, borderRadius: 17, borderWidth: 1, borderColor: "rgba(255,247,232,.1)", backgroundColor: "rgba(255,247,232,.045)" },
+  multiplayerLobbyTab: { flexBasis: "48%", flexGrow: 1, minHeight: 44, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 6, paddingVertical: 9, paddingHorizontal: 10, borderRadius: 17, borderWidth: 1, borderColor: "rgba(255,247,232,.1)", backgroundColor: "rgba(255,247,232,.045)" },
   multiplayerLobbyTabActive: { borderColor: "rgba(96,240,175,.58)", backgroundColor: "rgba(96,240,175,.16)" },
   multiplayerLobbyTabText: { color: colors.muted, fontSize: 12, fontWeight: "900" },
   multiplayerLobbyTabTextActive: { color: colors.paper },
@@ -11010,7 +11072,7 @@ const styles = StyleSheet.create({
   browseRefineButtonText: { color: colors.paper, fontSize: 12, fontWeight: "900" },
   browseControlsPanel: { gap: 9, padding: 10, borderRadius: 20, borderWidth: 1, borderColor: "rgba(255,247,232,.12)", backgroundColor: "rgba(0,0,0,.16)" },
   browseFilterGrid: { flexDirection: "row", flexWrap: "wrap", gap: 7 },
-  browseFilterChip: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 6, minHeight: 38, paddingHorizontal: 11, paddingVertical: 9, borderRadius: 999, borderWidth: 1, borderColor: "rgba(255,247,232,.15)", backgroundColor: "rgba(0,0,0,.18)" },
+  browseFilterChip: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 6, minHeight: 44, paddingHorizontal: 11, paddingVertical: 9, borderRadius: 999, borderWidth: 1, borderColor: "rgba(255,247,232,.15)", backgroundColor: "rgba(0,0,0,.18)" },
   browseFilterChipWide: { flexBasis: "48%", flexGrow: 1 },
   browseSortChip: { flexBasis: "31%", flexGrow: 1 },
   browseFilterChipActive: { borderColor: "rgba(96,240,175,.72)", backgroundColor: "rgba(96,240,175,.16)" },
@@ -11120,6 +11182,7 @@ const styles = StyleSheet.create({
   disabledWideButton: { alignItems: "center", justifyContent: "center", paddingHorizontal: 14, paddingVertical: 12, borderRadius: 999, borderWidth: 1, borderColor: "rgba(255,247,232,.12)", backgroundColor: "rgba(255,247,232,.045)", opacity: 0.68 },
   disabledSecondaryButtonText: { color: "rgba(255,247,232,.62)", fontWeight: "900" },
   secondaryButtonText: { backgroundColor: "transparent", color: colors.paper, fontWeight: "900" },
+  appleAuthenticationButton: { width: "100%", height: 48 },
   socialButtonContent: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 9 },
   socialButtonIconBadge: { width: 26, height: 26, alignItems: "center", justifyContent: "center", borderRadius: 13, backgroundColor: "rgba(255,255,255,.94)" },
   quickStartCard: { gap: 13, padding: 16, borderRadius: 24, borderWidth: 1, borderColor: "rgba(245,200,106,.34)", backgroundColor: "rgba(255,247,232,.08)" },
@@ -11225,7 +11288,7 @@ const styles = StyleSheet.create({
   accountAuthFormCard: { gap: 8, marginHorizontal: -12, paddingHorizontal: 16, paddingVertical: 12, borderRadius: 0, borderTopWidth: 1, borderBottomWidth: 1, borderColor: "rgba(255,247,232,.13)", backgroundColor: "rgba(255,247,232,.055)" },
   passwordAuthPanel: { gap: 8, padding: 12, borderRadius: 22, borderWidth: 1, borderColor: "rgba(255,247,232,.12)", backgroundColor: "rgba(0,0,0,.16)" },
   passwordAuthModeRow: { flexDirection: "row", gap: 6, padding: 4, borderRadius: 999, borderWidth: 1, borderColor: "rgba(255,247,232,.12)", backgroundColor: "rgba(255,247,232,.045)" },
-  passwordAuthModeButton: { flex: 1, alignItems: "center", justifyContent: "center", minHeight: 34, paddingHorizontal: 10, borderRadius: 999 },
+  passwordAuthModeButton: { flex: 1, alignItems: "center", justifyContent: "center", minHeight: 44, paddingHorizontal: 10, borderRadius: 999 },
   passwordAuthModeButtonActive: { backgroundColor: colors.gold },
   passwordAuthModeText: { color: colors.muted, fontSize: 12, fontWeight: "900" },
   passwordAuthModeTextActive: { color: "#17120c" },
@@ -11323,7 +11386,7 @@ const styles = StyleSheet.create({
   dateTimeNativeValue: { color: colors.paper, fontSize: 16, fontWeight: "900", letterSpacing: -0.2 },
   dateTimeNativeHint: { color: colors.muted, fontSize: 12, lineHeight: 16, fontWeight: "700" },
   durationChipRow: { flexDirection: "row", flexWrap: "wrap", gap: 6, padding: 9, borderRadius: 16, borderWidth: 1, borderColor: "rgba(245,200,106,.22)", backgroundColor: "rgba(245,200,106,.075)" },
-  dateTimeChip: { alignItems: "center", justifyContent: "center", minHeight: 34, paddingHorizontal: 11, paddingVertical: 7, borderRadius: 999, borderWidth: 1, borderColor: "rgba(255,247,232,.16)", backgroundColor: "rgba(255,247,232,.08)" },
+  dateTimeChip: { alignItems: "center", justifyContent: "center", minHeight: 44, paddingHorizontal: 11, paddingVertical: 7, borderRadius: 999, borderWidth: 1, borderColor: "rgba(255,247,232,.16)", backgroundColor: "rgba(255,247,232,.08)" },
   dateTimeChipText: { color: colors.paper, fontSize: 12, fontWeight: "900" },
   successCopy: { color: colors.green, fontSize: 13, lineHeight: 18, fontWeight: "800" },
   momentumCard: { flexDirection: "row", alignItems: "center", gap: 12, padding: 14, borderRadius: 20, backgroundColor: "rgba(245,200,106,.08)", borderWidth: 1, borderColor: "rgba(245,200,106,.18)" },

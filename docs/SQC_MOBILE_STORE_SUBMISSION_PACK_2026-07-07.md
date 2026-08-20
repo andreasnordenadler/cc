@@ -1,5 +1,7 @@
 # SQC Mobile Store Submission Pack - 2026-07-07
 
+> **Historical cross-store draft.** iOS candidate facts, iPad requirements, Apple identity/access controls, metadata, privacy answers, and submission sequencing are superseded by `SIDE_QUEST_CHESS_IOS_RELEASE_PACKET_2026-08-13.md`. Android candidate/status claims are also historical. Do not execute console, credential, upload, or submission steps from this file.
+
 This is the cross-store working pack. The exact paste-ready Google Play copy and Android asset checklist live in `docs/SQC_GOOGLE_PLAY_LISTING_V340_2026-07-30.md`. Console changes, policy answers, uploads, tester assignment, and publication remain owner-gated.
 
 ## App Identity

@@ -1,5 +1,7 @@
 # SQC Mobile Store Launch Prep - 2026-07-07
 
+> **Historical evidence cutoff (2026-07-07).** Candidate, distribution, EAS, Apple-account, and launch-sequencing claims below are superseded by current platform release packets. Do not use this file to authorize account access, credentials, builds, uploads, console mutations, or publication.
+
 ## Current Readiness
 
 Side Quest Chess Mobile has meaningful launch prep already done, especially for Android beta/release-candidate distribution.

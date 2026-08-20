@@ -9,7 +9,7 @@ test.afterEach(() => {
   globalThis.fetch = originalFetch;
 });
 
-test("Android Community Multiplayer reporting sends bearer auth and immutable target fields", async () => {
+test("mobile Community Multiplayer reporting sends bearer auth and immutable target fields", async () => {
   let request: Request | null = null;
   globalThis.fetch = async (input, init) => {
     request = new Request(input, init);
@@ -26,7 +26,7 @@ test("Android Community Multiplayer reporting sends bearer auth and immutable ta
   const sentRequest = request as unknown as Request;
   assert.equal(sentRequest.method, "POST");
   assert.equal(sentRequest.headers.get("authorization"), "Bearer session-token");
-  assert.equal(sentRequest.headers.get("x-side-quest-chess-client"), "android");
+  assert.equal(sentRequest.headers.get("x-side-quest-chess-client"), "mobile");
   assert.equal(new URL(sentRequest.url).pathname, "/api/reports/content");
   assert.deepEqual(await sentRequest.json(), {
     targetType: "community-multiplayer",
