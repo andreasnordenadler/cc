@@ -220,6 +220,24 @@ test("renders the Android Account multiplayer row from authenticated account dat
   });
 });
 
+test("authenticated Account section navigator targets every desktop command-center region", async () => {
+  const accountPage = await import("../src/app/account/page");
+  assert.equal(typeof accountPage.AccountSectionNavigator, "function");
+  const html = renderToStaticMarkup(createElement(accountPage.AccountSectionNavigator));
+
+  assert.match(html, /<nav[^>]*aria-label="Account sections"/);
+  for (const [label, target] of [
+    ["Side Quests", "account-side-quests"],
+    ["Progress", "account-progress"],
+    ["Chess strength", "account-strength"],
+    ["Trophies", "account-trophies"],
+    ["Support", "account-support"],
+    ["Security", "account-security"],
+  ]) {
+    assert.match(html, new RegExp(`href="#${target}"[^>]*>${label}<`));
+  }
+});
+
 test("authenticated Account row renders the server-derived Multiplayer summary", async () => {
   const accountPage = await import("../src/app/account/page");
   assert.equal(typeof accountPage.AccountMultiplayerRow, "function");

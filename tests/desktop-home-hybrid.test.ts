@@ -1516,6 +1516,28 @@ test("Account becomes one desktop command center while preserving the mobile acc
   assert.equal(css.replace(desktopMedia, "").replace(reducedMotion, "").includes(".sqc-mobile-web.desktop-account"), false, "desktop Account rules must not leak below 1180px");
 });
 
+test("authenticated desktop Account exposes persistent section wayfinding without adding mobile chrome", () => {
+  const css = readFileSync("src/app/mobile-web.css", "utf8");
+  const route = readFileSync("src/app/account/page.tsx", "utf8");
+  const desktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1180px)"));
+
+  assert.match(route, /<nav className="sqc-account-section-nav" aria-label="Account sections">/);
+  for (const [label, target] of [
+    ["Side Quests", "account-side-quests"],
+    ["Progress", "account-progress"],
+    ["Chess strength", "account-strength"],
+    ["Trophies", "account-trophies"],
+    ["Support", "account-support"],
+    ["Security", "account-security"],
+  ]) {
+    assert.match(route, new RegExp(`href="#${target}"[^>]*>${label}<`));
+    assert.match(route, new RegExp(`id="${target}"`));
+  }
+  assert.match(css, /\.sqc-account-section-nav\s*\{[^}]*display:\s*none;/, "mobile Account retains Android's established reading order without a second navigation bar");
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-account\s+\.sqc-account-section-nav\s*\{[^}]*position:\s*sticky;[^}]*top:\s*142px;/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-account\s+:is\([^}]*#account-security\)\s*\{[^}]*scroll-margin-top:\s*206px;/);
+});
+
 test("Account readiness links preserve the inline mobile editor and use Settings on desktop", () => {
   for (const field of ["lichess-username", "chesscom-username"] as const) {
     assert.equal(getAccountReadinessHref(field, false), `#${field}`);

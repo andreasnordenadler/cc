@@ -40,7 +40,7 @@ test("mobile release dependencies resolve newly disclosed uuid and tar vulnerabi
   assert.deepEqual(resolvedVersions("tar"), ["7.5.21"]);
   assert.match(snapshotFor(/^  jayson@[^\n]*:\n/m), /^      uuid: 11\.1\.1$/m);
   assert.match(snapshotFor(/^  xcode@3\.0\.1:\n/m), /^      uuid: 11\.1\.1$/m);
-  assert.match(snapshotFor(/^  '@expo\/cli@54\.0\.26[^\n]*':\n/m), /^      tar: 7\.5\.21$/m);
+  assert.match(snapshotFor(/^  '@expo\/cli@54\.0\.27[^\n]*':\n/m), /^      tar: 7\.5\.21$/m);
 });
 
 test("mobile release audit patches available fixes and narrowly accepts only Metro image parser advisories", () => {
@@ -50,10 +50,10 @@ test("mobile release audit patches available fixes and narrowly accepts only Met
 
   assert.match(workspace, /^  js-yaml@>=3\.0\.0 <3\.15\.1: "3\.15\.1"$/m);
   assert.match(workspace, /^  js-yaml@>=4\.0\.0 <4\.3\.1: "4\.3\.1"$/m);
-  assert.match(workspace, /^  nanoid@<3\.3\.17: "3\.3\.17"$/m);
+  assert.match(workspace, /^  nanoid@<3\.3\.18: "3\.3\.18"$/m);
   assert.match(lockfile, /^  js-yaml@3\.15\.1:$/m);
   assert.match(lockfile, /^  js-yaml@4\.3\.1:$/m);
-  assert.match(lockfile, /^  nanoid@3\.3\.17:$/m);
+  assert.match(lockfile, /^  nanoid@3\.3\.18:$/m);
 
   assert.match(releaseScript, /run\("node", \["scripts\/check-production-audit\.mjs"\]\)/);
   assert.doesNotMatch(releaseScript, /pnpm[^\n]+audit/);
@@ -103,7 +103,7 @@ test("CI uses a pnpm release whose audit client supports the registry bulk advis
 test("pnpm 11 keeps the release-age guard except for the reviewed Expo patch set", () => {
   const source = readRepoFile("pnpm-workspace.yaml");
   const reviewedExpoPatchSet = [
-    "@expo/cli@54.0.26",
+    "@expo/cli@54.0.27",
     "@expo/config-plugins@54.0.5",
     "@expo/config@12.0.14",
     "@expo/env@2.0.12",
@@ -111,7 +111,10 @@ test("pnpm 11 keeps the release-age guard except for the reviewed Expo patch set
     "@expo/prebuild-config@54.0.9",
     "@expo/schema-utils@0.1.9",
     "babel-preset-expo@54.0.12",
-    "expo@54.0.36",
+    "expo@54.0.37",
+    "expo-constants@18.0.14",
+    "expo-file-system@19.0.24",
+    "expo-modules-autolinking@3.0.27",
   ];
 
   assert.doesNotMatch(source, /minimumReleaseAge:\s*0/);
