@@ -28,6 +28,8 @@ Do not mark any gate complete without evidence tied to the exact frozen candidat
 | Sign in with Apple / Guideline 4.8 | BLOCKED | Implement and verify it, remove noncompliant third-party primary login choices, or retain a documented exception accepted by the release owner |
 | Privacy labels | DRAFT ONLY | Backend/retention owner, Clerk/providers, generated archive and transitive SDK behavior reconciled |
 | UGC safety/content rights | BLOCKED | Exact report/block/moderation behavior and authorization for public Lichess/Chess.com records and displayed material |
+| Worldwide 13+ eligibility | BLOCKED | Owner/legal-approved age-assurance or eligibility flow tested for account creation and every social/UGC surface; a storefront override alone is not access control |
+| Deletion/retention truth | BLOCKED | Decide and document lawful retention for report/block records, then remove or anonymize deleted-user identifiers or disclose the exact retained fields and periods |
 | Screenshots | BLOCKED | Fresh exact-candidate iPhone and iPad captures while tablet support remains enabled |
 | TestFlight iPhone smoke | BLOCKED | Store-delivered exact build, signed-out and signed-in real-iPhone receipts |
 | iPad acceptance | BLOCKED | Responsive/device matrix and screenshots, or separately approved removal of tablet support before freeze |
@@ -70,7 +72,7 @@ These are proposed values, not adopted App Store Connect answers.
 | Primary category | Games — Board |
 | Secondary category | Games — Strategy |
 | Price | Free |
-| Availability | Worldwide target, excluding any territory whose game-publication evidence is not complete; specifically receipt-gate mainland China ISBN/approval/ICP applicability and Vietnam game licensing/classification before selection |
+| Availability | Worldwide target, excluding any territory whose game-publication evidence is not complete; specifically receipt-gate mainland China ISBN/approval/ICP applicability, Vietnam game licensing/classification, and South Korea game rating/RCN applicability before selection |
 | Copyright | 2026 Crowdler AB |
 | Privacy Policy URL | https://sidequestchess.com/privacy |
 | Support URL | https://sidequestchess.com/support |
@@ -79,13 +81,16 @@ These are proposed values, not adopted App Store Connect answers.
 | Release method | Manual release; review submission and public release remain separate approvals |
 | Phased release | Off for version 1 unless separately approved |
 | What's New | Not required only if discovery confirms this is version 1; otherwise provide truthful current-candidate release notes before version-record mutation |
-| Content rights | App accesses third-party public chess records; answer Yes only after owner/legal retains Lichess/Chess.com authorization evidence |
+| Content rights | Yes — the app accesses third-party public Lichess/Chess.com records; block submission until owner/legal retains the required authorization evidence |
 | Advertising identifier | No intended IDFA use; confirm exact IPA/SDK behavior before answering |
 | Review contact | Owner-supplied authorized name, reachable phone and monitored Crowdler email; unresolved |
+| EU trader status | Crowdler AB is the intended publisher/controller; owner/legal must adopt the current DSA trader answer and complete any required verification before EU availability |
+| Tax category | Owner/finance selection unresolved; no tax or banking terms may be accepted without separate approval |
+| License agreement | Standard Apple EULA unless owner/legal separately approves a custom agreement |
 
 **Promotional text:** Pick a Side Quest, play your public chess games, and come back for a verified result.
 
-**Keywords:** `chess,challenge,quests,board,strategy,puzzles,goals,multiplayer`
+**Keywords:** `chess,challenge,quests,board,strategy,goals,multiplayer,variants`
 
 **Description:**
 
@@ -96,7 +101,7 @@ These are proposed values, not adopted App Store Connect answers.
 > • Pick solo Side Quests built around real chess goals
 > • Check public-game proof and see what happened
 > • Create and join multiplayer Side Quests with other players
-> • Explore community Side Quests, with reporting and blocking controls
+> • Explore community Side Quests and multiplayer challenges
 > • Keep your chess usernames and account controls in one place
 >
 > Side Quest Chess does not ask for or store your Lichess or Chess.com passwords. It has no ads, in-app purchases, subscriptions, or real-money prizes.
@@ -105,11 +110,13 @@ These are proposed values, not adopted App Store Connect answers.
 > Privacy: https://sidequestchess.com/privacy
 > Terms: https://sidequestchess.com/terms
 
-Before submission, preserve a dated App Store Connect receipt covering bundle association, SKU, locale, version/build, listing fields, screenshots, privacy, age rating, content rights, export compliance, IDFA/tracking, review contact/account, price, territories, release method, DSA/trader status and any current accessibility declaration.
+Before submission, preserve a dated App Store Connect receipt covering bundle association, SKU, locale, version/build, listing fields, screenshots, privacy, age rating, content rights, export compliance, IDFA/tracking, review contact/account, price, tax category, license agreement, territories, release method, DSA/trader status and any current accessibility declaration.
 
 ## 5. Age-rating answer draft
 
 The contractual minimum age is 13. Apple's calculated regional storefront rating is a separate result; apply a minimum-age override if needed so the store does not contradict the Terms. Record the current questionnaire version/date, every answer, calculated rating and regional variation before adoption.
+
+Source does not currently ask age during native registration or enforce the 13+ rule on social/UGC access. Treat the owner/legal decision and exact-candidate verification of an age-assurance or eligibility flow as a release blocker; an App Store age-rating override does not prevent an under-13 user from creating an account.
 
 Draft mapped to Apple's current descriptor labels. Preserve the exact live labels and answer controls in the receipt; the live form remains authoritative and each descriptor must be answered separately:
 
@@ -146,23 +153,23 @@ Do not answer mature-content frequencies for the whole reachable UGC experience 
 
 Tracking draft: **No**, only if binary/provider review confirms no cross-company tracking and no data is used for third-party advertising, developer advertising, sale or data-broker purposes.
 
-Conservative draft: each row below is **collected**, **linked to the user** and **not used for tracking** unless final evidence proves otherwise.
+Provisional partial inventory: each row below is **collected**, **linked to the user** and **not used for tracking** unless final evidence proves otherwise. It is not a complete nutrition label while the items after the table remain unresolved.
 
 | Apple category/type | Purpose | Current behavior to reconcile |
 | --- | --- | --- |
 | Contact Info / Name | App Functionality | Name received from Clerk or selected sign-in provider |
 | Contact Info / Email Address | App Functionality | Email/password or social-provider identity, including possible relay email |
-| Identifiers / User ID | App Functionality; evaluate Analytics | Clerk identity/session, display name, username, chess handles, participant/host/report target IDs |
+| Identifiers / User ID | App Functionality; Analytics | Clerk identity/session, display name, username, chess handles, participant/host/report target IDs; signed-in event totals/history are stored with the account |
 | User Content / Photos or Videos | App Functionality | Provider/Clerk profile image; no native photo-library feature is intended |
 | User Content / Customer Support | App Functionality | Signed-in support text and user-approved diagnostics |
 | User Content / Gameplay Content | App Functionality | Quest state, proof attempts/receipts, game IDs, multiplayer participation/standings and saved custom quests |
 | User Content / Other User Content | App Functionality | Bio, custom/community/multiplayer text, invite copy, report reasons and block/report records |
-| Usage Data / Product Interaction | App Functionality; evaluate Analytics | Likes, quest/community actions, proof checks, multiplayer actions, paths/IDs, timestamps, totals and recent activity; the public Privacy Policy says first-party events help understand feature use |
+| Usage Data / Product Interaction | App Functionality; Analytics | Likes, quest/community actions, proof checks, multiplayer actions, paths/IDs, timestamps, totals and recent activity; the public Privacy Policy says first-party events help understand feature use |
 | Diagnostics / Other Diagnostic Data | App Functionality | Technical portion of the optional user-approved support bundle: app version/build/application ID, platform/OS and API destination |
 
 The optional support submission also contains authentication/display state, connected public chess usernames, active solo quest title and multiplayer totals. Keep those values classified in their underlying Identifier, Gameplay Content and Product Interaction rows rather than relabeling them as diagnostics merely because they accompany a support request. The disclosure UI must show or clearly enumerate the full bundle before consent.
 
-The purpose column uses Apple's selectable purpose names only; descriptive concepts such as account management, security, moderation and customer support must be mapped to an available Apple purpose rather than entered as invented values. Third parties/processors to inventory: Clerk and each enabled sign-in provider; hosting/security/request logging; Lichess/Chess.com public-record retrieval; Expo/EAS build services; all embedded SDKs. Obtain retention/linkage/purpose details for IP address, user agent, session/device identifiers, crashes and performance. Optional diagnostics count as collected when submitted. Do not declare data types absent until backend and provider evidence, generated manifests and IPA inspection agree with `https://sidequestchess.com/privacy`.
+The purpose column uses Apple's selectable purpose names only; descriptive concepts such as account management, security, moderation and customer support must be mapped to an available Apple purpose rather than entered as invented values. Third parties/processors to inventory: Clerk and each enabled sign-in provider; hosting/security/request logging; Lichess/Chess.com public-record retrieval; Expo/EAS build services; all embedded SDKs. Obtain an explicit Apple data-type, purpose, linkage and retention disposition for IP address, user agent, session/device identifiers, crashes, performance, hosting/security logs and provider behavior; likely Device ID or Other Data Types cannot be ruled out yet. Optional diagnostics count as collected when submitted. Do not declare data types absent or adopt this table until backend and provider evidence, generated manifests and IPA inspection agree with `https://sidequestchess.com/privacy`.
 
 ## 7. Export-compliance draft
 
@@ -178,7 +185,7 @@ Do not paste until every described path passes on the selected TestFlight build.
 
 > Side Quest Chess lets players choose solo or multiplayer chess challenges and verify results against public games connected to the player's configured Lichess or Chess.com username. The app does not request or store chess-site passwords and is independent from those services.
 >
-> Public content can be browsed signed out. Sign-in is required for account-backed progress, proof checks, creation/joining, support messages, community safety controls and account deletion.
+> The signed-out Home and public Multiplayer catalog can be browsed without an account. Sign-in is required for account-backed progress, Community Solo account content, proof checks, creation/joining, support messages, community safety controls and account deletion. [Retain only after exact TestFlight verification of each named signed-out surface.]
 >
 > Community Multiplayer content and creators can be reported; creators can be blocked. [Replace with exact verified moderation behavior and do not claim review/response operations that are not actually staffed.]
 >
@@ -218,9 +225,9 @@ Record device, OS, build, source SHA, account fixture, timestamp, result and evi
 | Trophy/account/support | Diagnostics default-off and preview | Same |
 | Deletion | Exact phrase/action; failed cleanup preserves identity; successful sign-out | Same |
 | Privacy/network reconciliation | Capture exact requests for signed-out, signed-in, OAuth, proof, support and deletion flows; reconcile Clerk/providers, IP/user-agent/session/device IDs, diagnostics, crashes and performance with the label draft | Same |
-| Accessibility | VoiceOver, Dynamic Type, focus, labels, contrast, touch targets | Same plus split-view overflow/focus |
+| Accessibility | VoiceOver, Voice Control, Larger Text at Apple's specified scale, Dynamic Type, focus, labels, contrast, Differentiate Without Color, Reduced Motion and touch targets | Same plus split-view overflow/focus |
 
-TestFlight acceptance additionally requires: store-delivered install; correct name/icon/version/build/API; non-expiring primary/secondary review account verification; recreated deletion fixture; public chess fixture; second-account multiplayer; background/foreground and forced relaunch; no secrets/tokens in logs; successful deletion and signed-out relaunch; review notes within Apple's 4,000-character limit. If Sign in with Apple is shipped, verify cancellation, relay email, account linking and token-revocation behavior on deletion.
+TestFlight acceptance additionally requires: store-delivered install; correct name/icon/version/build/API; non-expiring primary/secondary review account verification; recreated deletion fixture; public chess fixture; second-account multiplayer; background/foreground and forced relaunch; no secrets/tokens in logs; successful deletion and signed-out relaunch; review notes within Apple's 4,000-byte limit. Deletion acceptance must also prove the approved handling of target identifiers replicated into other users' report/block records. If Sign in with Apple is shipped, verify cancellation, relay email, account linking and token-revocation behavior on deletion.
 
 ## 11. Least-privilege access and owner authorization packet
 
