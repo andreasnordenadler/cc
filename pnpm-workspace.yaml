@@ -3,6 +3,7 @@ packages:
 
 overrides:
   brace-expansion: "5.0.9"
+  expo-constants: "18.0.14"
   js-yaml@>=3.0.0 <3.15.1: "3.15.1"
   js-yaml@>=4.0.0 <4.3.1: "4.3.1"
   nanoid@<3.3.17: "3.3.17"
@@ -14,10 +15,10 @@ overrides:
   undici: "6.27.0"
   ws: "8.21.0"
 
-# Expo 54.0.36 is the reviewed SDK-compatible patch set used by Android v339.
+# Expo 54.0.37 is the current reviewed SDK-compatible patch set.
 # Keep pnpm 11's 24-hour release-age guard for every other dependency.
 minimumReleaseAgeExclude:
-  - "@expo/cli@54.0.26"
+  - "@expo/cli@54.0.27"
   - "@expo/config-plugins@54.0.5"
   - "@expo/config@12.0.14"
   - "@expo/env@2.0.12"
@@ -25,7 +26,10 @@ minimumReleaseAgeExclude:
   - "@expo/prebuild-config@54.0.9"
   - "@expo/schema-utils@0.1.9"
   - "babel-preset-expo@54.0.12"
-  - "expo@54.0.36"
+  - "expo@54.0.37"
+  - "expo-constants@18.0.14"
+  - "expo-file-system@19.0.24"
+  - "expo-modules-autolinking@3.0.27"
 
 allowBuilds:
   "@clerk/shared": false
