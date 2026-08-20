@@ -4740,6 +4740,18 @@ body::after {
   display: none;
 }
 
+.sqc-settings-field-group {
+  display: contents;
+}
+
+.sqc-settings-group-fields {
+  display: contents;
+}
+
+.sqc-settings-group-heading {
+  display: none;
+}
+
 :is(#lichess-username, #chesscom-username) {
   scroll-margin-top: 90px;
 }
@@ -9955,14 +9967,66 @@ body::after {
   }
 
   .sqc-mobile-web.desktop-settings .sqc-settings-profile-panel .sqc-input-stack {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 16px;
+    grid-template-columns: 170px minmax(0, 1fr);
+    gap: 0;
   }
 
-  .sqc-mobile-web.desktop-settings .sqc-settings-profile-panel .sqc-form-row:nth-child(2) { grid-column: 1 / -1; }
+  .sqc-mobile-web.desktop-settings .sqc-settings-field-group {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: 170px minmax(0, 1fr);
+    gap: 24px;
+    padding: 24px 0;
+    border-top: 1px solid rgba(255, 247, 232, .1);
+  }
+
+  .sqc-mobile-web.desktop-settings .sqc-settings-group-heading {
+    display: block;
+    padding-top: 2px;
+  }
+
+  .sqc-mobile-web.desktop-settings .sqc-settings-group-heading p,
+  .sqc-mobile-web.desktop-settings .sqc-settings-group-heading h2,
+  .sqc-mobile-web.desktop-settings .sqc-settings-group-heading span {
+    margin: 0;
+  }
+
+  .sqc-mobile-web.desktop-settings .sqc-settings-group-heading p {
+    color: var(--gold);
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+  }
+
+  .sqc-mobile-web.desktop-settings .sqc-settings-group-heading h2 {
+    margin-top: 7px;
+    font-family: ui-serif, Georgia, Cambria, "Times New Roman", serif;
+    font-size: 21px;
+    line-height: 1.1;
+    letter-spacing: -.025em;
+  }
+
+  .sqc-mobile-web.desktop-settings .sqc-settings-group-heading span {
+    display: block;
+    margin-top: 8px;
+    color: rgba(255, 247, 232, .58);
+    font-size: 11px;
+    line-height: 1.45;
+  }
+
+  .sqc-mobile-web.desktop-settings .sqc-settings-group-fields {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+    gap: 16px;
+    min-width: 0;
+  }
+
   .sqc-mobile-web.desktop-settings .sqc-settings-profile-panel .sqc-primary-action {
     width: auto;
     min-width: 190px;
+    margin-left: 194px;
     justify-self: start;
     border-radius: 999px;
   }

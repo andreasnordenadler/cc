@@ -65,22 +65,40 @@ export function SettingsEditor({
         <h1>Edit profile and chess usernames</h1>
         <p>Save your public Side Quest Chess display name, brag line, and chess usernames from the app. Website and mobile stay in sync.</p>
         <div className="sqc-input-stack">
-          <label className="sqc-form-row">
-            <span>Display name</span>
-            <input name="runnerDisplayName" defaultValue={displayName} maxLength={60} placeholder="e.g. Andreas" />
-          </label>
-          <label className="sqc-form-row">
-            <span>Brag line</span>
-            <textarea name="runnerBio" defaultValue={runnerBio} maxLength={180} rows={4} placeholder="Trying to win while doing deeply unreasonable things." />
-          </label>
-          <label className="sqc-form-row">
-            <span>Lichess username</span>
-            <input id="lichess-username" name="lichessUsername" defaultValue={lichessUsername} autoCapitalize="none" autoCorrect="off" />
-          </label>
-          <label className="sqc-form-row">
-            <span>Chess.com username</span>
-            <input id="chesscom-username" name="chessComUsername" defaultValue={chessComUsername} autoCapitalize="none" autoCorrect="off" placeholder="optional" />
-          </label>
+          <div className="sqc-settings-field-group sqc-settings-identity-group">
+            <div className="sqc-settings-group-heading">
+              <p>Identity</p>
+              <h2 id="settings-profile-heading">Public profile</h2>
+              <span>Shown with your Side Quest activity.</span>
+            </div>
+            <div className="sqc-settings-group-fields">
+              <label className="sqc-form-row">
+                <span>Display name</span>
+                <input name="runnerDisplayName" defaultValue={displayName} maxLength={60} placeholder="e.g. Andreas" />
+              </label>
+              <label className="sqc-form-row">
+                <span>Brag line</span>
+                <textarea name="runnerBio" defaultValue={runnerBio} maxLength={180} rows={4} placeholder="Trying to win while doing deeply unreasonable things." />
+              </label>
+            </div>
+          </div>
+          <div className="sqc-settings-field-group sqc-settings-proof-group">
+            <div className="sqc-settings-group-heading">
+              <p>Game proof</p>
+              <h2 id="settings-accounts-heading">Proof accounts</h2>
+              <span>Public usernames only. One provider is enough.</span>
+            </div>
+            <div className="sqc-settings-group-fields">
+              <label className="sqc-form-row">
+                <span>Lichess username</span>
+                <input id="lichess-username" name="lichessUsername" defaultValue={lichessUsername} autoCapitalize="none" autoCorrect="off" />
+              </label>
+              <label className="sqc-form-row">
+                <span>Chess.com username</span>
+                <input id="chesscom-username" name="chessComUsername" defaultValue={chessComUsername} autoCapitalize="none" autoCorrect="off" placeholder="optional" />
+              </label>
+            </div>
+          </div>
         </div>
         <button className="sqc-primary-action" type="submit">Save usernames</button>
       </form>
