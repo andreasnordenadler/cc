@@ -153,7 +153,7 @@ Conservative per-type draft. All listed rows are **collected**, **linked to the 
 | User Content / Customer Support | App Functionality | Signed-in support messages and any user-approved diagnostics included with them |
 | User Content / Gameplay Content | App Functionality | Quest saves/state, proof attempts and receipts, game IDs, Multiplayer participation/standings, and saved custom quests |
 | User Content / Other User Content | App Functionality | Profile text, public chess usernames, custom/community free text, Multiplayer text, reports, blocks, report-target identifiers, and timestamps |
-| Diagnostics / Other Diagnostic Data | App Functionality | Optional support bundle: app build/version, package, platform/device, API destination, connected chess usernames, active quest, and Multiplayer counts; default off and previewed before send |
+| Diagnostics / Other Diagnostic Data | App Functionality | Optional support bundle: app build/version, package, platform and OS version, API destination, connected chess usernames, active quest, and Multiplayer counts; default off and previewed before send |
 
 The mobile source does not currently establish mobile-origin Product Interaction collection for Analytics; do not declare that type/purpose merely because the combined web/mobile policy describes first-party web analytics. Add it only if exact-IPA network/provider inspection proves it. Display names, usernames, provider profile images, standings, Community content, and proof details may be publicly visible by product design. Clerk and the selected Apple, Google, Facebook, or email/password sign-in path process authentication data; hosting and chess-record providers process the data described by the public policy. Current reports and blocks are stored in the reporter's Clerk private metadata and are therefore account-linked; source commit `f615820c368bf70a44038ab99a3ccab1dfcda0ac` adds an explicit policy disclosure, but that disclosure is not public until the branch lands and the web policy is deployed. Account deletion removes account-attached identity/profile/progress after required cleanup, subject to security, legal, fraud-prevention, backup, and de-identified/aggregate exceptions stated in the adopted policy. Do not declare crash data, performance data, device ID, location, contacts, purchases, browsing/search history, or sensitive information until the exact IPA, Clerk, Expo, React Native, and embedded privacy manifests have been inspected. The optional support bundle is collected when sent despite being opt-in. Adopted answers must match `https://sidequestchess.com/privacy`, provider contracts, retention behavior, and the production binary. Supply `https://sidequestchess.com/privacy#choices` as the optional User Privacy Choices URL after confirming that anchor remains live.
 
@@ -169,7 +169,7 @@ Account deletion wording: My Account → Delete account permanently removes the 
 - Secondary account: deterministic Multiplayer participant; use a separate deletion-only account if deletion must be exercised
 - Record exact fixture IDs, expected proof result, reset instructions/owner, fallback route, and reachable review contact before submission; keep backend services and provider fixtures live for the entire review window
 
-### Paste-ready review notes
+### Conditional review-notes draft — blocked until Android is public
 
 **Do not paste this note while Android remains private. After verified Android public storefront availability, update and use:** “Side Quest Chess began as a web product. Android is publicly available; this submission is the first iOS release of the same product.”
 
@@ -254,7 +254,7 @@ This packet does not authorize an invite, acceptance, credential generation, app
 
 ### Owner authorization packets — discovery and mutation are separate
 
-Discovery authorization: authorize Sam, acting only through a dedicated Crowdler-controlled operational Apple Account, to perform the read-only checks listed below without mutations, and only if that identity is already provisioned on the correct Crowdler AB team. Do not send passwords, recovery codes, private keys, certificates, or review credentials.
+Discovery approval requested for the dedicated Sam/Crowdler operator, acting only through a Crowdler-controlled operational Apple Account, to perform the read-only checks listed below without mutations, and only if that identity is already provisioned on the correct Crowdler AB team. Andreas must confirm the exact dedicated Apple Account address in the approval; this request does not authorize creating, inviting, or accepting that account. Do not send passwords, recovery codes, private keys, certificates, or review credentials.
 
 **Why:** source preparation cannot verify the fail-closed legal-team, duplicate bundle/app identity, and least-privilege operator gates without read access to the correct Crowdler AB Apple Developer and App Store Connect context.
 
@@ -294,7 +294,7 @@ Submission, App Review acceptance, release approval, and public storefront avail
 
 - The dedicated iOS worktree was clean before reconciliation and merged fetched `origin/main` `c094acf063de716d649e032ffb9890d0058443cb` as `5deae7b94a918bfb202de9ff4bea462a46ba8f41`; the dirty canonical checkout was not modified or cleaned. The candidate remains unfrozen.
 - Source commit `f615820c368bf70a44038ab99a3ccab1dfcda0ac` discloses account-linked safety-report/block data in the source privacy policy and adds a regression assertion. The disclosure is not public until the branch lands and the web policy is deployed; no deployment was attempted.
-- Fresh full canonical suite after reconciliation and the deletion/support corrections: 761/761 passed.
+- Fresh full canonical suite after reconciliation and the deletion/support and packet-contract corrections: 762/762 passed.
 - Fresh full lint: passed with zero errors and four pre-existing warnings.
 - Fresh full Next production build: passed and generated all 88 static pages.
 - Fresh mobile TypeScript check: passed. `expo-doctor --verbose`: 18/18 checks passed after updating Expo from `54.0.36` to the SDK-required `54.0.37` patch and pinning the compatible transitive `expo-constants` `18.0.14` to prevent duplicate native installations. The pnpm 11 lockfile update and reviewed release-age exceptions are regression-tested.
@@ -304,7 +304,7 @@ Submission, App Review acceptance, release approval, and public storefront avail
 - The prior native `expo prebuild --platform ios --no-install`, local iOS JavaScript export, and EAS local-config receipt were produced from source/config commit `5457d59cb14543e8d28687ded5fb02994471e9e6`. Mobile source and Expo dependencies have changed since that receipt, so those artifacts are historical only and must be regenerated from the eventual frozen commit.
 - That prior no-Pods prebuild generated no app-owned `PrivacyInfo.xcprivacy`; embedded SDK manifests, SDK signatures, and required-reason API declarations remain an archive/Pods inspection gate.
 - App Store draft field lengths are within current limits: subtitle 22 characters, keywords 85 UTF-8 bytes, promotional text 164 characters.
-- A focused App Store packet contract test now binds the Expo identity and standing product facts, enforces the 30-character name/subtitle and 100-byte keyword limits, rejects public `SQC` in listing copy, requires the listing/privacy/review/QA/access/binary sections, and keeps archive, TestFlight, review, and public-release evidence fail-closed.
+- A focused App Store packet contract test now binds the Expo identity and standing product facts; enforces the 30-character name/subtitle, 100-byte keyword, 170-character promotional-text, and 4,000-character description limits; rejects public `SQC` in listing copy and unresolved authorization placeholders; requires the listing/privacy/age/review/QA/access/binary contracts; and keeps source freeze, archive, auth, privacy, screenshots, TestFlight, iPad, UGC, review, and public-release evidence fail-closed.
 - The source marketing icon is 1024×1024 with no alpha; exact-archive generated icon-set inspection remains required.
 - Current lockfile SHA-256: `6068daac0b937d1be9584db3476fef8f120688260db988208c5ef893acf46c78`.
 - Local Apple toolchain remains blocked: selected developer directory is Command Line Tools, full Xcode is unavailable, and zero valid code-signing identities are installed.
