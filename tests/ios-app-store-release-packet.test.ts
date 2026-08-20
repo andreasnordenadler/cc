@@ -5,6 +5,9 @@ import test from "node:test";
 
 const packetPath = path.resolve("docs/SIDE_QUEST_CHESS_IOS_RELEASE_PACKET_2026-08-13.md");
 const appConfigPath = path.resolve("apps/mobile/app.json");
+const mobileAppPath = path.resolve("apps/mobile/App.tsx");
+const webDeletionPath = path.resolve("src/components/delete-account-control.tsx");
+const supportFormPath = path.resolve("src/components/support-contact-form.tsx");
 
 function section(document: string, heading: string, nextHeading: string) {
   const start = document.indexOf(heading);
@@ -97,4 +100,19 @@ test("iOS packet keeps submission evidence fail-closed and separates Apple relea
   assert.doesNotMatch(gates, /\| (?:READY|PASSED|SUBMITTED|APPROVED|RELEASED|PUBLIC) \|/);
   assert.match(packet, /Submission, App Review acceptance, release approval, and public storefront availability are four distinct states/);
   assert.match(packet, /This packet does not authorize an invite, acceptance, credential generation, app-record mutation, or upload/);
+});
+
+test("deletion and support copy do not overstate proof deletion or expose a personal support address", async () => {
+  const [packet, mobileApp, webDeletion, supportForm] = await Promise.all([
+    readFile(packetPath, "utf8"),
+    readFile(mobileAppPath, "utf8"),
+    readFile(webDeletionPath, "utf8"),
+    readFile(supportFormPath, "utf8"),
+  ]);
+
+  assert.match(mobileApp, /Public proof links you already shared may remain accessible/);
+  assert.match(webDeletion, /Public proof links you already shared may remain accessible/);
+  assert.match(packet, /Already-shared public proof URLs use self-contained signed payloads and may remain accessible after account deletion/);
+  assert.match(supportForm, /const SUPPORT_EMAIL = "sam@crowdler\.com"/);
+  assert.doesNotMatch(supportForm, /andreas(?:\.|@)/i);
 });

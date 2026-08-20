@@ -33,7 +33,7 @@ export default function DeleteAccountControl() {
     <section className="sqc-username-editor-card" aria-labelledby="delete-account-title">
       <p className="sqc-account-kicker">Danger zone</p>
       <h2 id="delete-account-title">Delete account</h2>
-      <p>Permanently deletes your Side Quest Chess profile, progress, proofs, custom Side Quests, and Clerk sign-in. This cannot be undone.</p>
+      <p>Permanently deletes your Side Quest Chess profile, saved progress and proof receipts, custom Side Quests, reports, blocks, and Clerk sign-in. Public proof links you already shared may remain accessible. This cannot be undone.</p>
       {expanded ? (
         <div className="sqc-input-stack">
           <label className="sqc-form-row">

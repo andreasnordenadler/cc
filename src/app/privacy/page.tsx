@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   description: "How Side Quest Chess handles account, public chess-game, support, and product-usage information.",
 };
 
-const LAST_UPDATED = "August 15, 2026";
+const LAST_UPDATED = "August 20, 2026";
 
 export default async function PrivacyPage() {
   noStore();
@@ -113,7 +113,7 @@ export function PrivacyPageView({ signedIn, displayName }: { signedIn: boolean; 
         <section id="retention">
           <h2>Retention and deletion</h2>
           <p>Side Quest Chess keeps account and quest information while it is needed to provide the account and product features. Implemented limits currently keep up to 30 signed-in support messages, a compact analytics history of up to 12 recent events and 12 quest-stat records, and up to 500 account likes. Those limits do not by themselves delete the rest of an account.</p>
-          <p>Signed-in users can permanently delete their Side Quest Chess account from My Account on the website or mobile app. This removes the Clerk sign-in and account-attached profile, progress, report, and block data, and cleans hosted and participant references from replicated Multiplayer records. Current report and block records are not retained in an independent moderation system after the reporting or blocking account is deleted. Deletion cannot be undone. If that cleanup cannot finish, Side Quest Chess reports an error instead of deleting the sign-in identity so the user can retry or contact privacy support.</p>
+          <p>Signed-in users can permanently delete their Side Quest Chess account from My Account on the website or mobile app. This removes the Clerk sign-in and account-attached profile, saved progress and proof receipts, custom Side Quests, report, and block data, and cleans hosted and participant references from replicated Multiplayer records. Current report and block records are not retained in an independent moderation system after the reporting or blocking account is deleted. Public proof links already shared use self-contained signed data and may remain accessible after account deletion. Deletion cannot be undone. If that cleanup cannot finish, Side Quest Chess reports an error instead of deleting the sign-in identity so the user can retry or contact privacy support.</p>
           <p>Backups and security logs may persist for a limited period after account deletion. Crowdler AB may retain information when required by law, to resolve disputes, or to protect the service and its users.</p>
         </section>
 

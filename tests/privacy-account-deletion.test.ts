@@ -7,7 +7,8 @@ test("privacy policy describes implemented web and mobile account deletion contr
 
   assert.doesNotMatch(source, /does not yet expose self-service account deletion/i);
   assert.match(source, /permanently delete their Side Quest Chess account from My Account on the website or mobile app/i);
-  assert.match(source, /removes the Clerk sign-in and account-attached profile, progress, report, and block data/i);
+  assert.match(source, /removes the Clerk sign-in and account-attached profile, saved progress and proof receipts, custom Side Quests, report, and block data/i);
+  assert.match(source, /Public proof links already shared use self-contained signed data and may remain accessible after account deletion/i);
   assert.match(source, /report and block records are not retained in an independent moderation system/i);
   assert.match(source, /cleans hosted and participant references from replicated Multiplayer records/i);
   assert.match(source, /If that cleanup cannot finish, Side Quest Chess reports an error instead of deleting the sign-in identity/i);

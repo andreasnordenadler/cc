@@ -6114,7 +6114,7 @@ function AccountTrackerDashboard({ bootstrap, account, authBridge, onSelectTab, 
       <HelpSupportModal visible={helpOpen} onClose={() => setHelpOpen(false)} signedIn={accountState} authBridge={authBridge} />
       <View style={compactStyles.heroPanel}>
         <Text style={compactStyles.kicker}>Danger zone</Text>
-        <Text style={compactStyles.heroCopy}>Permanently delete your Side Quest Chess account, profile, progress, proofs, and Clerk sign-in. This cannot be undone.</Text>
+        <Text style={compactStyles.heroCopy}>Permanently delete your Side Quest Chess account, profile, saved progress and proof receipts, custom Side Quests, reports, blocks, and Clerk sign-in. Public proof links you already shared may remain accessible. This cannot be undone.</Text>
         {showDeleteAccount ? (
           <View style={styles.inputStack}>
             <Text style={styles.inputLabel}>Type DELETE MY ACCOUNT to confirm</Text>
