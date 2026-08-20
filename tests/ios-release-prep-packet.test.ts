@@ -53,10 +53,29 @@ test("iOS preparation packet stays aligned with the source identity and fail-clo
   assert.match(packet, /source still names owner `and72nor` and project `9af73cb2-dcd5-4429-b194-67fc81206937`/i);
   assert.match(packet, /local preview-account fixture unconditionally development-only/i);
   assert.match(packet, /signed-out support fallback with `sam@crowdler\.com`/i);
-  assert.match(packet, /Contests: Yes under Apple's current definition/);
+  assert.match(packet, /Contests are present under Apple's current definition/);
   assert.match(packet, /Exact frequency remains unresolved/);
+  for (const descriptor of [
+    "Mature or Suggestive Themes",
+    "Health or Wellness Topics",
+    "Cartoon or Fantasy Violence",
+    "Realistic Violence",
+    "Prolonged Graphic or Sadistic Realistic Violence",
+    "Guns or Other Weapons",
+  ]) {
+    assert.ok(packet.includes(descriptor), `missing age-rating descriptor: ${descriptor}`);
+  }
+  assert.match(packet, /Gambling \(presence\): No/);
+  assert.match(packet, /Loot Boxes \(presence\): No/);
+  assert.match(packet, /Simulated Gambling \(frequency\): None/);
   assert.match(packet, /evaluate Analytics/);
+  assert.match(packet, /connected public chess usernames, active solo quest title and multiplayer totals/);
   assert.match(packet, /type `DELETE MY ACCOUNT` → Permanently delete account/);
+  assert.match(packet, /primary and secondary review accounts that do not expire during review or re-review/);
+  assert.match(packet, /report reaches the staffed queue, escalation\/response SLA, removal/);
+  assert.match(packet, /clean temporary `expo prebuild --platform ios --no-install`/);
+  assert.match(packet, /build `1`, and URL schemes `sidequestchess` plus `com\.sidequestchess\.app`/);
+  assert.match(packet, /No app-target `PrivacyInfo\.xcprivacy` was generated before pod installation/);
   assert.match(packet, /TestFlight upload, TestFlight device acceptance, App Review submission, App Review acceptance, release approval and public storefront availability are distinct states/);
 });
 
@@ -87,12 +106,17 @@ test("App Store discovery fields fit Apple's source-level limits and never abbre
   assert.equal("Side Quest Chess".length <= 30, true);
   assert.ok(subtitle.length <= 30, "subtitle exceeds 30 characters");
   assert.ok(Buffer.byteLength(keywords, "utf8") <= 100, "keywords exceed 100 UTF-8 bytes");
+  assert.doesNotMatch(keywords, /(?:lichess|chesscom|chess\.com)/i, "keywords must not name other apps or companies");
   assert.ok(promotionalText.length <= 170, "promotional text exceeds 170 characters");
   assert.ok(description.length <= 4000, "description exceeds 4,000 characters");
   assert.doesNotMatch(listing, /\bSQC\b/);
   assert.match(listing, /\| Name \| Side Quest Chess \|/);
   assert.match(listing, /\| Price \| Free \|/);
-  assert.match(listing, /\| Availability \| Worldwide target/);
+  const config = JSON.parse(await readFile(appConfigPath, "utf8")).expo;
+  assert.ok(listing.includes(`| Version | Candidate \`${config.version}\`;`));
+  assert.match(listing, /\| Availability \| Worldwide target, excluding any territory/);
+  assert.match(listing, /mainland China ISBN\/approval\/ICP applicability and Vietnam game licensing\/classification/);
+  assert.match(listing, /\| What's New \| Not required only if discovery confirms this is version 1/);
   assert.match(listing, /\| Release method \| Manual release/);
 });
 
