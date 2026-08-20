@@ -3530,7 +3530,7 @@ function buildMobileSupportDiagnostics(signedIn: MobileAccountState | null) {
   return [
     "Side Quest Chess mobile diagnostics",
     `App version: ${appVersion} (build ${nativeBuildVersion})`,
-    `Bundle ID: ${applicationId}`,
+    `Application ID: ${applicationId}`,
     `Platform: ${Platform.OS} ${Platform.Version}`,
     `API base: ${getApiBaseUrl()}`,
     `Account: ${signedIn ? signedIn.profile.displayName ? `signed in as ${signedIn.profile.displayName}` : "signed in" : "not signed in"}`,
@@ -3637,7 +3637,7 @@ function HelpSupportModal({ visible, onClose, signedIn, authBridge, initialMessa
             {diagnosticsOpen ? (
               <View style={compactStyles.diagnosticsBody}>
                 <Text style={compactStyles.detailPanelTitle}>Installed app identity</Text>
-                <Text style={compactStyles.detailPanelCopy}>App version {candidateIdentity.appVersion} (build {candidateIdentity.nativeBuildVersion}). Bundle ID {candidateIdentity.applicationId}.</Text>
+                <Text style={compactStyles.detailPanelCopy}>App version {candidateIdentity.appVersion} (build {candidateIdentity.nativeBuildVersion}). Application ID {candidateIdentity.applicationId}.</Text>
               </View>
             ) : null}
           </View>

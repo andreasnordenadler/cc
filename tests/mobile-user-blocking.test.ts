@@ -9,7 +9,7 @@ function setNodeEnv(value: string | undefined) {
   Object.defineProperty(process.env, "NODE_ENV", { value, configurable: true, enumerable: true, writable: true });
 }
 
-test("authenticated Android user blocks the canonical creator behind a public Community Multiplayer quest", async (t) => {
+test("authenticated mobile user blocks the canonical creator behind a public Community Multiplayer quest", async (t) => {
   const previousNodeEnv = process.env.NODE_ENV;
   setNodeEnv("test");
   t.after(() => setNodeEnv(previousNodeEnv));
@@ -30,7 +30,7 @@ test("authenticated Android user blocks the canonical creator behind a public Co
     now: () => new Date("2026-08-03T03:00:00.000Z"),
   }, () => POST(new Request("https://sidequestchess.com/api/blocks/users", {
     method: "POST",
-    headers: { "content-type": "application/json", "x-side-quest-chess-client": "android" },
+    headers: { "content-type": "application/json", "x-side-quest-chess-client": "mobile" },
     body: JSON.stringify({ targetType: "community-multiplayer", targetId: "community/table", action: "block" }),
   })));
 
@@ -48,6 +48,34 @@ test("authenticated Android user blocks the canonical creator behind a public Co
     blockedAt: "2026-08-03T03:00:00.000Z",
     source: "mobile",
   }]);
+});
+
+test("authenticated legacy Android block retains mobile provenance", async (t) => {
+  const previousNodeEnv = process.env.NODE_ENV;
+  setNodeEnv("test");
+  t.after(() => setNodeEnv(previousNodeEnv));
+  let savedSource: string | undefined;
+
+  const response = await withUserBlockRouteTestDependencies({
+    authenticate: async () => "viewer-user",
+    getClient: async () => ({ users: {
+      getUser: async () => ({ privateMetadata: {} }),
+      updateUserMetadata: async (_userId: string, update: { privateMetadata: Record<string, unknown> }) => {
+        savedSource = (update.privateMetadata.sqcBlockedUsers as Array<{ source: string }>)[0]?.source;
+      },
+    } }) as never,
+    findTarget: async () => ({
+      userId: "creator-user",
+      groupQuest: { id: "community/table", hostUserId: "creator-user", inviteMode: "public", official: false },
+    }) as never,
+  }, () => POST(new Request("https://sidequestchess.com/api/blocks/users", {
+    method: "POST",
+    headers: { "content-type": "application/json", "x-side-quest-chess-client": "android" },
+    body: JSON.stringify({ targetType: "community-multiplayer", targetId: "community/table", action: "block" }),
+  })));
+
+  assert.equal(response.status, 200);
+  assert.equal(savedSource, "mobile");
 });
 
 test("blocked creators are removed from Community Multiplayer discovery without hiding official quests", () => {

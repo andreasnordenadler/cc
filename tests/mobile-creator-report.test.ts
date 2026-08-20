@@ -82,13 +82,13 @@ test("mobile creator reporting validates before network and rejects overlapping 
   assert.equal(requests, 1);
 });
 
-test("exported creator report route derives canonical identities and preserves unrelated metadata", async (t) => {
+test("exported creator report route accepts current mobile provenance and preserves unrelated metadata", async (t) => {
   const previous = process.env.NODE_ENV;
   setNodeEnv("test");
   t.after(() => setNodeEnv(previous));
   const { dependencies, writes } = routeDependencies();
 
-  const response = await withCreatorReportRouteTestDependencies(dependencies, () => creatorReportPOST(request({ targetType: "community-multiplayer", targetId: "community/table", reason: " repeated   abusive behavior " }, { "x-side-quest-chess-client": "android" })));
+  const response = await withCreatorReportRouteTestDependencies(dependencies, () => creatorReportPOST(request({ targetType: "community-multiplayer", targetId: "community/table", reason: " repeated   abusive behavior " }, { "x-side-quest-chess-client": "mobile" })));
   assert.equal(response.status, 200);
   assert.equal(writes.length, 1);
   assert.equal(writes[0]?.userId, "reporter");
@@ -105,6 +105,19 @@ test("exported creator report route derives canonical identities and preserves u
     reason: "repeated abusive behavior",
     source: "mobile",
   }]);
+});
+
+test("exported creator report route retains legacy Android provenance compatibility", async (t) => {
+  const previous = process.env.NODE_ENV;
+  setNodeEnv("test");
+  t.after(() => setNodeEnv(previous));
+  const { dependencies, writes } = routeDependencies();
+
+  const response = await withCreatorReportRouteTestDependencies(dependencies, () => creatorReportPOST(request({ targetType: "community-multiplayer", targetId: "community/table", reason: "abusive behavior" }, { "x-side-quest-chess-client": "android" })));
+
+  assert.equal(response.status, 200);
+  const saved = writes[0]?.metadata as { privateMetadata: { sqcCreatorReports: Array<{ source: string }> } };
+  assert.equal(saved.privateMetadata.sqcCreatorReports[0]?.source, "mobile");
 });
 
 test("creator report route fails closed for anonymous, spoofed, replica, self, and over-budget requests", async (t) => {

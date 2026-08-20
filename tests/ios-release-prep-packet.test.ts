@@ -8,10 +8,11 @@ const appConfigPath = path.resolve("apps/mobile/app.json");
 const mobilePackagePath = path.resolve("apps/mobile/package.json");
 
 test("iOS preparation packet stays aligned with the source identity and fail-closed gates", async () => {
-  const [packet, configSource, packageSource] = await Promise.all([
+  const [packet, configSource, packageSource, appSource] = await Promise.all([
     readFile(packetPath, "utf8"),
     readFile(appConfigPath, "utf8"),
     readFile(mobilePackagePath, "utf8"),
+    readFile(path.resolve("apps/mobile/App.tsx"), "utf8"),
   ]);
   const config = JSON.parse(configSource).expo;
   const mobilePackage = JSON.parse(packageSource);
@@ -24,36 +25,62 @@ test("iOS preparation packet stays aligned with the source identity and fail-clo
   assert.equal(config.ios.usesAppleSignIn, undefined);
   assert.equal(config.ios.associatedDomains, undefined);
   assert.equal(config.ios.privacyManifests, undefined);
+  assert.equal(config.owner, "and72nor");
+  assert.equal(config.android.versionCode, 349);
   assert.equal(mobilePackage.dependencies?.["expo-apple-authentication"], undefined);
+  assert.match(appSource, /`Application ID: \$\{applicationId\}`/);
+  assert.match(appSource, /Application ID \{candidateIdentity\.applicationId\}\.<\/Text>/);
   await assert.rejects(access(path.resolve("apps/mobile/PrivacyInfo.xcprivacy")));
+  await assert.rejects(access(path.resolve("apps/mobile/ios")));
 
   assert.match(packet, /Reconciled through:\*\* `5cc23d7c2097dbb90489373630e07080d25af2cb`/);
-  assert.match(packet, /Android `0\.1\.349` \/ version code `350`.*Google Play \*\*Internal testing\*\*/);
-  assert.match(packet, /Android production\/public rollout is not verified/);
-  assert.match(packet, /no verified signed archive, TestFlight build or installation/);
+  assert.ok(packet.includes(`Current source declares Expo version \`${config.version}\` and Android version code \`${config.android.versionCode}\``));
+  assert.match(packet, /makes no Android approval or public-launch claim/);
+  assert.match(packet, /no verified signed iOS archive, TestFlight build\/install/);
   assert.ok(packet.includes(`| Bundle ID | \`${config.ios.bundleIdentifier}\` |`));
   assert.match(packet, /`sidequestchess:\/\/sso-callback`/);
-  assert.match(packet, /Do not use Andreas's personal identity/);
-  assert.match(packet, /no source-controlled `ios\.buildNumber`/);
-  assert.match(packet, /Sign in with Apple is absent/);
-  assert.match(packet, /No app-owned `PrivacyInfo\.xcprivacy`/);
-  assert.match(packet, /matching server routes must be deployed before distributing a candidate/);
-  assert.match(packet, /TestFlight upload, review submission, and public availability are separately approved states/);
+  assert.match(packet, /Do not use Andreas's personal Apple identity/);
+  assert.match(packet, /\| iOS build number \| Not source-controlled \|/);
+  assert.match(packet, /\| Apple login \| Absent from config\/dependencies \|/);
+  assert.match(packet, /\| Privacy manifest \| No app-owned manifest\/config entry \|/);
+  assert.match(packet, /matching server routes must be deployed before distributing this client/i);
+  assert.match(packet, /source still names owner `and72nor` and project `9af73cb2-dcd5-4429-b194-67fc81206937`/i);
+  assert.match(packet, /type `DELETE MY ACCOUNT` → Permanently delete account/);
+  assert.match(packet, /TestFlight upload, TestFlight device acceptance, App Review submission, App Review acceptance, release approval and public storefront availability are distinct states/);
 });
 
 test("App Store discovery fields fit Apple's source-level limits and never abbreviate the public name", async () => {
   const packet = await readFile(packetPath, "utf8");
-  const listing = packet.slice(packet.indexOf("## 3. App Store listing draft"), packet.indexOf("## 4. Age rating"));
-  const subtitle = listing.match(/\*\*Subtitle:\*\* (.+)/)?.[1];
-  const keywords = listing.match(/`([^`]+)`\n\n\*\*Primary category:/)?.[1];
-  const promotionalText = listing.match(/\*\*Promotional text \(optional\):\*\* (.+)/)?.[1];
+  const listing = packet.slice(packet.indexOf("## 4. App Store listing draft"), packet.indexOf("## 5. Age-rating"));
+  const subtitle = listing.match(/\| Subtitle \| ([^|]+) \|/)?.[1];
+  const keywords = listing.match(/`([^`]+)`\n\n\*\*Description:/)?.[1];
+  const promotionalText = listing.match(/\*\*Promotional text:\*\* (.+)/)?.[1];
+  const description = listing.match(/\*\*Description:\*\*\n\n([\s\S]+?)\n\nBefore submission/)?.[1];
 
   assert.ok(subtitle);
   assert.ok(keywords);
   assert.ok(promotionalText);
+  assert.ok(description);
+  assert.equal("Side Quest Chess".length <= 30, true);
   assert.ok(subtitle.length <= 30, "subtitle exceeds 30 characters");
   assert.ok(Buffer.byteLength(keywords, "utf8") <= 100, "keywords exceed 100 UTF-8 bytes");
   assert.ok(promotionalText.length <= 170, "promotional text exceeds 170 characters");
+  assert.ok(description.length <= 4000, "description exceeds 4,000 characters");
   assert.doesNotMatch(listing, /\bSQC\b/);
-  assert.match(listing, /\*\*Name:\*\* Side Quest Chess/);
+  assert.match(listing, /\| Name \| Side Quest Chess \|/);
+  assert.match(listing, /\| Price \| Free \|/);
+  assert.match(listing, /\| Availability \| Worldwide target/);
+  assert.match(listing, /\| Release method \| Manual release/);
+});
+
+test("all mobile safety routes retain legacy Android provenance compatibility", async () => {
+  const routes = await Promise.all([
+    readFile(path.resolve("src/app/api/blocks/users/route.ts"), "utf8"),
+    readFile(path.resolve("src/app/api/reports/content/route.ts"), "utf8"),
+    readFile(path.resolve("src/app/api/reports/creators/route.ts"), "utf8"),
+  ]);
+
+  for (const source of routes) {
+    assert.match(source, /\["android", "mobile"\]\.includes\(request\.headers\.get\("x-side-quest-chess-client"\)/);
+  }
 });
