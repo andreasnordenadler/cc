@@ -884,10 +884,13 @@ test("Trophy Cabinet gives desktop collectors an actionable difficulty directory
     const count = CHALLENGES.filter((challenge) => challenge.difficulty === difficulty).length;
     assert.match(html, new RegExp(`<button[^>]*aria-pressed="false"[^>]*><span>${difficulty}<\\/span><small>${count}<\\/small><\\/button>`));
   }
+  assert.match(html, /<div class="sqc-trophy-results-column"><section class="sqc-trophy-results-bar" aria-label="Coat collection results"><div><span>Collection view<\/span><strong aria-live="polite">13 coats on display<\/strong><\/div><\/section>/);
   assert.equal(html.match(/href="\/challenges\//g)?.length, CHALLENGES.length, "the difficulty directory must not duplicate coat destinations");
-  assert.match(css, /\.sqc-trophy-difficulty-index\s*\{[^}]*display:\s*none;/, "mobile keeps the current coat grid without a desktop rail");
+  assert.match(css, /\.sqc-trophy-difficulty-index,\s*\.sqc-trophy-results-bar\s*\{[^}]*display:\s*none;/, "mobile keeps the current coat grid without desktop collection controls");
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-trophy-cabinet\s+\.sqc-trophy-collection-workspace\s*\{[^}]*grid-template-columns:\s*180px\s+minmax\(0,\s*1fr\);/);
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-trophy-cabinet\s+\.sqc-trophy-difficulty-index\s*\{[^}]*display:\s*grid;[^}]*position:\s*sticky;[^}]*top:\s*104px;/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-trophy-cabinet\s+\.sqc-trophy-results-column\s*\{[^}]*display:\s*grid;[^}]*gap:\s*14px;/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-trophy-cabinet\s+\.sqc-trophy-results-bar\s*\{[^}]*display:\s*flex;/);
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-trophy-cabinet\s+\.sqc-coat-grid\s*\{[^}]*grid-template-columns:\s*repeat\(3,\s*minmax\(0,\s*1fr\)\);/);
 });
 
