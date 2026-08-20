@@ -107,6 +107,10 @@ test("pull-request release gate uses cross-platform prebuild rather than credent
   assert.match(pullRequestJob, /expo prebuild --platform ios --no-install/);
   assert.match(pullRequestJob, /expo prebuild --platform android --no-install/);
   assert.match(pullRequestJob, /Generate iOS project from Expo config \(unsigned source gate\)/);
+  const iosPrebuildIndex = pullRequestJob.indexOf("expo prebuild --platform ios --no-install");
+  const iosCleanupIndex = pullRequestJob.indexOf("rmSync('apps/mobile/ios', { recursive: true, force: true })");
+  const androidPrebuildIndex = pullRequestJob.indexOf("expo prebuild --platform android --no-install");
+  assert.ok(iosPrebuildIndex < iosCleanupIndex && iosCleanupIndex < androidPrebuildIndex, "generated iOS tree must not poison later managed-config checks");
   assert.doesNotMatch(pullRequestJob, /(?:eas(?:-cli)?|fastlane)\s+(?:build|submit|credentials)|expo\s+login|security find-identity|xcodebuild|SQC_(?:ANDROID|IOS)_/i);
 });
 
