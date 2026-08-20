@@ -2401,6 +2401,10 @@ body::after {
   gap: 12px;
 }
 
+.sqc-support-case-workspace {
+  display: contents;
+}
+
 .sqc-support-thread {
   display: grid;
   gap: 8px;
@@ -10334,6 +10338,20 @@ body::after {
     font-family: ui-serif, Georgia, Cambria, "Times New Roman", serif;
     font-size: 26px;
     line-height: 1.08;
+  }
+
+  .sqc-mobile-web.desktop-support .sqc-support-case-workspace {
+    display: grid;
+    grid-template-columns: minmax(0, .92fr) minmax(300px, 1.08fr);
+    align-items: stretch;
+    gap: 18px;
+    margin-top: 4px;
+  }
+
+  .sqc-mobile-web.desktop-support .sqc-support-thread {
+    height: 100%;
+    box-sizing: border-box;
+    align-content: start;
   }
 
   .sqc-mobile-web.desktop-support .sqc-support-form {

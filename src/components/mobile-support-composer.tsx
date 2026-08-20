@@ -97,32 +97,34 @@ export function MobileSupportComposer({
       <span className="sqc-card-eyebrow">Report a problem</span>
       <p>Something not working? Send a short note with what you tried and what happened. We can reply here if we need more details.</p>
 
-      <div className="sqc-support-thread">
-        <strong>Conversation</strong>
-        {supportThread.length ? supportThread.map((entry) => (
-          <article key={entry.id} className={entry.source === "admin" ? "sqc-support-message admin" : "sqc-support-message"}>
-            <small>{entry.source === "admin" ? "Side Quest Chess support" : "You"} - {formatSupportDate(entry.at)}</small>
-            <p>{entry.message}</p>
-          </article>
-        )) : (
-          <p>Your messages and replies from Side Quest Chess support will appear here.</p>
-        )}
-      </div>
+      <div className="sqc-support-case-workspace">
+        <div className="sqc-support-thread">
+          <strong>Conversation</strong>
+          {supportThread.length ? supportThread.map((entry) => (
+            <article key={entry.id} className={entry.source === "admin" ? "sqc-support-message admin" : "sqc-support-message"}>
+              <small>{entry.source === "admin" ? "Side Quest Chess support" : "You"} - {formatSupportDate(entry.at)}</small>
+              <p>{entry.message}</p>
+            </article>
+          )) : (
+            <p>Your messages and replies from Side Quest Chess support will appear here.</p>
+          )}
+        </div>
 
-      <form className="sqc-support-form" onSubmit={submitSupport}>
-        <label htmlFor="sqc-support-message">Message</label>
-        <textarea
-          id="sqc-support-message"
-          maxLength={SUPPORT_NOTE_MAX_LENGTH}
-          placeholder="What happened"
-          value={message}
-          onChange={(event) => setMessage(event.target.value)}
-        />
-        {state.message ? <p className="sqc-inline-success">{state.message}</p> : null}
-        {state.error ? <p className="sqc-inline-error">{state.error}</p> : null}
-        <button type="submit" disabled={state.busy}>{state.busy ? "Sending..." : "Send support message"}</button>
-        <button type="button" onClick={copySupportDetails}>Copy support details</button>
-      </form>
+        <form className="sqc-support-form" onSubmit={submitSupport}>
+          <label htmlFor="sqc-support-message">Message</label>
+          <textarea
+            id="sqc-support-message"
+            maxLength={SUPPORT_NOTE_MAX_LENGTH}
+            placeholder="What happened"
+            value={message}
+            onChange={(event) => setMessage(event.target.value)}
+          />
+          {state.message ? <p className="sqc-inline-success">{state.message}</p> : null}
+          {state.error ? <p className="sqc-inline-error">{state.error}</p> : null}
+          <button type="submit" disabled={state.busy}>{state.busy ? "Sending..." : "Send support message"}</button>
+          <button type="button" onClick={copySupportDetails}>Copy support details</button>
+        </form>
+      </div>
     </section>
   );
 }
