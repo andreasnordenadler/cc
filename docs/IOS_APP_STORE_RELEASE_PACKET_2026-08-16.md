@@ -2,7 +2,15 @@
 
 **Prepared:** 2026-08-16
 **Source baseline:** `ff034ca9a93b5306f57d88431ffdfda7385b58f3` (`origin/main` when this lane began)
+**Reconciled through:** `5cc23d7c2097dbb90489373630e07080d25af2cb` (`origin/main` fetched 2026-08-20)
 **Status:** preparation only — **not** an App Store Connect record, Apple credential, IPA, TestFlight build, or submission.
+
+### Current launch-order snapshot
+
+- Web is publicly available at `https://sidequestchess.com`.
+- Android `0.1.349` / version code `350` has been accepted and physically approved in Google Play **Internal testing**. Android production/public rollout is not verified and must not be described as launched.
+- iOS preparation may continue, but there is still no verified signed archive, TestFlight build or installation, App Store review submission, or public iOS release.
+- This branch is an isolated preparation lane. Its head is not a frozen release candidate and nothing in this packet authorizes merge, deployment, account mutation, upload, submission, or release.
 
 ## 1. Non-negotiable release gates
 
@@ -30,16 +38,22 @@ Do not treat any of the following as complete until evidence is attached to the 
 | SDK surface | Expo 54, Clerk, AuthSession/WebBrowser, SecureStore, Clipboard, Application, DateTimePicker | Inventory generated permissions, entitlements, privacy manifests, required-reason APIs, and all transitive pods. |
 | Network/auth | Production `https://sidequestchess.com`, Clerk production public key | Inspect only the frozen production build; do not assume package metadata proves server behavior. |
 | Encryption | HTTPS/auth/SecureStore libraries are present | Complete Apple's export-compliance questionnaire against the archive; do not set `ITSAppUsesNonExemptEncryption` based on assumption. |
+| iOS versioning | Expo version `0.1.349`; no source-controlled `ios.buildNumber` | Add and verify a deliberate build number before freezing the candidate; do not infer it from Android code `350`. |
+| Apple login | Google and Facebook OAuth exist; Sign in with Apple is absent | Implement and verify Sign in with Apple, or obtain a documented Guideline 4.8 exception before review. |
+| Privacy manifest | No app-owned `PrivacyInfo.xcprivacy` or Expo `ios.privacyManifests` entry is present | Inspect the generated archive and every bundled SDK, then add only evidence-backed required-reason declarations. |
+| Shared-link routing | The OAuth callback scheme is configured; universal-link/associated-domain routing is not | OAuth callback smoke is mandatory. Treat public quest/proof/invite links as web links unless native routing is deliberately implemented and tested. |
 
 ### Safe source correction in this lane
 
 The shared mobile report/block API now sends platform-neutral `X-Side-Quest-Chess-Client: mobile`; the server preserves mobile provenance for both this candidate and older Android clients that identify as `android`. Support diagnostics now identify the installed app by runtime bundle ID and native build rather than calling every installed build a GitHub Android APK.
 
+The matching server routes must be deployed before distributing a candidate that sends the new `mobile` header. Against an older backend, safety requests still complete but can be recorded with website provenance. Deployment remains separately approval-gated; this packet does not authorize it.
+
 ## 3. App Store listing draft (English, en-US)
 
 **Name:** Side Quest Chess
 
-**Subtitle:** Turn your chess games into quests
+**Subtitle:** Turn chess games into quests
 
 **Promotional text (optional):** Pick a Side Quest, play your public chess games, and come back for a verified result.
 
