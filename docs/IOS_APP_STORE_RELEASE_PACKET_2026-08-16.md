@@ -111,7 +111,7 @@ Before submission, preserve a dated App Store Connect receipt covering bundle as
 
 The contractual minimum age is 13. Apple's calculated regional storefront rating is a separate result; apply a minimum-age override if needed so the store does not contradict the Terms. Record the current questionnaire version/date, every answer, calculated rating and regional variation before adoption.
 
-Capability draft to map one-for-one to the live form. Preserve the exact live labels and answer mode in the receipt; do not collapse separate Apple questions:
+Draft mapped to Apple's current descriptor labels. Preserve the exact live labels and answer controls in the receipt; the live form remains authoritative and each descriptor must be answered separately:
 
 - Advertising: No
 - In-app purchases: No
@@ -119,22 +119,25 @@ Capability draft to map one-for-one to the live form. Preserve the exact live la
 - Loot Boxes (presence): No
 - Simulated Gambling (frequency): None
 - Contests (frequency): unresolved; see below
-- Location sharing: No
-- Parental controls: No
-- In-app age assurance: No
-- Social features disabled for under-13 users: No
-- Unrestricted web access: No general browser; only specific legal/support/public-proof destinations
-- User-generated content: Yes — profile names/bios, custom/community quest text, multiplayer text, reports and support messages
-- Social media: Yes — public Community discovery/posting, likes, profiles and creator attribution
-- Messaging/chat: treat as Yes under Apple's public-posting definition unless the live questionnaire clearly excludes this behavior
+- Parental Controls: No
+- Age Assurance: No
+- Unrestricted Web Access: No general browser; only specific legal/support/public-proof destinations
+- User-Generated Content: Yes — profile names/bios, custom/community quest text, multiplayer text, reports and support messages
+- Social Media: Yes — public Community discovery/posting, likes, profiles and creator attribution
+- Social Media Disabled for Users Under 13: No
+- Messaging and Chat: treat as Yes under Apple's public-posting definition unless the live questionnaire clearly excludes this behavior
 - Contests are present under Apple's current definition, which includes competitions for rankings, rewards or achievement of personal goals. Exact frequency remains unresolved; map how often the reachable ranking, goal, podium and trophy mechanics appear to the live form. There are no money or prizes.
 - Profanity or Crude Humor: unresolved across reachable UGC; publisher-authored content is None
 - Mature or Suggestive Themes: unresolved across reachable UGC; publisher-authored content is None
 - Horror/Fear Themes: None in publisher-authored content; verify reachable UGC
-- Medical or Treatment Information and Health or Wellness Topics: None
+- Medical or Treatment Information: None
+- Health or Wellness Topics: None
 - Alcohol, Tobacco, or Drug Use or References: unresolved across reachable UGC; publisher-authored content is None
-- Sexual Content or Nudity and Graphic Sexual Content or Nudity: unresolved across reachable UGC; publisher-authored content is None
-- Cartoon or Fantasy Violence, Realistic Violence, and Prolonged Graphic or Sadistic Realistic Violence: None in publisher-authored content; verify reachable UGC
+- Sexual Content or Nudity: unresolved across reachable UGC; publisher-authored content is None
+- Graphic Sexual Content and Nudity: unresolved across reachable UGC; publisher-authored content is None
+- Cartoon or Fantasy Violence: None in publisher-authored content; verify reachable UGC
+- Realistic Violence: None in publisher-authored content; verify reachable UGC
+- Prolonged Graphic or Sadistic Realistic Violence: None in publisher-authored content; verify reachable UGC
 - Guns or Other Weapons: None in publisher-authored content; verify reachable UGC
 
 Do not answer mature-content frequencies for the whole reachable UGC experience until moderation/filtering and reachable content are tested. Community Multiplayer has report and block controls; verify whether Community Solo and backend moderation satisfy Apple's current UGC expectations. Crowdler's intended worldwide 13+ distribution is a target, not a precomputed uniform Apple rating.
@@ -155,7 +158,9 @@ Conservative draft: each row below is **collected**, **linked to the user** and 
 | User Content / Gameplay Content | App Functionality | Quest state, proof attempts/receipts, game IDs, multiplayer participation/standings and saved custom quests |
 | User Content / Other User Content | App Functionality | Bio, custom/community/multiplayer text, invite copy, report reasons and block/report records |
 | Usage Data / Product Interaction | App Functionality; evaluate Analytics | Likes, quest/community actions, proof checks, multiplayer actions, paths/IDs, timestamps, totals and recent activity; the public Privacy Policy says first-party events help understand feature use |
-| Diagnostics / Other Diagnostic Data | App Functionality | Optional user-approved support bundle: app version/build/application ID, platform/OS, API destination, authentication/display state, connected public chess usernames, active solo quest title and multiplayer totals. The disclosure UI must show or clearly enumerate this full bundle before consent. |
+| Diagnostics / Other Diagnostic Data | App Functionality | Technical portion of the optional user-approved support bundle: app version/build/application ID, platform/OS and API destination |
+
+The optional support submission also contains authentication/display state, connected public chess usernames, active solo quest title and multiplayer totals. Keep those values classified in their underlying Identifier, Gameplay Content and Product Interaction rows rather than relabeling them as diagnostics merely because they accompany a support request. The disclosure UI must show or clearly enumerate the full bundle before consent.
 
 The purpose column uses Apple's selectable purpose names only; descriptive concepts such as account management, security, moderation and customer support must be mapped to an available Apple purpose rather than entered as invented values. Third parties/processors to inventory: Clerk and each enabled sign-in provider; hosting/security/request logging; Lichess/Chess.com public-record retrieval; Expo/EAS build services; all embedded SDKs. Obtain retention/linkage/purpose details for IP address, user agent, session/device identifiers, crashes and performance. Optional diagnostics count as collected when submitted. Do not declare data types absent until backend and provider evidence, generated manifests and IPA inspection agree with `https://sidequestchess.com/privacy`.
 

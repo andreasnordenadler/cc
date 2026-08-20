@@ -70,6 +70,7 @@ test("iOS preparation packet stays aligned with the source identity and fail-clo
   assert.match(packet, /Simulated Gambling \(frequency\): None/);
   assert.match(packet, /evaluate Analytics/);
   assert.match(packet, /connected public chess usernames, active solo quest title and multiplayer totals/);
+  assert.match(packet, /classified in their underlying Identifier, Gameplay Content and Product Interaction rows rather than relabeling them as diagnostics/);
   assert.match(packet, /type `DELETE MY ACCOUNT` → Permanently delete account/);
   assert.match(packet, /primary and secondary review accounts that do not expire during review or re-review/);
   assert.match(packet, /report reaches the staffed queue, escalation\/response SLA, removal/);
