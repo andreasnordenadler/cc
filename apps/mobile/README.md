@@ -79,10 +79,10 @@ This is the shared Android/iOS mobile shell. It currently:
 - supports signed-out browsing and authenticated Clerk-backed account state;
 - supports chess username, runner display name, and brag-line profile editing;
 - supports Solo quest start, latest-game check, explicit game/link proof submission, reset, proof viewing, proof-link copy, and native proof sharing;
-- supports Custom/Community Solo browse, safe rule summaries, creator context, public-link sharing, report/support handoff, active proof controls, and saved-rule editing;
-- supports Multiplayer discovery, details, host context, create/join/leave/refresh/proof flows, report/support handoff, podium trophies, and shareable public links;
+- supports Custom/Community Solo browse, safe rule summaries, creator context, public-link sharing, a support-report handoff, active proof controls, and saved-rule editing;
+- supports Multiplayer discovery, details, host context, create/join/leave/refresh/proof flows, native content/creator reporting and creator blocking, podium trophies, and shareable public links;
 - keeps raw custom quest config and private account metadata hidden from public/mobile display;
-- includes root EAS profiles for an internal Android APK preview.
+- includes root and mobile EAS profiles for internal Android QA plus approval-gated Android and iOS production builds; profile presence is not authorization to build, sign, upload, or release.
 
 Next app milestones:
 
