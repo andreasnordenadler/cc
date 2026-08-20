@@ -207,7 +207,9 @@ function SignedInAccountScreen({
         </div>
       </section>
 
-      <AccountSection className="sqc-account-quests" title="Your Side Quests" action={{ label: "Browse Solo", href: "/side-quests" }}>
+      <AccountSectionNavigator />
+
+      <AccountSection id="account-side-quests" className="sqc-account-quests" title="Your Side Quests" action={{ label: "Browse Solo", href: "/side-quests" }}>
         <AccountSoloRow
           activeChallenge={activeChallenge}
           checkedAt={activeAttempt?.checkedAt ?? activeChallenge?.verifiedAt}
@@ -219,7 +221,7 @@ function SignedInAccountScreen({
         <AccountCustomQuestRows customSideQuests={customSideQuests} />
       </AccountSection>
 
-      <AccountSection className="sqc-account-progress" title="Progress & Stats" action={{ label: "Details", href: "/trophy-cabinet" }}>
+      <AccountSection id="account-progress" className="sqc-account-progress" title="Progress & Stats" action={{ label: "Details", href: "/trophy-cabinet" }}>
         <div className="sqc-account-stats-panel">
           <div className="sqc-account-metric-grid">
             <Metric label="Completed" value={accountStats?.completedCount ?? 0} />
@@ -232,7 +234,7 @@ function SignedInAccountScreen({
         </div>
       </AccountSection>
 
-      <AccountSection className="sqc-account-strength" title="Chess Strength">
+      <AccountSection id="account-strength" className="sqc-account-strength" title="Chess Strength">
         <div className="sqc-chess-strength-card">
           <p className="sqc-account-kicker">Chess Strength</p>
           <h2>Public chess ratings</h2>
@@ -244,7 +246,7 @@ function SignedInAccountScreen({
         </div>
       </AccountSection>
 
-      <AccountSection className="sqc-account-trophies" title="Trophy Cabinet" action={{ label: "Open Trophy Cabinet", href: "/trophy-cabinet" }}>
+      <AccountSection id="account-trophies" className="sqc-account-trophies" title="Trophy Cabinet" action={{ label: "Open Trophy Cabinet", href: "/trophy-cabinet" }}>
         {trophyRows.length ? (
           trophyRows.map((row) => (
             <AccountRow
@@ -277,7 +279,7 @@ function SignedInAccountScreen({
         />
       </div>
 
-      <AccountSection className="sqc-account-support" title="Help & Support" action={{ label: "Open", href: "/support" }}>
+      <AccountSection id="account-support" className="sqc-account-support" title="Help & Support" action={{ label: "Open", href: "/support" }}>
         <AccountRow
           title="How Side Quest Chess works"
           meta="Start here for Side Quests, proof, chess usernames, and Multiplayer."
@@ -294,7 +296,7 @@ function SignedInAccountScreen({
         />
       </AccountSection>
 
-      <div className="sqc-account-security">
+      <div id="account-security" className="sqc-account-security">
         <DeleteAccountControl />
         <AccountLogoutButton />
       </div>
@@ -373,9 +375,23 @@ function ProfileEditorCard({
   );
 }
 
-function AccountSection({ className, title, action, children }: { className?: string; title: string; action?: { label: string; href: string }; children: ReactNode }) {
+export function AccountSectionNavigator() {
   return (
-    <section className={["sqc-account-section", className].filter(Boolean).join(" ")}>
+    <nav className="sqc-account-section-nav" aria-label="Account sections">
+      <span>On this page</span>
+      <Link href="#account-side-quests">Side Quests</Link>
+      <Link href="#account-progress">Progress</Link>
+      <Link href="#account-strength">Chess strength</Link>
+      <Link href="#account-trophies">Trophies</Link>
+      <Link href="#account-support">Support</Link>
+      <Link href="#account-security">Security</Link>
+    </nav>
+  );
+}
+
+function AccountSection({ id, className, title, action, children }: { id?: string; className?: string; title: string; action?: { label: string; href: string }; children: ReactNode }) {
+  return (
+    <section id={id} className={["sqc-account-section", className].filter(Boolean).join(" ")}>
       <div className="sqc-account-section-head">
         <h2>{title}</h2>
         {action ? <Link href={action.href}>{action.label}</Link> : null}
