@@ -114,7 +114,11 @@ test("iOS packet keeps submission evidence fail-closed and separates Apple relea
   assert.doesNotMatch(gates, /\| (?:READY|PASSED|SUBMITTED|APPROVED|RELEASED|PUBLIC) \|/);
   assert.match(packet, /Submission, App Review acceptance, release approval, and public storefront availability are four distinct states/);
   assert.match(packet, /This packet does not authorize an invite, acceptance, credential generation, app-record mutation, or upload/);
-  assert.doesNotMatch(packet, /authorize \*\*\*/i, "authorization packet contains an unresolved operator placeholder");
+  assert.doesNotMatch(
+    packet,
+    /(?:\*{3}|<[^>]+>|\b(?:TBD|TK|TO[- ]?DO)\b)/i,
+    "release packet contains an unresolved placeholder",
+  );
 });
 
 test("age, privacy, review, screenshot, and access drafts retain their release contracts", async () => {
