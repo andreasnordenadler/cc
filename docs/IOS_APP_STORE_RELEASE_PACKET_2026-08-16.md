@@ -257,6 +257,7 @@ Source freeze, signed archive, TestFlight upload, TestFlight device acceptance, 
 
 - A clean temporary `expo prebuild --platform ios --no-install` from this branch completed on 2026-08-20. The generated target resolved `PRODUCT_BUNDLE_IDENTIFIER = com.sidequestchess.app`, device family `1,2`, display name `Side Quest Chess`, version `0.1.349`, build `1`, and URL schemes `sidequestchess` plus `com.sidequestchess.app`.
 - That generated `Info.plist` contained no sensitive-resource usage description and no `ITSAppUsesNonExemptEncryption`. It enabled iPad portrait, upside-down and both landscape orientations with `UIRequiresFullScreen = false`. No app-target `PrivacyInfo.xcprivacy` was generated before pod installation. These are audit findings, not archive evidence; inspect pods, merged privacy report and signed IPA later.
+- The pull-request mobile release gate now generates both iOS and Android native projects from Expo config without signing, Apple account access, EAS build, upload or submission. This catches cross-platform prebuild regressions but does not prove CocoaPods installation, Xcode compilation, archive contents, signing or device behavior.
 - Full Xcode is not selected/available; Command Line Tools are active.
 - No valid local Apple code-signing identities are installed.
 - EAS CLI `22.2.0` is runnable through `npx`; its read-only `whoami` on 2026-08-20 returned Andreas's personal identity. Do not run Apple credential, iOS build or submit operations from that identity.

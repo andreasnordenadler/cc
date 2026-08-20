@@ -100,6 +100,16 @@ test("CI uses a pnpm release whose audit client supports the registry bulk advis
   }
 });
 
+test("pull-request release gate uses cross-platform prebuild rather than credentialed release commands", () => {
+  const source = readRepoFile(".github/workflows/mobile-release-gate.yml");
+  const pullRequestJob = source.slice(source.indexOf("  mobile-release-gate:"), source.indexOf("  signed-mobile-release:"));
+
+  assert.match(pullRequestJob, /expo prebuild --platform ios --no-install/);
+  assert.match(pullRequestJob, /expo prebuild --platform android --no-install/);
+  assert.match(pullRequestJob, /Generate iOS project from Expo config \(unsigned source gate\)/);
+  assert.doesNotMatch(pullRequestJob, /(?:eas(?:-cli)?|fastlane)\s+(?:build|submit|credentials)|expo\s+login|security find-identity|xcodebuild|SQC_(?:ANDROID|IOS)_/i);
+});
+
 test("pnpm 11 keeps the release-age guard except for the reviewed Expo patch set", () => {
   const source = readRepoFile("pnpm-workspace.yaml");
   const reviewedExpoPatchSet = [
