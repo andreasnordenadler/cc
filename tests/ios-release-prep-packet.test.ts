@@ -68,6 +68,7 @@ test("iOS preparation packet stays aligned with the source identity and fail-clo
   assert.match(packet, /Gambling \(presence\): No/);
   assert.match(packet, /Loot Boxes \(presence\): No/);
   assert.match(packet, /Simulated Gambling \(frequency\): None/);
+  assert.match(packet, /Messaging and Chat: Yes/);
   assert.match(packet, /Identifiers \/ User ID \| App Functionality; Analytics/);
   assert.match(packet, /Usage Data \/ Product Interaction \| App Functionality; Analytics/);
   assert.match(packet, /not a complete nutrition label/);
@@ -80,6 +81,11 @@ test("iOS preparation packet stays aligned with the source identity and fail-clo
   assert.match(packet, /storefront override alone is not access control/);
   assert.match(packet, /report\/block records/);
   assert.match(packet, /4,000-byte limit/);
+  assert.match(packet, /monitor authentication, APIs, chess-provider fixtures, moderation and deletion throughout review and re-review/);
+  assert.match(packet, /minimum supported iOS\/iPadOS version and the then-current public OS/);
+  assert.match(packet, /`1260×2736`, `1290×2796` or `1320×2868`/);
+  assert.match(packet, /`1284×2778` or `1242×2688`/);
+  assert.match(packet, /`2064×2752` or `2048×2732`/);
   assert.match(packet, /clean temporary `expo prebuild --platform ios --no-install`/);
   assert.match(packet, /build `1`, and URL schemes `sidequestchess` plus `com\.sidequestchess\.app`/);
   assert.match(packet, /No app-target `PrivacyInfo\.xcprivacy` was generated before pod installation/);
@@ -118,6 +124,10 @@ test("App Store discovery fields fit Apple's source-level limits and never abbre
   assert.ok(description.length <= 4000, "description exceeds 4,000 characters");
   assert.doesNotMatch(listing, /\bSQC\b/);
   assert.match(listing, /\| Name \| Side Quest Chess \|/);
+  assert.match(listing, /\| Primary category \| Games \|/);
+  assert.match(listing, /\| Games subcategories \| Board; Strategy \|/);
+  assert.match(listing, /\| Secondary category \| None proposed;/);
+  assert.doesNotMatch(listing, /\| (?:Primary|Secondary) category \| Games —/);
   assert.match(listing, /\| Price \| Free \|/);
   const config = JSON.parse(await readFile(appConfigPath, "utf8")).expo;
   assert.ok(listing.includes(`| Version | Candidate \`${config.version}\`;`));

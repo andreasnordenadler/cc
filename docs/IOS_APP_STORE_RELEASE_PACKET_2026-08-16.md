@@ -1,8 +1,8 @@
 # Side Quest Chess — iOS App Store release packet
 
-**Prepared:** 2026-08-16; reconciled 2026-08-20
+**Prepared:** 2026-08-16; reconciled 2026-08-21
 **Upstream baseline:** `a5ac084fa22c11a5f5f27903fe71af3fe7ce2c50`
-**Reconciled through:** `a5ac084fa22c11a5f5f27903fe71af3fe7ce2c50` (`origin/main`, fetched 2026-08-20)
+**Reconciled through:** `a5ac084fa22c11a5f5f27903fe71af3fe7ce2c50` (`origin/main`, fetched 2026-08-21)
 **Status:** source preparation only. This is not an App Store Connect record, Apple credential, IPA, TestFlight build, review submission, or public release.
 
 ## 1. Launch order and evidence posture
@@ -69,8 +69,9 @@ These are proposed values, not adopted App Store Connect answers.
 | Primary language | English (U.S.) |
 | SKU | `sidequestchess-ios` — immutable; owner must approve before record creation |
 | Version | Candidate `0.1.349`; approve before creating the version record |
-| Primary category | Games — Board |
-| Secondary category | Games — Strategy |
+| Primary category | Games |
+| Games subcategories | Board; Strategy |
+| Secondary category | None proposed; this is a separate optional category field, not the second Games subcategory |
 | Price | Free |
 | Availability | Worldwide target, excluding any territory whose game-publication evidence is not complete; specifically receipt-gate mainland China ISBN/approval/ICP applicability, Vietnam game licensing/classification, and South Korea game rating/RCN applicability before selection |
 | Copyright | 2026 Crowdler AB |
@@ -132,7 +133,7 @@ Draft mapped to Apple's current descriptor labels. Preserve the exact live label
 - User-Generated Content: Yes — profile names/bios, custom/community quest text, multiplayer text, reports and support messages
 - Social Media: Yes — public Community discovery/posting, likes, profiles and creator attribution
 - Social Media Disabled for Users Under 13: No
-- Messaging and Chat: treat as Yes under Apple's public-posting definition unless the live questionnaire clearly excludes this behavior
+- Messaging and Chat: Yes — Apple's definition includes public posting, which is reachable in Community content
 - Contests are present under Apple's current definition, which includes competitions for rankings, rewards or achievement of personal goals. Exact frequency remains unresolved; map how often the reachable ranking, goal, podium and trophy mechanics appear to the live form. There are no money or prizes.
 - Profanity or Crude Humor: unresolved across reachable UGC; publisher-authored content is None
 - Mature or Suggestive Themes: unresolved across reachable UGC; publisher-authored content is None
@@ -196,7 +197,7 @@ Do not paste until every described path passes on the selected TestFlight build.
 > Support: https://sidequestchess.com/support
 > Privacy: https://sidequestchess.com/privacy
 
-Create owner-authorized non-personal primary and secondary review accounts that do not expire during review or re-review, plus a deletion-only account. App Store Connect must contain exact credentials, seeded fixture IDs, expected proof result, reset instructions, fallback route and a reachable review contact. After a deletion smoke, recreate/reset the deletion-only fixture and preserve evidence that the submitted credentials work. Never place owner credentials or personal OAuth credentials in review notes.
+Create owner-authorized non-personal primary and secondary review accounts that do not expire during review or re-review, plus a deletion-only account. App Store Connect must contain exact credentials, seeded fixture IDs, expected proof result, reset instructions, fallback route and a reachable review contact. After a deletion smoke, recreate/reset the deletion-only fixture and preserve evidence that the submitted credentials work. Never place owner credentials or personal OAuth credentials in review notes. Assign an owner to monitor authentication, APIs, chess-provider fixtures, moderation and deletion throughout review and re-review; submission remains blocked unless those services are live, the fixtures are unexpired, and an alert/reset path is staffed.
 
 ## 9. Screenshot/localization plan
 
@@ -204,14 +205,14 @@ Capture only after candidate freeze from the exact selected build with productio
 
 | Device family | Required while tablet support is enabled | Suggested ordered frames |
 | --- | --- | --- |
-| 6.9-inch iPhone | Current accepted portrait dimensions, 1–10 images, no alpha | Home/selection; quest detail/proof; multiplayer; community; Trophy Cabinet; account/support |
-| 13-inch iPad | Current accepted dimensions, 1–10 images, no alpha | Same representative feature set with truthful tablet layout |
+| 6.9-inch iPhone (preferred; 6.5-inch accepted as Apple's fallback if no 6.9-inch set is supplied) | 6.9-inch portrait `1260×2736`, `1290×2796` or `1320×2868`; fallback 6.5-inch portrait `1284×2778` or `1242×2688`; inverse dimensions for landscape; 1–10 images, no alpha | Home/selection; quest detail/proof; multiplayer; community; Trophy Cabinet; account/support |
+| 13-inch iPad | Portrait `2064×2752` or `2048×2732` pixels, or inverse landscape; 1–10 images, no alpha; required while the app runs on iPad | Same representative feature set with truthful tablet layout |
 
 Initial locale: English (U.S.). If another locale is added, translate the complete listing and screenshot set together. App preview is optional. Keep a manifest with source SHA, version/build, build ID, device/display, OS, orientation, locale, fixture, filename, exact dimensions and SHA-256. Reject stale product names, debug overlays, personal data, fake achievements, pricing, clipped UI or keyboard/modal residue.
 
 ## 10. Same-candidate QA and TestFlight smoke
 
-Record device, OS, build, source SHA, account fixture, timestamp, result and evidence for each pass.
+Record device, OS, build, source SHA, account fixture, timestamp, result and evidence for each pass. The frozen prebuild/archive must establish the exact iOS deployment target. Cover both that minimum supported iOS/iPadOS version and the then-current public OS; do not infer the minimum from Expo defaults or this packet.
 
 | Surface | iPhone physical | iPad physical while supported |
 | --- | --- | --- |
