@@ -30,10 +30,16 @@ test("iOS preparation packet stays aligned with the source identity and fail-clo
   assert.equal(mobilePackage.dependencies?.["expo-apple-authentication"], undefined);
   assert.match(appSource, /`Application ID: \$\{applicationId\}`/);
   assert.match(appSource, /Application ID \{candidateIdentity\.applicationId\}\.<\/Text>/);
+  assert.match(appSource, /if \(!__DEV__ \|\| isAuthenticatedAccount\(account\)\) return account;/);
+  assert.doesNotMatch(appSource, /EXPO_PUBLIC_SQC_MOBILE_PREVIEW_AUTH/);
+  assert.doesNotMatch(appSource, /andreas\.nordenadler@gmail\.com/);
+  const previewFixture = appSource.slice(appSource.indexOf("function getDevTrackerPreviewAccount"));
+  assert.doesNotMatch(previewFixture, /\b(?:Andreas|SAM|and72nor)\b/);
   await assert.rejects(access(path.resolve("apps/mobile/PrivacyInfo.xcprivacy")));
   await assert.rejects(access(path.resolve("apps/mobile/ios")));
 
-  assert.match(packet, /Reconciled through:\*\* `5cc23d7c2097dbb90489373630e07080d25af2cb`/);
+  assert.match(packet, /Upstream baseline:\*\* `a5ac084fa22c11a5f5f27903fe71af3fe7ce2c50`/);
+  assert.match(packet, /Reconciled through:\*\* `a5ac084fa22c11a5f5f27903fe71af3fe7ce2c50`/);
   assert.ok(packet.includes(`Current source declares Expo version \`${config.version}\` and Android version code \`${config.android.versionCode}\``));
   assert.match(packet, /makes no Android approval or public-launch claim/);
   assert.match(packet, /no verified signed iOS archive, TestFlight build\/install/);
@@ -45,8 +51,25 @@ test("iOS preparation packet stays aligned with the source identity and fail-clo
   assert.match(packet, /\| Privacy manifest \| No app-owned manifest\/config entry \|/);
   assert.match(packet, /matching server routes must be deployed before distributing this client/i);
   assert.match(packet, /source still names owner `and72nor` and project `9af73cb2-dcd5-4429-b194-67fc81206937`/i);
+  assert.match(packet, /local preview-account fixture unconditionally development-only/i);
+  assert.match(packet, /signed-out support fallback with `sam@crowdler\.com`/i);
+  assert.match(packet, /Contests: Yes under Apple's current definition/);
+  assert.match(packet, /Exact frequency remains unresolved/);
+  assert.match(packet, /evaluate Analytics/);
   assert.match(packet, /type `DELETE MY ACCOUNT` → Permanently delete account/);
   assert.match(packet, /TestFlight upload, TestFlight device acceptance, App Review submission, App Review acceptance, release approval and public storefront availability are distinct states/);
+});
+
+test("public support fallback uses the Crowdler controller address", async () => {
+  const [supportSource, privacySource, termsSource] = await Promise.all([
+    readFile(path.resolve("src/components/support-contact-form.tsx"), "utf8"),
+    readFile(path.resolve("src/app/privacy/page.tsx"), "utf8"),
+    readFile(path.resolve("src/app/terms/page.tsx"), "utf8"),
+  ]);
+  assert.match(supportSource, /const SUPPORT_EMAIL = "sam@crowdler\.com";/);
+  assert.doesNotMatch(supportSource, /andreas\.nordenadler@gmail\.com/);
+  assert.match(privacySource, /sam@crowdler\.com/);
+  assert.match(termsSource, /sam@crowdler\.com/);
 });
 
 test("App Store discovery fields fit Apple's source-level limits and never abbreviate the public name", async () => {

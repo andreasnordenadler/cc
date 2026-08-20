@@ -1,8 +1,8 @@
 # Side Quest Chess — iOS App Store release packet
 
 **Prepared:** 2026-08-16; reconciled 2026-08-20
-**Source baseline:** `ff034ca9a93b5306f57d88431ffdfda7385b58f3`
-**Reconciled through:** `5cc23d7c2097dbb90489373630e07080d25af2cb` (`origin/main`, fetched 2026-08-20)
+**Upstream baseline:** `a5ac084fa22c11a5f5f27903fe71af3fe7ce2c50`
+**Reconciled through:** `a5ac084fa22c11a5f5f27903fe71af3fe7ce2c50` (`origin/main`, fetched 2026-08-20)
 **Status:** source preparation only. This is not an App Store Connect record, Apple credential, IPA, TestFlight build, review submission, or public release.
 
 ## 1. Launch order and evidence posture
@@ -52,7 +52,7 @@ Do not mark any gate complete without evidence tied to the exact frozen candidat
 | Encryption | HTTPS/auth/SecureStore-related libraries present | Answer Apple's current export questionnaire against the archive; do not infer exemption solely from package names |
 | Permissions | No iOS usage descriptions declared in source | Confirm generated `Info.plist` and archive request no unused sensitive access |
 
-The safe source correction on this branch sends platform-neutral `X-Side-Quest-Chess-Client: mobile` for mobile report/block APIs while the server retains compatibility with legacy `android`. Support diagnostics use runtime application ID and native build. Matching server routes must be deployed before distributing this client; deployment remains separately approval-gated.
+Safe source corrections on this branch send platform-neutral `X-Side-Quest-Chess-Client: mobile` for mobile report/block APIs while the server retains compatibility with legacy `android`, make the local preview-account fixture unconditionally development-only, remove personal data from that fixture, and align the signed-out support fallback with `sam@crowdler.com`, the Crowdler controller contact already published in Privacy and Terms. Support diagnostics use runtime application ID and native build. Matching server routes must be deployed before distributing this client. The support correction must also be deployed before distribution; deployment remains separately approval-gated.
 
 Facebook is currently visible whenever Clerk is configured. Before freeze, production Facebook OAuth must pass on the exact iPhone candidate or the control and review copy must be removed. Email/password, Google and Facebook are reachable today; review notes must name only methods that pass the final smoke.
 
@@ -123,7 +123,7 @@ Capability draft to map to the live form:
 - User-generated content: Yes — profile names/bios, custom/community quest text, multiplayer text, reports and support messages
 - Social media: Yes — public Community discovery/posting, likes, profiles and creator attribution
 - Messaging/chat: treat as Yes under Apple's public-posting definition unless the live questionnaire clearly excludes this behavior
-- Contests: conservatively Frequent because rankings, goals, podiums and trophy outcomes are reachable, despite no money or prizes; confirm against the live wording
+- Contests: Yes under Apple's current definition, which includes competitions for rankings, rewards or achievement of personal goals. Exact frequency remains unresolved; map how often the reachable ranking, goal, podium and trophy mechanics appear to the live form. There are no money or prizes.
 - Publisher-authored sexual content, nudity, drugs/alcohol/tobacco, horror, profanity, medical content and graphic violence: None
 
 Do not answer mature-content frequencies for the whole reachable UGC experience until moderation/filtering and reachable content are tested. Community Multiplayer has report and block controls; verify whether Community Solo and backend moderation satisfy Apple's current UGC expectations. Crowdler's intended worldwide 13+ distribution is a target, not a precomputed uniform Apple rating.
@@ -138,15 +138,15 @@ Conservative draft: each row below is **collected**, **linked to the user** and 
 | --- | --- | --- |
 | Contact Info / Name | App Functionality | Name received from Clerk or selected sign-in provider |
 | Contact Info / Email Address | App Functionality | Email/password or social-provider identity, including possible relay email |
-| Identifiers / User ID | App Functionality, account management, security | Clerk identity/session, display name, username, chess handles, participant/host/report target IDs |
+| Identifiers / User ID | App Functionality; evaluate Analytics | Clerk identity/session, display name, username, chess handles, participant/host/report target IDs |
 | User Content / Photos or Videos | App Functionality | Provider/Clerk profile image; no native photo-library feature is intended |
-| User Content / Customer Support | App Functionality, customer support | Signed-in support text and user-approved diagnostics |
+| User Content / Customer Support | App Functionality | Signed-in support text and user-approved diagnostics |
 | User Content / Gameplay Content | App Functionality | Quest state, proof attempts/receipts, game IDs, multiplayer participation/standings and saved custom quests |
-| User Content / Other User Content | App Functionality, moderation | Bio, custom/community/multiplayer text, invite copy, report reasons and block/report records |
-| Usage Data / Product Interaction | App Functionality | Likes, quest/community actions, proof checks, multiplayer actions, paths/IDs, timestamps, totals and recent activity |
-| Diagnostics / Other Diagnostic Data | Customer Support | Optional previewed support bundle: app version/build/application ID, platform/OS and API destination |
+| User Content / Other User Content | App Functionality | Bio, custom/community/multiplayer text, invite copy, report reasons and block/report records |
+| Usage Data / Product Interaction | App Functionality; evaluate Analytics | Likes, quest/community actions, proof checks, multiplayer actions, paths/IDs, timestamps, totals and recent activity; the public Privacy Policy says first-party events help understand feature use |
+| Diagnostics / Other Diagnostic Data | App Functionality | Optional previewed support bundle: app version/build/application ID, platform/OS and API destination |
 
-Third parties/processors to inventory: Clerk and each enabled sign-in provider; hosting/security/request logging; Lichess/Chess.com public-record retrieval; Expo/EAS build services; all embedded SDKs. Obtain retention/linkage/purpose details for IP address, user agent, session/device identifiers, crashes and performance. Optional diagnostics count as collected when submitted. Do not declare data types absent until backend and provider evidence, generated manifests and IPA inspection agree with `https://sidequestchess.com/privacy`.
+The purpose column uses Apple's selectable purpose names only; descriptive concepts such as account management, security, moderation and customer support must be mapped to an available Apple purpose rather than entered as invented values. Third parties/processors to inventory: Clerk and each enabled sign-in provider; hosting/security/request logging; Lichess/Chess.com public-record retrieval; Expo/EAS build services; all embedded SDKs. Obtain retention/linkage/purpose details for IP address, user agent, session/device identifiers, crashes and performance. Optional diagnostics count as collected when submitted. Do not declare data types absent until backend and provider evidence, generated manifests and IPA inspection agree with `https://sidequestchess.com/privacy`.
 
 ## 7. Export-compliance draft
 

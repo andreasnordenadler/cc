@@ -1,5 +1,7 @@
 # SQC Mobile Apple and privacy prep - 2026-07-03
 
+> **Historical/superseded (2026-08-20):** This document describes the July 3 source state and is not a current iOS readiness statement. Use `docs/IOS_APP_STORE_RELEASE_PACKET_2026-08-16.md` for the current fail-closed packet. In particular, do not rely on the version/build, seller/access, privacy-label, or “Ready for App Store Connect” statements below.
+
 ## Action taken
 
 - Added a dedicated web Privacy Policy route at `/privacy`.
