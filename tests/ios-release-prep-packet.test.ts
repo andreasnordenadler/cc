@@ -24,6 +24,8 @@ test("iOS preparation packet stays aligned with the source identity and fail-clo
   assert.equal(config.ios.buildNumber, undefined);
   assert.equal(config.ios.usesAppleSignIn, true);
   assert.equal(config.ios.config.usesNonExemptEncryption, false);
+  assert.equal(config.ios.infoPlist.NSAppTransportSecurity.NSAllowsArbitraryLoads, false);
+  assert.equal(config.ios.infoPlist.NSAppTransportSecurity.NSAllowsLocalNetworking, true);
   assert.equal(config.ios.associatedDomains, undefined);
   assert.equal(config.ios.privacyManifests, undefined);
   assert.equal(config.owner, "and72nor");
@@ -51,6 +53,7 @@ test("iOS preparation packet stays aligned with the source identity and fail-clo
   assert.match(packet, /\| Apple login \| Native Clerk flow, Expo plugin and iOS capability declaration prepared \|/);
   assert.match(packet, /current deletion implementation does not revoke Apple's authorization\/tokens/i);
   assert.match(packet, /\| Export compliance \| Source declares exempt-only encryption/);
+  assert.match(packet, /\| App Transport Security \| Source explicitly pins arbitrary network loads off/);
   assert.match(packet, /\| Privacy manifest \| No app-owned manifest\/config entry \|/);
   assert.match(packet, /matching server routes must be deployed before distributing this client/i);
   assert.match(packet, /source still names owner `and72nor` and project `9af73cb2-dcd5-4429-b194-67fc81206937`/i);

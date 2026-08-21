@@ -16,6 +16,12 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.sidequestchess.app",
       "usesAppleSignIn": true,
+      "infoPlist": {
+        "NSAppTransportSecurity": {
+          "NSAllowsArbitraryLoads": false,
+          "NSAllowsLocalNetworking": true
+        }
+      },
       "config": {
         "usesNonExemptEncryption": false
       }
