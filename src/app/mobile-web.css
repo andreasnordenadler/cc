@@ -11053,6 +11053,16 @@ body::after {
 }
 
 @media (min-width: 1680px) {
+  .sqc-desktop-guest,
+  .sqc-desktop-signed-in {
+    width: min(1440px, calc(100% - 96px));
+  }
+
+  .sqc-desktop-hero {
+    grid-template-columns: minmax(0, 1fr) minmax(500px, .72fr);
+    gap: 112px;
+  }
+
   .sqc-mobile-web.desktop-solo-discovery .sqc-screen {
     width: min(1600px, calc(100% - 80px));
   }

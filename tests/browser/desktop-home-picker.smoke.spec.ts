@@ -36,6 +36,17 @@ test("desktop Home switches composition exactly at the established boundary", as
   await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBe(0);
 });
 
+test("wide desktop Home grows into a deliberate 1440px canvas", async ({ page }) => {
+  await page.setViewportSize({ width: 1679, height: 900 });
+  await page.goto("/", { waitUntil: "domcontentloaded" });
+  await expect(page.locator(".sqc-desktop-guest")).toHaveCSS("width", "1200px");
+
+  await page.setViewportSize({ width: 1920, height: 1080 });
+  await expect(page.locator(".sqc-desktop-guest")).toHaveCSS("width", "1440px");
+  await expect(page.locator(".sqc-desktop-featured-quest")).toBeVisible();
+  await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBe(0);
+});
+
 test("desktop Home ritual link reveals the complete section below sticky navigation", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto("/", { waitUntil: "domcontentloaded" });
