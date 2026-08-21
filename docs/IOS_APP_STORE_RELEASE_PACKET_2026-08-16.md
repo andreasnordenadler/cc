@@ -57,7 +57,7 @@ Do not mark any gate complete without evidence tied to the exact frozen candidat
 
 Safe source corrections on this branch send platform-neutral `X-Side-Quest-Chess-Client: mobile` for mobile report/block APIs while the server retains compatibility with legacy `android`, make the local preview-account fixture unconditionally development-only, remove personal data from that fixture, and align the signed-out support fallback with `sam@crowdler.com`, the Crowdler controller contact already published in Privacy and Terms. Support diagnostics use runtime application ID and native build. Matching server routes must be deployed before distributing this client. The support correction must also be deployed before distribution; deployment remains separately approval-gated.
 
-Facebook is currently visible whenever Clerk is configured. Before freeze, production Facebook OAuth must pass on the exact iPhone candidate or the control and review copy must be removed. Email/password, Google, Facebook and the source-prepared native Apple control are reachable on their intended platforms; Apple remains unverified until the dedicated Crowdler identity can configure the capability/provider and the exact flow passes on a physical iPhone. Review notes must name only methods that pass the final smoke.
+Facebook is currently visible whenever Clerk is configured. Before freeze, production Facebook OAuth must pass on the exact iPhone candidate or the control and review copy must be removed. Email/password, Google, Facebook and the source-prepared native Apple control are reachable on their intended platforms; Apple remains unverified until the dedicated Crowdler identity can configure the capability/provider and the exact flow passes on a physical iPhone. The current deletion implementation does not revoke Apple's authorization/tokens: deleting the Clerk user and ending the local session are not sufficient. Keep iOS distribution blocked until a provider-aware revocation path is implemented, tested against Apple and Clerk behavior, and verified during exact-candidate deletion. Review notes must name only methods that pass the final smoke.
 
 ## 4. App Store listing draft — English (U.S.)
 
@@ -74,7 +74,7 @@ These are proposed values, not adopted App Store Connect answers.
 | Games subcategories | Board; Strategy |
 | Secondary category | None proposed; this is a separate optional category field, not the second Games subcategory |
 | Price | Free |
-| Availability | Worldwide target, excluding any territory whose game-publication evidence is not complete; specifically receipt-gate mainland China ISBN/approval/ICP applicability, Vietnam game licensing/classification, and South Korea game rating/RCN applicability before selection |
+| Availability | Worldwide target, excluding any territory whose game-publication evidence is not complete; specifically receipt-gate mainland China ISBN/approval/ICP applicability and the Vietnam game license before selection. The Vietnam storefront age classification is calculated from the age-rating answers rather than supplied as separate classification evidence. Require a South Korea RCN only if the selected build/answers trigger Apple's documented conditions, including a GRAC-issued KR-19 rating, Casino/17+, or the specified Frequent/Intense content thresholds. |
 | Copyright | 2026 Crowdler AB |
 | Privacy Policy URL | https://sidequestchess.com/privacy |
 | Support URL | https://sidequestchess.com/support — deployment must expose actual Crowdler AB contact information to signed-out visitors before adoption |
@@ -86,13 +86,13 @@ These are proposed values, not adopted App Store Connect answers.
 | Content rights | Yes — the app accesses third-party public Lichess/Chess.com records; block submission until owner/legal retains the required authorization evidence |
 | Advertising identifier | No intended IDFA use; confirm exact IPA/SDK behavior before answering |
 | Review contact | Owner-supplied authorized name, reachable phone and monitored Crowdler email; unresolved |
-| EU trader status | Crowdler AB is the intended publisher/controller; owner/legal must adopt the current DSA trader answer and complete any required verification before EU availability |
+| EU trader status | Crowdler AB is the intended publisher/controller. Before EU availability, an Account Holder or Admin must separately approve and complete the current DSA trader flow: payment account details, certification that offered products/services comply with EU law, email and phone verification, and required supporting documentation. |
 | Tax category | Owner/finance selection unresolved; no tax or banking terms may be accepted without separate approval |
 | License agreement | Standard Apple EULA unless owner/legal separately approves a custom agreement |
 
 **Promotional text:** Pick a Side Quest, play your public chess games, and come back for a verified result.
 
-**Keywords:** `chess,challenge,quests,board,strategy,goals,multiplayer,variants`
+**Keywords:** `challenge,quests,board,strategy,goals,multiplayer,variants,achievements`
 
 **Description:**
 
@@ -116,14 +116,13 @@ Before submission, preserve a dated App Store Connect receipt covering bundle as
 
 ## 5. Age-rating answer draft
 
-The contractual minimum age is 13. Apple's calculated regional storefront rating is a separate result; apply a minimum-age override if needed so the store does not contradict the Terms. Record the current questionnaire version/date, every answer, calculated rating and regional variation before adoption.
+The contractual minimum age is 13. Apple's calculated regional storefront rating is a separate result; apply a minimum-age override if needed so the store does not contradict the Terms. Record the current questionnaire version/date, every answer, calculated rating and regional variation before adoption, including the separate result displayed under **Operating Systems Earlier than Version 26**.
 
 Source does not currently ask age during native registration or enforce the 13+ rule on social/UGC access. Treat the owner/legal decision and exact-candidate verification of an age-assurance or eligibility flow as a release blocker; an App Store age-rating override does not prevent an under-13 user from creating an account.
 
 Draft mapped to Apple's current descriptor labels. Preserve the exact live labels and answer controls in the receipt; the live form remains authoritative and each descriptor must be answered separately:
 
 - Advertising: No
-- In-app purchases: No
 - Gambling (presence): No
 - Loot Boxes (presence): No
 - Simulated Gambling (frequency): None
@@ -245,6 +244,18 @@ Use a dedicated Sam/Crowdler Apple Account with MFA and Crowdler-controlled reco
 - **What it unblocks:** selecting a non-colliding build number and preparing exact later approvals for bundle capability/signing, Sign in with Apple and the first build. It does not authorize those actions.
 
 If the identity is not provisioned, first separate discovery-only needs from later build or App Store mutation duties. Apple does not provide a general read-only discovery role for every needed surface, while Developer and App Manager both carry mutation powers. Any later invitation request must name inviter, invitee, exact Crowdler AB Team ID, the narrowest role justified by a task-by-task permissions matrix, app scope, any additional Certificates/Identifiers/Profiles permission, cost, terms/attestation and revocation owner. Invitation and acceptance are mutations.
+
+Current App Store Connect task/role boundaries to re-check in Apple's live role-permissions table before any invitation:
+
+| Task | Current documented roles that can perform it | Lane rule |
+| --- | --- | --- |
+| Build upload | Account Holder, Admin, App Manager or Developer | A Developer role is sufficient only for upload; it does not satisfy metadata/privacy/compliance duties |
+| Age rating | Account Holder, Admin, App Manager or Marketing | Adoption remains owner/legal-approved even if Marketing can operate the form |
+| Privacy data-type responses and publication | Account Holder, Admin or App Manager | Do not broaden a Developer solely for build upload |
+| Privacy-policy URL | Account Holder, Admin, App Manager or Marketing | Separate from publishing the privacy responses |
+| DSA trader compliance | Account Holder or Admin | This includes legal certification and verification; never treat it as a routine listing edit |
+
+The eventual invitation packet must select the least-privilege combination for the exact authorized tasks and explicitly exclude user administration, agreements, tax/banking and payment access unless separately required and approved.
 
 ## 12. Approval boundaries and binary acceptance
 

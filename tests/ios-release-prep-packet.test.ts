@@ -49,6 +49,7 @@ test("iOS preparation packet stays aligned with the source identity and fail-clo
   assert.match(packet, /Do not use Andreas's personal Apple identity/);
   assert.match(packet, /\| iOS build number \| Not source-controlled \|/);
   assert.match(packet, /\| Apple login \| Native Clerk flow, Expo plugin and iOS capability declaration prepared \|/);
+  assert.match(packet, /current deletion implementation does not revoke Apple's authorization\/tokens/i);
   assert.match(packet, /\| Export compliance \| Source declares exempt-only encryption/);
   assert.match(packet, /\| Privacy manifest \| No app-owned manifest\/config entry \|/);
   assert.match(packet, /matching server routes must be deployed before distributing this client/i);
@@ -57,6 +58,9 @@ test("iOS preparation packet stays aligned with the source identity and fail-clo
   assert.match(packet, /signed-out support fallback with `sam@crowdler\.com`/i);
   assert.match(packet, /Contests are present under Apple's current definition/);
   assert.match(packet, /Exact frequency remains unresolved/);
+  const ageRating = packet.slice(packet.indexOf("## 5. Age-rating"), packet.indexOf("## 6. App Privacy"));
+  assert.doesNotMatch(ageRating, /^\- In-app purchases:/m);
+  assert.match(ageRating, /Operating Systems Earlier than Version 26/);
   for (const descriptor of [
     "Mature or Suggestive Themes",
     "Health or Wellness Topics",
@@ -97,6 +101,11 @@ test("iOS preparation packet stays aligned with the source identity and fail-clo
   assert.match(packet, /`ITSAppUsesNonExemptEncryption = false`/);
   assert.match(packet, /No app-target `PrivacyInfo\.xcprivacy` was generated before pod installation/);
   assert.match(packet, /narrowest role justified by a task-by-task permissions matrix/);
+  assert.match(packet, /Build upload.*Developer/);
+  assert.match(packet, /Age rating.*Marketing/);
+  assert.match(packet, /Privacy data-type responses.*App Manager/);
+  assert.match(packet, /DSA trader compliance.*Account Holder or Admin/);
+  assert.match(packet, /payment account details[\s\S]*EU law[\s\S]*email and phone verification[\s\S]*supporting documentation/i);
   assert.match(packet, /TestFlight upload, TestFlight device acceptance, App Review submission, App Review acceptance, release approval and public storefront availability are distinct states/);
 });
 
@@ -132,6 +141,7 @@ test("App Store discovery fields fit Apple's source-level limits and never abbre
   assert.ok(subtitle.length <= 30, "subtitle exceeds 30 characters");
   assert.ok(Buffer.byteLength(keywords, "utf8") <= 100, "keywords exceed 100 UTF-8 bytes");
   assert.doesNotMatch(keywords, /(?:lichess|chesscom|chess\.com)/i, "keywords must not name other apps or companies");
+  assert.doesNotMatch(keywords, /(?:^|,)chess(?:,|$)/i, "keywords must not duplicate the app name");
   assert.ok(promotionalText.length <= 170, "promotional text exceeds 170 characters");
   assert.ok(description.length <= 4000, "description exceeds 4,000 characters");
   assert.doesNotMatch(listing, /\bSQC\b/);
@@ -144,8 +154,10 @@ test("App Store discovery fields fit Apple's source-level limits and never abbre
   const config = JSON.parse(await readFile(appConfigPath, "utf8")).expo;
   assert.ok(listing.includes(`| Version | Source candidate \`${config.version}\`;`));
   assert.match(listing, /\| Availability \| Worldwide target, excluding any territory/);
-  assert.match(listing, /mainland China ISBN\/approval\/ICP applicability, Vietnam game licensing\/classification/);
-  assert.match(listing, /South Korea game rating\/RCN applicability/);
+  assert.match(listing, /mainland China ISBN\/approval\/ICP applicability/);
+  assert.match(listing, /Vietnam game license/);
+  assert.match(listing, /South Korea RCN only if/);
+  assert.match(listing, /KR-19|Casino.*17\+|Frequent\/Intense/);
   assert.match(listing, /\| Content rights \| Yes/);
   assert.match(listing, /\| EU trader status \|/);
   assert.match(listing, /\| Tax category \|/);
