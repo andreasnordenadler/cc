@@ -4,6 +4,7 @@ import test from "node:test";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import MobileAppWebShell, { desktopHomeMenuItems, mobileWebMenuItems, MobileCommunitySideQuestDetailScreen, MobileCommunitySideQuestsScreen, MobileCreateCustomScreen, MobileCreateMultiplayerScreen, MobileCustomSideQuestsScreen, MobileMultiplayerDetailScreen, MobileMultiplayerSideQuestsScreen, MobileSoloSideQuestsScreen, MobileSupportScreen, MobileTrophyCabinetScreen } from "../src/components/mobile-app-web-shell";
+import { MobileSupportComposer } from "../src/components/mobile-support-composer";
 import type { CommunitySoloCatalogClientRow } from "../src/components/catalog-clients";
 import DesktopHomeMenu from "../src/components/desktop-home-menu";
 import { LocalCustomDraftList } from "../src/components/local-custom-draft-library";
@@ -1741,6 +1742,22 @@ test("desktop Support keeps the legal and report row directly below the taller h
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-support\s+\.sqc-support-screen\s*>\s*\.sqc-support-card:not\(\.sqc-support-report\)\s*\{[^}]*grid-column:\s*1;[^}]*grid-row:\s*2;/);
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-support\s+\.sqc-support-report\s*\{[^}]*grid-column:\s*2;[^}]*grid-row:\s*2;/);
   assert.doesNotMatch(desktopMedia, /\.sqc-mobile-web\.desktop-support\s+\.sqc-support-overview\s*\{[^}]*grid-row:\s*1\s*\/\s*span\s*2;/);
+});
+
+test("signed-in desktop Support pairs the conversation with its composer without duplicating either on mobile", () => {
+  const html = renderToStaticMarkup(createElement(MobileSupportComposer, {
+    signedIn: true,
+    initialMessages: [{ id: "message-1", at: "2026-08-21T10:00:00.000Z", message: "Proof did not refresh.", source: "user" }],
+    accountContext: null,
+  }));
+  const css = readFileSync("src/app/mobile-web.css", "utf8");
+  const desktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1180px)"));
+
+  assert.equal(html.match(/class="sqc-support-case-workspace"/g)?.length, 1);
+  assert.match(html, /class="sqc-support-case-workspace"><div class="sqc-support-thread">[\s\S]*<form class="sqc-support-form"/);
+  assert.match(css, /\.sqc-support-case-workspace\s*\{\s*display:\s*contents;/, "mobile keeps the established stacked support flow");
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-support\s+\.sqc-support-case-workspace\s*\{[^}]*display:\s*grid;[^}]*grid-template-columns:\s*minmax\(0,\s*\.92fr\)\s+minmax\(300px,\s*1\.08fr\);/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-support\s+\.sqc-support-thread\s*\{[^}]*height:\s*100%;[^}]*box-sizing:\s*border-box;/, "the stretched conversation must stay inside the shared workspace row");
 });
 
 function readCssBlock(css: string, start: number) {
