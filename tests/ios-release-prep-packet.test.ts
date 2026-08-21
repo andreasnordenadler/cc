@@ -91,6 +91,16 @@ test("iOS preparation packet stays aligned with the source identity and fail-clo
   assert.match(packet, /monitor authentication, APIs, chess-provider fixtures, moderation and deletion throughout review and re-review/);
   assert.match(packet, /minimum supported iOS\/iPadOS version and the then-current public OS/);
   assert.match(packet, /Xcode 26 or later and the iOS 26 SDK/);
+  assert.match(packet, /`macos-sequoia-15\.6-xcode-26\.0`/);
+  assert.match(packet, /Xcode 27 beta.*TestFlight.*not.*App Store/i);
+  assert.match(packet, /Starting September 2026.*social-media.*mandatory/i);
+  assert.match(packet, /must.*Override to Higher Age Rating/i);
+  assert.match(packet, /Declared Age Range API/i);
+  assert.match(packet, /complete account and associated personal data/i);
+  assert.match(packet, /profile\/bio, custom and community quests, multiplayer text, posts, creator attribution, likes and support content/i);
+  assert.match(packet, /privacy manifest.*`hermes`/i);
+  assert.match(packet, /Ready to Submit[\s\S]*Waiting for Review[\s\S]*Pending Developer Release/i);
+  assert.match(packet, /90 days/);
   assert.match(packet, /Support URL.*actual Crowdler AB contact information/i);
   assert.match(packet, /`1260×2736`, `1290×2796` or `1320×2868`/);
   assert.match(packet, /`1284×2778` or `1242×2688`/);
@@ -171,6 +181,18 @@ test("mobile release gate watches both EAS production profile files", async () =
   const workflow = await readFile(path.resolve(".github/workflows/mobile-release-gate.yml"), "utf8");
   assert.match(workflow, /- "eas\.json"/);
   assert.match(workflow, /- "apps\/mobile\/eas\.json"/);
+});
+
+test("both EAS production profiles pin the App Store-capable Expo SDK 54 iOS image", async () => {
+  const configs = await Promise.all([
+    readFile(path.resolve("eas.json"), "utf8"),
+    readFile(path.resolve("apps/mobile/eas.json"), "utf8"),
+  ]);
+
+  for (const source of configs) {
+    const config = JSON.parse(source);
+    assert.equal(config.build.production.ios.image, "macos-sequoia-15.6-xcode-26.0");
+  }
 });
 
 test("all mobile safety routes retain legacy Android provenance compatibility", async () => {

@@ -45,6 +45,9 @@
       "android": {
         "image": "sdk-54"
       },
+      "ios": {
+        "image": "macos-sequoia-15.6-xcode-26.0"
+      },
       "env": {
         "EXPO_PUBLIC_SQC_API_BASE_URL": "https://sidequestchess.com",
         "EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY": "pk_live_Y2xlcmsuc2lkZXF1ZXN0Y2hlc3MuY29tJA"
