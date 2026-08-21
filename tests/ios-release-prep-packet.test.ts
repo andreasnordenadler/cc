@@ -102,6 +102,13 @@ test("iOS preparation packet stays aligned with the source identity and fail-clo
   assert.match(packet, /Ready to Submit[\s\S]*Waiting for Review[\s\S]*Pending Developer Release/i);
   assert.match(packet, /90 days/);
   assert.match(packet, /Support URL.*actual Crowdler AB contact information/i);
+  assert.match(packet, /Support URL[\s\S]*legal address[\s\S]*email[\s\S]*telephone number/i);
+  assert.match(packet, /Tax category[\s\S]*Admin or App Manager[\s\S]*App Store software/i);
+  assert.match(packet, /listed third-party SDK.*must supply its own privacy manifest/i);
+  assert.match(packet, /internal-only.*external TestFlight/i);
+  assert.match(packet, /Beta App Description[\s\S]*Feedback Email[\s\S]*What to Test/i);
+  assert.match(packet, /internal group.*external group/i);
+  assert.match(packet, /localizations may inherit screenshots/i);
   assert.match(packet, /`1260×2736`, `1290×2796` or `1320×2868`/);
   assert.match(packet, /`1284×2778` or `1242×2688`/);
   assert.match(packet, /`2064×2752` or `2048×2732`/);
