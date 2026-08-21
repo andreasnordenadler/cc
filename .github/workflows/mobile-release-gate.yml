@@ -3,6 +3,8 @@ name: Mobile Release Gate
 on:
   pull_request:
     paths:
+      - "eas.json"
+      - "apps/mobile/eas.json"
       - "apps/mobile/**"
       - "scripts/mobile-release.mjs"
       - "scripts/mobile-release-lib.mjs"

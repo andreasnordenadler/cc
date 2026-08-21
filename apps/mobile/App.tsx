@@ -6042,8 +6042,8 @@ function AccountTrackerDashboard({ bootstrap, account, authBridge, onSelectTab, 
       Alert.alert(
         "Account deleted",
         sessionEnded
-          ? "Your Side Quest Chess account and saved data were permanently deleted."
-          : "Your Side Quest Chess account and saved data were permanently deleted. Close and reopen the app to clear the expired sign-in session.",
+          ? "Your Side Quest Chess account was permanently deleted. Safety and abuse-prevention records associated with reports or blocks may be retained."
+          : "Your Side Quest Chess account was permanently deleted. Safety and abuse-prevention records associated with reports or blocks may be retained. Close and reopen the app to clear the expired sign-in session.",
       );
       onSelectTab("home");
     } catch (caught) {

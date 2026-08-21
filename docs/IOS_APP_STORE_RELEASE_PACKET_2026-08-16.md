@@ -1,8 +1,8 @@
 # Side Quest Chess — iOS App Store release packet
 
 **Prepared:** 2026-08-16; reconciled 2026-08-21
-**Upstream baseline:** `a5ac084fa22c11a5f5f27903fe71af3fe7ce2c50`
-**Reconciled through:** `a5ac084fa22c11a5f5f27903fe71af3fe7ce2c50` (`origin/main`, fetched 2026-08-21)
+**Upstream baseline:** `a3a13890550242218407bb2c4fda020185cf7977`
+**Reconciled through:** `a3a13890550242218407bb2c4fda020185cf7977` (`origin/main`, fetched 2026-08-21)
 **Status:** source preparation only. This is not an App Store Connect record, Apple credential, IPA, TestFlight build, review submission, or public release.
 
 ## 1. Launch order and evidence posture
@@ -69,7 +69,7 @@ These are proposed values, not adopted App Store Connect answers.
 | Subtitle | Turn chess games into quests |
 | Primary language | English (U.S.) |
 | SKU | `sidequestchess-ios` — immutable; owner must approve before record creation |
-| Version | Candidate `0.1.349`; approve before creating the version record |
+| Version | Source candidate `0.1.349`; clean prebuild writes the same short version to `Info.plist`, but the exact archive still controls and must be inspected before approving a version record |
 | Primary category | Games |
 | Games subcategories | Board; Strategy |
 | Secondary category | None proposed; this is a separate optional category field, not the second Games subcategory |
@@ -77,7 +77,7 @@ These are proposed values, not adopted App Store Connect answers.
 | Availability | Worldwide target, excluding any territory whose game-publication evidence is not complete; specifically receipt-gate mainland China ISBN/approval/ICP applicability, Vietnam game licensing/classification, and South Korea game rating/RCN applicability before selection |
 | Copyright | 2026 Crowdler AB |
 | Privacy Policy URL | https://sidequestchess.com/privacy |
-| Support URL | https://sidequestchess.com/support |
+| Support URL | https://sidequestchess.com/support — deployment must expose actual Crowdler AB contact information to signed-out visitors before adoption |
 | Marketing URL | https://sidequestchess.com |
 | Terms destination | https://sidequestchess.com/terms |
 | Release method | Manual release; review submission and public release remain separate approvals |
@@ -264,10 +264,11 @@ Source freeze, signed archive, TestFlight upload, TestFlight device acceptance, 
 
 ## 13. Current local tool constraints
 
-- A clean temporary `expo prebuild --platform ios --no-install` from this branch completed on 2026-08-21. The generated target resolved `PRODUCT_BUNDLE_IDENTIFIER = com.sidequestchess.app`, device family `1,2`, display name `Side Quest Chess`, version `0.1.349`, build `1`, URL schemes `sidequestchess` plus `com.sidequestchess.app`, and `com.apple.developer.applesignin = Default` in the app entitlements.
+- A clean temporary `expo prebuild --platform ios --no-install` from this branch completed on 2026-08-21. The generated target resolved `PRODUCT_BUNDLE_IDENTIFIER = com.sidequestchess.app`, device family `1,2`, display name `Side Quest Chess`, generated `CFBundleShortVersionString = 0.1.349` while the Xcode project retains `MARKETING_VERSION = 1.0`, with build `1`, URL schemes `sidequestchess` plus `com.sidequestchess.app`, deployment target `15.1`, and `com.apple.developer.applesignin = Default` in the app entitlements. The literal generated plist value agrees with source, so the stale Xcode build setting is not by itself evidence of a submitted-version mismatch; inspect the actual archive rather than inferring its identity from either source alone.
 - A subsequent source-safe config correction declares exempt-only encryption and generates `ITSAppUsesNonExemptEncryption = false`; the exact archive and embedded SDK inventory must still confirm that declaration before upload. The generated `Info.plist` contained no sensitive-resource usage description. It enabled iPad portrait, upside-down and both landscape orientations with `UIRequiresFullScreen = false`. No app-target `PrivacyInfo.xcprivacy` was generated before pod installation. These are audit findings, not archive evidence; inspect pods, merged privacy report and signed IPA later.
 - The pull-request mobile release gate now generates both iOS and Android native projects from Expo config without signing, Apple account access, EAS build, upload or submission. This catches cross-platform prebuild regressions but does not prove CocoaPods installation, Xcode compilation, archive contents, signing or device behavior.
 - Full Xcode is not selected/available; Command Line Tools are active.
+- App Store upload remains blocked until the archive is compiled with Xcode 26 or later and the iOS 26 SDK, Apple's requirement in effect since 2026-04-28; preserve the exact `xcodebuild -version`, SDK and archive receipt.
 - No valid local Apple code-signing identities are installed.
 - EAS CLI `22.2.0` is runnable through `npx`; its read-only `whoami` on 2026-08-20 returned Andreas's personal identity. Do not run Apple credential, iOS build or submit operations from that identity.
 - No Apple account, App Store Connect, credential, build, upload or external communication was attempted in this lane.

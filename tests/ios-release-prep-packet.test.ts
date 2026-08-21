@@ -39,8 +39,8 @@ test("iOS preparation packet stays aligned with the source identity and fail-clo
   await assert.rejects(access(path.resolve("apps/mobile/PrivacyInfo.xcprivacy")));
   await assert.rejects(access(path.resolve("apps/mobile/ios")));
 
-  assert.match(packet, /Upstream baseline:\*\* `a5ac084fa22c11a5f5f27903fe71af3fe7ce2c50`/);
-  assert.match(packet, /Reconciled through:\*\* `a5ac084fa22c11a5f5f27903fe71af3fe7ce2c50`/);
+  assert.match(packet, /Upstream baseline:\*\* `a3a13890550242218407bb2c4fda020185cf7977`/);
+  assert.match(packet, /Reconciled through:\*\* `a3a13890550242218407bb2c4fda020185cf7977`/);
   assert.ok(packet.includes(`Current source declares Expo version \`${config.version}\` and Android version code \`${config.android.versionCode}\``));
   assert.match(packet, /makes no Android approval or public-launch claim/);
   assert.match(packet, /no verified signed iOS archive, TestFlight build\/install/);
@@ -86,11 +86,13 @@ test("iOS preparation packet stays aligned with the source identity and fail-clo
   assert.match(packet, /4,000-byte limit/);
   assert.match(packet, /monitor authentication, APIs, chess-provider fixtures, moderation and deletion throughout review and re-review/);
   assert.match(packet, /minimum supported iOS\/iPadOS version and the then-current public OS/);
+  assert.match(packet, /Xcode 26 or later and the iOS 26 SDK/);
+  assert.match(packet, /Support URL.*actual Crowdler AB contact information/i);
   assert.match(packet, /`1260×2736`, `1290×2796` or `1320×2868`/);
   assert.match(packet, /`1284×2778` or `1242×2688`/);
   assert.match(packet, /`2064×2752` or `2048×2732`/);
   assert.match(packet, /clean temporary `expo prebuild --platform ios --no-install`/);
-  assert.match(packet, /build `1`, URL schemes `sidequestchess` plus `com\.sidequestchess\.app`/);
+  assert.match(packet, /generated `CFBundleShortVersionString = 0\.1\.349` while the Xcode project retains `MARKETING_VERSION = 1\.0`, with build `1`/);
   assert.match(packet, /`com\.apple\.developer\.applesignin = Default`/);
   assert.match(packet, /`ITSAppUsesNonExemptEncryption = false`/);
   assert.match(packet, /No app-target `PrivacyInfo\.xcprivacy` was generated before pod installation/);
@@ -98,14 +100,18 @@ test("iOS preparation packet stays aligned with the source identity and fail-clo
   assert.match(packet, /TestFlight upload, TestFlight device acceptance, App Review submission, App Review acceptance, release approval and public storefront availability are distinct states/);
 });
 
-test("public support fallback uses the Crowdler controller address", async () => {
-  const [supportSource, privacySource, termsSource] = await Promise.all([
+test("public support URL exposes the Crowdler controller contact while signed out", async () => {
+  const [supportFormSource, supportPageSource, privacySource, termsSource] = await Promise.all([
     readFile(path.resolve("src/components/support-contact-form.tsx"), "utf8"),
+    readFile(path.resolve("src/app/support/page.tsx"), "utf8"),
     readFile(path.resolve("src/app/privacy/page.tsx"), "utf8"),
     readFile(path.resolve("src/app/terms/page.tsx"), "utf8"),
   ]);
-  assert.match(supportSource, /const SUPPORT_EMAIL = "sam@crowdler\.com";/);
-  assert.doesNotMatch(supportSource, /andreas\.nordenadler@gmail\.com/);
+  assert.match(supportFormSource, /const SUPPORT_EMAIL = "sam@crowdler\.com";/);
+  assert.doesNotMatch(supportFormSource, /andreas\.nordenadler@gmail\.com/);
+  assert.match(supportPageSource, /Contact Crowdler AB support/);
+  assert.match(supportPageSource, /href="mailto:sam@crowdler\.com"/);
+  assert.match(supportPageSource, />\s*sam@crowdler\.com\s*</);
   assert.match(privacySource, /sam@crowdler\.com/);
   assert.match(termsSource, /sam@crowdler\.com/);
 });
@@ -136,7 +142,7 @@ test("App Store discovery fields fit Apple's source-level limits and never abbre
   assert.doesNotMatch(listing, /\| (?:Primary|Secondary) category \| Games —/);
   assert.match(listing, /\| Price \| Free \|/);
   const config = JSON.parse(await readFile(appConfigPath, "utf8")).expo;
-  assert.ok(listing.includes(`| Version | Candidate \`${config.version}\`;`));
+  assert.ok(listing.includes(`| Version | Source candidate \`${config.version}\`;`));
   assert.match(listing, /\| Availability \| Worldwide target, excluding any territory/);
   assert.match(listing, /mainland China ISBN\/approval\/ICP applicability, Vietnam game licensing\/classification/);
   assert.match(listing, /South Korea game rating\/RCN applicability/);
@@ -147,6 +153,12 @@ test("App Store discovery fields fit Apple's source-level limits and never abbre
   assert.doesNotMatch(keywords, /puzzles/i);
   assert.match(listing, /\| What's New \| Not required only if discovery confirms this is version 1/);
   assert.match(listing, /\| Release method \| Manual release/);
+});
+
+test("mobile release gate watches both EAS production profile files", async () => {
+  const workflow = await readFile(path.resolve(".github/workflows/mobile-release-gate.yml"), "utf8");
+  assert.match(workflow, /- "eas\.json"/);
+  assert.match(workflow, /- "apps\/mobile\/eas\.json"/);
 });
 
 test("all mobile safety routes retain legacy Android provenance compatibility", async () => {

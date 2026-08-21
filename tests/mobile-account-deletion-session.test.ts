@@ -1,4 +1,6 @@
 import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
+import path from "node:path";
 import test from "node:test";
 import { deleteMobileAccountAndEndSession } from "../apps/mobile/src/account/deleteMobileAccount";
 import { DELETE_ACCOUNT_CONFIRMATION } from "../src/lib/account-deletion";
@@ -37,6 +39,14 @@ test("a post-deletion sign-out failure does not turn a completed deletion into a
 
   assert.equal(deleted, true);
   assert.deepEqual(result, { sessionEnded: false });
+});
+
+test("successful deletion copy does not claim retained safety records were deleted", async () => {
+  const appSource = await readFile(path.resolve("apps/mobile/App.tsx"), "utf8");
+  const successCopy = appSource.slice(appSource.indexOf('"Account deleted"'), appSource.indexOf("onSelectTab", appSource.indexOf('"Account deleted"')));
+
+  assert.match(successCopy, /Your Side Quest Chess account was permanently deleted/);
+  assert.doesNotMatch(successCopy, /saved data were permanently deleted/);
 });
 
 test("a server deletion failure remains an error and does not sign out", async () => {
