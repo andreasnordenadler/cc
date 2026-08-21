@@ -39,8 +39,8 @@ test("iOS preparation packet stays aligned with the source identity and fail-clo
   await assert.rejects(access(path.resolve("apps/mobile/PrivacyInfo.xcprivacy")));
   await assert.rejects(access(path.resolve("apps/mobile/ios")));
 
-  assert.match(packet, /Upstream baseline:\*\* `a3a13890550242218407bb2c4fda020185cf7977`/);
-  assert.match(packet, /Reconciled through:\*\* `a3a13890550242218407bb2c4fda020185cf7977`/);
+  assert.match(packet, /Upstream baseline:\*\* `5e99adda9a1632642e2f611f115b6db68064746a`/);
+  assert.match(packet, /Reconciled through:\*\* `5e99adda9a1632642e2f611f115b6db68064746a`/);
   assert.ok(packet.includes(`Current source declares Expo version \`${config.version}\` and Android version code \`${config.android.versionCode}\``));
   assert.match(packet, /makes no Android approval or public-launch claim/);
   assert.match(packet, /no verified signed iOS archive, TestFlight build\/install/);

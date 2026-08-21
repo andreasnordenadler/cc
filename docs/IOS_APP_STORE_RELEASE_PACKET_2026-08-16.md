@@ -1,8 +1,8 @@
 # Side Quest Chess — iOS App Store release packet
 
 **Prepared:** 2026-08-16; reconciled 2026-08-21
-**Upstream baseline:** `a3a13890550242218407bb2c4fda020185cf7977`
-**Reconciled through:** `a3a13890550242218407bb2c4fda020185cf7977` (`origin/main`, fetched 2026-08-21)
+**Upstream baseline:** `5e99adda9a1632642e2f611f115b6db68064746a`
+**Reconciled through:** `5e99adda9a1632642e2f611f115b6db68064746a` (`origin/main`, fetched 2026-08-21)
 **Status:** source preparation only. This is not an App Store Connect record, Apple credential, IPA, TestFlight build, review submission, or public release.
 
 ## 1. Launch order and evidence posture
