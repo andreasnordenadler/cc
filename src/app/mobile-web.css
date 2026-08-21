@@ -5770,7 +5770,7 @@ body::after {
 
   .sqc-desktop-hero h1 {
     max-width: 690px;
-    font-size: clamp(54px, 5.1vw, 76px);
+    font-size: clamp(54px, 4.35vw, 70px);
     line-height: .98;
   }
 

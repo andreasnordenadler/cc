@@ -47,6 +47,27 @@ test("wide desktop Home grows into a deliberate 1440px canvas", async ({ page })
   await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBe(0);
 });
 
+test("desktop Home headline keeps a stable editorial rhythm as the canvas widens", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/", { waitUntil: "domcontentloaded" });
+
+  const headline = page.getByRole("heading", { name: "Your next chess game needs a terrible side plot." });
+  const lineCount = await headline.evaluate((element) => {
+    const styles = getComputedStyle(element);
+    return element.getBoundingClientRect().height / Number.parseFloat(styles.lineHeight);
+  });
+  expect(lineCount).toBeLessThanOrEqual(3.05);
+  await expect(page.locator(".sqc-desktop-hero")).toHaveCSS("min-height", "610px");
+  await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBe(0);
+
+  await page.setViewportSize({ width: 1920, height: 1080 });
+  const wideLineCount = await headline.evaluate((element) => {
+    const styles = getComputedStyle(element);
+    return element.getBoundingClientRect().height / Number.parseFloat(styles.lineHeight);
+  });
+  expect(wideLineCount).toBeLessThanOrEqual(3.05);
+});
+
 test("desktop Home ritual link reveals the complete section below sticky navigation", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto("/", { waitUntil: "domcontentloaded" });
