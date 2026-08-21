@@ -62,7 +62,7 @@ Use strict RED–GREEN–REFACTOR for each behavior change and preserve failing-
 1. Add an equivalent Apple login path for iOS, including Expo capability/plugin configuration, Clerk/provider wiring, account linking, cancellation/error behavior, relay-email handling, and authorization/token revocation as part of deletion. Do not create the Crowdler App ID capability or provider credentials without approval.
 2. Add a deliberate iOS build-number policy after reading the highest existing App Store build number.
 3. Decide and verify exempt-encryption handling against the generated archive. Current source has no `usesNonExemptEncryption` declaration; do not answer from dependency names alone.
-4. Generate iOS source only in a clean frozen worktree. Immediately inspect the complete diff, generated Info.plist/entitlements/URL types, all usage descriptions, deployment target, iPad orientations, ATS settings, SDK privacy manifests, required-reason APIs, and SDK signatures.
+4. Keep the new pull-request iOS source gate green: it generates an unsigned iOS project from Expo config, removes the generated tree, then continues with Android generation and managed-config checks. This catches prebuild regressions without Apple credentials, but it does not prove CocoaPods, Xcode compilation, signing, archive contents or device behavior. For a release candidate, repeat native generation in a clean frozen worktree and immediately inspect the complete diff, generated Info.plist/entitlements/URL types, all usage descriptions, deployment target, iPad orientations, ATS settings, SDK privacy manifests, required-reason APIs, and SDK signatures.
 5. Resolve tablet policy: retain support only after iPad responsive acceptance and screenshots, or seek explicit product approval to disable it before freeze.
 6. Reconcile the privacy policy and nutrition label with Clerk, Google, Facebook, Apple if added, hosting/security logs, Expo runtime, optional support diagnostics, Lichess/Chess.com public-record retrieval, and all transitive native SDK behavior.
 7. Platform-aware support identity is now implemented on this branch: iOS reports the bundle ID, native version/build and “iOS App Store candidate,” without claiming an Android APK or GitHub release. Preserve the exact-candidate regression test and verify the rendered diagnostics on TestFlight.
@@ -236,7 +236,9 @@ Source freeze, archive, upload, TestFlight processing, store-delivered installat
 ## 12. Verification receipt for this branch
 
 - Strict TDD receipt for iOS support identity: RED failed because `mobileCandidateIdentity` did not exist; GREEN passed after the minimal platform-aware helper and UI integration.
-- `pnpm test`: PASS — 755 tests, 0 failures, 0 skipped/todo.
+- Strict TDD receipt for cross-platform native generation: RED failed because the pull-request release gate had no iOS prebuild; GREEN passed after adding unsigned iOS generation and bounded cleanup before Android generation.
+- A direct local execution of the exact iOS prebuild command completed, generated `com.sidequestchess.app` with deployment target `15.1` and device family `1,2`, and the generated tree was removed. No tracked package or lockfile change remained.
+- `pnpm test`: PASS — 756 tests, 0 failures, 0 skipped/todo.
 - `pnpm build`: PASS — Next.js production build completed.
 - `pnpm --dir apps/mobile run typecheck`: PASS.
 - `pnpm --dir apps/mobile run doctor`: PASS — 18/18 checks before native generation.

@@ -51,6 +51,14 @@ jobs:
         run: pnpm install --frozen-lockfile
       - name: Validate Expo SDK compatibility
         run: pnpm mobile:doctor
+      - name: Generate iOS project from Expo config (unsigned source gate)
+        env:
+          CI: "1"
+          NODE_ENV: production
+        run: pnpm --dir apps/mobile exec expo prebuild --platform ios --no-install
+      - name: Remove generated iOS project before managed-config checks
+        run: |
+          node -e "require('node:fs').rmSync('apps/mobile/ios', { recursive: true, force: true })"
       - name: Generate Android project from Expo config
         env:
           CI: "1"
