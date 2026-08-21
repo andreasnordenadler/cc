@@ -76,14 +76,14 @@ These are proposed values, not adopted App Store Connect answers.
 | Secondary category | None proposed; this is a separate optional category field, not the second Games subcategory |
 | Price | Free |
 | Availability | Worldwide target, excluding any territory whose game-publication evidence is not complete; specifically receipt-gate mainland China ISBN/approval/ICP applicability and the Vietnam game license before selection. The Vietnam storefront age classification is calculated from the age-rating answers rather than supplied as separate classification evidence. Require a South Korea RCN only if the selected build/answers trigger Apple's documented conditions, including a GRAC-issued KR-19 rating, Casino/17+, or the specified Frequent/Intense content thresholds. If GRAC independently issues a rating, App Store Connect permits an optional Korean override to All, 12+, 15+ or 19+ by supplying the RCN with the next version; do not seek or enter an RCN solely for that override. |
-| Copyright | 2026 Crowdler AB |
+| Copyright | Verify the year Crowdler AB obtained the exclusive rights before entry; use `2026 Crowdler AB` only if the acquisition-year evidence confirms 2026 |
 | Privacy Policy URL | https://sidequestchess.com/privacy |
 | Support URL | https://sidequestchess.com/support — deployment must expose actual Crowdler AB contact information to signed-out visitors before adoption. Apple expects the Support URL to provide a legal address, monitored email and telephone number as required by local law; the current source supplies the Crowdler email but no verified public address or telephone number, so this remains blocked. |
 | Marketing URL | https://sidequestchess.com |
 | Terms destination | https://sidequestchess.com/terms |
 | Release method | Manual release; review submission and public release remain separate approvals |
-| Phased release | Off for version 1 unless separately approved |
-| What's New | Not required only if discovery confirms this is version 1; otherwise provide truthful current-candidate release notes before version-record mutation |
+| Phased release | Not applicable to the first version; phased release is available only for version updates and remains separately approval-gated |
+| What's New | Unavailable for the first version and required for every subsequent version; provide truthful current-candidate release notes before mutating any update record |
 | Content rights | Yes — the app accesses third-party public Lichess/Chess.com records; block submission until owner/legal retains the required authorization evidence |
 | Advertising identifier | No intended IDFA use; confirm exact IPA/SDK behavior before answering |
 | Review contact | Owner-supplied authorized name, reachable phone and monitored Crowdler email; unresolved |
@@ -127,7 +127,7 @@ Draft mapped to Apple's current descriptor labels. Preserve the exact live label
 - Gambling (presence): No
 - Loot Boxes (presence): No
 - Simulated Gambling (frequency): None
-- Contests (frequency): unresolved; see below
+- Contests (frequency): Frequent — working answer; see below
 - Parental Controls: No
 - Age Assurance: No
 - Unrestricted Web Access: No general browser; only specific legal/support/public-proof destinations
@@ -135,7 +135,7 @@ Draft mapped to Apple's current descriptor labels. Preserve the exact live label
 - Social Media: Yes — public Community discovery/posting, likes, profiles and creator attribution
 - Social Media Disabled for Users Under 13: No
 - Messaging and Chat: Yes — Apple's definition includes public posting, which is reachable in Community content
-- Contests are present under Apple's current definition, which includes competitions for rankings, rewards or achievement of personal goals. Exact frequency remains unresolved; map how often the reachable ranking, goal, podium and trophy mechanics appear to the live form. There are no money or prizes.
+- Contests are present under Apple's current definition, which includes competitions for rankings, rewards or achievement of personal goals. **Frequent** is the source-backed working frequency because the core loop repeatedly presents quests, goals, standings, podiums and trophies. Confirm that answer against the exact reachable candidate and Apple's live frequency guidance. There are no money or prizes.
 - Profanity or Crude Humor: unresolved across reachable UGC; publisher-authored content is None
 - Mature or Suggestive Themes: unresolved across reachable UGC; publisher-authored content is None
 - Horror/Fear Themes: None in publisher-authored content; verify reachable UGC
@@ -208,8 +208,8 @@ Capture only after candidate freeze from the exact selected build with productio
 
 | Device family | Required while tablet support is enabled | Suggested ordered frames |
 | --- | --- | --- |
-| 6.9-inch iPhone (preferred; 6.5-inch accepted as Apple's fallback if no 6.9-inch set is supplied) | 6.9-inch portrait `1260×2736`, `1290×2796` or `1320×2868`; fallback 6.5-inch portrait `1284×2778` or `1242×2688`; inverse dimensions for landscape; 1–10 images, no alpha | Home/selection; quest detail/proof; multiplayer; community; Trophy Cabinet; account/support |
-| 13-inch iPad | Portrait `2064×2752` or `2048×2732` pixels, or inverse landscape; 1–10 images, no alpha; required while the app runs on iPad | Same representative feature set with truthful tablet layout |
+| 6.9-inch iPhone (preferred; 6.5-inch accepted as Apple's fallback if no 6.9-inch set is supplied) | 6.9-inch portrait `1260×2736`, `1290×2796` or `1320×2868`; fallback 6.5-inch portrait `1284×2778` or `1242×2688`; inverse dimensions for landscape; 1–10 `.jpeg`, `.jpg` or `.png` images, no alpha | Home/selection; quest detail/proof; multiplayer; community; Trophy Cabinet; account/support |
+| 13-inch iPad | Portrait `2064×2752` or `2048×2732` pixels, or inverse landscape; 1–10 `.jpeg`, `.jpg` or `.png` images, no alpha; required while the app runs on iPad | Same representative feature set with truthful tablet layout |
 
 Initial locale: English (U.S.). If another locale is added, localize its required text fields and review every inherited asset; App Store Connect localizations may inherit screenshots from the primary localization, so translated screenshot sets are an internal quality choice rather than an Apple requirement. App preview is optional. Keep a manifest with source SHA, version/build, build ID, device/display, OS, orientation, locale, fixture, filename, exact dimensions and SHA-256. Reject stale product names, debug overlays, personal data, fake achievements, pricing, clipped UI or keyboard/modal residue.
 
@@ -258,9 +258,11 @@ Current App Store Connect task/role boundaries to re-check in Apple's live role-
 | Age rating | Account Holder, Admin, App Manager or Marketing | Adoption remains owner/legal-approved even if Marketing can operate the form |
 | Privacy data-type responses and publication | Account Holder, Admin or App Manager | Do not broaden a Developer solely for build upload |
 | Privacy-policy URL | Account Holder, Admin, App Manager or Marketing | Separate from publishing the privacy responses |
+| Export-compliance documentation | Account Holder, Admin or App Manager | Adoption and any document upload remain owner/legal-approved |
+| Submit an app version | Account Holder, Admin or App Manager | Submission is a separate explicit approval even when the operator holds the role |
 | DSA trader compliance | Account Holder or Admin | This includes legal certification and verification; never treat it as a routine listing edit |
 
-The eventual invitation packet must select the least-privilege combination for the exact authorized tasks and explicitly exclude user administration, agreements, tax/banking and payment access unless separately required and approved.
+For a single operator expected to maintain metadata, publish privacy responses, handle export compliance, select a build and submit a version, **App Manager with app-scoped access is the narrowest single standard role**. This role is not free of administration power: **App Manager inherently retains limited authority to add Developer or Marketing users and manage their app access** for apps the App Manager can access, and that residual authority cannot be removed with a narrower checkbox. Record that risk and a revocation owner in the invitation approval. Certificates, Identifiers & Profiles access is a separate permission and must be granted only if the approved signing task requires it. The eventual invitation packet must still select the least-privilege combination for the exact authorized tasks and explicitly exclude broader user administration, agreements, tax/banking and payment access unless separately required and approved.
 
 ## 12. Approval boundaries and binary acceptance
 

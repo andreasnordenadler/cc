@@ -60,7 +60,8 @@ test("iOS preparation packet stays aligned with the source identity and fail-clo
   assert.match(packet, /local preview-account fixture unconditionally development-only/i);
   assert.match(packet, /signed-out support fallback with `sam@crowdler\.com`/i);
   assert.match(packet, /Contests are present under Apple's current definition/);
-  assert.match(packet, /Exact frequency remains unresolved/);
+  assert.match(packet, /Contests \(frequency\): Frequent/);
+  assert.match(packet, /core loop repeatedly presents quests, goals, standings, podiums and trophies/i);
   const ageRating = packet.slice(packet.indexOf("## 5. Age-rating"), packet.indexOf("## 6. App Privacy"));
   assert.doesNotMatch(ageRating, /^\- In-app purchases:/m);
   assert.match(ageRating, /Operating Systems Earlier than Version 26/);
@@ -125,6 +126,10 @@ test("iOS preparation packet stays aligned with the source identity and fail-clo
   assert.match(packet, /Age rating.*Marketing/);
   assert.match(packet, /Privacy data-type responses.*App Manager/);
   assert.match(packet, /DSA trader compliance.*Account Holder or Admin/);
+  assert.match(packet, /Export-compliance documentation.*App Manager/);
+  assert.match(packet, /Submit an app version.*App Manager/);
+  assert.match(packet, /App Manager with app-scoped access is the narrowest single standard role/i);
+  assert.match(packet, /App Manager inherently retains limited authority to add Developer or Marketing users and manage their app access/i);
   assert.match(packet, /payment account details[\s\S]*EU law[\s\S]*email and phone verification[\s\S]*supporting documentation/i);
   assert.match(packet, /TestFlight upload, TestFlight device acceptance, App Review submission, App Review acceptance, release approval and public storefront availability are distinct states/);
 });
@@ -183,7 +188,9 @@ test("App Store discovery fields fit Apple's source-level limits and never abbre
   assert.match(listing, /\| Tax category \|/);
   assert.match(listing, /\| License agreement \|/);
   assert.doesNotMatch(keywords, /puzzles/i);
-  assert.match(listing, /\| What's New \| Not required only if discovery confirms this is version 1/);
+  assert.match(listing, /\| Copyright \| Verify the year Crowdler AB obtained the exclusive rights/);
+  assert.match(listing, /\| Phased release \| Not applicable to the first version/);
+  assert.match(listing, /\| What's New \| Unavailable for the first version and required for every subsequent version/);
   assert.match(listing, /\| Release method \| Manual release/);
 });
 
