@@ -22,12 +22,12 @@ test("iOS preparation packet stays aligned with the source identity and fail-clo
   assert.equal(config.ios.bundleIdentifier, "com.sidequestchess.app");
   assert.equal(config.ios.supportsTablet, true);
   assert.equal(config.ios.buildNumber, undefined);
-  assert.equal(config.ios.usesAppleSignIn, undefined);
+  assert.equal(config.ios.usesAppleSignIn, true);
   assert.equal(config.ios.associatedDomains, undefined);
   assert.equal(config.ios.privacyManifests, undefined);
   assert.equal(config.owner, "and72nor");
   assert.equal(config.android.versionCode, 349);
-  assert.equal(mobilePackage.dependencies?.["expo-apple-authentication"], undefined);
+  assert.equal(mobilePackage.dependencies?.["expo-apple-authentication"], "~8.0.8");
   assert.match(appSource, /`Application ID: \$\{applicationId\}`/);
   assert.match(appSource, /Application ID \{candidateIdentity\.applicationId\}\.<\/Text>/);
   assert.match(appSource, /if \(!__DEV__ \|\| isAuthenticatedAccount\(account\)\) return account;/);
@@ -47,7 +47,7 @@ test("iOS preparation packet stays aligned with the source identity and fail-clo
   assert.match(packet, /`sidequestchess:\/\/sso-callback`/);
   assert.match(packet, /Do not use Andreas's personal Apple identity/);
   assert.match(packet, /\| iOS build number \| Not source-controlled \|/);
-  assert.match(packet, /\| Apple login \| Absent from config\/dependencies \|/);
+  assert.match(packet, /\| Apple login \| Native Clerk flow, Expo plugin and iOS capability declaration prepared \|/);
   assert.match(packet, /\| Privacy manifest \| No app-owned manifest\/config entry \|/);
   assert.match(packet, /matching server routes must be deployed before distributing this client/i);
   assert.match(packet, /source still names owner `and72nor` and project `9af73cb2-dcd5-4429-b194-67fc81206937`/i);
@@ -79,6 +79,7 @@ test("iOS preparation packet stays aligned with the source identity and fail-clo
   assert.match(packet, /primary and secondary review accounts that do not expire during review or re-review/);
   assert.match(packet, /report reaches the staffed queue, escalation\/response SLA, removal/);
   assert.match(packet, /storefront override alone is not access control/);
+  assert.match(packet, /Australia 16\+, Vietnam 16\+ and Republic of Korea 15\+/);
   assert.match(packet, /report\/block records/);
   assert.match(packet, /4,000-byte limit/);
   assert.match(packet, /monitor authentication, APIs, chess-provider fixtures, moderation and deletion throughout review and re-review/);
@@ -87,8 +88,10 @@ test("iOS preparation packet stays aligned with the source identity and fail-clo
   assert.match(packet, /`1284×2778` or `1242×2688`/);
   assert.match(packet, /`2064×2752` or `2048×2732`/);
   assert.match(packet, /clean temporary `expo prebuild --platform ios --no-install`/);
-  assert.match(packet, /build `1`, and URL schemes `sidequestchess` plus `com\.sidequestchess\.app`/);
+  assert.match(packet, /build `1`, URL schemes `sidequestchess` plus `com\.sidequestchess\.app`/);
+  assert.match(packet, /`com\.apple\.developer\.applesignin = Default`/);
   assert.match(packet, /No app-target `PrivacyInfo\.xcprivacy` was generated before pod installation/);
+  assert.match(packet, /narrowest role justified by a task-by-task permissions matrix/);
   assert.match(packet, /TestFlight upload, TestFlight device acceptance, App Review submission, App Review acceptance, release approval and public storefront availability are distinct states/);
 });
 

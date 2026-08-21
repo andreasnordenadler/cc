@@ -114,6 +114,23 @@ test("pull-request release gate uses cross-platform prebuild rather than credent
   assert.doesNotMatch(pullRequestJob, /(?:eas(?:-cli)?|fastlane)\s+(?:build|submit|credentials)|expo\s+login|security find-identity|xcodebuild|SQC_(?:ANDROID|IOS)_/i);
 });
 
+test("mobile release gate watches iOS policy and mobile safety surfaces", () => {
+  const source = readRepoFile(".github/workflows/mobile-release-gate.yml");
+  for (const watchedPath of [
+    "tests/mobile-ios-social-sign-in-policy.test.ts",
+    "tests/ios-release-prep-packet.test.ts",
+    "src/app/api/blocks/users/route.ts",
+    "src/app/api/reports/content/route.ts",
+    "src/app/api/reports/creators/route.ts",
+    "src/lib/account-deletion*.ts",
+    "src/lib/groupquests.ts",
+    "src/lib/user-blocking.ts",
+    "docs/IOS_APP_STORE_RELEASE_PACKET_2026-08-16.md",
+  ]) {
+    assert.ok(source.includes(`- \"${watchedPath}\"`), `mobile release gate must watch ${watchedPath}`);
+  }
+});
+
 test("pnpm 11 keeps the release-age guard except for the reviewed Expo patch set", () => {
   const source = readRepoFile("pnpm-workspace.yaml");
   const reviewedExpoPatchSet = [

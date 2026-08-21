@@ -25,7 +25,7 @@ Do not mark any gate complete without evidence tied to the exact frozen candidat
 | Source freeze | NOT FROZEN | Approved clean commit, lock hash, source version, deliberate unique iOS build number |
 | IPA identity/signing | BLOCKED | IPA hash, bundle/version/build, Crowdler team/signature, entitlements, URL types, SDK list and privacy manifests |
 | Authentication/deep link | BLOCKED | Every shipped sign-in method on physical iPhone; production redirect allowlist; cold launch, cancellation and browser return via `sidequestchess://sso-callback` |
-| Sign in with Apple / Guideline 4.8 | BLOCKED | Implement and verify it, remove noncompliant third-party primary login choices, or retain a documented exception accepted by the release owner |
+| Sign in with Apple / Guideline 4.8 | SOURCE PREPARED; BLOCKED | Native control/config are present, but Crowdler capability/provider configuration, account linking, token revocation and physical-iPhone verification are not |
 | Privacy labels | DRAFT ONLY | Backend/retention owner, Clerk/providers, generated archive and transitive SDK behavior reconciled |
 | UGC safety/content rights | BLOCKED | Exact report/block/moderation behavior and authorization for public Lichess/Chess.com records and displayed material |
 | Worldwide 13+ eligibility | BLOCKED | Owner/legal-approved age-assurance or eligibility flow tested for account creation and every social/UGC surface; a storefront override alone is not access control |
@@ -48,7 +48,7 @@ Do not mark any gate complete without evidence tied to the exact frozen candidat
 | Tablet | `supportsTablet: true`; portrait Expo orientation; generated iPad orientations must be inspected | Physical iPad portrait, landscape, full-screen and multiwindow QA unless the generated target is deliberately restricted before freeze |
 | Native project | Managed Expo; no checked-in `ios/` directory | Generate from frozen source and inspect |
 | iOS build number | Not source-controlled | Reconcile highest App Store build, then set a deliberate value |
-| Apple login | Absent from config/dependencies | Close Guideline 4.8 gate before review |
+| Apple login | Native Clerk flow, Expo plugin and iOS capability declaration prepared | Verify Crowdler App ID capability, Clerk provider configuration, account linking/deletion revocation and exact-candidate physical-iPhone behavior |
 | Universal links | No `ios.associatedDomains` | Treat public quest/proof/invite links as web links |
 | Privacy manifest | No app-owned manifest/config entry | Inspect generated project, pods and IPA before declarations |
 | Encryption | HTTPS/auth/SecureStore-related libraries present | Answer Apple's current export questionnaire against the archive; do not infer exemption solely from package names |
@@ -56,7 +56,7 @@ Do not mark any gate complete without evidence tied to the exact frozen candidat
 
 Safe source corrections on this branch send platform-neutral `X-Side-Quest-Chess-Client: mobile` for mobile report/block APIs while the server retains compatibility with legacy `android`, make the local preview-account fixture unconditionally development-only, remove personal data from that fixture, and align the signed-out support fallback with `sam@crowdler.com`, the Crowdler controller contact already published in Privacy and Terms. Support diagnostics use runtime application ID and native build. Matching server routes must be deployed before distributing this client. The support correction must also be deployed before distribution; deployment remains separately approval-gated.
 
-Facebook is currently visible whenever Clerk is configured. Before freeze, production Facebook OAuth must pass on the exact iPhone candidate or the control and review copy must be removed. Email/password, Google and Facebook are reachable today; review notes must name only methods that pass the final smoke.
+Facebook is currently visible whenever Clerk is configured. Before freeze, production Facebook OAuth must pass on the exact iPhone candidate or the control and review copy must be removed. Email/password, Google, Facebook and the source-prepared native Apple control are reachable on their intended platforms; Apple remains unverified until the dedicated Crowdler identity can configure the capability/provider and the exact flow passes on a physical iPhone. Review notes must name only methods that pass the final smoke.
 
 ## 4. App Store listing draft — English (U.S.)
 
@@ -148,7 +148,7 @@ Draft mapped to Apple's current descriptor labels. Preserve the exact live label
 - Prolonged Graphic or Sadistic Realistic Violence: None in publisher-authored content; verify reachable UGC
 - Guns or Other Weapons: None in publisher-authored content; verify reachable UGC
 
-Do not answer mature-content frequencies for the whole reachable UGC experience until moderation/filtering and reachable content are tested. Community Multiplayer has report and block controls; verify whether Community Solo and backend moderation satisfy Apple's current UGC expectations. Crowdler's intended worldwide 13+ distribution is a target, not a precomputed uniform Apple rating.
+Do not answer mature-content frequencies for the whole reachable UGC experience until moderation/filtering and reachable content are tested. Community Multiplayer has report and block controls; verify whether Community Solo and backend moderation satisfy Apple's current UGC expectations. Crowdler's intended worldwide 13+ distribution is a service-eligibility target, not a uniform displayed Apple rating. Under Apple's questionnaire rules reviewed on 2026-08-21, the draft `Social Media: Yes` answer is expected to produce Australia 16+, Vietnam 16+ and Republic of Korea 15+ regional ratings; preserve the live calculated receipt because the live form remains authoritative.
 
 ## 6. App Privacy nutrition-label draft
 
@@ -192,7 +192,7 @@ Do not paste until every described path passes on the selected TestFlight build.
 >
 > For deletion use a dedicated deletion-only account: My Account → Delete account → type `DELETE MY ACCOUNT` → Permanently delete account. The app signs out only after the deletion request succeeds. [Retain only after exact TestFlight verification.]
 >
-> Email/password sign-in is available. Google and Facebook return through `sidequestchess://sso-callback`; include them only if both pass final iPhone smoke. Add the exact verified Sign in with Apple path if shipped.
+> Email/password sign-in is available. Google and Facebook return through `sidequestchess://sso-callback`; include them only if both pass final iPhone smoke. Native Sign in with Apple is source-prepared; name it here only after Crowdler capability/provider setup and exact TestFlight verification.
 >
 > Support: https://sidequestchess.com/support
 > Privacy: https://sidequestchess.com/privacy
@@ -243,7 +243,7 @@ Use a dedicated Sam/Crowdler Apple Account with MFA and Crowdler-controlled reco
 - **Expected cost:** SEK 0 if membership/access already exist. Enrollment, renewal, invitation, acceptance, payment or agreements require a separate approval.
 - **What it unblocks:** selecting a non-colliding build number and preparing exact later approvals for bundle capability/signing, Sign in with Apple and the first build. It does not authorize those actions.
 
-If the identity is not provisioned, the later invitation request must name inviter, invitee, exact Crowdler AB Team ID, proposed Developer or app-scoped App Manager role, app scope, cost, terms/attestation and revocation owner. Invitation and acceptance are mutations.
+If the identity is not provisioned, first separate discovery-only needs from later build or App Store mutation duties. Apple does not provide a general read-only discovery role for every needed surface, while Developer and App Manager both carry mutation powers. Any later invitation request must name inviter, invitee, exact Crowdler AB Team ID, the narrowest role justified by a task-by-task permissions matrix, app scope, any additional Certificates/Identifiers/Profiles permission, cost, terms/attestation and revocation owner. Invitation and acceptance are mutations.
 
 ## 12. Approval boundaries and binary acceptance
 
@@ -263,7 +263,7 @@ Source freeze, signed archive, TestFlight upload, TestFlight device acceptance, 
 
 ## 13. Current local tool constraints
 
-- A clean temporary `expo prebuild --platform ios --no-install` from this branch completed on 2026-08-20. The generated target resolved `PRODUCT_BUNDLE_IDENTIFIER = com.sidequestchess.app`, device family `1,2`, display name `Side Quest Chess`, version `0.1.349`, build `1`, and URL schemes `sidequestchess` plus `com.sidequestchess.app`.
+- A clean temporary `expo prebuild --platform ios --no-install` from this branch completed on 2026-08-21. The generated target resolved `PRODUCT_BUNDLE_IDENTIFIER = com.sidequestchess.app`, device family `1,2`, display name `Side Quest Chess`, version `0.1.349`, build `1`, URL schemes `sidequestchess` plus `com.sidequestchess.app`, and `com.apple.developer.applesignin = Default` in the app entitlements.
 - That generated `Info.plist` contained no sensitive-resource usage description and no `ITSAppUsesNonExemptEncryption`. It enabled iPad portrait, upside-down and both landscape orientations with `UIRequiresFullScreen = false`. No app-target `PrivacyInfo.xcprivacy` was generated before pod installation. These are audit findings, not archive evidence; inspect pods, merged privacy report and signed IPA later.
 - The pull-request mobile release gate now generates both iOS and Android native projects from Expo config without signing, Apple account access, EAS build, upload or submission. This catches cross-platform prebuild regressions but does not prove CocoaPods installation, Xcode compilation, archive contents, signing or device behavior.
 - Full Xcode is not selected/available; Command Line Tools are active.
