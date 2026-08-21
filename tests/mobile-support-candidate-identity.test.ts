@@ -78,3 +78,18 @@ test("Android support identity avoids an unverified release link when no version
     releaseUrl: null,
   });
 });
+
+test("non-native platforms do not claim an Android release artifact", () => {
+  assert.deepEqual(getMobileCandidateIdentity({
+    platform: "web",
+    nativeApplicationVersion: "0.1.349",
+    config,
+  }), {
+    appVersion: "0.1.349",
+    appBuild: "unknown",
+    applicationId: "unknown",
+    artifactLabel: "app build",
+    releaseCandidate: "unknown",
+    releaseUrl: null,
+  });
+});

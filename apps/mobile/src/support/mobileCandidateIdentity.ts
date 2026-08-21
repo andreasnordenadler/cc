@@ -38,6 +38,17 @@ export function getMobileCandidateIdentity(input: MobileCandidateIdentityInput):
     };
   }
 
+  if (input.platform !== "android") {
+    return {
+      appVersion,
+      appBuild: "unknown",
+      applicationId: input.applicationId ?? "unknown",
+      artifactLabel: "app build",
+      releaseCandidate: "unknown",
+      releaseUrl: null,
+    };
+  }
+
   const nativeBuild = input.nativeBuildVersion ? Number(input.nativeBuildVersion) : undefined;
   const versionCode = Number.isFinite(nativeBuild) ? nativeBuild : input.config.android?.versionCode;
   const appBuild = versionCode ? String(versionCode) : "unknown";
