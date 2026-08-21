@@ -32,7 +32,7 @@ export function getMobileCandidateIdentity(input: MobileCandidateIdentityInput):
       appVersion,
       appBuild,
       applicationId: input.applicationId ?? input.config.ios?.bundleIdentifier ?? "unknown",
-      artifactLabel: "iOS App Store candidate",
+      artifactLabel: "iOS app build",
       releaseCandidate: `${appVersion} (${appBuild})`,
       releaseUrl: null,
     };
