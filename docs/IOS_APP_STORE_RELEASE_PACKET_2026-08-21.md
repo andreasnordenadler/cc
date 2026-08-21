@@ -15,8 +15,9 @@ This packet supersedes the iOS portions of `SQC_MOBILE_APPLE_PRIVACY_PREP_2026-0
 - Publisher/controller target: Crowdler AB. Worldwide 13+ target. No ads, IAP, subscriptions, or real-money prizes.
 - `supportsTablet` is `true`; iPad build, responsive QA, and screenshots are therefore release gates.
 - Source offers email/password, Google, and Facebook login. It does **not** offer Sign in with Apple or declare its capability. Apple Review Guideline 4.8 therefore remains a source blocker unless the final login set qualifies for a documented exception.
-- No deliberate iOS build number is source-controlled. A disposable clean prebuild currently defaults to build `1`; this is not proof that `1` is available in App Store Connect. No final privacy manifest report, signed IPA, TestFlight build, or physical-iPhone callback proof exists.
+- No deliberate iOS build number is source-controlled. The EAS production profile has `autoIncrement: true` with local app-version sourcing, while a disposable clean prebuild currently defaults to build `1`; neither establishes the next available App Store Connect number or a reproducible first iOS candidate. No final privacy manifest report, signed IPA, TestFlight build, or physical-iPhone callback proof exists.
 - The live Support page is reachable, but its signed-out rendering does not expose Crowdler AB's legal address, email address, or telephone number. Apple requires the Support URL to lead to actual contact information as required by local law, so the listing remains blocked until this is corrected and re-read from production.
+- Guideline 1.2 UGC readiness is a source blocker, not merely a QA question: public profile/quest/invite/bio inputs have no verified objectionable-content filter; content/creator reports are written into each reporter's private Clerk metadata with no implemented central operator queue found; and creator blocking filters Community discovery for that user rather than proving comprehensive interaction blocking. Filtering, queue delivery, staffed response/removal operations, and block coverage must be implemented and tested before submission.
 - Full Xcode is unavailable locally: `/Library/Developer/CommandLineTools` is selected and `xcodebuild` rejects it. No valid local Apple signing identity is verified.
 - EAS is associated with owner `and72nor`; the verified authenticated identity is Andreas’s personal identity. Do not use it for Apple access, credentials, build, or submission.
 
@@ -44,6 +45,7 @@ A clean detached worktree at the stated source baseline completed `expo prebuild
 | Bundle/app reconciliation | Blocked | Apple Developer and App Store Connect searches for `com.sidequestchess.app`, including duplicate/App ID/app record/SKU results |
 | Source freeze | Not frozen | Clean approved commit, lockfile hash, approved version and unique build number |
 | Guideline 4.8 login | Blocked | Sign in with Apple implementation/configuration or documented exception; account linking, cancellation, relay email, revocation and deletion tests |
+| Guideline 1.2 UGC safety | Blocked | Objectionable-content filtering, central moderation queue, staffed response/removal process, and comprehensive user blocking verified end to end |
 | Generated native audit | Blocked | Clean prebuild diff; Info.plist, entitlements, URL types, deployment target, SDKs and privacy manifests |
 | Signed candidate | Blocked | IPA hash, identity/version/build, Crowdler signature/team, entitlements and export-compliance inspection |
 | Privacy labels | Draft only | Backend/provider/SDK/manifest/network reconciliation against exact IPA |
@@ -66,6 +68,7 @@ Use strict RED–GREEN–REFACTOR for each behavior change and preserve failing-
 5. Resolve tablet policy: retain support only after iPad responsive acceptance and screenshots, or seek explicit product approval to disable it before freeze.
 6. Reconcile the privacy policy and nutrition label with Clerk, Google, Facebook, Apple if added, hosting/security logs, Expo runtime, optional support diagnostics, Lichess/Chess.com public-record retrieval, and all transitive native SDK behavior.
 7. Platform-aware support identity is now implemented on this branch: iOS reports the bundle ID and native version/build under the distribution-neutral label “iOS app build,” without claiming an App Store/TestFlight channel, Android APK, or GitHub release. Preserve the identity regression tests and verify the rendered diagnostics on the selected TestFlight build.
+8. Replace the current per-reporter metadata report sink with a central, access-controlled moderation queue and implement content filtering and complete interaction blocking. Define response/removal ownership and service levels before claiming Guideline 1.2 readiness.
 
 ## 4. App Store listing draft — English (U.S.)
 
@@ -131,7 +134,7 @@ Each provisional row is **collected**, **linked to the user**, and **not used fo
 | User Content / Gameplay Content | App Functionality | Quest state, proof attempts/results, game IDs, standings and custom quests |
 | User Content / Other User Content | App Functionality | Bio, community/multiplayer text, invite copy, report reasons and block/report records |
 | Usage Data / Product Interaction | App Functionality; Analytics | Likes, proof checks, quest/community/multiplayer actions, timestamps and account history |
-| Diagnostics / Other Diagnostic Data | App Functionality | Optional support bundle: application ID, app version/build, OS/platform, API destination, account/display-name state, chess handles, active solo quest, multiplayer/public-hosted counts and timestamp |
+| Diagnostics / Other Diagnostic Data | App Functionality | Optional support bundle: application ID, app version/build, OS/platform, API destination and timestamp. Its account/display-name state, chess handles, active solo quest and multiplayer/public-hosted counts must also remain reconciled under their underlying Identifiers, Gameplay Content and Product Interaction categories rather than being treated as diagnostics alone |
 
 Unresolved before adoption: IP address, user agent, session/device identifiers, hosting/security logs, crashes/performance, retention/deletion periods, processor purposes, SDK-collected data, and provider-specific behavior. Optional diagnostics remain collected when submitted. Inspect the archive’s SDK inventory, privacy manifests, aggregate privacy report, required-reason APIs and SDK signatures. The app’s own manifest cannot repair a missing third-party SDK manifest. Reconcile at the App Store Connect app-record level as well as against the IPA because Apple privacy answers apply across all Apple platforms associated with that app record.
 
@@ -144,7 +147,7 @@ Working answers:
 - Advertising: No
 - Gambling, simulated gambling, loot boxes: No / None
 - Parental Controls: No
-- Age Assurance: No — release blocker for the intended 13+ social/UGC service until owner/legal approves and the candidate verifies an eligibility approach
+- Age Assurance: No — owner/legal product gate for the intended 13+ social/UGC service until an eligibility approach is approved and verified; do not present this internal gate as a universal Apple requirement without a current rule specific to the candidate
 - Unrestricted Web Access: No; only specific auth, legal, support, and public-proof destinations
 - User-Generated Content: Yes
 - Social Media: Yes — public discovery/posting, likes, profiles and creator attribution
@@ -238,8 +241,9 @@ Source freeze, archive, upload, TestFlight processing, store-delivered installat
 - Strict TDD receipt for iOS support identity: RED failed because `mobileCandidateIdentity` did not exist; GREEN passed after the minimal platform-aware helper and UI integration.
 - Strict TDD receipt for distribution-neutral iOS diagnostics: RED failed because iOS was labeled an App Store candidate from platform alone; GREEN passed after replacing that unverified channel claim with “iOS app build.” Android release identity now has native, managed-config, invalid-version and no-version regression coverage.
 - Strict TDD receipt for cross-platform native generation: RED failed because the pull-request release gate had no iOS prebuild; GREEN passed after adding unsigned iOS generation and bounded cleanup before Android generation.
+- Strict TDD receipt for truthful deletion success copy: RED failed because the app promised that the account and saved data were permanently deleted despite documented backup/security-log retention; GREEN passed after limiting the confirmation to the verified account-deleted and signed-out result.
 - A direct local execution of the exact iOS prebuild command completed, generated `com.sidequestchess.app` with deployment target `15.1` and device family `1,2`, and the generated tree was removed. No tracked package or lockfile change remained.
-- `pnpm test`: PASS — 760 tests, 0 failures, 0 skipped/todo.
+- `pnpm test`: PASS — 761 tests, 0 failures, 0 skipped/todo.
 - `pnpm build`: PASS — Next.js production build completed.
 - `pnpm --dir apps/mobile run typecheck`: PASS.
 - `pnpm --dir apps/mobile run doctor`: PASS — 18/18 checks before native generation.

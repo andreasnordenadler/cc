@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
 import test from "node:test";
 import { deleteMobileAccount } from "../apps/mobile/src/api/sqc";
 import { DELETE_ACCOUNT_CONFIRMATION } from "../src/lib/account-deletion";
@@ -40,4 +41,11 @@ test("mobile account deletion exposes the server safe error", async () => {
   } finally {
     globalThis.fetch = originalFetch;
   }
+});
+
+test("mobile account deletion success copy does not promise deletion beyond the documented retention scope", async () => {
+  const source = await readFile(new URL("../apps/mobile/App.tsx", import.meta.url), "utf8");
+
+  assert.doesNotMatch(source, /account and saved data were permanently deleted/i);
+  assert.match(source, /Your account was deleted and you have been signed out/i);
 });

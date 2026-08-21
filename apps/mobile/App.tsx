@@ -6003,7 +6003,7 @@ function AccountTrackerDashboard({ bootstrap, account, authBridge, onSelectTab, 
       await authBridge.signOut?.();
       setDeleteConfirmation("");
       setShowDeleteAccount(false);
-      Alert.alert("Account deleted", "Your Side Quest Chess account and saved data were permanently deleted.");
+      Alert.alert("Account deleted", "Your account was deleted and you have been signed out.");
       onSelectTab("home");
     } catch (caught) {
       Alert.alert("Account not deleted", caught instanceof Error ? caught.message : "Please try again.");
