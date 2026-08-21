@@ -107,6 +107,22 @@ test("exported creator report route derives canonical identities and preserves u
   }]);
 });
 
+test("creator report route records iOS safety actions as mobile", async (t) => {
+  const previous = process.env.NODE_ENV;
+  setNodeEnv("test");
+  t.after(() => setNodeEnv(previous));
+  const { dependencies, writes } = routeDependencies();
+
+  const response = await withCreatorReportRouteTestDependencies(dependencies, () => creatorReportPOST(request(
+    { targetType: "community-multiplayer", targetId: "community/table", reason: "abuse" },
+    { "x-side-quest-chess-client": "ios" },
+  )));
+
+  assert.equal(response.status, 200);
+  const saved = writes[0]?.metadata as { privateMetadata: { sqcCreatorReports: Array<{ source: string }> } };
+  assert.equal(saved.privateMetadata.sqcCreatorReports[0]?.source, "mobile");
+});
+
 test("creator report route fails closed for anonymous, spoofed, replica, self, and over-budget requests", async (t) => {
   const previous = process.env.NODE_ENV;
   setNodeEnv("test");
@@ -135,4 +151,13 @@ test("Android safety sheet exposes distinct Side Quest report, creator report, a
   assert.match(source, /accessibilityLabel="Block Community creator"/);
   assert.match(source, /Report creator/);
   assert.match(source, /reportCreator/);
+});
+
+test("mobile safety requests identify the actual native platform", async () => {
+  const source = await readFile(new URL("../apps/mobile/src/api/sqc.ts", import.meta.url), "utf8");
+  const appSource = await readFile(new URL("../apps/mobile/App.tsx", import.meta.url), "utf8");
+
+  assert.match(source, /"X-Side-Quest-Chess-Client": clientPlatform/g);
+  assert.doesNotMatch(source, /"X-Side-Quest-Chess-Client": "android"/);
+  assert.match(appSource, /clientPlatform: Platform\.OS === "ios" \? "ios" : "android"/);
 });

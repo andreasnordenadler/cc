@@ -1,7 +1,7 @@
 # Side Quest Chess — iOS App Store release-preparation packet
 
-**Prepared:** 2026-08-21<br>
-**Source baseline:** `5e99adda9a1632642e2f611f115b6db68064746a` (`origin/main`, fetched immediately before this change)<br>
+**Prepared:** 2026-08-21; reconciled 2026-08-22<br>
+**Source baseline:** `36c76acaab6a9a9e2f3adb3d95776779039b0c33` (`origin/main`, fetched immediately before the 2026-08-22 reconciliation)<br>
 **Status:** Drafts and verified source audit only. This is not an App Store Connect record, Apple credential, IPA, TestFlight build, review submission, approval, or public release.
 
 This packet supersedes the iOS portions of `SQC_MOBILE_APPLE_PRIVACY_PREP_2026-07-03.md`, `SQC_MOBILE_STORE_LAUNCH_PREP_2026-07-07.md`, and `SQC_MOBILE_STORE_SUBMISSION_PACK_2026-07-07.md` for this source baseline.
@@ -19,6 +19,7 @@ This packet supersedes the iOS portions of `SQC_MOBILE_APPLE_PRIVACY_PREP_2026-0
 - The live Support page is reachable, but its signed-out rendering does not expose Crowdler AB's legal address, email address, or telephone number. Apple requires the Support URL to lead to actual contact information as required by local law, so the listing remains blocked until this is corrected and re-read from production.
 - Guideline 1.2 UGC readiness is a source blocker, not merely a QA question: public profile/quest/invite/bio inputs have no verified objectionable-content filter; content/creator reports are written into each reporter's private Clerk metadata with no implemented central operator queue found; and creator blocking filters Community discovery for that user rather than proving comprehensive interaction blocking. Filtering, queue delivery, staffed response/removal operations, and block coverage must be implemented and tested before submission.
 - Full Xcode is unavailable locally: `/Library/Developer/CommandLineTools` is selected and `xcodebuild` rejects it. No valid local Apple signing identity is verified.
+- Any upload candidate must also be built with Xcode 26 or later and the iOS/iPadOS 26 SDK or later under Apple's requirement effective 2026-04-28; this lane cannot verify that toolchain yet.
 - EAS is associated with owner `and72nor`; the verified authenticated identity is Andreas’s personal identity. Do not use it for Apple access, credentials, build, or submission.
 
 ### Disposable native-generation receipt
@@ -52,6 +53,9 @@ A clean detached worktree at the stated source baseline completed `expo prebuild
 | Age rating / 13+ access | Draft only | Live questionnaire receipt and owner/legal-approved 13+ eligibility behavior |
 | Screenshots | Blocked | Fresh same-candidate iPhone and iPad captures |
 | Support URL contact | Blocked | Production signed-out page exposes the required legal address, email and telephone contact and accepts issue/feedback contact |
+| Content rights | Blocked | Owner/legal-approved answer and evidence covering Lichess/Chess.com records, names, APIs and any marks in metadata/assets for every selected territory |
+| EU trader status | Blocked | Owner/legal self-assessment, app-specific selection, verified Crowdler AB contact/address and all Apple-requested evidence before EU distribution |
+| Compatibility availability | Blocked | Explicit opt-out or same-candidate QA/support decision for default Apple-silicon Mac and Apple Vision Pro availability |
 | TestFlight | Not started | Approved upload, tester configuration and store-delivered install receipt |
 | Real iPhone smoke | Blocked | Exact TestFlight build, signed-out and signed-in flows, callback and deletion |
 | Review submission | Not started | Separate approval and App Store Connect readback |
@@ -69,6 +73,8 @@ Use strict RED–GREEN–REFACTOR for each behavior change and preserve failing-
 6. Reconcile the privacy policy and nutrition label with Clerk, Google, Facebook, Apple if added, hosting/security logs, Expo runtime, optional support diagnostics, Lichess/Chess.com public-record retrieval, and all transitive native SDK behavior.
 7. Platform-aware support identity is now implemented on this branch: iOS reports the bundle ID and native version/build under the distribution-neutral label “iOS app build,” without claiming an App Store/TestFlight channel, Android APK, or GitHub release. Preserve the identity regression tests and verify the rendered diagnostics on the selected TestFlight build.
 8. Replace the current per-reporter metadata report sink with a central, access-controlled moderation queue and implement content filtering and complete interaction blocking. Define response/removal ownership and service levels before claiming Guideline 1.2 readiness.
+9. Preserve native-platform provenance for report/block actions. This branch now sends `ios` from iOS and `android` from Android and records either as mobile evidence; final TestFlight smoke must verify the selected candidate end to end.
+10. Remove production-facing QA/test copy from the offline fallback, expose a recoverable password-reset path, decide universal-link behavior for shared quest URLs, and reconcile Google/Facebook as privacy processors before source freeze.
 
 ## 4. App Store listing draft — English (U.S.)
 
@@ -152,10 +158,13 @@ Working answers:
 - User-Generated Content: Yes
 - Social Media: Yes — public discovery/posting, likes, profiles and creator attribution
 - Messaging and Chat: Yes if Apple’s live definition includes reachable public posting
-- Contests: Yes under Apple's current definition because users compete for rankings and personal goals; select frequency only from verified live-candidate evidence. There is no money or prize.
+- Social Media Disabled for Users Under 13: No — no verified Declared Age Range API integration or age-gated social surface exists.
+- Contests: Frequent as the working draft because quests, rankings and goals are core functionality; confirm against the live questionnaire and exact candidate. There is no money or prize.
 - Profanity, mature themes, drugs, sexual content, violence and weapons: publisher-authored content is intended None, but reachable UGC must be moderated and audited before selecting frequencies
 
 Verify report, block, filtering, moderation queue, response/removal process, and every Community surface. Do not infer the final storefront rating from this draft.
+
+“13+” is the contractual/in-app minimum, not a promise of one uniform storefront rating. With Social Media answered Yes, Apple's current table indicates higher regional ratings including Australia 16+, Vietnam 16+, and Korea 15+; preserve the live calculated regional receipt before territory approval.
 
 ## 7. Review notes draft
 
@@ -175,6 +184,8 @@ Do not paste until every statement passes on the selected TestFlight build.
 > Privacy: https://sidequestchess.com/privacy
 
 Create owner-authorized, non-personal primary/secondary review fixtures plus a deletion-only fixture. Put the non-expiring primary username/password in Apple's credential fields and secondary/deletion fixture details in Review Notes; do not place credentials in source or this packet. Read back the review contact name, email and international-format phone, and keep Review Notes within Apple's live byte limit. Include seeded IDs, expected proof result, reset instructions, fallback route, reachable review contact, and an owner monitoring auth/API/provider/moderation/deletion services throughout review. Recreate the deletion fixture after smoke.
+
+For every shipped SSO provider, include non-expiring provider-specific review access/instructions or explicitly document and verify how the ordinary demo account gives full review access while the SSO path itself remains testable. Freeze one App Store version value and verify that exact value in the selected archive; current source/generated settings do not yet provide that receipt.
 
 ## 8. Screenshot and localization plan
 
@@ -243,12 +254,13 @@ Source freeze, archive, upload, TestFlight processing, store-delivered installat
 - Strict TDD receipt for cross-platform native generation: RED failed because the pull-request release gate had no iOS prebuild; GREEN passed after adding unsigned iOS generation and bounded cleanup before Android generation.
 - Strict TDD receipt for truthful deletion success copy: RED failed because the app promised that the account and saved data were permanently deleted despite documented backup/security-log retention; GREEN passed after limiting the confirmation to the verified account-deleted and signed-out result.
 - A direct local execution of the exact iOS prebuild command completed, generated `com.sidequestchess.app` with deployment target `15.1` and device family `1,2`, and the generated tree was removed. No tracked package or lockfile change remained.
-- `pnpm test`: PASS — 761 tests, 0 failures, 0 skipped/todo.
+- `pnpm test`: PASS — 764 tests, 0 failures, 0 skipped/todo.
 - `pnpm build`: PASS — Next.js production build completed.
 - `pnpm --dir apps/mobile run typecheck`: PASS.
 - `pnpm --dir apps/mobile run doctor`: PASS — 18/18 checks before native generation.
 - `pnpm lint`: PASS with four pre-existing warnings and no errors (one unused variable and three `no-img-element` warnings).
 - App Store field structural check: PASS — name 16/30, subtitle 28/30, promotional text 84/170, keywords 62/100 bytes (ASCII draft); public listing draft contains no “SQC”.
+- iOS safety provenance TDD receipt: RED proved an `ios` safety request was stored as `website`; GREEN now sends the actual native platform and stores both `ios` and `android` as mobile evidence.
 - `git diff --check`: PASS.
 - `pnpm mobile:release:check` on a managed checkout cannot start because that script assumes a generated Android manifest. In the disposable generated checkout it progressed through the production dependency audit, then stopped because CocoaPods is unavailable and Expo Doctor correctly warns that checked-in native folders change config-sync behavior. This is not an iOS release pass and no workaround was applied.
 - Full Xcode build, CocoaPods install, Simulator tests, `.xcresult`, archive, signing, TestFlight and device smoke: NOT RUN / BLOCKED by the verified local prerequisites and approval gates.
@@ -263,3 +275,8 @@ Source freeze, archive, upload, TestFlight processing, store-delivered installat
 - Export compliance: https://developer.apple.com/help/app-store-connect/manage-app-information/overview-of-export-compliance/
 - Screenshot specifications: https://developer.apple.com/help/app-store-connect/reference/app-information/screenshot-specifications/
 - Apple Developer/App Store Connect roles: https://developer.apple.com/help/account/access/roles/
+- Upload toolchain requirement effective 2026-04-28: https://developer.apple.com/news/upcoming-requirements/?id=04282026a
+- DSA trader requirements: https://developer.apple.com/help/app-store-connect/manage-compliance-information/manage-european-union-digital-services-act-trader-requirements
+- Age-rating values and definitions: https://developer.apple.com/help/app-store-connect/reference/app-information/age-ratings-values-and-definitions/
+- iPhone/iPad app availability on Apple-silicon Mac: https://developer.apple.com/help/app-store-connect/manage-your-apps-availability/manage-availability-of-iphone-and-ipad-apps-on-macs-with-apple-silicon
+- iPhone/iPad app availability on Apple Vision Pro: https://developer.apple.com/help/app-store-connect/manage-your-apps-availability/manage-availability-of-iphone-and-ipad-apps-on-apple-vision-pro

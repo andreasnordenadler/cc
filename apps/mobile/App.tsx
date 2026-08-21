@@ -3746,6 +3746,7 @@ function CommunityMultiplayerReportModal({ visible, quest, authBridge, onClose, 
         sessionToken: await authBridge.getSessionToken(),
         targetId: quest.id,
         reason,
+        clientPlatform: Platform.OS === "ios" ? "ios" : "android",
       }));
       if (submission.kind === "busy") return;
       const result = submission.result;
@@ -3768,6 +3769,7 @@ function CommunityMultiplayerReportModal({ visible, quest, authBridge, onClose, 
         sessionToken: await authBridge.getSessionToken(),
         targetId: quest.id,
         reason,
+        clientPlatform: Platform.OS === "ios" ? "ios" : "android",
       }));
       if (submission.kind === "busy") return;
       setReason("");
@@ -3784,6 +3786,7 @@ function CommunityMultiplayerReportModal({ visible, quest, authBridge, onClose, 
       const result = await blockMobileCommunityCreator({
         sessionToken: await authBridge.getSessionToken(),
         targetId: quest.id,
+        clientPlatform: Platform.OS === "ios" ? "ios" : "android",
       });
       await onBlocked();
       setSubmitState({ busy: false, message: result.message, error: null });
