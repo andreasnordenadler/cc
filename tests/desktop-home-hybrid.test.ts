@@ -150,6 +150,22 @@ test("desktop Home turns Android heroism choices into a decision workspace", () 
   assert.match(desktopMedia, /\.sqc-desktop-random-quest:focus-visible\s*\{[^}]*outline:\s*3px\s+solid/);
 });
 
+test("wide desktop Home uses the available canvas without stretching the mobile composition", () => {
+  const css = readFileSync("src/app/mobile-web.css", "utf8");
+  const wideDesktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1680px)"));
+
+  assert.match(
+    wideDesktopMedia,
+    /\.sqc-desktop-guest,\s*\.sqc-desktop-signed-in\s*\{[^}]*width:\s*min\(1440px,\s*calc\(100%\s*-\s*96px\)\)/,
+    "guest and authenticated Home should share a deliberate wide desktop canvas",
+  );
+  assert.match(
+    wideDesktopMedia,
+    /\.sqc-desktop-hero\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\)\s+minmax\(500px,\s*\.72fr\)/,
+    "the wide hero should reserve a stable editorial rail for the featured quest",
+  );
+});
+
 test("signed-in desktop home guides setup while retaining the existing app home", () => {
   const html = renderToStaticMarkup(
     createElement(MobileAppWebShell, {
