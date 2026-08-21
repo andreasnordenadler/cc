@@ -47,6 +47,7 @@ import { shouldStackActiveQuestSummary } from "./src/layout/activeQuestLayout";
 import { createMobileCommunityCreatorReportSubmitter } from "./src/reports/communityCreatorReport";
 import { canReportCommunityMultiplayerQuest, createMobileCommunityReportSubmitter } from "./src/reports/communityMultiplayerReport";
 import { buildMobileSupportMessage } from "./src/support/buildMobileSupportMessage";
+import { getMobileCandidateIdentity as resolveMobileCandidateIdentity, type MobileCandidateConfig } from "./src/support/mobileCandidateIdentity";
 import type { MobileAccountResponse, MobileAccountState, MobileBootstrap, MobileChallenge, MobileCustomSideQuest, MobileGroupQuestParticipantRow, MobileGroupQuestSummary, MobileSupportMessage } from "./src/types/sqc";
 
 type AppTab = "home" | "sideQuests" | "multiplayerSideQuests" | "officialLeaderboards" | "coatOfArms" | "account";
@@ -3511,28 +3512,26 @@ function AccountHelpSupportSection({ onOpenHelp }: { onOpenHelp: () => void }) {
 }
 
 const MOBILE_SUPPORT_NOTE_MAX_LENGTH = 900;
-const MOBILE_RELEASE_BASE_URL = "https://github.com/andreasnordenadler/cc/releases/tag";
-const MOBILE_APP_CONFIG = require("./app.json") as { expo?: { version?: string; android?: { package?: string; versionCode?: number } } };
+const MOBILE_APP_CONFIG = require("./app.json") as { expo?: MobileCandidateConfig };
 
 function getMobileCandidateIdentity() {
-  const appVersion = Application.nativeApplicationVersion ?? MOBILE_APP_CONFIG.expo?.version ?? "unknown";
-  const androidPackage = Application.applicationId ?? MOBILE_APP_CONFIG.expo?.android?.package ?? "unknown";
-  const nativeBuildVersion = Application.nativeBuildVersion ? Number(Application.nativeBuildVersion) : undefined;
-  const androidVersionCode = Number.isFinite(nativeBuildVersion) ? nativeBuildVersion : MOBILE_APP_CONFIG.expo?.android?.versionCode;
-  const releaseCandidate = androidVersionCode ? `mobile-v${androidVersionCode}` : "unknown";
-  const releaseUrl = androidVersionCode ? `${MOBILE_RELEASE_BASE_URL}/${releaseCandidate}` : null;
-
-  return { appVersion, androidPackage, androidVersionCode, releaseCandidate, releaseUrl };
+  return resolveMobileCandidateIdentity({
+    platform: Platform.OS,
+    nativeApplicationVersion: Application.nativeApplicationVersion,
+    nativeBuildVersion: Application.nativeBuildVersion,
+    applicationId: Application.applicationId,
+    config: MOBILE_APP_CONFIG.expo ?? {},
+  });
 }
 
 function buildMobileSupportDiagnostics(signedIn: MobileAccountState | null) {
-  const { appVersion, androidPackage, androidVersionCode, releaseCandidate, releaseUrl } = getMobileCandidateIdentity();
+  const { appVersion, appBuild, applicationId, artifactLabel, releaseCandidate, releaseUrl } = getMobileCandidateIdentity();
 
   return [
     "Side Quest Chess mobile diagnostics",
-    `App version: ${appVersion}${androidVersionCode ? ` (${androidVersionCode})` : ""}`,
-    `Package ID: ${androidPackage}`,
-    `Release candidate: ${releaseCandidate} GitHub Release APK`,
+    `App version: ${appVersion} (${appBuild})`,
+    `Application ID: ${applicationId}`,
+    `Release candidate: ${releaseCandidate} ${artifactLabel}`,
     `Release URL: ${releaseUrl ?? "unknown"}`,
     `Platform: ${Platform.OS} ${Platform.Version}`,
     `API base: ${getApiBaseUrl()}`,
@@ -3640,7 +3639,7 @@ function HelpSupportModal({ visible, onClose, signedIn, authBridge, initialMessa
             {diagnosticsOpen ? (
               <View style={compactStyles.diagnosticsBody}>
                 <Text style={compactStyles.detailPanelTitle}>{candidateIdentity.releaseCandidate}</Text>
-                <Text style={compactStyles.detailPanelCopy}>App version {candidateIdentity.appVersion}{candidateIdentity.androidVersionCode ? ` (${candidateIdentity.androidVersionCode})` : ""}. Package {candidateIdentity.androidPackage}.</Text>
+                <Text style={compactStyles.detailPanelCopy}>App version {candidateIdentity.appVersion} ({candidateIdentity.appBuild}). Application ID {candidateIdentity.applicationId}. {candidateIdentity.artifactLabel}.</Text>
                 {candidateIdentity.releaseUrl ? <Text style={compactStyles.detailPanelCopy}>{candidateIdentity.releaseUrl}</Text> : null}
               </View>
             ) : null}
