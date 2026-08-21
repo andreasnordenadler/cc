@@ -1331,7 +1331,15 @@ function ClerkMobileShell() {
       const result = await startAppleAuthenticationFlow();
       if (result.createdSessionId && result.setActive) {
         await result.setActive({ session: result.createdSessionId });
+        return;
       }
+
+      const signInStatus = result.signIn?.status ?? "unknown";
+      const signUpStatus = result.signUp?.status ?? "unknown";
+      Alert.alert(
+        "Sign-in did not finish",
+        `Apple returned to Side Quest Chess, but Clerk did not create a mobile session yet. Details: signIn=${signInStatus}, signUp=${signUpStatus}.`,
+      );
     } catch (caught) {
       const code = typeof caught === "object" && caught !== null && "code" in caught ? String(caught.code) : "";
       if (code === "ERR_REQUEST_CANCELED") return;
