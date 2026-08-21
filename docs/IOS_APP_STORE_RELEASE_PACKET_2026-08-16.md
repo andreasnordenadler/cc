@@ -49,6 +49,7 @@ Do not mark any gate complete without evidence tied to the exact frozen candidat
 | Native project | Managed Expo; no checked-in `ios/` directory | Generate from frozen source and inspect |
 | iOS build number | Not source-controlled | Reconcile highest App Store build, then set a deliberate value |
 | Apple login | Native Clerk flow, Expo plugin and iOS capability declaration prepared | Verify Crowdler App ID capability, Clerk provider configuration, account linking/deletion revocation and exact-candidate physical-iPhone behavior |
+| Export compliance | Source declares exempt-only encryption with `ios.config.usesNonExemptEncryption: false` | Reconfirm the exact archive contains no proprietary/non-exempt cryptography and inspect `ITSAppUsesNonExemptEncryption = false` before upload |
 | Universal links | No `ios.associatedDomains` | Treat public quest/proof/invite links as web links |
 | Privacy manifest | No app-owned manifest/config entry | Inspect generated project, pods and IPA before declarations |
 | Encryption | HTTPS/auth/SecureStore-related libraries present | Answer Apple's current export questionnaire against the archive; do not infer exemption solely from package names |
@@ -177,8 +178,8 @@ The purpose column uses Apple's selectable purpose names only; descriptive conce
 Do not adopt answers until the exact archive and current Apple questionnaire are available. Working classification for owner/legal review:
 
 1. The app uses encryption because it communicates over HTTPS and uses authentication/security libraries: **Yes**.
-2. It appears intended to use only encryption within or provided by the operating system and standard public protocols, with no app-authored proprietary cryptography: **verify against generated native code and all SDKs**.
-3. If that evidence satisfies Apple's exemption path, set the corresponding `ITSAppUsesNonExemptEncryption` value consistently and retain the questionnaire receipt. If Apple requests classification or documentation, stop for owner/legal approval; do not guess or upload documentation in this lane.
+2. Source review currently finds only encryption within or provided by the operating system and standard public protocols, with no app-authored proprietary cryptography. Expo config therefore declares `ios.config.usesNonExemptEncryption: false`, which generates `ITSAppUsesNonExemptEncryption = false`: **verify again against the exact archive and every embedded SDK**.
+3. Adopt the matching App Store Connect exemption answer only after that archive inspection and owner/legal approval, and retain the questionnaire receipt. If Apple requests classification or documentation, stop for owner/legal approval; do not guess or upload documentation in this lane.
 
 ## 8. Review notes and access draft
 
@@ -264,7 +265,7 @@ Source freeze, signed archive, TestFlight upload, TestFlight device acceptance, 
 ## 13. Current local tool constraints
 
 - A clean temporary `expo prebuild --platform ios --no-install` from this branch completed on 2026-08-21. The generated target resolved `PRODUCT_BUNDLE_IDENTIFIER = com.sidequestchess.app`, device family `1,2`, display name `Side Quest Chess`, version `0.1.349`, build `1`, URL schemes `sidequestchess` plus `com.sidequestchess.app`, and `com.apple.developer.applesignin = Default` in the app entitlements.
-- That generated `Info.plist` contained no sensitive-resource usage description and no `ITSAppUsesNonExemptEncryption`. It enabled iPad portrait, upside-down and both landscape orientations with `UIRequiresFullScreen = false`. No app-target `PrivacyInfo.xcprivacy` was generated before pod installation. These are audit findings, not archive evidence; inspect pods, merged privacy report and signed IPA later.
+- A subsequent source-safe config correction declares exempt-only encryption and generates `ITSAppUsesNonExemptEncryption = false`; the exact archive and embedded SDK inventory must still confirm that declaration before upload. The generated `Info.plist` contained no sensitive-resource usage description. It enabled iPad portrait, upside-down and both landscape orientations with `UIRequiresFullScreen = false`. No app-target `PrivacyInfo.xcprivacy` was generated before pod installation. These are audit findings, not archive evidence; inspect pods, merged privacy report and signed IPA later.
 - The pull-request mobile release gate now generates both iOS and Android native projects from Expo config without signing, Apple account access, EAS build, upload or submission. This catches cross-platform prebuild regressions but does not prove CocoaPods installation, Xcode compilation, archive contents, signing or device behavior.
 - Full Xcode is not selected/available; Command Line Tools are active.
 - No valid local Apple code-signing identities are installed.

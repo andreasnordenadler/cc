@@ -23,6 +23,7 @@ test("iOS preparation packet stays aligned with the source identity and fail-clo
   assert.equal(config.ios.supportsTablet, true);
   assert.equal(config.ios.buildNumber, undefined);
   assert.equal(config.ios.usesAppleSignIn, true);
+  assert.equal(config.ios.config.usesNonExemptEncryption, false);
   assert.equal(config.ios.associatedDomains, undefined);
   assert.equal(config.ios.privacyManifests, undefined);
   assert.equal(config.owner, "and72nor");
@@ -48,6 +49,7 @@ test("iOS preparation packet stays aligned with the source identity and fail-clo
   assert.match(packet, /Do not use Andreas's personal Apple identity/);
   assert.match(packet, /\| iOS build number \| Not source-controlled \|/);
   assert.match(packet, /\| Apple login \| Native Clerk flow, Expo plugin and iOS capability declaration prepared \|/);
+  assert.match(packet, /\| Export compliance \| Source declares exempt-only encryption/);
   assert.match(packet, /\| Privacy manifest \| No app-owned manifest\/config entry \|/);
   assert.match(packet, /matching server routes must be deployed before distributing this client/i);
   assert.match(packet, /source still names owner `and72nor` and project `9af73cb2-dcd5-4429-b194-67fc81206937`/i);
@@ -90,6 +92,7 @@ test("iOS preparation packet stays aligned with the source identity and fail-clo
   assert.match(packet, /clean temporary `expo prebuild --platform ios --no-install`/);
   assert.match(packet, /build `1`, URL schemes `sidequestchess` plus `com\.sidequestchess\.app`/);
   assert.match(packet, /`com\.apple\.developer\.applesignin = Default`/);
+  assert.match(packet, /`ITSAppUsesNonExemptEncryption = false`/);
   assert.match(packet, /No app-target `PrivacyInfo\.xcprivacy` was generated before pod installation/);
   assert.match(packet, /narrowest role justified by a task-by-task permissions matrix/);
   assert.match(packet, /TestFlight upload, TestFlight device acceptance, App Review submission, App Review acceptance, release approval and public storefront availability are distinct states/);
