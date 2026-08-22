@@ -32,3 +32,13 @@ test("iOS release packet preserves the Android and web launch-order gate", () =>
   assert.match(packet, /Android and web public launch must be verified before iOS App Review submission or public release/i);
   assert.match(packet, /preparation, source verification, and approved TestFlight work may proceed before that predecessor milestone/i);
 });
+
+test("iOS release packet approval-gates the remaining app-record and privacy-policy facts", () => {
+  assert.match(packet, /Made for Kids.*No/i);
+  assert.match(packet, /1024.?×.?1024.*icon/i);
+  assert.match(packet, /User Access selection/i);
+  assert.match(packet, /copyright ownership and year/i);
+  assert.match(packet, /content and creator reports.*user-block records/i);
+  assert.match(packet, /app-scoped App Manager/i);
+  assert.match(packet, /must not download or export.*certificates.*profiles.*API keys.*credentials/i);
+});

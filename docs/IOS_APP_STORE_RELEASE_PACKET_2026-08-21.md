@@ -1,7 +1,7 @@
 # Side Quest Chess — iOS App Store release-preparation packet
 
 **Prepared:** 2026-08-21; reconciled 2026-08-22<br>
-**Source baseline:** `f16d445c21160f78d4879825dbc46d98fbce0def` (`origin/main`, fetched and merged immediately before the current 2026-08-22 password-reset source change); reconciled branch merge HEAD: `29141d5e3926f1393b68bbadc062e52ab13505cc`<br>
+**Source baseline:** `f16d445c21160f78d4879825dbc46d98fbce0def` (`origin/main`, fetched 2026-08-22); branch source audited through `1027a29fb65ed9c4d5bf997fe55b61c00e68e494`, with this later packet-only reconciliation layered on top<br>
 **Status:** Drafts and verified source audit only. This is not an App Store Connect record, Apple credential, IPA, TestFlight build, review submission, approval, or public release.
 
 This packet supersedes the iOS portions of `SQC_MOBILE_APPLE_PRIVACY_PREP_2026-07-03.md`, `SQC_MOBILE_STORE_LAUNCH_PREP_2026-07-07.md`, and `SQC_MOBILE_STORE_SUBMISSION_PACK_2026-07-07.md` for this source baseline.
@@ -96,6 +96,8 @@ These are proposed values only; adopting them in App Store Connect is approval-g
 | Secondary category | None |
 | Price | Free |
 | Copyright | 2026 Crowdler AB |
+| Made for Kids | No — provisional; owner must confirm before app-record creation |
+| User Access | Provisional app-scoped access only; select and read back the exact app-record User Access setting after the dedicated operator and role are approved |
 | Privacy Policy URL | https://sidequestchess.com/privacy |
 | Support URL | https://sidequestchess.com/support |
 | Marketing URL | https://sidequestchess.com |
@@ -127,7 +129,7 @@ Pick a Side Quest, play your public chess games, and come back for a checked res
 > Privacy: https://sidequestchess.com/privacy<br>
 > Terms: https://sidequestchess.com/terms
 
-Before adoption, verify the live field limits, unique name/SKU, territories, content rights, EU trader status, tax category, version/build, review contact, and accessibility declarations. “What’s New” is unavailable for the first App Store version and required for each later version. Owner must explicitly approve Public or Private Distribution before submission. Public versus Private Distribution cannot be changed after approval without a new app record and binary; conversion from public to unlisted is the limited exception. Also decide whether “All Countries or Regions” may opt the app into storefronts Apple adds later or whether to use a specific approved territory list. For China mainland, obtain and verify the NPPA game approval number and supporting documents, and determine whether an MIIT ICP Filing Number is also required; if required, its metadata must match the App Store localization or primary language. For Vietnam, verify the required game-publishing license. Explicitly exclude any storefront whose required documentation is unavailable before submission.
+Before adoption, verify the live field limits, unique name/SKU, territories, content rights, EU trader status, tax category, version/build, review contact, accessibility declarations, exact User Access selection, Made for Kids answer, and copyright ownership and year. “What’s New” is unavailable for the first App Store version and required for each later version. Owner must explicitly approve Public or Private Distribution before submission. Public versus Private Distribution cannot be changed after approval without a new app record and binary; conversion from public to unlisted is the limited exception. Also decide whether “All Countries or Regions” may opt the app into storefronts Apple adds later or whether to use a specific approved territory list. For China mainland, obtain and verify the NPPA game approval number and supporting documents, and determine whether an MIIT ICP Filing Number is also required; if required, its metadata must match the App Store localization or primary language. For Vietnam, verify the required game-publishing license. Explicitly exclude any storefront whose required documentation is unavailable before submission.
 
 ## 5. App Privacy nutrition-label draft
 
@@ -147,7 +149,7 @@ Each provisional row is **collected**, **linked to the user**, and **not used fo
 | Usage Data / Product Interaction | App Functionality; Analytics | Likes, proof checks, quest/community/multiplayer actions, timestamps and account history |
 | Diagnostics / Other Diagnostic Data | App Functionality | Optional support bundle: application ID, app version/build, OS/platform, API destination and timestamp. Its account/display-name state, chess handles, active solo quest and multiplayer/public-hosted counts must also remain reconciled under their underlying Identifiers, Gameplay Content and Product Interaction categories rather than being treated as diagnostics alone |
 
-Unresolved before adoption: IP address, user agent, session/device identifiers, hosting/security logs, crashes/performance, retention/deletion periods, processor purposes, SDK-collected data, and provider-specific behavior. For optional diagnostics, apply Apple's definition of collection and optional-disclosure exception only after verifying retention, purpose, infrequency, clear disclosure, affirmative submission on every occasion, and absence of tracking/advertising or reuse; transmission alone neither proves nor disproves disclosure. Inventory required-reason APIs used by the app and every embedded SDK in the exact archive, then verify that the responsible app or SDK privacy manifest declares an Apple-approved reason matching actual behavior for every used category. Missing or unsupported reasons block upload; an aggregate privacy report is evidence for reconciliation, not a substitute for the required declarations. For SDKs on Apple's listed commonly used third-party SDK requirement, the app’s own manifest cannot substitute for the required SDK manifest; listed binary SDK dependencies also require signatures. Reconcile at the App Store Connect app-record level as well as against the IPA because Apple privacy answers apply across all Apple platforms associated with that app record.
+Unresolved before adoption: IP address, user agent, session/device identifiers, hosting/security logs, crashes/performance, retention/deletion periods, processor purposes, SDK-collected data, and provider-specific behavior. The current privacy policy must also be reconciled before submission because it does not explicitly disclose content and creator reports or user-block records stored in Clerk private metadata, and its processor description does not yet clearly cover direct Google, Facebook, and Apple sign-in processing. For optional diagnostics, apply Apple's definition of collection and optional-disclosure exception only after verifying retention, purpose, infrequency, clear disclosure, affirmative submission on every occasion, and absence of tracking/advertising or reuse; transmission alone neither proves nor disproves disclosure. Inventory required-reason APIs used by the app and every embedded SDK in the exact archive, then verify that the responsible app or SDK privacy manifest declares an Apple-approved reason matching actual behavior for every used category. Missing or unsupported reasons block upload; an aggregate privacy report is evidence for reconciliation, not a substitute for the required declarations. For SDKs on Apple's listed commonly used third-party SDK requirement, the app’s own manifest cannot substitute for the required SDK manifest; listed binary SDK dependencies also require signatures. Reconcile at the App Store Connect app-record level as well as against the IPA because Apple privacy answers apply across all Apple platforms associated with that app record.
 
 ## 6. Age-rating draft
 
@@ -155,6 +157,7 @@ The contractual minimum age is 13; Apple’s calculated regional rating is separ
 
 Working answers:
 
+- Made for Kids: No — provisional; confirm in the live app record and keep all screenshots/metadata suitable for the resulting audience
 - Advertising: No
 - Gambling, simulated gambling, loot boxes: No / None
 - Parental Controls: No
@@ -196,6 +199,7 @@ For every shipped SSO provider, provide the non-expiring demo login information 
 
 Capture fresh images from the exact selected build with fictional, non-personal account data that truthfully represents the candidate. Initial locale: English (U.S.). Add localizations only with reviewed field copy and asset inheritance. Every frame must show the app in use rather than only a title, splash, or login screen, and remain suitable for a 4+ metadata audience regardless of the calculated app age rating.
 
+- App icon: verify the exact archive contains the visually approved 1024×1024 App Store icon with no alpha; inspect the rendered artwork for stale names or abbreviations and preserve an identity/hash receipt.
 - iPhone: 6.9-inch portrait at `1260×2736`, `1290×2796`, or `1320×2868`; 1–10 frames with no alpha. If a 6.9-inch set is not supplied, Apple's current fallback requires a 6.5-inch set at `1284×2778` or `1242×2688`. Proposed order: Home/selection, quest detail/proof, multiplayer, community, Trophy Cabinet, account/support.
 - iPad: while `supportsTablet` remains enabled, supply a required 13-inch set: portrait `2064×2752` or `2048×2732`; landscape `2752×2064` or `2732×2048`. Capture equivalent truthful tablet frames and re-read Apple's specification at capture time.
 - Re-verify all exact pixel dimensions and accepted fallback sizes in live Apple documentation at capture time.
@@ -204,7 +208,7 @@ Capture fresh images from the exact selected build with fictional, non-personal 
 
 ## 9. Same-candidate QA matrix and TestFlight smoke
 
-Record device, OS, source SHA, version/build, TestFlight build ID, fixture, timestamp, result, and evidence. Cover the generated deployment minimum and current public OS.
+Record device, OS, source SHA, version/build, TestFlight build ID, fixture, timestamp, result, and evidence. Before execution, name exact hardware models and OS versions for (1) a real iPhone on the current public OS, (2) minimum-iOS 15.1 compatibility using the oldest available representative device/simulator, (3) the exact 6.9-inch screenshot device, and (4) an exact 13-inch iPad capture/QA device. Cover the generated deployment minimum and current public OS; generic “real iPhone/iPad” labels are not executable evidence.
 
 | Surface | Real iPhone | iPad while supported |
 | --- | --- | --- |
@@ -237,7 +241,7 @@ Use a dedicated Crowdler/Sam Apple Account with MFA and Crowdler-controlled reco
 - **Stop conditions:** stop without accepting or changing anything if the identity is not already provisioned, the legal entity is not exactly Crowdler AB, a personal team is selected, Apple presents any agreement/attestation, access is broader than intended, a duplicate exists, or any fee is shown.
 - **What it unblocks:** selecting a non-colliding build number and preparing later explicit approvals. It does not authorize invitation, capability, certificate/profile, record creation, build, upload, tester, submission, or release actions.
 
-If invitation is later required, the approval packet must state inviter, invitee, exact Crowdler AB Team ID, narrowest task-based role, app scope, Certificates/Identifiers/Profiles access if essential, cost, attestation/terms, and revocation owner. Exclude user administration, agreements, finance, reports, tax/banking and payments unless separately justified and approved. Re-check Apple’s live roles table before invitation; Developer can upload builds but does not satisfy all metadata/privacy duties, while broader roles carry mutation power.
+If invitation is later required, the approval packet must state inviter, invitee, exact Crowdler AB Team ID, narrowest task-based role, app scope, Certificates/Identifiers/Profiles access if essential, cost, attestation/terms, and revocation owner. For the eventual approved app-record/privacy workflow, the working least-privilege proposal is app-scoped App Manager for Side Quest Chess only; confirm the live Apple roles table and separately justify any Certificates, Identifiers & Profiles access before invitation. Exclude user administration, agreements, finance, reports, tax/banking and payments unless separately justified and approved. Discovery must not download or export existing certificates, provisioning profiles, API keys, or credentials. Developer can upload builds but does not satisfy all metadata/privacy duties, while broader roles carry mutation power.
 
 ## 11. Explicit approval boundaries
 
@@ -274,6 +278,7 @@ Source freeze, archive, upload, TestFlight processing, store-delivered installat
 - Apple authentication availability TDD receipt: RED proved the native Apple button was exposed from the platform name alone; GREEN now calls `AppleAuthentication.isAvailableAsync()` and exposes the button only after the current iOS environment confirms support.
 - Password recovery TDD receipt: RED proved there was no recoverable mobile forgot-password path; GREEN now validates an account email, masks initiation failures to avoid exposing account existence, requests Clerk's reset code, verifies the code before displaying the new-password step, allows password-policy retries without reusing the code, calls reset with `signOutOfOtherSessions: true`, clears the password when leaving recovery or after success, and activates only a complete replacement session. A follow-up RED proved that network/rate-limit failures and unexpected Clerk states were falsely presented as successful code delivery; GREEN now masks only Clerk's explicit unknown-identifier response and shows a retryable delivery failure for other errors. MFA continuation is a known unsupported source path; exact-candidate provider delivery, session revocation and iPhone rendering remain not verified.
 - Independent review found no credential exposure or unauthenticated deletion path. It did identify Apple authorization-token revocation during deletion as a blocking source/integration gap; that finding is now explicit in the gate ledger and safe-source backlog rather than deferred to device QA.
+- A fresh independent packet/source review also identified the app-record Made for Kids, User Access, copyright, archive-icon, privacy-policy report/block disclosures, concrete least-privilege role, and exact-device matrix as unresolved facts. This packet now approval-gates each one rather than inferring it from source configuration.
 - `git diff --check`: PASS.
 - `pnpm mobile:release:check` on a managed checkout cannot start because that script assumes a generated Android manifest. In the disposable generated checkout it progressed through the production dependency audit, then stopped because CocoaPods is unavailable and Expo Doctor correctly warns that checked-in native folders change config-sync behavior. This is not an iOS release pass and no workaround was applied.
 - Full Xcode build, CocoaPods install, Simulator tests, `.xcresult`, archive, signing, TestFlight and device smoke: NOT RUN / BLOCKED by the verified local prerequisites and approval gates.
