@@ -5,8 +5,15 @@ import test from "node:test";
 const packet = readFileSync(new URL("../docs/IOS_APP_STORE_RELEASE_PACKET_2026-08-21.md", import.meta.url), "utf8");
 
 test("iOS release packet names the latest reconciled origin/main baseline", () => {
-  assert.match(packet, /bf0b95024e0b80b0081d9e02df8e6accf8000090/);
-  assert.doesNotMatch(packet, /Source baseline: `eec95451fc1f23318f3a2a4e052891cb9105f111`/);
+  assert.match(packet, /5b0491fa1f27fb06bfb902993bef58c05bb1299c/);
+  assert.doesNotMatch(packet, /Source baseline: `bf0b95024e0b80b0081d9e02df8e6accf8000090`/);
+});
+
+test("iOS release packet uses the resolvable native-build receipt commit and does not overstate preserved evidence", () => {
+  assert.match(packet, /f628e8321608d966fe2230837ed6c24fc442ebe3/);
+  assert.doesNotMatch(packet, /f628e8324f1b5bdab0d441430bb9b352e2067987/);
+  assert.match(packet, /narrative receipt/i);
+  assert.match(packet, /not preserved as a repository evidence artifact/i);
 });
 
 test("iOS release packet blocks upload when required-reason API declarations are missing or unsupported", () => {
