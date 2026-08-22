@@ -27,3 +27,8 @@ test("iOS release packet records the recoverable password-reset source receipt w
   assert.match(packet, /signs out other authenticated sessions/i);
   assert.match(packet, /exact-candidate.*not verified/i);
 });
+
+test("iOS release packet preserves the Android and web launch-order gate", () => {
+  assert.match(packet, /Android and web public launch must be verified before iOS App Review submission or public release/i);
+  assert.match(packet, /preparation, source verification, and approved TestFlight work may proceed before that predecessor milestone/i);
+});

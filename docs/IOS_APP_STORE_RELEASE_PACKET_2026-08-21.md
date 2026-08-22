@@ -10,6 +10,7 @@ This packet supersedes the iOS portions of `SQC_MOBILE_APPLE_PRIVACY_PREP_2026-0
 
 - Current source: Expo version `0.1.349`; Android source version code `349`.
 - Android launch evidence is separate: repository receipts describe `0.1.349 (350)` on Google Play Internal testing. This lane did not read Play Console or claim Android public launch.
+- Android and web public launch must be verified before iOS App Review submission or public release. iOS preparation, source verification, and approved TestFlight work may proceed before that predecessor milestone; none of those states waive the launch-order gate.
 - Public identity: **Side Quest Chess**. Do not use “SQC” in public copy.
 - Bundle ID candidate: `com.sidequestchess.app`; Expo scheme: `sidequestchess`; native callback: `sidequestchess://sso-callback`.
 - Publisher/controller target: Crowdler AB. Worldwide 13+ target. No ads, IAP, subscriptions, or real-money prizes.
@@ -260,9 +261,9 @@ Source freeze, archive, upload, TestFlight processing, store-delivered installat
 - Strict TDD receipt for incomplete Apple account resolution: RED proved that a native result without an activatable session was silently ignored; GREEN now reports a recoverable sign-in error instead of leaving the user signed out without explanation.
 - Strict TDD receipt for truthful deletion success copy: RED failed because the app promised that the account and saved data were permanently deleted despite documented backup/security-log retention; GREEN passed after limiting the confirmation to the verified account-deleted and signed-out result.
 - Strict TDD receipt for post-deletion session cleanup: RED reproduced a completed deletion being reported as “Account not deleted” when sign-out failed; GREEN preserves deletion success, reports the cleanup limitation, and directs the user to close and reopen the app.
-- Contract-test receipts now lock the required-reason API upload gate, immutable distribution choice, China mainland/Vietnam territory requirements, and provider-specific SSO review-access rule after independent Apple-primary-source review.
+- Contract-test receipts now lock the required-reason API upload gate, immutable distribution choice, China mainland/Vietnam territory requirements, provider-specific SSO review-access rule, and Android/web predecessor launch-order gate after independent Apple-primary-source review.
 - A direct local execution of the exact iOS prebuild command completed again on the current working tree, generated `com.sidequestchess.app` with version/build `0.1.349` / `1`, deployment target `15.1`, device family `1,2`, URL schemes `sidequestchess` and `com.sidequestchess.app`, ATS arbitrary loads disabled, and the expected Apple sign-in entitlement. No `.xcprivacy` file was generated before dependency installation. The generated tree was inspected and removed with no generated tracked change retained.
-- `pnpm test`: PASS — 781 tests, 0 failures, 0 skipped/todo.
+- `pnpm test`: PASS — 782 tests, 0 failures, 0 skipped/todo.
 - `pnpm build`: PASS — Next.js production build completed.
 - `pnpm --dir apps/mobile run typecheck`: PASS.
 - `pnpm --dir apps/mobile run doctor`: PASS — 18/18 checks before native generation.
