@@ -1537,6 +1537,7 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
     fetchAccount: fetchMobileAccountState,
     applyAccount: (account) => setShell((current) => ({ ...current, account })),
     applyFallback: () => setShell((current) => ({ ...current, account: current.account ?? MOBILE_ACCOUNT_FALLBACK })),
+    applySignedInFallback: () => setShell((current) => ({ ...current, account: current.account ?? MOBILE_ACCOUNT_FALLBACK })),
     fallbackAccount: MOBILE_ACCOUNT_FALLBACK,
   }), [authBridge.getSessionToken, authBridge.isLoaded, authBridge.isSignedIn]);
 
@@ -6032,6 +6033,61 @@ function AccountTrackerDashboard({ bootstrap, account, authBridge, onSelectTab, 
   const [showDeleteAccount, setShowDeleteAccount] = useState(false);
   const [deleteConfirmation, setDeleteConfirmation] = useState("");
   const [deletingAccount, setDeletingAccount] = useState(false);
+  if (!signedIn && authBridge.isSignedIn) {
+    return (
+      <View style={compactStyles.stack}>
+        <View style={compactStyles.heroPanel}>
+          <View style={compactStyles.topLine}>
+            <Text style={compactStyles.kicker}>My Account</Text>
+          </View>
+          <Text style={compactStyles.heroTitle}>Account details are unavailable.</Text>
+          <Text style={compactStyles.heroCopy}>You are still signed in. Retry loading your account details, or use the account controls below.</Text>
+          <Pressable accessibilityRole="button" accessibilityLabel="Retry account details" style={styles.secondaryButtonWide} onPress={() => void onAccountUpdated()}>
+            <Text style={styles.secondaryButtonText}>Retry account details</Text>
+          </Pressable>
+        </View>
+        <AccountHelpSupportSection onOpenHelp={() => setHelpOpen(true)} />
+        <HelpSupportModal visible={helpOpen} onClose={() => setHelpOpen(false)} signedIn={null} authBridge={authBridge} />
+        <View style={compactStyles.heroPanel}>
+          <Text style={compactStyles.kicker}>Danger zone</Text>
+          <Text style={compactStyles.heroCopy}>You can still delete your account while account details are unavailable.</Text>
+          {showDeleteAccount ? (
+            <View style={styles.inputStack}>
+              <Text style={styles.inputLabel}>Type DELETE MY ACCOUNT to confirm</Text>
+              <TextInput
+                value={deleteConfirmation}
+                autoCapitalize="characters"
+                autoCorrect={false}
+                placeholder="DELETE MY ACCOUNT"
+                placeholderTextColor="rgba(255,247,232,.42)"
+                style={styles.textInput}
+                onChangeText={setDeleteConfirmation}
+              />
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="Permanently delete account"
+                disabled={deleteConfirmation !== "DELETE MY ACCOUNT" || deletingAccount}
+                style={[compactStyles.logoutButton, (deleteConfirmation !== "DELETE MY ACCOUNT" || deletingAccount) && { opacity: 0.45 }]}
+                onPress={() => void handleDeleteAccount()}
+              >
+                <Text style={compactStyles.logoutButtonText}>{deletingAccount ? "Deleting…" : "Permanently delete account"}</Text>
+              </Pressable>
+              <Pressable accessibilityRole="button" onPress={() => { setShowDeleteAccount(false); setDeleteConfirmation(""); }}>
+                <Text style={compactStyles.accountInfoText}>Cancel</Text>
+              </Pressable>
+            </View>
+          ) : (
+            <Pressable accessibilityRole="button" accessibilityLabel="Delete account" style={compactStyles.logoutButton} onPress={() => setShowDeleteAccount(true)}>
+              <Text style={compactStyles.logoutButtonText}>Delete account</Text>
+            </Pressable>
+          )}
+        </View>
+        <Pressable accessibilityRole="button" accessibilityLabel="Log out" style={compactStyles.logoutButton} onPress={() => void handleLogOut()}>
+          <Text style={compactStyles.logoutButtonText}>Log out</Text>
+        </Pressable>
+      </View>
+    );
+  }
   if (!signedIn) {
     return (
       <View style={compactStyles.stack}>
