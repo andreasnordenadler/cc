@@ -1,7 +1,7 @@
 # Side Quest Chess — iOS App Store release-preparation packet
 
 **Prepared:** 2026-08-21; reconciled 2026-08-22<br>
-**Source baseline:** `36c76acaab6a9a9e2f3adb3d95776779039b0c33` (`origin/main`, fetched immediately before the 2026-08-22 reconciliation)<br>
+**Source baseline:** `4297765c586aca832199fe37f103b50daf5b2f84` (`origin/main`, fetched and merged immediately before the 2026-08-22 reconciliation); audited branch merge HEAD before this packet-only correction: `b0ec4f5e74d7bbcd9a9126892e2160cdf5547916`<br>
 **Status:** Drafts and verified source audit only. This is not an App Store Connect record, Apple credential, IPA, TestFlight build, review submission, approval, or public release.
 
 This packet supersedes the iOS portions of `SQC_MOBILE_APPLE_PRIVACY_PREP_2026-07-03.md`, `SQC_MOBILE_STORE_LAUNCH_PREP_2026-07-07.md`, and `SQC_MOBILE_STORE_SUBMISSION_PACK_2026-07-07.md` for this source baseline.
@@ -14,10 +14,10 @@ This packet supersedes the iOS portions of `SQC_MOBILE_APPLE_PRIVACY_PREP_2026-0
 - Bundle ID candidate: `com.sidequestchess.app`; Expo scheme: `sidequestchess`; native callback: `sidequestchess://sso-callback`.
 - Publisher/controller target: Crowdler AB. Worldwide 13+ target. No ads, IAP, subscriptions, or real-money prizes.
 - `supportsTablet` is `true`; iPad build, responsive QA, and screenshots are therefore release gates.
-- Source offers email/password, Google, and Facebook login. It does **not** offer Sign in with Apple or declare its capability. Apple Review Guideline 4.8 therefore remains a source blocker unless the final login set qualifies for a documented exception.
+- Source offers email/password, Google, and Facebook login. It does **not** offer another login service demonstrated to satisfy all three privacy conditions in Apple Review Guideline 4.8 or declare the Sign in with Apple capability. Guideline 4.8 therefore remains a source blocker unless the final login set adds a qualifying equivalent option (Sign in with Apple is one implementation) or qualifies for a documented exception.
 - No deliberate iOS build number is source-controlled. The EAS production profile has `autoIncrement: true` with local app-version sourcing, while a disposable clean prebuild currently defaults to build `1`; neither establishes the next available App Store Connect number or a reproducible first iOS candidate. No final privacy manifest report, signed IPA, TestFlight build, or physical-iPhone callback proof exists.
 - The live Support page is reachable, but its signed-out production rendering does not expose direct Crowdler AB contact information. This branch now adds the already-published Crowdler AB email and legal address to the signed-out Support screen with regression coverage. Apple requires the Support URL to lead to actual contact information as required by local law, so the listing remains blocked until the change is deployed and re-read from production; owner/legal must also confirm whether a telephone number is locally required.
-- Guideline 1.2 UGC readiness is a source blocker, not merely a QA question: public profile/quest/invite/bio inputs have no verified objectionable-content filter; content/creator reports are written into each reporter's private Clerk metadata with no implemented central operator queue found; and creator blocking filters Community discovery for that user rather than proving comprehensive interaction blocking. Filtering, queue delivery, staffed response/removal operations, and block coverage must be implemented and tested before submission.
+- Guideline 1.2 UGC readiness is a source blocker, not merely a QA question: public profile/quest/invite/bio inputs have no verified objectionable-content filter; content/creator reports are written into each reporter's private Clerk metadata with no implemented operator workflow found; and creator blocking filters Community discovery for that user rather than proving that abusive users can be blocked from the service. Filtering, timely report handling/removal, and required block outcomes must be implemented and tested before submission. A central queue and broader interaction blocking are Side Quest Chess's proposed implementation, not Apple-prescribed architectures.
 - Full Xcode is unavailable locally: `/Library/Developer/CommandLineTools` is selected and `xcodebuild` rejects it. No valid local Apple signing identity is verified.
 - Any upload candidate must also be built with Xcode 26 or later and the iOS/iPadOS 26 SDK or later under Apple's requirement effective 2026-04-28; this lane cannot verify that toolchain yet.
 - EAS is associated with owner `and72nor`; the verified authenticated identity is Andreas’s personal identity. Do not use it for Apple access, credentials, build, or submission.
@@ -45,8 +45,8 @@ A clean detached worktree at the stated source baseline completed `expo prebuild
 | Dedicated Crowdler/Sam operator | Blocked | Exact Apple Account, MFA/recovery custody, role and app scope; never Andreas’s personal identity |
 | Bundle/app reconciliation | Blocked | Apple Developer and App Store Connect searches for `com.sidequestchess.app`, including duplicate/App ID/app record/SKU results |
 | Source freeze | Not frozen | Clean approved commit, lockfile hash, approved version and unique build number |
-| Guideline 4.8 login | Blocked | Sign in with Apple implementation/configuration or documented exception; account linking, cancellation, relay email, revocation and deletion tests |
-| Guideline 1.2 UGC safety | Blocked | Objectionable-content filtering, central moderation queue, staffed response/removal process, and comprehensive user blocking verified end to end |
+| Guideline 4.8 login | Blocked | Qualifying equivalent login option (Sign in with Apple is one implementation) or documented exception; account linking, cancellation, relay email where applicable, revocation and deletion tests |
+| Guideline 1.2 UGC safety | Blocked | Objectionable-content filtering, timely report response/removal workflow, published contact information, and the required ability to block abusive users from the service verified end to end; central queue and broader interaction blocking are the proposed product design |
 | Generated native audit | Blocked | Clean prebuild diff; Info.plist, entitlements, URL types, deployment target, SDKs and privacy manifests |
 | Signed candidate | Blocked | IPA hash, identity/version/build, Crowdler signature/team, entitlements and export-compliance inspection |
 | Privacy labels | Draft only | Backend/provider/SDK/manifest/network reconciliation against exact IPA |
@@ -65,14 +65,14 @@ A clean detached worktree at the stated source baseline completed `expo prebuild
 
 Use strict RED–GREEN–REFACTOR for each behavior change and preserve failing-test output before implementation.
 
-1. Add an equivalent Apple login path for iOS, including Expo capability/plugin configuration, Clerk/provider wiring, account linking, cancellation/error behavior, relay-email handling, and authorization/token revocation as part of deletion. Do not create the Crowdler App ID capability or provider credentials without approval.
+1. Add a login option that satisfies all three Guideline 4.8 privacy conditions; Sign in with Apple is the preferred current implementation path. If selected, include Expo capability/plugin configuration, Clerk/provider wiring, account linking, cancellation/error behavior, relay-email handling, and authorization/token revocation as part of deletion. Do not create the Crowdler App ID capability or provider credentials without approval.
 2. Add a deliberate iOS build-number policy after reading the highest existing App Store build number.
 3. Decide and verify exempt-encryption handling against the generated archive. Current source has no `usesNonExemptEncryption` declaration; do not answer from dependency names alone.
 4. Keep the new pull-request iOS source gate green: it generates an unsigned iOS project from Expo config, removes the generated tree, then continues with Android generation and managed-config checks. This catches prebuild regressions without Apple credentials, but it does not prove CocoaPods, Xcode compilation, signing, archive contents or device behavior. For a release candidate, repeat native generation in a clean frozen worktree and immediately inspect the complete diff, generated Info.plist/entitlements/URL types, all usage descriptions, deployment target, iPad orientations, ATS settings, SDK privacy manifests, required-reason APIs, and SDK signatures.
 5. Resolve tablet policy: retain support only after iPad responsive acceptance and screenshots, or seek explicit product approval to disable it before freeze.
 6. Reconcile the privacy policy and nutrition label with Clerk, Google, Facebook, Apple if added, hosting/security logs, Expo runtime, optional support diagnostics, Lichess/Chess.com public-record retrieval, and all transitive native SDK behavior.
 7. Platform-aware support identity is now implemented on this branch: iOS reports the bundle ID and native version/build under the distribution-neutral label “iOS app build,” without claiming an App Store/TestFlight channel, Android APK, or GitHub release. Preserve the identity regression tests and verify the rendered diagnostics on the selected TestFlight build.
-8. Replace the current per-reporter metadata report sink with a central, access-controlled moderation queue and implement content filtering and complete interaction blocking. Define response/removal ownership and service levels before claiming Guideline 1.2 readiness.
+8. Replace the current per-reporter metadata report sink with the proposed central, access-controlled moderation queue; implement content filtering and enough block coverage to prove abusive users can be blocked from the service. Define response/removal ownership and service levels before claiming Guideline 1.2 readiness. The queue architecture and any block coverage beyond Apple's required outcome are product choices, not quoted Apple requirements.
 9. Preserve native-platform provenance for report/block actions. This branch now sends `ios` from iOS and `android` from Android and records either as mobile evidence; final TestFlight smoke must verify the selected candidate end to end.
 10. Remove production-facing QA/test copy from the offline fallback, expose a recoverable password-reset path, decide universal-link behavior for shared quest URLs, and reconcile Google/Facebook as privacy processors before source freeze.
 
@@ -95,9 +95,8 @@ These are proposed values only; adopting them in App Store Connect is approval-g
 | Privacy Policy URL | https://sidequestchess.com/privacy |
 | Support URL | https://sidequestchess.com/support |
 | Marketing URL | https://sidequestchess.com |
-| Terms | https://sidequestchess.com/terms |
 | Release method | Manual release |
-| Phased release | Off for version 1 unless separately approved |
+| Phased release | Not applicable to the first App Store version; decide separately for later version updates |
 | License | Standard Apple EULA unless owner/legal approves another agreement |
 
 **Promotional text**
@@ -124,7 +123,7 @@ Pick a Side Quest, play your public chess games, and come back for a checked res
 > Privacy: https://sidequestchess.com/privacy<br>
 > Terms: https://sidequestchess.com/terms
 
-Before adoption, verify the live field limits, unique name/SKU, territories, content rights, EU trader status, tax category, version/build, review contact, accessibility declarations, and whether “What’s New” is required. “Worldwide” specifically requires either the applicable game approvals for China mainland and Vietnam or explicit exclusion of those storefronts before submission.
+Before adoption, verify the live field limits, unique name/SKU, territories, content rights, EU trader status, tax category, version/build, review contact, and accessibility declarations. “What’s New” is unavailable for the first App Store version and required for each later version. “Worldwide” specifically requires either the applicable game approvals for China mainland and Vietnam or explicit exclusion of those storefronts before submission.
 
 ## 5. App Privacy nutrition-label draft
 
@@ -144,11 +143,11 @@ Each provisional row is **collected**, **linked to the user**, and **not used fo
 | Usage Data / Product Interaction | App Functionality; Analytics | Likes, proof checks, quest/community/multiplayer actions, timestamps and account history |
 | Diagnostics / Other Diagnostic Data | App Functionality | Optional support bundle: application ID, app version/build, OS/platform, API destination and timestamp. Its account/display-name state, chess handles, active solo quest and multiplayer/public-hosted counts must also remain reconciled under their underlying Identifiers, Gameplay Content and Product Interaction categories rather than being treated as diagnostics alone |
 
-Unresolved before adoption: IP address, user agent, session/device identifiers, hosting/security logs, crashes/performance, retention/deletion periods, processor purposes, SDK-collected data, and provider-specific behavior. Optional diagnostics remain collected when submitted. Inspect the archive’s SDK inventory, privacy manifests, aggregate privacy report, required-reason APIs and SDK signatures. The app’s own manifest cannot repair a missing third-party SDK manifest. Reconcile at the App Store Connect app-record level as well as against the IPA because Apple privacy answers apply across all Apple platforms associated with that app record.
+Unresolved before adoption: IP address, user agent, session/device identifiers, hosting/security logs, crashes/performance, retention/deletion periods, processor purposes, SDK-collected data, and provider-specific behavior. Optional diagnostics remain collected when submitted. Inspect the archive’s SDK inventory, privacy manifests, aggregate privacy report, required-reason APIs and SDK signatures. For SDKs on Apple's listed commonly used third-party SDK requirement, the app’s own manifest cannot substitute for the required SDK manifest; listed binary SDK dependencies also require signatures. Reconcile at the App Store Connect app-record level as well as against the IPA because Apple privacy answers apply across all Apple platforms associated with that app record.
 
 ## 6. Age-rating draft
 
-The contractual minimum age is 13; Apple’s calculated regional rating is separate. Preserve the exact live questionnaire version, every answer, calculated global/regional ratings, and any override. If the EULA minimum age is above Apple's calculated rating, apply Apple's required qualifying higher-rating override. A storefront override does not enforce account eligibility, so the in-app 13+ eligibility behavior remains a separate owner/legal decision and candidate gate.
+The contractual minimum age is 13; Apple’s calculated regional rating is separate. Preserve the exact live questionnaire version, every answer, calculated global/regional ratings, the separate ratings App Store Connect shows for operating systems earlier than version 26, and any override. If the EULA minimum age is above Apple's calculated rating, apply Apple's required qualifying higher-rating override. A storefront override does not enforce account eligibility, so the in-app 13+ eligibility behavior remains a separate owner/legal decision and candidate gate.
 
 Working answers:
 
@@ -166,7 +165,7 @@ Working answers:
 
 Verify report, block, filtering, moderation queue, response/removal process, and every Community surface. Do not infer the final storefront rating from this draft.
 
-“13+” is the contractual/in-app minimum, not a promise of one uniform storefront rating. With Social Media answered Yes, Apple's current table indicates higher regional ratings including Australia 16+, Vietnam 16+, and Korea 15+; preserve the live calculated regional receipt before territory approval.
+“13+” is the contractual/in-app minimum, not a promise of one uniform storefront rating. Under Apple's OS 26-and-later rating system, Social Media answered Yes indicates higher regional ratings including Australia 16+, Vietnam 16+, and Korea 15+. Earlier operating systems can display different ratings, so preserve both sets of live calculated regional receipts before territory approval.
 
 ## 7. Review notes draft
 
