@@ -87,6 +87,45 @@ test("signed-out desktop-native routes omit the phone menu and expose persistent
   await expect(page.getByRole("link", { name: "Sign in", exact: true })).toHaveAttribute("href", "/sign-in?redirect_url=%2Fside-quests");
 });
 
+test("official Solo command rail keeps responsive reading order and control identity", async ({ page }) => {
+  await page.setViewportSize({ width: 1179, height: 900 });
+  await expectHealthyNavigation(page, "/challenges/finish-any-game");
+
+  const rail = page.getByRole("complementary", { name: "Solo Side Quest actions" });
+  const share = rail.getByRole("button", { name: "Share Solo Side Quest public link" });
+  const labels = () => rail.locator("a, button").evaluateAll((controls) => controls.map((control) => control.textContent?.trim()));
+
+  await expect.poll(labels).toEqual(["Share public link", "Copy public link", "Back to list", "Sign in"]);
+  await share.focus();
+  await expect(share).toBeFocused();
+  await page.keyboard.press("Tab");
+  await expect(rail.getByRole("button", { name: "Copy Solo Side Quest public link" })).toBeFocused();
+  await page.keyboard.press("Tab");
+  await expect(rail.getByRole("link", { name: "Back to list" })).toBeFocused();
+  await page.keyboard.press("Tab");
+  await expect(rail.getByRole("link", { name: "Sign in", exact: true })).toBeFocused();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBe(0);
+  await share.focus();
+
+  await page.setViewportSize({ width: 1180, height: 900 });
+  await expect.poll(labels).toEqual(["Back to list", "Sign in", "Share public link", "Copy public link"]);
+  await expect(share).toBeFocused();
+  await rail.getByRole("link", { name: "Back to list" }).focus();
+  await page.keyboard.press("Tab");
+  await expect(rail.getByRole("link", { name: "Sign in", exact: true })).toBeFocused();
+  await page.keyboard.press("Tab");
+  await expect(share).toBeFocused();
+  await page.keyboard.press("Tab");
+  await expect(rail.getByRole("button", { name: "Copy Solo Side Quest public link" })).toBeFocused();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBe(0);
+  await share.focus();
+
+  await page.setViewportSize({ width: 1179, height: 900 });
+  await expect.poll(labels).toEqual(["Share public link", "Copy public link", "Back to list", "Sign in"]);
+  await expect(share).toBeFocused();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBe(0);
+});
+
 test("desktop Multiplayer creation keeps its live draft action in view without changing the mobile footer", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await expectHealthyNavigation(page, "/create-multiplayer-side-quest");

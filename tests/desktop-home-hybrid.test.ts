@@ -1120,12 +1120,13 @@ test("active Solo detail turns the centered phone hero into a left-to-right desk
 
 test("official Solo detail groups its share and start controls in one contextual command rail", async () => {
   const source = readFileSync("src/app/challenges/[id]/page.tsx", "utf8");
-  const rail = source.match(/<aside className="sqc-quest-command-rail"[^>]*>([\s\S]*?)<\/aside>/)?.[1] ?? "";
+  const rail = readFileSync("src/components/responsive-official-command-rail.tsx", "utf8");
 
-  assert.match(rail, /<OfficialSoloShareControls id=\{challenge\.id\} title=\{challenge\.title\} \/>/);
-  assert.match(rail, /<section className="sqc-native-card sqc-proof-action-card sqc-official-available-action-card">/);
-  assert.match(rail, /\{!isActiveChallenge && completed && user \? \([\s\S]*?<CompletedOfficialSoloControls challenge=\{challenge\} proofPath=\{completedProofPath\} \/>[\s\S]*?\) : null\}/);
-  assert.ok(rail.indexOf("OfficialSoloShareControls") < rail.indexOf("sqc-proof-action-card"));
+  assert.match(source, /<ResponsiveOfficialCommandRail/);
+  assert.match(source, /sharing=\{<OfficialSoloShareControls id=\{challenge\.id\} title=\{challenge\.title\} \/>\}/);
+  assert.match(source, /primaryAction=\{completed \? \([\s\S]*?<CompletedOfficialSoloControls challenge=\{challenge\} proofPath=\{completedProofPath\} \/>[\s\S]*?<section className="sqc-native-card sqc-proof-action-card sqc-official-available-action-card">/);
+  assert.match(rail, /useSyncExternalStore\(subscribeToDesktopBoundary, getDesktopSnapshot, \(\) => false\)/);
+  assert.match(rail, /items\.map\(\(item\) => <Fragment key=\{item\.key\}>\{item\.content\}<\/Fragment>\)/, "breakpoint reordering keeps each interactive subtree keyed");
   assert.match(source, /\{isActiveChallenge && completed && user \? \([\s\S]*?<CompletedOfficialSoloControls challenge=\{challenge\} proofPath=\{completedProofPath\} \/>[\s\S]*?\) : null\}/);
   assert.equal(source.match(/<CompletedOfficialSoloControls/g)?.length, 2);
 });
