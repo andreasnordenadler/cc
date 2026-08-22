@@ -472,47 +472,49 @@ function DesktopGuestHome() {
         ) : null}
       </section>
 
-      <section id="how-it-works" className="sqc-desktop-loop" aria-labelledby="desktop-loop-title">
-        <div className="sqc-desktop-section-heading">
-          <span className="sqc-desktop-eyebrow">The official procedure</span>
-          <h2 id="desktop-loop-title">The ritual is suspiciously simple.</h2>
-          <p>You supply the chess. Side Quest Chess supplies the strange objective, the paperwork, and a tiny heraldic reward department.</p>
-        </div>
-        <ol>
-          <li><span>01</span><strong>Choose your bad idea</strong><p>Pick one rule likely to make your opening coach sigh.</p></li>
-          <li><span>02</span><strong>Play normal chess</strong><p>Use a public Lichess or Chess.com game. No special lobby. No costume. We brought the clipboard.</p></li>
-          <li><span>03</span><strong>Present evidence to the paperwork goblin</strong><p>Your newest public game is inspected for the required nonsense.</p></li>
-          <li><span>04</span><strong>Receive unnecessary heraldry</strong><p>The Coat of Arms goes straight into your Trophy Cabinet.</p></li>
-        </ol>
-      </section>
-
-      <section className="sqc-desktop-quest-shelf" aria-labelledby="desktop-quests-title">
-        <div className="sqc-desktop-section-heading horizontal">
-          <div>
-            <span className="sqc-desktop-eyebrow">Where to begin</span>
-            <h2 id="desktop-quests-title">How heroic are you feeling today?</h2>
-            <p>Pick a starting quest based on your current tolerance for terrible chess decisions.</p>
+      <div className="sqc-desktop-command-deck">
+        <section id="how-it-works" className="sqc-desktop-loop" aria-labelledby="desktop-loop-title">
+          <div className="sqc-desktop-section-heading">
+            <span className="sqc-desktop-eyebrow">The official procedure</span>
+            <h2 id="desktop-loop-title">The ritual is suspiciously simple.</h2>
+            <p>You supply the chess. Side Quest Chess supplies the strange objective, the paperwork, and a tiny heraldic reward department.</p>
           </div>
-          <Link href="/side-quests">Or go find your own path.</Link>
-        </div>
-        <div className="sqc-desktop-quest-grid sqc-desktop-path-grid">
-          {heroismPaths.map(({ label, copy, cta, challenge }) => (
-            <Link href={`/challenges/${challenge.id}`} key={challenge.id} className="sqc-desktop-quest-card sqc-desktop-path-card">
-              <Image src={toMobileAssetPath(challenge.badgeIdentity.image) ?? mobileAsset.fallbackBadge} alt="" width={116} height={130} />
-              <div>
-                <span className="sqc-desktop-path-label">{label}</span>
-                <h3>{challenge.title}</h3>
-                <p>{copy}</p>
-                <strong>{cta} <span aria-hidden="true">→</span></strong>
-              </div>
-            </Link>
-          ))}
-        </div>
-        <div className="sqc-desktop-path-footer">
-          <span>Not in a decision-making mood?</span>
-          <DesktopRandomQuestButton questIds={CHALLENGES.map((challenge) => challenge.id)} />
-        </div>
-      </section>
+          <ol>
+            <li><span>01</span><strong>Choose your bad idea</strong><p>Pick one rule likely to make your opening coach sigh.</p></li>
+            <li><span>02</span><strong>Play normal chess</strong><p>Use a public Lichess or Chess.com game. No special lobby. No costume. We brought the clipboard.</p></li>
+            <li><span>03</span><strong>Present evidence to the paperwork goblin</strong><p>Your newest public game is inspected for the required nonsense.</p></li>
+            <li><span>04</span><strong>Receive unnecessary heraldry</strong><p>The Coat of Arms goes straight into your Trophy Cabinet.</p></li>
+          </ol>
+        </section>
+
+        <section className="sqc-desktop-quest-shelf" aria-labelledby="desktop-quests-title">
+          <div className="sqc-desktop-section-heading horizontal">
+            <div>
+              <span className="sqc-desktop-eyebrow">Where to begin</span>
+              <h2 id="desktop-quests-title">How heroic are you feeling today?</h2>
+              <p>Pick a starting quest based on your current tolerance for terrible chess decisions.</p>
+            </div>
+            <Link href="/side-quests">Or go find your own path.</Link>
+          </div>
+          <div className="sqc-desktop-quest-grid sqc-desktop-path-grid">
+            {heroismPaths.map(({ label, copy, cta, challenge }) => (
+              <Link href={`/challenges/${challenge.id}`} key={challenge.id} className="sqc-desktop-quest-card sqc-desktop-path-card">
+                <Image src={toMobileAssetPath(challenge.badgeIdentity.image) ?? mobileAsset.fallbackBadge} alt="" width={116} height={130} />
+                <div>
+                  <span className="sqc-desktop-path-label">{label}</span>
+                  <h3>{challenge.title}</h3>
+                  <p>{copy}</p>
+                  <strong>{cta} <span aria-hidden="true">→</span></strong>
+                </div>
+              </Link>
+            ))}
+          </div>
+          <div className="sqc-desktop-path-footer">
+            <span>Not in a decision-making mood?</span>
+            <DesktopRandomQuestButton questIds={CHALLENGES.map((challenge) => challenge.id)} />
+          </div>
+        </section>
+      </div>
 
       <section className="sqc-desktop-coat-story" aria-labelledby="desktop-coats-title">
         <div>
