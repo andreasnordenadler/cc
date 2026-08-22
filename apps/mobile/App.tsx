@@ -1679,6 +1679,8 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
       <ScrollView
         ref={scrollViewRef}
         style={styles.screen}
+        keyboardShouldPersistTaps="handled"
+        automaticallyAdjustKeyboardInsets={Platform.OS === "ios"}
         contentContainerStyle={[styles.content, { paddingBottom: Math.max(insets.bottom + 96, 124) }]}
         refreshControl={<RefreshControl tintColor="#f5c86a" refreshing={shell.refreshing} onRefresh={() => void refreshCurrentScreen()} />}
         scrollEventThrottle={32}
@@ -1845,6 +1847,8 @@ function ScrollHintedScrollView({ children, onScroll, onLayout, onContentSizeCha
     <View style={styles.scrollHintFrame}>
       <ScrollView
         {...props}
+        keyboardShouldPersistTaps="handled"
+        automaticallyAdjustKeyboardInsets={Platform.OS === "ios"}
         scrollEventThrottle={scrollEventThrottle ?? 32}
         onScroll={handleHintScroll}
         onLayout={handleHintLayout}
@@ -5310,7 +5314,7 @@ function QuestBoardDashboard({
                     ) : null}
                   </View>
                   <View style={compactStyles.communityControlsRow}>
-                    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={compactStyles.communityChipRow}>
+                    <ScrollView horizontal keyboardShouldPersistTaps="handled" showsHorizontalScrollIndicator={false} contentContainerStyle={compactStyles.communityChipRow}>
                       {(["all", "popular", "new", "completed"] as CommunityBrowseFilter[]).map((filter) => (
                         <Pressable key={filter} accessibilityRole="button" accessibilityState={{ selected: communityFilter === filter }} style={[compactStyles.communityChip, communityFilter === filter && compactStyles.communityChipActive]} onPress={() => setCommunityFilter(filter)}>
                           <Text style={[compactStyles.communityChipText, communityFilter === filter && compactStyles.communityChipTextActive]}>{filter === "all" ? "All" : filter === "popular" ? "Popular" : filter === "new" ? "New" : "Completed"}</Text>
@@ -5392,7 +5396,7 @@ function QuestBoardDashboard({
                   </Pressable>
                 ) : null}
               </View>
-              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={compactStyles.communityChipRow}>
+              <ScrollView horizontal keyboardShouldPersistTaps="handled" showsHorizontalScrollIndicator={false} contentContainerStyle={compactStyles.communityChipRow}>
                 {(["all", "published", "drafts", "public", "archived"] as CustomLibraryFilter[]).map((filter) => (
                   <Pressable key={filter} accessibilityRole="button" accessibilityState={{ selected: customLibraryFilter === filter }} style={[compactStyles.communityChip, customLibraryFilter === filter && compactStyles.communityChipActive]} onPress={() => setCustomLibraryFilter(filter)}>
                     <Text style={[compactStyles.communityChipText, customLibraryFilter === filter && compactStyles.communityChipTextActive]}>{filter === "all" ? "All" : filter === "drafts" ? "Drafts" : filter === "public" ? "Public" : filter === "archived" ? "Archived" : "Published"}</Text>
@@ -8013,7 +8017,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
             ) : null}
           </View>
           <View style={compactStyles.communityControlsStack}>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={compactStyles.communityChipRow}>
+            <ScrollView horizontal keyboardShouldPersistTaps="handled" showsHorizontalScrollIndicator={false} contentContainerStyle={compactStyles.communityChipRow}>
               {(isSignedOutBrowse ? (["open", "all"] as MultiplayerCommunityFilter[]) : (["open", "all", "joined", "hosted", "finished"] as MultiplayerCommunityFilter[])).map((filter) => (
                 <Pressable key={filter} accessibilityRole="button" accessibilityState={{ selected: multiplayerCommunityFilter === filter }} style={[compactStyles.communityChip, multiplayerCommunityFilter === filter && compactStyles.communityChipActive]} onPress={() => setMultiplayerCommunityFilter(filter)}>
                   <Text style={[compactStyles.communityChipText, multiplayerCommunityFilter === filter && compactStyles.communityChipTextActive]}>{filter === "all" ? "All" : filter === "open" ? "Open" : filter === "joined" ? "Joined" : filter === "hosted" ? "Hosted" : "Finished"}</Text>
