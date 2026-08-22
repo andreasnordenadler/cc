@@ -16,7 +16,7 @@ test("iOS release packet uses the resolvable native-build receipt commit and doe
   assert.match(packet, /not preserved as a repository evidence artifact/i);
 });
 
-test("iOS release packet records the exact current native-source build receipt", () => {
+test("iOS release packet records the latest commit-specific native-build receipt", () => {
   assert.match(packet, /ee1c7d68/);
   assert.match(packet, /Google\/Facebook cancellation fix/i);
   assert.match(packet, /PID `12706`/);
@@ -68,11 +68,15 @@ test("iOS release packet distinguishes source-prepared safety disclosures from p
 });
 
 test("iOS release packet records the current local Xcode, runtime, and unsigned build receipt without claiming distribution", () => {
+  const verifiedBaseline = packet.slice(packet.indexOf("## 1. Verified baseline"), packet.indexOf("## 2. Fail-closed gate ledger"));
+
   assert.match(packet, /Xcode 26\.6.*iOS 26\.5 SDK/i);
   assert.match(packet, /CocoaPods 1\.17\.0/i);
   assert.match(packet, /iOS 26\.5.*runtime.*registered/i);
   assert.match(packet, /unsigned Release Simulator build.*pass/i);
-  assert.match(packet, /iPhone 17 Pro.*iPad mini.*iPad Pro 13-inch/i);
+  assert.match(verifiedBaseline, /latest native-build receipt at commit `ee1c7d68` passed an unsigned Release Simulator build on iPhone 17 Pro/i);
+  assert.match(verifiedBaseline, /earlier iPad launches are historical narrative evidence/i);
+  assert.doesNotMatch(verifiedBaseline, /exact current branch passed unsigned Debug and Release Simulator builds/i);
   assert.match(packet, /No signed archive.*TestFlight.*physical-iPhone/i);
   assert.doesNotMatch(packet, /Simulator registration remains locally blocked/i);
   assert.doesNotMatch(packet, /simulator runtime.*not.*registered/i);
