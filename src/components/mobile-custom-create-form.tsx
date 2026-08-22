@@ -78,6 +78,7 @@ export default function MobileCustomCreateForm({ signedIn, initialQuest = null }
   }));
   const allowNavigation = useRef(false);
   const [saving, setSaving] = useState(false);
+  const [activeBuilderStage, setActiveBuilderStage] = useState<"custom-builder-conditions" | "custom-builder-identity" | "custom-builder-save">("custom-builder-conditions");
   const [error, setError] = useState("");
   const hydrated = useSyncExternalStore(subscribeToHydration, () => true, () => false);
   const [editingLocalDraftId, setEditingLocalDraftId] = useState<string | null>(initialQuest?.id.startsWith("local-custom-") ? initialQuest.id : null);
@@ -215,6 +216,7 @@ export default function MobileCustomCreateForm({ signedIn, initialQuest = null }
   function openBuilderStage(id: "custom-builder-conditions" | "custom-builder-identity" | "custom-builder-save") {
     const stage = document.getElementById(id);
     if (!stage) return;
+    setActiveBuilderStage(id);
     stage.scrollIntoView({ block: "start" });
     stage.focus({ preventScroll: true });
   }
@@ -274,13 +276,13 @@ export default function MobileCustomCreateForm({ signedIn, initialQuest = null }
     <div className="sqc-custom-builder-setup">
       <nav className="sqc-custom-builder-steps" aria-label="Custom Side Quest builder steps">
         <span>Workbench</span>
-        <button data-builder-target="custom-builder-conditions" disabled={!hydrated} onClick={() => openBuilderStage("custom-builder-conditions")} type="button">
+        <button aria-current={activeBuilderStage === "custom-builder-conditions" ? "step" : undefined} className={activeBuilderStage === "custom-builder-conditions" ? "active" : ""} data-builder-target="custom-builder-conditions" disabled={!hydrated} onClick={() => openBuilderStage("custom-builder-conditions")} type="button">
           <b>01</b><span><strong>Shape the rules</strong><small>{blocks.length ? `${blocks.length} of 6 conditions added` : "Choose what proof should check"}</small></span>
         </button>
-        <button data-builder-target="custom-builder-identity" disabled={!hydrated} onClick={() => openBuilderStage("custom-builder-identity")} type="button">
+        <button aria-current={activeBuilderStage === "custom-builder-identity" ? "step" : undefined} className={activeBuilderStage === "custom-builder-identity" ? "active" : ""} data-builder-target="custom-builder-identity" disabled={!hydrated} onClick={() => openBuilderStage("custom-builder-identity")} type="button">
           <b>02</b><span><strong>Name the quest</strong><small>{title.trim() ? "Name added; finish the description" : "Add its name and public goal"}</small></span>
         </button>
-        <button data-builder-target="custom-builder-save" disabled={!hydrated} onClick={() => openBuilderStage("custom-builder-save")} type="button">
+        <button aria-current={activeBuilderStage === "custom-builder-save" ? "step" : undefined} className={activeBuilderStage === "custom-builder-save" ? "active" : ""} data-builder-target="custom-builder-save" disabled={!hydrated} onClick={() => openBuilderStage("custom-builder-save")} type="button">
           <b>03</b><span><strong>Save &amp; continue</strong><small>{signedIn ? "Keep it private or publish it" : "Keep a private draft in this browser"}</small></span>
         </button>
       </nav>

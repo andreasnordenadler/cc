@@ -582,14 +582,18 @@ test("desktop Custom builder steps move focus through the long workbench without
 
   const steps = page.getByRole("navigation", { name: "Custom Side Quest builder steps" });
   await expect(steps).toBeVisible();
+  await expect(steps.getByRole("button", { name: /Shape the rules/ })).toHaveAttribute("aria-current", "step");
 
   for (const [label, targetId] of [
     ["Shape the rules", "custom-builder-conditions"],
     ["Name the quest", "custom-builder-identity"],
     ["Save & continue", "custom-builder-save"],
   ] as const) {
-    await steps.getByRole("button", { name: new RegExp(label) }).click();
+    const step = steps.getByRole("button", { name: new RegExp(label) });
+    await step.click();
     await expect(page.locator(`#${targetId}`)).toBeFocused();
+    await expect(step).toHaveAttribute("aria-current", "step");
+    await expect(steps.locator('[aria-current="step"]')).toHaveCount(1);
   }
 
   await page.evaluate(() => window.scrollTo(0, 520));

@@ -8821,6 +8821,12 @@ body::after {
     transition: border-color .16s ease, background .16s ease, transform .16s ease;
   }
 
+  .sqc-mobile-web.desktop-custom-editor .sqc-custom-builder-steps button.active {
+    border-color: rgba(245, 200, 106, .48);
+    background: linear-gradient(90deg, rgba(245, 200, 106, .14), rgba(245, 200, 106, .045));
+    box-shadow: inset 3px 0 0 rgba(245, 200, 106, .86);
+  }
+
   .sqc-mobile-web.desktop-custom-editor .sqc-custom-builder-steps button:hover,
   .sqc-mobile-web.desktop-custom-editor .sqc-custom-builder-steps button:focus-visible {
     border-color: rgba(245, 200, 106, .34);
