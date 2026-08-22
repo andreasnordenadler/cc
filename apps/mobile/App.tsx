@@ -41,8 +41,10 @@ import {
 import { SafeAreaProvider, SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { blockMobileCommunityCreator, buildMobileUrl, getApiBaseUrl, deleteMobileAccount, deleteMobileCustomSideQuest, fetchMobileAccountState, fetchMobileBootstrap, runMobileCommunityLikeAction, runMobileGroupQuestAction, runMobileQuestAction, saveMobileCustomSideQuest, submitMobileSupportMessage, updateMobileChessUsernames } from "./src/api/sqc";
 import { findSignedOutPublicMultiplayerQuest, getSignedOutPublicMultiplayerCatalog } from "./src/multiplayer/publicCatalog";
+import { finalizeMobileAccountDeletion } from "./src/account/finalizeMobileAccountDeletion";
 import { loadMobileAccount } from "./src/account/loadMobileAccount";
 import { clerkPublishableKey, clerkTokenCache, isClerkMobileAuthConfigured } from "./src/auth/clerk";
+import { completeAppleSignIn } from "./src/auth/completeAppleSignIn";
 import { OFFLINE_MOBILE_BOOTSTRAP } from "./src/data/offlineBootstrap";
 import { shouldStackActiveQuestSummary } from "./src/layout/activeQuestLayout";
 import { createMobileCommunityCreatorReportSubmitter } from "./src/reports/communityCreatorReport";
@@ -1329,9 +1331,7 @@ function ClerkMobileShell() {
   const startAppleSignIn = useCallback(async () => {
     try {
       const result = await startAppleAuthenticationFlow();
-      if (result.createdSessionId && result.setActive) {
-        await result.setActive({ session: result.createdSessionId });
-      }
+      await completeAppleSignIn(result);
     } catch (caught) {
       const code = typeof caught === "object" && caught !== null && "code" in caught ? String(caught.code) : "";
       if (code === "ERR_REQUEST_CANCELED") return;
@@ -6032,11 +6032,20 @@ function AccountTrackerDashboard({ bootstrap, account, authBridge, onSelectTab, 
     setDeletingAccount(true);
     try {
       const sessionToken = await authBridge.getSessionToken();
-      await deleteMobileAccount({ sessionToken, confirmation: deleteConfirmation });
-      await authBridge.signOut?.();
+      const { signedOut } = await finalizeMobileAccountDeletion({
+        deleteAccount: async () => {
+          await deleteMobileAccount({ sessionToken, confirmation: deleteConfirmation });
+        },
+        signOut: authBridge.signOut,
+      });
       setDeleteConfirmation("");
       setShowDeleteAccount(false);
-      Alert.alert("Account deleted", "Your account was deleted and you have been signed out.");
+      Alert.alert(
+        "Account deleted",
+        signedOut
+          ? "Your account was deleted and you have been signed out."
+          : "Your account was deleted. Sign-out cleanup did not finish; close and reopen the app.",
+      );
       onSelectTab("home");
     } catch (caught) {
       Alert.alert("Account not deleted", caught instanceof Error ? caught.message : "Please try again.");

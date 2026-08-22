@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 import { deleteMobileAccount } from "../apps/mobile/src/api/sqc";
+import { finalizeMobileAccountDeletion } from "../apps/mobile/src/account/finalizeMobileAccountDeletion";
 import { DELETE_ACCOUNT_CONFIRMATION } from "../src/lib/account-deletion";
 
 test("mobile account deletion sends bearer auth and exact confirmation to the first-party endpoint", async () => {
@@ -48,4 +49,23 @@ test("mobile account deletion success copy does not promise deletion beyond the 
 
   assert.doesNotMatch(source, /account and saved data were permanently deleted/i);
   assert.match(source, /Your account was deleted and you have been signed out/i);
+});
+
+test("mobile account deletion remains successful when post-deletion sign-out fails", async () => {
+  let deletionCalls = 0;
+  const result = await finalizeMobileAccountDeletion({
+    deleteAccount: async () => {
+      deletionCalls += 1;
+    },
+    signOut: async () => {
+      throw new Error("session already ended");
+    },
+  });
+
+  assert.equal(deletionCalls, 1);
+  assert.deepEqual(result, { signedOut: false });
+
+  const source = await readFile(new URL("../apps/mobile/App.tsx", import.meta.url), "utf8");
+  assert.match(source, /finalizeMobileAccountDeletion/);
+  assert.match(source, /Your account was deleted\. Sign-out cleanup did not finish; close and reopen the app\./);
 });

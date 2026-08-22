@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
+import { completeAppleSignIn } from "../apps/mobile/src/auth/completeAppleSignIn";
 
 const readRepoFile = (path: string) => readFileSync(new URL(`../${path}`, import.meta.url), "utf8");
 
@@ -21,4 +22,14 @@ test("iOS prepares native Sign in with Apple alongside existing account methods"
 
   const appleButtons = appSource.match(/<NativeAppleSignInButton onPress=\{authBridge\.startAppleSignIn\}/g) ?? [];
   assert.equal(appleButtons.length, 2, "both signed-out account surfaces must expose the native Apple button on iOS");
+});
+
+test("Apple sign-in reports incomplete account resolution instead of silently staying signed out", async () => {
+  await assert.rejects(
+    completeAppleSignIn({ createdSessionId: null, setActive: undefined }),
+    /could not finish setting up your account/i,
+  );
+
+  const appSource = readRepoFile("apps/mobile/App.tsx");
+  assert.match(appSource, /await completeAppleSignIn\(result\)/);
 });
