@@ -505,6 +505,13 @@ test("Community discovery balances a lone result with a real desktop catalog sum
   assert.match(mobileCss, /\.sqc-community-catalog-summary\s*\{[^}]*display:\s*none;/, "mobile retains the established single-card flow");
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-community-discovery\s+\.sqc-community-results-layout\.single-result\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*760px\)\s+minmax\(240px,\s*1fr\);/);
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-community-discovery\s+\.sqc-community-catalog-summary\s*\{[^}]*display:\s*grid;/);
+
+  const wideDesktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1680px)"));
+  assert.match(
+    wideDesktopMedia,
+    /\.sqc-mobile-web\.desktop-community-discovery\s+\.sqc-community-results-layout\.single-result\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1\.7fr\)\s+minmax\(320px,\s*\.65fr\);/,
+    "a lone quest remains the primary object on wide desktops instead of being outweighed by the catalog summary",
+  );
 });
 
 test("Community creator shelves become contextual desktop rail destinations", () => {
