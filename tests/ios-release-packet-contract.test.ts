@@ -101,6 +101,14 @@ test("iOS release packet records keyboard-safe forms without claiming device ver
   assert.match(packet, /real-iPhone and iPad.*remain.*blocked/i);
 });
 
+test("iOS release packet labels unpreserved RED runs and source-shape checks truthfully", () => {
+  assert.match(packet, /keyboard-safety source-contract receipt/i);
+  assert.match(packet, /social SSO cancellation narrative TDD receipt/i);
+  assert.match(packet, /failing RED output was not preserved/i);
+  assert.doesNotMatch(packet, /Keyboard-safety TDD receipt:/i);
+  assert.doesNotMatch(packet, /Social SSO cancellation TDD receipt:/i);
+});
+
 test("iOS release packet approval-gates South Korea availability and RCN applicability", () => {
   assert.match(packet, /Availability in the Republic of Korea/i);
   assert.match(packet, /RCN[\s\S]*KR-19[\s\S]*Casino\/17\+[\s\S]*Frequent\/Intense/i);
