@@ -38,7 +38,12 @@ test("iOS release packet approval-gates the remaining app-record and privacy-pol
   assert.match(packet, /1024.?×.?1024.*icon/i);
   assert.match(packet, /User Access selection/i);
   assert.match(packet, /copyright ownership and year/i);
-  assert.match(packet, /content and creator reports.*user-block records/i);
   assert.match(packet, /app-scoped App Manager/i);
   assert.match(packet, /must not download or export.*certificates.*profiles.*API keys.*credentials/i);
+});
+
+test("iOS release packet distinguishes source-prepared safety disclosures from production evidence", () => {
+  assert.match(packet, /report and block disclosures are source-prepared/i);
+  assert.match(packet, /production deployment and signed-out readback remain blocked/i);
+  assert.doesNotMatch(packet, /current privacy policy.*does not explicitly disclose content and creator reports/i);
 });
