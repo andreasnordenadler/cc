@@ -797,7 +797,18 @@ test("Multiplayer discovery keeps mobile below 1180px and uses decision-ready ca
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-multiplayer-discovery\s+\.sqc-multiplayer-row-details\s*\{[^}]*display:\s*grid;[^}]*position:\s*absolute;[^}]*left:\s*18px;[^}]*right:\s*18px;[^}]*bottom:\s*18px;/);
   assert.doesNotMatch(desktopMedia, /\.sqc-mobile-web\.desktop-multiplayer-discovery\s+\.sqc-multiplayer-row-details\s*\{[^}]*margin:\s*[^;]*-/, "the tournament facts must not slide beneath the seal");
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-multiplayer-discovery\s+\.sqc-multiplayer-row-facts\s*\{[^}]*grid-template-columns:\s*repeat\(3,\s*minmax\(0,\s*1fr\)\);/);
-  assert.equal(css.replace(desktopMedia, "").includes(".sqc-mobile-web.desktop-multiplayer-discovery"), false, "desktop Multiplayer rules must not leak below 1180px");
+  const cssWithoutDesktopMedia = css
+    .replace(desktopMedia, "")
+    .replace(readCssBlock(css, css.indexOf("@media (min-width: 1400px)")), "")
+    .replace(readCssBlock(css, css.indexOf("@media (min-width: 1680px)")), "");
+  assert.equal(cssWithoutDesktopMedia.includes(".sqc-mobile-web.desktop-multiplayer-discovery"), false, "desktop Multiplayer rules must not leak below 1180px");
+});
+
+test("Multiplayer discovery expands continuously across wide desktop displays", () => {
+  const css = readFileSync("src/app/mobile-web.css", "utf8");
+  const wideDesktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1400px)"));
+
+  assert.match(wideDesktopMedia, /\.sqc-mobile-web\.desktop-multiplayer-discovery\s+\.sqc-screen\s*\{[^}]*width:\s*min\(1600px,\s*calc\(100%\s*-\s*80px\)\)/);
 });
 
 test("signed-out Community Multiplayer discovery uses a desktop catalog and invite workspace without duplicating actions", () => {
