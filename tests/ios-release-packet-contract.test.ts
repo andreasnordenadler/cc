@@ -4,6 +4,11 @@ import test from "node:test";
 
 const packet = readFileSync(new URL("../docs/IOS_APP_STORE_RELEASE_PACKET_2026-08-21.md", import.meta.url), "utf8");
 
+test("iOS release packet names the latest reconciled origin/main baseline", () => {
+  assert.match(packet, /bf0b95024e0b80b0081d9e02df8e6accf8000090/);
+  assert.doesNotMatch(packet, /Source baseline: `eec95451fc1f23318f3a2a4e052891cb9105f111`/);
+});
+
 test("iOS release packet blocks upload when required-reason API declarations are missing or unsupported", () => {
   assert.match(packet, /Missing or unsupported reasons block upload/);
   assert.match(packet, /aggregate privacy report is evidence for reconciliation, not a substitute/i);

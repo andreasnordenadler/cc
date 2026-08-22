@@ -1,7 +1,7 @@
 # Side Quest Chess — iOS App Store release-preparation packet
 
 **Prepared:** 2026-08-21; reconciled 2026-08-22<br>
-**Source baseline:** `eec95451fc1f23318f3a2a4e052891cb9105f111` (`origin/main`, fetched and merged 2026-08-22); current iOS source-preparation and receipt changes remain under PR review<br>
+**Source baseline:** `bf0b95024e0b80b0081d9e02df8e6accf8000090` (`origin/main`, fetched and merged 2026-08-22); current iOS source-preparation and receipt changes remain under PR review<br>
 **Status:** Drafts and verified source audit only. This is not an App Store Connect record, Apple credential, IPA, TestFlight build, review submission, approval, or public release.
 
 This packet supersedes the iOS portions of `SQC_MOBILE_APPLE_PRIVACY_PREP_2026-07-03.md`, `SQC_MOBILE_STORE_LAUNCH_PREP_2026-07-07.md`, and `SQC_MOBILE_STORE_SUBMISSION_PACK_2026-07-07.md` for this source baseline.
