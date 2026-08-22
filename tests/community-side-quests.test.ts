@@ -51,6 +51,23 @@ test("Community catalog derives like count and viewer state from the same bounde
   assert.equal(rows[0]?.creatorBrowsePath, `/community-side-quests?creator=${encodeURIComponent(rows[0]?.creatorKey ?? "")}#creator-${rows[0]?.creatorKey}`);
 });
 
+test("Community catalog suppresses legacy public quests with objectionable text", async () => {
+  const owner = questOwner("owner") as ReturnType<typeof questOwner>;
+  const customSideQuests = owner.privateMetadata.customSideQuests as Array<{ title: string }>;
+  customSideQuests[0].title = "A fucking legacy quest";
+  const client = {
+    users: {
+      async getUserList() {
+        return { data: [owner] };
+      },
+    },
+  };
+
+  const rows = await listPublicCommunitySideQuests(client, { limit: null });
+
+  assert.deepEqual(rows, []);
+});
+
 test("Community catalog can return every public quest before client-side popularity sorting", async () => {
   const users = Array.from({ length: 81 }, (_, index) => questOwner(`owner-${index}`, [], `community-${index}`));
   const client = {

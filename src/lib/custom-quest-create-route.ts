@@ -1,4 +1,5 @@
 import { getCustomSideQuests, parseCustomRuleConfig, type CustomSideQuest, type CustomSideQuestRuleConfig } from "./custom-side-quests";
+import { containsObjectionablePublicText } from "./ugc-content-filter";
 import type { UserMetadataRecord } from "./user-metadata";
 
 export type CustomQuestCreateDependencies = {
@@ -38,6 +39,9 @@ export async function handleCustomQuestCreateRequest(request: Request, dependenc
   const parsedConfig = parseCustomRuleConfig(config);
   const validation = !parsedConfig ? "This Side Quest has invalid saved rules." : lifecycle === "published" ? validateConfig(parsedConfig) : null;
   if (validation) return Response.json({ apiVersion: 1, authenticated: true, ok: false, message: validation }, { status: 400 });
+  if (lifecycle === "published" && visibility === "public" && containsObjectionablePublicText(title, summary)) {
+    return Response.json({ apiVersion: 1, authenticated: true, ok: false, message: "Remove objectionable language before publishing this Community Side Quest." }, { status: 422 });
+  }
   try {
     const { publicMetadata, privateMetadata } = await dependencies.getMetadata(userId);
     const existingPrivate = getCustomSideQuests(privateMetadata);
