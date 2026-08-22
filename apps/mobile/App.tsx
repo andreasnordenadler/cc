@@ -1299,7 +1299,25 @@ function ClerkMobileShell() {
   const { signIn, setActive: setSignInActive, isLoaded: signInLoaded } = useSignIn();
   const { signUp, setActive: setSignUpActive, isLoaded: signUpLoaded } = useSignUp();
   const { user } = useUser();
+  const [appleSignInAvailable, setAppleSignInAvailable] = useState(false);
   const signedInLabel = user?.fullName || user?.username || user?.primaryEmailAddress?.emailAddress || null;
+
+  useEffect(() => {
+    if (Platform.OS !== "ios") return;
+
+    let active = true;
+    void AppleAuthentication.isAvailableAsync()
+      .then((available) => {
+        if (active) setAppleSignInAvailable(available);
+      })
+      .catch(() => {
+        if (active) setAppleSignInAvailable(false);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const startSocialSignIn = useCallback(async (strategy: "oauth_google" | "oauth_facebook", providerLabel: "Google" | "Facebook") => {
     try {
@@ -1403,14 +1421,14 @@ function ClerkMobileShell() {
       getSessionToken: async () => getToken(),
       startGoogleSignIn,
       startFacebookSignIn,
-      startAppleSignIn: Platform.OS === "ios" ? startAppleSignIn : undefined,
+      startAppleSignIn: appleSignInAvailable ? startAppleSignIn : undefined,
       startPasswordSignIn,
       startPasswordSignUp,
       attemptPasswordSignUpVerification,
       signOut,
       signedInLabel,
     }),
-    [attemptPasswordSignUpVerification, getToken, isLoaded, isSignedIn, signOut, signedInLabel, startAppleSignIn, startFacebookSignIn, startGoogleSignIn, startPasswordSignIn, startPasswordSignUp],
+    [appleSignInAvailable, attemptPasswordSignUpVerification, getToken, isLoaded, isSignedIn, signOut, signedInLabel, startAppleSignIn, startFacebookSignIn, startGoogleSignIn, startPasswordSignIn, startPasswordSignUp],
   );
 
   return <MobileShell authBridge={authBridge} />;

@@ -16,7 +16,8 @@ test("iOS prepares native Sign in with Apple alongside existing account methods"
   assert.match(appSource, /useSignInWithApple/);
   assert.match(appSource, /startAppleAuthenticationFlow\(\)/);
   assert.match(appSource, /code === "ERR_REQUEST_CANCELED"/);
-  assert.match(appSource, /startAppleSignIn:\s*Platform\.OS\s*===\s*"ios"\s*\?\s*startAppleSignIn\s*:\s*undefined/);
+  assert.match(appSource, /AppleAuthentication\.isAvailableAsync\(\)/);
+  assert.match(appSource, /startAppleSignIn:\s*appleSignInAvailable\s*\?\s*startAppleSignIn\s*:\s*undefined/);
   assert.match(appSource, /AppleAuthenticationButtonType\.SIGN_IN/);
   assert.match(appSource, /AppleAuthenticationButtonStyle\.WHITE_OUTLINE/);
 
