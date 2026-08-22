@@ -100,6 +100,41 @@ test("CI uses a pnpm release whose audit client supports the registry bulk advis
   }
 });
 
+test("pull-request release gate validates iOS and Android native generation without credentials", () => {
+  const source = readRepoFile(".github/workflows/mobile-release-gate.yml");
+  const pullRequestJob = source.slice(source.indexOf("  mobile-release-gate:"), source.indexOf("  signed-mobile-release:"));
+
+  assert.match(pullRequestJob, /expo prebuild --platform ios --no-install/);
+  assert.match(pullRequestJob, /expo prebuild --platform android --no-install/);
+  assert.match(pullRequestJob, /Generate iOS project from Expo config \(unsigned source gate\)/);
+
+  const iosPrebuildIndex = pullRequestJob.indexOf("expo prebuild --platform ios --no-install");
+  const iosCleanupIndex = pullRequestJob.indexOf("rmSync('apps/mobile/ios', { recursive: true, force: true })");
+  const androidPrebuildIndex = pullRequestJob.indexOf("expo prebuild --platform android --no-install");
+  assert.ok(
+    iosPrebuildIndex < iosCleanupIndex && iosCleanupIndex < androidPrebuildIndex,
+    "generated iOS tree must be removed before Android generation and managed-config checks",
+  );
+  assert.doesNotMatch(
+    pullRequestJob,
+    /(?:eas(?:-cli)?|fastlane)\s+(?:build|submit|credentials)|expo\s+login|security find-identity|xcodebuild|SQC_(?:ANDROID|IOS)_/i,
+  );
+});
+
+test("iOS release packet records executable metadata and TestFlight review fields", () => {
+  const packet = readRepoFile("docs/IOS_APP_STORE_RELEASE_PACKET_2026-08-21.md");
+
+  assert.match(packet, /\| App Store version \| `0\.1\.349`/);
+  assert.match(packet, /\| Secondary category \| None/);
+  assert.match(packet, /Messaging and Chat: Yes — public posting/);
+  assert.doesNotMatch(packet, /Messaging and Chat: Yes if/);
+  assert.match(packet, /fictional, non-personal account data/);
+  assert.match(packet, /show the app in use/);
+  assert.match(packet, /4\+ metadata audience/);
+  assert.match(packet, /\.jpeg`, `\.jpg`, or `\.png/);
+  assert.match(packet, /Beta App Description, Feedback Email, Contact Information/);
+});
+
 test("pnpm 11 keeps the release-age guard except for the reviewed Expo patch set", () => {
   const source = readRepoFile("pnpm-workspace.yaml");
   const reviewedExpoPatchSet = [

@@ -1,12 +1,13 @@
 /* eslint-disable jsx-a11y/alt-text, @typescript-eslint/no-unused-vars, @typescript-eslint/no-require-imports */
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { ClerkProvider, useAuth, useClerk, useSSO, useSignIn, useSignUp, useUser } from "@clerk/clerk-expo";
+import { ClerkProvider, useAuth, useClerk, useSignInWithApple, useSSO, useSignIn, useSignUp, useUser } from "@clerk/clerk-expo";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import DateTimePicker, { type DateTimePickerEvent } from "@react-native-community/datetimepicker";
 import * as AuthSession from "expo-auth-session";
 import * as WebBrowser from "expo-web-browser";
 import * as Clipboard from "expo-clipboard";
 import * as Application from "expo-application";
+import * as AppleAuthentication from "expo-apple-authentication";
 import { LinearGradient } from "expo-linear-gradient";
 import {
   ActivityIndicator,
@@ -40,13 +41,17 @@ import {
 import { SafeAreaProvider, SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { blockMobileCommunityCreator, buildMobileUrl, getApiBaseUrl, deleteMobileAccount, deleteMobileCustomSideQuest, fetchMobileAccountState, fetchMobileBootstrap, runMobileCommunityLikeAction, runMobileGroupQuestAction, runMobileQuestAction, saveMobileCustomSideQuest, submitMobileSupportMessage, updateMobileChessUsernames } from "./src/api/sqc";
 import { findSignedOutPublicMultiplayerQuest, getSignedOutPublicMultiplayerCatalog } from "./src/multiplayer/publicCatalog";
+import { finalizeMobileAccountDeletion } from "./src/account/finalizeMobileAccountDeletion";
 import { loadMobileAccount } from "./src/account/loadMobileAccount";
 import { clerkPublishableKey, clerkTokenCache, isClerkMobileAuthConfigured } from "./src/auth/clerk";
+import { completeAppleSignIn } from "./src/auth/completeAppleSignIn";
+import { completeMobilePasswordReset, prepareMobilePasswordReset, verifyMobilePasswordResetCode as verifyMobilePasswordResetCodeWithClerk } from "./src/auth/mobilePasswordReset";
 import { OFFLINE_MOBILE_BOOTSTRAP } from "./src/data/offlineBootstrap";
 import { shouldStackActiveQuestSummary } from "./src/layout/activeQuestLayout";
 import { createMobileCommunityCreatorReportSubmitter } from "./src/reports/communityCreatorReport";
 import { canReportCommunityMultiplayerQuest, createMobileCommunityReportSubmitter } from "./src/reports/communityMultiplayerReport";
 import { buildMobileSupportMessage } from "./src/support/buildMobileSupportMessage";
+import { getMobileCandidateIdentity as resolveMobileCandidateIdentity, type MobileCandidateConfig } from "./src/support/mobileCandidateIdentity";
 import type { MobileAccountResponse, MobileAccountState, MobileBootstrap, MobileChallenge, MobileCustomSideQuest, MobileGroupQuestParticipantRow, MobileGroupQuestSummary, MobileSupportMessage } from "./src/types/sqc";
 
 type AppTab = "home" | "sideQuests" | "multiplayerSideQuests" | "officialLeaderboards" | "coatOfArms" | "account";
@@ -1070,9 +1075,13 @@ type MobileAuthBridge = {
   getSessionToken: () => Promise<string | null>;
   startGoogleSignIn?: () => Promise<void>;
   startFacebookSignIn?: () => Promise<void>;
+  startAppleSignIn?: () => Promise<void>;
   startPasswordSignIn?: (credentials: { identifier: string; password: string }) => Promise<void>;
   startPasswordSignUp?: (credentials: { identifier: string; password: string }) => Promise<PasswordSignUpResult>;
   attemptPasswordSignUpVerification?: (params: { code: string }) => Promise<void>;
+  startPasswordReset?: (params: { identifier: string }) => Promise<{ identifier: string }>;
+  verifyPasswordResetCode?: (params: { code: string }) => Promise<void>;
+  completePasswordReset?: (params: { password: string }) => Promise<void>;
   signOut?: () => Promise<void>;
   signedInLabel: string | null;
 };
@@ -1290,10 +1299,29 @@ function ClerkMobileShell() {
   const { getToken, isLoaded, isSignedIn } = useAuth();
   const { signOut } = useClerk();
   const { startSSOFlow } = useSSO();
+  const { startAppleAuthenticationFlow } = useSignInWithApple();
   const { signIn, setActive: setSignInActive, isLoaded: signInLoaded } = useSignIn();
   const { signUp, setActive: setSignUpActive, isLoaded: signUpLoaded } = useSignUp();
   const { user } = useUser();
+  const [appleSignInAvailable, setAppleSignInAvailable] = useState(false);
   const signedInLabel = user?.fullName || user?.username || user?.primaryEmailAddress?.emailAddress || null;
+
+  useEffect(() => {
+    if (Platform.OS !== "ios") return;
+
+    let active = true;
+    void AppleAuthentication.isAvailableAsync()
+      .then((available) => {
+        if (active) setAppleSignInAvailable(available);
+      })
+      .catch(() => {
+        if (active) setAppleSignInAvailable(false);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const startSocialSignIn = useCallback(async (strategy: "oauth_google" | "oauth_facebook", providerLabel: "Google" | "Facebook") => {
     try {
@@ -1322,6 +1350,20 @@ function ClerkMobileShell() {
 
   const startGoogleSignIn = useCallback(() => startSocialSignIn("oauth_google", "Google"), [startSocialSignIn]);
   const startFacebookSignIn = useCallback(() => startSocialSignIn("oauth_facebook", "Facebook"), [startSocialSignIn]);
+  const startAppleSignIn = useCallback(async () => {
+    try {
+      if (!signInLoaded || !signUpLoaded) {
+        throw new Error("Sign-in is still loading. Try again in a moment.");
+      }
+      const result = await startAppleAuthenticationFlow();
+      await completeAppleSignIn(result);
+    } catch (caught) {
+      const code = typeof caught === "object" && caught !== null && "code" in caught ? String(caught.code) : "";
+      if (code === "ERR_REQUEST_CANCELED") return;
+      const message = caught instanceof Error ? caught.message : "Unknown Apple sign-in error.";
+      Alert.alert("Sign-in error", message);
+    }
+  }, [signInLoaded, signUpLoaded, startAppleAuthenticationFlow]);
 
   const startPasswordSignIn = useCallback(async ({ identifier, password }: { identifier: string; password: string }) => {
     if (!signInLoaded) throw new Error("Sign-in is still loading. Try again in a moment.");
@@ -1378,6 +1420,28 @@ function ClerkMobileShell() {
     throw new Error(`Account verification needs another step: ${result.status}.`);
   }, [setSignUpActive, signUp, signUpLoaded]);
 
+  const startPasswordReset = useCallback(async ({ identifier }: { identifier: string }) => {
+    if (!signInLoaded) throw new Error("Password reset is still loading. Try again in a moment.");
+    return prepareMobilePasswordReset({ identifier, createSignIn: (params) => signIn.create(params) });
+  }, [signIn, signInLoaded]);
+
+  const verifyPasswordResetCode = useCallback(async ({ code }: { code: string }) => {
+    if (!signInLoaded || !setSignInActive) throw new Error("Password reset is still loading. Try again in a moment.");
+    await verifyMobilePasswordResetCodeWithClerk({
+      code,
+      attemptFirstFactor: (params) => signIn.attemptFirstFactor(params),
+    });
+  }, [setSignInActive, signIn, signInLoaded]);
+
+  const completePasswordReset = useCallback(async ({ password }: { password: string }) => {
+    if (!signInLoaded || !setSignInActive) throw new Error("Password reset is still loading. Try again in a moment.");
+    await completeMobilePasswordReset({
+      password,
+      resetPassword: (params) => signIn.resetPassword(params),
+      setActive: (params) => setSignInActive(params),
+    });
+  }, [setSignInActive, signIn, signInLoaded]);
+
   const authBridge = useMemo<MobileAuthBridge>(
     () => ({
       configured: true,
@@ -1386,16 +1450,20 @@ function ClerkMobileShell() {
       getSessionToken: async () => getToken(),
       startGoogleSignIn,
       startFacebookSignIn,
+      startAppleSignIn: appleSignInAvailable ? startAppleSignIn : undefined,
       startPasswordSignIn,
       startPasswordSignUp,
       attemptPasswordSignUpVerification,
+      startPasswordReset,
+      verifyPasswordResetCode,
+      completePasswordReset,
       signOut,
       signedInLabel,
     }),
-    [attemptPasswordSignUpVerification, getToken, isLoaded, isSignedIn, signOut, signedInLabel, startFacebookSignIn, startGoogleSignIn, startPasswordSignIn, startPasswordSignUp],
+    [appleSignInAvailable, attemptPasswordSignUpVerification, completePasswordReset, getToken, isLoaded, isSignedIn, signOut, signedInLabel, startAppleSignIn, startFacebookSignIn, startGoogleSignIn, startPasswordReset, startPasswordSignIn, startPasswordSignUp, verifyPasswordResetCode],
   );
 
-  return <MobileShell authBridge={authBridge} />;
+  return <MobileShell key={user?.id ?? "signed-out"} authBridge={authBridge} />;
 }
 
 const signedOutAuthBridge: MobileAuthBridge = {
@@ -1469,6 +1537,7 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
     fetchAccount: fetchMobileAccountState,
     applyAccount: (account) => setShell((current) => ({ ...current, account })),
     applyFallback: () => setShell((current) => ({ ...current, account: current.account ?? MOBILE_ACCOUNT_FALLBACK })),
+    applySignedInFallback: () => setShell((current) => ({ ...current, account: current.account ?? MOBILE_ACCOUNT_FALLBACK })),
     fallbackAccount: MOBILE_ACCOUNT_FALLBACK,
   }), [authBridge.getSessionToken, authBridge.isLoaded, authBridge.isSignedIn]);
 
@@ -3511,28 +3580,26 @@ function AccountHelpSupportSection({ onOpenHelp }: { onOpenHelp: () => void }) {
 }
 
 const MOBILE_SUPPORT_NOTE_MAX_LENGTH = 900;
-const MOBILE_RELEASE_BASE_URL = "https://github.com/andreasnordenadler/cc/releases/tag";
-const MOBILE_APP_CONFIG = require("./app.json") as { expo?: { version?: string; android?: { package?: string; versionCode?: number } } };
+const MOBILE_APP_CONFIG = require("./app.json") as { expo?: MobileCandidateConfig };
 
 function getMobileCandidateIdentity() {
-  const appVersion = Application.nativeApplicationVersion ?? MOBILE_APP_CONFIG.expo?.version ?? "unknown";
-  const androidPackage = Application.applicationId ?? MOBILE_APP_CONFIG.expo?.android?.package ?? "unknown";
-  const nativeBuildVersion = Application.nativeBuildVersion ? Number(Application.nativeBuildVersion) : undefined;
-  const androidVersionCode = Number.isFinite(nativeBuildVersion) ? nativeBuildVersion : MOBILE_APP_CONFIG.expo?.android?.versionCode;
-  const releaseCandidate = androidVersionCode ? `mobile-v${androidVersionCode}` : "unknown";
-  const releaseUrl = androidVersionCode ? `${MOBILE_RELEASE_BASE_URL}/${releaseCandidate}` : null;
-
-  return { appVersion, androidPackage, androidVersionCode, releaseCandidate, releaseUrl };
+  return resolveMobileCandidateIdentity({
+    platform: Platform.OS,
+    nativeApplicationVersion: Application.nativeApplicationVersion,
+    nativeBuildVersion: Application.nativeBuildVersion,
+    applicationId: Application.applicationId,
+    config: MOBILE_APP_CONFIG.expo ?? {},
+  });
 }
 
 function buildMobileSupportDiagnostics(signedIn: MobileAccountState | null) {
-  const { appVersion, androidPackage, androidVersionCode, releaseCandidate, releaseUrl } = getMobileCandidateIdentity();
+  const { appVersion, appBuild, applicationId, artifactLabel, releaseCandidate, releaseUrl } = getMobileCandidateIdentity();
 
   return [
     "Side Quest Chess mobile diagnostics",
-    `App version: ${appVersion}${androidVersionCode ? ` (${androidVersionCode})` : ""}`,
-    `Package ID: ${androidPackage}`,
-    `Release candidate: ${releaseCandidate} GitHub Release APK`,
+    `App version: ${appVersion} (${appBuild})`,
+    `Application ID: ${applicationId}`,
+    `Release candidate: ${releaseCandidate} ${artifactLabel}`,
     `Release URL: ${releaseUrl ?? "unknown"}`,
     `Platform: ${Platform.OS} ${Platform.Version}`,
     `API base: ${getApiBaseUrl()}`,
@@ -3640,7 +3707,7 @@ function HelpSupportModal({ visible, onClose, signedIn, authBridge, initialMessa
             {diagnosticsOpen ? (
               <View style={compactStyles.diagnosticsBody}>
                 <Text style={compactStyles.detailPanelTitle}>{candidateIdentity.releaseCandidate}</Text>
-                <Text style={compactStyles.detailPanelCopy}>App version {candidateIdentity.appVersion}{candidateIdentity.androidVersionCode ? ` (${candidateIdentity.androidVersionCode})` : ""}. Package {candidateIdentity.androidPackage}.</Text>
+                <Text style={compactStyles.detailPanelCopy}>App version {candidateIdentity.appVersion} ({candidateIdentity.appBuild}). Application ID {candidateIdentity.applicationId}. {candidateIdentity.artifactLabel}.</Text>
                 {candidateIdentity.releaseUrl ? <Text style={compactStyles.detailPanelCopy}>{candidateIdentity.releaseUrl}</Text> : null}
               </View>
             ) : null}
@@ -3747,6 +3814,7 @@ function CommunityMultiplayerReportModal({ visible, quest, authBridge, onClose, 
         sessionToken: await authBridge.getSessionToken(),
         targetId: quest.id,
         reason,
+        clientPlatform: Platform.OS === "ios" ? "ios" : "android",
       }));
       if (submission.kind === "busy") return;
       const result = submission.result;
@@ -3769,6 +3837,7 @@ function CommunityMultiplayerReportModal({ visible, quest, authBridge, onClose, 
         sessionToken: await authBridge.getSessionToken(),
         targetId: quest.id,
         reason,
+        clientPlatform: Platform.OS === "ios" ? "ios" : "android",
       }));
       if (submission.kind === "busy") return;
       setReason("");
@@ -3785,6 +3854,7 @@ function CommunityMultiplayerReportModal({ visible, quest, authBridge, onClose, 
       const result = await blockMobileCommunityCreator({
         sessionToken: await authBridge.getSessionToken(),
         targetId: quest.id,
+        clientPlatform: Platform.OS === "ios" ? "ios" : "android",
       });
       await onBlocked();
       setSubmitState({ busy: false, message: result.message, error: null });
@@ -5943,6 +6013,18 @@ function SocialSignInButtonContent({ provider, label, textStyle }: { provider: "
   );
 }
 
+function NativeAppleSignInButton({ onPress }: { onPress: () => Promise<void> }) {
+  return (
+    <AppleAuthentication.AppleAuthenticationButton
+      buttonType={AppleAuthentication.AppleAuthenticationButtonType.SIGN_IN}
+      buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.WHITE_OUTLINE}
+      cornerRadius={24}
+      style={styles.appleAuthenticationButton}
+      onPress={() => void onPress()}
+    />
+  );
+}
+
 function AccountTrackerDashboard({ bootstrap, account, authBridge, onSelectTab, onSelectChallenge, onOpenCompletedQuestDetail, onAccountUpdated, onScrollToY }: { bootstrap: MobileBootstrap; account: MobileAccountResponse | null; authBridge: MobileAuthBridge; onSelectTab: (tab: AppTab) => void; onSelectChallenge: (challengeId: string, nextTab?: AppTab) => void; onOpenChallengeDetail: (challengeId: string) => void; onOpenCompletedQuestDetail: (challengeId: string) => void; onAccountUpdated: AccountUpdatedCallback; onScrollToY: (y: number, animated?: boolean) => void }) {
   const signedIn = isAuthenticatedAccount(account) ? account : null;
   const [helpOpen, setHelpOpen] = useState(false);
@@ -5951,6 +6033,61 @@ function AccountTrackerDashboard({ bootstrap, account, authBridge, onSelectTab, 
   const [showDeleteAccount, setShowDeleteAccount] = useState(false);
   const [deleteConfirmation, setDeleteConfirmation] = useState("");
   const [deletingAccount, setDeletingAccount] = useState(false);
+  if (!signedIn && authBridge.isSignedIn) {
+    return (
+      <View style={compactStyles.stack}>
+        <View style={compactStyles.heroPanel}>
+          <View style={compactStyles.topLine}>
+            <Text style={compactStyles.kicker}>My Account</Text>
+          </View>
+          <Text style={compactStyles.heroTitle}>Account details are unavailable.</Text>
+          <Text style={compactStyles.heroCopy}>You are still signed in. Retry loading your account details, or use the account controls below.</Text>
+          <Pressable accessibilityRole="button" accessibilityLabel="Retry account details" style={styles.secondaryButtonWide} onPress={() => void onAccountUpdated()}>
+            <Text style={styles.secondaryButtonText}>Retry account details</Text>
+          </Pressable>
+        </View>
+        <AccountHelpSupportSection onOpenHelp={() => setHelpOpen(true)} />
+        <HelpSupportModal visible={helpOpen} onClose={() => setHelpOpen(false)} signedIn={null} authBridge={authBridge} />
+        <View style={compactStyles.heroPanel}>
+          <Text style={compactStyles.kicker}>Danger zone</Text>
+          <Text style={compactStyles.heroCopy}>You can still delete your account while account details are unavailable.</Text>
+          {showDeleteAccount ? (
+            <View style={styles.inputStack}>
+              <Text style={styles.inputLabel}>Type DELETE MY ACCOUNT to confirm</Text>
+              <TextInput
+                value={deleteConfirmation}
+                autoCapitalize="characters"
+                autoCorrect={false}
+                placeholder="DELETE MY ACCOUNT"
+                placeholderTextColor="rgba(255,247,232,.42)"
+                style={styles.textInput}
+                onChangeText={setDeleteConfirmation}
+              />
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="Permanently delete account"
+                disabled={deleteConfirmation !== "DELETE MY ACCOUNT" || deletingAccount}
+                style={[compactStyles.logoutButton, (deleteConfirmation !== "DELETE MY ACCOUNT" || deletingAccount) && { opacity: 0.45 }]}
+                onPress={() => void handleDeleteAccount()}
+              >
+                <Text style={compactStyles.logoutButtonText}>{deletingAccount ? "Deleting…" : "Permanently delete account"}</Text>
+              </Pressable>
+              <Pressable accessibilityRole="button" onPress={() => { setShowDeleteAccount(false); setDeleteConfirmation(""); }}>
+                <Text style={compactStyles.accountInfoText}>Cancel</Text>
+              </Pressable>
+            </View>
+          ) : (
+            <Pressable accessibilityRole="button" accessibilityLabel="Delete account" style={compactStyles.logoutButton} onPress={() => setShowDeleteAccount(true)}>
+              <Text style={compactStyles.logoutButtonText}>Delete account</Text>
+            </Pressable>
+          )}
+        </View>
+        <Pressable accessibilityRole="button" accessibilityLabel="Log out" style={compactStyles.logoutButton} onPress={() => void handleLogOut()}>
+          <Text style={compactStyles.logoutButtonText}>Log out</Text>
+        </Pressable>
+      </View>
+    );
+  }
   if (!signedIn) {
     return (
       <View style={compactStyles.stack}>
@@ -5960,6 +6097,7 @@ function AccountTrackerDashboard({ bootstrap, account, authBridge, onSelectTab, 
           </View>
           <Text style={compactStyles.heroTitle}>Sign in to sync your board.</Text>
           <Text style={compactStyles.heroCopy}>Sign in to save Side Quest progress, latest proof, Coat of Arms unlocks, and connected chess usernames.</Text>
+          {authBridge.startAppleSignIn ? <NativeAppleSignInButton onPress={authBridge.startAppleSignIn} /> : null}
           <Pressable accessibilityRole="button" accessibilityLabel="Continue with Google" style={styles.secondaryButtonWide} onPress={() => authBridge.startGoogleSignIn ? void authBridge.startGoogleSignIn() : showNativeOnlyNotice("Sign-in is unavailable right now.")}>
             <SocialSignInButtonContent provider="google" label="Continue with Google" textStyle={styles.secondaryButtonText} />
           </Pressable>
@@ -6000,11 +6138,20 @@ function AccountTrackerDashboard({ bootstrap, account, authBridge, onSelectTab, 
     setDeletingAccount(true);
     try {
       const sessionToken = await authBridge.getSessionToken();
-      await deleteMobileAccount({ sessionToken, confirmation: deleteConfirmation });
-      await authBridge.signOut?.();
+      const { signedOut } = await finalizeMobileAccountDeletion({
+        deleteAccount: async () => {
+          await deleteMobileAccount({ sessionToken, confirmation: deleteConfirmation });
+        },
+        signOut: authBridge.signOut,
+      });
       setDeleteConfirmation("");
       setShowDeleteAccount(false);
-      Alert.alert("Account deleted", "Your Side Quest Chess account and saved data were permanently deleted.");
+      Alert.alert(
+        "Account deleted",
+        signedOut
+          ? "Your account was deleted and you have been signed out."
+          : "Your account was deleted. Sign-out cleanup did not finish; close and reopen the app.",
+      );
       onSelectTab("home");
     } catch (caught) {
       Alert.alert("Account not deleted", caught instanceof Error ? caught.message : "Please try again.");
@@ -9360,6 +9507,7 @@ function AccountShell({
           <Text style={styles.eyebrow}>Account</Text>
           <Text style={styles.cardTitle}>{signedInButRejected ? "Finish syncing your account." : "Choose how to sign in."}</Text>
           <Text style={styles.cardBody}>{signedInButRejected ? "Your sign-in is active, but Side Quest Chess needs to refresh your account before saving progress." : "Sign in to save progress, verify proof, manage Multiplayer Quests, and keep your Coat of Arms progress synced."}</Text>
+          {!signedInButRejected && authBridge.startAppleSignIn ? <NativeAppleSignInButton onPress={authBridge.startAppleSignIn} /> : null}
           <Pressable accessibilityRole="button" accessibilityLabel={primaryLabel} testID="account-primary-sign-in" style={signedInButRejected ? styles.primaryButtonWide : styles.secondaryButtonWide} onPress={handlePrimaryPress}>
             {signedInButRejected ? <Text style={styles.primaryButtonText}>{primaryLabel}</Text> : <SocialSignInButtonContent provider="google" label={primaryLabel} textStyle={styles.secondaryButtonText} />}
           </Pressable>
@@ -9811,25 +9959,81 @@ function ChessUsernameEditor({
 }
 
 function PasswordAuthPanel({ authBridge, onAccountUpdated }: { authBridge: MobileAuthBridge; onAccountUpdated: AccountUpdatedCallback }) {
-  const [mode, setMode] = useState<"sign-in" | "sign-up">("sign-in");
+  const [mode, setMode] = useState<"sign-in" | "sign-up" | "reset">("sign-in");
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [verificationCode, setVerificationCode] = useState("");
   const [pendingVerificationIdentifier, setPendingVerificationIdentifier] = useState<string | null>(null);
+  const [pendingResetIdentifier, setPendingResetIdentifier] = useState<string | null>(null);
+  const [resetCodeVerified, setResetCodeVerified] = useState(false);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const passwordAuthAvailable = Boolean(authBridge.startPasswordSignIn && authBridge.startPasswordSignUp);
+  const passwordResetAvailable = Boolean(authBridge.startPasswordReset && authBridge.verifyPasswordResetCode && authBridge.completePasswordReset);
   const waitingForVerification = mode === "sign-up" && Boolean(pendingVerificationIdentifier);
-  const submitLabel = mode === "sign-in" ? "Sign in with password" : waitingForVerification ? "Verify and create account" : "Create password account";
+  const waitingForResetCode = mode === "reset" && Boolean(pendingResetIdentifier);
+  const submitLabel = mode === "sign-in"
+    ? "Sign in with password"
+    : mode === "reset"
+      ? !waitingForResetCode ? "Send reset code" : resetCodeVerified ? "Reset password" : "Verify reset code"
+      : waitingForVerification ? "Verify and create account" : "Create password account";
 
   function resetVerificationState() {
     setPendingVerificationIdentifier(null);
+    setPendingResetIdentifier(null);
+    setResetCodeVerified(false);
     setVerificationCode("");
   }
 
   async function submitPasswordAuth() {
     const cleanIdentifier = identifier.trim();
+    if (mode === "reset") {
+      if (!passwordResetAvailable) {
+        setMessage(null);
+        setError("Password reset is unavailable in this build.");
+        return;
+      }
+      if (!cleanIdentifier || (waitingForResetCode && !resetCodeVerified && verificationCode.trim().length === 0) || (resetCodeVerified && password.length < 8)) {
+        setMessage(null);
+        setError(!waitingForResetCode ? "Enter the email address for your Side Quest Chess account." : resetCodeVerified ? "Enter a new password of at least 8 characters." : "Enter the email code for your password reset.");
+        return;
+      }
+
+      setBusy(true);
+      setMessage(null);
+      setError(null);
+      try {
+        if (!waitingForResetCode) {
+          const result = await authBridge.startPasswordReset?.({ identifier: cleanIdentifier });
+          setPendingResetIdentifier(result?.identifier ?? cleanIdentifier);
+          setMessage(`Check ${result?.identifier ?? cleanIdentifier} for the password reset code.`);
+          return;
+        }
+
+        if (!resetCodeVerified) {
+          await authBridge.verifyPasswordResetCode?.({ code: verificationCode });
+          setResetCodeVerified(true);
+          setVerificationCode("");
+          setMessage("Code verified. Choose a new password to finish recovery.");
+          return;
+        }
+
+        await authBridge.completePasswordReset?.({ password });
+        setMessage("Password reset complete. Syncing your Side Quest Chess account...");
+        setPendingResetIdentifier(null);
+        setResetCodeVerified(false);
+        setVerificationCode("");
+        setPassword("");
+        await Promise.resolve(onAccountUpdated());
+      } catch (caught) {
+        setError(caught instanceof Error ? caught.message : "Password reset failed.");
+      } finally {
+        setBusy(false);
+      }
+      return;
+    }
+
     if (!passwordAuthAvailable) {
       setMessage(null);
       setError("Password sign-in is unavailable in this build.");
@@ -9894,31 +10098,38 @@ function PasswordAuthPanel({ authBridge, onAccountUpdated }: { authBridge: Mobil
   return (
     <View style={styles.passwordAuthPanel} accessibilityLabel="Username and password sign in">
       <View style={styles.passwordAuthModeRow}>
-        <Pressable accessibilityRole="button" accessibilityState={{ selected: mode === "sign-in" }} style={[styles.passwordAuthModeButton, mode === "sign-in" && styles.passwordAuthModeButtonActive]} onPress={() => { setMode("sign-in"); resetVerificationState(); }}>
+        <Pressable accessibilityRole="button" accessibilityState={{ selected: mode === "sign-in" }} style={[styles.passwordAuthModeButton, mode === "sign-in" && styles.passwordAuthModeButtonActive]} onPress={() => { setMode("sign-in"); resetVerificationState(); setPassword(""); setMessage(null); setError(null); }}>
           <Text style={[styles.passwordAuthModeText, mode === "sign-in" && styles.passwordAuthModeTextActive]}>Sign in</Text>
         </Pressable>
-        <Pressable accessibilityRole="button" accessibilityState={{ selected: mode === "sign-up" }} style={[styles.passwordAuthModeButton, mode === "sign-up" && styles.passwordAuthModeButtonActive]} onPress={() => { setMode("sign-up"); resetVerificationState(); }}>
+        <Pressable accessibilityRole="button" accessibilityState={{ selected: mode === "sign-up" }} style={[styles.passwordAuthModeButton, mode === "sign-up" && styles.passwordAuthModeButtonActive]} onPress={() => { setMode("sign-up"); resetVerificationState(); setPassword(""); setMessage(null); setError(null); }}>
           <Text style={[styles.passwordAuthModeText, mode === "sign-up" && styles.passwordAuthModeTextActive]}>Create</Text>
         </Pressable>
       </View>
       <View style={styles.inputStack}>
-        <Text style={styles.inputLabel}>Email or username</Text>
-        <TextInput value={identifier} placeholder="you@example.com" placeholderTextColor="rgba(255,247,232,.42)" autoCapitalize="none" autoCorrect={false} editable={!waitingForVerification} keyboardType="email-address" style={styles.textInput} onChangeText={(value) => { setIdentifier(value); resetVerificationState(); }} />
+        <Text style={styles.inputLabel}>{mode === "reset" ? "Account email address" : "Email or username"}</Text>
+        <TextInput value={identifier} placeholder="you@example.com" placeholderTextColor="rgba(255,247,232,.42)" autoCapitalize="none" autoCorrect={false} editable={!waitingForVerification && !waitingForResetCode} keyboardType="email-address" style={styles.textInput} onChangeText={(value) => { setIdentifier(value); resetVerificationState(); }} />
       </View>
-      <View style={styles.inputStack}>
-        <Text style={styles.inputLabel}>Password</Text>
-        <TextInput value={password} placeholder="At least 8 characters" placeholderTextColor="rgba(255,247,232,.42)" autoCapitalize="none" autoCorrect={false} editable={!waitingForVerification} secureTextEntry style={styles.textInput} onChangeText={(value) => { setPassword(value); resetVerificationState(); }} />
-      </View>
-      {waitingForVerification ? (
+      {mode !== "reset" || resetCodeVerified ? (
+        <View style={styles.inputStack}>
+          <Text style={styles.inputLabel}>{mode === "reset" ? "New password" : "Password"}</Text>
+          <TextInput value={password} placeholder="At least 8 characters" placeholderTextColor="rgba(255,247,232,.42)" autoCapitalize="none" autoCorrect={false} editable={!waitingForVerification} secureTextEntry style={styles.textInput} onChangeText={(value) => { setPassword(value); if (mode !== "reset") resetVerificationState(); }} />
+        </View>
+      ) : null}
+      {waitingForVerification || (waitingForResetCode && !resetCodeVerified) ? (
         <View style={styles.inputStack}>
           <Text style={styles.inputLabel}>Verification code</Text>
           <TextInput value={verificationCode} placeholder="6-digit email code" placeholderTextColor="rgba(255,247,232,.42)" autoCapitalize="none" autoCorrect={false} keyboardType="number-pad" style={styles.textInput} onChangeText={setVerificationCode} />
         </View>
       ) : null}
-      <Pressable accessibilityRole="button" accessibilityLabel={submitLabel} accessibilityState={{ disabled: busy || !passwordAuthAvailable }} style={[styles.secondaryButtonWide, (busy || !passwordAuthAvailable) && compactStyles.disabledAction]} disabled={busy || !passwordAuthAvailable} onPress={() => void submitPasswordAuth()}>
+      <Pressable accessibilityRole="button" accessibilityLabel={submitLabel} accessibilityState={{ disabled: busy || (mode === "reset" ? !passwordResetAvailable : !passwordAuthAvailable) }} style={[styles.secondaryButtonWide, (busy || (mode === "reset" ? !passwordResetAvailable : !passwordAuthAvailable)) && compactStyles.disabledAction]} disabled={busy || (mode === "reset" ? !passwordResetAvailable : !passwordAuthAvailable)} onPress={() => void submitPasswordAuth()}>
         <Text style={styles.secondaryButtonText}>{busy ? "Working..." : submitLabel}</Text>
       </Pressable>
-      <Text style={styles.microcopy}>{mode === "sign-in" ? "Use this if your Side Quest Chess account has a password." : waitingForVerification ? "Clerk needs this email check before Side Quest Chess can sync the new account." : "Use email for the smoothest setup; username depends on the Clerk auth settings."}</Text>
+      {mode === "sign-in" ? (
+        <Pressable accessibilityRole="button" accessibilityLabel="Forgot password?" onPress={() => { setMode("reset"); resetVerificationState(); setPassword(""); setMessage(null); setError(null); }}>
+          <Text style={styles.microcopy}>Forgot password?</Text>
+        </Pressable>
+      ) : null}
+      <Text style={styles.microcopy}>{mode === "sign-in" ? "Use this if your Side Quest Chess account has a password." : mode === "reset" ? !waitingForResetCode ? "We’ll email a one-time code to the account address." : resetCodeVerified ? "Choose a new password. Other authenticated sessions will be signed out." : "Enter the one-time code from the account email." : waitingForVerification ? "Clerk needs this email check before Side Quest Chess can sync the new account." : "Use email for the smoothest setup; username depends on the Clerk auth settings."}</Text>
       {message ? <Text style={styles.successCopy}>{message}</Text> : null}
       {error ? <Text style={styles.errorCopy}>{error}</Text> : null}
     </View>
@@ -11120,6 +11331,7 @@ const styles = StyleSheet.create({
   disabledWideButton: { alignItems: "center", justifyContent: "center", paddingHorizontal: 14, paddingVertical: 12, borderRadius: 999, borderWidth: 1, borderColor: "rgba(255,247,232,.12)", backgroundColor: "rgba(255,247,232,.045)", opacity: 0.68 },
   disabledSecondaryButtonText: { color: "rgba(255,247,232,.62)", fontWeight: "900" },
   secondaryButtonText: { backgroundColor: "transparent", color: colors.paper, fontWeight: "900" },
+  appleAuthenticationButton: { width: "100%", height: 48 },
   socialButtonContent: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 9 },
   socialButtonIconBadge: { width: 26, height: 26, alignItems: "center", justifyContent: "center", borderRadius: 13, backgroundColor: "rgba(255,255,255,.94)" },
   quickStartCard: { gap: 13, padding: 16, borderRadius: 24, borderWidth: 1, borderColor: "rgba(245,200,106,.34)", backgroundColor: "rgba(255,247,232,.08)" },

@@ -5,6 +5,7 @@ export type MobileAccountLoadOptions<Account> = {
   fetchAccount: (sessionToken: string | null) => Promise<Account>;
   applyAccount: (account: Account) => void;
   applyFallback?: () => void;
+  applySignedInFallback?: () => void;
   fallbackAccount: Account;
 };
 
@@ -15,6 +16,7 @@ export async function loadMobileAccount<Account>({
   fetchAccount,
   applyAccount,
   applyFallback,
+  applySignedInFallback,
   fallbackAccount,
 }: MobileAccountLoadOptions<Account>): Promise<Account> {
   if (!isLoaded) {
@@ -28,7 +30,11 @@ export async function loadMobileAccount<Account>({
     applyAccount(account);
     return account;
   } catch {
-    applyFallback?.();
+    if (isSignedIn) {
+      applySignedInFallback?.();
+    } else {
+      applyFallback?.();
+    }
     return fallbackAccount;
   }
 }

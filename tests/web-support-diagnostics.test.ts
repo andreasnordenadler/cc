@@ -127,6 +127,14 @@ test("signed-out support keeps Android v338 copy diagnostics action reachable", 
   assert.match(html, /Sign in to message support/);
 });
 
+test("signed-out support exposes direct Crowdler contact information", () => {
+  const html = renderToStaticMarkup(React.createElement(MobileSupportScreen, { signedIn: false }));
+
+  assert.match(html, /Crowdler AB/);
+  assert.match(html, /href="mailto:sam@crowdler\.com"/);
+  assert.match(html, /Kvarnängsvägen 15, 182 47 Enebyberg, Sweden/);
+});
+
 test("web support diagnostics include the same account and quest context as Android", () => {
   const diagnostics = buildWebSupportDiagnostics({
     url: "https://sidequestchess.com/support",

@@ -11,8 +11,13 @@ test("Privacy Policy keeps its adopted public content and actions", () => {
 
   assert.equal(metadata.title, "Privacy Policy — Side Quest Chess");
   assert.match(html, /<h1[^>]*>Privacy Policy<\/h1>/);
-  assert.match(html, /<strong>Effective:<\/strong> August 13, 2026/);
+  assert.match(html, /<strong>Effective:<\/strong> August 22, 2026/);
   assert.match(html, /Chess game verification/);
+  assert.match(html, /Safety reports and blocks/);
+  assert.match(html, /reported or blocked account and content identifiers/);
+  assert.match(html, /not copied into an independent moderation system/);
+  assert.match(html, /profile, progress, report, and block data/);
+  assert.match(html, /Deleting a reported or blocked account does not currently remove references to that account from report and block records held by other users/);
   assert.match(html, /Retention and deletion/);
   assert.match(html, /href="mailto:sam@crowdler\.com\?subject=Side%20Quest%20Chess%20privacy%20request"/);
   assert.match(html, /aria-label="Controller information"/);

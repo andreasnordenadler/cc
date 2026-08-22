@@ -14,7 +14,8 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.sidequestchess.app"
+      "bundleIdentifier": "com.sidequestchess.app",
+      "usesAppleSignIn": true
     },
     "android": {
       "package": "com.sidequestchess.app",
@@ -42,6 +43,9 @@
       }
     },
     "owner": "and72nor",
+    "plugins": [
+      "expo-apple-authentication"
+    ],
     "androidStatusBar": {
       "backgroundColor": "#060507",
       "barStyle": "light-content",
