@@ -19,7 +19,7 @@ test("completed Official Solo detail keeps the Android reset capability reachabl
     fs.readFile(new URL("../src/app/challenges/[id]/page.tsx", import.meta.url), "utf8"),
   );
   assert.match(source, /import CompletedOfficialSoloControls from "@\/components\/completed-official-solo-controls"/);
-  assert.match(source, /\{!isActiveChallenge && completed && user \? \([\s\S]*?<CompletedOfficialSoloControls challenge=\{challenge\} proofPath=\{completedProofPath\} \/>[\s\S]*?\) : null\}/);
+  assert.match(source, /primaryAction=\{completed \? \([\s\S]*?user \? <CompletedOfficialSoloControls challenge=\{challenge\} proofPath=\{completedProofPath\} \/> : null[\s\S]*?\) : \(/);
   assert.match(source, /\{isActiveChallenge && completed && user \? \([\s\S]*?<CompletedOfficialSoloControls challenge=\{challenge\} proofPath=\{completedProofPath\} \/>[\s\S]*?\) : null\}/);
 });
 

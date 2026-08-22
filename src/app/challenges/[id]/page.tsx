@@ -13,6 +13,7 @@ import { MobileWebRelativeTime } from "@/components/mobile-web-relative-time";
 import OfficialSoloDetailActions from "@/components/official-solo-detail-actions";
 import OfficialSoloLikeControl from "@/components/official-solo-like-control";
 import OfficialSoloShareControls from "@/components/official-solo-share-controls";
+import ResponsiveOfficialCommandRail from "@/components/responsive-official-command-rail";
 import SoloCoatLightbox from "@/components/solo-coat-lightbox";
 import { CHALLENGES, getChallengeById } from "@/lib/challenges";
 import { getCommunityLikeSummaries } from "@/lib/community-likes";
@@ -230,10 +231,11 @@ export default async function ChallengeDetailPage({
               <p className="sqc-opening-hint">{challenge.openingHint}</p>
             </section>
 
-            <aside className="sqc-quest-command-rail" aria-label="Solo Side Quest actions">
-              <OfficialSoloShareControls id={challenge.id} title={challenge.title} />
-
-              {completed ? null : (
+            <ResponsiveOfficialCommandRail
+              sharing={<OfficialSoloShareControls id={challenge.id} title={challenge.title} />}
+              primaryAction={completed ? (
+                user ? <CompletedOfficialSoloControls challenge={challenge} proofPath={completedProofPath} /> : null
+              ) : (
                 <section className="sqc-native-card sqc-proof-action-card sqc-official-available-action-card">
                   <span className="sqc-card-eyebrow">{user ? "Pick this Side Quest" : "Sign in to start this Side Quest"}</span>
                   <h2>{user ? `${challenge.title} is ready for the royal docket.` : "Sign in to save quest progress."}</h2>
@@ -260,10 +262,7 @@ export default async function ChallengeDetailPage({
                   />
                 </section>
               )}
-              {!isActiveChallenge && completed && user ? (
-                <CompletedOfficialSoloControls challenge={challenge} proofPath={completedProofPath} />
-              ) : null}
-            </aside>
+            />
           </>
         )}
 
