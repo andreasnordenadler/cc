@@ -933,6 +933,7 @@ test("Trophy Cabinet keeps the mobile stack below 1180px and uses the desktop ca
   const css = readFileSync("src/app/mobile-web.css", "utf8");
   const route = readFileSync("src/app/trophy-cabinet/page.tsx", "utf8");
   const desktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1180px)"));
+  const wideDesktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1680px)"));
   const reducedMotion = readCssBlock(css, css.lastIndexOf("@media (prefers-reduced-motion: reduce)"));
 
   assert.match(route, /desktopPresentation="trophy-cabinet"/);
@@ -949,7 +950,28 @@ test("Trophy Cabinet keeps the mobile stack below 1180px and uses the desktop ca
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-trophy-cabinet\.signed-out\s+\.sqc-trophy-collection-summary\s*\{[^}]*grid-column:\s*5\s*\/\s*-1;/);
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-trophy-cabinet\s+\.sqc-trophy-sign-in\s+\.sqc-primary-action\s*\{[^}]*width:\s*fit-content;/);
   assert.match(css, /@media\s*\(prefers-reduced-motion:\s*reduce\)[\s\S]*?\.sqc-mobile-web\.desktop-trophy-cabinet\s+\.sqc-coat-tile\s*\{[^}]*transition:\s*none\s*!important;[^}]*transform:\s*none\s*!important;/);
-  assert.equal(css.replace(desktopMedia, "").replace(reducedMotion, "").includes(".sqc-mobile-web.desktop-trophy-cabinet"), false, "desktop Trophy Cabinet rules must not leak below 1180px");
+  assert.equal(css.replace(desktopMedia, "").replace(wideDesktopMedia, "").replace(reducedMotion, "").includes(".sqc-mobile-web.desktop-trophy-cabinet"), false, "desktop Trophy Cabinet rules must not leak below 1180px");
+});
+
+test("wide Trophy Cabinet turns the complete coat archive into a four-column gallery", () => {
+  const css = readFileSync("src/app/mobile-web.css", "utf8");
+  const wideDesktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1680px)"));
+
+  assert.match(
+    wideDesktopMedia,
+    /\.sqc-mobile-web\.desktop-trophy-cabinet\s+\.sqc-screen\s*\{[^}]*width:\s*min\(1600px,\s*calc\(100%\s*-\s*80px\)\)/,
+    "the archive should use the available wide desktop canvas",
+  );
+  assert.match(
+    wideDesktopMedia,
+    /\.sqc-mobile-web\.desktop-trophy-cabinet\s+\.sqc-trophy-collection-workspace\s*\{[^}]*grid-template-columns:\s*200px\s+minmax\(0,\s*1fr\);/,
+    "the difficulty index should remain a compact navigation rail",
+  );
+  assert.match(
+    wideDesktopMedia,
+    /\.sqc-mobile-web\.desktop-trophy-cabinet\s+\.sqc-coat-grid\s*\{[^}]*grid-template-columns:\s*repeat\(4,\s*minmax\(0,\s*1fr\)\);/,
+    "wide collectors should compare four readable coats per row",
+  );
 });
 
 test("Custom library becomes one desktop workshop without duplicating its filters or create path", () => {
