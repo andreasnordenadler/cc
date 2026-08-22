@@ -24,7 +24,7 @@ This packet supersedes the iOS portions of `SQC_MOBILE_APPLE_PRIVACY_PREP_2026-0
 
 ### Disposable native-generation receipt
 
-A clean detached worktree at the stated source baseline completed `expo prebuild --platform ios --no-install` on 2026-08-21 without Apple access or signing. The generated project was inspected and discarded; it was not adopted as release source.
+A clean detached worktree at branch commit `1ec2401b45d209db722bcb13c9194a318cc094c4` completed `expo prebuild --platform ios --no-install` on 2026-08-22 without Apple access or signing. The generated project was inspected and discarded; it was not adopted as release source. The frozen lockfile SHA-256 was `06215d237672b2d31765d3af7e4f6a82b50885d3631fc111b307f3d19ce032b7`; the only generated Git state was the untracked `apps/mobile/ios/` tree.
 
 - Generated display name: `Side Quest Chess`.
 - Generated plist short version/build: `0.1.349` / `1`; project build settings also contain `MARKETING_VERSION = 1.0`, so the archive plist—not a single project setting—must control final identity review.
