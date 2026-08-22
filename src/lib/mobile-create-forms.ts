@@ -482,6 +482,7 @@ const allowedClientMessages = [
   /needs a launch-ready/i,
   /only official/i,
   /invite code/i,
+  /objectionable language/i,
 ];
 
 export function getCreateErrorMessage(status: number, payload: unknown) {

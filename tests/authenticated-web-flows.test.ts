@@ -233,12 +233,42 @@ test("custom quest create parses JSON, validates rules, and persists exact norma
   assert.deepEqual(writes, [{ id: "creator-1", quests: [{ id: "custom-fixed", title: "Win nicely", summary: "A useful quest", config: '{"version":1,"logic":"all","blocks":[{"id":"b1","type":"gameResult","result":"win"}]}', visibility: "public", lifecycle: "published", createdAt: "2026-07-12T14:00:00.000Z", updatedAt: "2026-07-12T14:00:00.000Z", badgeImageUrl: "/badges/fixed.png" }], privateMetadata: { preserved: true } }]);
 });
 
+test("custom quest create rejects objectionable public text before reading or writing metadata", async () => {
+  let metadataReads = 0;
+  let writes = 0;
+  const response = await handleCustomQuestCreateRequest(jsonPost("https://sqc.test/api/mobile/custom-quests", {
+    title: "A fucking awful quest",
+    summary: "Keep this out of Community Discover.",
+    config: validConfig,
+    visibility: "public",
+  }), customDependencies({
+    getMetadata: async () => {
+      metadataReads += 1;
+      return { publicMetadata: {}, privateMetadata: {} };
+    },
+    saveCustomQuests: async (_id, quests) => {
+      writes += 1;
+      return quests;
+    },
+  }));
+
+  assert.equal(response.status, 422);
+  assert.deepEqual(await body(response), {
+    apiVersion: 1,
+    authenticated: true,
+    ok: false,
+    message: "Remove objectionable language before publishing this Community Side Quest.",
+  });
+  assert.equal(metadataReads, 0);
+  assert.equal(writes, 0);
+});
+
 test("custom quest draft persists Android v339's empty-rule summary", async () => {
   const config = JSON.stringify({ version: 2, logic: "all", blocks: [] });
   let saved: unknown[] = [];
 
   const response = await handleCustomQuestCreateRequest(jsonPost("https://sqc.test/api/mobile/custom-quests", {
-    title: "Later",
+    title: "A fucking private draft",
     summary: "",
     config,
     visibility: "public",
@@ -246,6 +276,7 @@ test("custom quest draft persists Android v339's empty-rule summary", async () =
   }), customDependencies({ saveCustomQuests: async (_id, quests) => { saved = quests; return quests; } }));
 
   assert.equal(response.status, 200);
+  assert.equal((saved[0] as { title: string }).title, "A fucking private draft");
   assert.equal((saved[0] as { summary: string }).summary, "Add at least one condition before this Side Quest can be scored.");
 });
 
