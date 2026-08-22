@@ -11065,6 +11065,10 @@ body::after {
 }
 
 @media (min-width: 1680px) {
+  .sqc-desktop-header {
+    width: min(1440px, calc(100% - 96px));
+  }
+
   .sqc-desktop-guest,
   .sqc-desktop-signed-in {
     width: min(1440px, calc(100% - 96px));

@@ -43,6 +43,7 @@ test("wide desktop Home grows into a deliberate 1440px canvas", async ({ page })
 
   await page.setViewportSize({ width: 1920, height: 1080 });
   await expect(page.locator(".sqc-desktop-guest")).toHaveCSS("width", "1440px");
+  await expect(page.locator(".sqc-desktop-header")).toHaveCSS("width", "1440px");
   await expect(page.locator(".sqc-desktop-featured-quest")).toBeVisible();
   await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBe(0);
 });
