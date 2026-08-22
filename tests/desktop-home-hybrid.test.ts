@@ -156,6 +156,11 @@ test("wide desktop Home uses the available canvas without stretching the mobile 
 
   assert.match(
     wideDesktopMedia,
+    /\.sqc-desktop-header\s*\{[^}]*width:\s*min\(1440px,\s*calc\(100%\s*-\s*96px\)\)/,
+    "the persistent navigation should share the wide desktop canvas instead of floating inside a narrower 1240px strip",
+  );
+  assert.match(
+    wideDesktopMedia,
     /\.sqc-desktop-guest,\s*\.sqc-desktop-signed-in\s*\{[^}]*width:\s*min\(1440px,\s*calc\(100%\s*-\s*96px\)\)/,
     "guest and authenticated Home should share a deliberate wide desktop canvas",
   );
