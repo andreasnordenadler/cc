@@ -44,7 +44,7 @@ function routeDependencies({ reporterUserId = "reporter", targetUserId = "creato
 
 test.afterEach(() => { globalThis.fetch = originalFetch; });
 
-test("Android creator reporting sends only immutable evidence fields with bearer provenance", async () => {
+test("mobile creator reporting sends only immutable evidence fields with bearer provenance", async () => {
   let sent: Request | null = null;
   globalThis.fetch = async (input, init) => {
     sent = new Request(input, init);
@@ -56,12 +56,12 @@ test("Android creator reporting sends only immutable evidence fields with bearer
   const sentRequest = sent as unknown as Request;
   assert.equal(new URL(sentRequest.url).pathname, "/api/reports/creators");
   assert.equal(sentRequest.headers.get("authorization"), "Bearer session-token");
-  assert.equal(sentRequest.headers.get("x-side-quest-chess-client"), "android");
+  assert.equal(sentRequest.headers.get("x-side-quest-chess-client"), "mobile");
   assert.deepEqual(await sentRequest.json(), { targetType: "community-multiplayer", targetId: "community/table", reason: "repeated abusive behavior" });
   assert.equal(result.reportId, "creator-report-1");
 });
 
-test("Android creator reporting validates before network and rejects overlapping activation", async () => {
+test("mobile creator reporting validates before network and rejects overlapping activation", async () => {
   let requests = 0;
   globalThis.fetch = async () => { requests += 1; return Response.json({ ok: true }); };
   await assert.rejects(submitMobileCommunityCreatorReport({ sessionToken: "token", targetId: " community/table", reason: "abuse" }), /valid Community creator/);
@@ -82,13 +82,13 @@ test("Android creator reporting validates before network and rejects overlapping
   assert.equal(requests, 1);
 });
 
-test("exported creator report route derives canonical identities and preserves unrelated metadata", async (t) => {
+test("exported creator report route accepts current mobile provenance and preserves unrelated metadata", async (t) => {
   const previous = process.env.NODE_ENV;
   setNodeEnv("test");
   t.after(() => setNodeEnv(previous));
   const { dependencies, writes } = routeDependencies();
 
-  const response = await withCreatorReportRouteTestDependencies(dependencies, () => creatorReportPOST(request({ targetType: "community-multiplayer", targetId: "community/table", reason: " repeated   abusive behavior " }, { "x-side-quest-chess-client": "android" })));
+  const response = await withCreatorReportRouteTestDependencies(dependencies, () => creatorReportPOST(request({ targetType: "community-multiplayer", targetId: "community/table", reason: " repeated   abusive behavior " }, { "x-side-quest-chess-client": "mobile" })));
   assert.equal(response.status, 200);
   assert.equal(writes.length, 1);
   assert.equal(writes[0]?.userId, "reporter");
@@ -105,6 +105,19 @@ test("exported creator report route derives canonical identities and preserves u
     reason: "repeated abusive behavior",
     source: "mobile",
   }]);
+});
+
+test("exported creator report route retains legacy Android provenance compatibility", async (t) => {
+  const previous = process.env.NODE_ENV;
+  setNodeEnv("test");
+  t.after(() => setNodeEnv(previous));
+  const { dependencies, writes } = routeDependencies();
+
+  const response = await withCreatorReportRouteTestDependencies(dependencies, () => creatorReportPOST(request({ targetType: "community-multiplayer", targetId: "community/table", reason: "abusive behavior" }, { "x-side-quest-chess-client": "android" })));
+
+  assert.equal(response.status, 200);
+  const saved = writes[0]?.metadata as { privateMetadata: { sqcCreatorReports: Array<{ source: string }> } };
+  assert.equal(saved.privateMetadata.sqcCreatorReports[0]?.source, "mobile");
 });
 
 test("creator report route fails closed for anonymous, spoofed, replica, self, and over-budget requests", async (t) => {
@@ -127,7 +140,7 @@ test("creator report route fails closed for anonymous, spoofed, replica, self, a
   assert.equal(base.writes.length, 0);
 });
 
-test("Android safety sheet exposes distinct Side Quest report, creator report, and block controls", async () => {
+test("mobile safety sheet exposes distinct Side Quest report, creator report, and block controls", async () => {
   const source = await readFile(new URL("../apps/mobile/App.tsx", import.meta.url), "utf8");
   assert.match(source, /createMobileCommunityCreatorReportSubmitter/);
   assert.match(source, /accessibilityLabel="Send Community Multiplayer report"/);

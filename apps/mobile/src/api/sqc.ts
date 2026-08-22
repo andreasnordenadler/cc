@@ -12,6 +12,7 @@ import type {
 
 const DEFAULT_API_BASE_URL = "https://sidequestchess.com";
 const DEFAULT_REQUEST_TIMEOUT_MS = 12000;
+const MOBILE_CLIENT_HEADER = { "X-Side-Quest-Chess-Client": "mobile" };
 
 export function getApiBaseUrl() {
   const configuredBaseUrl = process.env.EXPO_PUBLIC_SQC_API_BASE_URL?.trim() || DEFAULT_API_BASE_URL;
@@ -260,7 +261,7 @@ export async function submitMobileCommunityMultiplayerReport({
 
   const response = await fetchWithTimeout(buildMobileUrl("/api/reports/content"), {
     method: "POST",
-    headers: { ...buildMobileAuthHeaders(sessionToken), "X-Side-Quest-Chess-Client": "android" },
+    headers: { ...buildMobileAuthHeaders(sessionToken), ...MOBILE_CLIENT_HEADER },
     body: JSON.stringify({ targetType: "community-multiplayer", targetId, reason: cleanReason }),
   });
   let result: { ok: boolean; reportId?: string; submittedAt?: string; message?: string };
@@ -301,7 +302,7 @@ export async function submitMobileCommunityCreatorReport({
 
   const response = await fetchWithTimeout(buildMobileUrl("/api/reports/creators"), {
     method: "POST",
-    headers: { ...buildMobileAuthHeaders(sessionToken), "X-Side-Quest-Chess-Client": "android" },
+    headers: { ...buildMobileAuthHeaders(sessionToken), ...MOBILE_CLIENT_HEADER },
     body: JSON.stringify({ targetType: "community-multiplayer", targetId, reason: cleanReason }),
   });
   let result: { ok: boolean; reportId?: string; submittedAt?: string; message?: string };
@@ -334,7 +335,7 @@ export async function blockMobileCommunityCreator({
   if (!/^[A-Za-z0-9][A-Za-z0-9_./:-]{0,119}$/.test(targetId)) throw new Error("Choose a valid Community Multiplayer creator.");
   const response = await fetchWithTimeout(buildMobileUrl("/api/blocks/users"), {
     method: "POST",
-    headers: { ...buildMobileAuthHeaders(sessionToken), "X-Side-Quest-Chess-Client": "android" },
+    headers: { ...buildMobileAuthHeaders(sessionToken), ...MOBILE_CLIENT_HEADER },
     body: JSON.stringify({ targetType: "community-multiplayer", targetId, action: "block" }),
   });
   const result = await readMobileJson<{ ok: boolean; action?: "blocked"; message?: string }>(response, "Community creator block");

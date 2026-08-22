@@ -9,7 +9,7 @@ function setNodeEnv(value: string | undefined) {
   Object.defineProperty(process.env, "NODE_ENV", { value, configurable: true, enumerable: true, writable: true });
 }
 
-test("authenticated Android user blocks the canonical creator behind a public Community Multiplayer quest", async (t) => {
+test("authenticated mobile user blocks the canonical creator behind a public Community Multiplayer quest", async (t) => {
   const previousNodeEnv = process.env.NODE_ENV;
   setNodeEnv("test");
   t.after(() => setNodeEnv(previousNodeEnv));
@@ -30,7 +30,7 @@ test("authenticated Android user blocks the canonical creator behind a public Co
     now: () => new Date("2026-08-03T03:00:00.000Z"),
   }, () => POST(new Request("https://sidequestchess.com/api/blocks/users", {
     method: "POST",
-    headers: { "content-type": "application/json", "x-side-quest-chess-client": "android" },
+    headers: { "content-type": "application/json", "x-side-quest-chess-client": "mobile" },
     body: JSON.stringify({ targetType: "community-multiplayer", targetId: "community/table", action: "block" }),
   })));
 
@@ -50,6 +50,34 @@ test("authenticated Android user blocks the canonical creator behind a public Co
   }]);
 });
 
+test("authenticated legacy Android block retains mobile provenance", async (t) => {
+  const previousNodeEnv = process.env.NODE_ENV;
+  setNodeEnv("test");
+  t.after(() => setNodeEnv(previousNodeEnv));
+  let savedSource: string | undefined;
+
+  const response = await withUserBlockRouteTestDependencies({
+    authenticate: async () => "viewer-user",
+    getClient: async () => ({ users: {
+      getUser: async () => ({ privateMetadata: {} }),
+      updateUserMetadata: async (_userId: string, update: { privateMetadata: Record<string, unknown> }) => {
+        savedSource = (update.privateMetadata.sqcBlockedUsers as Array<{ source: string }>)[0]?.source;
+      },
+    } }) as never,
+    findTarget: async () => ({
+      userId: "creator-user",
+      groupQuest: { id: "community/table", hostUserId: "creator-user", inviteMode: "public", official: false },
+    }) as never,
+  }, () => POST(new Request("https://sidequestchess.com/api/blocks/users", {
+    method: "POST",
+    headers: { "content-type": "application/json", "x-side-quest-chess-client": "android" },
+    body: JSON.stringify({ targetType: "community-multiplayer", targetId: "community/table", action: "block" }),
+  })));
+
+  assert.equal(response.status, 200);
+  assert.equal(savedSource, "mobile");
+});
+
 test("blocked creators are removed from Community Multiplayer discovery without hiding official quests", () => {
   const quests = [
     { id: "blocked", hostUserId: "blocked-user", official: false },
@@ -63,7 +91,7 @@ test("blocked creators are removed from Community Multiplayer discovery without 
   );
 });
 
-test("Android block action sends only the exact Community Multiplayer target", async (t) => {
+test("mobile block action sends only the exact Community Multiplayer target", async (t) => {
   const originalFetch = globalThis.fetch;
   t.after(() => { globalThis.fetch = originalFetch; });
   let captured: { url: string; authorization: string | null; client: string | null; body: unknown } | null = null;
@@ -82,13 +110,13 @@ test("Android block action sends only the exact Community Multiplayer target", a
   assert.deepEqual(captured, {
     url: "https://sidequestchess.com/api/blocks/users",
     authorization: "Bearer session-token",
-    client: "android",
+    client: "mobile",
     body: { targetType: "community-multiplayer", targetId: "community/table", action: "block" },
   });
   assert.equal(result.action, "blocked");
 });
 
-test("Android Community Multiplayer safety sheet exposes a distinct creator-blocking control", () => {
+test("mobile Community Multiplayer safety sheet exposes a distinct creator-blocking control", () => {
   const source = readFileSync(new URL("../apps/mobile/App.tsx", import.meta.url), "utf8");
   assert.match(source, /accessibilityLabel="Block Community creator"/);
   assert.match(source, /blockMobileCommunityCreator\(/);

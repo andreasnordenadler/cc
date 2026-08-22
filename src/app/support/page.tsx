@@ -79,6 +79,13 @@ export default async function SupportPage({
         accent: "rgba(255, 122, 102, .1)",
       }}
     >
+      <section aria-label="Contact Crowdler AB support" className="mx-auto mb-4 w-full max-w-3xl rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white/80">
+        Contact Crowdler AB support at{" "}
+        <a className="font-semibold text-white underline underline-offset-4" href="mailto:sam@crowdler.com">
+          sam@crowdler.com
+        </a>
+        .
+      </section>
       <MobileSupportScreen
         signedIn={Boolean(user)}
         accountContext={accountContext}

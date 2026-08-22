@@ -1,0 +1,225 @@
+import assert from "node:assert/strict";
+import { access, readFile } from "node:fs/promises";
+import path from "node:path";
+import test from "node:test";
+
+const packetPath = path.resolve("docs/IOS_APP_STORE_RELEASE_PACKET_2026-08-16.md");
+const appConfigPath = path.resolve("apps/mobile/app.json");
+const mobilePackagePath = path.resolve("apps/mobile/package.json");
+
+test("iOS preparation packet stays aligned with the source identity and fail-closed gates", async () => {
+  const [packet, configSource, packageSource, appSource] = await Promise.all([
+    readFile(packetPath, "utf8"),
+    readFile(appConfigPath, "utf8"),
+    readFile(mobilePackagePath, "utf8"),
+    readFile(path.resolve("apps/mobile/App.tsx"), "utf8"),
+  ]);
+  const config = JSON.parse(configSource).expo;
+  const mobilePackage = JSON.parse(packageSource);
+
+  assert.equal(config.name, "Side Quest Chess");
+  assert.equal(config.scheme, "sidequestchess");
+  assert.equal(config.ios.bundleIdentifier, "com.sidequestchess.app");
+  assert.equal(config.ios.supportsTablet, true);
+  assert.equal(config.ios.buildNumber, undefined);
+  assert.equal(config.ios.usesAppleSignIn, true);
+  assert.equal(config.ios.config.usesNonExemptEncryption, false);
+  assert.equal(config.ios.infoPlist.NSAppTransportSecurity.NSAllowsArbitraryLoads, false);
+  assert.equal(config.ios.infoPlist.NSAppTransportSecurity.NSAllowsLocalNetworking, true);
+  assert.equal(config.ios.associatedDomains, undefined);
+  assert.equal(config.ios.privacyManifests, undefined);
+  assert.equal(config.owner, "and72nor");
+  assert.equal(config.android.versionCode, 349);
+  assert.equal(mobilePackage.dependencies?.["expo-apple-authentication"], "~8.0.8");
+  assert.match(appSource, /`Application ID: \$\{applicationId\}`/);
+  assert.match(appSource, /Application ID \{candidateIdentity\.applicationId\}\.<\/Text>/);
+  assert.match(appSource, /if \(!__DEV__ \|\| isAuthenticatedAccount\(account\)\) return account;/);
+  assert.doesNotMatch(appSource, /EXPO_PUBLIC_SQC_MOBILE_PREVIEW_AUTH/);
+  assert.doesNotMatch(appSource, /andreas\.nordenadler@gmail\.com/);
+  const previewFixture = appSource.slice(appSource.indexOf("function getDevTrackerPreviewAccount"));
+  assert.doesNotMatch(previewFixture, /\b(?:Andreas|SAM|and72nor)\b/);
+  await assert.rejects(access(path.resolve("apps/mobile/PrivacyInfo.xcprivacy")));
+  await assert.rejects(access(path.resolve("apps/mobile/ios")));
+
+  assert.match(packet, /Upstream baseline:\*\* `5e99adda9a1632642e2f611f115b6db68064746a`/);
+  assert.match(packet, /Reconciled through:\*\* `5e99adda9a1632642e2f611f115b6db68064746a`/);
+  assert.ok(packet.includes(`Current source declares Expo version \`${config.version}\` and Android version code \`${config.android.versionCode}\``));
+  assert.match(packet, /makes no Android approval or public-launch claim/);
+  assert.match(packet, /no verified signed iOS archive, TestFlight build\/install/);
+  assert.ok(packet.includes(`| Bundle ID | \`${config.ios.bundleIdentifier}\` |`));
+  assert.match(packet, /`sidequestchess:\/\/sso-callback`/);
+  assert.match(packet, /Do not use Andreas's personal Apple identity/);
+  assert.match(packet, /\| iOS build number \| Not source-controlled \|/);
+  assert.match(packet, /\| Apple login \| Native Clerk flow, Expo plugin and iOS capability declaration prepared \|/);
+  assert.match(packet, /current deletion implementation does not revoke Apple's authorization\/tokens/i);
+  assert.match(packet, /\| Export compliance \| Source declares exempt-only encryption/);
+  assert.match(packet, /\| App Transport Security \| Source explicitly pins arbitrary network loads off/);
+  assert.match(packet, /\| Privacy manifest \| No app-owned manifest\/config entry \|/);
+  assert.match(packet, /matching server routes must be deployed before distributing this client/i);
+  assert.match(packet, /source still names owner `and72nor` and project `9af73cb2-dcd5-4429-b194-67fc81206937`/i);
+  assert.match(packet, /local preview-account fixture unconditionally development-only/i);
+  assert.match(packet, /signed-out support fallback with `sam@crowdler\.com`/i);
+  assert.match(packet, /Contests are present under Apple's current definition/);
+  assert.match(packet, /Contests \(frequency\): Frequent/);
+  assert.match(packet, /core loop repeatedly presents quests, goals, standings, podiums and trophies/i);
+  const ageRating = packet.slice(packet.indexOf("## 5. Age-rating"), packet.indexOf("## 6. App Privacy"));
+  assert.doesNotMatch(ageRating, /^\- In-app purchases:/m);
+  assert.match(ageRating, /Operating Systems Earlier than Version 26/);
+  for (const descriptor of [
+    "Mature or Suggestive Themes",
+    "Health or Wellness Topics",
+    "Cartoon or Fantasy Violence",
+    "Realistic Violence",
+    "Prolonged Graphic or Sadistic Realistic Violence",
+    "Guns or Other Weapons",
+  ]) {
+    assert.ok(packet.includes(descriptor), `missing age-rating descriptor: ${descriptor}`);
+  }
+  assert.match(packet, /Gambling \(presence\): No/);
+  assert.match(packet, /Loot Boxes \(presence\): No/);
+  assert.match(packet, /Simulated Gambling \(frequency\): None/);
+  assert.match(packet, /Messaging and Chat: Yes/);
+  assert.match(packet, /Identifiers \/ User ID \| App Functionality; Analytics/);
+  assert.match(packet, /Usage Data \/ Product Interaction \| App Functionality; Analytics/);
+  assert.match(packet, /not a complete nutrition label/);
+  assert.match(packet, /Device ID or Other Data Types cannot be ruled out yet/);
+  assert.match(packet, /connected public chess usernames, active solo quest title and multiplayer totals/);
+  assert.match(packet, /classified in their underlying Identifier, Gameplay Content and Product Interaction rows rather than relabeling them as diagnostics/);
+  assert.match(packet, /type `DELETE MY ACCOUNT` → Permanently delete account/);
+  assert.match(packet, /primary and secondary review accounts that do not expire during review or re-review/);
+  assert.match(packet, /report reaches the staffed queue, escalation\/response SLA, removal/);
+  assert.match(packet, /storefront override alone is not access control/);
+  assert.match(packet, /Australia 16\+, Vietnam 16\+ and Republic of Korea 15\+/);
+  assert.match(packet, /report\/block records/);
+  assert.match(packet, /4,000-byte limit/);
+  assert.match(packet, /monitor authentication, APIs, chess-provider fixtures, moderation and deletion throughout review and re-review/);
+  assert.match(packet, /minimum supported iOS\/iPadOS version and the then-current public OS/);
+  assert.match(packet, /Xcode 26 or later and the iOS 26 SDK/);
+  assert.match(packet, /`macos-sequoia-15\.6-xcode-26\.0`/);
+  assert.match(packet, /Xcode 27 beta.*TestFlight.*not.*App Store/i);
+  assert.match(packet, /Starting September 2026.*social-media.*mandatory/i);
+  assert.match(packet, /must.*Override to Higher Age Rating/i);
+  assert.match(packet, /Declared Age Range API/i);
+  assert.match(packet, /complete account and associated personal data/i);
+  assert.match(packet, /profile\/bio, custom and community quests, multiplayer text, posts, creator attribution, likes and support content/i);
+  assert.match(packet, /privacy manifest.*`hermes`/i);
+  assert.match(packet, /Ready to Submit[\s\S]*Waiting for Review[\s\S]*Pending Developer Release/i);
+  assert.match(packet, /90 days/);
+  assert.match(packet, /Support URL.*actual Crowdler AB contact information/i);
+  assert.match(packet, /Support URL[\s\S]*legal address[\s\S]*email[\s\S]*telephone number/i);
+  assert.match(packet, /Tax category[\s\S]*Admin or App Manager[\s\S]*App Store software/i);
+  assert.match(packet, /listed third-party SDK.*must supply its own privacy manifest/i);
+  assert.match(packet, /internal-only.*external TestFlight/i);
+  assert.match(packet, /Beta App Description[\s\S]*Feedback Email[\s\S]*What to Test/i);
+  assert.match(packet, /internal group.*external group/i);
+  assert.match(packet, /localizations may inherit screenshots/i);
+  assert.match(packet, /`1260×2736`, `1290×2796` or `1320×2868`/);
+  assert.match(packet, /`1284×2778` or `1242×2688`/);
+  assert.match(packet, /`2064×2752` or `2048×2732`/);
+  assert.match(packet, /clean temporary `expo prebuild --platform ios --no-install`/);
+  assert.match(packet, /generated `CFBundleShortVersionString = 0\.1\.349` while the Xcode project retains `MARKETING_VERSION = 1\.0`, with build `1`/);
+  assert.match(packet, /`com\.apple\.developer\.applesignin = Default`/);
+  assert.match(packet, /`ITSAppUsesNonExemptEncryption = false`/);
+  assert.match(packet, /No app-target `PrivacyInfo\.xcprivacy` was generated before pod installation/);
+  assert.match(packet, /narrowest role justified by a task-by-task permissions matrix/);
+  assert.match(packet, /Build upload.*Developer/);
+  assert.match(packet, /Age rating.*Marketing/);
+  assert.match(packet, /Privacy data-type responses.*App Manager/);
+  assert.match(packet, /DSA trader compliance.*Account Holder or Admin/);
+  assert.match(packet, /Export-compliance documentation.*App Manager/);
+  assert.match(packet, /Submit an app version.*App Manager/);
+  assert.match(packet, /App Manager with app-scoped access is the narrowest single standard role/i);
+  assert.match(packet, /App Manager inherently retains limited authority to add Developer or Marketing users and manage their app access/i);
+  assert.match(packet, /payment account details[\s\S]*EU law[\s\S]*email and phone verification[\s\S]*supporting documentation/i);
+  assert.match(packet, /TestFlight upload, TestFlight device acceptance, App Review submission, App Review acceptance, release approval and public storefront availability are distinct states/);
+});
+
+test("public support URL exposes the Crowdler controller contact while signed out", async () => {
+  const [supportFormSource, supportPageSource, privacySource, termsSource] = await Promise.all([
+    readFile(path.resolve("src/components/support-contact-form.tsx"), "utf8"),
+    readFile(path.resolve("src/app/support/page.tsx"), "utf8"),
+    readFile(path.resolve("src/app/privacy/page.tsx"), "utf8"),
+    readFile(path.resolve("src/app/terms/page.tsx"), "utf8"),
+  ]);
+  assert.match(supportFormSource, /const SUPPORT_EMAIL = "sam@crowdler\.com";/);
+  assert.doesNotMatch(supportFormSource, /andreas\.nordenadler@gmail\.com/);
+  assert.match(supportPageSource, /Contact Crowdler AB support/);
+  assert.match(supportPageSource, /href="mailto:sam@crowdler\.com"/);
+  assert.match(supportPageSource, />\s*sam@crowdler\.com\s*</);
+  assert.match(privacySource, /sam@crowdler\.com/);
+  assert.match(termsSource, /sam@crowdler\.com/);
+});
+
+test("App Store discovery fields fit Apple's source-level limits and never abbreviate the public name", async () => {
+  const packet = await readFile(packetPath, "utf8");
+  const listing = packet.slice(packet.indexOf("## 4. App Store listing draft"), packet.indexOf("## 5. Age-rating"));
+  const subtitle = listing.match(/\| Subtitle \| ([^|]+) \|/)?.[1];
+  const keywords = listing.match(/`([^`]+)`\n\n\*\*Description:/)?.[1];
+  const promotionalText = listing.match(/\*\*Promotional text:\*\* (.+)/)?.[1];
+  const description = listing.match(/\*\*Description:\*\*\n\n([\s\S]+?)\n\nBefore submission/)?.[1];
+
+  assert.ok(subtitle);
+  assert.ok(keywords);
+  assert.ok(promotionalText);
+  assert.ok(description);
+  assert.equal("Side Quest Chess".length <= 30, true);
+  assert.ok(subtitle.length <= 30, "subtitle exceeds 30 characters");
+  assert.ok(Buffer.byteLength(keywords, "utf8") <= 100, "keywords exceed 100 UTF-8 bytes");
+  assert.doesNotMatch(keywords, /(?:lichess|chesscom|chess\.com)/i, "keywords must not name other apps or companies");
+  assert.doesNotMatch(keywords, /(?:^|,)chess(?:,|$)/i, "keywords must not duplicate the app name");
+  assert.ok(promotionalText.length <= 170, "promotional text exceeds 170 characters");
+  assert.ok(description.length <= 4000, "description exceeds 4,000 characters");
+  assert.doesNotMatch(listing, /\bSQC\b/);
+  assert.match(listing, /\| Name \| Side Quest Chess \|/);
+  assert.match(listing, /\| Primary category \| Games \|/);
+  assert.match(listing, /\| Games subcategories \| Board; Strategy \|/);
+  assert.match(listing, /\| Secondary category \| None proposed;/);
+  assert.doesNotMatch(listing, /\| (?:Primary|Secondary) category \| Games —/);
+  assert.match(listing, /\| Price \| Free \|/);
+  const config = JSON.parse(await readFile(appConfigPath, "utf8")).expo;
+  assert.ok(listing.includes(`| Version | Source candidate \`${config.version}\`;`));
+  assert.match(listing, /\| Availability \| Worldwide target, excluding any territory/);
+  assert.match(listing, /mainland China ISBN\/approval\/ICP applicability/);
+  assert.match(listing, /Vietnam game license/);
+  assert.match(listing, /South Korea RCN only if/);
+  assert.match(listing, /KR-19|Casino.*17\+|Frequent\/Intense/);
+  assert.match(listing, /\| Content rights \| Yes/);
+  assert.match(listing, /\| EU trader status \|/);
+  assert.match(listing, /\| Tax category \|/);
+  assert.match(listing, /\| License agreement \|/);
+  assert.doesNotMatch(keywords, /puzzles/i);
+  assert.match(listing, /\| Copyright \| Verify the year Crowdler AB obtained the exclusive rights/);
+  assert.match(listing, /\| Phased release \| Not applicable to the first version/);
+  assert.match(listing, /\| What's New \| Unavailable for the first version and required for every subsequent version/);
+  assert.match(listing, /\| Release method \| Manual release/);
+});
+
+test("mobile release gate watches both EAS production profile files", async () => {
+  const workflow = await readFile(path.resolve(".github/workflows/mobile-release-gate.yml"), "utf8");
+  assert.match(workflow, /- "eas\.json"/);
+  assert.match(workflow, /- "apps\/mobile\/eas\.json"/);
+});
+
+test("both EAS production profiles pin the App Store-capable Expo SDK 54 iOS image", async () => {
+  const configs = await Promise.all([
+    readFile(path.resolve("eas.json"), "utf8"),
+    readFile(path.resolve("apps/mobile/eas.json"), "utf8"),
+  ]);
+
+  for (const source of configs) {
+    const config = JSON.parse(source);
+    assert.equal(config.build.production.ios.image, "macos-sequoia-15.6-xcode-26.0");
+  }
+});
+
+test("all mobile safety routes retain legacy Android provenance compatibility", async () => {
+  const routes = await Promise.all([
+    readFile(path.resolve("src/app/api/blocks/users/route.ts"), "utf8"),
+    readFile(path.resolve("src/app/api/reports/content/route.ts"), "utf8"),
+    readFile(path.resolve("src/app/api/reports/creators/route.ts"), "utf8"),
+  ]);
+
+  for (const source of routes) {
+    assert.match(source, /\["android", "mobile"\]\.includes\(request\.headers\.get\("x-side-quest-chess-client"\)/);
+  }
+});

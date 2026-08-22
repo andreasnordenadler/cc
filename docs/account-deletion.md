@@ -1,11 +1,11 @@
 # Account deletion
 
-SQC exposes permanent account deletion from **My Account** in both the Next.js web app and the Expo mobile app.
+Side Quest Chess exposes permanent account deletion from **My Account** in both the Next.js web app and the Expo mobile app.
 
 ## User flow
 
 1. The signed-in user opens the account screen and chooses **Delete account**.
-2. SQC explains that deletion is permanent and lists the affected data.
+2. Side Quest Chess explains that deletion is permanent and lists the affected data.
 3. The user must type the exact phrase `DELETE MY ACCOUNT`; the destructive button remains disabled otherwise.
 4. The first-party backend derives the user ID exclusively from the authenticated Clerk session or verified mobile bearer token and calls Clerk's Backend API `users.deleteUser` for that ID.
 5. After success, the client clears/signs out the local session and returns home.
@@ -14,9 +14,11 @@ No endpoint accepts a target user ID. This prevents IDOR: a caller cannot select
 
 ## Data and failure behavior
 
-Clerk deletion permanently removes the Clerk identity and all SQC data owned in that user's Clerk public/private metadata, including profile details, chess usernames, progress, proof records, custom quests, hosted multiplayer metadata, likes, and support messages.
+Clerk deletion permanently removes the Clerk identity and Side Quest Chess data owned in that user's Clerk public/private metadata, including profile details, chess usernames, progress, proof records, custom quests, hosted multiplayer metadata, likes, and support messages. First-party cleanup also removes hosted or joined multiplayer entries replicated into other users' `sqcGroupQuests` metadata.
 
-If Clerk rejects or cannot complete deletion, SQC returns a generic retryable `503` response, does not expose Clerk error details or secrets, and does not report deletion as complete. The UI keeps the user signed in so they can retry. SQC does not call Clerk deletion from the browser or ship `CLERK_SECRET_KEY` to mobile.
+Identifiers can also be replicated into other users' content reports, creator reports, and block records. Current cleanup does not purge or anonymize those references. Store release is therefore blocked until Crowdler approves and publishes the exact lawful retention purpose and period, or the deletion implementation removes/anonymizes those identifiers. Do not tell a user that every associated record is gone until that gate is closed and verified.
+
+If Clerk rejects or cannot complete deletion, Side Quest Chess returns a generic retryable `503` response, does not expose Clerk error details or secrets, and does not report deletion as complete. The UI keeps the user signed in so they can retry. Side Quest Chess does not call Clerk deletion from the browser or ship `CLERK_SECRET_KEY` to mobile.
 
 ## Verification
 

@@ -85,7 +85,7 @@ export async function POST(request: Request) {
     targetId: target.groupQuest.id,
     targetOwnerUserId: target.userId,
     reason,
-    source: request.headers.get("x-side-quest-chess-client") === "android" ? "mobile" : "website",
+    source: ["android", "mobile"].includes(request.headers.get("x-side-quest-chess-client") ?? "") ? "mobile" : "website",
   };
   const nextMetadata = fitWithinMetadataBudget(privateMetadata, report);
   if (!nextMetadata) {

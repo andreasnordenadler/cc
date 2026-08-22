@@ -1,12 +1,13 @@
 /* eslint-disable jsx-a11y/alt-text, @typescript-eslint/no-unused-vars, @typescript-eslint/no-require-imports */
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { ClerkProvider, useAuth, useClerk, useSSO, useSignIn, useSignUp, useUser } from "@clerk/clerk-expo";
+import { ClerkProvider, useAuth, useClerk, useSignInWithApple, useSSO, useSignIn, useSignUp, useUser } from "@clerk/clerk-expo";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import DateTimePicker, { type DateTimePickerEvent } from "@react-native-community/datetimepicker";
 import * as AuthSession from "expo-auth-session";
 import * as WebBrowser from "expo-web-browser";
 import * as Clipboard from "expo-clipboard";
 import * as Application from "expo-application";
+import * as AppleAuthentication from "expo-apple-authentication";
 import { LinearGradient } from "expo-linear-gradient";
 import {
   ActivityIndicator,
@@ -38,7 +39,8 @@ import {
   type TextStyle,
 } from "react-native";
 import { SafeAreaProvider, SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
-import { blockMobileCommunityCreator, buildMobileUrl, getApiBaseUrl, deleteMobileAccount, deleteMobileCustomSideQuest, fetchMobileAccountState, fetchMobileBootstrap, runMobileCommunityLikeAction, runMobileGroupQuestAction, runMobileQuestAction, saveMobileCustomSideQuest, submitMobileSupportMessage, updateMobileChessUsernames } from "./src/api/sqc";
+import { blockMobileCommunityCreator, buildMobileUrl, getApiBaseUrl, deleteMobileCustomSideQuest, fetchMobileAccountState, fetchMobileBootstrap, runMobileCommunityLikeAction, runMobileGroupQuestAction, runMobileQuestAction, saveMobileCustomSideQuest, submitMobileSupportMessage, updateMobileChessUsernames } from "./src/api/sqc";
+import { deleteMobileAccountAndEndSession } from "./src/account/deleteMobileAccount";
 import { findSignedOutPublicMultiplayerQuest, getSignedOutPublicMultiplayerCatalog } from "./src/multiplayer/publicCatalog";
 import { loadMobileAccount } from "./src/account/loadMobileAccount";
 import { clerkPublishableKey, clerkTokenCache, isClerkMobileAuthConfigured } from "./src/auth/clerk";
@@ -1070,6 +1072,7 @@ type MobileAuthBridge = {
   getSessionToken: () => Promise<string | null>;
   startGoogleSignIn?: () => Promise<void>;
   startFacebookSignIn?: () => Promise<void>;
+  startAppleSignIn?: () => Promise<void>;
   startPasswordSignIn?: (credentials: { identifier: string; password: string }) => Promise<void>;
   startPasswordSignUp?: (credentials: { identifier: string; password: string }) => Promise<PasswordSignUpResult>;
   attemptPasswordSignUpVerification?: (params: { code: string }) => Promise<void>;
@@ -1290,6 +1293,7 @@ function ClerkMobileShell() {
   const { getToken, isLoaded, isSignedIn } = useAuth();
   const { signOut } = useClerk();
   const { startSSOFlow } = useSSO();
+  const { startAppleAuthenticationFlow } = useSignInWithApple();
   const { signIn, setActive: setSignInActive, isLoaded: signInLoaded } = useSignIn();
   const { signUp, setActive: setSignUpActive, isLoaded: signUpLoaded } = useSignUp();
   const { user } = useUser();
@@ -1322,6 +1326,27 @@ function ClerkMobileShell() {
 
   const startGoogleSignIn = useCallback(() => startSocialSignIn("oauth_google", "Google"), [startSocialSignIn]);
   const startFacebookSignIn = useCallback(() => startSocialSignIn("oauth_facebook", "Facebook"), [startSocialSignIn]);
+  const startAppleSignIn = useCallback(async () => {
+    try {
+      const result = await startAppleAuthenticationFlow();
+      if (result.createdSessionId && result.setActive) {
+        await result.setActive({ session: result.createdSessionId });
+        return;
+      }
+
+      const signInStatus = result.signIn?.status ?? "unknown";
+      const signUpStatus = result.signUp?.status ?? "unknown";
+      Alert.alert(
+        "Sign-in did not finish",
+        `Apple returned to Side Quest Chess, but Clerk did not create a mobile session yet. Details: signIn=${signInStatus}, signUp=${signUpStatus}.`,
+      );
+    } catch (caught) {
+      const code = typeof caught === "object" && caught !== null && "code" in caught ? String(caught.code) : "";
+      if (code === "ERR_REQUEST_CANCELED") return;
+      const message = caught instanceof Error ? caught.message : "Unknown Apple sign-in error.";
+      Alert.alert("Sign-in error", message);
+    }
+  }, [startAppleAuthenticationFlow]);
 
   const startPasswordSignIn = useCallback(async ({ identifier, password }: { identifier: string; password: string }) => {
     if (!signInLoaded) throw new Error("Sign-in is still loading. Try again in a moment.");
@@ -1386,13 +1411,14 @@ function ClerkMobileShell() {
       getSessionToken: async () => getToken(),
       startGoogleSignIn,
       startFacebookSignIn,
+      startAppleSignIn: Platform.OS === "ios" ? startAppleSignIn : undefined,
       startPasswordSignIn,
       startPasswordSignUp,
       attemptPasswordSignUpVerification,
       signOut,
       signedInLabel,
     }),
-    [attemptPasswordSignUpVerification, getToken, isLoaded, isSignedIn, signOut, signedInLabel, startFacebookSignIn, startGoogleSignIn, startPasswordSignIn, startPasswordSignUp],
+    [attemptPasswordSignUpVerification, getToken, isLoaded, isSignedIn, signOut, signedInLabel, startAppleSignIn, startFacebookSignIn, startGoogleSignIn, startPasswordSignIn, startPasswordSignUp],
   );
 
   return <MobileShell authBridge={authBridge} />;
@@ -1471,6 +1497,10 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
     applyFallback: () => setShell((current) => ({ ...current, account: current.account ?? MOBILE_ACCOUNT_FALLBACK })),
     fallbackAccount: MOBILE_ACCOUNT_FALLBACK,
   }), [authBridge.getSessionToken, authBridge.isLoaded, authBridge.isSignedIn]);
+
+  const clearDeletedAccount = useCallback(() => {
+    setShell((current) => ({ ...current, account: MOBILE_ACCOUNT_FALLBACK }));
+  }, []);
 
   const refreshBoardAndAccount = useCallback(async () => {
     await Promise.all([loadBootstrap({ refresh: true }), loadAccount()]);
@@ -1657,6 +1687,7 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
                 setPendingMultiplayerCreateQuestId(null);
               }}
               onAccountUpdated={loadAccount}
+              onAccountDeleted={clearDeletedAccount}
               onScrollToY={(y, animated = true) => scrollViewRef.current?.scrollTo({ y, animated })}
             />
           </>
@@ -3511,29 +3542,26 @@ function AccountHelpSupportSection({ onOpenHelp }: { onOpenHelp: () => void }) {
 }
 
 const MOBILE_SUPPORT_NOTE_MAX_LENGTH = 900;
-const MOBILE_RELEASE_BASE_URL = "https://github.com/andreasnordenadler/cc/releases/tag";
-const MOBILE_APP_CONFIG = require("./app.json") as { expo?: { version?: string; android?: { package?: string; versionCode?: number } } };
+const MOBILE_APP_CONFIG = require("./app.json") as { expo?: { version?: string; ios?: { bundleIdentifier?: string }; android?: { package?: string; versionCode?: number } } };
 
 function getMobileCandidateIdentity() {
   const appVersion = Application.nativeApplicationVersion ?? MOBILE_APP_CONFIG.expo?.version ?? "unknown";
-  const androidPackage = Application.applicationId ?? MOBILE_APP_CONFIG.expo?.android?.package ?? "unknown";
-  const nativeBuildVersion = Application.nativeBuildVersion ? Number(Application.nativeBuildVersion) : undefined;
-  const androidVersionCode = Number.isFinite(nativeBuildVersion) ? nativeBuildVersion : MOBILE_APP_CONFIG.expo?.android?.versionCode;
-  const releaseCandidate = androidVersionCode ? `mobile-v${androidVersionCode}` : "unknown";
-  const releaseUrl = androidVersionCode ? `${MOBILE_RELEASE_BASE_URL}/${releaseCandidate}` : null;
+  const configuredApplicationId = Platform.OS === "ios"
+    ? MOBILE_APP_CONFIG.expo?.ios?.bundleIdentifier
+    : MOBILE_APP_CONFIG.expo?.android?.package;
+  const applicationId = Application.applicationId ?? configuredApplicationId ?? "unknown";
+  const nativeBuildVersion = Application.nativeBuildVersion ?? (Platform.OS === "android" ? String(MOBILE_APP_CONFIG.expo?.android?.versionCode ?? "") : null) ?? "unknown";
 
-  return { appVersion, androidPackage, androidVersionCode, releaseCandidate, releaseUrl };
+  return { appVersion, applicationId, nativeBuildVersion };
 }
 
 function buildMobileSupportDiagnostics(signedIn: MobileAccountState | null) {
-  const { appVersion, androidPackage, androidVersionCode, releaseCandidate, releaseUrl } = getMobileCandidateIdentity();
+  const { appVersion, applicationId, nativeBuildVersion } = getMobileCandidateIdentity();
 
   return [
     "Side Quest Chess mobile diagnostics",
-    `App version: ${appVersion}${androidVersionCode ? ` (${androidVersionCode})` : ""}`,
-    `Package ID: ${androidPackage}`,
-    `Release candidate: ${releaseCandidate} GitHub Release APK`,
-    `Release URL: ${releaseUrl ?? "unknown"}`,
+    `App version: ${appVersion} (build ${nativeBuildVersion})`,
+    `Application ID: ${applicationId}`,
     `Platform: ${Platform.OS} ${Platform.Version}`,
     `API base: ${getApiBaseUrl()}`,
     `Account: ${signedIn ? signedIn.profile.displayName ? `signed in as ${signedIn.profile.displayName}` : "signed in" : "not signed in"}`,
@@ -3639,9 +3667,8 @@ function HelpSupportModal({ visible, onClose, signedIn, authBridge, initialMessa
             </Pressable>
             {diagnosticsOpen ? (
               <View style={compactStyles.diagnosticsBody}>
-                <Text style={compactStyles.detailPanelTitle}>{candidateIdentity.releaseCandidate}</Text>
-                <Text style={compactStyles.detailPanelCopy}>App version {candidateIdentity.appVersion}{candidateIdentity.androidVersionCode ? ` (${candidateIdentity.androidVersionCode})` : ""}. Package {candidateIdentity.androidPackage}.</Text>
-                {candidateIdentity.releaseUrl ? <Text style={compactStyles.detailPanelCopy}>{candidateIdentity.releaseUrl}</Text> : null}
+                <Text style={compactStyles.detailPanelTitle}>Installed app identity</Text>
+                <Text style={compactStyles.detailPanelCopy}>App version {candidateIdentity.appVersion} (build {candidateIdentity.nativeBuildVersion}). Application ID {candidateIdentity.applicationId}.</Text>
               </View>
             ) : null}
           </View>
@@ -5943,7 +5970,19 @@ function SocialSignInButtonContent({ provider, label, textStyle }: { provider: "
   );
 }
 
-function AccountTrackerDashboard({ bootstrap, account, authBridge, onSelectTab, onSelectChallenge, onOpenCompletedQuestDetail, onAccountUpdated, onScrollToY }: { bootstrap: MobileBootstrap; account: MobileAccountResponse | null; authBridge: MobileAuthBridge; onSelectTab: (tab: AppTab) => void; onSelectChallenge: (challengeId: string, nextTab?: AppTab) => void; onOpenChallengeDetail: (challengeId: string) => void; onOpenCompletedQuestDetail: (challengeId: string) => void; onAccountUpdated: AccountUpdatedCallback; onScrollToY: (y: number, animated?: boolean) => void }) {
+function NativeAppleSignInButton({ onPress }: { onPress: () => Promise<void> }) {
+  return (
+    <AppleAuthentication.AppleAuthenticationButton
+      buttonType={AppleAuthentication.AppleAuthenticationButtonType.SIGN_IN}
+      buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.WHITE_OUTLINE}
+      cornerRadius={24}
+      style={styles.appleAuthenticationButton}
+      onPress={() => void onPress()}
+    />
+  );
+}
+
+function AccountTrackerDashboard({ bootstrap, account, authBridge, onSelectTab, onSelectChallenge, onOpenCompletedQuestDetail, onAccountUpdated, onAccountDeleted, onScrollToY }: { bootstrap: MobileBootstrap; account: MobileAccountResponse | null; authBridge: MobileAuthBridge; onSelectTab: (tab: AppTab) => void; onSelectChallenge: (challengeId: string, nextTab?: AppTab) => void; onOpenChallengeDetail: (challengeId: string) => void; onOpenCompletedQuestDetail: (challengeId: string) => void; onAccountUpdated: AccountUpdatedCallback; onAccountDeleted: () => void; onScrollToY: (y: number, animated?: boolean) => void }) {
   const signedIn = isAuthenticatedAccount(account) ? account : null;
   const [helpOpen, setHelpOpen] = useState(false);
   const [usernameEditorY, setUsernameEditorY] = useState(0);
@@ -5960,6 +5999,7 @@ function AccountTrackerDashboard({ bootstrap, account, authBridge, onSelectTab, 
           </View>
           <Text style={compactStyles.heroTitle}>Sign in to sync your board.</Text>
           <Text style={compactStyles.heroCopy}>Sign in to save Side Quest progress, latest proof, Coat of Arms unlocks, and connected chess usernames.</Text>
+          {authBridge.startAppleSignIn ? <NativeAppleSignInButton onPress={authBridge.startAppleSignIn} /> : null}
           <Pressable accessibilityRole="button" accessibilityLabel="Continue with Google" style={styles.secondaryButtonWide} onPress={() => authBridge.startGoogleSignIn ? void authBridge.startGoogleSignIn() : showNativeOnlyNotice("Sign-in is unavailable right now.")}>
             <SocialSignInButtonContent provider="google" label="Continue with Google" textStyle={styles.secondaryButtonText} />
           </Pressable>
@@ -5999,12 +6039,20 @@ function AccountTrackerDashboard({ bootstrap, account, authBridge, onSelectTab, 
     if (deleteConfirmation !== "DELETE MY ACCOUNT" || deletingAccount) return;
     setDeletingAccount(true);
     try {
-      const sessionToken = await authBridge.getSessionToken();
-      await deleteMobileAccount({ sessionToken, confirmation: deleteConfirmation });
-      await authBridge.signOut?.();
+      const { sessionEnded } = await deleteMobileAccountAndEndSession({
+        confirmation: deleteConfirmation,
+        getSessionToken: authBridge.getSessionToken,
+        signOut: authBridge.signOut,
+      });
       setDeleteConfirmation("");
       setShowDeleteAccount(false);
-      Alert.alert("Account deleted", "Your Side Quest Chess account and saved data were permanently deleted.");
+      onAccountDeleted();
+      Alert.alert(
+        "Account deleted",
+        sessionEnded
+          ? "Your Side Quest Chess account was permanently deleted. Safety and abuse-prevention records associated with reports or blocks may be retained."
+          : "Your Side Quest Chess account was permanently deleted. Safety and abuse-prevention records associated with reports or blocks may be retained. Close and reopen the app to clear the expired sign-in session.",
+      );
       onSelectTab("home");
     } catch (caught) {
       Alert.alert("Account not deleted", caught instanceof Error ? caught.message : "Please try again.");
@@ -6533,6 +6581,7 @@ function ActiveScreen({
   pendingMultiplayerCreateQuestId,
   onConsumePendingMultiplayerCreate,
   onAccountUpdated,
+  onAccountDeleted,
   onScrollToY,
 }: {
   activeTab: AppTab;
@@ -6555,6 +6604,7 @@ function ActiveScreen({
   pendingMultiplayerCreateQuestId: string | null;
   onConsumePendingMultiplayerCreate: () => void;
   onAccountUpdated: AccountUpdatedCallback;
+  onAccountDeleted: () => void;
   onScrollToY: (y: number, animated?: boolean) => void;
 }) {
   switch (activeTab) {
@@ -6569,7 +6619,7 @@ function ActiveScreen({
     case "coatOfArms":
       return <CoatBoardDashboard bootstrap={bootstrap} account={account} onOpenChallengeDetail={onOpenChallengeDetail} onOpenCompletedQuestDetail={onOpenCompletedQuestDetail} onClose={() => onSelectTab("home")} />;
     case "account":
-      return <AccountTrackerDashboard bootstrap={bootstrap} account={account} authBridge={authBridge} onSelectTab={onSelectTab} onSelectChallenge={onSelectChallenge} onOpenChallengeDetail={onOpenChallengeDetail} onOpenCompletedQuestDetail={onOpenCompletedQuestDetail} onAccountUpdated={onAccountUpdated} onScrollToY={onScrollToY} />;
+      return <AccountTrackerDashboard bootstrap={bootstrap} account={account} authBridge={authBridge} onSelectTab={onSelectTab} onSelectChallenge={onSelectChallenge} onOpenChallengeDetail={onOpenChallengeDetail} onOpenCompletedQuestDetail={onOpenCompletedQuestDetail} onAccountUpdated={onAccountUpdated} onAccountDeleted={onAccountDeleted} onScrollToY={onScrollToY} />;
   }
 }
 
@@ -9360,6 +9410,7 @@ function AccountShell({
           <Text style={styles.eyebrow}>Account</Text>
           <Text style={styles.cardTitle}>{signedInButRejected ? "Finish syncing your account." : "Choose how to sign in."}</Text>
           <Text style={styles.cardBody}>{signedInButRejected ? "Your sign-in is active, but Side Quest Chess needs to refresh your account before saving progress." : "Sign in to save progress, verify proof, manage Multiplayer Quests, and keep your Coat of Arms progress synced."}</Text>
+          {!signedInButRejected && authBridge.startAppleSignIn ? <NativeAppleSignInButton onPress={authBridge.startAppleSignIn} /> : null}
           <Pressable accessibilityRole="button" accessibilityLabel={primaryLabel} testID="account-primary-sign-in" style={signedInButRejected ? styles.primaryButtonWide : styles.secondaryButtonWide} onPress={handlePrimaryPress}>
             {signedInButRejected ? <Text style={styles.primaryButtonText}>{primaryLabel}</Text> : <SocialSignInButtonContent provider="google" label={primaryLabel} textStyle={styles.secondaryButtonText} />}
           </Pressable>
@@ -9761,7 +9812,7 @@ function ChessUsernameEditor({
         <Text style={styles.inputLabel}>Display name</Text>
         <TextInput
           value={runnerDisplayName}
-          placeholder="e.g. Andreas"
+          placeholder="e.g. Preview Player"
           placeholderTextColor="rgba(255,247,232,.42)"
           maxLength={60}
           style={styles.textInput}
@@ -9966,7 +10017,7 @@ function FlowStep({ title, body, done = false }: { title: string; body: string; 
 
 
 function getDevTrackerPreviewAccount(account: MobileAccountResponse | null, bootstrap: MobileBootstrap): MobileAccountResponse | null {
-  if ((!__DEV__ && process.env.EXPO_PUBLIC_SQC_MOBILE_PREVIEW_AUTH !== "1") || isAuthenticatedAccount(account)) return account;
+  if (!__DEV__ || isAuthenticatedAccount(account)) return account;
 
   const active = bootstrap.challenges.find((challenge) => challenge.id === "queen-never-heard-of-her") ?? bootstrap.challenges[0] ?? null;
   const completed = bootstrap.challenges.filter((challenge) => challenge.id !== active?.id).slice(0, 2);
@@ -9976,15 +10027,15 @@ function getDevTrackerPreviewAccount(account: MobileAccountResponse | null, boot
     authenticated: true,
     generatedAt: new Date().toISOString(),
     profile: {
-      displayName: "Andreas",
-      bio: "App review account",
+      displayName: "Preview Player",
+      bio: "Local development preview",
       imageUrl: null,
-      email: "andreas.nordenadler@gmail.com",
+      email: "preview-player@example.invalid",
       lastSignInAt: new Date().toISOString(),
     },
     chessAccounts: {
-      lichessUsername: "and72nor",
-      chessComUsername: "and72nor",
+      lichessUsername: "preview-player",
+      chessComUsername: "preview-player",
       hasAny: true,
     },
     progress: {
@@ -10028,8 +10079,8 @@ function getDevTrackerPreviewAccount(account: MobileAccountResponse | null, boot
           { label: "Winner", value: "First to complete all included Side Quests wins. If nobody finishes, best completion progress at the deadline wins." },
         ],
         leaderboardRows: [
-          { rank: "#1", name: "SAM", provider: "lichess · and72nor", progress: "3/4", verified: "3/4 verified", note: "Joined this Multiplayer Side Quest" },
-          { rank: "#2", name: "Andreas", provider: "lichess · and72nor", progress: "2/4", verified: "2/4 verified", note: "You" },
+          { rank: "#1", name: "Nora", provider: "lichess · noraforks", progress: "3/4", verified: "3/4 verified", note: "Joined this Multiplayer Side Quest" },
+          { rank: "#2", name: "Preview Player", provider: "lichess · preview-player", progress: "2/4", verified: "2/4 verified", note: "You" },
         ],
       },
     ],
@@ -10077,7 +10128,7 @@ function getDevTrackerPreviewAccount(account: MobileAccountResponse | null, boot
         ],
         leaderboardRows: [
           { rank: "#1", name: "Greta", provider: "lichess · gretafork", progress: "2/2", verified: "2/2 verified", note: "Joined this Multiplayer Side Quest" },
-          { rank: "#4", name: "Andreas", provider: "lichess · and72nor", progress: "1/2", verified: "1/2 verified", note: "You" },
+          { rank: "#4", name: "Preview Player", provider: "lichess · preview-player", progress: "1/2", verified: "1/2 verified", note: "You" },
         ],
       },
       {
@@ -10120,7 +10171,7 @@ function getDevTrackerPreviewAccount(account: MobileAccountResponse | null, boot
           { label: "Winner", value: "Best verified completion progress at the deadline." },
         ],
         leaderboardRows: [
-          { rank: "#1", name: "Andreas", provider: "lichess · and72nor", progress: "2/2", verified: "2/2 verified", note: "Gold" },
+          { rank: "#1", name: "Preview Player", provider: "lichess · preview-player", progress: "2/2", verified: "2/2 verified", note: "Gold" },
           { rank: "#2", name: "Mira", provider: "lichess · miragambit", progress: "2/2", verified: "2/2 verified", note: "Silver" },
           { rank: "#3", name: "Jon", provider: "chess.com · jonforks", progress: "1/2", verified: "1/2 verified", note: "Bronze" },
         ],
@@ -10143,7 +10194,7 @@ function getDevTrackerPreviewAccount(account: MobileAccountResponse | null, boot
         ],
         leaderboardRows: [
           { rank: "#1", name: "Greta", provider: "lichess · gretafork", progress: "2/2", verified: "2/2 verified", note: "Gold" },
-          { rank: "#2", name: "Andreas", provider: "lichess · and72nor", progress: "1/2", verified: "1/2 verified", note: "Silver" },
+          { rank: "#2", name: "Preview Player", provider: "lichess · preview-player", progress: "1/2", verified: "1/2 verified", note: "Silver" },
           { rank: "#3", name: "Sasha", provider: "chess.com · sashaqueenless", progress: "1/2", verified: "1/2 verified", note: "Bronze" },
         ],
       },
@@ -10165,7 +10216,7 @@ function getDevTrackerPreviewAccount(account: MobileAccountResponse | null, boot
         ],
         leaderboardRows: [
           { rank: "#1", name: "Nils", provider: "lichess · nilsgremlin", progress: "2/2", verified: "2/2 verified", note: "Gold" },
-          { rank: "#2", name: "Andreas", provider: "lichess · and72nor", progress: "1/2", verified: "1/2 verified", note: "Silver" },
+          { rank: "#2", name: "Preview Player", provider: "lichess · preview-player", progress: "1/2", verified: "1/2 verified", note: "Silver" },
           { rank: "#3", name: "Mira", provider: "lichess · miragambit", progress: "1/2", verified: "1/2 verified", note: "Bronze" },
         ],
       },
@@ -10188,7 +10239,7 @@ function getDevTrackerPreviewAccount(account: MobileAccountResponse | null, boot
             questTitles: ["Any Game Counts"],
             leaderboardRows: [
               { rank: "#1", name: "Mira", provider: "lichess · miragambit", progress: "1/1", verified: "1/1 verified", note: "Gold" },
-              { rank: "#2", name: "Andreas", provider: "lichess · and72nor", progress: "1/1", verified: "1/1 verified", note: "Silver" },
+              { rank: "#2", name: "Preview Player", provider: "lichess · preview-player", progress: "1/1", verified: "1/1 verified", note: "Silver" },
               { rank: "#3", name: "Jon", provider: "chess.com · jonforks", progress: "1/1", verified: "1/1 verified", note: "Bronze" },
             ],
           },
@@ -10210,7 +10261,7 @@ function getDevTrackerPreviewAccount(account: MobileAccountResponse | null, boot
             timeLeftLabel: "Finished",
             questTitles: ["No Castle Club"],
             leaderboardRows: [
-              { rank: "#1", name: "Andreas", provider: "lichess · and72nor", progress: "1/1", verified: "1/1 verified", note: "Gold" },
+              { rank: "#1", name: "Preview Player", provider: "lichess · preview-player", progress: "1/1", verified: "1/1 verified", note: "Gold" },
               { rank: "#2", name: "Sasha", provider: "chess.com · sashaqueenless", progress: "1/1", verified: "1/1 verified", note: "Silver" },
               { rank: "#3", name: "Nils", provider: "lichess · nilsgremlin", progress: "0/1", verified: "0/1 verified", note: "Bronze" },
             ],
@@ -11120,6 +11171,7 @@ const styles = StyleSheet.create({
   disabledWideButton: { alignItems: "center", justifyContent: "center", paddingHorizontal: 14, paddingVertical: 12, borderRadius: 999, borderWidth: 1, borderColor: "rgba(255,247,232,.12)", backgroundColor: "rgba(255,247,232,.045)", opacity: 0.68 },
   disabledSecondaryButtonText: { color: "rgba(255,247,232,.62)", fontWeight: "900" },
   secondaryButtonText: { backgroundColor: "transparent", color: colors.paper, fontWeight: "900" },
+  appleAuthenticationButton: { width: "100%", height: 48 },
   socialButtonContent: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 9 },
   socialButtonIconBadge: { width: 26, height: 26, alignItems: "center", justifyContent: "center", borderRadius: 13, backgroundColor: "rgba(255,255,255,.94)" },
   quickStartCard: { gap: 13, padding: 16, borderRadius: 24, borderWidth: 1, borderColor: "rgba(245,200,106,.34)", backgroundColor: "rgba(255,247,232,.08)" },
