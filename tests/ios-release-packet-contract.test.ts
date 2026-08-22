@@ -48,13 +48,22 @@ test("iOS release packet distinguishes source-prepared safety disclosures from p
   assert.doesNotMatch(packet, /current privacy policy.*does not explicitly disclose content and creator reports/i);
 });
 
-test("iOS release packet records the current local Xcode and CocoaPods receipt without claiming a build pass", () => {
+test("iOS release packet records the current local Xcode, runtime, and unsigned build receipt without claiming distribution", () => {
   assert.match(packet, /Xcode 26\.6.*iOS 26\.5 SDK/i);
   assert.match(packet, /CocoaPods 1\.17\.0/i);
-  assert.match(packet, /unsigned generic Simulator build.*failed/i);
-  assert.match(packet, /simulator runtime.*not.*registered/i);
+  assert.match(packet, /iOS 26\.5.*runtime.*registered/i);
+  assert.match(packet, /unsigned Release Simulator build.*pass/i);
+  assert.match(packet, /iPhone 17 Pro.*iPad mini.*iPad Pro 13-inch/i);
+  assert.match(packet, /No signed archive.*TestFlight.*physical-iPhone/i);
+  assert.doesNotMatch(packet, /Simulator registration remains locally blocked/i);
+  assert.doesNotMatch(packet, /simulator runtime.*not.*registered/i);
   assert.doesNotMatch(packet, /Full Xcode is unavailable locally/i);
   assert.doesNotMatch(packet, /CocoaPods is unavailable/i);
+});
+
+test("iOS release packet treats Andreas's personal Apple identity as prohibited rather than approvable", () => {
+  assert.match(packet, /Do not use Andreas[’']s personal Apple identity/i);
+  assert.doesNotMatch(packet, /Written approval is required before:[\s\S]*using Andreas[’']s personal Apple identity/i);
 });
 
 test("iOS release packet records keyboard-safe forms without claiming device verification", () => {
