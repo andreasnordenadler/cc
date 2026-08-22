@@ -1352,6 +1352,9 @@ function ClerkMobileShell() {
   const startFacebookSignIn = useCallback(() => startSocialSignIn("oauth_facebook", "Facebook"), [startSocialSignIn]);
   const startAppleSignIn = useCallback(async () => {
     try {
+      if (!signInLoaded || !signUpLoaded) {
+        throw new Error("Sign-in is still loading. Try again in a moment.");
+      }
       const result = await startAppleAuthenticationFlow();
       await completeAppleSignIn(result);
     } catch (caught) {
@@ -1360,7 +1363,7 @@ function ClerkMobileShell() {
       const message = caught instanceof Error ? caught.message : "Unknown Apple sign-in error.";
       Alert.alert("Sign-in error", message);
     }
-  }, [startAppleAuthenticationFlow]);
+  }, [signInLoaded, signUpLoaded, startAppleAuthenticationFlow]);
 
   const startPasswordSignIn = useCallback(async ({ identifier, password }: { identifier: string; password: string }) => {
     if (!signInLoaded) throw new Error("Sign-in is still loading. Try again in a moment.");
@@ -1460,7 +1463,7 @@ function ClerkMobileShell() {
     [appleSignInAvailable, attemptPasswordSignUpVerification, completePasswordReset, getToken, isLoaded, isSignedIn, signOut, signedInLabel, startAppleSignIn, startFacebookSignIn, startGoogleSignIn, startPasswordReset, startPasswordSignIn, startPasswordSignUp, verifyPasswordResetCode],
   );
 
-  return <MobileShell authBridge={authBridge} />;
+  return <MobileShell key={user?.id ?? "signed-out"} authBridge={authBridge} />;
 }
 
 const signedOutAuthBridge: MobileAuthBridge = {

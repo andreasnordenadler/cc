@@ -25,12 +25,20 @@ test("iOS prepares native Sign in with Apple alongside existing account methods"
   assert.equal(appleButtons.length, 2, "both signed-out account surfaces must expose the native Apple button on iOS");
 });
 
-test("Apple sign-in reports incomplete account resolution instead of silently staying signed out", async () => {
+test("Apple sign-in treats Clerk's canceled return shape as a non-error", async () => {
+  assert.equal(
+    await completeAppleSignIn({ createdSessionId: null, setActive: async () => undefined }),
+    "canceled",
+  );
+});
+
+test("Apple sign-in reports an activatable session that cannot be activated", async () => {
   await assert.rejects(
-    completeAppleSignIn({ createdSessionId: null, setActive: undefined }),
+    completeAppleSignIn({ createdSessionId: "session_123", setActive: undefined }),
     /could not finish setting up your account/i,
   );
 
   const appSource = readRepoFile("apps/mobile/App.tsx");
+  assert.match(appSource, /if \(!signInLoaded \|\| !signUpLoaded\)/);
   assert.match(appSource, /await completeAppleSignIn\(result\)/);
 });
