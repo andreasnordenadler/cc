@@ -31,17 +31,43 @@ test("mobile password reset requires an email and the expected Clerk preparation
   );
   assert.equal(calls, 0);
 
-  const unexpectedStateResult = await prepareMobilePasswordReset({
-    identifier: "player@example.com",
-    createSignIn: async () => ({ status: "complete" }),
-  });
-  assert.deepEqual(unexpectedStateResult, { identifier: "player@example.com" });
+  await assert.rejects(
+    prepareMobilePasswordReset({
+      identifier: "player@example.com",
+      createSignIn: async () => ({ status: "complete" }),
+    }),
+    /could not send a reset code/i,
+  );
 
   const maskedFailureResult = await prepareMobilePasswordReset({
     identifier: "player@example.com",
-    createSignIn: async () => { throw new Error("account does not exist: internal-provider-detail"); },
+    createSignIn: async () => {
+      throw { errors: [{ code: "form_identifier_not_found" }] };
+    },
   });
   assert.deepEqual(maskedFailureResult, { identifier: "player@example.com" });
+});
+
+test("mobile password reset reports delivery failures instead of advancing to code verification", async () => {
+  await assert.rejects(
+    prepareMobilePasswordReset({
+      identifier: "player@example.com",
+      createSignIn: async () => {
+        throw new TypeError("Network request failed");
+      },
+    }),
+    /could not send a reset code/i,
+  );
+
+  await assert.rejects(
+    prepareMobilePasswordReset({
+      identifier: "player@example.com",
+      createSignIn: async () => {
+        throw { status: 429, errors: [{ code: "too_many_requests" }] };
+      },
+    }),
+    /could not send a reset code/i,
+  );
 });
 
 test("mobile password reset verifies the code, changes the password, and activates the new session", async () => {

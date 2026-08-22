@@ -3,6 +3,13 @@ type PasswordResetAttemptResult = {
   createdSessionId: string | null;
 };
 
+function isUnknownIdentifierError(error: unknown): boolean {
+  if (typeof error !== "object" || error === null || !("errors" in error) || !Array.isArray(error.errors)) return false;
+  return error.errors.some(
+    (candidate) => typeof candidate === "object" && candidate !== null && "code" in candidate && candidate.code === "form_identifier_not_found",
+  );
+}
+
 export async function prepareMobilePasswordReset({
   identifier,
   createSignIn,
@@ -18,12 +25,13 @@ export async function prepareMobilePasswordReset({
   let result: { status: string | null };
   try {
     result = await createSignIn({ strategy: "reset_password_email_code", identifier: cleanIdentifier });
-  } catch {
-    // Keep account-existence responses indistinguishable; code verification remains fail-closed.
-    return { identifier: cleanIdentifier };
+  } catch (error) {
+    // Keep only the explicit unknown-identifier response indistinguishable.
+    if (isUnknownIdentifierError(error)) return { identifier: cleanIdentifier };
+    throw new Error("We could not send a reset code. Check your connection and try again.");
   }
   if (result.status !== "needs_first_factor") {
-    return { identifier: cleanIdentifier };
+    throw new Error("We could not send a reset code. Check your connection and try again.");
   }
   return { identifier: cleanIdentifier };
 }
