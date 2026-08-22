@@ -2,6 +2,7 @@ import { unstable_noStore as noStore } from "next/cache";
 import { getCommunityLikes, type CommunityLikeSummary } from "@/lib/community-likes";
 import { getCustomSideQuestBadgeUrl, getCustomSideQuests, parseCustomRuleConfig, type CustomSideQuest, type CustomSideQuestRuleBlock } from "@/lib/custom-side-quests";
 import { type ServerGroupQuest } from "@/lib/groupquests";
+import { containsObjectionablePublicText } from "@/lib/ugc-content-filter";
 import { getActiveChallenge, getChallengeAttempts, getChallengeProgress, getPreferredRunnerName, type UserMetadataRecord } from "@/lib/user-metadata";
 
 export type PublicCommunitySideQuest = CustomSideQuest & {
@@ -70,7 +71,7 @@ export async function listPublicCommunitySideQuests(client: ClerkUserListClient,
     const creatorKey = makeCreatorKey(creatorName, user.id);
 
     return records
-      .filter((quest) => quest.lifecycle === "published" && quest.visibility === "public")
+      .filter((quest) => quest.lifecycle === "published" && quest.visibility === "public" && !containsObjectionablePublicText(quest.title, quest.summary))
       .map((quest) => {
         const stats = buildPublicCommunityStats(quest.id, userPublicMetadata, options.groupQuests ?? []);
         return {
