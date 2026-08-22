@@ -85,6 +85,13 @@ test("iOS release packet treats Andreas's personal Apple identity as prohibited 
   assert.doesNotMatch(packet, /Written approval is required before:[\s\S]*using Andreas[’']s personal Apple identity/i);
 });
 
+test("iOS access packet verifies Apple team identity without retaining the Team ID", () => {
+  assert.match(packet, /do not copy the Team ID into chat, logs, or repository artifacts/i);
+  assert.doesNotMatch(packet, /report the Team ID/i);
+  assert.match(packet, /Return receipt:[^\n]*do not include the Team ID/i);
+  assert.match(packet, /approval packet must state[^\n]*must not retain[^\n]*Team ID/i);
+});
+
 test("iOS release packet records keyboard-safe forms without claiming device verification", () => {
   assert.match(packet, /keyboard taps.*iOS keyboard insets/i);
   assert.match(packet, /real-iPhone and iPad.*remain.*blocked/i);
