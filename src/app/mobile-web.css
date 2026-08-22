@@ -11108,6 +11108,10 @@ body::after {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
+  .sqc-mobile-web.desktop-community-discovery .sqc-community-results-layout.single-result {
+    grid-template-columns: minmax(0, 1.7fr) minmax(320px, .65fr);
+  }
+
   .sqc-mobile-web.desktop-custom-library.signed-in:has(.sqc-community-catalog-section > .sqc-catalog:not(.sqc-local-custom-drafts)) .sqc-community-catalog-section > .sqc-catalog:not(.sqc-local-custom-drafts) {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
