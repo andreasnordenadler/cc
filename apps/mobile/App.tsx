@@ -45,6 +45,7 @@ import { finalizeMobileAccountDeletion } from "./src/account/finalizeMobileAccou
 import { loadMobileAccount } from "./src/account/loadMobileAccount";
 import { clerkPublishableKey, clerkTokenCache, isClerkMobileAuthConfigured } from "./src/auth/clerk";
 import { completeAppleSignIn } from "./src/auth/completeAppleSignIn";
+import { completeMobilePasswordReset, prepareMobilePasswordReset, verifyMobilePasswordResetCode as verifyMobilePasswordResetCodeWithClerk } from "./src/auth/mobilePasswordReset";
 import { OFFLINE_MOBILE_BOOTSTRAP } from "./src/data/offlineBootstrap";
 import { shouldStackActiveQuestSummary } from "./src/layout/activeQuestLayout";
 import { createMobileCommunityCreatorReportSubmitter } from "./src/reports/communityCreatorReport";
@@ -1078,6 +1079,9 @@ type MobileAuthBridge = {
   startPasswordSignIn?: (credentials: { identifier: string; password: string }) => Promise<void>;
   startPasswordSignUp?: (credentials: { identifier: string; password: string }) => Promise<PasswordSignUpResult>;
   attemptPasswordSignUpVerification?: (params: { code: string }) => Promise<void>;
+  startPasswordReset?: (params: { identifier: string }) => Promise<{ identifier: string }>;
+  verifyPasswordResetCode?: (params: { code: string }) => Promise<void>;
+  completePasswordReset?: (params: { password: string }) => Promise<void>;
   signOut?: () => Promise<void>;
   signedInLabel: string | null;
 };
@@ -1413,6 +1417,28 @@ function ClerkMobileShell() {
     throw new Error(`Account verification needs another step: ${result.status}.`);
   }, [setSignUpActive, signUp, signUpLoaded]);
 
+  const startPasswordReset = useCallback(async ({ identifier }: { identifier: string }) => {
+    if (!signInLoaded) throw new Error("Password reset is still loading. Try again in a moment.");
+    return prepareMobilePasswordReset({ identifier, createSignIn: (params) => signIn.create(params) });
+  }, [signIn, signInLoaded]);
+
+  const verifyPasswordResetCode = useCallback(async ({ code }: { code: string }) => {
+    if (!signInLoaded || !setSignInActive) throw new Error("Password reset is still loading. Try again in a moment.");
+    await verifyMobilePasswordResetCodeWithClerk({
+      code,
+      attemptFirstFactor: (params) => signIn.attemptFirstFactor(params),
+    });
+  }, [setSignInActive, signIn, signInLoaded]);
+
+  const completePasswordReset = useCallback(async ({ password }: { password: string }) => {
+    if (!signInLoaded || !setSignInActive) throw new Error("Password reset is still loading. Try again in a moment.");
+    await completeMobilePasswordReset({
+      password,
+      resetPassword: (params) => signIn.resetPassword(params),
+      setActive: (params) => setSignInActive(params),
+    });
+  }, [setSignInActive, signIn, signInLoaded]);
+
   const authBridge = useMemo<MobileAuthBridge>(
     () => ({
       configured: true,
@@ -1425,10 +1451,13 @@ function ClerkMobileShell() {
       startPasswordSignIn,
       startPasswordSignUp,
       attemptPasswordSignUpVerification,
+      startPasswordReset,
+      verifyPasswordResetCode,
+      completePasswordReset,
       signOut,
       signedInLabel,
     }),
-    [appleSignInAvailable, attemptPasswordSignUpVerification, getToken, isLoaded, isSignedIn, signOut, signedInLabel, startAppleSignIn, startFacebookSignIn, startGoogleSignIn, startPasswordSignIn, startPasswordSignUp],
+    [appleSignInAvailable, attemptPasswordSignUpVerification, completePasswordReset, getToken, isLoaded, isSignedIn, signOut, signedInLabel, startAppleSignIn, startFacebookSignIn, startGoogleSignIn, startPasswordReset, startPasswordSignIn, startPasswordSignUp, verifyPasswordResetCode],
   );
 
   return <MobileShell authBridge={authBridge} />;
@@ -9871,25 +9900,81 @@ function ChessUsernameEditor({
 }
 
 function PasswordAuthPanel({ authBridge, onAccountUpdated }: { authBridge: MobileAuthBridge; onAccountUpdated: AccountUpdatedCallback }) {
-  const [mode, setMode] = useState<"sign-in" | "sign-up">("sign-in");
+  const [mode, setMode] = useState<"sign-in" | "sign-up" | "reset">("sign-in");
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [verificationCode, setVerificationCode] = useState("");
   const [pendingVerificationIdentifier, setPendingVerificationIdentifier] = useState<string | null>(null);
+  const [pendingResetIdentifier, setPendingResetIdentifier] = useState<string | null>(null);
+  const [resetCodeVerified, setResetCodeVerified] = useState(false);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const passwordAuthAvailable = Boolean(authBridge.startPasswordSignIn && authBridge.startPasswordSignUp);
+  const passwordResetAvailable = Boolean(authBridge.startPasswordReset && authBridge.verifyPasswordResetCode && authBridge.completePasswordReset);
   const waitingForVerification = mode === "sign-up" && Boolean(pendingVerificationIdentifier);
-  const submitLabel = mode === "sign-in" ? "Sign in with password" : waitingForVerification ? "Verify and create account" : "Create password account";
+  const waitingForResetCode = mode === "reset" && Boolean(pendingResetIdentifier);
+  const submitLabel = mode === "sign-in"
+    ? "Sign in with password"
+    : mode === "reset"
+      ? !waitingForResetCode ? "Send reset code" : resetCodeVerified ? "Reset password" : "Verify reset code"
+      : waitingForVerification ? "Verify and create account" : "Create password account";
 
   function resetVerificationState() {
     setPendingVerificationIdentifier(null);
+    setPendingResetIdentifier(null);
+    setResetCodeVerified(false);
     setVerificationCode("");
   }
 
   async function submitPasswordAuth() {
     const cleanIdentifier = identifier.trim();
+    if (mode === "reset") {
+      if (!passwordResetAvailable) {
+        setMessage(null);
+        setError("Password reset is unavailable in this build.");
+        return;
+      }
+      if (!cleanIdentifier || (waitingForResetCode && !resetCodeVerified && verificationCode.trim().length === 0) || (resetCodeVerified && password.length < 8)) {
+        setMessage(null);
+        setError(!waitingForResetCode ? "Enter the email address for your Side Quest Chess account." : resetCodeVerified ? "Enter a new password of at least 8 characters." : "Enter the email code for your password reset.");
+        return;
+      }
+
+      setBusy(true);
+      setMessage(null);
+      setError(null);
+      try {
+        if (!waitingForResetCode) {
+          const result = await authBridge.startPasswordReset?.({ identifier: cleanIdentifier });
+          setPendingResetIdentifier(result?.identifier ?? cleanIdentifier);
+          setMessage(`Check ${result?.identifier ?? cleanIdentifier} for the password reset code.`);
+          return;
+        }
+
+        if (!resetCodeVerified) {
+          await authBridge.verifyPasswordResetCode?.({ code: verificationCode });
+          setResetCodeVerified(true);
+          setVerificationCode("");
+          setMessage("Code verified. Choose a new password to finish recovery.");
+          return;
+        }
+
+        await authBridge.completePasswordReset?.({ password });
+        setMessage("Password reset complete. Syncing your Side Quest Chess account...");
+        setPendingResetIdentifier(null);
+        setResetCodeVerified(false);
+        setVerificationCode("");
+        setPassword("");
+        await Promise.resolve(onAccountUpdated());
+      } catch (caught) {
+        setError(caught instanceof Error ? caught.message : "Password reset failed.");
+      } finally {
+        setBusy(false);
+      }
+      return;
+    }
+
     if (!passwordAuthAvailable) {
       setMessage(null);
       setError("Password sign-in is unavailable in this build.");
@@ -9954,31 +10039,38 @@ function PasswordAuthPanel({ authBridge, onAccountUpdated }: { authBridge: Mobil
   return (
     <View style={styles.passwordAuthPanel} accessibilityLabel="Username and password sign in">
       <View style={styles.passwordAuthModeRow}>
-        <Pressable accessibilityRole="button" accessibilityState={{ selected: mode === "sign-in" }} style={[styles.passwordAuthModeButton, mode === "sign-in" && styles.passwordAuthModeButtonActive]} onPress={() => { setMode("sign-in"); resetVerificationState(); }}>
+        <Pressable accessibilityRole="button" accessibilityState={{ selected: mode === "sign-in" }} style={[styles.passwordAuthModeButton, mode === "sign-in" && styles.passwordAuthModeButtonActive]} onPress={() => { setMode("sign-in"); resetVerificationState(); setPassword(""); setMessage(null); setError(null); }}>
           <Text style={[styles.passwordAuthModeText, mode === "sign-in" && styles.passwordAuthModeTextActive]}>Sign in</Text>
         </Pressable>
-        <Pressable accessibilityRole="button" accessibilityState={{ selected: mode === "sign-up" }} style={[styles.passwordAuthModeButton, mode === "sign-up" && styles.passwordAuthModeButtonActive]} onPress={() => { setMode("sign-up"); resetVerificationState(); }}>
+        <Pressable accessibilityRole="button" accessibilityState={{ selected: mode === "sign-up" }} style={[styles.passwordAuthModeButton, mode === "sign-up" && styles.passwordAuthModeButtonActive]} onPress={() => { setMode("sign-up"); resetVerificationState(); setPassword(""); setMessage(null); setError(null); }}>
           <Text style={[styles.passwordAuthModeText, mode === "sign-up" && styles.passwordAuthModeTextActive]}>Create</Text>
         </Pressable>
       </View>
       <View style={styles.inputStack}>
-        <Text style={styles.inputLabel}>Email or username</Text>
-        <TextInput value={identifier} placeholder="you@example.com" placeholderTextColor="rgba(255,247,232,.42)" autoCapitalize="none" autoCorrect={false} editable={!waitingForVerification} keyboardType="email-address" style={styles.textInput} onChangeText={(value) => { setIdentifier(value); resetVerificationState(); }} />
+        <Text style={styles.inputLabel}>{mode === "reset" ? "Account email address" : "Email or username"}</Text>
+        <TextInput value={identifier} placeholder="you@example.com" placeholderTextColor="rgba(255,247,232,.42)" autoCapitalize="none" autoCorrect={false} editable={!waitingForVerification && !waitingForResetCode} keyboardType="email-address" style={styles.textInput} onChangeText={(value) => { setIdentifier(value); resetVerificationState(); }} />
       </View>
-      <View style={styles.inputStack}>
-        <Text style={styles.inputLabel}>Password</Text>
-        <TextInput value={password} placeholder="At least 8 characters" placeholderTextColor="rgba(255,247,232,.42)" autoCapitalize="none" autoCorrect={false} editable={!waitingForVerification} secureTextEntry style={styles.textInput} onChangeText={(value) => { setPassword(value); resetVerificationState(); }} />
-      </View>
-      {waitingForVerification ? (
+      {mode !== "reset" || resetCodeVerified ? (
+        <View style={styles.inputStack}>
+          <Text style={styles.inputLabel}>{mode === "reset" ? "New password" : "Password"}</Text>
+          <TextInput value={password} placeholder="At least 8 characters" placeholderTextColor="rgba(255,247,232,.42)" autoCapitalize="none" autoCorrect={false} editable={!waitingForVerification} secureTextEntry style={styles.textInput} onChangeText={(value) => { setPassword(value); if (mode !== "reset") resetVerificationState(); }} />
+        </View>
+      ) : null}
+      {waitingForVerification || (waitingForResetCode && !resetCodeVerified) ? (
         <View style={styles.inputStack}>
           <Text style={styles.inputLabel}>Verification code</Text>
           <TextInput value={verificationCode} placeholder="6-digit email code" placeholderTextColor="rgba(255,247,232,.42)" autoCapitalize="none" autoCorrect={false} keyboardType="number-pad" style={styles.textInput} onChangeText={setVerificationCode} />
         </View>
       ) : null}
-      <Pressable accessibilityRole="button" accessibilityLabel={submitLabel} accessibilityState={{ disabled: busy || !passwordAuthAvailable }} style={[styles.secondaryButtonWide, (busy || !passwordAuthAvailable) && compactStyles.disabledAction]} disabled={busy || !passwordAuthAvailable} onPress={() => void submitPasswordAuth()}>
+      <Pressable accessibilityRole="button" accessibilityLabel={submitLabel} accessibilityState={{ disabled: busy || (mode === "reset" ? !passwordResetAvailable : !passwordAuthAvailable) }} style={[styles.secondaryButtonWide, (busy || (mode === "reset" ? !passwordResetAvailable : !passwordAuthAvailable)) && compactStyles.disabledAction]} disabled={busy || (mode === "reset" ? !passwordResetAvailable : !passwordAuthAvailable)} onPress={() => void submitPasswordAuth()}>
         <Text style={styles.secondaryButtonText}>{busy ? "Working..." : submitLabel}</Text>
       </Pressable>
-      <Text style={styles.microcopy}>{mode === "sign-in" ? "Use this if your Side Quest Chess account has a password." : waitingForVerification ? "Clerk needs this email check before Side Quest Chess can sync the new account." : "Use email for the smoothest setup; username depends on the Clerk auth settings."}</Text>
+      {mode === "sign-in" ? (
+        <Pressable accessibilityRole="button" accessibilityLabel="Forgot password?" onPress={() => { setMode("reset"); resetVerificationState(); setPassword(""); setMessage(null); setError(null); }}>
+          <Text style={styles.microcopy}>Forgot password?</Text>
+        </Pressable>
+      ) : null}
+      <Text style={styles.microcopy}>{mode === "sign-in" ? "Use this if your Side Quest Chess account has a password." : mode === "reset" ? !waitingForResetCode ? "We’ll email a one-time code to the account address." : resetCodeVerified ? "Choose a new password. Other authenticated sessions will be signed out." : "Enter the one-time code from the account email." : waitingForVerification ? "Clerk needs this email check before Side Quest Chess can sync the new account." : "Use email for the smoothest setup; username depends on the Clerk auth settings."}</Text>
       {message ? <Text style={styles.successCopy}>{message}</Text> : null}
       {error ? <Text style={styles.errorCopy}>{error}</Text> : null}
     </View>

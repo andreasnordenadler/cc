@@ -21,3 +21,9 @@ test("iOS review packet does not treat an ordinary demo account as a substitute 
   assert.match(packet, /Do not assume that the ordinary email\/password demo account substitutes for provider-specific SSO review access/);
   assert.doesNotMatch(packet, /ordinary demo account gives full review access while the SSO path itself remains testable/);
 });
+
+test("iOS release packet records the recoverable password-reset source receipt without claiming device verification", () => {
+  assert.match(packet, /password reset/i);
+  assert.match(packet, /signs out other authenticated sessions/i);
+  assert.match(packet, /exact-candidate.*not verified/i);
+});
