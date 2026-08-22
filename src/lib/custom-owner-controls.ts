@@ -91,7 +91,10 @@ export async function saveCustomOwnerState(
     headers: { "content-type": "application/json" },
     body: JSON.stringify(body),
   });
-  const result = await response.json().catch(() => null);
+  const result = await response.json().catch(() => null) as { ok?: unknown; customQuest?: { id?: unknown }; message?: unknown } | null;
+  if (!response.ok && response.status === 422 && result?.message === "Remove objectionable language before publishing this Community Side Quest.") {
+    throw new Error(result.message);
+  }
   return response.ok ? getCustomOwnerDestination(result, quest.id) : null;
 }
 

@@ -1405,6 +1405,13 @@ test("Custom save failures retain safe actionable validation after the Android h
   );
 });
 
+test("public Custom save explains how to correct objectionable text", () => {
+  assert.equal(
+    getCustomSaveErrorMessage("published", 422, { message: "Remove objectionable language before publishing this Community Side Quest." }),
+    "Could not publish Side Quest. Remove objectionable language before publishing this Community Side Quest.",
+  );
+});
+
 test("new Custom form renders lifecycle-specific failure feedback for response and network failures", async () => {
   const form = await source("src/components/mobile-custom-create-form.tsx");
 

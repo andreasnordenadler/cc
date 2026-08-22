@@ -24,7 +24,13 @@ export default function CustomSideQuestOwnerControls({ quest, active = false }: 
       setMessage(getCustomOwnerStateSavedMessage(quest.title, next));
       const reloadDestination = getCustomOwnerStateReloadDestination(destination, next);
       if (reloadDestination) window.location.assign(reloadDestination);
-    } catch { setMessage("Could not save this Side Quest right now. Please try again."); }
+    } catch (caught) {
+      if (caught instanceof Error && caught.message === "Remove objectionable language before publishing this Community Side Quest.") {
+        setMessage(caught.message);
+      } else {
+        setMessage("Could not save this Side Quest right now. Please try again.");
+      }
+    }
     finally { setBusy(""); }
   }
 
