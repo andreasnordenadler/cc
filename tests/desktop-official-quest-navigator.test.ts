@@ -4,6 +4,7 @@ import test from "node:test";
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import DesktopOfficialQuestNavigator from "../src/components/desktop-official-quest-navigator";
+import { getOfficialCommandRailItems } from "../src/components/responsive-official-command-rail";
 import { CHALLENGES } from "../src/lib/challenges";
 
 function render(currentId: string) {
@@ -61,6 +62,27 @@ test("available quest desktop utilities and primary action share one command sur
   assert.match(css, /\.sqc-quest-command-rail\s*\{[^}]*display:\s*contents;/);
   assert.match(desktopOfficialDetail, /\.sqc-mobile-web\.desktop-official-detail\s+\.sqc-official-solo-detail-screen\s*>\s*\.sqc-quest-command-rail\s*\{[^}]*padding:\s*12px;[^}]*border:\s*1px\s+solid\s+rgba\(245,\s*200,\s*106,\s*\.2\);[^}]*border-radius:\s*30px;[^}]*background:\s*rgba\(0,\s*0,\s*0,\s*\.22\);/);
   assert.match(desktopOfficialDetail, /\.sqc-mobile-web\.desktop-official-detail\s+\.sqc-quest-command-rail\s*>\s*\.sqc-proof-action-card\s*\{[^}]*border:\s*0;/);
+  assert.doesNotMatch(desktopOfficialDetail, /\.sqc-mobile-web\.desktop-official-detail\s+\.sqc-quest-command-rail\s*>\s*\.sqc-proof-action-card\s*\{[^}]*[;{]\s*order\s*:/, "visual order must not diverge from keyboard and screen-reader order");
+});
+
+test("official command rail changes its real reading order only for desktop", () => {
+  const primary = React.createElement("button", { key: "primary" }, "Start this Side Quest");
+  const sharing = React.createElement("button", { key: "sharing" }, "Share public link");
+
+  assert.deepEqual(getOfficialCommandRailItems(true, primary, sharing), [
+    { key: "primary", content: primary },
+    { key: "sharing", content: sharing },
+  ]);
+  assert.deepEqual(getOfficialCommandRailItems(false, primary, sharing), [
+    { key: "sharing", content: sharing },
+    { key: "primary", content: primary },
+  ]);
+
+  const completedManagement = React.createElement("section", { key: "completed", "aria-label": "Completed Solo Side Quest management" });
+  assert.deepEqual(getOfficialCommandRailItems(true, completedManagement, sharing), [
+    { key: "primary", content: completedManagement },
+    { key: "sharing", content: sharing },
+  ]);
 });
 
 test("active quest desktop workspace keeps proof evidence in the reading column and the next action in a sticky command rail", () => {
