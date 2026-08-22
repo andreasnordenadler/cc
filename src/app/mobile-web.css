@@ -11127,6 +11127,18 @@ body::after {
   .sqc-mobile-web.desktop-custom-library.signed-in:has(.sqc-community-catalog-section > .sqc-catalog:not(.sqc-local-custom-drafts)) .sqc-community-catalog-section > .sqc-catalog:not(.sqc-local-custom-drafts) {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
+
+  .sqc-mobile-web.desktop-trophy-cabinet .sqc-screen {
+    width: min(1600px, calc(100% - 80px));
+  }
+
+  .sqc-mobile-web.desktop-trophy-cabinet .sqc-trophy-collection-workspace {
+    grid-template-columns: 200px minmax(0, 1fr);
+  }
+
+  .sqc-mobile-web.desktop-trophy-cabinet .sqc-coat-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
 }
 
 @media (min-width: 1180px) and (max-width: 1280px) {

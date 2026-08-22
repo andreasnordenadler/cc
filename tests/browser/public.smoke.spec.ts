@@ -174,6 +174,11 @@ test("desktop Trophy Cabinet turns coat previews into decision-ready collection 
   expect(objectiveGeometry.every(({ clientHeight, scrollHeight }) => scrollHeight <= clientHeight + 1)).toBe(true);
   expect(await grid.getByRole("link").last().evaluate((tile) => getComputedStyle(tile).gridColumnStart)).toBe("2");
   expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBe(0);
+
+  await page.setViewportSize({ width: 1920, height: 1080 });
+  expect(await grid.evaluate((element) => getComputedStyle(element).gridTemplateColumns.split(" ").length)).toBe(4);
+  expect(await grid.getByRole("link").first().evaluate((tile) => tile.getBoundingClientRect().width)).toBeGreaterThan(300);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBe(0);
 });
 
 test("desktop Trophy Cabinet difficulty directory filters the shared coat collection", async ({ page }) => {
