@@ -69,6 +69,28 @@ test("desktop Home headline keeps a stable editorial rhythm as the canvas widens
   expect(wideLineCount).toBeLessThanOrEqual(3.05);
 });
 
+test("desktop Home uses one side-by-side command deck while mobile keeps the original flow", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/", { waitUntil: "domcontentloaded" });
+
+  const commandDeck = page.locator(".sqc-desktop-command-deck");
+  const ritual = page.locator(".sqc-desktop-loop");
+  const picker = page.locator(".sqc-desktop-quest-shelf");
+  await expect(commandDeck).toHaveCSS("display", "grid");
+  await expect.poll(async () => {
+    const [ritualBox, pickerBox] = await Promise.all([ritual.boundingBox(), picker.boundingBox()]);
+    return Boolean(ritualBox && pickerBox && Math.abs(ritualBox.y - pickerBox.y) < 1 && pickerBox.x > ritualBox.x + ritualBox.width);
+  }).toBe(true);
+  await expect(picker.locator(".sqc-desktop-path-card")).toHaveCount(3);
+  await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBe(0);
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expect(commandDeck).toHaveCSS("display", "contents");
+  await expect(ritual).toBeHidden();
+  await expect(picker).toBeHidden();
+  await expect(page.getByRole("heading", { name: "Sign in to continue." })).toBeVisible();
+});
+
 test("desktop Home ritual link reveals the complete section below sticky navigation", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto("/", { waitUntil: "domcontentloaded" });

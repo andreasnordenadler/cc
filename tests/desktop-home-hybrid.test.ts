@@ -150,6 +150,20 @@ test("desktop Home turns Android heroism choices into a decision workspace", () 
   assert.match(desktopMedia, /\.sqc-desktop-random-quest:focus-visible\s*\{[^}]*outline:\s*3px\s+solid/);
 });
 
+test("desktop Home combines the ritual and quest picker into one wide command deck without changing mobile flow", () => {
+  const html = renderToStaticMarkup(createElement(MobileAppWebShell, { activeTab: "home", signedIn: false }));
+  const css = readFileSync("src/app/mobile-web.css", "utf8");
+  const mobileCss = css.slice(0, css.indexOf("@media (min-width: 1180px)"));
+  const desktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1180px)"));
+
+  assert.match(html, /<div class="sqc-desktop-command-deck">[\s\S]*class="sqc-desktop-loop"[\s\S]*class="sqc-desktop-quest-shelf"[\s\S]*<\/div>/);
+  assert.match(mobileCss, /\.sqc-desktop-command-deck\s*\{[^}]*display:\s*contents;/);
+  assert.match(desktopMedia, /\.sqc-desktop-command-deck\s*\{[^}]*display:\s*grid;[^}]*grid-template-columns:\s*minmax\(0,\s*\.82fr\)\s+minmax\(0,\s*1\.18fr\);/);
+  assert.match(desktopMedia, /\.sqc-desktop-command-deck\s*>\s*\.sqc-desktop-loop,\s*\.sqc-desktop-command-deck\s*>\s*\.sqc-desktop-quest-shelf\s*\{[^}]*margin-top:\s*0;/);
+  assert.match(desktopMedia, /\.sqc-desktop-command-deck\s+\.sqc-desktop-loop\s+ol\s*\{[^}]*grid-template-columns:\s*repeat\(2,\s*minmax\(0,\s*1fr\)\);/);
+  assert.match(desktopMedia, /\.sqc-desktop-command-deck\s+\.sqc-desktop-path-grid\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\);/);
+});
+
 test("wide desktop Home uses the available canvas without stretching the mobile composition", () => {
   const css = readFileSync("src/app/mobile-web.css", "utf8");
   const wideDesktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1680px)"));
@@ -194,6 +208,7 @@ test("signed-in desktop home guides setup while retaining the existing app home"
   assert.match(html, />Play and verify<\/strong>/);
   assert.match(html, /class="sqc-current-card/);
   assert.equal(html.match(/class="sqc-current-card/g)?.length, 1, "signed-in Home should render one interactive current-card subtree");
+  assert.doesNotMatch(html, /sqc-desktop-command-deck/, "the guest command deck cannot leak into signed-in Home");
   assert.equal(html.match(/class="sqc-desktop-sign-in" href="\/account"/g)?.length, 1, "signed-in desktop header exposes one dedicated account destination");
   assert.match(html, /class="sqc-desktop-home-only sqc-desktop-home-header-only"[\s\S]*class="sqc-desktop-header-shell"[\s\S]*<\/header><\/div><\/div><div class="sqc-desktop-signed-in sqc-responsive-signed-home">/);
   assert.match(html, /<nav class="sqc-desktop-dashboard-summary" aria-label="Quest log summary">/);
@@ -248,6 +263,7 @@ test("Solo discovery renders one catalog plus desktop navigation with the correc
 
   assert.doesNotMatch(html, /sqc-desktop-home-only/);
   assert.doesNotMatch(html, /sqc-app-only/);
+  assert.doesNotMatch(html, /sqc-desktop-command-deck/, "the Home-only command deck cannot leak into discovery routes");
   assert.match(html, /class="sqc-desktop-route-only"/);
   assert.match(html, /aria-label="Desktop shortcuts"/);
   assert.match(html, /<a[^>]*aria-current="page"[^>]*href="\/side-quests">Solo Side Quests<\/a>/);
