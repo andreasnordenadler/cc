@@ -8,7 +8,9 @@ on:
       - "scripts/mobile-release-lib.mjs"
       - "scripts/check-mobile-release-candidate.mjs"
       - "scripts/install-mobile-release-candidate.mjs"
+      - "scripts/check-generated-ios-config.mjs"
       - "tests/mobile-release-provenance.test.ts"
+      - "tests/ios-generated-config.test.ts"
       - "src/app/api/mobile/**"
       - "src/lib/mobile-auth.ts"
       - "package.json"
@@ -56,6 +58,8 @@ jobs:
           CI: "1"
           NODE_ENV: production
         run: pnpm --dir apps/mobile exec expo prebuild --platform ios --no-install
+      - name: Inspect generated iOS identity, deep link, transport security, and entitlement
+        run: node scripts/check-generated-ios-config.mjs apps/mobile/ios
       - name: Remove generated iOS project before managed-config checks
         run: |
           node -e "require('node:fs').rmSync('apps/mobile/ios', { recursive: true, force: true })"

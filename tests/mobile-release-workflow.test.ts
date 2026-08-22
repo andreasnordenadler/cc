@@ -107,13 +107,15 @@ test("pull-request release gate validates iOS and Android native generation with
   assert.match(pullRequestJob, /expo prebuild --platform ios --no-install/);
   assert.match(pullRequestJob, /expo prebuild --platform android --no-install/);
   assert.match(pullRequestJob, /Generate iOS project from Expo config \(unsigned source gate\)/);
+  assert.match(pullRequestJob, /node scripts\/check-generated-ios-config\.mjs apps\/mobile\/ios/);
 
   const iosPrebuildIndex = pullRequestJob.indexOf("expo prebuild --platform ios --no-install");
+  const iosInspectionIndex = pullRequestJob.indexOf("node scripts/check-generated-ios-config.mjs apps/mobile/ios");
   const iosCleanupIndex = pullRequestJob.indexOf("rmSync('apps/mobile/ios', { recursive: true, force: true })");
   const androidPrebuildIndex = pullRequestJob.indexOf("expo prebuild --platform android --no-install");
   assert.ok(
-    iosPrebuildIndex < iosCleanupIndex && iosCleanupIndex < androidPrebuildIndex,
-    "generated iOS tree must be removed before Android generation and managed-config checks",
+    iosPrebuildIndex < iosInspectionIndex && iosInspectionIndex < iosCleanupIndex && iosCleanupIndex < androidPrebuildIndex,
+    "generated iOS config must be inspected before cleanup, Android generation, and managed-config checks",
   );
   assert.doesNotMatch(
     pullRequestJob,
