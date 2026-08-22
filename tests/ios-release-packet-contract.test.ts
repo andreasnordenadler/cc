@@ -42,17 +42,19 @@ test("iOS release packet approval-gates the remaining app-record and privacy-pol
   assert.match(packet, /must not download or export.*certificates.*profiles.*API keys.*credentials/i);
 });
 
-test("iOS release packet distinguishes source-prepared safety disclosures from production evidence", () => {
-  assert.match(packet, /report and block disclosures are source-prepared/i);
-  assert.match(packet, /production deployment and signed-out readback remain blocked/i);
+test("iOS release packet records the production safety-policy readback without claiming label completion", () => {
+  assert.match(packet, /live signed-out policy.*report.*block.*deletion/i);
+  assert.match(packet, /label reconciliation.*blocked/i);
+  assert.doesNotMatch(packet, /production deployment and signed-out readback remain blocked/i);
   assert.doesNotMatch(packet, /current privacy policy.*does not explicitly disclose content and creator reports/i);
 });
 
-test("iOS release packet records the current local Xcode and CocoaPods receipt without claiming a build pass", () => {
+test("iOS release packet records the current local simulator build and launch receipt without claiming archive evidence", () => {
   assert.match(packet, /Xcode 26\.6.*iOS 26\.5 SDK/i);
   assert.match(packet, /CocoaPods 1\.17\.0/i);
-  assert.match(packet, /unsigned generic Simulator build.*failed/i);
-  assert.match(packet, /simulator runtime.*not.*registered/i);
+  assert.match(packet, /Release Simulator build.*passed/i);
+  assert.match(packet, /iPhone 17 Pro.*iPad Pro 13-inch \(M5\).*launched/i);
+  assert.match(packet, /signed archive.*not.*produced/i);
   assert.doesNotMatch(packet, /Full Xcode is unavailable locally/i);
   assert.doesNotMatch(packet, /CocoaPods is unavailable/i);
 });

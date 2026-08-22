@@ -48,9 +48,10 @@ import { completeAppleSignIn } from "./src/auth/completeAppleSignIn";
 import { completeMobilePasswordReset, prepareMobilePasswordReset, verifyMobilePasswordResetCode as verifyMobilePasswordResetCodeWithClerk } from "./src/auth/mobilePasswordReset";
 import { OFFLINE_MOBILE_BOOTSTRAP } from "./src/data/offlineBootstrap";
 import { shouldStackActiveQuestSummary } from "./src/layout/activeQuestLayout";
+import { shouldUseDevTrackerPreview } from "./src/preview/devTrackerPreview";
 import { createMobileCommunityCreatorReportSubmitter } from "./src/reports/communityCreatorReport";
 import { canReportCommunityMultiplayerQuest, createMobileCommunityReportSubmitter } from "./src/reports/communityMultiplayerReport";
-import { buildMobileSupportMessage } from "./src/support/buildMobileSupportMessage";
+import { buildMobileSupportMessage, canComposeMobileSupportMessage } from "./src/support/buildMobileSupportMessage";
 import { getMobileCandidateIdentity as resolveMobileCandidateIdentity, type MobileCandidateConfig } from "./src/support/mobileCandidateIdentity";
 import type { MobileAccountResponse, MobileAccountState, MobileBootstrap, MobileChallenge, MobileCustomSideQuest, MobileGroupQuestParticipantRow, MobileGroupQuestSummary, MobileSupportMessage } from "./src/types/sqc";
 
@@ -3620,6 +3621,7 @@ function HelpSupportModal({ visible, onClose, signedIn, authBridge, initialMessa
   const [submitState, setSubmitState] = useState<{ busy: boolean; message: string | null; error: string | null }>({ busy: false, message: null, error: null });
   const [diagnosticsOpen, setDiagnosticsOpen] = useState(false);
   const candidateIdentity = getMobileCandidateIdentity();
+  const canComposeSupportMessage = canComposeMobileSupportMessage({ isSignedIn: authBridge.isSignedIn, hasSessionTokenGetter: typeof authBridge.getSessionToken === "function" });
   const supportThread = [...(signedIn?.supportMessages ?? []), ...localSupportMessages]
     .sort((a, b) => Date.parse(a.at) - Date.parse(b.at));
 
@@ -3629,7 +3631,7 @@ function HelpSupportModal({ visible, onClose, signedIn, authBridge, initialMessa
   }
 
   async function submitSupport() {
-    if (!authBridge.isSignedIn || !authBridge.getSessionToken) {
+    if (!canComposeSupportMessage) {
       setSubmitState({ busy: false, message: null, error: "Sign in first so the support note can attach to your account." });
       return;
     }
@@ -3739,6 +3741,7 @@ function HelpSupportModal({ visible, onClose, signedIn, authBridge, initialMessa
 
           <View style={compactStyles.multiplayerNativeCard}>
             <Text style={compactStyles.multiplayerCardEyebrow}>Report a problem</Text>
+            {canComposeSupportMessage ? (<>
             <Text style={compactStyles.detailPanelCopy}>Something not working? Send a short note with what you tried and what happened. We can reply here if we need more details.</Text>
             <View style={compactStyles.helpSupportThread}>
               <Text style={compactStyles.appRowTitle}>Conversation</Text>
@@ -3788,6 +3791,12 @@ function HelpSupportModal({ visible, onClose, signedIn, authBridge, initialMessa
             <Pressable accessibilityRole="button" accessibilityLabel="Copy support details" style={compactStyles.detailPrimaryButton} onPress={() => void copySupportDetails()}>
               <Text style={compactStyles.detailPrimaryButtonText}>Copy support details</Text>
             </Pressable>
+            </>) : (<>
+              <Text style={compactStyles.detailPanelCopy}>Support messages stay attached to a signed-in Side Quest Chess account. For help without signing in, open the public support page to view contact details.</Text>
+              <Pressable accessibilityRole="button" accessibilityLabel="Open public support" style={compactStyles.detailPrimaryButton} onPress={() => void openLegalPage("/support", "public support")}>
+                <Text style={compactStyles.detailPrimaryButtonText}>Open public support</Text>
+              </Pressable>
+            </>)}
           </View>
         </ScrollHintedScrollView>
       </SafeAreaView>
@@ -9909,7 +9918,7 @@ function ChessUsernameEditor({
         <Text style={styles.inputLabel}>Display name</Text>
         <TextInput
           value={runnerDisplayName}
-          placeholder="e.g. Andreas"
+          placeholder="e.g. Alex"
           placeholderTextColor="rgba(255,247,232,.42)"
           maxLength={60}
           style={styles.textInput}
@@ -10177,7 +10186,7 @@ function FlowStep({ title, body, done = false }: { title: string; body: string; 
 
 
 function getDevTrackerPreviewAccount(account: MobileAccountResponse | null, bootstrap: MobileBootstrap): MobileAccountResponse | null {
-  if ((!__DEV__ && process.env.EXPO_PUBLIC_SQC_MOBILE_PREVIEW_AUTH !== "1") || isAuthenticatedAccount(account)) return account;
+  if (!shouldUseDevTrackerPreview({ isDev: __DEV__, authenticated: isAuthenticatedAccount(account) })) return account;
 
   const active = bootstrap.challenges.find((challenge) => challenge.id === "queen-never-heard-of-her") ?? bootstrap.challenges[0] ?? null;
   const completed = bootstrap.challenges.filter((challenge) => challenge.id !== active?.id).slice(0, 2);
@@ -10187,15 +10196,15 @@ function getDevTrackerPreviewAccount(account: MobileAccountResponse | null, boot
     authenticated: true,
     generatedAt: new Date().toISOString(),
     profile: {
-      displayName: "Andreas",
-      bio: "App review account",
+      displayName: "Preview Player",
+      bio: "Development preview account",
       imageUrl: null,
-      email: "andreas.nordenadler@gmail.com",
+      email: null,
       lastSignInAt: new Date().toISOString(),
     },
     chessAccounts: {
-      lichessUsername: "and72nor",
-      chessComUsername: "and72nor",
+      lichessUsername: "preview_player",
+      chessComUsername: "preview_player",
       hasAny: true,
     },
     progress: {
@@ -10239,8 +10248,8 @@ function getDevTrackerPreviewAccount(account: MobileAccountResponse | null, boot
           { label: "Winner", value: "First to complete all included Side Quests wins. If nobody finishes, best completion progress at the deadline wins." },
         ],
         leaderboardRows: [
-          { rank: "#1", name: "SAM", provider: "lichess · and72nor", progress: "3/4", verified: "3/4 verified", note: "Joined this Multiplayer Side Quest" },
-          { rank: "#2", name: "Andreas", provider: "lichess · and72nor", progress: "2/4", verified: "2/4 verified", note: "You" },
+          { rank: "#1", name: "Jordan", provider: "lichess · jordan_preview", progress: "3/4", verified: "3/4 verified", note: "Joined this Multiplayer Side Quest" },
+          { rank: "#2", name: "Preview Player", provider: "lichess · preview_player", progress: "2/4", verified: "2/4 verified", note: "You" },
         ],
       },
     ],
@@ -10288,7 +10297,7 @@ function getDevTrackerPreviewAccount(account: MobileAccountResponse | null, boot
         ],
         leaderboardRows: [
           { rank: "#1", name: "Greta", provider: "lichess · gretafork", progress: "2/2", verified: "2/2 verified", note: "Joined this Multiplayer Side Quest" },
-          { rank: "#4", name: "Andreas", provider: "lichess · and72nor", progress: "1/2", verified: "1/2 verified", note: "You" },
+          { rank: "#4", name: "Preview Player", provider: "lichess · preview_player", progress: "1/2", verified: "1/2 verified", note: "You" },
         ],
       },
       {
@@ -10331,7 +10340,7 @@ function getDevTrackerPreviewAccount(account: MobileAccountResponse | null, boot
           { label: "Winner", value: "Best verified completion progress at the deadline." },
         ],
         leaderboardRows: [
-          { rank: "#1", name: "Andreas", provider: "lichess · and72nor", progress: "2/2", verified: "2/2 verified", note: "Gold" },
+          { rank: "#1", name: "Preview Player", provider: "lichess · preview_player", progress: "2/2", verified: "2/2 verified", note: "Gold" },
           { rank: "#2", name: "Mira", provider: "lichess · miragambit", progress: "2/2", verified: "2/2 verified", note: "Silver" },
           { rank: "#3", name: "Jon", provider: "chess.com · jonforks", progress: "1/2", verified: "1/2 verified", note: "Bronze" },
         ],
@@ -10354,7 +10363,7 @@ function getDevTrackerPreviewAccount(account: MobileAccountResponse | null, boot
         ],
         leaderboardRows: [
           { rank: "#1", name: "Greta", provider: "lichess · gretafork", progress: "2/2", verified: "2/2 verified", note: "Gold" },
-          { rank: "#2", name: "Andreas", provider: "lichess · and72nor", progress: "1/2", verified: "1/2 verified", note: "Silver" },
+          { rank: "#2", name: "Preview Player", provider: "lichess · preview_player", progress: "1/2", verified: "1/2 verified", note: "Silver" },
           { rank: "#3", name: "Sasha", provider: "chess.com · sashaqueenless", progress: "1/2", verified: "1/2 verified", note: "Bronze" },
         ],
       },
@@ -10376,7 +10385,7 @@ function getDevTrackerPreviewAccount(account: MobileAccountResponse | null, boot
         ],
         leaderboardRows: [
           { rank: "#1", name: "Nils", provider: "lichess · nilsgremlin", progress: "2/2", verified: "2/2 verified", note: "Gold" },
-          { rank: "#2", name: "Andreas", provider: "lichess · and72nor", progress: "1/2", verified: "1/2 verified", note: "Silver" },
+          { rank: "#2", name: "Preview Player", provider: "lichess · preview_player", progress: "1/2", verified: "1/2 verified", note: "Silver" },
           { rank: "#3", name: "Mira", provider: "lichess · miragambit", progress: "1/2", verified: "1/2 verified", note: "Bronze" },
         ],
       },
@@ -10399,7 +10408,7 @@ function getDevTrackerPreviewAccount(account: MobileAccountResponse | null, boot
             questTitles: ["Any Game Counts"],
             leaderboardRows: [
               { rank: "#1", name: "Mira", provider: "lichess · miragambit", progress: "1/1", verified: "1/1 verified", note: "Gold" },
-              { rank: "#2", name: "Andreas", provider: "lichess · and72nor", progress: "1/1", verified: "1/1 verified", note: "Silver" },
+              { rank: "#2", name: "Preview Player", provider: "lichess · preview_player", progress: "1/1", verified: "1/1 verified", note: "Silver" },
               { rank: "#3", name: "Jon", provider: "chess.com · jonforks", progress: "1/1", verified: "1/1 verified", note: "Bronze" },
             ],
           },
@@ -10421,7 +10430,7 @@ function getDevTrackerPreviewAccount(account: MobileAccountResponse | null, boot
             timeLeftLabel: "Finished",
             questTitles: ["No Castle Club"],
             leaderboardRows: [
-              { rank: "#1", name: "Andreas", provider: "lichess · and72nor", progress: "1/1", verified: "1/1 verified", note: "Gold" },
+              { rank: "#1", name: "Preview Player", provider: "lichess · preview_player", progress: "1/1", verified: "1/1 verified", note: "Gold" },
               { rank: "#2", name: "Sasha", provider: "chess.com · sashaqueenless", progress: "1/1", verified: "1/1 verified", note: "Silver" },
               { rank: "#3", name: "Nils", provider: "lichess · nilsgremlin", progress: "0/1", verified: "0/1 verified", note: "Bronze" },
             ],

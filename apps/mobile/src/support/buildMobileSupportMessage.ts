@@ -4,6 +4,10 @@ type MobileSupportMessageInput = {
   includeDiagnostics: boolean;
 };
 
+export function canComposeMobileSupportMessage(input: { isSignedIn: boolean; hasSessionTokenGetter: boolean }): boolean {
+  return input.isSignedIn && input.hasSessionTokenGetter;
+}
+
 export function buildMobileSupportMessage({
   message,
   diagnostics,
