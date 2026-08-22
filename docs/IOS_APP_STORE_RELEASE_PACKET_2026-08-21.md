@@ -16,7 +16,7 @@ This packet supersedes the iOS portions of `SQC_MOBILE_APPLE_PRIVACY_PREP_2026-0
 - `supportsTablet` is `true`; iPad build, responsive QA, and screenshots are therefore release gates.
 - Source offers email/password, Google, and Facebook login. It does **not** offer Sign in with Apple or declare its capability. Apple Review Guideline 4.8 therefore remains a source blocker unless the final login set qualifies for a documented exception.
 - No deliberate iOS build number is source-controlled. The EAS production profile has `autoIncrement: true` with local app-version sourcing, while a disposable clean prebuild currently defaults to build `1`; neither establishes the next available App Store Connect number or a reproducible first iOS candidate. No final privacy manifest report, signed IPA, TestFlight build, or physical-iPhone callback proof exists.
-- The live Support page is reachable, but its signed-out rendering does not expose Crowdler AB's legal address, email address, or telephone number. Apple requires the Support URL to lead to actual contact information as required by local law, so the listing remains blocked until this is corrected and re-read from production.
+- The live Support page is reachable, but its signed-out production rendering does not expose direct Crowdler AB contact information. This branch now adds the already-published Crowdler AB email and legal address to the signed-out Support screen with regression coverage. Apple requires the Support URL to lead to actual contact information as required by local law, so the listing remains blocked until the change is deployed and re-read from production; owner/legal must also confirm whether a telephone number is locally required.
 - Guideline 1.2 UGC readiness is a source blocker, not merely a QA question: public profile/quest/invite/bio inputs have no verified objectionable-content filter; content/creator reports are written into each reporter's private Clerk metadata with no implemented central operator queue found; and creator blocking filters Community discovery for that user rather than proving comprehensive interaction blocking. Filtering, queue delivery, staffed response/removal operations, and block coverage must be implemented and tested before submission.
 - Full Xcode is unavailable locally: `/Library/Developer/CommandLineTools` is selected and `xcodebuild` rejects it. No valid local Apple signing identity is verified.
 - Any upload candidate must also be built with Xcode 26 or later and the iOS/iPadOS 26 SDK or later under Apple's requirement effective 2026-04-28; this lane cannot verify that toolchain yet.
@@ -52,7 +52,7 @@ A clean detached worktree at the stated source baseline completed `expo prebuild
 | Privacy labels | Draft only | Backend/provider/SDK/manifest/network reconciliation against exact IPA |
 | Age rating / 13+ access | Draft only | Live questionnaire receipt and owner/legal-approved 13+ eligibility behavior |
 | Screenshots | Blocked | Fresh same-candidate iPhone and iPad captures |
-| Support URL contact | Blocked | Production signed-out page exposes the required legal address, email and telephone contact and accepts issue/feedback contact |
+| Support URL contact | Source fix pending deployment | Production signed-out page exposes the verified legal address and direct email, accepts issue/feedback contact, and includes a telephone number if owner/legal confirms it is locally required |
 | Content rights | Blocked | Owner/legal-approved answer and evidence covering Lichess/Chess.com records, names, APIs and any marks in metadata/assets for every selected territory |
 | EU trader status | Blocked | Owner/legal self-assessment, app-specific selection, verified Crowdler AB contact/address and all Apple-requested evidence before EU distribution |
 | Compatibility availability | Blocked | Explicit opt-out or same-candidate QA/support decision for default Apple-silicon Mac and Apple Vision Pro availability |
@@ -85,9 +85,11 @@ These are proposed values only; adopting them in App Store Connect is approval-g
 | Name | Side Quest Chess |
 | Subtitle | Turn chess games into quests |
 | Primary language | English (U.S.) |
+| App Store version | `0.1.349` — provisional; bind to the selected archive and live version readback |
 | SKU | `sidequestchess-ios` — owner must approve before immutable record creation |
 | Primary category | Games |
 | Games subcategories | Board; Strategy |
+| Secondary category | None |
 | Price | Free |
 | Copyright | 2026 Crowdler AB |
 | Privacy Policy URL | https://sidequestchess.com/privacy |
@@ -157,7 +159,7 @@ Working answers:
 - Unrestricted Web Access: No; only specific auth, legal, support, and public-proof destinations
 - User-Generated Content: Yes
 - Social Media: Yes — public discovery/posting, likes, profiles and creator attribution
-- Messaging and Chat: Yes if Apple’s live definition includes reachable public posting
+- Messaging and Chat: Yes — public posting is reachable and is included in Apple's current definition
 - Social Media Disabled for Users Under 13: No — no verified Declared Age Range API integration or age-gated social surface exists.
 - Contests: Frequent as the working draft because quests, rankings and goals are core functionality; confirm against the live questionnaire and exact candidate. There is no money or prize.
 - Profanity, mature themes, drugs, sexual content, violence and weapons: publisher-authored content is intended None, but reachable UGC must be moderated and audited before selecting frequencies
@@ -189,12 +191,12 @@ For every shipped SSO provider, include non-expiring provider-specific review ac
 
 ## 8. Screenshot and localization plan
 
-Capture fresh images from the exact selected build with non-personal, truthful data. Initial locale: English (U.S.). Add localizations only with reviewed field copy and asset inheritance.
+Capture fresh images from the exact selected build with fictional, non-personal account data that truthfully represents the candidate. Initial locale: English (U.S.). Add localizations only with reviewed field copy and asset inheritance. Every frame must show the app in use rather than only a title, splash, or login screen, and remain suitable for a 4+ metadata audience regardless of the calculated app age rating.
 
 - iPhone: 6.9-inch portrait at `1260×2736`, `1290×2796`, or `1320×2868`; 1–10 frames with no alpha. If a 6.9-inch set is not supplied, Apple's current fallback requires a 6.5-inch set at `1284×2778` or `1242×2688`. Proposed order: Home/selection, quest detail/proof, multiplayer, community, Trophy Cabinet, account/support.
 - iPad: while `supportsTablet` remains enabled, supply a required 13-inch set: portrait `2064×2752` or `2048×2732`; landscape `2752×2064` or `2732×2048`. Capture equivalent truthful tablet frames and re-read Apple's specification at capture time.
 - Re-verify all exact pixel dimensions and accepted fallback sizes in live Apple documentation at capture time.
-- Manifest each file with source SHA, version/build, build ID, device/display, OS, orientation, locale, fixture, dimensions, filename, and SHA-256.
+- Save each accepted screenshot as `.jpeg`, `.jpg`, or `.png`, and manifest source SHA, version/build, build ID, device/display, OS, orientation, locale, fixture, dimensions, filename, format, and SHA-256.
 - Reject stale names, debug overlays, personal data, fake achievements, pricing, clipping, and keyboard/modal residue. App preview is optional.
 
 ## 9. Same-candidate QA matrix and TestFlight smoke
@@ -216,7 +218,7 @@ Record device, OS, source SHA, version/build, TestFlight build ID, fixture, time
 | Accessibility | VoiceOver, Voice Control, Dynamic Type/Larger Text, focus, labels, contrast, Reduce Motion, touch targets | Same plus split-view overflow/focus |
 | Appearance/layout | Dark/light if supported, portrait and every generated orientation | Same across materially different widths |
 
-TestFlight acceptance also requires: processed build with no unresolved Missing Compliance status; correct name/icon/version/build/API; “What to Test”; internal group/build assignment; store-delivered installation; no debug endpoint; no secrets/tokens in logs; non-expiring review fixtures; public chess fixture; second-account multiplayer; background/foreground/forced relaunch; successful deletion and signed-out relaunch. External testing additionally requires Beta App Description, Feedback Email, an internal group first, and first-build TestFlight App Review approval. Record the build's 90-day expiry horizon. Internal testing, external TestFlight review, production App Review, approval, and public availability are separate states.
+TestFlight acceptance also requires: processed build with no unresolved Missing Compliance status; correct name/icon/version/build/API; “What to Test”; internal group/build assignment; store-delivered installation; no debug endpoint; no secrets/tokens in logs; non-expiring review fixtures; public chess fixture; second-account multiplayer; background/foreground/forced relaunch; successful deletion and signed-out relaunch. External testing additionally requires Beta App Description, Feedback Email, Contact Information, an internal group first, and first-build TestFlight App Review approval. Read back each external-test field rather than assuming production review contact is reused. Record the build's 90-day expiry horizon. Internal testing, external TestFlight review, production App Review, approval, and public availability are separate states.
 
 ## 10. Least-privilege Apple access packet
 
@@ -254,13 +256,14 @@ Source freeze, archive, upload, TestFlight processing, store-delivered installat
 - Strict TDD receipt for cross-platform native generation: RED failed because the pull-request release gate had no iOS prebuild; GREEN passed after adding unsigned iOS generation and bounded cleanup before Android generation.
 - Strict TDD receipt for truthful deletion success copy: RED failed because the app promised that the account and saved data were permanently deleted despite documented backup/security-log retention; GREEN passed after limiting the confirmation to the verified account-deleted and signed-out result.
 - A direct local execution of the exact iOS prebuild command completed, generated `com.sidequestchess.app` with deployment target `15.1` and device family `1,2`, and the generated tree was removed. No tracked package or lockfile change remained.
-- `pnpm test`: PASS — 764 tests, 0 failures, 0 skipped/todo.
+- `pnpm test`: PASS — 766 tests, 0 failures, 0 skipped/todo.
 - `pnpm build`: PASS — Next.js production build completed.
 - `pnpm --dir apps/mobile run typecheck`: PASS.
 - `pnpm --dir apps/mobile run doctor`: PASS — 18/18 checks before native generation.
 - `pnpm lint`: PASS with four pre-existing warnings and no errors (one unused variable and three `no-img-element` warnings).
 - App Store field structural check: PASS — name 16/30, subtitle 28/30, promotional text 84/170, keywords 62/100 bytes (ASCII draft); public listing draft contains no “SQC”.
 - iOS safety provenance TDD receipt: RED proved an `ios` safety request was stored as `website`; GREEN now sends the actual native platform and stores both `ios` and `android` as mobile evidence.
+- Signed-out Support contact TDD receipt: RED proved the Support screen omitted direct Crowdler contact information; GREEN renders Crowdler AB, `sam@crowdler.com`, and Kvarnängsvägen 15, 182 47 Enebyberg, Sweden without requiring sign-in. Production deployment and readback remain separate gates.
 - `git diff --check`: PASS.
 - `pnpm mobile:release:check` on a managed checkout cannot start because that script assumes a generated Android manifest. In the disposable generated checkout it progressed through the production dependency audit, then stopped because CocoaPods is unavailable and Expo Doctor correctly warns that checked-in native folders change config-sync behavior. This is not an iOS release pass and no workaround was applied.
 - Full Xcode build, CocoaPods install, Simulator tests, `.xcresult`, archive, signing, TestFlight and device smoke: NOT RUN / BLOCKED by the verified local prerequisites and approval gates.

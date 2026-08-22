@@ -1134,6 +1134,13 @@ export function MobileSupportScreen({
         </div>
       </section>
 
+      <section className="sqc-support-card" aria-label="Contact Side Quest Chess support">
+        <span className="sqc-card-eyebrow">Contact</span>
+        <h3>Crowdler AB</h3>
+        <p>Email <a href="mailto:sam@crowdler.com">sam@crowdler.com</a> for product, account, privacy, or safety support.</p>
+        <p>Kvarnängsvägen 15, 182 47 Enebyberg, Sweden</p>
+      </section>
+
       {signedIn ? (
         <MobileSupportComposer key={reportContext?.returnPath ?? "support"} signedIn initialMessages={supportMessages} accountContext={accountContext} initialMessage={reportContext?.initialMessage} />
       ) : (

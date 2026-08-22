@@ -121,6 +121,20 @@ test("pull-request release gate validates iOS and Android native generation with
   );
 });
 
+test("iOS release packet records executable metadata and TestFlight review fields", () => {
+  const packet = readRepoFile("docs/IOS_APP_STORE_RELEASE_PACKET_2026-08-21.md");
+
+  assert.match(packet, /\| App Store version \| `0\.1\.349`/);
+  assert.match(packet, /\| Secondary category \| None/);
+  assert.match(packet, /Messaging and Chat: Yes — public posting/);
+  assert.doesNotMatch(packet, /Messaging and Chat: Yes if/);
+  assert.match(packet, /fictional, non-personal account data/);
+  assert.match(packet, /show the app in use/);
+  assert.match(packet, /4\+ metadata audience/);
+  assert.match(packet, /\.jpeg`, `\.jpg`, or `\.png/);
+  assert.match(packet, /Beta App Description, Feedback Email, Contact Information/);
+});
+
 test("pnpm 11 keeps the release-age guard except for the reviewed Expo patch set", () => {
   const source = readRepoFile("pnpm-workspace.yaml");
   const reviewedExpoPatchSet = [
