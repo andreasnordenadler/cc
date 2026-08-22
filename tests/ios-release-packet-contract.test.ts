@@ -16,6 +16,13 @@ test("iOS release packet uses the resolvable native-build receipt commit and doe
   assert.match(packet, /not preserved as a repository evidence artifact/i);
 });
 
+test("iOS release packet records the exact current native-source build receipt", () => {
+  assert.match(packet, /ee1c7d68/);
+  assert.match(packet, /Google\/Facebook cancellation fix/i);
+  assert.match(packet, /PID `12706`/);
+  assert.match(packet, /1206.?×.?2622/);
+});
+
 test("iOS release packet blocks upload when required-reason API declarations are missing or unsupported", () => {
   assert.match(packet, /Missing or unsupported reasons block upload/);
   assert.match(packet, /aggregate privacy report is evidence for reconciliation, not a substitute/i);
