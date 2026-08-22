@@ -11128,6 +11128,40 @@ body::after {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
+  .sqc-mobile-web.desktop-account .sqc-screen {
+    width: min(1500px, calc(100% - 96px));
+  }
+
+  .sqc-mobile-web.desktop-account .sqc-account-sign-in-layout {
+    grid-template-columns: minmax(0, .88fr) minmax(620px, 1.12fr);
+    min-height: 620px;
+  }
+
+  .sqc-mobile-web.desktop-account .sqc-account-sign-in-copy {
+    padding: 76px;
+  }
+
+  .sqc-mobile-web.desktop-account .sqc-account-sign-in-copy h1 {
+    max-width: 560px;
+    font-size: 70px;
+  }
+
+  .sqc-mobile-web.desktop-account .sqc-desktop-account-intro {
+    grid-template-columns: 210px minmax(0, 1fr);
+    gap: 38px;
+    padding: 64px 68px;
+  }
+
+  .sqc-mobile-web.desktop-account .sqc-desktop-account-intro > img {
+    width: 196px;
+    height: 220px;
+  }
+
+  .sqc-mobile-web.desktop-account .sqc-desktop-account-intro h2 {
+    max-width: 520px;
+    font-size: 38px;
+  }
+
   .sqc-mobile-web.desktop-trophy-cabinet .sqc-screen {
     width: min(1600px, calc(100% - 80px));
   }

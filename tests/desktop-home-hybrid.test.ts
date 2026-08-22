@@ -1572,7 +1572,7 @@ test("Account becomes one desktop command center while preserving the mobile acc
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-account\s+\.sqc-account-quests\s*\{[^}]*grid-column:\s*1\s*\/\s*span\s*7;/);
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-account\s+\.sqc-account-progress\s*\{[^}]*grid-column:\s*8\s*\/\s*-1;/);
   assert.match(reducedMotion, /\.sqc-mobile-web\.desktop-account\s+\.sqc-account-row\s*\{[^}]*transition:\s*none\s*!important;/);
-  assert.equal(css.replace(desktopMedia, "").replace(reducedMotion, "").includes(".sqc-mobile-web.desktop-account"), false, "desktop Account rules must not leak below 1180px");
+  assert.equal(css.slice(0, css.indexOf("@media (min-width: 1180px)")).includes(".sqc-mobile-web.desktop-account"), false, "desktop Account rules must not leak below 1180px");
 });
 
 test("authenticated desktop Account exposes persistent section wayfinding without adding mobile chrome", () => {
@@ -1708,6 +1708,27 @@ test("desktop account surfaces share a persistent workspace navigator without du
   assert.doesNotMatch(unrelated, /aria-label="Account workspace"/);
   assert.match(css, /\.sqc-account-workspace-nav\s*\{\s*display:\s*none;/, "mobile keeps its established route navigation");
   assert.match(desktopMedia, /\.sqc-mobile-web:is\(\.desktop-account,\s*\.desktop-settings,\s*\.desktop-support\)\s+\.sqc-account-workspace-nav\s*\{[^}]*display:\s*flex;/);
+});
+
+test("wide desktop Account expands the command center beyond the standard desktop canvas", () => {
+  const css = readFileSync("src/app/mobile-web.css", "utf8");
+  const wideDesktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1680px)"));
+
+  assert.match(
+    wideDesktopMedia,
+    /\.sqc-mobile-web\.desktop-account\s+\.sqc-screen\s*\{[^}]*width:\s*min\(1500px,\s*calc\(100%\s*-\s*96px\)\)/,
+    "Account should use the large desktop canvas instead of remaining a centered tablet-width stack",
+  );
+  assert.match(
+    wideDesktopMedia,
+    /\.sqc-mobile-web\.desktop-account\s+\.sqc-account-sign-in-layout\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*\.88fr\)\s+minmax\(620px,\s*1\.12fr\);[^}]*min-height:\s*620px/,
+    "the signed-out Account should read as a wide editorial split rather than two stretched mobile panels",
+  );
+  assert.match(
+    wideDesktopMedia,
+    /\.sqc-mobile-web\.desktop-account\s+\.sqc-desktop-account-intro\s*\{[^}]*grid-template-columns:\s*210px\s+minmax\(0,\s*1fr\);[^}]*padding:\s*64px\s+68px/,
+    "the account explainer should gain deliberate desktop hierarchy at wide viewports",
+  );
 });
 
 test("desktop account workspace navigation clears the sticky Support overview", () => {
