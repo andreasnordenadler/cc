@@ -70,3 +70,15 @@ test("iOS release packet records keyboard-safe forms without claiming device ver
   assert.match(packet, /keyboard taps.*iOS keyboard insets/i);
   assert.match(packet, /real-iPhone and iPad.*remain.*blocked/i);
 });
+
+test("iOS release packet approval-gates South Korea availability and RCN applicability", () => {
+  assert.match(packet, /Availability in the Republic of Korea/i);
+  assert.match(packet, /RCN[\s\S]*KR-19[\s\S]*Casino\/17\+[\s\S]*Frequent\/Intense/i);
+  assert.match(packet, /15\+.*does not by itself require an RCN/i);
+});
+
+test("iOS release packet preserves the September 2026 social-media questionnaire gate", () => {
+  assert.match(packet, /Beginning in September 2026/i);
+  assert.match(packet, /every new social-media capability response/i);
+  assert.match(packet, /live App Store Connect readback/i);
+});

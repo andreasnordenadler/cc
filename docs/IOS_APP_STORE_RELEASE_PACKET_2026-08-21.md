@@ -1,7 +1,7 @@
 # Side Quest Chess — iOS App Store release-preparation packet
 
 **Prepared:** 2026-08-21; reconciled 2026-08-22<br>
-**Source baseline:** `5a5cbd456900f3e75d4a9cbc9e7769c157b1d83b` (`origin/main`, fetched and fast-forwarded 2026-08-22); current keyboard-safety source-preparation changes remain under PR review<br>
+**Source baseline:** `eec95451fc1f23318f3a2a4e052891cb9105f111` (`origin/main`, fetched and merged 2026-08-22); current iOS source-preparation and receipt changes remain under PR review<br>
 **Status:** Drafts and verified source audit only. This is not an App Store Connect record, Apple credential, IPA, TestFlight build, review submission, approval, or public release.
 
 This packet supersedes the iOS portions of `SQC_MOBILE_APPLE_PRIVACY_PREP_2026-07-03.md`, `SQC_MOBILE_STORE_LAUNCH_PREP_2026-07-07.md`, and `SQC_MOBILE_STORE_SUBMISSION_PACK_2026-07-07.md` for this source baseline.
@@ -62,6 +62,7 @@ A clean detached worktree at branch commit `1ec2401b45d209db722bcb13c9194a318cc0
 | EU trader status | Blocked | Owner/legal self-assessment, app-specific selection, verified Crowdler AB contact/address and all Apple-requested evidence before EU distribution |
 | Compatibility availability | Blocked | Explicit opt-out or same-candidate QA/support decision for default Apple-silicon Mac and Apple Vision Pro availability |
 | Distribution method | Blocked | Owner-approved Public or Private Distribution decision plus exact territory strategy before submission |
+| Republic of Korea availability | Blocked | Live “Availability in the Republic of Korea” property, RCN applicability decision, and any required registration readback before South Korea is included |
 | TestFlight | Not started | Approved upload, tester configuration and store-delivered install receipt |
 | Real iPhone smoke | Blocked | Exact TestFlight build, signed-out and signed-in flows, callback and deletion |
 | Review submission | Not started | Separate approval and App Store Connect readback |
@@ -176,6 +177,8 @@ Verify report, block, filtering, moderation queue, response/removal process, and
 
 “13+” is the contractual/in-app minimum, not a promise of one uniform storefront rating. Under Apple's OS 26-and-later rating system, Social Media answered Yes indicates higher regional ratings including Australia 16+, Vietnam 16+, and Korea 15+. Earlier operating systems can display different ratings, so preserve both sets of live calculated regional receipts before territory approval.
 
+Beginning in September 2026, Apple requires the new age-rating responses about social-media capabilities for new-app and update submissions. If Side Quest Chess is submitted then or later, preserve live App Store Connect readback of every new social-media capability response, not only the calculated rating. For South Korea, also complete and read back the separate “Availability in the Republic of Korea” property before including that storefront. Determine RCN applicability from the final live answers: Apple's current triggers include KR-19, Casino/17+, or specified Frequent/Intense content; a Korean 15+ result does not by itself require an RCN.
+
 ## 7. Review notes draft
 
 Do not paste until every statement passes on the selected TestFlight build.
@@ -269,7 +272,7 @@ Source freeze, archive, upload, TestFlight processing, store-delivered installat
 - Strict TDD receipt for post-deletion session cleanup: RED reproduced a completed deletion being reported as “Account not deleted” when sign-out failed; GREEN preserves deletion success, reports the cleanup limitation, and directs the user to close and reopen the app.
 - Contract-test receipts now lock the required-reason API upload gate, immutable distribution choice, China mainland/Vietnam territory requirements, provider-specific SSO review-access rule, and Android/web predecessor launch-order gate after independent Apple-primary-source review.
 - A direct local execution of the exact iOS prebuild command completed again on the current working tree, generated `com.sidequestchess.app` with version/build `0.1.349` / `1`, deployment target `15.1`, device family `1,2`, URL schemes `sidequestchess` and `com.sidequestchess.app`, ATS arbitrary loads disabled, and the expected Apple sign-in entitlement. No `.xcprivacy` file was generated before dependency installation. The generated tree was inspected and removed with no generated tracked change retained.
-- `pnpm test`: PASS — 797 tests, 0 failures, 0 skipped/todo.
+- `pnpm test`: PASS — 800 tests, 0 failures, 0 skipped/todo.
 - `pnpm build`: PASS — Next.js production build completed.
 - `pnpm --dir apps/mobile run typecheck`: PASS.
 - `pnpm --dir apps/mobile run doctor`: PASS — 18/18 checks before native generation.
@@ -287,6 +290,7 @@ Source freeze, archive, upload, TestFlight processing, store-delivered installat
 - Signed-in account-unavailable TDD receipt: RED reproduced an account-service failure being reduced to the signed-out fallback while Clerk remained authenticated, hiding deletion/logout and presenting social/password sign-in. GREEN preserves an explicit authenticated recovery surface with retry, deletion, logout and support controls; targeted account/deletion tests, mobile typecheck and the full suite pass.
 - A fresh independent packet/source review also identified the app-record Made for Kids, User Access, copyright, archive-icon, privacy-policy report/block disclosures, concrete least-privilege role, and exact-device matrix as unresolved facts. This packet now approval-gates each one rather than inferring it from source configuration.
 - Keyboard-safety TDD receipt: the source-contract RED proved that the root, shared form, and three nested horizontal filter scroll containers lacked the properties that preserve the first submit/filter tap while a keyboard is open, and that the vertical containers did not request automatic iOS keyboard insets; GREEN now preserves handled keyboard taps across those containers and enables iOS keyboard insets on the two vertical containers. Real-iPhone and iPad interaction behavior remains device-blocked and is not claimed by this source receipt.
+- Current Apple metadata contract TDD receipt: RED proved the packet omitted South Korea's separate availability/RCN property and the September 2026 social-media-question deadline; GREEN now fail-closes both and requires live response readback.
 - `git diff --check`: PASS.
 - `pnpm mobile:release:check` on a managed checkout cannot start because that script assumes a generated Android manifest. Its earlier disposable generated-checkout receipt stopped before CocoaPods was installed; that stale tooling blocker has now been superseded by the direct CocoaPods/native-build receipt below. Expo Doctor's warning that checked-in native folders change config-sync behavior remains applicable, so the generated tree was not adopted as source.
 - Current local native receipt at branch commit `7badb983b5571680a881b10e8ba89e482c9d3686`: Xcode 26.6 with the iOS 26.5 SDK and registered iOS 26.5 (`23F77`) runtime; CocoaPods 1.17.0; `pod install` PASS with 85 dependencies/84 pods; aggregate generated privacy manifest inspected; exact `SideQuestChess` scheme, Debug configuration, bundle `com.sidequestchess.app`, version/build `0.1.349` / `1`, deployment target `15.1`, device family `1,2`, and simulator destinations discovered rather than guessed. Unsigned Debug Simulator build PASS. Unsigned Release Simulator build PASS with a bundled `main.jsbundle`.
@@ -306,5 +310,8 @@ Source freeze, archive, upload, TestFlight processing, store-delivered installat
 - Upload toolchain requirement effective 2026-04-28: https://developer.apple.com/news/upcoming-requirements/?id=04282026a
 - DSA trader requirements: https://developer.apple.com/help/app-store-connect/manage-compliance-information/manage-european-union-digital-services-act-trader-requirements
 - Age-rating values and definitions: https://developer.apple.com/help/app-store-connect/reference/app-information/age-ratings-values-and-definitions/
+- Required App Store Connect properties, including Republic of Korea availability: https://developer.apple.com/help/app-store-connect/reference/app-information/required-localizable-and-editable-properties
+- App information and South Korea RCN criteria: https://developer.apple.com/help/app-store-connect/reference/app-information/app-information
+- September 2026 social-media age-rating questions: https://developer.apple.com/news/?id=tlur8uvi
 - iPhone/iPad app availability on Apple-silicon Mac: https://developer.apple.com/help/app-store-connect/manage-your-apps-availability/manage-availability-of-iphone-and-ipad-apps-on-macs-with-apple-silicon
 - iPhone/iPad app availability on Apple Vision Pro: https://developer.apple.com/help/app-store-connect/manage-your-apps-availability/manage-availability-of-iphone-and-ipad-apps-on-apple-vision-pro
