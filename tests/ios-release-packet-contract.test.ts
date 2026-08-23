@@ -42,6 +42,13 @@ test("iOS release packet approval-gates the remaining app-record and privacy-pol
   assert.match(packet, /must not download or export.*certificates.*profiles.*API keys.*credentials/i);
 });
 
+test("iOS release packet assigns account-wide duplicate discovery and Korea availability to explicit gates", () => {
+  assert.match(packet, /Account Holder or Admin.*account-wide visibility.*duplicate/i);
+  assert.match(packet, /app-scoped App Manager cannot prove.*account-wide absence/i);
+  assert.match(packet, /Republic of Korea.*availability.*organization account/i);
+  assert.match(packet, /Korea Rating Classification Number|Korea RCN/i);
+});
+
 test("iOS release packet records live safety disclosures while preserving privacy reconciliation gates", () => {
   assert.match(packet, /Privacy policy safety data \| Live readback passed; reconciliation blocked/i);
   assert.match(packet, /Signed-out production readback on 2026-08-23 confirms that the policy now includes report\/block and deletion behavior/i);
