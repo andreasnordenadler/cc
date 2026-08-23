@@ -45,6 +45,7 @@ import { finalizeMobileAccountDeletion } from "./src/account/finalizeMobileAccou
 import { loadMobileAccount } from "./src/account/loadMobileAccount";
 import { clerkPublishableKey, clerkTokenCache, isClerkMobileAuthConfigured } from "./src/auth/clerk";
 import { completeAppleSignIn } from "./src/auth/completeAppleSignIn";
+import { isFacebookSignInEnabled } from "./src/auth/isFacebookSignInEnabled";
 import { completeMobilePasswordReset, prepareMobilePasswordReset, verifyMobilePasswordResetCode as verifyMobilePasswordResetCodeWithClerk } from "./src/auth/mobilePasswordReset";
 import { OFFLINE_MOBILE_BOOTSTRAP } from "./src/data/offlineBootstrap";
 import { shouldStackActiveQuestSummary } from "./src/layout/activeQuestLayout";
@@ -173,6 +174,7 @@ type MultiplayerCommunitySort = "closing" | "liked" | "newest" | "players";
 
 const MULTIPLAYER_DEFAULT_INVITE_COPY = "A Multiplayer Side Quest where everyone tries the same Side Quests with fresh public games.";
 const SQC_WEB_BASE_URL = getApiBaseUrl();
+const facebookSignInEnabled = isFacebookSignInEnabled(process.env.EXPO_PUBLIC_ENABLE_FACEBOOK_SIGN_IN);
 
 
 const MOBILE_CHESS_PIECES: Record<string, string> = {
@@ -1449,7 +1451,7 @@ function ClerkMobileShell() {
       isSignedIn: Boolean(isSignedIn),
       getSessionToken: async () => getToken(),
       startGoogleSignIn,
-      startFacebookSignIn,
+      startFacebookSignIn: facebookSignInEnabled ? startFacebookSignIn : undefined,
       startAppleSignIn: appleSignInAvailable ? startAppleSignIn : undefined,
       startPasswordSignIn,
       startPasswordSignUp,
