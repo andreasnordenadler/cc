@@ -220,7 +220,7 @@ test("signed-in desktop home guides setup while retaining the existing app home"
   assert.match(desktopMedia, /\.sqc-desktop-home-header-only\s*\{[^}]*display:\s*contents;/, "only the desktop header wrapper releases its sticky containing block");
   assert.match(desktopMedia, /\.sqc-desktop-dashboard-summary\s*\{[^}]*display:\s*grid;[^}]*grid-template-columns:\s*repeat\(3,\s*minmax\(0,\s*1fr\)\);/);
   assert.match(desktopMedia, /\.sqc-desktop-dashboard-grid\s+\.sqc-current-card\s*\{[^}]*margin:\s*0;[^}]*grid-column:\s*1;[^}]*grid-row:\s*span\s*2;/, "desktop active quest must not retain the mobile emblem offset and escape its grid");
-  assert.match(desktopMedia, /\.sqc-desktop-dashboard-grid\s+\.sqc-active-solo-emblem\s*\{[^}]*top:\s*18px;[^}]*right:\s*68px;[^}]*left:\s*auto;[^}]*width:\s*90px;[^}]*height:\s*90px;/, "desktop emblem stays inside the active quest card instead of covering the summary rail");
+  assert.match(desktopMedia, /\.sqc-desktop-dashboard-grid\s+\.sqc-active-solo-emblem\s*\{[^}]*position:\s*relative;[^}]*top:\s*auto;[^}]*right:\s*auto;[^}]*left:\s*auto;[^}]*width:\s*96px;[^}]*height:\s*96px;/, "desktop emblem stays in the active quest card flow instead of covering the summary rail");
 });
 
 test("signed-in desktop Home keeps secondary actions compact and intentional", () => {
@@ -243,6 +243,40 @@ test("signed-in desktop Home keeps secondary actions compact and intentional", (
     "dashboard follow-up actions should read as compact gold links, not oversized grey buttons",
   );
   assert.match(desktopMedia, /\.sqc-desktop-dashboard-grid\s+\.sqc-secondary-action\.full::after\s*\{[^}]*content:\s*" →";/);
+});
+
+test("signed-in desktop Home aligns heraldry in flow and removes wasteful card height", () => {
+  const css = readFileSync("src/app/mobile-web.css", "utf8");
+  const desktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1180px)"));
+
+  assert.match(
+    desktopMedia,
+    /\.sqc-desktop-dashboard-grid\s*>\s*\.sqc-stack\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1\.28fr\)\s+minmax\(380px,\s*\.72fr\);/,
+    "the active quest and supporting cards should use a deliberate 64/36 desktop balance",
+  );
+  assert.match(
+    desktopMedia,
+    /\.sqc-desktop-dashboard-grid\s+\.sqc-current-card\s*\{[^}]*grid-template-columns:\s*112px\s+minmax\(0,\s*1fr\);[^}]*column-gap:\s*26px;[^}]*min-height:\s*0;[^}]*padding:\s*28px;/,
+    "the active quest should reserve an in-flow heraldry rail instead of floating its seal over content",
+  );
+  assert.match(
+    desktopMedia,
+    /\.sqc-desktop-dashboard-grid\s+\.sqc-active-solo-emblem\s*\{[^}]*position:\s*relative;[^}]*top:\s*auto;[^}]*right:\s*auto;[^}]*left:\s*auto;[^}]*grid-column:\s*1;[^}]*align-self:\s*center;[^}]*transform:\s*none;/,
+  );
+  assert.match(desktopMedia, /\.sqc-desktop-dashboard-grid\s+\.sqc-current-body\s*\{[^}]*grid-column:\s*2;[^}]*align-self:\s*center;/);
+  assert.match(desktopMedia, /\.sqc-desktop-dashboard-grid\s+\.sqc-active-detail\s*\{[^}]*grid-template-columns:\s*180px\s+minmax\(0,\s*1fr\);[^}]*gap:\s*22px;/);
+  assert.match(desktopMedia, /\.sqc-desktop-dashboard-grid\s+\.sqc-mini-board\s*\{[^}]*width:\s*180px;/);
+  assert.match(
+    desktopMedia,
+    /\.sqc-desktop-dashboard-grid\s+\.sqc-home-section\s*\{[^}]*min-height:\s*214px;[^}]*align-content:\s*start;[^}]*padding:\s*16px;/,
+    "supporting cards should fit their real content rather than preserve the old 280px empty shells",
+  );
+  assert.match(desktopMedia, /\.sqc-desktop-dashboard-grid\s+\.sqc-section-hero\s*\{[^}]*grid-template-columns:\s*56px\s+minmax\(0,\s*1fr\);[^}]*min-height:\s*56px;/);
+  assert.match(
+    desktopMedia,
+    /\.sqc-desktop-dashboard-grid\s+\.sqc-section-mark,\s*\.sqc-desktop-dashboard-grid\s+\.sqc-section-mark\.trophy\s*\{[^}]*position:\s*relative;[^}]*top:\s*auto;[^}]*left:\s*auto;[^}]*grid-column:\s*1;[^}]*grid-row:\s*1\s*\/\s*span\s*2;[^}]*transform:\s*none;/,
+    "Multiplayer and Trophy seals should sit inside their own headers instead of overlapping panel borders",
+  );
 });
 
 test("desktop home keeps account setup visible when a Solo quest is active without a chess username", () => {
