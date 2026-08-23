@@ -2,6 +2,8 @@
 
 **Prepared:** 2026-08-21; reconciled 2026-08-23<br>
 **Source baseline:** `b98ad94c3bc00fca8377cf371882660d965692bc` (`origin/main`, fetched 2026-08-23); later branch audit and source-preparation changes remain under PR review<br>
+**Branch reconciliation point:** `4f0eef92ec93b1cd057cf556085d4d16ec0597e8` (PR #302 head reviewed before this packet-only follow-up); this identifies the reviewed branch state, not a frozen release candidate<br>
+**Native build receipt baseline:** `b98ad94c3bc00fca8377cf371882660d965692bc`; the unsigned Simulator receipt below applies to that exact source baseline, not automatically to later branch commits<br>
 **Status:** Drafts and verified source audit only. This is not an App Store Connect record, Apple credential, IPA, TestFlight build, review submission, approval, or public release.
 
 This packet supersedes the iOS portions of `SQC_MOBILE_APPLE_PRIVACY_PREP_2026-07-03.md`, `SQC_MOBILE_STORE_LAUNCH_PREP_2026-07-07.md`, and `SQC_MOBILE_STORE_SUBMISSION_PACK_2026-07-07.md` for this source baseline.

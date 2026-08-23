@@ -66,3 +66,8 @@ test("iOS release packet records the current local Xcode, runtime, and unsigned 
   assert.doesNotMatch(packet, /Full Xcode is unavailable locally/i);
   assert.doesNotMatch(packet, /CocoaPods is unavailable/i);
 });
+
+test("iOS release packet distinguishes the reviewed branch point from the native build receipt", () => {
+  assert.match(packet, /Branch reconciliation point.*4f0eef92ec93b1cd057cf556085d4d16ec0597e8/i);
+  assert.match(packet, /Native build receipt baseline.*b98ad94c3bc00fca8377cf371882660d965692bc/i);
+});
