@@ -6381,7 +6381,7 @@ body::after {
     margin: 0;
     grid-column: 1;
     grid-row: span 2;
-    grid-template-columns: 112px minmax(0, 1fr);
+    grid-template-columns: 200px minmax(0, 1fr);
     grid-template-rows: minmax(0, 1fr) auto auto;
     column-gap: 26px;
     row-gap: 16px;
@@ -6419,19 +6419,21 @@ body::after {
     grid-row: 1;
     align-self: center;
     justify-self: center;
-    width: 96px;
-    height: 96px;
+    width: 180px;
+    height: 180px;
     transform: none;
   }
 
   .sqc-desktop-dashboard-grid .sqc-active-solo-emblem .sqc-mark-glow {
-    width: 116px;
-    height: 116px;
+    width: 220px;
+    height: 220px;
+    opacity: .82;
   }
 
   .sqc-desktop-dashboard-grid .sqc-active-solo-emblem .sqc-mark-image {
-    width: 92px;
-    height: 100px;
+    width: 174px;
+    height: 188px;
+    filter: drop-shadow(0 26px 32px rgba(0, 0, 0, .52));
   }
 
   .sqc-desktop-dashboard-grid .sqc-current-body {
@@ -6451,13 +6453,13 @@ body::after {
   }
 
   .sqc-desktop-dashboard-grid .sqc-active-detail {
-    grid-template-columns: 180px minmax(0, 1fr);
-    gap: 22px;
+    grid-template-columns: 170px minmax(0, 1fr);
+    gap: 20px;
     margin-top: 18px;
   }
 
   .sqc-desktop-dashboard-grid .sqc-mini-board {
-    width: 180px;
+    width: 170px;
   }
 
   .sqc-desktop-dashboard-grid .sqc-current-card > .sqc-primary-action,
