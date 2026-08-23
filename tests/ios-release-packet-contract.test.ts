@@ -1,8 +1,33 @@
 import assert from "node:assert/strict";
+import { execFileSync } from "node:child_process";
+import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 
 const packet = readFileSync(new URL("../docs/IOS_APP_STORE_RELEASE_PACKET_2026-08-21.md", import.meta.url), "utf8");
+const nativeReceipt = JSON.parse(readFileSync(new URL("../docs/evidence/ios-simulator-a161663a.json", import.meta.url), "utf8")) as {
+  sourceBaseline: string;
+  sourceGitTree: string;
+  sourceMobileTree: string;
+  sourceFiles: Record<string, string>;
+  commands: Array<{ name: string; exitCode: number; logSha256: string }>;
+  destinations: Array<{ name: string; udid: string; configuration: string }>;
+  app: {
+    bundleIdentifier: string;
+    displayName: string;
+    shortVersion: string;
+    buildVersion: string;
+    minimumOSVersion: string;
+    deviceFamily: string[];
+    urlSchemes: string[];
+    mainBundleSha256: string;
+    signed: boolean;
+  };
+};
+
+function sha256(path: string) {
+  return createHash("sha256").update(readFileSync(new URL(`../${path}`, import.meta.url))).digest("hex");
+}
 const header = packet.slice(0, packet.indexOf("## 1. Verified baseline and blockers"));
 const verifiedBaseline = packet.slice(
   packet.indexOf("## 1. Verified baseline and blockers"),
@@ -26,6 +51,45 @@ test("iOS release packet is bound to the current reconciled main candidate", () 
   assert.match(header, /source-preparation changes.*merged/i);
   assert.doesNotMatch(header, /70545c4e50addce85ae2fdade56345b7293e3b2c/);
   assert.doesNotMatch(header, /source-preparation changes remain under PR review/i);
+});
+
+test("iOS native receipt binds its source tree and records successful local commands and inspected app identity", () => {
+  assert.equal(nativeReceipt.sourceBaseline, "a161663a041f91306f4970b735525c403f3d48d1");
+  assert.equal(nativeReceipt.sourceGitTree, "b714cdf9912e02d601e05b56382facb127367cc6");
+  assert.equal(nativeReceipt.sourceMobileTree, execFileSync("git", ["rev-parse", "HEAD:apps/mobile"], { encoding: "utf8" }).trim());
+  for (const path of ["apps/mobile/app.json", "apps/mobile/package.json", "pnpm-lock.yaml"]) {
+    assert.equal(nativeReceipt.sourceFiles[path], sha256(path), `${path} does not match the native receipt`);
+  }
+  assert.deepEqual(nativeReceipt.commands.map(({ name, exitCode }) => [name, exitCode]), [
+    ["pnpm install --frozen-lockfile", 0],
+    ["expo prebuild --platform ios --no-install", 0],
+    ["pod install", 0],
+    ["xcodebuild Debug iPhone 17e", 0],
+    ["xcodebuild Debug iPad Pro 13-inch (M5)", 0],
+    ["xcodebuild Release iPhone 17 Pro Max", 0],
+    ["simctl install", 0],
+    ["simctl launch", 0],
+    ["simctl openurl", 0],
+  ]);
+  for (const command of nativeReceipt.commands) {
+    assert.match(command.logSha256, /^[a-f0-9]{64}$/);
+  }
+  assert.deepEqual(nativeReceipt.destinations, [
+    { name: "iPhone 17e", udid: "25423278-D058-4FD7-95FE-7BA695DA23CE", configuration: "Debug" },
+    { name: "iPad Pro 13-inch (M5)", udid: "02189F8B-B2ED-49AF-83B5-E630C8059EB1", configuration: "Debug" },
+    { name: "iPhone 17 Pro Max", udid: "3511296F-A745-4B56-8913-EA454DA8420E", configuration: "Release" },
+  ]);
+  assert.deepEqual(nativeReceipt.app, {
+    bundleIdentifier: "com.sidequestchess.app",
+    displayName: "Side Quest Chess",
+    shortVersion: "0.1.349",
+    buildVersion: "1",
+    minimumOSVersion: "15.1",
+    deviceFamily: ["1", "2"],
+    urlSchemes: ["sidequestchess", "com.sidequestchess.app"],
+    mainBundleSha256: "a0024e6da7e50417b27e27428fb84fc9d3e673bcf9beead67783889552a8a7d9",
+    signed: false,
+  });
 });
 
 test("iOS release packet blocks upload when required-reason API declarations are missing or unsupported", () => {
