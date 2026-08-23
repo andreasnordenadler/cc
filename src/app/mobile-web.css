@@ -11151,6 +11151,10 @@ body::after {
     width: min(1440px, calc(100% - 96px));
   }
 
+  .sqc-mobile-web.desktop-multiplayer-create .sqc-screen {
+    width: min(1600px, calc(100% - 96px));
+  }
+
   .sqc-desktop-guest,
   .sqc-desktop-signed-in {
     width: min(1440px, calc(100% - 96px));
