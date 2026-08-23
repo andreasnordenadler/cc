@@ -1,7 +1,7 @@
 # Side Quest Chess — iOS App Store release-preparation packet
 
 **Prepared:** 2026-08-21; reconciled 2026-08-23<br>
-**Source baseline:** `5b0491fa1f27fb06bfb902993bef58c05bb1299c` (`origin/main`, fetched 2026-08-23); the current isolated branch adds unmerged iOS source-preparation changes on that baseline<br>
+**Source baseline:** `f20968904076a3e49ca4758ae7cbec6d24b16431` (`origin/main`, fetched and rebased 2026-08-23); the current isolated branch adds unmerged iOS source-preparation changes on that baseline<br>
 **Status:** Drafts and verified source audit only. This is not an App Store Connect record, Apple credential, IPA, TestFlight build, review submission, approval, or public release.
 
 This packet supersedes the iOS portions of `SQC_MOBILE_APPLE_PRIVACY_PREP_2026-07-03.md`, `SQC_MOBILE_STORE_LAUNCH_PREP_2026-07-07.md`, and `SQC_MOBILE_STORE_SUBMISSION_PACK_2026-07-07.md` for this source baseline.
@@ -268,10 +268,10 @@ Source freeze, archive, upload, TestFlight processing, store-delivered installat
 - Strict TDD receipt for truthful deletion success copy: RED failed because the app promised that the account and saved data were permanently deleted despite documented backup/security-log retention; GREEN passed after limiting the confirmation to the verified account-deleted and signed-out result.
 - Strict TDD receipt for post-deletion session cleanup: RED reproduced a completed deletion being reported as “Account not deleted” when sign-out failed; GREEN preserves deletion success, reports the cleanup limitation, and directs the user to close and reopen the app.
 - Strict TDD receipt for release-only preview isolation: RED failed because the production-safe preview helper did not exist; GREEN now requires the native development flag and ignores public environment variables in production builds. A second RED found personal fixture data still embedded in source; GREEN replaced all preview and public placeholder identities with fictional values. A fresh production iOS bundle contains neither the removed personal email/display-name and connected-handle fixture patterns nor the retired preview environment variable; the separate Expo owner value remains unchanged pending an approved EAS custody migration.
-- Strict TDD receipt for signed-out native support: RED proved the native modal exposed a composer that could only reject at submission; GREEN now renders that composer only for an authenticated session and directs signed-out users to the public Support page.
+- Strict TDD receipt for signed-out native support: RED proved the native modal exposed a composer that could only reject at submission; GREEN now renders that composer only for an authenticated session and directs signed-out users to the public Support page while retaining the account-independent native diagnostic-copy action. Independent review found the first implementation also hid diagnostic copying; a follow-up RED reproduced that regression and GREEN moved the action outside the authenticated branch.
 - Contract-test receipts now lock the required-reason API upload gate, immutable distribution choice, China mainland/Vietnam territory requirements, provider-specific SSO review-access rule, and Android/web predecessor launch-order gate after independent Apple-primary-source review.
 - A direct local execution of the exact iOS prebuild command completed again on the current working tree, generated `com.sidequestchess.app` with version/build `0.1.349` / `1`, deployment target `15.1`, device family `1,2`, URL schemes `sidequestchess` and `com.sidequestchess.app`, ATS arbitrary loads disabled, and the expected Apple sign-in entitlement. No `.xcprivacy` file was generated before dependency installation. The generated tree was inspected and removed with no generated tracked change retained.
-- `pnpm test`: PASS — 797 tests, 0 failures, 0 skipped/todo.
+- `pnpm test`: PASS — 798 tests, 0 failures, 0 skipped/todo.
 - `pnpm build`: PASS — Next.js production build completed.
 - `pnpm --dir apps/mobile run typecheck`: PASS.
 - `pnpm --dir apps/mobile run doctor`: PASS — 18/18 checks before native generation.

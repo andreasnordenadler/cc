@@ -34,3 +34,11 @@ test("signed-out users are directed to public support instead of a message compo
   assert.equal(canComposeMobileSupportMessage({ isSignedIn: true, hasSessionTokenGetter: true }), true);
   assert.match(appSource, /canComposeSupportMessage \? \(<>[\s\S]*Conversation[\s\S]*Send support message[\s\S]*<\/>\) : \(<>[\s\S]*Open public support[\s\S]*<\/>\)}/);
 });
+
+test("signed-out users can copy native support diagnostics", () => {
+  const publicSupportAction = appSource.indexOf('accessibilityLabel="Open public support"');
+  const diagnosticCopyAction = appSource.indexOf('accessibilityLabel="Copy support details"', publicSupportAction);
+
+  assert.notEqual(publicSupportAction, -1);
+  assert.ok(diagnosticCopyAction > publicSupportAction);
+});
