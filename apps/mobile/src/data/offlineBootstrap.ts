@@ -8,7 +8,7 @@ const sampleChallenges: MobileChallenge[] = [
     title: "Any Game Counts",
     objective: "Play any finished game — win, lose, or draw — and complete the quest.",
     instruction:
-      "Play any public finished Lichess or Chess.com game. Win, lose, draw, blunder heroically — it all counts. This quest exists so your first coat of arms can arrive without requiring a chess miracle.",
+      "Play any public finished Lichess or Chess.com game. Win, lose, draw, blunder heroically — it all counts. This quest exists so your first Coat of Arms can arrive without requiring a chess miracle.",
     openingHint: "Literally just play chess. Suspiciously reasonable.",
     reward: 10,
     category: "Test Quest",
@@ -21,7 +21,7 @@ const sampleChallenges: MobileChallenge[] = [
       "Play any public finished Lichess or Chess.com game.",
       "Win, loss, draw, timeout, resignation, rated, casual, bullet, blitz, rapid, classical, daily — all are acceptable for this test quest.",
       "Your saved chess username must appear in the game.",
-      "This quest exists to test activation, verification, completion, coat-of-arms unlock, completed list, and sharing.",
+      "This quest exists to test activation, verification, completion, Coat of Arms unlock, completed list, and sharing.",
     ],
     requirement: { side: "either", result: "finish" },
     badgeIdentity: {

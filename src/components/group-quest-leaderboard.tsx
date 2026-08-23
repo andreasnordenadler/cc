@@ -443,7 +443,7 @@ export default function GroupQuestLeaderboard({
             <div className="groupquest-scroll-artifact-wrap">
               <svg className="groupquest-scroll-artifact" viewBox="0 0 1024 1536" role="img" aria-labelledby="podium-scroll-title podium-scroll-desc">
                 <title id="podium-scroll-title">{selectedSeal.label} scroll for {selectedScroll.name}</title>
-                <desc id="podium-scroll-desc">A Side Quest Chess victory scroll written on generated parchment template, with placement seal, completed quest coats of arms, and the final completion time.</desc>
+                <desc id="podium-scroll-desc">A Side Quest Chess victory scroll written on generated parchment template, with placement seal, completed quest Coats of Arms, and the final completion time.</desc>
                 <defs>
                   <filter id="scrollInkShadow" x="-20%" y="-20%" width="140%" height="140%">
                     <feDropShadow dx="0" dy="2" stdDeviation="1.5" floodColor="#7a481d" floodOpacity="0.2" />
@@ -462,7 +462,7 @@ export default function GroupQuestLeaderboard({
                 <text x="512" y="666" textAnchor="middle" className="scroll-meta">Completed: {selectedFinishedAt}</text>
                 <text x="512" y="694" textAnchor="middle" className="scroll-meta">Placement: #{selectedScroll.rank} · Proof: {selectedScroll.proof}</text>
                 <path d="M360 728 C424 740 600 740 664 728" fill="none" stroke="#5f3515" strokeWidth="3" opacity="0.34" />
-                <text x="512" y="772" textAnchor="middle" className="scroll-section-title">COATS OF ARMS STAMPED COMPLETE</text>
+                <text x="512" y="772" textAnchor="middle" className="scroll-section-title">Coats of Arms stamped complete</text>
                 {selectedCompletedQuests.slice(0, 3).map((quest, index) => {
                   const x = 374 + index * 138;
                   return (
