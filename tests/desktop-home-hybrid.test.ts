@@ -220,7 +220,7 @@ test("signed-in desktop home guides setup while retaining the existing app home"
   assert.match(desktopMedia, /\.sqc-desktop-home-header-only\s*\{[^}]*display:\s*contents;/, "only the desktop header wrapper releases its sticky containing block");
   assert.match(desktopMedia, /\.sqc-desktop-dashboard-summary\s*\{[^}]*display:\s*grid;[^}]*grid-template-columns:\s*repeat\(3,\s*minmax\(0,\s*1fr\)\);/);
   assert.match(desktopMedia, /\.sqc-desktop-dashboard-grid\s+\.sqc-current-card\s*\{[^}]*margin:\s*0;[^}]*grid-column:\s*1;[^}]*grid-row:\s*span\s*2;/, "desktop active quest must not retain the mobile emblem offset and escape its grid");
-  assert.match(desktopMedia, /\.sqc-desktop-dashboard-grid\s+\.sqc-active-solo-emblem\s*\{[^}]*position:\s*relative;[^}]*top:\s*auto;[^}]*right:\s*auto;[^}]*left:\s*auto;[^}]*width:\s*96px;[^}]*height:\s*96px;/, "desktop emblem stays in the active quest card flow instead of covering the summary rail");
+  assert.match(desktopMedia, /\.sqc-desktop-dashboard-grid\s+\.sqc-active-solo-emblem\s*\{[^}]*position:\s*relative;[^}]*top:\s*auto;[^}]*right:\s*auto;[^}]*left:\s*auto;[^}]*width:\s*180px;[^}]*height:\s*180px;/, "desktop emblem stays in the active quest card flow instead of covering the summary rail");
 });
 
 test("signed-in desktop Home keeps secondary actions compact and intentional", () => {
@@ -256,7 +256,7 @@ test("signed-in desktop Home aligns heraldry in flow and removes wasteful card h
   );
   assert.match(
     desktopMedia,
-    /\.sqc-desktop-dashboard-grid\s+\.sqc-current-card\s*\{[^}]*grid-template-columns:\s*112px\s+minmax\(0,\s*1fr\);[^}]*column-gap:\s*26px;[^}]*min-height:\s*0;[^}]*padding:\s*28px;/,
+    /\.sqc-desktop-dashboard-grid\s+\.sqc-current-card\s*\{[^}]*grid-template-columns:\s*200px\s+minmax\(0,\s*1fr\);[^}]*column-gap:\s*26px;[^}]*min-height:\s*0;[^}]*padding:\s*28px;/,
     "the active quest should reserve an in-flow heraldry rail instead of floating its seal over content",
   );
   assert.match(
@@ -264,8 +264,8 @@ test("signed-in desktop Home aligns heraldry in flow and removes wasteful card h
     /\.sqc-desktop-dashboard-grid\s+\.sqc-active-solo-emblem\s*\{[^}]*position:\s*relative;[^}]*top:\s*auto;[^}]*right:\s*auto;[^}]*left:\s*auto;[^}]*grid-column:\s*1;[^}]*align-self:\s*center;[^}]*transform:\s*none;/,
   );
   assert.match(desktopMedia, /\.sqc-desktop-dashboard-grid\s+\.sqc-current-body\s*\{[^}]*grid-column:\s*2;[^}]*align-self:\s*center;/);
-  assert.match(desktopMedia, /\.sqc-desktop-dashboard-grid\s+\.sqc-active-detail\s*\{[^}]*grid-template-columns:\s*180px\s+minmax\(0,\s*1fr\);[^}]*gap:\s*22px;/);
-  assert.match(desktopMedia, /\.sqc-desktop-dashboard-grid\s+\.sqc-mini-board\s*\{[^}]*width:\s*180px;/);
+  assert.match(desktopMedia, /\.sqc-desktop-dashboard-grid\s+\.sqc-active-detail\s*\{[^}]*grid-template-columns:\s*170px\s+minmax\(0,\s*1fr\);[^}]*gap:\s*20px;/);
+  assert.match(desktopMedia, /\.sqc-desktop-dashboard-grid\s+\.sqc-mini-board\s*\{[^}]*width:\s*170px;/);
   assert.match(
     desktopMedia,
     /\.sqc-desktop-dashboard-grid\s+\.sqc-home-section\s*\{[^}]*min-height:\s*214px;[^}]*align-content:\s*start;[^}]*padding:\s*16px;/,
@@ -276,6 +276,23 @@ test("signed-in desktop Home aligns heraldry in flow and removes wasteful card h
     desktopMedia,
     /\.sqc-desktop-dashboard-grid\s+\.sqc-section-mark,\s*\.sqc-desktop-dashboard-grid\s+\.sqc-section-mark\.trophy\s*\{[^}]*position:\s*relative;[^}]*top:\s*auto;[^}]*left:\s*auto;[^}]*grid-column:\s*1;[^}]*grid-row:\s*1\s*\/\s*span\s*2;[^}]*transform:\s*none;/,
     "Multiplayer and Trophy seals should sit inside their own headers instead of overlapping panel borders",
+  );
+});
+
+test("signed-in desktop Home makes the active quest coat the emotional focus", () => {
+  const css = readFileSync("src/app/mobile-web.css", "utf8");
+  const desktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1180px)"));
+
+  assert.match(desktopMedia, /\.sqc-desktop-dashboard-grid\s+\.sqc-current-card\s*\{[^}]*grid-template-columns:\s*200px\s+minmax\(0,\s*1fr\);/);
+  assert.match(desktopMedia, /\.sqc-desktop-dashboard-grid\s+\.sqc-active-solo-emblem\s*\{[^}]*width:\s*180px;[^}]*height:\s*180px;/);
+  assert.match(desktopMedia, /\.sqc-desktop-dashboard-grid\s+\.sqc-active-solo-emblem\s+\.sqc-mark-glow\s*\{[^}]*width:\s*220px;[^}]*height:\s*220px;[^}]*opacity:\s*\.82;/);
+  assert.match(desktopMedia, /\.sqc-desktop-dashboard-grid\s+\.sqc-active-solo-emblem\s+\.sqc-mark-image\s*\{[^}]*width:\s*174px;[^}]*height:\s*188px;[^}]*drop-shadow\(0\s+26px\s+32px/);
+  assert.match(desktopMedia, /\.sqc-desktop-dashboard-grid\s+\.sqc-active-detail\s*\{[^}]*grid-template-columns:\s*170px\s+minmax\(0,\s*1fr\);[^}]*gap:\s*20px;/);
+  assert.match(desktopMedia, /\.sqc-desktop-dashboard-grid\s+\.sqc-mini-board\s*\{[^}]*width:\s*170px;/);
+  assert.match(
+    desktopMedia,
+    /\.sqc-desktop-dashboard-grid\s*>\s*\.sqc-stack\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1\.28fr\)\s+minmax\(380px,\s*\.72fr\);/,
+    "the active coat may grow without squeezing the supporting column",
   );
 });
 
