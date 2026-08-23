@@ -6296,6 +6296,16 @@ body::after {
     gap: 12px;
   }
 
+  .sqc-desktop-dashboard-intro > .sqc-desktop-secondary {
+    justify-self: end;
+    align-self: center;
+    min-height: 44px;
+    padding: 0 20px;
+    border-color: rgba(245, 200, 106, .3);
+    background: rgba(245, 200, 106, .08);
+    color: var(--gold);
+  }
+
   .sqc-desktop-dashboard-intro h1 {
     font-size: clamp(42px, 4vw, 58px);
   }
@@ -6367,9 +6377,30 @@ body::after {
     margin: 0;
     grid-column: 1;
     grid-row: span 2;
+    grid-template-rows: minmax(0, 1fr) auto auto;
+    align-content: stretch;
     min-height: 100%;
     padding: 30px;
     border-radius: 28px;
+  }
+
+  .sqc-desktop-dashboard-grid .sqc-secondary-action.full {
+    width: auto;
+    min-height: 24px;
+    justify-self: start;
+    align-self: start;
+    padding: 5px 0 3px;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    color: var(--gold);
+    font-size: 12px;
+    letter-spacing: .02em;
+  }
+
+  .sqc-desktop-dashboard-grid .sqc-secondary-action.full::after {
+    margin-left: 6px;
+    content: " →";
   }
 
   .sqc-desktop-dashboard-grid .sqc-active-solo-emblem {
