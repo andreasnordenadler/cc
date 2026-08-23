@@ -1498,6 +1498,8 @@ test("Custom editor becomes a wide two-column workbench only at the desktop boun
   const css = readFileSync("src/app/mobile-web.css", "utf8");
   const route = readFileSync("src/app/create-custom-side-quest/page.tsx", "utf8");
   const desktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1180px)"));
+  const fluidDesktopMedia = readCssBlock(css, css.lastIndexOf("@media (min-width: 1380px)"));
+  const wideDesktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1680px)"));
   const reducedMotion = readCssBlock(css, css.lastIndexOf("@media (prefers-reduced-motion: reduce)"));
 
   assert.match(route, /desktopPresentation="custom-editor"/);
@@ -1507,7 +1509,7 @@ test("Custom editor becomes a wide two-column workbench only at the desktop boun
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-custom-editor\s+\.sqc-custom-builder-card\s*\{[^}]*grid-template-columns:\s*320px\s+minmax\(0,\s*1fr\);/);
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-custom-editor\s+\.sqc-custom-builder-setup\s*\{[^}]*position:\s*sticky;/);
   assert.match(reducedMotion, /\.sqc-mobile-web\.desktop-custom-editor\s+\.sqc-template-card\s*\{[^}]*transition:\s*none\s*!important;[^}]*transform:\s*none\s*!important;/);
-  assert.equal(css.replace(desktopMedia, "").replace(reducedMotion, "").includes(".sqc-mobile-web.desktop-custom-editor"), false, "desktop Custom editor composition rules must not leak below 1180px");
+  assert.equal(css.replace(desktopMedia, "").replace(fluidDesktopMedia, "").replace(wideDesktopMedia, "").replace(reducedMotion, "").includes(".sqc-mobile-web.desktop-custom-editor"), false, "desktop Custom editor composition rules must not leak below 1180px");
 });
 
 test("Custom editor adds a desktop workbench navigator to the one shared form", () => {
