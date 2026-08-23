@@ -59,6 +59,8 @@ cp apps/mobile/.env.example apps/mobile/.env.local
 
 Then set `EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY` in `.env.local` or EAS environment variables. Do **not** commit Clerk secret keys. The current bridge uses `@clerk/clerk-expo` with Expo SecureStore token cache; account fetches attach `Authorization: Bearer <session token>` when Clerk reports a signed-in mobile session.
 
+Facebook sign-in is fail-closed and hidden by default. Set `EXPO_PUBLIC_ENABLE_FACEBOOK_SIGN_IN=true` only for a candidate whose production Clerk/Facebook connection and reviewer-access path have been verified. Because this is an Expo public build variable, changing it requires a new candidate build and does not authorize provider or App Store account mutations.
+
 For Android alpha Google SSO, allow this redirect URL in Clerk before testing the APK/dev client:
 
 ```text
