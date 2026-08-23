@@ -872,13 +872,18 @@ export function MobileSoloSideQuestsScreen({
   completedChallengeIds,
   likeSummaries,
   signedIn = false,
+  query = "",
+  totalChallengeCount = challenges.length,
 }: {
   challenges: Challenge[];
   activeChallengeId?: string | null;
   completedChallengeIds?: string[];
   likeSummaries?: Record<string, CommunityLikeSummary>;
   signedIn?: boolean;
+  query?: string;
+  totalChallengeCount?: number;
 }) {
+  const catalogReturnTo = query ? `/side-quests?q=${encodeURIComponent(query)}` : "/side-quests";
   const completedSet = new Set(completedChallengeIds ?? []);
   const sortedChallenges = [...challenges].sort((a, b) => {
     const difficultyDelta = difficultyRank(a.difficulty) - difficultyRank(b.difficulty);
@@ -922,55 +927,76 @@ export function MobileSoloSideQuestsScreen({
       <section className="sqc-panel list">
         <div className="sqc-list-head inline">
           <h2>Official Side Quests</h2>
-          <span>{sortedChallenges.length} official</span>
+          <span>{query ? `${sortedChallenges.length} of ${totalChallengeCount} official` : `${sortedChallenges.length} official`}</span>
         </div>
-        <div className="sqc-solo-browser">
-          <nav className="sqc-solo-difficulty-nav" aria-label="Jump to quest difficulty">
-            <span>Difficulty</span>
-            {difficultyShelves.map((shelf) => (
-              <a className="sqc-solo-difficulty-link" href={`#solo-difficulty-${shelf.difficulty.toLowerCase()}`} key={shelf.difficulty}>
-                <span>{shelf.difficulty}</span>
-                <small>{shelf.challenges.length}</small>
-              </a>
-            ))}
-          </nav>
-          <div className="sqc-catalog">
-            {difficultyShelves.map((shelf) => (
-              <div className="sqc-solo-difficulty-shelf" key={shelf.difficulty}>
-                <header className="sqc-solo-difficulty-heading">
-                  <h3
-                    id={`solo-difficulty-${shelf.difficulty.toLowerCase()}`}
-                    aria-label={shelf.difficulty}
-                    data-label={shelf.difficulty}
-                  />
-                  <span>{shelf.challenges.length} {shelf.challenges.length === 1 ? "quest" : "quests"}</span>
-                </header>
-                <div className="sqc-solo-difficulty-grid">
-                  {shelf.challenges.map((challenge) => (
-                    <AppRow
-                      key={challenge.id}
-                      title={challenge.title}
-                      meta={challenge.objective}
-                      desktopNote={challenge.openingHint}
-                      status={challenge.id === activeChallengeId ? "Active" : completedSet.has(challenge.id) ? "Completed" : challenge.difficulty}
-                      href={`/challenges/${challenge.id}`}
-                      image={toMobileAssetPath(challenge.badgeIdentity.image) ?? mobileAsset.fallbackBadge}
-                      glow={getChallengeGlowPath(challenge.id)}
-                      glowColor={challenge.badgeIdentity.colors.glow}
-                      likeSummary={likeSummaries?.[challenge.id]}
-                      likeAction={{
-                        signedIn,
-                        targetType: "solo",
-                        targetId: challenge.id,
-                        returnTo: "/side-quests",
-                      }}
-                    />
-                  ))}
-                </div>
-              </div>
-            ))}
+        <form className="sqc-solo-search" action="/side-quests" role="search">
+          <label htmlFor="official-solo-search">Find an official Side Quest</label>
+          <div>
+            <input
+              id="official-solo-search"
+              name="q"
+              type="search"
+              defaultValue={query}
+              placeholder="Search titles, rules, or difficulty"
+            />
+            <button type="submit">Search</button>
+            {query ? <Link className="sqc-solo-search-clear" href="/side-quests">Clear search</Link> : null}
           </div>
-        </div>
+        </form>
+        {difficultyShelves.length ? (
+          <div className="sqc-solo-browser">
+            <nav className="sqc-solo-difficulty-nav" aria-label="Jump to quest difficulty">
+              <span>Difficulty</span>
+              {difficultyShelves.map((shelf) => (
+                <a className="sqc-solo-difficulty-link" href={`#solo-difficulty-${shelf.difficulty.toLowerCase()}`} key={shelf.difficulty}>
+                  <span>{shelf.difficulty}</span>
+                  <small>{shelf.challenges.length}</small>
+                </a>
+              ))}
+            </nav>
+            <div className="sqc-catalog">
+              {difficultyShelves.map((shelf) => (
+                <div className="sqc-solo-difficulty-shelf" key={shelf.difficulty}>
+                  <header className="sqc-solo-difficulty-heading">
+                    <h3
+                      id={`solo-difficulty-${shelf.difficulty.toLowerCase()}`}
+                      data-label={shelf.difficulty}
+                    >{shelf.difficulty}</h3>
+                    <span>{shelf.challenges.length} {shelf.challenges.length === 1 ? "quest" : "quests"}</span>
+                  </header>
+                  <div className="sqc-solo-difficulty-grid">
+                    {shelf.challenges.map((challenge) => (
+                      <AppRow
+                        key={challenge.id}
+                        title={challenge.title}
+                        meta={challenge.objective}
+                        desktopNote={challenge.openingHint}
+                        status={challenge.id === activeChallengeId ? "Active" : completedSet.has(challenge.id) ? "Completed" : challenge.difficulty}
+                        href={`/challenges/${challenge.id}`}
+                        image={toMobileAssetPath(challenge.badgeIdentity.image) ?? mobileAsset.fallbackBadge}
+                        glow={getChallengeGlowPath(challenge.id)}
+                        glowColor={challenge.badgeIdentity.colors.glow}
+                        likeSummary={likeSummaries?.[challenge.id]}
+                        likeAction={{
+                          signedIn,
+                          targetType: "solo",
+                          targetId: challenge.id,
+                          returnTo: catalogReturnTo,
+                        }}
+                      />
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : (
+          <div className="sqc-empty-panel sqc-solo-empty-search">
+            <h3>No official Side Quests match “{query}”.</h3>
+            <p>Try a title, rule, category, or difficulty — or clear the search to restore all {totalChallengeCount} quests.</p>
+            <Link href="/side-quests">Clear search</Link>
+          </div>
+        )}
       </section>
     </div>
   );
