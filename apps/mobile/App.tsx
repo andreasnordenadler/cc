@@ -3790,15 +3790,15 @@ function HelpSupportModal({ visible, onClose, signedIn, authBridge, initialMessa
             <Pressable accessibilityRole="button" accessibilityLabel="Send support message" style={[compactStyles.detailPrimaryButton, submitState.busy ? compactStyles.disabledAction : null]} disabled={submitState.busy} onPress={() => void submitSupport()}>
               <Text style={compactStyles.detailPrimaryButtonText}>{submitState.busy ? "Sending..." : "Send support message"}</Text>
             </Pressable>
-            <Pressable accessibilityRole="button" accessibilityLabel="Copy support details" style={compactStyles.detailPrimaryButton} onPress={() => void copySupportDetails()}>
-              <Text style={compactStyles.detailPrimaryButtonText}>Copy support details</Text>
-            </Pressable>
             </>) : (<>
               <Text style={compactStyles.detailPanelCopy}>Support messages stay attached to a signed-in Side Quest Chess account. For help without signing in, open the public support page to view contact details.</Text>
               <Pressable accessibilityRole="button" accessibilityLabel="Open public support" style={compactStyles.detailPrimaryButton} onPress={() => void openLegalPage("/support", "public support")}>
                 <Text style={compactStyles.detailPrimaryButtonText}>Open public support</Text>
               </Pressable>
             </>)}
+            <Pressable accessibilityRole="button" accessibilityLabel="Copy support details" style={compactStyles.detailPrimaryButton} onPress={() => void copySupportDetails()}>
+              <Text style={compactStyles.detailPrimaryButtonText}>Copy support details</Text>
+            </Pressable>
           </View>
         </ScrollHintedScrollView>
       </SafeAreaView>
