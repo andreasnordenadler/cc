@@ -50,7 +50,9 @@ test("iOS release packet assigns account-wide duplicate discovery and Korea avai
 });
 
 test("iOS release packet records live safety disclosures while preserving privacy reconciliation gates", () => {
-  assert.match(packet, /Privacy policy safety data \| Live readback passed; reconciliation blocked/i);
+  assert.match(packet, /Privacy policy \| Partial live readback; full compliance reconciliation blocked/i);
+  assert.match(packet, /every collected-data category, collection method, use, third-party protection, retention\/deletion rule, and consent withdrawal\/deletion request path/i);
+  assert.match(packet, /separate from App Privacy label reconciliation/i);
   assert.match(packet, /Signed-out production readback on 2026-08-23 confirms that the policy now includes report\/block and deletion behavior/i);
   assert.match(packet, /processor description still does not clearly cover direct Google, Facebook, and Apple sign-in processing/i);
   assert.doesNotMatch(packet, /production deployment and signed-out readback remain blocked/i);
@@ -75,6 +77,7 @@ test("iOS release packet records the current local Xcode, runtime, and unsigned 
 });
 
 test("iOS release packet distinguishes the reviewed branch point from the native build receipt", () => {
-  assert.match(packet, /Branch reconciliation point.*4f0eef92ec93b1cd057cf556085d4d16ec0597e8/i);
+  assert.match(packet, /Branch reconciliation point.*c058359f7e721f741db42e6f4390a4f4663eb94d/i);
   assert.match(packet, /Native build receipt baseline.*b98ad94c3bc00fca8377cf371882660d965692bc/i);
+  assert.match(packet, /unsigned Simulator receipt.*not an exact-HEAD build receipt/i);
 });
