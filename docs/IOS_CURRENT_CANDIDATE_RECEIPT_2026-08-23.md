@@ -4,14 +4,15 @@ This receipt records local source, generated-native, Xcode, and Simulator eviden
 
 This receipt supersedes only the older release packet's local observations that full Xcode, a Simulator runtime, native compilation, and Simulator launch were unavailable. It does not supersede that packet's product, policy, account, signing, store, or real-device gates.
 
-## Frozen source
+## Evidence source
 
-- Repository: `Crowdler/sidequestchess`
-- Commit: `e9f306bfff26b0dfcbfbdc63e6ed207a86b9eb1b`
-- Commit subject: `feat: add desktop Solo quest search (#315)`
-- Isolated worktree branch: `chore/ios-xcode-current-20260823-v9`
+- Git remote repository: `andreasnordenadler/cc` (Side Quest Chess product repository)
+- Commit: `35edd62f159baf42f53ae023d98c78a318c768d1`
+- Commit subject: `[verified] feat: foreground active quest coat (#318)`
+- Isolated detached worktree: `ios-candidate-35edd62f-20260823`
 - Before native generation and before writing this receipt, `HEAD` exactly matched freshly fetched `origin/main` and the tracked tree was clean.
 - Package manager: Corepack pnpm `11.12.0`, matching CI; frozen-lockfile install succeeded.
+- This is an observed evidence source, not an owner-approved release source freeze. The release packet's source-freeze gate remains **Not frozen**.
 
 ## Managed Expo identity
 
@@ -33,7 +34,7 @@ All commands used pnpm `11.12.0` with `CI=true` where applicable.
 | Gate | Result |
 | --- | --- |
 | Frozen install | Passed; 1,027 packages reused, lockfile unchanged |
-| Repository tests | Passed: 802 tests, 0 failed, 0 skipped, 0 todo |
+| Repository tests | Passed: 803 tests, 0 failed, 0 skipped, 0 todo |
 | ESLint | Passed with 0 errors and 4 pre-existing warnings |
 | Mobile TypeScript | Passed |
 | Expo Doctor | Passed all 18/18 checks |
@@ -76,7 +77,7 @@ xcodebuild -workspace apps/mobile/ios/SideQuestChess.xcworkspace \
   -configuration Release \
   -sdk iphonesimulator \
   -destination 'platform=iOS Simulator,id=25423278-D058-4FD7-95FE-7BA695DA23CE' \
-  -derivedDataPath /tmp/sqc-ios-e9f306bf-derived \
+  -derivedDataPath /tmp/sqc-ios-35edd62f-derived \
   CODE_SIGNING_ALLOWED=NO build
 ```
 
@@ -102,17 +103,17 @@ The same Release Simulator `.app` was installed and launched on two materially d
 
 | Destination | UDID | Runtime | Result |
 | --- | --- | --- | --- |
-| iPhone 17e | `25423278-D058-4FD7-95FE-7BA695DA23CE` | iOS 26.5 | Installed and launched as PID 76271; settled 1170×2532 capture showed the Side Quest Chess sign-in/browse screen |
-| iPad Pro 13-inch (M5) | `02189F8B-B2ED-49AF-83B5-E630C8059EB1` | iOS 26.5 | Installed and launched as PID 76012; settled 2064×2752 capture showed the Side Quest Chess sign-in/browse screen |
+| iPhone 17e | `25423278-D058-4FD7-95FE-7BA695DA23CE` | iOS 26.5 | Installed and launched as PID 8652; settled 1170×2532 capture showed the Side Quest Chess sign-in/browse screen |
+| iPad Pro 13-inch (M5) | `02189F8B-B2ED-49AF-83B5-E630C8059EB1` | iOS 26.5 | Installed and launched as PID 8984; settled 2064×2752 capture showed the Side Quest Chess sign-in/browse screen |
 
 Contemporaneous OCR of both settled captures found the full public name **Side Quest Chess**, “Sign in to continue”, the Solo and Multiplayer browse actions, and the sign-in method heading. Sanitized signed-out captures are retained in this branch:
 
-- `docs/evidence/ios-e9f306bf/iphone17e-sign-in.jpg` — SHA-256 `a91682ab9fb4df7b4766726f340f6231d2f1a36253cf98a5dc8ec23f3541c119`
-- `docs/evidence/ios-e9f306bf/ipad-pro13-sign-in.jpg` — SHA-256 `0f8b050b0640abf6f3feaa8aae6127e316873c67f2f9efb69a7a82994913265a`
+- `docs/evidence/ios-35edd62f/iphone17e-sign-in.jpg` — SHA-256 `49aee2bb496b31e75475b3784815dad45032945f34f05033225b5eb226365437`
+- `docs/evidence/ios-35edd62f/ipad-pro13-sign-in.jpg` — SHA-256 `104433b0f1333a344ecf761bc09d7de71dbc7c60090d7a9b25dcc85cdb36c32d`
 
-A contemporaneous `sidequestchess://sso-callback` open-URL probe was accepted by Simulator and produced the iOS “Open in Side Quest Chess?” handoff prompt. This proves scheme registration and OS routing only; it does not prove a successful provider-authentication callback.
+A contemporaneous `sidequestchess://sso-callback` open-URL probe was accepted by both Simulator destinations with zero exit status. This proves registered scheme routing only; it does not prove a successful provider-authentication callback.
 
-Simulator logs contained no observed JavaScript fatal exception or process termination during these launches. They did contain a generated React Native UIKit notice that `UIScene` lifecycle adoption will become mandatory in a future SDK and benign Simulator/CoreUI launch-measurement noise. Track the `UIScene` notice as a future-SDK compatibility risk; it is not a failure in this Xcode 26.6 build.
+Both `simctl launch` commands returned a live PID and the settled captures rendered the app rather than a crash surface. No comprehensive log inspection or runtime journey was performed for this refresh; the prior generated React Native `UIScene` future-SDK notice remains a tracked compatibility risk.
 
 The two bounded test simulators were shut down after capture.
 
@@ -121,7 +122,7 @@ The two bounded test simulators were shut down after capture.
 The candidate is **not launch-ready**. The following is a non-exhaustive current list. Every unresolved gate and decision in `docs/IOS_APP_STORE_RELEASE_PACKET_2026-08-21.md` remains blocking unless a later exact-candidate receipt explicitly closes it:
 
 1. Crowdler AB Apple Developer Program legal publisher/account status.
-2. Dedicated Sam/Crowdler operational Apple identity and least-privilege Apple Developer/App Store Connect permissions.
+2. Dedicated Crowdler operational Apple identity and least-privilege Apple Developer/App Store Connect permissions.
 3. Bundle-ID availability/ownership and duplicate reconciliation in the live Apple portals.
 4. Distribution certificate/profile and managed signing under Crowdler AB.
 5. Signed archive and IPA inspection, including final entitlements, provisioning, privacy manifests, export-compliance answer, version/build, and SDK identity.
@@ -132,7 +133,7 @@ The candidate is **not launch-ready**. The following is a non-exhaustive current
 10. TestFlight upload, tester access, store-delivered install, and signed-in smoke on a real iPhone.
 11. App Store Connect metadata/privacy/review configuration and review notes read-back.
 12. Review submission, approval, and public availability as separate verified states.
-13. Android and web public launch/readback, which must precede iOS public release under the standing launch order.
+13. Android and web public launch/readback, which must precede iOS App Review submission and public release under the standing launch order.
 14. Complete UGC moderation workflow, abusive-user blocking, reporting, and App Review explanation for community content.
 15. Production support/privacy/terms route readback on the final deployment, plus content-rights, age-rating, territory, compatibility-availability, and legal/export-compliance decisions.
 
