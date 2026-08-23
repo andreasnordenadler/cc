@@ -143,6 +143,32 @@ test("desktop Multiplayer creation keeps its live draft action in view without c
   expect(desktopGeometry).toEqual({ position: "fixed", bottom: 24, overflow: 0 });
   await expect(action.getByRole("button", { name: "Sign in to create Multiplayer Side Quest" })).toBeVisible();
 
+  await page.setViewportSize({ width: 1920, height: 1080 });
+  const form = page.getByRole("form", { name: "Create Multiplayer Side Quest form" });
+  const wideGeometry = await form.evaluate((element) => {
+    const screen = element.closest<HTMLElement>(".sqc-screen");
+    const setup = element.querySelector<HTMLElement>(".sqc-create-setup-card");
+    const catalog = element.querySelector<HTMLElement>(".sqc-create-catalog-card");
+    if (!screen || !setup || !catalog) throw new Error("Expected the desktop creation workspace");
+    const screenRect = screen.getBoundingClientRect();
+    const setupRect = setup.getBoundingClientRect();
+    const catalogRect = catalog.getBoundingClientRect();
+    return {
+      screenWidth: Math.round(screenRect.width),
+      setupWidth: Math.round(setupRect.width),
+      catalogWidth: Math.round(catalogRect.width),
+      catalogBesideSetup: catalogRect.left > setupRect.right,
+      overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+    };
+  });
+  expect(wideGeometry).toEqual({
+    screenWidth: 1600,
+    setupWidth: 906,
+    catalogWidth: 670,
+    catalogBesideSetup: true,
+    overflow: 0,
+  });
+
   await page.setViewportSize({ width: 390, height: 844 });
   const mobileGeometry = await action.evaluate((element) => ({
     position: getComputedStyle(element).position,
