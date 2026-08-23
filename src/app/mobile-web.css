@@ -11186,6 +11186,54 @@ body::after {
   }
 }
 
+/* The signed-out cabinet is a collection workspace at standard and wide
+   desktop widths. Keep the same content and links, but move the contextual
+   sign-in action beside its explanation so collection controls and a complete
+   first coat row remain visible on arrival. */
+@media (min-width: 1380px) {
+  .sqc-mobile-web.desktop-trophy-cabinet .sqc-screen-emblem.trophy {
+    min-height: 184px;
+  }
+
+  .sqc-mobile-web.desktop-trophy-cabinet .sqc-desktop-trophy-intro {
+    min-height: 184px;
+  }
+
+  .sqc-mobile-web.desktop-trophy-cabinet.signed-out .sqc-trophy-sign-in {
+    grid-column: 1 / span 6;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-rows: repeat(3, auto);
+    column-gap: 20px;
+    min-height: 164px;
+    padding: 20px 22px;
+  }
+
+  .sqc-mobile-web.desktop-trophy-cabinet.signed-out .sqc-trophy-collection-summary {
+    grid-column: 7 / -1;
+    min-height: 164px;
+    padding: 20px 22px;
+  }
+
+  .sqc-mobile-web.desktop-trophy-cabinet.signed-out .sqc-trophy-sign-in .sqc-primary-action {
+    grid-column: 2;
+    grid-row: 1 / 4;
+    align-self: center;
+    margin-top: 0;
+    max-width: 170px;
+    min-height: 44px;
+    padding: 10px 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+    color: var(--gold);
+    font-size: 13px;
+    text-align: center;
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+}
+
 @media (min-width: 1680px) {
   .sqc-desktop-header {
     width: min(1440px, calc(100% - 96px));

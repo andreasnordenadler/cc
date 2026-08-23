@@ -977,6 +977,7 @@ test("Trophy Cabinet keeps the mobile stack below 1180px and uses the desktop ca
   const css = readFileSync("src/app/mobile-web.css", "utf8");
   const route = readFileSync("src/app/trophy-cabinet/page.tsx", "utf8");
   const desktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1180px)"));
+  const collectionDesktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1380px) {"));
   const wideDesktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1680px)"));
   const reducedMotion = readCssBlock(css, css.lastIndexOf("@media (prefers-reduced-motion: reduce)"));
 
@@ -994,7 +995,7 @@ test("Trophy Cabinet keeps the mobile stack below 1180px and uses the desktop ca
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-trophy-cabinet\.signed-out\s+\.sqc-trophy-collection-summary\s*\{[^}]*grid-column:\s*5\s*\/\s*-1;/);
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-trophy-cabinet\s+\.sqc-trophy-sign-in\s+\.sqc-primary-action\s*\{[^}]*width:\s*fit-content;/);
   assert.match(css, /@media\s*\(prefers-reduced-motion:\s*reduce\)[\s\S]*?\.sqc-mobile-web\.desktop-trophy-cabinet\s+\.sqc-coat-tile\s*\{[^}]*transition:\s*none\s*!important;[^}]*transform:\s*none\s*!important;/);
-  assert.equal(css.replace(desktopMedia, "").replace(wideDesktopMedia, "").replace(reducedMotion, "").includes(".sqc-mobile-web.desktop-trophy-cabinet"), false, "desktop Trophy Cabinet rules must not leak below 1180px");
+  assert.equal(css.replace(desktopMedia, "").replace(collectionDesktopMedia, "").replace(wideDesktopMedia, "").replace(reducedMotion, "").includes(".sqc-mobile-web.desktop-trophy-cabinet"), false, "desktop Trophy Cabinet rules must not leak below 1180px");
 });
 
 test("wide Trophy Cabinet turns the complete coat archive into a four-column gallery", () => {
@@ -1016,6 +1017,19 @@ test("wide Trophy Cabinet turns the complete coat archive into a four-column gal
     /\.sqc-mobile-web\.desktop-trophy-cabinet\s+\.sqc-coat-grid\s*\{[^}]*grid-template-columns:\s*repeat\(4,\s*minmax\(0,\s*1fr\)\);/,
     "wide collectors should compare four readable coats per row",
   );
+});
+
+test("standard and wide Trophy Cabinet keep the collection decision surface above the fold", () => {
+  const css = readFileSync("src/app/mobile-web.css", "utf8");
+  const collectionDesktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1380px) {"));
+  const wideDesktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1680px)"));
+
+  assert.match(collectionDesktopMedia, /\.sqc-mobile-web\.desktop-trophy-cabinet\s+\.sqc-screen-emblem\.trophy\s*\{[^}]*min-height:\s*184px;/);
+  assert.match(collectionDesktopMedia, /\.sqc-mobile-web\.desktop-trophy-cabinet\s+\.sqc-desktop-trophy-intro\s*\{[^}]*min-height:\s*184px;/);
+  assert.match(collectionDesktopMedia, /\.sqc-mobile-web\.desktop-trophy-cabinet\.signed-out\s+\.sqc-trophy-sign-in\s*\{[^}]*grid-column:\s*1\s*\/\s*span\s*6;[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\)\s+auto;[^}]*grid-template-rows:\s*repeat\(3,\s*auto\);/);
+  assert.match(collectionDesktopMedia, /\.sqc-mobile-web\.desktop-trophy-cabinet\.signed-out\s+\.sqc-trophy-collection-summary\s*\{[^}]*grid-column:\s*7\s*\/\s*-1;/);
+  assert.match(collectionDesktopMedia, /\.sqc-mobile-web\.desktop-trophy-cabinet\.signed-out\s+\.sqc-trophy-sign-in\s+\.sqc-primary-action\s*\{[^}]*grid-column:\s*2;[^}]*grid-row:\s*1\s*\/\s*4;[^}]*max-width:\s*170px;[^}]*border:\s*0;[^}]*border-radius:\s*0;[^}]*background:\s*transparent;[^}]*color:\s*var\(--gold\);[^}]*font-size:\s*13px;[^}]*text-decoration:\s*underline;/);
+  assert.doesNotMatch(wideDesktopMedia, /\.sqc-trophy-sign-in\s*\{/, "the >=1380px collection contract should not be duplicated in the wide override");
 });
 
 test("Custom library becomes one desktop workshop without duplicating its filters or create path", () => {

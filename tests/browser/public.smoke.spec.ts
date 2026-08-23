@@ -201,6 +201,27 @@ test("desktop Trophy Cabinet turns coat previews into decision-ready collection 
   expect(await grid.getByRole("link").last().evaluate((tile) => getComputedStyle(tile).gridColumnStart)).toBe("2");
   expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBe(0);
 
+  await page.setViewportSize({ width: 1379, height: 900 });
+  expect(await page.locator(".sqc-trophy-sign-in").evaluate((element) => getComputedStyle(element).gridTemplateColumns.split(" ").length)).toBe(1);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBe(0);
+
+  await page.setViewportSize({ width: 1440, height: 900 });
+  const standardDesktopGeometry = await page.evaluate(() => {
+    const results = document.querySelector<HTMLElement>(".sqc-trophy-results-bar");
+    const firstTile = document.querySelector<HTMLElement>(".sqc-coat-tile");
+    const signIn = document.querySelector<HTMLElement>(".sqc-trophy-sign-in");
+    return {
+      resultsTop: results?.getBoundingClientRect().top ?? Number.POSITIVE_INFINITY,
+      firstTileTop: firstTile?.getBoundingClientRect().top ?? Number.POSITIVE_INFINITY,
+      signInColumns: signIn ? getComputedStyle(signIn).gridTemplateColumns.split(" ").length : 0,
+      overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+    };
+  });
+  expect(standardDesktopGeometry.resultsTop).toBeLessThanOrEqual(590);
+  expect(standardDesktopGeometry.firstTileTop).toBeLessThanOrEqual(680);
+  expect(standardDesktopGeometry.signInColumns).toBe(2);
+  expect(standardDesktopGeometry.overflow).toBe(0);
+
   await page.setViewportSize({ width: 1920, height: 1080 });
   expect(await grid.evaluate((element) => getComputedStyle(element).gridTemplateColumns.split(" ").length)).toBe(4);
   expect(await grid.getByRole("link").first().evaluate((tile) => tile.getBoundingClientRect().width)).toBeGreaterThan(300);
