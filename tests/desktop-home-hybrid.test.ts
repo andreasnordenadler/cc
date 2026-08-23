@@ -391,14 +391,14 @@ test("Solo discovery groups the one shared catalog into desktop difficulty shelv
   assert.equal(html.match(/class="sqc-solo-difficulty-shelf"/g)?.length, 5);
   assert.doesNotMatch(html, /<section class="sqc-solo-difficulty-shelf"|class="sqc-solo-difficulty-shelf"[^>]*aria-labelledby=/);
   for (const difficulty of ["Easy", "Medium", "Hard", "Brutal", "Absurd"]) {
-    assert.match(html, new RegExp(`<h3[^>]*aria-label="${difficulty}"[^>]*data-label="${difficulty}"[^>]*></h3>`));
+    assert.match(html, new RegExp(`<h3[^>]*data-label="${difficulty}"[^>]*>${difficulty}</h3>`));
   }
   assert.equal(html.match(/class="sqc-app-row/g)?.length, CHALLENGES.length, "difficulty shelves must not duplicate quest actions");
   assert.match(css, /\.sqc-solo-difficulty-shelf,\s*\.sqc-solo-difficulty-grid\s*\{[^}]*display:\s*contents;/);
   assert.match(css, /\.sqc-solo-difficulty-heading\s*\{[^}]*display:\s*none;/);
   assert.match(css, /\.sqc-solo-difficulty-shelf\s*\+\s*\.sqc-solo-difficulty-shelf\s+\.sqc-app-row:first-child\s*\{[^}]*border-top:\s*1px\s+solid/);
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-solo-discovery\s+\.sqc-solo-difficulty-shelf\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\);[^}]*display:\s*grid;/);
-  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-solo-discovery\s+\.sqc-solo-difficulty-heading\s+h3::before\s*\{[^}]*content:\s*attr\(data-label\);/);
+  assert.doesNotMatch(desktopMedia, /\.sqc-solo-difficulty-heading\s+h3::before/, "desktop difficulty names must remain real heading text instead of generated pixels");
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-solo-discovery\s+\.sqc-solo-difficulty-heading\s*\{[^}]*display:\s*flex;/);
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-solo-discovery\s+\.sqc-solo-difficulty-grid\s*\{[^}]*grid-column:\s*1;/);
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-solo-discovery\s+\.sqc-solo-difficulty-grid\s*\{[^}]*grid-template-columns:\s*repeat\(2,\s*minmax\(0,\s*1fr\)\);/);
