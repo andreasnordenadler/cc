@@ -74,6 +74,11 @@ if (!existsSync(iosRoot)) {
     }
 
     const settingValues = (settingName) => appConfigurations.map(({ settings }) => settingValue(settings, settingName));
+    const appEntitlementsPath = relative(iosRoot, entitlementsPath).replaceAll("\\", "/");
+    const codeSignEntitlements = settingValues("CODE_SIGN_ENTITLEMENTS");
+    if (codeSignEntitlements.length === 0 || codeSignEntitlements.some((path) => path !== appEntitlementsPath)) {
+      fail("app target must use the validated entitlements file in every generated app build configuration");
+    }
     const bundleIdentifiers = settingValues("PRODUCT_BUNDLE_IDENTIFIER");
     if (bundleIdentifiers.length === 0 || bundleIdentifiers.some((identifier) => identifier !== "com.sidequestchess.app")) {
       fail("bundle identifier must be com.sidequestchess.app in every generated app build configuration");

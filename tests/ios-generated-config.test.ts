@@ -29,6 +29,7 @@ function makeGeneratedIosFixture() {
     `AAA /* Debug */ = {
   isa = XCBuildConfiguration;
   buildSettings = {
+    CODE_SIGN_ENTITLEMENTS = SideQuestChess/SideQuestChess.entitlements;
     INFOPLIST_FILE = SideQuestChess/Info.plist;
     PRODUCT_BUNDLE_IDENTIFIER = com.sidequestchess.app;
     TARGETED_DEVICE_FAMILY = "1,2";
@@ -38,6 +39,7 @@ function makeGeneratedIosFixture() {
 BBB /* Release */ = {
   isa = XCBuildConfiguration;
   buildSettings = {
+    CODE_SIGN_ENTITLEMENTS = SideQuestChess/SideQuestChess.entitlements;
     INFOPLIST_FILE = SideQuestChess/Info.plist;
     PRODUCT_BUNDLE_IDENTIFIER = com.sidequestchess.app;
     TARGETED_DEVICE_FAMILY = "1,2";
@@ -241,6 +243,26 @@ test("generated iOS config rejects Default outside the Apple sign-in entitlement
     });
     assert.equal(result.status, 1);
     assert.match(result.stderr, /Sign in with Apple entitlement/i);
+  } finally {
+    rmSync(iosRoot, { recursive: true, force: true });
+  }
+});
+
+test("generated iOS config rejects an app target that does not use the validated entitlements file", () => {
+  const iosRoot = makeGeneratedIosFixture();
+  try {
+    const projectPath = join(iosRoot, "SideQuestChess.xcodeproj", "project.pbxproj");
+    const project = readFileSync(projectPath, "utf8").replaceAll(
+      "CODE_SIGN_ENTITLEMENTS = SideQuestChess/SideQuestChess.entitlements;",
+      "CODE_SIGN_ENTITLEMENTS = SideQuestChess/Wrong.entitlements;",
+    );
+    writeFileSync(projectPath, project);
+    const result = spawnSync(process.execPath, ["scripts/check-generated-ios-config.mjs", iosRoot], {
+      cwd: new URL("..", import.meta.url),
+      encoding: "utf8",
+    });
+    assert.equal(result.status, 1);
+    assert.match(result.stderr, /app target.*entitlements file/i);
   } finally {
     rmSync(iosRoot, { recursive: true, force: true });
   }
