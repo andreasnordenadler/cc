@@ -42,17 +42,27 @@ test("iOS release packet approval-gates the remaining app-record and privacy-pol
   assert.match(packet, /must not download or export.*certificates.*profiles.*API keys.*credentials/i);
 });
 
-test("iOS release packet distinguishes source-prepared safety disclosures from production evidence", () => {
-  assert.match(packet, /report and block disclosures are source-prepared/i);
-  assert.match(packet, /production deployment and signed-out readback remain blocked/i);
+test("iOS release packet records live safety disclosures while preserving privacy reconciliation gates", () => {
+  assert.match(packet, /Privacy policy safety data \| Live readback passed; reconciliation blocked/i);
+  assert.match(packet, /Signed-out production readback on 2026-08-23 confirms that the policy now includes report\/block and deletion behavior/i);
+  assert.match(packet, /processor description still does not clearly cover direct Google, Facebook, and Apple sign-in processing/i);
+  assert.doesNotMatch(packet, /production deployment and signed-out readback remain blocked/i);
+  assert.doesNotMatch(packet, /blocked production (?:deployment|readback)|production (?:deployment|readback).*blocked/i);
   assert.doesNotMatch(packet, /current privacy policy.*does not explicitly disclose content and creator reports/i);
 });
 
-test("iOS release packet records the current local Xcode and CocoaPods receipt without claiming a build pass", () => {
+test("iOS release packet records the current local Xcode, runtime, and unsigned build receipt without claiming distribution evidence", () => {
+  assert.match(packet, /b98ad94c3bc00fca8377cf371882660d965692bc/);
   assert.match(packet, /Xcode 26\.6.*iOS 26\.5 SDK/i);
   assert.match(packet, /CocoaPods 1\.17\.0/i);
-  assert.match(packet, /unsigned generic Simulator build.*failed/i);
-  assert.match(packet, /simulator runtime.*not.*registered/i);
+  assert.match(packet, /iOS 26\.5 Simulator runtime.*registered/i);
+  assert.match(packet, /Release Simulator build PASS with bundled JavaScript/i);
+  assert.match(packet, /Simulator launch receipt: iPhone 17 Pro.*launch PASS.*iPad Pro 13-inch \(M5\).*launch PASS/i);
+  assert.match(packet, /synthetic callback dispatch succeeded and the iPhone process did not terminate/i);
+  assert.match(packet, /Simulator receipts are unsigned and are not an IPA, TestFlight build, authenticated callback proof, visually accepted QA result, or real-device result/i);
+  assert.doesNotMatch(packet, /synthetic.*URL was accepted/i);
+  assert.doesNotMatch(packet, /\b[0-9A-F]{8}(?:-[0-9A-F]{4}){3}-[0-9A-F]{12}\b/i);
+  assert.doesNotMatch(packet, /simulator runtime.*not.*registered/i);
   assert.doesNotMatch(packet, /Full Xcode is unavailable locally/i);
   assert.doesNotMatch(packet, /CocoaPods is unavailable/i);
 });
