@@ -48,11 +48,14 @@ test("iOS release packet distinguishes source-prepared safety disclosures from p
   assert.doesNotMatch(packet, /current privacy policy.*does not explicitly disclose content and creator reports/i);
 });
 
-test("iOS release packet records the current local Xcode and CocoaPods receipt without claiming a build pass", () => {
+test("iOS release packet records the current Simulator build pass without claiming archive or device evidence", () => {
   assert.match(packet, /Xcode 26\.6.*iOS 26\.5 SDK/i);
   assert.match(packet, /CocoaPods 1\.17\.0/i);
-  assert.match(packet, /unsigned generic Simulator build.*failed/i);
-  assert.match(packet, /simulator runtime.*not.*registered/i);
+  assert.match(packet, /Debug and bundled Release Simulator builds.*PASS/i);
+  assert.match(packet, /\.xcresult.*zero errors.*zero analyzer warnings/i);
+  assert.match(packet, /No Simulator test suite, signed archive, or store-installable candidate was produced/i);
+  assert.match(packet, /physical-device authentication.*NOT PASSED \/ BLOCKED/i);
+  assert.doesNotMatch(packet, /Simulator registration remains locally blocked/i);
   assert.doesNotMatch(packet, /Full Xcode is unavailable locally/i);
   assert.doesNotMatch(packet, /CocoaPods is unavailable/i);
 });
