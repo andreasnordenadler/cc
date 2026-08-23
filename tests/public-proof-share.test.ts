@@ -8,7 +8,11 @@ import {
   buildPublicProofSharePayload,
   sharePublicProof,
 } from "../src/lib/public-proof-share";
-import { normalizePublicProofBadgeMotif, normalizePublicProofPayload } from "../src/lib/proof-share";
+import { decodePublicProof, normalizePublicProofBadgeMotif, normalizePublicProofPayload } from "../src/lib/proof-share";
+
+test("public proof decoding rejects unsigned preview fixtures", async () => {
+  assert.equal(await decodePublicProof("preview-finish-any-game"), null);
+});
 
 test("legacy proof motifs never expose the retired public acronym", () => {
   assert.equal(normalizePublicProofBadgeMotif("SQC"), "♞");
