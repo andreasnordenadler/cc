@@ -28,6 +28,14 @@ test("iOS release packet records the recoverable password-reset source receipt w
   assert.match(packet, /exact-candidate.*not verified/i);
 });
 
+test("iOS release packet records safe Google and Facebook cancellation handling without claiming provider verification", () => {
+  assert.match(packet, /Google and Facebook.*cancel(?:ed|lation).*non-error/i);
+  assert.match(packet, /provider SDK details.*not exposed/i);
+  assert.match(packet, /exact-candidate.*Google.*Facebook.*not verified/i);
+  assert.match(packet, /`pnpm test`: PASS — 800 tests, 0 failures, 0 skipped\/todo/i);
+  assert.doesNotMatch(packet, /`pnpm test`: PASS — 797 tests/);
+});
+
 test("iOS release packet preserves the Android and web launch-order gate", () => {
   assert.match(packet, /Android and web public launch must be verified before iOS App Review submission or public release/i);
   assert.match(packet, /preparation, source verification, and approved TestFlight work may proceed before that predecessor milestone/i);
@@ -76,8 +84,13 @@ test("iOS release packet records the current local Xcode, runtime, and unsigned 
   assert.doesNotMatch(packet, /CocoaPods is unavailable/i);
 });
 
-test("iOS release packet distinguishes the reviewed branch point from the native build receipt", () => {
-  assert.match(packet, /Branch reconciliation point.*c058359f7e721f741db42e6f4390a4f4663eb94d/i);
+test("iOS release packet distinguishes the current reconciliation point from the historical native build receipt", () => {
+  assert.match(packet, /Source baseline.*7a2c32cb77c296b484ba4ce71177f350a59c3a47/i);
+  assert.match(packet, /Branch reconciliation point.*cbd5a969bfb32e180313d0f612e154315a843114/i);
   assert.match(packet, /Native build receipt baseline.*b98ad94c3bc00fca8377cf371882660d965692bc/i);
+  assert.match(packet, /apps\/mobile.*pnpm-lock\.yaml.*byte-identical.*b98ad94c3bc00fca8377cf371882660d965692bc/i);
   assert.match(packet, /unsigned Simulator receipt.*not an exact-HEAD build receipt/i);
+  assert.doesNotMatch(packet, /From the exact source baseline above, frozen `pnpm` dependencies/i);
+  assert.doesNotMatch(packet, /completed again on the current working tree/i);
+  assert.doesNotMatch(packet, /current `apps\/mobile` and `pnpm-lock\.yaml` remain byte-identical/i);
 });

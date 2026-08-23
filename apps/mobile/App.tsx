@@ -44,7 +44,7 @@ import { findSignedOutPublicMultiplayerQuest, getSignedOutPublicMultiplayerCatal
 import { finalizeMobileAccountDeletion } from "./src/account/finalizeMobileAccountDeletion";
 import { loadMobileAccount } from "./src/account/loadMobileAccount";
 import { clerkPublishableKey, clerkTokenCache, isClerkMobileAuthConfigured } from "./src/auth/clerk";
-import { completeAppleSignIn } from "./src/auth/completeAppleSignIn";
+import { completeAppleSignIn, completeSocialSignIn, socialSignInErrorMessage } from "./src/auth/completeAppleSignIn";
 import { completeMobilePasswordReset, prepareMobilePasswordReset, verifyMobilePasswordResetCode as verifyMobilePasswordResetCodeWithClerk } from "./src/auth/mobilePasswordReset";
 import { OFFLINE_MOBILE_BOOTSTRAP } from "./src/data/offlineBootstrap";
 import { shouldStackActiveQuestSummary } from "./src/layout/activeQuestLayout";
@@ -1330,21 +1330,9 @@ function ClerkMobileShell() {
         redirectUrl: mobileOAuthRedirectUrl,
       });
 
-      if (result.createdSessionId && result.setActive) {
-        await result.setActive({ session: result.createdSessionId });
-        return;
-      }
-
-      const signInStatus = result.signIn?.status ?? "unknown";
-      const signUpStatus = result.signUp?.status ?? "unknown";
-      const authResultType = result.authSessionResult?.type ?? "unknown";
-      Alert.alert(
-        "Sign-in did not finish",
-        `${providerLabel} returned to Side Quest Chess, but Clerk did not create a mobile session yet. Details: auth=${authResultType}, signIn=${signInStatus}, signUp=${signUpStatus}.`,
-      );
-    } catch (caught) {
-      const message = caught instanceof Error ? caught.message : "Unknown mobile sign-in error.";
-      Alert.alert("Sign-in error", message);
+      await completeSocialSignIn(result, providerLabel);
+    } catch {
+      Alert.alert("Sign-in error", socialSignInErrorMessage(providerLabel));
     }
   }, [startSSOFlow]);
 
