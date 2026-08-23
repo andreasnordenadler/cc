@@ -6470,7 +6470,7 @@ body::after {
   }
 
   .sqc-mobile-web.desktop-solo-discovery .sqc-desktop-catalog-intro h1 {
-    max-width: 820px;
+    max-width: 1080px;
     margin: 0;
     font-family: ui-serif, Georgia, Cambria, "Times New Roman", serif;
     font-size: clamp(38px, 3.4vw, 52px);
@@ -6480,7 +6480,7 @@ body::after {
   }
 
   .sqc-mobile-web.desktop-solo-discovery .sqc-desktop-catalog-intro p {
-    max-width: 790px;
+    max-width: 900px;
     margin: 0;
     color: rgba(255, 247, 232, .68);
     font-size: 14px;
