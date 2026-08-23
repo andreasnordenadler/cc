@@ -49,12 +49,18 @@ test("iOS release packet records the production safety-policy readback without c
   assert.doesNotMatch(packet, /current privacy policy.*does not explicitly disclose content and creator reports/i);
 });
 
-test("iOS release packet records the current local simulator build and launch receipt without claiming archive evidence", () => {
+test("iOS release packet records simulator receipts as transient local observations rather than durable evidence", () => {
   assert.match(packet, /Xcode 26\.6.*iOS 26\.5 SDK/i);
   assert.match(packet, /CocoaPods 1\.17\.0/i);
   assert.match(packet, /Release Simulator build.*passed/i);
   assert.match(packet, /iPhone 17 Pro.*iPad Pro 13-inch \(M5\).*launched/i);
+  assert.match(packet, /transient local observations.*not durable release evidence/i);
   assert.match(packet, /signed archive.*not.*produced/i);
   assert.doesNotMatch(packet, /Full Xcode is unavailable locally/i);
   assert.doesNotMatch(packet, /CocoaPods is unavailable/i);
+});
+
+test("iOS release packet labels preview isolation as development-only", () => {
+  assert.match(packet, /development-only preview isolation/i);
+  assert.doesNotMatch(packet, /release-only preview isolation/i);
 });
