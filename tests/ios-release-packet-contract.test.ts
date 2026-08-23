@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 
 const packet = readFileSync(new URL("../docs/IOS_APP_STORE_RELEASE_PACKET_2026-08-21.md", import.meta.url), "utf8");
+const receipt = readFileSync(new URL("../docs/IOS_CURRENT_CANDIDATE_RECEIPT_2026-08-23.md", import.meta.url), "utf8");
 
 test("iOS release packet blocks upload when required-reason API declarations are missing or unsupported", () => {
   assert.match(packet, /Missing or unsupported reasons block upload/);
@@ -48,11 +49,27 @@ test("iOS release packet distinguishes source-prepared safety disclosures from p
   assert.doesNotMatch(packet, /current privacy policy.*does not explicitly disclose content and creator reports/i);
 });
 
-test("iOS release packet records the current local Xcode and CocoaPods receipt without claiming a build pass", () => {
-  assert.match(packet, /Xcode 26\.6.*iOS 26\.5 SDK/i);
-  assert.match(packet, /CocoaPods 1\.17\.0/i);
-  assert.match(packet, /unsigned generic Simulator build.*failed/i);
-  assert.match(packet, /simulator runtime.*not.*registered/i);
+test("iOS release packet points current local build claims at the exact-candidate receipt", () => {
+  const sourceBaseline = packet.match(/^\*\*Source baseline:\*\*.*$/m)?.[0] ?? "";
+  const currentReceipt = packet.match(/^- Current exact-candidate receipt:.*$/m)?.[0] ?? "";
+  const screenshotGate = packet.match(/^\| Screenshots .*$/m)?.[0] ?? "";
+
+  assert.match(sourceBaseline, /e9f306bfff26b0dfcbfbdc63e6ed207a86b9eb1b/);
+  assert.match(currentReceipt, /IOS_CURRENT_CANDIDATE_RECEIPT_2026-08-23\.md/);
+  assert.match(currentReceipt, /Release Simulator build, install, and launch passed/i);
+  assert.match(currentReceipt, /iPhone 17e.*iPad Pro 13-inch/i);
+  assert.match(currentReceipt, /scheme routing only/i);
+  assert.match(currentReceipt, /not.*provider authentication.*signed archive.*IPA.*TestFlight.*physical-device/i);
+  assert.match(receipt, /Commit: `e9f306bfff26b0dfcbfbdc63e6ed207a86b9eb1b`/);
+  assert.match(receipt, /Repository tests \| Passed: 802 tests, 0 failed, 0 skipped, 0 todo/);
+  assert.match(receipt, /Result: `\*\* BUILD SUCCEEDED \*\*`/);
+  assert.match(receipt, /iPhone 17e[\s\S]*iOS 26\.5[\s\S]*Installed and launched/);
+  assert.match(receipt, /iPad Pro 13-inch \(M5\)[\s\S]*iOS 26\.5[\s\S]*Installed and launched/);
+  assert.match(packet, /`pnpm test`: PASS — 802 tests, 0 failures, 0 skipped\/todo/);
+  assert.match(screenshotGate, /App Store.*accepted.*dimensions.*states.*metadata/i);
+  assert.doesNotMatch(packet, /Simulator registration remains locally blocked/i);
+  assert.doesNotMatch(packet, /current local native receipt:[\s\S]*?build FAILED/i);
+  assert.doesNotMatch(packet, /Complete Xcode build[\s\S]*?BLOCKED by simulator registration/i);
   assert.doesNotMatch(packet, /Full Xcode is unavailable locally/i);
   assert.doesNotMatch(packet, /CocoaPods is unavailable/i);
 });
