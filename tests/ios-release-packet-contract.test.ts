@@ -57,14 +57,24 @@ test("iOS release packet is bound to the current reconciled main candidate", () 
 test("iOS native receipt binds its source tree and records successful local commands and inspected app identity", () => {
   assert.equal(nativeReceipt.sourceBaseline, "757698da73182520e4418e68165c5a5c4cb0e23a");
   assert.equal(nativeReceipt.sourceGitTree, "34188c036476a5357c63764345c0db5028f18f84");
-  assert.equal(
-    nativeReceipt.sourceGitTree,
-    execFileSync("git", ["rev-parse", `${nativeReceipt.sourceBaseline}^{tree}`], { encoding: "utf8" }).trim(),
-  );
-  assert.equal(
-    nativeReceipt.sourceMobileTree,
-    execFileSync("git", ["rev-parse", `${nativeReceipt.sourceBaseline}:apps/mobile`], { encoding: "utf8" }).trim(),
-  );
+  let baselineCommitAvailable = true;
+  try {
+    execFileSync("git", ["cat-file", "-e", `${nativeReceipt.sourceBaseline}^{commit}`]);
+  } catch {
+    // GitHub Actions checks out a depth-1 PR merge commit. The hard-coded tree
+    // identity and current mobile/file hashes below remain enforceable there.
+    baselineCommitAvailable = false;
+  }
+  if (baselineCommitAvailable) {
+    assert.equal(
+      nativeReceipt.sourceGitTree,
+      execFileSync("git", ["rev-parse", `${nativeReceipt.sourceBaseline}^{tree}`], { encoding: "utf8" }).trim(),
+    );
+    assert.equal(
+      nativeReceipt.sourceMobileTree,
+      execFileSync("git", ["rev-parse", `${nativeReceipt.sourceBaseline}:apps/mobile`], { encoding: "utf8" }).trim(),
+    );
+  }
   assert.equal(nativeReceipt.sourceMobileTree, execFileSync("git", ["rev-parse", "HEAD:apps/mobile"], { encoding: "utf8" }).trim());
   for (const path of ["apps/mobile/app.json", "apps/mobile/package.json", "pnpm-lock.yaml"]) {
     assert.equal(nativeReceipt.sourceFiles[path], sha256(path), `${path} does not match the native receipt`);
