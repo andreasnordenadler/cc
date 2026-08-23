@@ -22,10 +22,10 @@ export default function DesktopTrophyCollection({ coats, signedIn }: { coats: Tr
   const [desktopFiltering, setDesktopFiltering] = useState(false);
   const visibleCoats = desktopFiltering && difficulty !== "All" ? coats.filter((coat) => coat.difficulty === difficulty) : coats;
   const resultLabel = difficulty === "All"
-    ? `${visibleCoats.length} ${visibleCoats.length === 1 ? "coat" : "coats"} on display`
-    : `${visibleCoats.length} ${difficulty} ${visibleCoats.length === 1 ? "coat" : "coats"}`;
-  const filters: Array<{ label: TrophyDifficulty | "All coats"; value: TrophyDifficulty | "All"; count: number }> = [
-    { label: "All coats", value: "All", count: coats.length },
+    ? `${visibleCoats.length} ${visibleCoats.length === 1 ? "Coat of Arms" : "Coats of Arms"} on display`
+    : `${visibleCoats.length} ${difficulty} ${visibleCoats.length === 1 ? "Coat of Arms" : "Coats of Arms"}`;
+  const filters: Array<{ label: TrophyDifficulty | "All Coats of Arms"; value: TrophyDifficulty | "All"; count: number }> = [
+    { label: "All Coats of Arms", value: "All", count: coats.length },
     ...DIFFICULTIES.map((value) => ({ label: value, value, count: coats.filter((coat) => coat.difficulty === value).length })),
   ];
 
@@ -42,7 +42,7 @@ export default function DesktopTrophyCollection({ coats, signedIn }: { coats: Tr
 
   return (
     <div className="sqc-trophy-collection-workspace">
-      <aside className="sqc-trophy-difficulty-index" aria-label="Filter coats by difficulty">
+      <aside className="sqc-trophy-difficulty-index" aria-label="Filter Coats of Arms by difficulty">
         <strong>Browse by difficulty</strong>
         {filters.map((filter) => (
           <button
@@ -58,16 +58,16 @@ export default function DesktopTrophyCollection({ coats, signedIn }: { coats: Tr
         ))}
       </aside>
       <div className="sqc-trophy-results-column">
-        <section className="sqc-trophy-results-bar" aria-label="Coat collection results">
+        <section className="sqc-trophy-results-bar" aria-label="Coat of Arms collection results">
           <div>
             <span>Collection view</span>
             <strong aria-live="polite">{resultLabel}</strong>
           </div>
           {difficulty !== "All" ? (
-            <button type="button" onClick={() => setDifficulty("All")}>Show all coats</button>
+            <button type="button" onClick={() => setDifficulty("All")}>Show all Coats of Arms</button>
           ) : null}
         </section>
-        <div className="sqc-coat-grid" aria-label="Official Solo Side Quest coat grid">
+        <div className="sqc-coat-grid" aria-label="Official Solo Side Quest Coat of Arms grid">
           {visibleCoats.map((coat) => (
             <Link key={coat.id} href={`/challenges/${coat.id}`} className="sqc-coat-tile">
               <span className="sqc-coat-tile-art" aria-hidden="true">
@@ -86,7 +86,7 @@ export default function DesktopTrophyCollection({ coats, signedIn }: { coats: Tr
                 </span>
                 <strong>{coat.title}</strong>
                 <span className="sqc-coat-tile-objective">{coat.objective}</span>
-                <small>{signedIn ? (coat.earned ? "Unlocked" : "Locked preview") : "Official coat preview"}</small>
+                <small>{signedIn ? (coat.earned ? "Unlocked" : "Locked preview") : "Official Coat of Arms preview"}</small>
               </span>
             </Link>
           ))}

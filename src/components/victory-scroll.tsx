@@ -31,7 +31,7 @@ export default function VictoryScroll({
       </div>
       <span className="victory-scroll-kicker">Quest completed</span>
       <h3>{challenge.title}</h3>
-      <p className="victory-scroll-reward">Coat of arms unlocked: <strong>{badgeName}</strong></p>
+      <p className="victory-scroll-reward">Coat of Arms unlocked: <strong>{badgeName}</strong></p>
       <p className="victory-scroll-copy">{achievementCopy}</p>
       <p className="victory-scroll-proof">{proofLine}</p>
       <div className="victory-scroll-footer">

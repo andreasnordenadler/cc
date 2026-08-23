@@ -18,7 +18,7 @@ const sideQuestModes: Array<{
     id: "official",
     label: "Official",
     title: "Curated Solo Side Quests",
-    copy: "The app's official Solo deck with proof checks and coat rewards.",
+    copy: "The app's official Solo deck with proof checks and Coat of Arms rewards.",
     href: "/solo",
     group: "catalog",
   },

@@ -53,7 +53,7 @@ export default function StartQuestControls({
               Starting a new quest will replace your active run. Your old quest stays available, but the checker will focus on the new one.
             </p>
 
-            <div className="quest-switch-crests" aria-label="Current and new quest coats of arms">
+            <div className="quest-switch-crests" aria-label="Current and new quest Coats of Arms">
               <div className="quest-switch-crest-card old">
                 <span>Current active</span>
                 {activeChallenge ? <ChallengeBadge challenge={activeChallenge} size="hero" presentation="art" /> : null}
