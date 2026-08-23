@@ -6365,7 +6365,7 @@ body::after {
 
   .sqc-desktop-dashboard-grid > .sqc-stack {
     display: grid;
-    grid-template-columns: minmax(0, 1.22fr) minmax(360px, .78fr);
+    grid-template-columns: minmax(0, 1.28fr) minmax(380px, .72fr);
     gap: 22px;
   }
 
@@ -6377,10 +6377,13 @@ body::after {
     margin: 0;
     grid-column: 1;
     grid-row: span 2;
+    grid-template-columns: 112px minmax(0, 1fr);
     grid-template-rows: minmax(0, 1fr) auto auto;
+    column-gap: 26px;
+    row-gap: 16px;
     align-content: stretch;
-    min-height: 100%;
-    padding: 30px;
+    min-height: 0;
+    padding: 28px;
     border-radius: 28px;
   }
 
@@ -6404,29 +6407,66 @@ body::after {
   }
 
   .sqc-desktop-dashboard-grid .sqc-active-solo-emblem {
-    top: 18px;
-    right: 68px;
+    position: relative;
+    top: auto;
+    right: auto;
     left: auto;
-    width: 90px;
-    height: 90px;
+    grid-column: 1;
+    grid-row: 1;
+    align-self: center;
+    justify-self: center;
+    width: 96px;
+    height: 96px;
     transform: none;
   }
 
   .sqc-desktop-dashboard-grid .sqc-active-solo-emblem .sqc-mark-glow {
-    width: 108px;
-    height: 108px;
+    width: 116px;
+    height: 116px;
   }
 
   .sqc-desktop-dashboard-grid .sqc-active-solo-emblem .sqc-mark-image {
-    width: 86px;
-    height: 94px;
+    width: 92px;
+    height: 100px;
+  }
+
+  .sqc-desktop-dashboard-grid .sqc-current-body {
+    grid-column: 2;
+    grid-row: 1;
+    align-self: center;
+    height: auto;
+  }
+
+  .sqc-desktop-dashboard-grid .sqc-current-body > div {
+    justify-items: start;
+    text-align: left;
+  }
+
+  .sqc-desktop-dashboard-grid .sqc-current-card:not(:has(.sqc-active-solo-emblem)) .sqc-current-body {
+    grid-column: 1 / -1;
+  }
+
+  .sqc-desktop-dashboard-grid .sqc-active-detail {
+    grid-template-columns: 180px minmax(0, 1fr);
+    gap: 22px;
+    margin-top: 18px;
+  }
+
+  .sqc-desktop-dashboard-grid .sqc-mini-board {
+    width: 180px;
+  }
+
+  .sqc-desktop-dashboard-grid .sqc-current-card > .sqc-primary-action,
+  .sqc-desktop-dashboard-grid .sqc-current-card > .sqc-secondary-action {
+    grid-column: 1 / -1;
   }
 
   .sqc-desktop-dashboard-grid .sqc-home-section {
     grid-column: 2;
-    min-height: 280px;
+    min-height: 214px;
+    align-content: start;
     margin-top: 0;
-    padding: 24px 18px 18px;
+    padding: 16px;
     border: 1px solid rgba(255, 247, 232, .11);
     border-radius: 24px;
   }
@@ -6439,23 +6479,49 @@ body::after {
     margin-top: 0;
   }
 
+  .sqc-desktop-dashboard-grid .sqc-section-hero {
+    grid-template-columns: 56px minmax(0, 1fr);
+    grid-template-rows: auto auto;
+    column-gap: 12px;
+    align-items: center;
+    min-height: 56px;
+  }
+
   .sqc-desktop-dashboard-grid .sqc-section-mark,
   .sqc-desktop-dashboard-grid .sqc-section-mark.trophy {
-    top: -38px;
-    width: 76px;
-    height: 76px;
+    position: relative;
+    top: auto;
+    left: auto;
+    grid-column: 1;
+    grid-row: 1 / span 2;
+    align-self: center;
+    justify-self: center;
+    width: 56px;
+    height: 56px;
+    transform: none;
   }
 
   .sqc-desktop-dashboard-grid .sqc-section-mark .sqc-mark-image,
   .sqc-desktop-dashboard-grid .sqc-section-mark.trophy .sqc-mark-image {
-    width: 68px;
-    height: 72px;
+    width: 50px;
+    height: 54px;
   }
 
   .sqc-desktop-dashboard-grid .sqc-section-mark .sqc-mark-glow,
   .sqc-desktop-dashboard-grid .sqc-section-mark.trophy .sqc-mark-glow {
-    width: 96px;
-    height: 102px;
+    width: 72px;
+    height: 76px;
+  }
+
+  .sqc-desktop-dashboard-grid .sqc-section-hero .sqc-pill,
+  .sqc-desktop-dashboard-grid .sqc-section-hero h2 {
+    grid-column: 2;
+    justify-self: start;
+    text-align: left;
+  }
+
+  .sqc-desktop-dashboard-grid .sqc-home-section .sqc-app-row {
+    margin-top: 6px;
   }
 
   /* Desktop Solo discovery uses the same links, likes, status, and data as mobile,
