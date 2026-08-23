@@ -1,0 +1,164 @@
+{
+  "schemaVersion": 2,
+  "capturedAt": "2026-08-23T19:03:13+02:00",
+  "verifiedAt": "2026-08-23T19:14:24+02:00",
+  "sourceBaseline": "757698da73182520e4418e68165c5a5c4cb0e23a",
+  "sourceGitTree": "34188c036476a5357c63764345c0db5028f18f84",
+  "sourceMobileTree": "a32c6f8f2a918ef400b77914076a9e6f96fab79d",
+  "sourceFiles": {
+    "apps/mobile/app.json": "d4983d16302c358f7fadc0901a3f69b746d031f2f0f70abe4b10e3a36ad8a790",
+    "apps/mobile/package.json": "1bf9a0239f8ac2eabbdf2d373ef8d8f08b4873699f2f3301e77f0a18a9ed9b07",
+    "pnpm-lock.yaml": "5edd63864c5af4d5a85718e5af02bc769ae7634d8b8b60349a4f08c03d3317e9"
+  },
+  "toolchain": {
+    "developerDirectory": "/Applications/Xcode.app/Contents/Developer",
+    "xcode": "26.6",
+    "xcodeBuild": "17F113",
+    "sdk": "iphonesimulator26.5",
+    "cocoaPods": "1.17.0",
+    "pnpm": "11.12.0"
+  },
+  "commands": [
+    {
+      "name": "pnpm install --frozen-lockfile",
+      "exitCode": 0,
+      "logPath": "/Users/sam/Projects/sqc-build-evidence/ios-current-757698da/logs/pnpm-install.log",
+      "logSha256": "7dae98882c6e7c98982cc34f15d0819bf5407dbf64a943b57c2425221189f69a"
+    },
+    {
+      "name": "pnpm test",
+      "exitCode": 0,
+      "summary": "795 passed; 0 failed; 0 skipped",
+      "logPath": "/Users/sam/Projects/sqc-build-evidence/ios-current-757698da/logs/pnpm-test.log",
+      "logSha256": "44c4c72321bab08cc9742f285e2174f4db67c7918eb79feb2579c31ba43d2f19"
+    },
+    {
+      "name": "pnpm --dir apps/mobile typecheck",
+      "exitCode": 0,
+      "logPath": "/Users/sam/Projects/sqc-build-evidence/ios-current-757698da/logs/mobile-typecheck.log",
+      "logSha256": "8366207267355d3e3d5bf3bf6e8c94c5f93f6078c34f08973fa2b38cdda6cc92"
+    },
+    {
+      "name": "pnpm --dir apps/mobile doctor",
+      "exitCode": 0,
+      "summary": "18/18 checks passed",
+      "logPath": "/Users/sam/Projects/sqc-build-evidence/ios-current-757698da/logs/expo-doctor.log",
+      "logSha256": "b79e0e2273baad043b3e84f9b6c09ba80b74caaa4b5132151d3f19bad2620463"
+    },
+    {
+      "name": "expo prebuild --platform ios --clean --no-install",
+      "exitCode": 0,
+      "logPath": "/Users/sam/Projects/sqc-build-evidence/ios-current-757698da/logs/expo-prebuild.log",
+      "logSha256": "7ac116615d7bcce0dd0e444d9e8ae1cf0963f7bec6530d012434881197ff9820"
+    },
+    {
+      "name": "pod install",
+      "exitCode": 0,
+      "summary": "85 dependencies from the Podfile; 84 pods installed",
+      "logPath": "/Users/sam/Projects/sqc-build-evidence/ios-current-757698da/logs/pod-install.log",
+      "logSha256": "ec14b7d26866eb5f2f5215c6097f8aab5bab2f0489a9fb9a17481c2cb2fd58fc"
+    },
+    {
+      "name": "xcodebuild Debug iPhone 17e",
+      "exitCode": 0,
+      "logPath": "/Users/sam/Projects/sqc-build-evidence/ios-current-757698da/logs/xcode-debug-iphone17e.log",
+      "logSha256": "d7fa127652b4ae24d1b127fd1df4b1d975ef2dd81a445e519fa7da896d657439"
+    },
+    {
+      "name": "xcodebuild Release iPhone 17e",
+      "exitCode": 0,
+      "logPath": "/Users/sam/Projects/sqc-build-evidence/ios-current-757698da/logs/xcode-release-iphone17e.log",
+      "logSha256": "38ea82fdb42a89b977a48a4bc1b9d605b3e26e507ae326e00472145820b23480"
+    },
+    {
+      "name": "simctl install iPhone 17e",
+      "exitCode": 0,
+      "logPath": "/Users/sam/Projects/sqc-build-evidence/ios-current-757698da/logs/simctl-install-iphone17e.log",
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "simctl launch iPhone 17e",
+      "exitCode": 0,
+      "logPath": "/Users/sam/Projects/sqc-build-evidence/ios-current-757698da/logs/simctl-launch-iphone17e.log",
+      "logSha256": "08214593848e7c69b35ac859d1cea0897ab3e12b25a70c06015342cb17aa4eb0"
+    },
+    {
+      "name": "simctl install iPad Pro 13-inch (M5)",
+      "exitCode": 0,
+      "logPath": "/Users/sam/Projects/sqc-build-evidence/ios-current-757698da/logs/simctl-install-ipad13.log",
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "simctl launch iPad Pro 13-inch (M5)",
+      "exitCode": 0,
+      "logPath": "/Users/sam/Projects/sqc-build-evidence/ios-current-757698da/logs/simctl-launch-ipad13.log",
+      "logSha256": "e31dd7e7332cea4b4b5703fe240faeba5b5b2e1a9a56486ae4254904440a8f41"
+    },
+    {
+      "name": "simctl openurl sidequestchess://sso-callback",
+      "exitCode": 0,
+      "summary": "iOS displayed the system Open in Side Quest Chess confirmation; no authenticated callback was attempted",
+      "logPath": "/Users/sam/Projects/sqc-build-evidence/ios-current-757698da/logs/simctl-openurl-callback.log",
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "destinations": [
+    {
+      "name": "iPhone 17e",
+      "udid": "25423278-D058-4FD7-95FE-7BA695DA23CE",
+      "configuration": "Release"
+    },
+    {
+      "name": "iPad Pro 13-inch (M5)",
+      "udid": "02189F8B-B2ED-49AF-83B5-E630C8059EB1",
+      "configuration": "Release"
+    }
+  ],
+  "app": {
+    "bundleIdentifier": "com.sidequestchess.app",
+    "displayName": "Side Quest Chess",
+    "shortVersion": "0.1.349",
+    "buildVersion": "1",
+    "minimumOSVersion": "15.1",
+    "deviceFamily": ["1", "2"],
+    "urlSchemes": ["sidequestchess", "com.sidequestchess.app"],
+    "mainJsBundleSha256": "272bb37105a1bb6d45ec09a2be3f95a5ababa62c824be4bfc79bc20655c3bd92",
+    "signed": false
+  },
+  "screenshots": [
+    {
+      "scenario": "iPhone 17e signed-out home",
+      "localPath": "/Users/sam/Projects/sqc-worktrees/ios-candidate-757698da-20260823/ios-757698da-iphone17e-home.png",
+      "sha256": "f239c5a74d6a62977ad1f87d024fdb4cce93b4e019c6432d764a27b5e39ba7e3",
+      "pixels": "1170x2532"
+    },
+    {
+      "scenario": "iPad Pro 13-inch (M5) portrait signed-out entry",
+      "localPath": "/Users/sam/Projects/sqc-worktrees/ios-candidate-757698da-20260823/ios-757698da-ipad13-portrait.png",
+      "sha256": "83056a6eb631ed31c91fe02db861026816fa9aa0e0547dc9b8407e82f572cec0",
+      "pixels": "2064x2752"
+    },
+    {
+      "scenario": "iPad Pro 13-inch (M5), light system appearance, accessibility-extra-extra-extra-large",
+      "localPath": "/Users/sam/Projects/sqc-worktrees/ios-candidate-757698da-20260823/ios-757698da-ipad13-axxxl-light.png",
+      "sha256": "49ea8d3dabc511acee559675e38ca079189a8a2ff972638da380828536542d1c",
+      "pixels": "2064x2752"
+    },
+    {
+      "scenario": "iPhone 17e callback scheme confirmation",
+      "localPath": "/Users/sam/Projects/sqc-worktrees/ios-candidate-757698da-20260823/ios-757698da-callback-settled.png",
+      "sha256": "fda3566726bc068f59cbbb9beb7626b6a157d6c0cc30fc3853fd81ec038a099c",
+      "pixels": "1170x2532"
+    }
+  ],
+  "localEvidence": {
+    "worktree": "/Users/sam/Projects/sqc-worktrees/ios-candidate-757698da-20260823",
+    "releaseApp": "/Users/sam/Projects/sqc-worktrees/ios-candidate-757698da-20260823/.derived-ios-757698da/Build/Products/Release-iphonesimulator/SideQuestChess.app",
+    "logDirectory": "/Users/sam/Projects/sqc-build-evidence/ios-current-757698da/logs"
+  },
+  "limitations": [
+    "The full command logs, Simulator app, and screenshots are retained only at the listed local paths and identified here by hashes; they are not durable repository artifacts.",
+    "The app is an unsigned Simulator product. It is not an archive, IPA, TestFlight build, physical-device result, provider-authentication result, App Store screenshot set, or App Store submission receipt.",
+    "The callback probe proves only that iOS associates sidequestchess://sso-callback with Side Quest Chess and presents a system confirmation. It does not prove Google, Facebook, Apple, Clerk, account linking, or a completed callback."
+  ]
+}
