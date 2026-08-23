@@ -223,6 +223,28 @@ test("signed-in desktop home guides setup while retaining the existing app home"
   assert.match(desktopMedia, /\.sqc-desktop-dashboard-grid\s+\.sqc-active-solo-emblem\s*\{[^}]*top:\s*18px;[^}]*right:\s*68px;[^}]*left:\s*auto;[^}]*width:\s*90px;[^}]*height:\s*90px;/, "desktop emblem stays inside the active quest card instead of covering the summary rail");
 });
 
+test("signed-in desktop Home keeps secondary actions compact and intentional", () => {
+  const css = readFileSync("src/app/mobile-web.css", "utf8");
+  const desktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1180px)"));
+
+  assert.match(
+    desktopMedia,
+    /\.sqc-desktop-dashboard-intro\s*>\s*\.sqc-desktop-secondary\s*\{[^}]*justify-self:\s*end;[^}]*background:\s*rgba\(245,\s*200,\s*106,\s*\.08\);[^}]*color:\s*var\(--gold\);/,
+    "the introductory CTA should size to its label instead of stretching into a grey bar",
+  );
+  assert.match(
+    desktopMedia,
+    /\.sqc-desktop-dashboard-grid\s+\.sqc-current-card\s*\{[^}]*grid-template-rows:\s*minmax\(0,\s*1fr\)\s+auto\s+auto;[^}]*align-content:\s*stretch;/,
+    "the active quest should absorb spare height in its content rather than its action row",
+  );
+  assert.match(
+    desktopMedia,
+    /\.sqc-desktop-dashboard-grid\s+\.sqc-secondary-action\.full\s*\{[^}]*width:\s*auto;[^}]*min-height:\s*24px;[^}]*justify-self:\s*start;[^}]*align-self:\s*start;[^}]*border:\s*0;[^}]*background:\s*transparent;[^}]*color:\s*var\(--gold\);/,
+    "dashboard follow-up actions should read as compact gold links, not oversized grey buttons",
+  );
+  assert.match(desktopMedia, /\.sqc-desktop-dashboard-grid\s+\.sqc-secondary-action\.full::after\s*\{[^}]*content:\s*" →";/);
+});
+
 test("desktop home keeps account setup visible when a Solo quest is active without a chess username", () => {
   const html = renderToStaticMarkup(
     createElement(MobileAppWebShell, {
