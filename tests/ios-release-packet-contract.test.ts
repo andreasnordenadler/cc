@@ -52,13 +52,13 @@ test("iOS release packet distinguishes source-prepared safety disclosures from p
   assert.doesNotMatch(packet, /current privacy policy.*does not explicitly disclose content and creator reports/i);
 });
 
-test("iOS release packet records the current local Xcode and CocoaPods receipt without claiming a signed candidate", () => {
+test("iOS release packet binds current unsigned Simulator evidence to the exact current source", () => {
   assert.match(nativeReceipt, /Xcode 26\.6.*iOS 26\.5 SDK/i);
   assert.match(nativeReceipt, /CocoaPods 1\.17\.0/i);
   assert.match(nativeReceipt, /Release Simulator build.*succeeded/i);
-  assert.match(nativeReceipt, /iPhone 17 Pro.*iOS 26\.5/i);
-  assert.match(nativeReceipt, /9ef4434ed554f75056a5779e7da79dcaef01db9c/i);
-  assert.match(nativeReceipt, /earlier Debug build[\s\S]*a2949393bdc18ba6ebda0067842fa71a520ba12f/i);
+  assert.match(nativeReceipt, /iPhone 17 Pro UDID `94D16E18-197E-43FD-A133-572FF0A7FBE4`/i);
+  assert.match(nativeReceipt, /3cdfc0cf90629b3dbd0a57b167ca6700be055159/i);
+  assert.match(nativeReceipt, /3e0b55e076a7dd2063395c238311c8de1a2a63a5123ae59896359dddd42476cb/i);
   assert.match(nativeReceipt, /Minimum-iOS coverage, iPad responsive layout, complete callback\/authentication.*remain NOT PASSED/i);
   assert.match(nativeReceipt, /No signed archive, TestFlight build, or physical-device evidence/i);
   assert.doesNotMatch(packet, /simulator registration remains locally blocked/i);
@@ -67,15 +67,18 @@ test("iOS release packet records the current local Xcode and CocoaPods receipt w
   assert.doesNotMatch(packet, /CocoaPods is unavailable/i);
 });
 
-test("iOS release packet records the current 13-inch iPad launch without claiming layout acceptance", () => {
-  assert.match(
-    nativeReceipt,
-    /iPad Pro 13-inch \(M5\)[\s\S]{0,500}02189F8B-B2ED-49AF-83B5-E630C8059EB1[\s\S]{0,500}2064.?×.?2752[\s\S]{0,300}OCR read “Side Quest Chess”/i,
-  );
-  assert.match(nativeReceipt, /iPad.*install and launch PASS/i);
+test("iOS release packet records current iPhone and iPad launches without overstating visual acceptance", () => {
+  assert.match(nativeReceipt, /iPhone 17 Pro Max[\s\S]{0,500}3511296F-A745-4B56-8913-EA454DA8420E[\s\S]{0,500}1320.?×.?2868/i);
+  assert.match(nativeReceipt, /iPad Pro 13-inch \(M5\)[\s\S]{0,500}02189F8B-B2ED-49AF-83B5-E630C8059EB1[\s\S]{0,500}2064.?×.?2752/i);
+  assert.match(nativeReceipt, /iPhone and iPad install and launch PASS/i);
   assert.match(nativeReceipt, /iPad responsive layout.*remain(?:s)? NOT PASSED/i);
+  assert.match(nativeReceipt, /`UIScene` lifecycle.*warning/i);
+  assert.match(nativeReceipt, /captures were not visually accepted[\s\S]{0,200}OCR did not establish the complete rendered state/i);
+  assert.match(nativeReceipt, /confirmation sheet[\s\S]{0,200}scheme-handler recognition/i);
+  assert.doesNotMatch(nativeReceipt, /proves scheme routing/i);
+  assert.doesNotMatch(nativeReceipt, /current.*capture OCR read “Side Quest Chess”/i);
 });
 
 test("iOS release packet records the current canonical test total", () => {
-  assert.match(packet, /`pnpm test`: PASS — 810 tests, 0 failures, 0 skipped\/todo/);
+  assert.match(packet, /`pnpm test`: PASS — 811 tests, 0 failures, 0 skipped\/todo/);
 });
