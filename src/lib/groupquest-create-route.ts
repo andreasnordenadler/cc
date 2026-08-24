@@ -4,6 +4,7 @@ import { getChallengeById } from "./challenges";
 import { getCustomSideQuests, parseCustomRuleConfig, type CustomSideQuest } from "./custom-side-quests";
 import { getChessComUsername, getLichessUsername, getPreferredRunnerName, type UserMetadataRecord } from "./user-metadata";
 import { validateMultiplayerProofConfiguration } from "./multiplayer-proof-rules";
+import { containsObjectionablePublicText } from "./ugc-content-filter";
 
 type CreateUser = { id: string; firstName?: string | null; lastName?: string | null; username?: string | null; primaryEmailAddress?: { emailAddress?: string | null } | null; publicMetadata?: unknown; privateMetadata?: unknown };
 export type GroupQuestCreateDependencies = {
@@ -33,6 +34,15 @@ export async function handleGroupQuestCreateRequest(request: Request, dependenci
     const now = (dependencies.now?.() ?? new Date()).toISOString();
     const normalized = normalizeSchedulePayload({ ...input, ...proofConfiguration }, now);
     const groupQuest = buildGroupQuest({ ...normalized, questIds: selection.questIds, customQuestSnapshots: selection.customQuestSnapshots, hostUserId: userId, hostName });
+    const publicText = [
+      groupQuest.name,
+      groupQuest.inviteCopy ?? "",
+      groupQuest.hostName,
+      ...(groupQuest.customQuestSnapshots ?? []).flatMap(quest => [quest.title, quest.summary]),
+    ];
+    if (groupQuest.inviteMode === "public" && containsObjectionablePublicText(...publicText)) {
+      return Response.json({ ok: false, error: "objectionable_public_text" }, { status: 422 });
+    }
     groupQuest.id = dependencies.makeId?.() ?? groupQuest.id;
     groupQuest.createdAt = now;
     const lichess = getLichessUsername(publicMetadata); const chesscom = getChessComUsername(publicMetadata);

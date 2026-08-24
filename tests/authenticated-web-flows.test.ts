@@ -114,6 +114,46 @@ test("group quest create handler derives host identity and persists the exact pr
   });
 });
 
+test("group quest create rejects objectionable public Multiplayer text before persistence", async () => {
+  let writes = 0;
+  const response = await handleGroupQuestCreateRequest(jsonPost("https://sqc.test/api/groupquests", {
+    name: "A f.u.c.k challenge",
+    inviteCopy: "Join this table",
+    inviteMode: "public",
+    questIds: ["finish-any-game"],
+  }), createDependencies({ savePrivateMetadata: async () => { writes += 1; } }));
+
+  assert.equal(response.status, 422);
+  assert.deepEqual(await body(response), { ok: false, error: "objectionable_public_text" });
+  assert.equal(writes, 0);
+});
+
+test("group quest create rejects objectionable custom snapshots in public Multiplayer", async () => {
+  const objectionableQuest = {
+    id: "custom-objectionable",
+    title: "A sh1t challenge",
+    summary: "Stored privately before publication filtering existed.",
+    config: JSON.stringify({ version: 2, logic: "all", blocks: [{ type: "gameResult", result: "win" }] }),
+    visibility: "private" as const,
+    lifecycle: "published" as const,
+    createdAt: "2026-06-01T00:00:00.000Z",
+    updatedAt: "2026-06-01T00:00:00.000Z",
+  };
+  let writes = 0;
+  const response = await handleGroupQuestCreateRequest(jsonPost("https://sqc.test/api/groupquests", {
+    name: "Legacy lineup",
+    inviteMode: "public",
+    questIds: [objectionableQuest.id],
+  }), createDependencies({
+    getUser: async () => ({ ...user, privateMetadata: { ...user.privateMetadata, customSideQuests: [objectionableQuest] } }),
+    savePrivateMetadata: async () => { writes += 1; },
+  }));
+
+  assert.equal(response.status, 422);
+  assert.deepEqual(await body(response), { ok: false, error: "objectionable_public_text" });
+  assert.equal(writes, 0);
+});
+
 test("group quest create accepts the authenticated owner's legacy public-metadata quest", async () => {
   const legacyQuest = {
     id: "custom-legacy",
