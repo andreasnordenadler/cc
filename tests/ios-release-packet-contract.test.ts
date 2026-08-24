@@ -55,14 +55,27 @@ test("iOS release packet distinguishes source-prepared safety disclosures from p
 test("iOS release packet records the current local Xcode and CocoaPods receipt without claiming a signed candidate", () => {
   assert.match(nativeReceipt, /Xcode 26\.6.*iOS 26\.5 SDK/i);
   assert.match(nativeReceipt, /CocoaPods 1\.17\.0/i);
-  assert.match(nativeReceipt, /Debug Simulator build PASS/i);
   assert.match(nativeReceipt, /Release Simulator build.*succeeded/i);
   assert.match(nativeReceipt, /iPhone 17 Pro.*iOS 26\.5/i);
-  assert.match(nativeReceipt, /a2949393bdc18ba6ebda0067842fa71a520ba12f/i);
-  assert.match(nativeReceipt, /Minimum-iOS coverage, iPad launch\/layout, complete callback\/authentication.*remain NOT PASSED/i);
+  assert.match(nativeReceipt, /9ef4434ed554f75056a5779e7da79dcaef01db9c/i);
+  assert.match(nativeReceipt, /earlier Debug build[\s\S]*a2949393bdc18ba6ebda0067842fa71a520ba12f/i);
+  assert.match(nativeReceipt, /Minimum-iOS coverage, iPad responsive layout, complete callback\/authentication.*remain NOT PASSED/i);
   assert.match(nativeReceipt, /No signed archive, TestFlight build, or physical-device evidence/i);
   assert.doesNotMatch(packet, /simulator registration remains locally blocked/i);
   assert.doesNotMatch(packet, /simulator runtime.*not.*registered/i);
   assert.doesNotMatch(packet, /Full Xcode is unavailable locally/i);
   assert.doesNotMatch(packet, /CocoaPods is unavailable/i);
+});
+
+test("iOS release packet records the current 13-inch iPad launch without claiming layout acceptance", () => {
+  assert.match(
+    nativeReceipt,
+    /iPad Pro 13-inch \(M5\)[\s\S]{0,500}02189F8B-B2ED-49AF-83B5-E630C8059EB1[\s\S]{0,500}2064.?×.?2752[\s\S]{0,300}OCR read “Side Quest Chess”/i,
+  );
+  assert.match(nativeReceipt, /iPad.*install and launch PASS/i);
+  assert.match(nativeReceipt, /iPad responsive layout.*remain(?:s)? NOT PASSED/i);
+});
+
+test("iOS release packet records the current canonical test total", () => {
+  assert.match(packet, /`pnpm test`: PASS — 810 tests, 0 failures, 0 skipped\/todo/);
 });
