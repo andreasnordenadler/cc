@@ -11432,6 +11432,14 @@ body::after {
     width: min(1600px, calc(100% - 96px));
   }
 
+  .sqc-mobile-web.desktop-multiplayer-detail .sqc-screen {
+    width: min(1600px, calc(100% - 96px));
+  }
+
+  .sqc-mobile-web.desktop-multiplayer-detail .sqc-multiplayer-public-detail-screen {
+    grid-template-columns: minmax(0, 1fr) 440px;
+  }
+
   .sqc-desktop-guest,
   .sqc-desktop-signed-in {
     width: min(1440px, calc(100% - 96px));
@@ -11487,6 +11495,40 @@ body::after {
   }
 
   .sqc-mobile-web.desktop-community-detail .sqc-community-detail-hero p {
+    max-width: 980px;
+  }
+
+  /* Wide owner records keep the management rail bounded while the quest brief,
+     rules, proof, and activity gain a true desktop reading canvas. */
+  .sqc-mobile-web.desktop-custom-detail .sqc-screen {
+    width: min(1600px, calc(100% - 96px));
+  }
+
+  .sqc-mobile-web.desktop-custom-detail .sqc-custom-owner-detail-screen {
+    grid-template-columns: minmax(0, 1fr) 440px;
+    gap: 22px 28px;
+  }
+
+  .sqc-mobile-web.desktop-custom-detail .sqc-custom-owner-detail-hero {
+    grid-template-columns: 280px minmax(0, 1fr);
+    padding: 38px 52px;
+  }
+
+  .sqc-mobile-web.desktop-custom-detail .sqc-custom-owner-detail-hero .sqc-custom-detail-coat-frame {
+    width: 244px;
+    height: 250px;
+  }
+
+  .sqc-mobile-web.desktop-custom-detail .sqc-custom-owner-detail-hero .sqc-custom-detail-coat-image {
+    width: 214px;
+    height: 232px;
+  }
+
+  .sqc-mobile-web.desktop-custom-detail .sqc-custom-owner-detail-hero h1 {
+    max-width: 1040px;
+  }
+
+  .sqc-mobile-web.desktop-custom-detail .sqc-custom-owner-detail-hero p {
     max-width: 980px;
   }
 
@@ -11792,6 +11834,43 @@ body::after {
 
   .sqc-mobile-web.desktop-proof .sqc-public-proof-command-rail :is(button, a):hover {
     transform: translateY(-1px);
+  }
+
+  .sqc-mobile-web.desktop-proof :is(a, button):focus-visible {
+    outline: 3px solid rgba(245, 200, 106, .84);
+    outline-offset: 3px;
+  }
+}
+
+/* Wide proof receipts use the full desktop evidence canvas instead of preserving
+   the standard 1240px desk inside oversized gutters. The receipt stays primary
+   while the same share and browse controls remain in a stable command rail. */
+@media (min-width: 1680px) {
+  .sqc-mobile-web.desktop-proof .sqc-screen {
+    width: min(1600px, calc(100% - 96px));
+  }
+
+  .sqc-mobile-web.desktop-proof .sqc-public-proof-workspace {
+    grid-template-columns: minmax(0, 1fr) 420px;
+    gap: 28px 32px;
+  }
+
+  .sqc-mobile-web.desktop-proof .sqc-public-proof-hero {
+    min-height: 270px;
+    padding: 46px 52px;
+  }
+
+  .sqc-mobile-web.desktop-proof .sqc-public-proof-hero h1 {
+    max-width: 960px;
+    font-size: clamp(58px, 4.5vw, 78px);
+  }
+
+  .sqc-mobile-web.desktop-proof .sqc-public-proof-scroll-card {
+    padding: 30px;
+  }
+
+  .sqc-mobile-web.desktop-proof .sqc-public-proof-command-rail {
+    padding: 36px;
   }
 }
 
