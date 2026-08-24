@@ -3,6 +3,10 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 
 const packet = readFileSync(new URL("../docs/IOS_APP_STORE_RELEASE_PACKET_2026-08-21.md", import.meta.url), "utf8");
+const nativeReceipt = packet.slice(
+  packet.indexOf("- Current local native receipt"),
+  packet.indexOf("## 13. Authoritative Apple references"),
+);
 
 test("iOS release packet blocks upload when required-reason API declarations are missing or unsupported", () => {
   assert.match(packet, /Missing or unsupported reasons block upload/);
@@ -48,11 +52,17 @@ test("iOS release packet distinguishes source-prepared safety disclosures from p
   assert.doesNotMatch(packet, /current privacy policy.*does not explicitly disclose content and creator reports/i);
 });
 
-test("iOS release packet records the current local Xcode and CocoaPods receipt without claiming a build pass", () => {
-  assert.match(packet, /Xcode 26\.6.*iOS 26\.5 SDK/i);
-  assert.match(packet, /CocoaPods 1\.17\.0/i);
-  assert.match(packet, /unsigned generic Simulator build.*failed/i);
-  assert.match(packet, /simulator runtime.*not.*registered/i);
+test("iOS release packet records the current local Xcode and CocoaPods receipt without claiming a signed candidate", () => {
+  assert.match(nativeReceipt, /Xcode 26\.6.*iOS 26\.5 SDK/i);
+  assert.match(nativeReceipt, /CocoaPods 1\.17\.0/i);
+  assert.match(nativeReceipt, /Debug Simulator build PASS/i);
+  assert.match(nativeReceipt, /Release Simulator build.*succeeded/i);
+  assert.match(nativeReceipt, /iPhone 17 Pro.*iOS 26\.5/i);
+  assert.match(nativeReceipt, /a2949393bdc18ba6ebda0067842fa71a520ba12f/i);
+  assert.match(nativeReceipt, /Minimum-iOS coverage, iPad launch\/layout, complete callback\/authentication.*remain NOT PASSED/i);
+  assert.match(nativeReceipt, /No signed archive, TestFlight build, or physical-device evidence/i);
+  assert.doesNotMatch(packet, /simulator registration remains locally blocked/i);
+  assert.doesNotMatch(packet, /simulator runtime.*not.*registered/i);
   assert.doesNotMatch(packet, /Full Xcode is unavailable locally/i);
   assert.doesNotMatch(packet, /CocoaPods is unavailable/i);
 });
