@@ -42,10 +42,28 @@ test("iOS release packet approval-gates the remaining app-record and privacy-pol
   assert.match(packet, /must not download or export.*certificates.*profiles.*API keys.*credentials/i);
 });
 
-test("iOS release packet distinguishes source-prepared safety disclosures from production evidence", () => {
-  assert.match(packet, /report and block disclosures are source-prepared/i);
-  assert.match(packet, /production deployment and signed-out readback remain blocked/i);
-  assert.doesNotMatch(packet, /current privacy policy.*does not explicitly disclose content and creator reports/i);
+test("iOS release packet records deployed support and privacy disclosures without overstating provider coverage", () => {
+  assert.match(packet, /production deployment and signed-out readback passed/i);
+  assert.match(packet, /provider-specific processing wording still unresolved/i);
+  assert.match(packet, /sam@crowdler\.com/);
+  assert.match(packet, /telephone number.*owner\/legal/i);
+  assert.doesNotMatch(packet, /production deployment and signed-out readback remain blocked/i);
+  assert.doesNotMatch(packet, /production deployment and readback remain separate gates/i);
+});
+
+test("iOS release packet binds its baseline and current Apple gates to the current candidate", () => {
+  assert.match(packet, /a2949393bdc18ba6ebda0067842fa71a520ba12f/);
+  assert.match(packet, /September 2026.*social-media questionnaire/i);
+  assert.match(packet, /configured.*1024.?×.?1024.*icon.*no alpha/i);
+  assert.match(packet, /private\.icloud\.com/);
+  assert.match(packet, /Texas/i);
+  assert.match(packet, /Accessibility Nutrition Labels/i);
+});
+
+test("iOS release packet distinguishes Apple's explicit Apple-token deletion rule from other provider reconciliation", () => {
+  assert.match(packet, /explicit provider-token requirement.*Sign in with Apple/i);
+  assert.match(packet, /Google\/Facebook authorization after deletion/i);
+  assert.doesNotMatch(packet, /revoke Google and Facebook credentials.*required by Guideline 5\.1\.1\(v\)/i);
 });
 
 test("iOS release packet records the current local Xcode and CocoaPods receipt without claiming a build pass", () => {
