@@ -45,6 +45,9 @@ test("iOS release packet approval-gates the remaining app-record and privacy-pol
 test("iOS release packet records production readback without claiming privacy-label completion", () => {
   assert.match(packet, /production readback passed on 2026-08-24/i);
   assert.match(packet, /report and block disclosures/i);
+  assert.match(packet, /retained web readback[^\n]+21-production-web-readback\.log/i);
+  assert.match(packet, /support body SHA-256 `3195258199e5864da4c5adb36e61302dd3b9fa6815c106eb35c08ebd06c5784a`/i);
+  assert.match(packet, /privacy body SHA-256 `954efe75f54dc4b6e35bb24ef41e45e49ead0991995c450ed3464d40a56c8eb4`/i);
   assert.match(packet, /App Privacy answers.*exact-binary.*remain blocked/i);
   assert.doesNotMatch(packet, /production deployment and signed-out readback remain blocked/i);
   assert.doesNotMatch(packet, /App Privacy (?:answers|labels).*(?:complete|adopted|passed)/i);
@@ -79,9 +82,10 @@ test("iOS release packet records the exact current simulator build and bounded l
   assert.match(packet, /mobile source tree[^\n]+ea79dc32b07345b5bd676041a421ebb4c372203b[^\n]+identical[^\n]+origin\/main/i);
   assert.match(packet, /retained provenance[^\n]+00-provenance\.txt/i);
   assert.match(packet, /main\.jsbundle[^\n]+6ef1c0422b2877b5cdd8f9109e8d4857f7a981ad8bbfe47f9013f6188c20f155/i);
+  assert.match(packet, /installed-artifact linkage[^\n]+19-install-launch-verification\.log/i);
   assert.match(packet, /Bounded simulator launch smoke:[^\n]+iPhone 17 Pro[^\n]+94D16E18-197E-43FD-A133-572FF0A7FBE4[^\n]+iPad Pro 13-inch \(M5\)[^\n]+02189F8B-B2ED-49AF-83B5-E630C8059EB1[^\n]+OCR[^\n]+Side Quest Chess[^\n]+Browse Solo Side Quests[^\n]+Browse Multiplayer Side Quests/i);
-  assert.match(packet, /iPhone SHA-256 `d4571ac7415b1fafadca90926a5facd6dea33d179e5a6e56c7aac3cc07fef4c1`/i);
-  assert.match(packet, /iPad SHA-256 `aeb42181ed5f1d62ec12a700718e1dc511af22eee763513537b591148fd536b8`/i);
+  assert.match(packet, /iPhone SHA-256 `10d4fdcb7fc3021b35bd728b52222a48e0713e9549d8ad370062175274571720`/i);
+  assert.match(packet, /iPad SHA-256 `518699697aa525b16299c3f813e99a2008d2d8dfaa329116d236294b0e23d894`/i);
   assert.match(packet, /local unsigned Simulator support only:[^\n]+not TestFlight evidence and not physical-device evidence/i);
   assert.match(packet, /`pnpm test`: PASS — 809 tests, 0 failures, 0 skipped\/todo/i);
 });
