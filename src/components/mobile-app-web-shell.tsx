@@ -1152,7 +1152,7 @@ export function MobileSupportScreen({
         ))}
       </section>
 
-      <section className="sqc-support-card" aria-label="Legal and privacy">
+      <section className="sqc-support-card sqc-support-legal" aria-label="Legal and privacy">
         <span className="sqc-card-eyebrow">Legal & privacy</span>
         <p>Read the Privacy Policy, support notes, or the Terms of Use. Side Quest Chess only asks for public chess usernames and never chess-site passwords.</p>
         <div className="sqc-support-link-row">
@@ -1162,7 +1162,7 @@ export function MobileSupportScreen({
         </div>
       </section>
 
-      <section className="sqc-support-card" aria-label="Contact Side Quest Chess support">
+      <section className="sqc-support-card sqc-support-contact" aria-label="Contact Side Quest Chess support">
         <span className="sqc-card-eyebrow">Contact</span>
         <h3>Crowdler AB</h3>
         <p>Email <a href="mailto:sam@crowdler.com">sam@crowdler.com</a> for product, account, privacy, or safety support.</p>

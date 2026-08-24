@@ -10618,14 +10618,19 @@ body::after {
     border-radius: 22px;
   }
 
-  .sqc-mobile-web.desktop-support .sqc-support-screen > .sqc-support-card:not(.sqc-support-report) {
+  .sqc-mobile-web.desktop-support .sqc-support-legal {
     grid-column: 1;
     grid-row: 2;
   }
 
+  .sqc-mobile-web.desktop-support .sqc-support-contact {
+    grid-column: 1;
+    grid-row: 3;
+  }
+
   .sqc-mobile-web.desktop-support .sqc-support-report {
     grid-column: 2;
-    grid-row: 2;
+    grid-row: 2 / span 2;
     gap: 14px;
     border-color: rgba(245, 200, 106, .27);
     background: linear-gradient(145deg, rgba(245, 200, 106, .1), rgba(10, 8, 11, .74));
@@ -11584,6 +11589,39 @@ body::after {
 
   .sqc-mobile-web.desktop-settings .sqc-settings-sign-in-context {
     padding: 72px;
+  }
+
+  .sqc-mobile-web.desktop-support .sqc-screen {
+    width: min(1500px, calc(100% - 96px));
+  }
+
+  .sqc-mobile-web.desktop-support .sqc-support-screen {
+    grid-template-columns: 420px repeat(2, minmax(0, 1fr));
+    gap: 24px;
+  }
+
+  .sqc-mobile-web.desktop-support .sqc-support-row-list {
+    grid-column: 2 / -1;
+  }
+
+  .sqc-mobile-web.desktop-support .sqc-support-contact {
+    grid-column: 2;
+    grid-row: 2;
+  }
+
+  .sqc-mobile-web.desktop-support .sqc-support-report {
+    grid-column: 3;
+    grid-row: 2;
+  }
+
+  .sqc-mobile-web.desktop-support.signed-in .sqc-support-contact {
+    grid-column: 1;
+    grid-row: 3;
+  }
+
+  .sqc-mobile-web.desktop-support.signed-in .sqc-support-report {
+    grid-column: 2 / -1;
+    grid-row: 2 / span 2;
   }
 
   .sqc-mobile-web.desktop-trophy-cabinet .sqc-screen {
