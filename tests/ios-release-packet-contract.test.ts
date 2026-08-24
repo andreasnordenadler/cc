@@ -51,8 +51,7 @@ test("iOS release packet records deployed support and privacy disclosures withou
   assert.doesNotMatch(packet, /production deployment and readback remain separate gates/i);
 });
 
-test("iOS release packet binds its baseline and current Apple gates to the current candidate", () => {
-  assert.match(packet, /a2949393bdc18ba6ebda0067842fa71a520ba12f/);
+test("iOS release packet records current Apple gates for the candidate", () => {
   assert.match(packet, /September 2026.*social-media questionnaire/i);
   assert.match(packet, /configured.*1024.?×.?1024.*icon.*no alpha/i);
   assert.match(packet, /private\.icloud\.com/);
@@ -66,11 +65,26 @@ test("iOS release packet distinguishes Apple's explicit Apple-token deletion rul
   assert.doesNotMatch(packet, /revoke Google and Facebook credentials.*required by Guideline 5\.1\.1\(v\)/i);
 });
 
-test("iOS release packet records the current local Xcode and CocoaPods receipt without claiming a build pass", () => {
+test("iOS release packet binds the source baseline to current origin main", () => {
+  assert.match(packet, /3cf61fb1d5233a8899d5dfcd3a6caea4c2a8dc4a/);
+  assert.doesNotMatch(packet, /\*\*Source baseline:\*\* `a2949393bdc18ba6ebda0067842fa71a520ba12f`/);
+});
+
+test("iOS release packet records the current local runtime without preserving the resolved registration blocker", () => {
   assert.match(packet, /Xcode 26\.6.*iOS 26\.5 SDK/i);
   assert.match(packet, /CocoaPods 1\.17\.0/i);
-  assert.match(packet, /unsigned generic Simulator build.*failed/i);
-  assert.match(packet, /simulator runtime.*not.*registered/i);
+  assert.match(packet, /iOS 26\.5 simulator runtime.*registered/i);
+  assert.doesNotMatch(packet, /Simulator registration remains locally blocked/i);
+  assert.doesNotMatch(packet, /simulator runtime.*not.*registered/i);
   assert.doesNotMatch(packet, /Full Xcode is unavailable locally/i);
   assert.doesNotMatch(packet, /CocoaPods is unavailable/i);
+});
+
+test("iOS release packet separates the unmerged Hermes build gate from launch and release evidence", () => {
+  assert.match(packet, /PR #337/);
+  assert.match(packet, /736bef39f92f14f3753a0b1c74180220a93ff630/);
+  assert.match(packet, /unsigned Release Simulator build.*passed/i);
+  assert.match(packet, /does not install or launch/i);
+  assert.match(packet, /signed archive.*not.*verified/i);
+  assert.doesNotMatch(packet, /PR #337.*(?:fixes|resolves|clears).*launch/i);
 });
