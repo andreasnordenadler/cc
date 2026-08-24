@@ -53,6 +53,7 @@ import { shouldUseDevTrackerPreview } from "./src/preview/devTrackerPreview";
 import { createMobileCommunityCreatorReportSubmitter } from "./src/reports/communityCreatorReport";
 import { canReportCommunityMultiplayerQuest, createMobileCommunityReportSubmitter } from "./src/reports/communityMultiplayerReport";
 import { buildMobileSupportMessage, canComposeMobileSupportMessage } from "./src/support/buildMobileSupportMessage";
+import { buildMobileSupportEmailUrl } from "./src/support/mobileSupportContact";
 import { getMobileCandidateIdentity as resolveMobileCandidateIdentity, type MobileCandidateConfig } from "./src/support/mobileCandidateIdentity";
 import type { MobileAccountResponse, MobileAccountState, MobileBootstrap, MobileChallenge, MobileCustomSideQuest, MobileGroupQuestParticipantRow, MobileGroupQuestSummary, MobileSupportMessage } from "./src/types/sqc";
 
@@ -3632,6 +3633,16 @@ function HelpSupportModal({ visible, onClose, signedIn, authBridge, initialMessa
     Alert.alert("Support details copied", "Paste this into the support form and add what went wrong.");
   }
 
+  async function openSupportEmail() {
+    const url = buildMobileSupportEmailUrl();
+
+    try {
+      await Linking.openURL(url);
+    } catch {
+      Alert.alert("Could not open email", "Email sam@crowdler.com for Side Quest Chess support.");
+    }
+  }
+
   async function submitSupport() {
     if (!canComposeSupportMessage) {
       setSubmitState({ busy: false, message: null, error: "Sign in first so the support note can attach to your account." });
@@ -3791,9 +3802,9 @@ function HelpSupportModal({ visible, onClose, signedIn, authBridge, initialMessa
               <Text style={compactStyles.detailPrimaryButtonText}>{submitState.busy ? "Sending..." : "Send support message"}</Text>
             </Pressable>
             </>) : (<>
-              <Text style={compactStyles.detailPanelCopy}>Support messages stay attached to a signed-in Side Quest Chess account. For help without signing in, open the public support page to view contact details.</Text>
-              <Pressable accessibilityRole="button" accessibilityLabel="Open public support" style={compactStyles.detailPrimaryButton} onPress={() => void openLegalPage("/support", "public support")}>
-                <Text style={compactStyles.detailPrimaryButtonText}>Open public support</Text>
+              <Text style={compactStyles.detailPanelCopy}>Email Crowdler AB directly for help without signing in. Sign in to send an account-linked note and see replies in the app.</Text>
+              <Pressable accessibilityRole="button" accessibilityLabel="Email Side Quest Chess support" style={compactStyles.detailPrimaryButton} onPress={() => void openSupportEmail()}>
+                <Text style={compactStyles.detailPrimaryButtonText}>Email support</Text>
               </Pressable>
             </>)}
             <Pressable accessibilityRole="button" accessibilityLabel="Copy support details" style={compactStyles.detailPrimaryButton} onPress={() => void copySupportDetails()}>
