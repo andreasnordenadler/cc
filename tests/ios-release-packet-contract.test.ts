@@ -73,7 +73,7 @@ test("iOS release packet records the current local Xcode and CocoaPods receipt w
 });
 
 test("iOS release packet is reconciled to the current source and available simulator runtime", () => {
-  assert.match(packet, /eda0696886b9eabaa20b999eacb296be9da09b8d/);
+  assert.match(packet, /a2949393bdc18ba6ebda0067842fa71a520ba12f/);
   assert.match(packet, /iOS 26\.5 simulator runtime.*available/i);
   assert.doesNotMatch(packet, /simulator registration remains locally blocked/i);
 });
@@ -84,15 +84,25 @@ test("iOS listing draft uses plain text and records current field limits", () =>
   assert.doesNotMatch(packet, /<br>/i);
 });
 
+test("iOS release packet records public-proof integrity and deletion-retention blockers", () => {
+  assert.match(packet, /unsigned `preview-` proof tokens/i);
+  assert.match(packet, /shared proof URLs.*remain readable after account deletion/i);
+  assert.match(packet, /proof revocation or expiry/i);
+});
+
 test("iOS release packet records the exact current simulator build and bounded launch smoke", () => {
   assert.match(packet, /Release simulator build.*BUILD SUCCEEDED/i);
-  assert.match(packet, /mobile source tree[^\n]+ea79dc32b07345b5bd676041a421ebb4c372203b[^\n]+identical[^\n]+origin\/main/i);
-  assert.match(packet, /retained provenance[^\n]+00-provenance\.txt/i);
-  assert.match(packet, /main\.jsbundle[^\n]+6ef1c0422b2877b5cdd8f9109e8d4857f7a981ad8bbfe47f9013f6188c20f155/i);
-  assert.match(packet, /installed-artifact linkage[^\n]+19-install-launch-verification\.log/i);
+  assert.match(packet, /a2949393bdc18ba6ebda0067842fa71a520ba12f/);
+  assert.match(packet, /ios-20260824-a2949393\/README\.md/i);
+  assert.match(packet, /535 warnings/i);
+  assert.match(packet, /main\.jsbundle[^\n]+7363ba1711f2e13d6ef3c054deebf53067bde9ca71c3c69d605449589b8e4d5f/i);
+  assert.match(packet, /sqc-ios-a2949393-release\.xcresult/i);
+  assert.match(packet, /install-launch-linkage\.json/i);
+  assert.match(packet, /SideQuestChess-0\.1\.349-1-unsigned-simulator\.zip[^\n]+6ce9200ff137b0b81390fd6d1d0edab21fa0e80678fdb11ceb39a67bd75b0f0a/i);
   assert.match(packet, /Bounded simulator launch smoke:[^\n]+iPhone 17 Pro[^\n]+94D16E18-197E-43FD-A133-572FF0A7FBE4[^\n]+iPad Pro 13-inch \(M5\)[^\n]+02189F8B-B2ED-49AF-83B5-E630C8059EB1[^\n]+OCR[^\n]+Side Quest Chess[^\n]+Browse Solo Side Quests[^\n]+Browse Multiplayer Side Quests/i);
-  assert.match(packet, /iPhone SHA-256 `10d4fdcb7fc3021b35bd728b52222a48e0713e9549d8ad370062175274571720`/i);
-  assert.match(packet, /iPad SHA-256 `518699697aa525b16299c3f813e99a2008d2d8dfaa329116d236294b0e23d894`/i);
+  assert.match(packet, /iPhone SHA-256 `eec98b10954b118378af2995958f1b3ecc0ffb38ed9d4b0097789e491cbb12f2`/i);
+  assert.match(packet, /iPad SHA-256 `28a8296192697c8135e37f8ff670ce040657ada85a4b58c1f8a492f67bdf03de`/i);
   assert.match(packet, /local unsigned Simulator support only:[^\n]+not TestFlight evidence and not physical-device evidence/i);
-  assert.match(packet, /`pnpm test`: PASS — 810 tests, 0 failures, 0 skipped\/todo/i);
+  assert.doesNotMatch(packet, /\.xcresult[^\n]*(?:blocked|not performed)/i);
+  assert.match(packet, /`pnpm test`: PASS — 812 tests, 0 failures, 0 skipped\/todo/i);
 });
