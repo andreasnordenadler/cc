@@ -42,17 +42,41 @@ test("iOS release packet approval-gates the remaining app-record and privacy-pol
   assert.match(packet, /must not download or export.*certificates.*profiles.*API keys.*credentials/i);
 });
 
-test("iOS release packet distinguishes source-prepared safety disclosures from production evidence", () => {
-  assert.match(packet, /report and block disclosures are source-prepared/i);
-  assert.match(packet, /production deployment and signed-out readback remain blocked/i);
-  assert.doesNotMatch(packet, /current privacy policy.*does not explicitly disclose content and creator reports/i);
+test("iOS release packet records production readback without claiming privacy-label completion", () => {
+  assert.match(packet, /production readback passed on 2026-08-24/i);
+  assert.match(packet, /report and block disclosures/i);
+  assert.match(packet, /App Privacy answers.*exact-binary.*remain blocked/i);
+  assert.doesNotMatch(packet, /production deployment and signed-out readback remain blocked/i);
+  assert.doesNotMatch(packet, /App Privacy (?:answers|labels).*(?:complete|adopted|passed)/i);
 });
 
-test("iOS release packet records the current local Xcode and CocoaPods receipt without claiming a build pass", () => {
+test("iOS release packet records the current local Xcode and CocoaPods receipt without claiming signing", () => {
   assert.match(packet, /Xcode 26\.6.*iOS 26\.5 SDK/i);
   assert.match(packet, /CocoaPods 1\.17\.0/i);
-  assert.match(packet, /unsigned generic Simulator build.*failed/i);
-  assert.match(packet, /simulator runtime.*not.*registered/i);
+  assert.match(packet, /Release simulator build.*BUILD SUCCEEDED/i);
+  assert.match(packet, /No valid local Apple signing identity is verified/i);
+  assert.match(packet, /no signed IPA.*TestFlight build/i);
+  assert.doesNotMatch(packet, /signed archive:\s*(?:PASS|verified|complete)/i);
+  assert.doesNotMatch(packet, /TestFlight (?:build|upload|processing):\s*(?:PASS|verified|complete)/i);
   assert.doesNotMatch(packet, /Full Xcode is unavailable locally/i);
   assert.doesNotMatch(packet, /CocoaPods is unavailable/i);
+});
+
+test("iOS release packet is reconciled to the current source and available simulator runtime", () => {
+  assert.match(packet, /eda0696886b9eabaa20b999eacb296be9da09b8d/);
+  assert.match(packet, /iOS 26\.5 simulator runtime.*available/i);
+  assert.doesNotMatch(packet, /simulator registration remains locally blocked/i);
+});
+
+test("iOS listing draft uses plain text and records current field limits", () => {
+  assert.match(packet, /Description.*4,000.*plain text/i);
+  assert.match(packet, /App Review phone.*international.*\+country-code/i);
+  assert.doesNotMatch(packet, /<br>/i);
+});
+
+test("iOS release packet records the exact current simulator build and bounded launch smoke", () => {
+  assert.match(packet, /Release simulator build.*BUILD SUCCEEDED/i);
+  assert.match(packet, /Bounded simulator launch smoke:[^\n]+iPhone 17 Pro[^\n]+94D16E18-197E-43FD-A133-572FF0A7FBE4[^\n]+iPad Pro 13-inch \(M5\)[^\n]+02189F8B-B2ED-49AF-83B5-E630C8059EB1[^\n]+OCR[^\n]+Side Quest Chess[^\n]+Browse Solo Side Quests[^\n]+Browse Multiplayer Side Quests/i);
+  assert.match(packet, /local unsigned Simulator support only:[^\n]+not TestFlight evidence and not physical-device evidence/i);
+  assert.match(packet, /`pnpm test`: PASS — 809 tests, 0 failures, 0 skipped\/todo/i);
 });
