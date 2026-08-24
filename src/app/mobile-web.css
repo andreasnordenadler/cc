@@ -11498,6 +11498,40 @@ body::after {
     max-width: 980px;
   }
 
+  /* Wide owner records keep the management rail bounded while the quest brief,
+     rules, proof, and activity gain a true desktop reading canvas. */
+  .sqc-mobile-web.desktop-custom-detail .sqc-screen {
+    width: min(1600px, calc(100% - 96px));
+  }
+
+  .sqc-mobile-web.desktop-custom-detail .sqc-custom-owner-detail-screen {
+    grid-template-columns: minmax(0, 1fr) 440px;
+    gap: 22px 28px;
+  }
+
+  .sqc-mobile-web.desktop-custom-detail .sqc-custom-owner-detail-hero {
+    grid-template-columns: 280px minmax(0, 1fr);
+    padding: 38px 52px;
+  }
+
+  .sqc-mobile-web.desktop-custom-detail .sqc-custom-owner-detail-hero .sqc-custom-detail-coat-frame {
+    width: 244px;
+    height: 250px;
+  }
+
+  .sqc-mobile-web.desktop-custom-detail .sqc-custom-owner-detail-hero .sqc-custom-detail-coat-image {
+    width: 214px;
+    height: 232px;
+  }
+
+  .sqc-mobile-web.desktop-custom-detail .sqc-custom-owner-detail-hero h1 {
+    max-width: 1040px;
+  }
+
+  .sqc-mobile-web.desktop-custom-detail .sqc-custom-owner-detail-hero p {
+    max-width: 980px;
+  }
+
   .sqc-mobile-web.desktop-official-detail.signed-out .sqc-quest-instruction-card .sqc-condition-list {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
