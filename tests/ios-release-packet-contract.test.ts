@@ -33,6 +33,13 @@ test("iOS release packet preserves the Android and web launch-order gate", () =>
   assert.match(packet, /preparation, source verification, and approved TestFlight work may proceed before that predecessor milestone/i);
 });
 
+test("iOS release packet separates login equivalence from account deletion revocation guidance", () => {
+  assert.match(packet, /Guideline 4\.8 login equivalence \|/);
+  assert.match(packet, /Guideline 5\.1\.1\(v\) account deletion and provider revocation \|/);
+  assert.match(packet, /Token revocation is a separate account-deletion requirement under Guideline 5\.1\.1\(v\)/i);
+  assert.doesNotMatch(packet, /Guideline 4\.8 login \|[^\n]*revocation/i);
+});
+
 test("iOS release packet approval-gates the remaining app-record and privacy-policy facts", () => {
   assert.match(packet, /Made for Kids.*No/i);
   assert.match(packet, /1024.?×.?1024.*icon/i);
@@ -87,5 +94,5 @@ test("iOS release packet records the exact current simulator build and bounded l
   assert.match(packet, /iPhone SHA-256 `10d4fdcb7fc3021b35bd728b52222a48e0713e9549d8ad370062175274571720`/i);
   assert.match(packet, /iPad SHA-256 `518699697aa525b16299c3f813e99a2008d2d8dfaa329116d236294b0e23d894`/i);
   assert.match(packet, /local unsigned Simulator support only:[^\n]+not TestFlight evidence and not physical-device evidence/i);
-  assert.match(packet, /`pnpm test`: PASS — 809 tests, 0 failures, 0 skipped\/todo/i);
+  assert.match(packet, /`pnpm test`: PASS — 810 tests, 0 failures, 0 skipped\/todo/i);
 });
