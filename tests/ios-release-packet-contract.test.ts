@@ -76,7 +76,12 @@ test("iOS listing draft uses plain text and records current field limits", () =>
 
 test("iOS release packet records the exact current simulator build and bounded launch smoke", () => {
   assert.match(packet, /Release simulator build.*BUILD SUCCEEDED/i);
+  assert.match(packet, /mobile source tree[^\n]+ea79dc32b07345b5bd676041a421ebb4c372203b[^\n]+identical[^\n]+origin\/main/i);
+  assert.match(packet, /retained provenance[^\n]+00-provenance\.txt/i);
+  assert.match(packet, /main\.jsbundle[^\n]+6ef1c0422b2877b5cdd8f9109e8d4857f7a981ad8bbfe47f9013f6188c20f155/i);
   assert.match(packet, /Bounded simulator launch smoke:[^\n]+iPhone 17 Pro[^\n]+94D16E18-197E-43FD-A133-572FF0A7FBE4[^\n]+iPad Pro 13-inch \(M5\)[^\n]+02189F8B-B2ED-49AF-83B5-E630C8059EB1[^\n]+OCR[^\n]+Side Quest Chess[^\n]+Browse Solo Side Quests[^\n]+Browse Multiplayer Side Quests/i);
+  assert.match(packet, /iPhone SHA-256 `d4571ac7415b1fafadca90926a5facd6dea33d179e5a6e56c7aac3cc07fef4c1`/i);
+  assert.match(packet, /iPad SHA-256 `aeb42181ed5f1d62ec12a700718e1dc511af22eee763513537b591148fd536b8`/i);
   assert.match(packet, /local unsigned Simulator support only:[^\n]+not TestFlight evidence and not physical-device evidence/i);
   assert.match(packet, /`pnpm test`: PASS — 809 tests, 0 failures, 0 skipped\/todo/i);
 });
