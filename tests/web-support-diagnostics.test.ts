@@ -135,6 +135,13 @@ test("signed-out support exposes direct Crowdler contact information", () => {
   assert.match(html, /Kvarnängsvägen 15, 182 47 Enebyberg, Sweden/);
 });
 
+test("signed-out support requests open the same Crowdler operational mailbox", () => {
+  const source = readFileSync(new URL("../src/components/support-contact-form.tsx", import.meta.url), "utf8");
+
+  assert.match(source, /const SUPPORT_EMAIL = "sam@crowdler\.com"/);
+  assert.doesNotMatch(source, /andreas\.nordenadler@gmail\.com/);
+});
+
 test("web support diagnostics include the same account and quest context as Android", () => {
   const diagnostics = buildWebSupportDiagnostics({
     url: "https://sidequestchess.com/support",
