@@ -9909,7 +9909,7 @@ function ChessUsernameEditor({
         <Text style={styles.inputLabel}>Display name</Text>
         <TextInput
           value={runnerDisplayName}
-          placeholder="e.g. Andreas"
+          placeholder="e.g. Knight Rider"
           placeholderTextColor="rgba(255,247,232,.42)"
           maxLength={60}
           style={styles.textInput}
@@ -10187,15 +10187,15 @@ function getDevTrackerPreviewAccount(account: MobileAccountResponse | null, boot
     authenticated: true,
     generatedAt: new Date().toISOString(),
     profile: {
-      displayName: "Andreas",
-      bio: "App review account",
+      displayName: "Review Knight",
+      bio: "Fictional preview account",
       imageUrl: null,
-      email: "andreas.nordenadler@gmail.com",
+      email: "review-knight@example.com",
       lastSignInAt: new Date().toISOString(),
     },
     chessAccounts: {
-      lichessUsername: "and72nor",
-      chessComUsername: "and72nor",
+      lichessUsername: "reviewknight",
+      chessComUsername: "reviewknight",
       hasAny: true,
     },
     progress: {
@@ -10239,8 +10239,8 @@ function getDevTrackerPreviewAccount(account: MobileAccountResponse | null, boot
           { label: "Winner", value: "First to complete all included Side Quests wins. If nobody finishes, best completion progress at the deadline wins." },
         ],
         leaderboardRows: [
-          { rank: "#1", name: "SAM", provider: "lichess · and72nor", progress: "3/4", verified: "3/4 verified", note: "Joined this Multiplayer Side Quest" },
-          { rank: "#2", name: "Andreas", provider: "lichess · and72nor", progress: "2/4", verified: "2/4 verified", note: "You" },
+          { rank: "#1", name: "Rook Scout", provider: "lichess · rookscout", progress: "3/4", verified: "3/4 verified", note: "Joined this Multiplayer Side Quest" },
+          { rank: "#2", name: "Review Knight", provider: "lichess · reviewknight", progress: "2/4", verified: "2/4 verified", note: "You" },
         ],
       },
     ],
@@ -10288,7 +10288,7 @@ function getDevTrackerPreviewAccount(account: MobileAccountResponse | null, boot
         ],
         leaderboardRows: [
           { rank: "#1", name: "Greta", provider: "lichess · gretafork", progress: "2/2", verified: "2/2 verified", note: "Joined this Multiplayer Side Quest" },
-          { rank: "#4", name: "Andreas", provider: "lichess · and72nor", progress: "1/2", verified: "1/2 verified", note: "You" },
+          { rank: "#4", name: "Review Knight", provider: "lichess · reviewknight", progress: "1/2", verified: "1/2 verified", note: "You" },
         ],
       },
       {
@@ -10331,7 +10331,7 @@ function getDevTrackerPreviewAccount(account: MobileAccountResponse | null, boot
           { label: "Winner", value: "Best verified completion progress at the deadline." },
         ],
         leaderboardRows: [
-          { rank: "#1", name: "Andreas", provider: "lichess · and72nor", progress: "2/2", verified: "2/2 verified", note: "Gold" },
+          { rank: "#1", name: "Review Knight", provider: "lichess · reviewknight", progress: "2/2", verified: "2/2 verified", note: "Gold" },
           { rank: "#2", name: "Mira", provider: "lichess · miragambit", progress: "2/2", verified: "2/2 verified", note: "Silver" },
           { rank: "#3", name: "Jon", provider: "chess.com · jonforks", progress: "1/2", verified: "1/2 verified", note: "Bronze" },
         ],
@@ -10354,7 +10354,7 @@ function getDevTrackerPreviewAccount(account: MobileAccountResponse | null, boot
         ],
         leaderboardRows: [
           { rank: "#1", name: "Greta", provider: "lichess · gretafork", progress: "2/2", verified: "2/2 verified", note: "Gold" },
-          { rank: "#2", name: "Andreas", provider: "lichess · and72nor", progress: "1/2", verified: "1/2 verified", note: "Silver" },
+          { rank: "#2", name: "Review Knight", provider: "lichess · reviewknight", progress: "1/2", verified: "1/2 verified", note: "Silver" },
           { rank: "#3", name: "Sasha", provider: "chess.com · sashaqueenless", progress: "1/2", verified: "1/2 verified", note: "Bronze" },
         ],
       },
@@ -10376,7 +10376,7 @@ function getDevTrackerPreviewAccount(account: MobileAccountResponse | null, boot
         ],
         leaderboardRows: [
           { rank: "#1", name: "Nils", provider: "lichess · nilsgremlin", progress: "2/2", verified: "2/2 verified", note: "Gold" },
-          { rank: "#2", name: "Andreas", provider: "lichess · and72nor", progress: "1/2", verified: "1/2 verified", note: "Silver" },
+          { rank: "#2", name: "Review Knight", provider: "lichess · reviewknight", progress: "1/2", verified: "1/2 verified", note: "Silver" },
           { rank: "#3", name: "Mira", provider: "lichess · miragambit", progress: "1/2", verified: "1/2 verified", note: "Bronze" },
         ],
       },
@@ -10399,7 +10399,7 @@ function getDevTrackerPreviewAccount(account: MobileAccountResponse | null, boot
             questTitles: ["Any Game Counts"],
             leaderboardRows: [
               { rank: "#1", name: "Mira", provider: "lichess · miragambit", progress: "1/1", verified: "1/1 verified", note: "Gold" },
-              { rank: "#2", name: "Andreas", provider: "lichess · and72nor", progress: "1/1", verified: "1/1 verified", note: "Silver" },
+              { rank: "#2", name: "Review Knight", provider: "lichess · reviewknight", progress: "1/1", verified: "1/1 verified", note: "Silver" },
               { rank: "#3", name: "Jon", provider: "chess.com · jonforks", progress: "1/1", verified: "1/1 verified", note: "Bronze" },
             ],
           },
@@ -10421,7 +10421,7 @@ function getDevTrackerPreviewAccount(account: MobileAccountResponse | null, boot
             timeLeftLabel: "Finished",
             questTitles: ["No Castle Club"],
             leaderboardRows: [
-              { rank: "#1", name: "Andreas", provider: "lichess · and72nor", progress: "1/1", verified: "1/1 verified", note: "Gold" },
+              { rank: "#1", name: "Review Knight", provider: "lichess · reviewknight", progress: "1/1", verified: "1/1 verified", note: "Gold" },
               { rank: "#2", name: "Sasha", provider: "chess.com · sashaqueenless", progress: "1/1", verified: "1/1 verified", note: "Silver" },
               { rank: "#3", name: "Nils", provider: "lichess · nilsgremlin", progress: "0/1", verified: "0/1 verified", note: "Bronze" },
             ],

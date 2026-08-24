@@ -180,7 +180,7 @@ function decodePreviewProof(token: string | null | undefined): DecodedPublicProo
       finalPositionFen: "r1bqkbnr/pppp1ppp/2n5/4p3/2B1P3/5N2/PPPP1PPP/RNBQK2R b KQkq - 2 3",
       lastMoveUci: "f1c4",
       lastMoveSan: "Bc4",
-      runnerName: "Andreas",
+      runnerName: "Review Knight",
     },
   };
 }

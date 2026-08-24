@@ -74,7 +74,7 @@ export function SettingsEditor({
             <div className="sqc-settings-group-fields">
               <label className="sqc-form-row">
                 <span>Display name</span>
-                <input name="runnerDisplayName" defaultValue={displayName} maxLength={60} placeholder="e.g. Andreas" />
+                <input name="runnerDisplayName" defaultValue={displayName} maxLength={60} placeholder="e.g. Knight Rider" />
               </label>
               <label className="sqc-form-row">
                 <span>Brag line</span>

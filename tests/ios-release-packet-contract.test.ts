@@ -48,11 +48,30 @@ test("iOS release packet distinguishes source-prepared safety disclosures from p
   assert.doesNotMatch(packet, /current privacy policy.*does not explicitly disclose content and creator reports/i);
 });
 
-test("iOS release packet records the current local Xcode and CocoaPods receipt without claiming a build pass", () => {
+test("iOS release packet preserves the superseded CoreSimulator failure as historical evidence", () => {
   assert.match(packet, /Xcode 26\.6.*iOS 26\.5 SDK/i);
   assert.match(packet, /CocoaPods 1\.17\.0/i);
-  assert.match(packet, /unsigned generic Simulator build.*failed/i);
-  assert.match(packet, /simulator runtime.*not.*registered/i);
+  assert.match(packet, /Historical receipt:.*unsigned generic Simulator build.*failed/i);
+  assert.match(packet, /Historical receipt:.*simulator runtime.*not.*registered/i);
+  assert.match(packet, /historical failure is superseded/i);
   assert.doesNotMatch(packet, /Full Xcode is unavailable locally/i);
   assert.doesNotMatch(packet, /CocoaPods is unavailable/i);
+});
+
+test("iOS release packet records the current bundled simulator build and launch matrix", () => {
+  assert.match(packet, /3cdfc0cf90629b3dbd0a57b167ca6700be055159/);
+  assert.match(packet, /13e439a912b7c3a4f35ed57b4704aebd9341a3d9986e284c4464d0cb0ddc8488/);
+  assert.match(packet, /7b1b86cf1f34f6372191270f8e484459b08ba1168e84a684790f2eaf54aa6bb4/);
+  assert.match(packet, /sqc-evidence\/ios-20260824-v20\/README\.md/);
+  assert.match(packet, /iOS 26\.5 runtime.*available/i);
+  assert.match(packet, /Release Simulator build.*bundled.*main\.jsbundle.*succeeded/i);
+  assert.match(packet, /iPhone 17 Pro.*94D16E18-197E-43FD-A133-572FF0A7FBE4/i);
+  assert.match(packet, /iPad Pro 13-inch.*02189F8B-B2ED-49AF-83B5-E630C8059EB1/i);
+  assert.match(packet, /system confirmation sheet.*scheme recognition/i);
+  assert.match(packet, /app delivery.*callback completion.*authentication.*not.*proved/i);
+  assert.match(packet, /UIScene.*CoreUI.*pre-freeze/i);
+  assert.match(packet, /unsigned Simulator evidence only/i);
+  assert.match(packet, /No signed archive, IPA, TestFlight build, or real-device evidence/i);
+  assert.doesNotMatch(packet, /reached the app's deep-link handler/i);
+  assert.doesNotMatch(packet, /Simulator registration remains locally blocked/i);
 });

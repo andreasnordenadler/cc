@@ -135,6 +135,13 @@ test("signed-out support exposes direct Crowdler contact information", () => {
   assert.match(html, /Kvarnängsvägen 15, 182 47 Enebyberg, Sweden/);
 });
 
+test("signed-out support email composer uses the Crowdler operational mailbox", () => {
+  const source = readFileSync(new URL("../src/components/support-contact-form.tsx", import.meta.url), "utf8");
+
+  assert.match(source, /const SUPPORT_EMAIL = "sam@crowdler\.com"/);
+  assert.doesNotMatch(source, /andreas\.nordenadler@gmail\.com/);
+});
+
 test("wide desktop Support separates legal, contact, and report desks without changing mobile", () => {
   const html = renderToStaticMarkup(React.createElement(MobileSupportScreen, { signedIn: false }));
   const css = readFileSync(new URL("../src/app/mobile-web.css", import.meta.url), "utf8");

@@ -355,7 +355,7 @@ function ProfileEditorCard({
       <div className="sqc-input-stack">
         <label className="sqc-form-row">
           <span>Display name</span>
-          <input name="runnerDisplayName" defaultValue={displayName} maxLength={60} placeholder="e.g. Andreas" />
+          <input name="runnerDisplayName" defaultValue={displayName} maxLength={60} placeholder="e.g. Knight Rider" />
         </label>
         <label className="sqc-form-row">
           <span>Brag line</span>
