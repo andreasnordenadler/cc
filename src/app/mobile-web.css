@@ -11548,6 +11548,44 @@ body::after {
     font-size: 38px;
   }
 
+  .sqc-mobile-web.desktop-settings .sqc-screen {
+    width: min(1500px, calc(100% - 96px));
+  }
+
+  .sqc-mobile-web.desktop-settings .sqc-account-workspace-nav {
+    width: min(1500px, calc(100% - 96px));
+  }
+
+  .sqc-mobile-web.desktop-settings .sqc-settings-editor-layout {
+    grid-template-columns: minmax(0, 1fr) 420px;
+  }
+
+  .sqc-mobile-web.desktop-settings .sqc-settings-profile-panel {
+    padding: 48px 56px;
+  }
+
+  .sqc-mobile-web.desktop-settings .sqc-settings-profile-panel .sqc-input-stack,
+  .sqc-mobile-web.desktop-settings .sqc-settings-field-group {
+    grid-template-columns: 190px minmax(0, 1fr);
+  }
+
+  .sqc-mobile-web.desktop-settings .sqc-settings-profile-panel .sqc-primary-action {
+    margin-left: 214px;
+  }
+
+  .sqc-mobile-web.desktop-settings .sqc-settings-sign-in-layout {
+    grid-template-columns: minmax(0, .82fr) minmax(640px, 1.18fr);
+    min-height: 620px;
+  }
+
+  .sqc-mobile-web.desktop-settings .sqc-settings-sign-in-copy {
+    padding: 76px;
+  }
+
+  .sqc-mobile-web.desktop-settings .sqc-settings-sign-in-context {
+    padding: 72px;
+  }
+
   .sqc-mobile-web.desktop-trophy-cabinet .sqc-screen {
     width: min(1600px, calc(100% - 80px));
   }

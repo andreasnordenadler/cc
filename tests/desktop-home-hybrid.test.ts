@@ -1760,7 +1760,9 @@ test("desktop Settings separates profile identity from proof accounts without du
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-settings\s+\.sqc-settings-profile-panel\s+\.sqc-input-stack\s*\{[^}]*grid-template-columns:\s*170px\s+minmax\(0,\s*1fr\);/);
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-settings\s+\.sqc-settings-field-group\s*\{[^}]*grid-column:\s*1\s*\/\s*-1;[^}]*display:\s*grid;[^}]*grid-template-columns:\s*170px\s+minmax\(0,\s*1fr\);/);
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-settings\s+\.sqc-settings-group-fields\s*\{[^}]*grid-template-columns:\s*repeat\(2,\s*minmax\(0,\s*1fr\)\);/);
-  assert.equal(css.replace(desktopMedia, "").includes(".sqc-mobile-web.desktop-settings .sqc-settings-field-group"), false, "desktop form composition cannot leak below 1180px");
+  const wideDesktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1680px)"));
+  const cssOutsideDesktopMedia = css.replace(desktopMedia, "").replace(wideDesktopMedia, "");
+  assert.equal(cssOutsideDesktopMedia.includes(".sqc-mobile-web.desktop-settings .sqc-settings-field-group"), false, "desktop form composition cannot leak outside the desktop media queries");
 });
 
 test("signed-in desktop Account marks its sole persistent account action as current", () => {
