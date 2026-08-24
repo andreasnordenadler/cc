@@ -3,7 +3,7 @@
 import { FormEvent, useMemo, useState } from "react";
 import type { SQCSupportMessage } from "@/lib/analytics";
 
-const SUPPORT_EMAIL = "andreas.nordenadler@gmail.com";
+const SUPPORT_EMAIL = "sam@crowdler.com";
 
 type SupportContactFormProps = {
   isSignedIn?: boolean;
