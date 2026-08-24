@@ -11361,6 +11361,20 @@ body::after {
    sign-in action beside its explanation so collection controls and a complete
    first coat row remain visible on arrival. */
 @media (min-width: 1380px) {
+  /* The Custom editor grows continuously after standard desktop instead of
+     jumping hundreds of pixels at the ultrawide boundary. */
+  .sqc-mobile-web.desktop-custom-editor .sqc-screen {
+    width: min(1600px, calc(100% - 80px));
+  }
+
+  .sqc-mobile-web.desktop-custom-editor .sqc-custom-builder-card {
+    grid-template-columns: clamp(320px, 22vw, 380px) minmax(0, 1fr);
+  }
+
+  .sqc-mobile-web.desktop-custom-editor .sqc-custom-builder-hero {
+    grid-template-columns: clamp(220px, 15vw, 260px) minmax(0, 1fr);
+  }
+
   .sqc-mobile-web.desktop-trophy-cabinet .sqc-screen-emblem.trophy {
     min-height: 184px;
   }
