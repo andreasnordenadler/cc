@@ -21,7 +21,7 @@ export default async function SignUpPage({ searchParams }: SignUpPageProps) {
           <div className="sqc-desktop-auth-context" aria-label="What comes with your profile">
             <div><span>01</span><strong>One shared quest log</strong><small>Your account state follows you between the desktop site and Android app.</small></div>
             <div><span>02</span><strong>Proof without passwords</strong><small>Side Quest Chess reads finished public games, never your chess-site password.</small></div>
-            <div><span>03</span><strong>A cabinet for bad ideas</strong><small>Keep proof receipts, completed Side Quests, and every unlocked coat together.</small></div>
+            <div><span>03</span><strong>A cabinet for bad ideas</strong><small>Keep proof receipts, completed Side Quests, and every unlocked Coat of Arms together.</small></div>
           </div>
         </section>
         <section className="sqc-auth-card" aria-label="Sign up form">

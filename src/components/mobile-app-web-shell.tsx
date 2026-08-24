@@ -519,7 +519,7 @@ function DesktopGuestHome() {
       <section className="sqc-desktop-coat-story" aria-labelledby="desktop-coats-title">
         <div>
           <span className="sqc-desktop-eyebrow">The paperwork has a crest</span>
-          <h2 id="desktop-coats-title">Every bad idea deserves a coat of arms.</h2>
+          <h2 id="desktop-coats-title">Every bad idea deserves a Coat of Arms.</h2>
           <p>
             Complete a quest and its shield enters your Trophy Cabinet: permanent evidence that, yes, you really chose to play like that.
           </p>
@@ -583,7 +583,7 @@ function DesktopSignedInHome({
         <div>
           <span className="sqc-desktop-eyebrow">Today&apos;s quest log</span>
           <h1>{setupComplete ? `Welcome back${displayName ? `, ${displayName}` : ""}.` : hasActiveSolo ? "Let’s finish setting up your quest log." : "Let’s choose your first Side Quest."}</h1>
-          <p>{setupComplete ? "Your active quest, latest proof, shared challenges, and unlocked coats are ready below." : hasActiveSolo ? "Your active quest is ready below. Connect a public chess username before Side Quest Chess can check its proof." : "Connect a public chess username, choose one quest, then play a new public game."}</p>
+          <p>{setupComplete ? "Your active quest, latest proof, shared challenges, and unlocked Coats of Arms are ready below." : hasActiveSolo ? "Your active quest is ready below. Connect a public chess username before Side Quest Chess can check its proof." : "Connect a public chess username, choose one quest, then play a new public game."}</p>
         </div>
         {!setupComplete ? (
           <ol className="sqc-desktop-onboarding-progress" aria-label="Getting started">
@@ -608,7 +608,7 @@ function DesktopSignedInHome({
         </Link>
         <Link href="/trophy-cabinet">
           <span>Cabinet</span>
-          <strong>{completedSoloCount} coat of arms</strong>
+          <strong>{completedSoloCount} {completedSoloCount === 1 ? "Coat of Arms" : "Coats of Arms"}</strong>
           <small>{proofReceiptCount} proof receipt{proofReceiptCount === 1 ? "" : "s"} recorded</small>
         </Link>
       </nav>
@@ -872,13 +872,18 @@ export function MobileSoloSideQuestsScreen({
   completedChallengeIds,
   likeSummaries,
   signedIn = false,
+  query = "",
+  totalChallengeCount = challenges.length,
 }: {
   challenges: Challenge[];
   activeChallengeId?: string | null;
   completedChallengeIds?: string[];
   likeSummaries?: Record<string, CommunityLikeSummary>;
   signedIn?: boolean;
+  query?: string;
+  totalChallengeCount?: number;
 }) {
+  const catalogReturnTo = query ? `/side-quests?q=${encodeURIComponent(query)}` : "/side-quests";
   const completedSet = new Set(completedChallengeIds ?? []);
   const sortedChallenges = [...challenges].sort((a, b) => {
     const difficultyDelta = difficultyRank(a.difficulty) - difficultyRank(b.difficulty);
@@ -904,7 +909,7 @@ export function MobileSoloSideQuestsScreen({
       <header className="sqc-desktop-catalog-intro">
         <span className="sqc-desktop-eyebrow">Official Solo Side Quests</span>
         <h1>Choose the rule that will ruin your next perfectly normal game.</h1>
-        <p>Every card opens the complete objective before you commit. Start easy, or skip directly to the kind of decision that deserves its own coat of arms.</p>
+        <p>Every card opens the complete objective before you commit. Start easy, or skip directly to the kind of decision that deserves its own Coat of Arms.</p>
       </header>
       <div className="sqc-screen-emblem solo" aria-hidden="true">
         <Image className="sqc-screen-emblem-glow" alt="" src={mobileAsset.coatGlow} width={166} height={176} priority />
@@ -922,55 +927,76 @@ export function MobileSoloSideQuestsScreen({
       <section className="sqc-panel list">
         <div className="sqc-list-head inline">
           <h2>Official Side Quests</h2>
-          <span>{sortedChallenges.length} official</span>
+          <span>{query ? `${sortedChallenges.length} of ${totalChallengeCount} official` : `${sortedChallenges.length} official`}</span>
         </div>
-        <div className="sqc-solo-browser">
-          <nav className="sqc-solo-difficulty-nav" aria-label="Jump to quest difficulty">
-            <span>Difficulty</span>
-            {difficultyShelves.map((shelf) => (
-              <a className="sqc-solo-difficulty-link" href={`#solo-difficulty-${shelf.difficulty.toLowerCase()}`} key={shelf.difficulty}>
-                <span>{shelf.difficulty}</span>
-                <small>{shelf.challenges.length}</small>
-              </a>
-            ))}
-          </nav>
-          <div className="sqc-catalog">
-            {difficultyShelves.map((shelf) => (
-              <div className="sqc-solo-difficulty-shelf" key={shelf.difficulty}>
-                <header className="sqc-solo-difficulty-heading">
-                  <h3
-                    id={`solo-difficulty-${shelf.difficulty.toLowerCase()}`}
-                    aria-label={shelf.difficulty}
-                    data-label={shelf.difficulty}
-                  />
-                  <span>{shelf.challenges.length} {shelf.challenges.length === 1 ? "quest" : "quests"}</span>
-                </header>
-                <div className="sqc-solo-difficulty-grid">
-                  {shelf.challenges.map((challenge) => (
-                    <AppRow
-                      key={challenge.id}
-                      title={challenge.title}
-                      meta={challenge.objective}
-                      desktopNote={challenge.openingHint}
-                      status={challenge.id === activeChallengeId ? "Active" : completedSet.has(challenge.id) ? "Completed" : challenge.difficulty}
-                      href={`/challenges/${challenge.id}`}
-                      image={toMobileAssetPath(challenge.badgeIdentity.image) ?? mobileAsset.fallbackBadge}
-                      glow={getChallengeGlowPath(challenge.id)}
-                      glowColor={challenge.badgeIdentity.colors.glow}
-                      likeSummary={likeSummaries?.[challenge.id]}
-                      likeAction={{
-                        signedIn,
-                        targetType: "solo",
-                        targetId: challenge.id,
-                        returnTo: "/side-quests",
-                      }}
-                    />
-                  ))}
-                </div>
-              </div>
-            ))}
+        <form className="sqc-solo-search" action="/side-quests" role="search">
+          <label htmlFor="official-solo-search">Find an official Side Quest</label>
+          <div>
+            <input
+              id="official-solo-search"
+              name="q"
+              type="search"
+              defaultValue={query}
+              placeholder="Search titles, rules, or difficulty"
+            />
+            <button type="submit">Search</button>
+            {query ? <Link className="sqc-solo-search-clear" href="/side-quests">Clear search</Link> : null}
           </div>
-        </div>
+        </form>
+        {difficultyShelves.length ? (
+          <div className="sqc-solo-browser">
+            <nav className="sqc-solo-difficulty-nav" aria-label="Jump to quest difficulty">
+              <span>Difficulty</span>
+              {difficultyShelves.map((shelf) => (
+                <a className="sqc-solo-difficulty-link" href={`#solo-difficulty-${shelf.difficulty.toLowerCase()}`} key={shelf.difficulty}>
+                  <span>{shelf.difficulty}</span>
+                  <small>{shelf.challenges.length}</small>
+                </a>
+              ))}
+            </nav>
+            <div className="sqc-catalog">
+              {difficultyShelves.map((shelf) => (
+                <div className="sqc-solo-difficulty-shelf" key={shelf.difficulty}>
+                  <header className="sqc-solo-difficulty-heading">
+                    <h3
+                      id={`solo-difficulty-${shelf.difficulty.toLowerCase()}`}
+                      data-label={shelf.difficulty}
+                    >{shelf.difficulty}</h3>
+                    <span>{shelf.challenges.length} {shelf.challenges.length === 1 ? "quest" : "quests"}</span>
+                  </header>
+                  <div className="sqc-solo-difficulty-grid">
+                    {shelf.challenges.map((challenge) => (
+                      <AppRow
+                        key={challenge.id}
+                        title={challenge.title}
+                        meta={challenge.objective}
+                        desktopNote={challenge.openingHint}
+                        status={challenge.id === activeChallengeId ? "Active" : completedSet.has(challenge.id) ? "Completed" : challenge.difficulty}
+                        href={`/challenges/${challenge.id}`}
+                        image={toMobileAssetPath(challenge.badgeIdentity.image) ?? mobileAsset.fallbackBadge}
+                        glow={getChallengeGlowPath(challenge.id)}
+                        glowColor={challenge.badgeIdentity.colors.glow}
+                        likeSummary={likeSummaries?.[challenge.id]}
+                        likeAction={{
+                          signedIn,
+                          targetType: "solo",
+                          targetId: challenge.id,
+                          returnTo: catalogReturnTo,
+                        }}
+                      />
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : (
+          <div className="sqc-empty-panel sqc-solo-empty-search">
+            <h3>No official Side Quests match “{query}”.</h3>
+            <p>Try a title, rule, category, or difficulty — or clear the search to restore all {totalChallengeCount} quests.</p>
+            <Link href="/side-quests">Clear search</Link>
+          </div>
+        )}
       </section>
     </div>
   );
@@ -1071,7 +1097,7 @@ export function MobileSupportScreen({
     },
     {
       title: "Coat of Arms",
-      body: "Completing a Side Quest unlocks its Coat of Arms. Your unlocked coats stay in your account and appear in the Trophy Cabinet.",
+      body: "Completing a Side Quest unlocks its Coat of Arms. Your unlocked Coats of Arms stay in your account and appear in the Trophy Cabinet.",
       action: { label: "Open Trophy Cabinet", href: "/trophy-cabinet" },
     },
   ];
@@ -1126,7 +1152,7 @@ export function MobileSupportScreen({
         ))}
       </section>
 
-      <section className="sqc-support-card" aria-label="Legal and privacy">
+      <section className="sqc-support-card sqc-support-legal" aria-label="Legal and privacy">
         <span className="sqc-card-eyebrow">Legal & privacy</span>
         <p>Read the Privacy Policy, support notes, or the Terms of Use. Side Quest Chess only asks for public chess usernames and never chess-site passwords.</p>
         <div className="sqc-support-link-row">
@@ -1136,7 +1162,7 @@ export function MobileSupportScreen({
         </div>
       </section>
 
-      <section className="sqc-support-card" aria-label="Contact Side Quest Chess support">
+      <section className="sqc-support-card sqc-support-contact" aria-label="Contact Side Quest Chess support">
         <span className="sqc-card-eyebrow">Contact</span>
         <h3>Crowdler AB</h3>
         <p>Email <a href="mailto:sam@crowdler.com">sam@crowdler.com</a> for product, account, privacy, or safety support.</p>
@@ -1199,7 +1225,7 @@ export function MobileTrophyCabinetScreen({
       <header className="sqc-desktop-trophy-intro">
         <span>Your reward archive</span>
         <h1>Every ridiculous victory, filed in one grand collection.</h1>
-        <p>Review earned coats and podium finishes, then browse the complete Official Solo collection without leaving your cabinet.</p>
+        <p>Review earned Coats of Arms and podium finishes, then browse the complete Official Solo collection without leaving your cabinet.</p>
       </header>
 
       {signedIn ? (
@@ -1208,7 +1234,7 @@ export function MobileTrophyCabinetScreen({
           <h2>{unlockedCount ? `${unlockedCount} unlocked: ${officialSoloRows.length} Official Solo Side Quest${officialSoloRows.length === 1 ? "" : "s"} · ${customSoloRows.length} Custom Solo Side Quest${customSoloRows.length === 1 ? "" : "s"} · ${communitySoloRows.length} Community Solo Side Quest${communitySoloRows.length === 1 ? "" : "s"} · ${officialMultiplayerRows.length} Official Multiplayer Side Quest${officialMultiplayerRows.length === 1 ? "" : "s"} · ${communityMultiplayerRows.length} Community Multiplayer Side Quest${communityMultiplayerRows.length === 1 ? "" : "s"}` : "No unlocked trophies yet."}</h2>
           <p>
             {unlockedCount
-              ? "This is your unified Side Quest Chess reward shelf. Official Solo coats and Official Multiplayer podiums are highlighted first; community and custom rewards still belong here."
+              ? "This is your unified Side Quest Chess reward shelf. Official Solo Coats of Arms and Official Multiplayer podiums are highlighted first; community and custom rewards still belong here."
               : "Complete any Official Solo Side Quest, Custom Solo Side Quest, or Multiplayer Side Quest and it will appear on this shelf."}
           </p>
         </section>
@@ -1216,7 +1242,7 @@ export function MobileTrophyCabinetScreen({
         <section className="sqc-native-card sqc-trophy-summary sqc-trophy-sign-in" aria-label="Sign in to sync Trophy Cabinet">
           <span className="sqc-card-eyebrow">Your Trophy Cabinet</span>
           <h2>Sign in to sync your cabinet.</h2>
-          <p>Your earned coats and podium finishes are private account state. Sign in to view them here; the complete Official Solo collection remains open to browse below.</p>
+          <p>Your earned Coats of Arms and podium finishes are private account state. Sign in to view them here; the complete Official Solo collection remains open to browse below.</p>
           <Link href="/sign-in?redirect_url=%2Ftrophy-cabinet" className="sqc-primary-action">Sign in to view my rewards</Link>
         </section>
       )}
@@ -1252,7 +1278,7 @@ export function MobileTrophyCabinetScreen({
 
         <section className="sqc-native-card sqc-trophy-solo-rewards" aria-label="Unlocked Solo Side Quest rewards">
           <span className="sqc-card-eyebrow">Unlocked Solo Side Quest rewards</span>
-          <h2>{soloRows.length ? "Official, Custom, and Community Solo Side Quest Coats of Arms" : "No Solo coats yet."}</h2>
+          <h2>{soloRows.length ? "Official, Custom, and Community Solo Side Quest Coats of Arms" : "No Solo Coats of Arms yet."}</h2>
           <div className="sqc-catalog">
             {soloRows.length ? soloRows.map((row) => (
               <AppRow key={row.id} title={row.title} meta={row.meta} status="Unlocked" href={row.href} image={row.image ?? undefined} glow={row.glow} statusImage={row.statusImage} />
@@ -1265,8 +1291,8 @@ export function MobileTrophyCabinetScreen({
 
       <section className="sqc-native-card sqc-trophy-collection-summary" aria-label="Official Solo Side Quest collection">
         <span className="sqc-card-eyebrow">Official Solo Side Quest collection</span>
-        <h2>{signedIn ? `${completedSoloCount} of ${officialSoloCount} official Side Quest coats unlocked.` : `Browse all ${officialSoloCount} official Side Quest coat${officialSoloCount === 1 ? "" : "s"}.`}</h2>
-        <p>{signedIn ? "Locked official coats are previews. Custom and Community Solo Side Quest rewards appear above when earned." : "Open any coat to inspect its Side Quest. Sign in to see which rewards you have unlocked."}</p>
+        <h2>{signedIn ? `${completedSoloCount} of ${officialSoloCount} official Side Quest Coats of Arms unlocked.` : `Browse all ${officialSoloCount} official Side Quest ${officialSoloCount === 1 ? "Coat of Arms" : "Coats of Arms"}.`}</h2>
+        <p>{signedIn ? "Locked official Coats of Arms are previews. Custom and Community Solo Side Quest rewards appear above when earned." : "Open any Coat of Arms to inspect its Side Quest. Sign in to see which rewards you have unlocked."}</p>
       </section>
 
       <DesktopTrophyCollection

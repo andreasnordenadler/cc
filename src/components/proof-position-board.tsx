@@ -149,7 +149,7 @@ function buildAchievementCopy(challenge: Challenge, attempt?: ChallengeAttempt |
   const summary = sanitizeAttemptSummary(attempt?.summary) ?? challenge.objective;
 
   if (challenge.id === "finish-any-game") {
-    return "A public chess game was, against all odds, completed. Win, loss, or draw — the clerks checked the paperwork and declared this good enough for a coat of arms.";
+    return "A public chess game was, against all odds, completed. Win, loss, or draw — the clerks checked the paperwork and declared this good enough for a Coat of Arms.";
   }
 
   if (challenge.requirement.result === "win") {
@@ -164,7 +164,7 @@ function buildAchievementCopy(challenge: Challenge, attempt?: ChallengeAttempt |
     return `${summary} Losing on purpose-adjacent terms is still proof, and Side Quest Chess respects commitment to the bit.`;
   }
 
-  return `${summary} The verifier accepted the evidence, so the coat of arms may now be displayed with entirely appropriate smugness.`;
+  return `${summary} The verifier accepted the evidence, so the Coat of Arms may now be displayed with entirely appropriate smugness.`;
 }
 
 function parseFenBoard(fen: string, lastMoveUci?: string): BoardSquare[] | null {

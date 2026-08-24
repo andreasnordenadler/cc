@@ -226,7 +226,7 @@ function SignedInAccountScreen({
           <div className="sqc-account-metric-grid">
             <Metric label="Completed" value={accountStats?.completedCount ?? 0} />
             <Metric label="Proofs" value={accountStats?.proofCount ?? 0} />
-            <Metric label="Coats" value={accountStats?.coatCount ?? 0} />
+            <Metric label="Coats of Arms" value={accountStats?.coatCount ?? 0} />
             <Metric label="Podiums" value={accountStats?.podiumCount ?? 0} />
           </div>
           <p>Custom Side Quests: {accountStats?.customQuestCount ?? 0} made · {accountStats?.customTries ?? 0} tries · {accountStats?.customWins ?? 0} wins</p>

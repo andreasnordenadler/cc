@@ -21,7 +21,7 @@ export default async function SignInPage({ searchParams }: SignInPageProps) {
           <div className="sqc-desktop-auth-context" aria-label="What your account keeps">
             <div><span>01</span><strong>Your quest log</strong><small>Active Solo and Multiplayer Side Quests stay ready across web and Android.</small></div>
             <div><span>02</span><strong>Public-game proof</strong><small>Connect a Lichess or Chess.com username. Your chess-site password stays there.</small></div>
-            <div><span>03</span><strong>Unnecessary heraldry</strong><small>Proof receipts and unlocked coats remain in your Trophy Cabinet.</small></div>
+            <div><span>03</span><strong>Unnecessary heraldry</strong><small>Proof receipts and unlocked Coats of Arms remain in your Trophy Cabinet.</small></div>
           </div>
         </section>
         <section className="sqc-auth-card" aria-label="Sign in form">

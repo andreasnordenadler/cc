@@ -3,6 +3,7 @@ import { clerkClient, currentUser } from "@clerk/nextjs/server";
 import { unstable_noStore as noStore } from "next/cache";
 import { CHALLENGES } from "@/lib/challenges";
 import { getCommunityLikeSummaries } from "@/lib/community-likes";
+import { filterOfficialSideQuests } from "@/lib/official-solo-discovery";
 import {
   getActiveChallenge,
   getChallengeProgress,
@@ -12,8 +13,15 @@ import {
   type UserMetadataRecord,
 } from "@/lib/user-metadata";
 
-export default async function SideQuestsPage() {
+export default async function SideQuestsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string | string[] }>;
+}) {
   noStore();
+  const rawQuery = (await searchParams).q;
+  const query = typeof rawQuery === "string" ? rawQuery.trim() : "";
+  const visibleChallenges = filterOfficialSideQuests(CHALLENGES, query);
   const user = await currentUser();
   const metadata = user?.publicMetadata ? (user.publicMetadata as UserMetadataRecord) : {};
   const displayName = user
@@ -42,7 +50,9 @@ export default async function SideQuestsPage() {
       chessComUsername={getChessComUsername(metadata)}
     >
       <MobileSoloSideQuestsScreen
-        challenges={CHALLENGES}
+        challenges={visibleChallenges}
+        totalChallengeCount={CHALLENGES.length}
+        query={query}
         signedIn={Boolean(user)}
         activeChallengeId={activeChallengeId}
         completedChallengeIds={progress.completedChallengeIds}

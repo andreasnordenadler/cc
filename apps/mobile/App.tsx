@@ -75,7 +75,7 @@ const HELP_TOPICS: Record<HelpTopic, { title: string; body: string }> = {
   },
   coat: {
     title: "Coat of Arms",
-    body: "Completing a Side Quest unlocks its Coat of Arms. Your unlocked coats stay in your account and appear in the Trophy Cabinet.",
+    body: "Completing a Side Quest unlocks its Coat of Arms. Your unlocked Coats of Arms stay in your account and appear in the Trophy Cabinet.",
   },
   multiplayerDetail: {
     title: "This Multiplayer Side Quest",
@@ -985,7 +985,7 @@ const DEFAULT_BADGE_IDENTITY: MobileChallenge["badgeIdentity"] = {
     charge: "Verified proof",
     crest: "Side Quest Chess",
     motto: "Proof accepted",
-    meaning: "This coat marks a completed Side Quest.",
+    meaning: "This Coat of Arms marks a completed Side Quest.",
     weirdness: "The paperwork survived the refresh.",
   },
 };
@@ -5902,7 +5902,7 @@ function CoatBoardDashboard({ bootstrap, account, onOpenChallengeDetail, onOpenC
       <View style={compactStyles.multiplayerNativeCard} accessibilityLabel="Trophy Cabinet summary">
         <Text style={compactStyles.multiplayerCardEyebrow}>Trophy Cabinet</Text>
         <Text style={compactStyles.multiplayerCardTitle}>{unlockedSummary}</Text>
-        <Text style={styles.microcopy}>This is your unified Side Quest Chess reward shelf. Official Solo coats and Official Multiplayer podiums are highlighted first; community and custom rewards still belong here.</Text>
+        <Text style={styles.microcopy}>This is your unified Side Quest Chess reward shelf. Official Solo Coats of Arms and Official Multiplayer podiums are highlighted first; community and custom rewards still belong here.</Text>
       </View>
 
       {signedIn && unlockedCount === 0 ? (
@@ -5983,8 +5983,8 @@ function CoatBoardDashboard({ bootstrap, account, onOpenChallengeDetail, onOpenC
 
       <View style={compactStyles.multiplayerNativeCard} accessibilityLabel="Official Solo Side Quest collection">
         <Text style={compactStyles.multiplayerCardEyebrow}>Official Solo Side Quest collection</Text>
-        <Text style={compactStyles.multiplayerCardTitle}>{officialCompleted.length} of {bootstrap.challenges.length} official Side Quest coats unlocked.</Text>
-        <Text style={styles.microcopy}>Locked official coats are previews. Custom Solo Side Quest and community Multiplayer rewards appear above when earned.</Text>
+        <Text style={compactStyles.multiplayerCardTitle}>{officialCompleted.length} of {bootstrap.challenges.length} official Side Quest Coats of Arms unlocked.</Text>
+        <Text style={styles.microcopy}>Locked official Coats of Arms are previews. Custom Solo Side Quest and community Multiplayer rewards appear above when earned.</Text>
       </View>
       <View style={compactStyles.coatGrid}>
         {bootstrap.challenges.map((challenge) => (
@@ -6333,7 +6333,7 @@ function AccountProgressStatsSection({ account, onSelectTab }: { account: Extrac
         <View style={compactStyles.metricGrid}>
           <CompactMetric label="Completed" value={`${completedCount}`} />
           <CompactMetric label="Proofs" value={`${proofCount}`} />
-          <CompactMetric label="Coats" value={`${completedCount + multiplayerTrophyCount}`} />
+          <CompactMetric label="Coats of Arms" value={`${completedCount + multiplayerTrophyCount}`} />
           <CompactMetric label="Podiums" value={`${multiplayerTrophyCount}`} />
         </View>
         <Text style={compactStyles.micro}>Custom Side Quests: {customQuests.length} made · {customTries} tries · {customWins} wins</Text>
@@ -6414,7 +6414,7 @@ function CompactQuestRow({ challenge, active, completed, onPress }: { challenge:
         <Text style={compactStyles.rowMeta} numberOfLines={1}>{challenge.objective}</Text>
       </View>
       <View style={compactStyles.questPill}>
-        <Text style={compactStyles.questPillText}>{completed ? "Done" : active ? "Now" : "Coat"}</Text>
+        <Text style={compactStyles.questPillText}>{completed ? "Done" : active ? "Now" : "Coat of Arms"}</Text>
       </View>
     </Pressable>
   );
@@ -6500,7 +6500,7 @@ function HomeScreen({
           <Text style={styles.homeRitualArrow}>→</Text>
           <Text style={styles.homeRitualStep}>Prove</Text>
           <Text style={styles.homeRitualArrow}>→</Text>
-          <Text style={styles.homeRitualStep}>Collect coat</Text>
+          <Text style={styles.homeRitualStep}>Collect Coat of Arms</Text>
         </View>
       </View>
 
@@ -8588,7 +8588,7 @@ function MobileRatingPill({ value, compact = false, plus = true }: { value: numb
   return (
     <View style={[styles.mobileRatingPill, compact && styles.mobileRatingPillCompact]} accessibilityLabel="Coat of Arms reward">
       <Text style={[styles.mobileRatingIcon, compact && styles.mobileRatingIconCompact]}>★</Text>
-      <Text style={[styles.mobileRatingText, compact && styles.mobileRatingTextCompact]}>Coat</Text>
+      <Text style={[styles.mobileRatingText, compact && styles.mobileRatingTextCompact]}>Coat of Arms</Text>
     </View>
   );
 }
@@ -8631,8 +8631,8 @@ function SelectedQuestDetailCard({
     Alert.alert(
       action === "deactivate" ? "Deactivate this Side Quest?" : "Reset this completed Side Quest?",
       action === "deactivate"
-        ? "This clears the active run, but keeps any completed proof and coats you already earned."
-        : "This removes the completed proof, receipt attempts, and coat unlock for this Side Quest so you can run it again.",
+        ? "This clears the active run, but keeps any completed proof and Coats of Arms you already earned."
+        : "This removes the completed proof, receipt attempts, and Coat of Arms unlock for this Side Quest so you can run it again.",
       [
         { text: "Cancel", style: "cancel" },
         { text: action === "deactivate" ? "Deactivate" : "Reset", style: action === "reset" ? "destructive" : "default", onPress: () => void runAction(action) },
@@ -9199,7 +9199,7 @@ function CompletedQuestProofCard({
   function confirmReset() {
     Alert.alert(
       "Reset this completed Side Quest?",
-      "This removes the completed proof, receipt attempts, and coat unlock for this Side Quest so you can run it again.",
+      "This removes the completed proof, receipt attempts, and Coat of Arms unlock for this Side Quest so you can run it again.",
       [
         { text: "Cancel", style: "cancel" },
         { text: "Reset", style: "destructive", onPress: () => void runReset() },
@@ -9358,7 +9358,7 @@ function buildCustomActiveChallenge(
         charge: "Player-made rule",
         crest: "Side Quest Chess",
         motto: "Verified by mischief",
-        meaning: "This coat marks a custom Side Quest attempt.",
+        meaning: "This Coat of Arms marks a custom Side Quest attempt.",
         weirdness: "Player-authored nonsense, formally checked.",
       },
     },
@@ -9397,7 +9397,7 @@ function buildCustomProofChallenge(
         charge: "Player-made rule",
         crest: "Side Quest Chess",
         motto: "Verified by mischief",
-        meaning: "This coat marks a completed custom Side Quest.",
+        meaning: "This Coat of Arms marks a completed custom Side Quest.",
         weirdness: "Player-authored nonsense, formally stamped.",
       },
     },
@@ -9406,7 +9406,7 @@ function buildCustomProofChallenge(
 
 function buildMobileVictoryScrollCopy(challenge: MobileChallenge) {
   if (challenge.id === "finish-any-game") {
-    return "A public chess game was completed. Win, loss, or draw — the paperwork is good enough for a coat of arms.";
+    return "A public chess game was completed. Win, loss, or draw — the paperwork is good enough for a Coat of Arms.";
   }
 
   if (challenge.requirement.result === "win") {
@@ -9446,7 +9446,7 @@ function getMobileAccountNextStep(account: MobileAccountState) {
   if (account.activeQuest.completed) {
     return {
       title: "Your latest side quest is complete.",
-      copy: "The coat of arms is unlocked. Open the proof, admire the paperwork, then pick the next bad idea.",
+      copy: "The Coat of Arms is unlocked. Open the proof, admire the paperwork, then pick the next bad idea.",
       href: account.activeQuest.proofHref || account.activeQuest.href.replace(getApiBaseUrl(), "") || "/account",
       cta: "View result",
     };
@@ -9655,27 +9655,27 @@ function CoatOfArmsScreen({
     <View style={styles.screenStack}>
       <View style={styles.badgesHeroCard}>
         <CardGradientGlows />
-        <Text style={styles.badgesHeroTitle}>Every bad idea deserves a coat of arms.</Text>
+        <Text style={styles.badgesHeroTitle}>Every bad idea deserves a Coat of Arms.</Text>
         {isAuthenticatedAccount(account) ? (
           <View style={styles.coatShelfCard}>
             <View style={styles.coatShelfHeader}>
               <View style={styles.coatShelfCopy}>
                 <Text style={styles.eyebrow}>Your Coat of Arms</Text>
                 <Text style={styles.coatShelfTitle}>{earnedCount ? `${earnedCount} unlocked so far.` : "No completed side quests yet."}</Text>
-                <Text style={styles.coatShelfBody}>{earnedCount ? "Earned coats stay bright. Locked coats remain visible so the next bad idea is easy to spot." : "Finish one quest and the coat of arms lands here with too much ceremony and not enough dignity."}</Text>
+                <Text style={styles.coatShelfBody}>{earnedCount ? "Earned Coats of Arms stay bright. Locked Coats of Arms remain visible so the next bad idea is easy to spot." : "Finish one quest and the Coat of Arms lands here with too much ceremony and not enough dignity."}</Text>
               </View>
               <Text style={earnedCount ? styles.syncedPill : styles.lockedPill}>{earnedCount}/{liveBadgeChallenges.length}</Text>
             </View>
           </View>
         ) : null}
-        <View style={styles.liveCoatRoster} accessibilityLabel="Current live Side Quest Chess coats of arms">
+        <View style={styles.liveCoatRoster} accessibilityLabel="Current live Side Quest Chess Coats of Arms">
           {liveBadgeChallenges.map((challenge) => (
             <LiveCoatRosterItem key={challenge.id} challenge={challenge} earned={earnedIds.has(challenge.id)} onPress={() => onSelectChallenge(challenge.id, "sideQuests")} />
           ))}
         </View>
       </View>
 
-      <View style={styles.badgeMeaningList} accessibilityLabel="Live quest coat of arms meanings">
+      <View style={styles.badgeMeaningList} accessibilityLabel="Live quest Coat of Arms meanings">
         {bootstrap.challenges.map((challenge) => (
           <BadgeMeaningCard key={challenge.id} challenge={challenge} earned={earnedIds.has(challenge.id)} onPress={() => onSelectChallenge(challenge.id, "sideQuests")} />
         ))}
@@ -9754,7 +9754,7 @@ function ChessStrengthCard({ account }: { account: MobileAccountState }) {
     <View style={styles.chessStrengthCard}>
       <Text style={styles.eyebrow}>Chess strength</Text>
       <Text style={styles.chessStrengthTitle}>Public chess ratings</Text>
-      <Text style={styles.chessStrengthBody}>Provider ratings are kept as context. Your Side Quest identity still comes from proofs, coats, and Multiplayer podiums.</Text>
+      <Text style={styles.chessStrengthBody}>Provider ratings are kept as context. Your Side Quest identity still comes from proofs, Coats of Arms, and Multiplayer podiums.</Text>
       <View style={styles.chessStrengthRows}>
         {rows.map((row) => (
           <View key={row.provider} style={styles.chessStrengthRow}>
@@ -9810,7 +9810,7 @@ function QuestProgressStrip({ completed, total }: { completed: number; total: nu
       <View style={styles.progressTrack}>
         <View style={[styles.progressFill, { width: `${percent}%` }]} />
       </View>
-      <Text style={styles.microcopy}>{completed} of {total} coats earned on this account.</Text>
+      <Text style={styles.microcopy}>{completed} of {total} Coats of Arms earned on this account.</Text>
     </View>
   );
 }

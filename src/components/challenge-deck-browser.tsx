@@ -458,8 +458,8 @@ export default function ChallengeDeckBrowser({ challenges, activeChallengeId, co
               <option value="most-liked">Most liked</option>
               <option value="easy-first">Easy first</option>
               <option value="hard-first">Hard first</option>
-              <option value="reward-high">Biggest coat unlocks</option>
-              <option value="reward-low">Lightest coat unlocks</option>
+              <option value="reward-high">Biggest Coat of Arms unlocks</option>
+              <option value="reward-low">Lightest Coat of Arms unlocks</option>
             </select>
           </label>
           <button type="button" className="button secondary quest-filter-reset" onClick={resetFilters} disabled={!hasActiveFilters}>

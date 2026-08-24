@@ -8,7 +8,7 @@ const sampleChallenges: MobileChallenge[] = [
     title: "Any Game Counts",
     objective: "Play any finished game — win, lose, or draw — and complete the quest.",
     instruction:
-      "Play any public finished Lichess or Chess.com game. Win, lose, draw, blunder heroically — it all counts. This quest exists so your first coat of arms can arrive without requiring a chess miracle.",
+      "Play any public finished Lichess or Chess.com game. Win, lose, draw, blunder heroically — it all counts. This quest exists so your first Coat of Arms can arrive without requiring a chess miracle.",
     openingHint: "Literally just play chess. Suspiciously reasonable.",
     reward: 10,
     category: "Starter Quest",
@@ -21,14 +21,14 @@ const sampleChallenges: MobileChallenge[] = [
       "Play any public finished Lichess or Chess.com game.",
       "Win, loss, draw, timeout, resignation, rated, casual, bullet, blitz, rapid, classical, daily — all are acceptable for this starter quest.",
       "Your saved chess username must appear in the game.",
-      "This quest exists so every new player can unlock a first coat of arms with one normal finished game.",
+      "This quest exists so every new player can unlock a first Coat of Arms with one normal finished game.",
     ],
     requirement: { side: "either", result: "finish" },
     badgeIdentity: {
       name: "The First Game Shield",
       motif: "✓",
       rarity: "Starter token",
-      unlockCopy: "Complete any public game and unlock your first Side Quest Chess coat of arms.",
+      unlockCopy: "Complete any public game and unlock your first Side Quest Chess Coat of Arms.",
       imageUrl: null,
       colors: { primary: "#60f0af", secondary: "#f5c86a", glow: "rgba(96,240,175,.42)" },
       heraldry: {

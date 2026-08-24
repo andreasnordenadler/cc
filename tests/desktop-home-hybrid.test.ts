@@ -93,7 +93,7 @@ test("signed-out home renders an app surface plus a desktop-only guided experien
   assert.match(html, /href="\/challenges\/queen-never-heard-of-her"[^>]*[\s\S]*?Lose the queen, win anyway/);
   assert.match(html, />Surprise me with a random Solo Side Quest<\/button>/);
   assert.match(html, />Or go find your own path\.<\/a>/);
-  assert.match(html, /Every bad idea deserves a coat of arms/);
+  assert.match(html, /Every bad idea deserves a Coat of Arms/);
   assert.match(html, />Open the Trophy Cabinet/);
   assert.match(html, />Start a Multiplayer Side Quest/);
   assert.match(html, /Knights Before Coffee/);
@@ -214,13 +214,86 @@ test("signed-in desktop home guides setup while retaining the existing app home"
   assert.match(html, /<nav class="sqc-desktop-dashboard-summary" aria-label="Quest log summary">/);
   assert.match(html, /<a href="\/side-quests"><span>Solo focus<\/span><strong>Choose a quest<\/strong><small>Start your next public-game objective<\/small><\/a>/);
   assert.match(html, /<a href="\/multiplayer"><span>Shared tables<\/span><strong>0 active<\/strong><small>Join or host a Multiplayer Side Quest<\/small><\/a>/);
-  assert.match(html, /<a href="\/trophy-cabinet"><span>Cabinet<\/span><strong>0 coat of arms<\/strong><small>0 proof receipts recorded<\/small><\/a>/);
+  assert.match(html, /<a href="\/trophy-cabinet"><span>Cabinet<\/span><strong>0 Coats of Arms<\/strong><small>0 proof receipts recorded<\/small><\/a>/);
   assert.match(css, /\.sqc-responsive-signed-home\s*\{[^}]*width:\s*min\(460px,\s*100%\)/, "signed-in Home content remains in the responsive mobile flow");
   assert.match(css, /\.sqc-desktop-dashboard-summary\s*\{[^}]*display:\s*none;/, "desktop summary is absent from the mobile web composition");
   assert.match(desktopMedia, /\.sqc-desktop-home-header-only\s*\{[^}]*display:\s*contents;/, "only the desktop header wrapper releases its sticky containing block");
   assert.match(desktopMedia, /\.sqc-desktop-dashboard-summary\s*\{[^}]*display:\s*grid;[^}]*grid-template-columns:\s*repeat\(3,\s*minmax\(0,\s*1fr\)\);/);
   assert.match(desktopMedia, /\.sqc-desktop-dashboard-grid\s+\.sqc-current-card\s*\{[^}]*margin:\s*0;[^}]*grid-column:\s*1;[^}]*grid-row:\s*span\s*2;/, "desktop active quest must not retain the mobile emblem offset and escape its grid");
-  assert.match(desktopMedia, /\.sqc-desktop-dashboard-grid\s+\.sqc-active-solo-emblem\s*\{[^}]*top:\s*18px;[^}]*right:\s*68px;[^}]*left:\s*auto;[^}]*width:\s*90px;[^}]*height:\s*90px;/, "desktop emblem stays inside the active quest card instead of covering the summary rail");
+  assert.match(desktopMedia, /\.sqc-desktop-dashboard-grid\s+\.sqc-active-solo-emblem\s*\{[^}]*position:\s*relative;[^}]*top:\s*auto;[^}]*right:\s*auto;[^}]*left:\s*auto;[^}]*width:\s*180px;[^}]*height:\s*180px;/, "desktop emblem stays in the active quest card flow instead of covering the summary rail");
+});
+
+test("signed-in desktop Home keeps secondary actions compact and intentional", () => {
+  const css = readFileSync("src/app/mobile-web.css", "utf8");
+  const desktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1180px)"));
+
+  assert.match(
+    desktopMedia,
+    /\.sqc-desktop-dashboard-intro\s*>\s*\.sqc-desktop-secondary\s*\{[^}]*justify-self:\s*end;[^}]*background:\s*rgba\(245,\s*200,\s*106,\s*\.08\);[^}]*color:\s*var\(--gold\);/,
+    "the introductory CTA should size to its label instead of stretching into a grey bar",
+  );
+  assert.match(
+    desktopMedia,
+    /\.sqc-desktop-dashboard-grid\s+\.sqc-current-card\s*\{[^}]*grid-template-rows:\s*minmax\(0,\s*1fr\)\s+auto\s+auto;[^}]*align-content:\s*stretch;/,
+    "the active quest should absorb spare height in its content rather than its action row",
+  );
+  assert.match(
+    desktopMedia,
+    /\.sqc-desktop-dashboard-grid\s+\.sqc-secondary-action\.full\s*\{[^}]*width:\s*auto;[^}]*min-height:\s*24px;[^}]*justify-self:\s*start;[^}]*align-self:\s*start;[^}]*border:\s*0;[^}]*background:\s*transparent;[^}]*color:\s*var\(--gold\);/,
+    "dashboard follow-up actions should read as compact gold links, not oversized grey buttons",
+  );
+  assert.match(desktopMedia, /\.sqc-desktop-dashboard-grid\s+\.sqc-secondary-action\.full::after\s*\{[^}]*content:\s*" →";/);
+});
+
+test("signed-in desktop Home aligns heraldry in flow and removes wasteful card height", () => {
+  const css = readFileSync("src/app/mobile-web.css", "utf8");
+  const desktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1180px)"));
+
+  assert.match(
+    desktopMedia,
+    /\.sqc-desktop-dashboard-grid\s*>\s*\.sqc-stack\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1\.28fr\)\s+minmax\(380px,\s*\.72fr\);/,
+    "the active quest and supporting cards should use a deliberate 64/36 desktop balance",
+  );
+  assert.match(
+    desktopMedia,
+    /\.sqc-desktop-dashboard-grid\s+\.sqc-current-card\s*\{[^}]*grid-template-columns:\s*200px\s+minmax\(0,\s*1fr\);[^}]*column-gap:\s*26px;[^}]*min-height:\s*0;[^}]*padding:\s*28px;/,
+    "the active quest should reserve an in-flow heraldry rail instead of floating its seal over content",
+  );
+  assert.match(
+    desktopMedia,
+    /\.sqc-desktop-dashboard-grid\s+\.sqc-active-solo-emblem\s*\{[^}]*position:\s*relative;[^}]*top:\s*auto;[^}]*right:\s*auto;[^}]*left:\s*auto;[^}]*grid-column:\s*1;[^}]*align-self:\s*center;[^}]*transform:\s*none;/,
+  );
+  assert.match(desktopMedia, /\.sqc-desktop-dashboard-grid\s+\.sqc-current-body\s*\{[^}]*grid-column:\s*2;[^}]*align-self:\s*center;/);
+  assert.match(desktopMedia, /\.sqc-desktop-dashboard-grid\s+\.sqc-active-detail\s*\{[^}]*grid-template-columns:\s*170px\s+minmax\(0,\s*1fr\);[^}]*gap:\s*20px;/);
+  assert.match(desktopMedia, /\.sqc-desktop-dashboard-grid\s+\.sqc-mini-board\s*\{[^}]*width:\s*170px;/);
+  assert.match(
+    desktopMedia,
+    /\.sqc-desktop-dashboard-grid\s+\.sqc-home-section\s*\{[^}]*min-height:\s*214px;[^}]*align-content:\s*start;[^}]*padding:\s*16px;/,
+    "supporting cards should fit their real content rather than preserve the old 280px empty shells",
+  );
+  assert.match(desktopMedia, /\.sqc-desktop-dashboard-grid\s+\.sqc-section-hero\s*\{[^}]*grid-template-columns:\s*56px\s+minmax\(0,\s*1fr\);[^}]*min-height:\s*56px;/);
+  assert.match(
+    desktopMedia,
+    /\.sqc-desktop-dashboard-grid\s+\.sqc-section-mark,\s*\.sqc-desktop-dashboard-grid\s+\.sqc-section-mark\.trophy\s*\{[^}]*position:\s*relative;[^}]*top:\s*auto;[^}]*left:\s*auto;[^}]*grid-column:\s*1;[^}]*grid-row:\s*1\s*\/\s*span\s*2;[^}]*transform:\s*none;/,
+    "Multiplayer and Trophy seals should sit inside their own headers instead of overlapping panel borders",
+  );
+});
+
+test("signed-in desktop Home makes the active quest coat the emotional focus", () => {
+  const css = readFileSync("src/app/mobile-web.css", "utf8");
+  const desktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1180px)"));
+
+  assert.match(desktopMedia, /\.sqc-desktop-dashboard-grid\s+\.sqc-current-card\s*\{[^}]*grid-template-columns:\s*200px\s+minmax\(0,\s*1fr\);/);
+  assert.match(desktopMedia, /\.sqc-desktop-dashboard-grid\s+\.sqc-active-solo-emblem\s*\{[^}]*width:\s*180px;[^}]*height:\s*180px;/);
+  assert.match(desktopMedia, /\.sqc-desktop-dashboard-grid\s+\.sqc-active-solo-emblem\s+\.sqc-mark-glow\s*\{[^}]*width:\s*220px;[^}]*height:\s*220px;[^}]*opacity:\s*\.82;/);
+  assert.match(desktopMedia, /\.sqc-desktop-dashboard-grid\s+\.sqc-active-solo-emblem\s+\.sqc-mark-image\s*\{[^}]*width:\s*174px;[^}]*height:\s*188px;[^}]*drop-shadow\(0\s+26px\s+32px/);
+  assert.match(desktopMedia, /\.sqc-desktop-dashboard-grid\s+\.sqc-active-detail\s*\{[^}]*grid-template-columns:\s*170px\s+minmax\(0,\s*1fr\);[^}]*gap:\s*20px;/);
+  assert.match(desktopMedia, /\.sqc-desktop-dashboard-grid\s+\.sqc-mini-board\s*\{[^}]*width:\s*170px;/);
+  assert.match(
+    desktopMedia,
+    /\.sqc-desktop-dashboard-grid\s*>\s*\.sqc-stack\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1\.28fr\)\s+minmax\(380px,\s*\.72fr\);/,
+    "the active coat may grow without squeezing the supporting column",
+  );
 });
 
 test("desktop home keeps account setup visible when a Solo quest is active without a chess username", () => {
@@ -335,14 +408,14 @@ test("Solo discovery groups the one shared catalog into desktop difficulty shelv
   assert.equal(html.match(/class="sqc-solo-difficulty-shelf"/g)?.length, 5);
   assert.doesNotMatch(html, /<section class="sqc-solo-difficulty-shelf"|class="sqc-solo-difficulty-shelf"[^>]*aria-labelledby=/);
   for (const difficulty of ["Easy", "Medium", "Hard", "Brutal", "Absurd"]) {
-    assert.match(html, new RegExp(`<h3[^>]*aria-label="${difficulty}"[^>]*data-label="${difficulty}"[^>]*></h3>`));
+    assert.match(html, new RegExp(`<h3[^>]*data-label="${difficulty}"[^>]*>${difficulty}</h3>`));
   }
   assert.equal(html.match(/class="sqc-app-row/g)?.length, CHALLENGES.length, "difficulty shelves must not duplicate quest actions");
   assert.match(css, /\.sqc-solo-difficulty-shelf,\s*\.sqc-solo-difficulty-grid\s*\{[^}]*display:\s*contents;/);
   assert.match(css, /\.sqc-solo-difficulty-heading\s*\{[^}]*display:\s*none;/);
   assert.match(css, /\.sqc-solo-difficulty-shelf\s*\+\s*\.sqc-solo-difficulty-shelf\s+\.sqc-app-row:first-child\s*\{[^}]*border-top:\s*1px\s+solid/);
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-solo-discovery\s+\.sqc-solo-difficulty-shelf\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\);[^}]*display:\s*grid;/);
-  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-solo-discovery\s+\.sqc-solo-difficulty-heading\s+h3::before\s*\{[^}]*content:\s*attr\(data-label\);/);
+  assert.doesNotMatch(desktopMedia, /\.sqc-solo-difficulty-heading\s+h3::before/, "desktop difficulty names must remain real heading text instead of generated pixels");
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-solo-discovery\s+\.sqc-solo-difficulty-heading\s*\{[^}]*display:\s*flex;/);
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-solo-discovery\s+\.sqc-solo-difficulty-grid\s*\{[^}]*grid-column:\s*1;/);
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-solo-discovery\s+\.sqc-solo-difficulty-grid\s*\{[^}]*grid-template-columns:\s*repeat\(2,\s*minmax\(0,\s*1fr\)\);/);
@@ -813,7 +886,8 @@ test("Multiplayer discovery keeps mobile below 1180px and uses decision-ready ca
   assert.match(css, /\.sqc-desktop-multiplayer-intro\s*\{[^}]*display:\s*none;/);
   assert.match(css, /\.sqc-multiplayer-row-details\s*\{[^}]*display:\s*none;/, "mobile keeps its compact row");
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-multiplayer-discovery\s+\.sqc-screen\s*\{[^}]*width:\s*min\(1320px,\s*calc\(100%\s*-\s*64px\)\)/);
-  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-multiplayer-discovery\s+\.sqc-stack\s*\{[^}]*grid-template-columns:\s*200px\s+minmax\(0,\s*1fr\);/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-multiplayer-discovery\s+\.sqc-stack\s*\{[^}]*grid-template-columns:\s*170px\s+minmax\(0,\s*1fr\);/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-multiplayer-discovery\s+\.sqc-desktop-multiplayer-intro\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1\.25fr\)\s+minmax\(330px,\s*\.75fr\);/);
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-multiplayer-discovery\s+\.sqc-panel\.list\s+\.sqc-catalog\s*\{[^}]*grid-template-columns:\s*repeat\(3,\s*minmax\(0,\s*1fr\)\);/);
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-multiplayer-discovery\s+\.sqc-multiplayer-row-details\s*\{[^}]*display:\s*grid;[^}]*position:\s*absolute;[^}]*left:\s*18px;[^}]*right:\s*18px;[^}]*bottom:\s*18px;/);
   assert.doesNotMatch(desktopMedia, /\.sqc-mobile-web\.desktop-multiplayer-discovery\s+\.sqc-multiplayer-row-details\s*\{[^}]*margin:\s*[^;]*-/, "the tournament facts must not slide beneath the seal");
@@ -908,12 +982,12 @@ test("Trophy Cabinet becomes one desktop collection workspace without duplicatin
   assert.match(html, /aria-label="Sign in to sync Trophy Cabinet"/);
   assert.match(html, />Sign in to sync your cabinet\.<\/h2>/);
   assert.match(html, /href="\/sign-in\?redirect_url=%2Ftrophy-cabinet"[^>]*>Sign in to view my rewards<\/a>/);
-  assert.match(html, />Browse all 1 official Side Quest coat\.<\/h2>/);
-  assert.doesNotMatch(html, /No unlocked trophies yet|No Solo coats yet|0 Official Multiplayer|0 Community Multiplayer|0 of 1 official|Locked preview|sqc-coat-tile-image locked/);
+  assert.match(html, />Browse all 1 official Side Quest Coat of Arms\.<\/h2>/);
+  assert.doesNotMatch(html, /No unlocked trophies yet|No Solo Coats of Arms yet|0 Official Multiplayer|0 Community Multiplayer|0 of 1 official|Locked preview|sqc-coat-tile-image locked/);
   assert.match(html, /class="sqc-coat-tile-details"/);
   assert.match(html, /class="sqc-coat-tile-context"[^>]*><span>Easy<\/span><span>Style Kill<\/span>/);
   assert.match(html, /class="sqc-coat-tile-objective">Deliver a back-rank mate with maximum goblin energy\.<\/span>/);
-  assert.match(html, />Official coat preview<\/small>/);
+  assert.match(html, />Official Coat of Arms preview<\/small>/);
   assert.equal(html.match(/href="\/challenges\//g)?.length, 1, "desktop and mobile share one official coat grid");
   assert.equal(html.match(/href="\/side-quests"/g)?.length, 1, "signed-out cabinet keeps the persistent Solo discovery shortcut without a false empty-reward action");
 });
@@ -933,14 +1007,14 @@ test("Trophy Cabinet gives desktop collectors an actionable difficulty directory
   const desktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1180px)"));
 
   assert.match(html, /<div class="sqc-trophy-collection-workspace">/);
-  assert.match(html, /<aside class="sqc-trophy-difficulty-index" aria-label="Filter coats by difficulty">/);
+  assert.match(html, /<aside class="sqc-trophy-difficulty-index" aria-label="Filter Coats of Arms by difficulty">/);
   assert.match(html, /<strong>Browse by difficulty<\/strong>/);
-  assert.match(html, /<button[^>]*aria-pressed="true"[^>]*><span>All coats<\/span><small>13<\/small><\/button>/);
+  assert.match(html, /<button[^>]*aria-pressed="true"[^>]*><span>All Coats of Arms<\/span><small>13<\/small><\/button>/);
   for (const difficulty of ["Easy", "Medium", "Hard", "Brutal", "Absurd"]) {
     const count = CHALLENGES.filter((challenge) => challenge.difficulty === difficulty).length;
     assert.match(html, new RegExp(`<button[^>]*aria-pressed="false"[^>]*><span>${difficulty}<\\/span><small>${count}<\\/small><\\/button>`));
   }
-  assert.match(html, /<div class="sqc-trophy-results-column"><section class="sqc-trophy-results-bar" aria-label="Coat collection results"><div><span>Collection view<\/span><strong aria-live="polite">13 coats on display<\/strong><\/div><\/section>/);
+  assert.match(html, /<div class="sqc-trophy-results-column"><section class="sqc-trophy-results-bar" aria-label="Coat of Arms collection results"><div><span>Collection view<\/span><strong aria-live="polite">13 Coats of Arms on display<\/strong><\/div><\/section>/);
   assert.equal(html.match(/href="\/challenges\//g)?.length, CHALLENGES.length, "the difficulty directory must not duplicate coat destinations");
   assert.match(css, /\.sqc-trophy-difficulty-index,\s*\.sqc-trophy-results-bar\s*\{[^}]*display:\s*none;/, "mobile keeps the current coat grid without desktop collection controls");
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-trophy-cabinet\s+\.sqc-trophy-collection-workspace\s*\{[^}]*grid-template-columns:\s*180px\s+minmax\(0,\s*1fr\);/);
@@ -954,6 +1028,7 @@ test("Trophy Cabinet keeps the mobile stack below 1180px and uses the desktop ca
   const css = readFileSync("src/app/mobile-web.css", "utf8");
   const route = readFileSync("src/app/trophy-cabinet/page.tsx", "utf8");
   const desktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1180px)"));
+  const collectionDesktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1380px) {"));
   const wideDesktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1680px)"));
   const reducedMotion = readCssBlock(css, css.lastIndexOf("@media (prefers-reduced-motion: reduce)"));
 
@@ -971,7 +1046,7 @@ test("Trophy Cabinet keeps the mobile stack below 1180px and uses the desktop ca
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-trophy-cabinet\.signed-out\s+\.sqc-trophy-collection-summary\s*\{[^}]*grid-column:\s*5\s*\/\s*-1;/);
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-trophy-cabinet\s+\.sqc-trophy-sign-in\s+\.sqc-primary-action\s*\{[^}]*width:\s*fit-content;/);
   assert.match(css, /@media\s*\(prefers-reduced-motion:\s*reduce\)[\s\S]*?\.sqc-mobile-web\.desktop-trophy-cabinet\s+\.sqc-coat-tile\s*\{[^}]*transition:\s*none\s*!important;[^}]*transform:\s*none\s*!important;/);
-  assert.equal(css.replace(desktopMedia, "").replace(wideDesktopMedia, "").replace(reducedMotion, "").includes(".sqc-mobile-web.desktop-trophy-cabinet"), false, "desktop Trophy Cabinet rules must not leak below 1180px");
+  assert.equal(css.replace(desktopMedia, "").replace(collectionDesktopMedia, "").replace(wideDesktopMedia, "").replace(reducedMotion, "").includes(".sqc-mobile-web.desktop-trophy-cabinet"), false, "desktop Trophy Cabinet rules must not leak below 1180px");
 });
 
 test("wide Trophy Cabinet turns the complete coat archive into a four-column gallery", () => {
@@ -993,6 +1068,19 @@ test("wide Trophy Cabinet turns the complete coat archive into a four-column gal
     /\.sqc-mobile-web\.desktop-trophy-cabinet\s+\.sqc-coat-grid\s*\{[^}]*grid-template-columns:\s*repeat\(4,\s*minmax\(0,\s*1fr\)\);/,
     "wide collectors should compare four readable coats per row",
   );
+});
+
+test("standard and wide Trophy Cabinet keep the collection decision surface above the fold", () => {
+  const css = readFileSync("src/app/mobile-web.css", "utf8");
+  const collectionDesktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1380px) {"));
+  const wideDesktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1680px)"));
+
+  assert.match(collectionDesktopMedia, /\.sqc-mobile-web\.desktop-trophy-cabinet\s+\.sqc-screen-emblem\.trophy\s*\{[^}]*min-height:\s*184px;/);
+  assert.match(collectionDesktopMedia, /\.sqc-mobile-web\.desktop-trophy-cabinet\s+\.sqc-desktop-trophy-intro\s*\{[^}]*min-height:\s*184px;/);
+  assert.match(collectionDesktopMedia, /\.sqc-mobile-web\.desktop-trophy-cabinet\.signed-out\s+\.sqc-trophy-sign-in\s*\{[^}]*grid-column:\s*1\s*\/\s*span\s*6;[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\)\s+auto;[^}]*grid-template-rows:\s*repeat\(3,\s*auto\);/);
+  assert.match(collectionDesktopMedia, /\.sqc-mobile-web\.desktop-trophy-cabinet\.signed-out\s+\.sqc-trophy-collection-summary\s*\{[^}]*grid-column:\s*7\s*\/\s*-1;/);
+  assert.match(collectionDesktopMedia, /\.sqc-mobile-web\.desktop-trophy-cabinet\.signed-out\s+\.sqc-trophy-sign-in\s+\.sqc-primary-action\s*\{[^}]*grid-column:\s*2;[^}]*grid-row:\s*1\s*\/\s*4;[^}]*max-width:\s*170px;[^}]*border:\s*0;[^}]*border-radius:\s*0;[^}]*background:\s*transparent;[^}]*color:\s*var\(--gold\);[^}]*font-size:\s*13px;[^}]*text-decoration:\s*underline;/);
+  assert.doesNotMatch(wideDesktopMedia, /\.sqc-trophy-sign-in\s*\{/, "the >=1380px collection contract should not be duplicated in the wide override");
 });
 
 test("Custom library becomes one desktop workshop without duplicating its filters or create path", () => {
@@ -1410,6 +1498,8 @@ test("Custom editor becomes a wide two-column workbench only at the desktop boun
   const css = readFileSync("src/app/mobile-web.css", "utf8");
   const route = readFileSync("src/app/create-custom-side-quest/page.tsx", "utf8");
   const desktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1180px)"));
+  const fluidDesktopMedia = readCssBlock(css, css.lastIndexOf("@media (min-width: 1380px)"));
+  const wideDesktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1680px)"));
   const reducedMotion = readCssBlock(css, css.lastIndexOf("@media (prefers-reduced-motion: reduce)"));
 
   assert.match(route, /desktopPresentation="custom-editor"/);
@@ -1419,7 +1509,7 @@ test("Custom editor becomes a wide two-column workbench only at the desktop boun
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-custom-editor\s+\.sqc-custom-builder-card\s*\{[^}]*grid-template-columns:\s*320px\s+minmax\(0,\s*1fr\);/);
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-custom-editor\s+\.sqc-custom-builder-setup\s*\{[^}]*position:\s*sticky;/);
   assert.match(reducedMotion, /\.sqc-mobile-web\.desktop-custom-editor\s+\.sqc-template-card\s*\{[^}]*transition:\s*none\s*!important;[^}]*transform:\s*none\s*!important;/);
-  assert.equal(css.replace(desktopMedia, "").replace(reducedMotion, "").includes(".sqc-mobile-web.desktop-custom-editor"), false, "desktop Custom editor composition rules must not leak below 1180px");
+  assert.equal(css.replace(desktopMedia, "").replace(fluidDesktopMedia, "").replace(wideDesktopMedia, "").replace(reducedMotion, "").includes(".sqc-mobile-web.desktop-custom-editor"), false, "desktop Custom editor composition rules must not leak below 1180px");
 });
 
 test("Custom editor adds a desktop workbench navigator to the one shared form", () => {
@@ -1555,6 +1645,7 @@ test("Multiplayer creation becomes a wide two-column planner only at the desktop
   const css = readFileSync("src/app/mobile-web.css", "utf8");
   const route = readFileSync("src/app/create-multiplayer-side-quest/page.tsx", "utf8");
   const desktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1180px)"));
+  const wideDesktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1680px)"));
 
   assert.match(route, /desktopPresentation="multiplayer-create"/);
   assert.match(route, /closeHref="\/multiplayer"/, "mobile close destination stays intact");
@@ -1567,7 +1658,8 @@ test("Multiplayer creation becomes a wide two-column planner only at the desktop
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-multiplayer-create\s+\.sqc-create-catalog-card\s*\{[^}]*grid-column:\s*2;[^}]*grid-row:\s*span\s*2;/);
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-multiplayer-create\s+\.sqc-screen\s*\{[^}]*padding:\s*46px\s+0\s+180px;/, "the desktop planner reserves space for its persistent action bar");
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-multiplayer-create\s+\.sqc-create-footer-bar\s*\{[^}]*grid-column:\s*1\s*\/\s*-1;[^}]*position:\s*fixed;[^}]*bottom:\s*24px;[^}]*left:\s*50%;[^}]*z-index:\s*20;[^}]*width:\s*min\(760px,\s*calc\(100%\s*-\s*64px\)\);[^}]*transform:\s*translateX\(-50%\);/, "the desktop creation action stays visible without changing the mobile footer");
-  assert.equal(css.replace(desktopMedia, "").includes(".sqc-mobile-web.desktop-multiplayer-create"), false, "desktop Multiplayer create rules must not leak below 1180px");
+  assert.match(wideDesktopMedia, /\.sqc-mobile-web\.desktop-multiplayer-create\s+\.sqc-screen\s*\{[^}]*width:\s*min\(1600px,\s*calc\(100%\s*-\s*96px\)\)/, "wide creation uses the available planning canvas");
+  assert.equal(css.replace(desktopMedia, "").replace(wideDesktopMedia, "").includes(".sqc-mobile-web.desktop-multiplayer-create"), false, "desktop Multiplayer create rules must not leak below 1180px");
 });
 
 test("Account becomes one desktop command center while preserving the mobile account stack", () => {
@@ -1668,7 +1760,9 @@ test("desktop Settings separates profile identity from proof accounts without du
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-settings\s+\.sqc-settings-profile-panel\s+\.sqc-input-stack\s*\{[^}]*grid-template-columns:\s*170px\s+minmax\(0,\s*1fr\);/);
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-settings\s+\.sqc-settings-field-group\s*\{[^}]*grid-column:\s*1\s*\/\s*-1;[^}]*display:\s*grid;[^}]*grid-template-columns:\s*170px\s+minmax\(0,\s*1fr\);/);
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-settings\s+\.sqc-settings-group-fields\s*\{[^}]*grid-template-columns:\s*repeat\(2,\s*minmax\(0,\s*1fr\)\);/);
-  assert.equal(css.replace(desktopMedia, "").includes(".sqc-mobile-web.desktop-settings .sqc-settings-field-group"), false, "desktop form composition cannot leak below 1180px");
+  const wideDesktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1680px)"));
+  const cssOutsideDesktopMedia = css.replace(desktopMedia, "").replace(wideDesktopMedia, "");
+  assert.equal(cssOutsideDesktopMedia.includes(".sqc-mobile-web.desktop-settings .sqc-settings-field-group"), false, "desktop form composition cannot leak outside the desktop media queries");
 });
 
 test("signed-in desktop Account marks its sole persistent account action as current", () => {
@@ -1807,6 +1901,7 @@ test("Help and Support becomes a wide triage workspace only at the desktop bound
   const css = readFileSync("src/app/mobile-web.css", "utf8");
   const route = readFileSync("src/app/support/page.tsx", "utf8");
   const desktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1180px)"));
+  const wideDesktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1680px)"));
   const reducedMotion = readCssBlock(css, css.lastIndexOf("@media (prefers-reduced-motion: reduce)"));
 
   assert.match(route, /desktopPresentation="support"/);
@@ -1816,7 +1911,7 @@ test("Help and Support becomes a wide triage workspace only at the desktop bound
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-support\s+\.sqc-support-report\s*\{[^}]*grid-column:\s*2;/);
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-support\s+\.sqc-support-overview\s*\{[^}]*position:\s*sticky;/);
   assert.match(reducedMotion, /\.sqc-mobile-web\.desktop-support\s+\.sqc-support-row\s*\{[^}]*transition:\s*none\s*!important;/);
-  assert.equal(css.replace(desktopMedia, "").replace(reducedMotion, "").includes(".sqc-mobile-web.desktop-support"), false, "desktop Support rules must not leak below 1180px");
+  assert.equal(css.replace(desktopMedia, "").replace(wideDesktopMedia, "").replace(reducedMotion, "").includes(".sqc-mobile-web.desktop-support"), false, "desktop Support rules must not leak below 1180px");
 });
 
 test("desktop Support presents help topics as one numbered directory instead of five floating cards", () => {
@@ -1834,13 +1929,14 @@ test("desktop Support presents help topics as one numbered directory instead of 
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-support\s+\.sqc-support-row:last-of-type\s*\{[^}]*grid-column:\s*1\s*\/\s*-1;/);
 });
 
-test("desktop Support keeps the legal and report row directly below the taller help directory", () => {
+test("desktop Support gives legal, contact, and report desks non-overlapping grid rows", () => {
   const css = readFileSync("src/app/mobile-web.css", "utf8");
   const desktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1180px)"));
 
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-support\s+\.sqc-support-overview\s*\{[^}]*grid-row:\s*1;/);
-  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-support\s+\.sqc-support-screen\s*>\s*\.sqc-support-card:not\(\.sqc-support-report\)\s*\{[^}]*grid-column:\s*1;[^}]*grid-row:\s*2;/);
-  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-support\s+\.sqc-support-report\s*\{[^}]*grid-column:\s*2;[^}]*grid-row:\s*2;/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-support\s+\.sqc-support-legal\s*\{[^}]*grid-column:\s*1;[^}]*grid-row:\s*2;/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-support\s+\.sqc-support-contact\s*\{[^}]*grid-column:\s*1;[^}]*grid-row:\s*3;/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-support\s+\.sqc-support-report\s*\{[^}]*grid-column:\s*2;[^}]*grid-row:\s*2\s*\/\s*span\s*2;/);
   assert.doesNotMatch(desktopMedia, /\.sqc-mobile-web\.desktop-support\s+\.sqc-support-overview\s*\{[^}]*grid-row:\s*1\s*\/\s*span\s*2;/);
 });
 

@@ -58,7 +58,7 @@ export default function ChallengeBadge({ challenge, size = "compact", earned = f
         "--badge-secondary": identity.colors.secondary,
         "--badge-glow": identity.colors.glow,
       } as CSSProperties}
-      aria-label={`${identity.name} coat of arms: ${heraldry.meaning}`}
+      aria-label={`${identity.name} Coat of Arms: ${heraldry.meaning}`}
       title={`${identity.name} · ${heraldry.motto} · ${heraldry.meaning}`}
     >
       <span className="badge-heraldry" aria-hidden="true">
