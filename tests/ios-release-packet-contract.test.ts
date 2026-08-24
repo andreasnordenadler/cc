@@ -1,9 +1,9 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import test from "node:test";
 
 const packet = readFileSync(new URL("../docs/IOS_APP_STORE_RELEASE_PACKET_2026-08-21.md", import.meta.url), "utf8");
-const receipt = readFileSync(new URL("../docs/IOS_CURRENT_CANDIDATE_RECEIPT_2026-08-23.md", import.meta.url), "utf8");
+const receipt = readFileSync(new URL("../docs/IOS_CURRENT_CANDIDATE_RECEIPT_2026-08-24.md", import.meta.url), "utf8");
 
 test("iOS release packet blocks upload when required-reason API declarations are missing or unsupported", () => {
   assert.match(packet, /Missing or unsupported reasons block upload/);
@@ -51,9 +51,10 @@ test("iOS release packet approval-gates the remaining app-record and privacy-pol
   assert.match(packet, /must not download or export.*certificates.*profiles.*API keys.*credentials/i);
 });
 
-test("iOS release packet distinguishes source-prepared safety disclosures from production evidence", () => {
-  assert.match(packet, /report and block disclosures are source-prepared/i);
-  assert.match(packet, /production deployment and signed-out readback remain blocked/i);
+test("iOS release packet records live signed-out support and privacy-policy readback", () => {
+  assert.match(packet, /live signed-out Support page exposes Crowdler AB, `sam@crowdler\.com`, and the legal address/i);
+  assert.match(packet, /live Privacy Policy discloses report and block records, deletion behavior, and Crowdler AB contact details/i);
+  assert.doesNotMatch(packet, /production deployment and signed-out readback remain blocked/i);
   assert.doesNotMatch(packet, /current privacy policy.*does not explicitly disclose content and creator reports/i);
 });
 
@@ -62,18 +63,18 @@ test("iOS release packet points current local build claims at the exact-candidat
   const currentReceipt = packet.match(/^- Current exact-candidate receipt:.*$/m)?.[0] ?? "";
   const screenshotGate = packet.match(/^\| Screenshots .*$/m)?.[0] ?? "";
 
-  assert.match(sourceBaseline, /35edd62f159baf42f53ae023d98c78a318c768d1/);
-  assert.match(currentReceipt, /IOS_CURRENT_CANDIDATE_RECEIPT_2026-08-23\.md/);
+  assert.match(sourceBaseline, /283ad0f0821a125376004ec1599f1fe01a54c302/);
+  assert.match(currentReceipt, /IOS_CURRENT_CANDIDATE_RECEIPT_2026-08-24\.md/);
   assert.match(currentReceipt, /Release Simulator build, install, and launch passed/i);
   assert.match(currentReceipt, /iPhone 17e.*iPad Pro 13-inch/i);
   assert.match(currentReceipt, /scheme routing only/i);
   assert.match(currentReceipt, /not.*provider authentication.*signed archive.*IPA.*TestFlight.*physical-device/i);
-  assert.match(receipt, /Commit: `35edd62f159baf42f53ae023d98c78a318c768d1`/);
-  assert.match(receipt, /Repository tests \| Passed: 803 tests, 0 failed, 0 skipped, 0 todo/);
+  assert.match(receipt, /Commit: `283ad0f0821a125376004ec1599f1fe01a54c302`/);
+  assert.match(receipt, /Repository tests \| Passed: 804 tests, 0 failed, 0 skipped, 0 todo/);
   assert.match(receipt, /Result: `\*\* BUILD SUCCEEDED \*\*`/);
   assert.match(receipt, /iPhone 17e[\s\S]*iOS 26\.5[\s\S]*Installed and launched/);
   assert.match(receipt, /iPad Pro 13-inch \(M5\)[\s\S]*iOS 26\.5[\s\S]*Installed and launched/);
-  assert.match(packet, /`pnpm test`: PASS — 803 tests, 0 failures, 0 skipped\/todo/);
+  assert.match(packet, /`pnpm test`: PASS — 804 tests, 0 failures, 0 skipped\/todo/);
   assert.match(screenshotGate, /App Store.*accepted.*dimensions.*states.*metadata/i);
   assert.doesNotMatch(packet, /Simulator registration remains locally blocked/i);
   assert.doesNotMatch(packet, /current local native receipt:[\s\S]*?build FAILED/i);
@@ -86,4 +87,15 @@ test("iOS receipt distinguishes observed evidence source from an approved releas
   assert.match(receipt, /## Evidence source/);
   assert.doesNotMatch(receipt, /## Frozen source/);
   assert.match(packet, /\| Source freeze \| Not frozen \|/);
+});
+
+test("iOS packet carries an exact current-origin candidate receipt", () => {
+  const currentReceiptUrl = new URL("../docs/IOS_CURRENT_CANDIDATE_RECEIPT_2026-08-24.md", import.meta.url);
+  assert.equal(existsSync(currentReceiptUrl), true, "the exact current-origin receipt must exist");
+
+  const currentReceipt = readFileSync(currentReceiptUrl, "utf8");
+  assert.match(currentReceipt, /Commit: `283ad0f0821a125376004ec1599f1fe01a54c302`/);
+  assert.match(currentReceipt, /Repository tests \| Passed: 804 tests, 0 failed, 0 skipped, 0 todo/);
+  assert.match(currentReceipt, /Result: `\*\* BUILD SUCCEEDED \*\*`/);
+  assert.match(packet, /IOS_CURRENT_CANDIDATE_RECEIPT_2026-08-24\.md/);
 });
