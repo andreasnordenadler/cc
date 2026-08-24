@@ -194,6 +194,15 @@ test("generated iOS checker rejects release-identity, capability, transport, dev
       diagnostic: /arbitrary network loads/i,
     },
     {
+      name: "arbitrary network loads hidden by a commented false value",
+      file: "infoPath" as const,
+      source: validInfoPlist.replace(
+        "<key>NSAllowsArbitraryLoads</key><false/>",
+        "<key>NSAllowsArbitraryLoads</key><true/><!-- <key>NSAllowsArbitraryLoads</key><false/> -->",
+      ),
+      diagnostic: /arbitrary network loads/i,
+    },
+    {
       name: "ATS exception domains",
       file: "infoPath" as const,
       source: validInfoPlist.replace(
