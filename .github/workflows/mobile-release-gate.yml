@@ -8,6 +8,10 @@ on:
       - "scripts/mobile-release-lib.mjs"
       - "scripts/check-mobile-release-candidate.mjs"
       - "scripts/install-mobile-release-candidate.mjs"
+      - "scripts/check-ios-release-hermes.mjs"
+      - "scripts/ios-hermes-release-lib.mjs"
+      - "tests/ios-hermes-release.test.ts"
+      - "tests/mobile-release-workflow.test.ts"
       - "tests/mobile-release-provenance.test.ts"
       - "src/app/api/mobile/**"
       - "src/lib/mobile-auth.ts"
@@ -66,6 +70,47 @@ jobs:
         run: pnpm --dir apps/mobile exec expo prebuild --platform android --no-install
       - name: Run release checks without APK build
         run: pnpm mobile:release:check
+
+  ios-release-runtime-gate:
+    if: github.event_name == 'pull_request'
+    runs-on: macos-26
+    timeout-minutes: 45
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.12.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Record Xcode identity
+        run: xcode-select -p && xcodebuild -version
+      - name: Generate iOS project and install pods
+        env:
+          CI: "1"
+          NODE_ENV: production
+        run: |
+          pnpm --dir apps/mobile exec expo prebuild --platform ios --no-install
+          cd apps/mobile/ios
+          pod install
+      - name: Build unsigned iOS Release runtime
+        run: |
+          xcodebuild \
+            -workspace apps/mobile/ios/SideQuestChess.xcworkspace \
+            -scheme SideQuestChess \
+            -configuration Release \
+            -sdk iphonesimulator \
+            -destination 'generic/platform=iOS Simulator' \
+            -derivedDataPath "$RUNNER_TEMP/sqc-ios-derived" \
+            CODE_SIGNING_ALLOWED=NO \
+            build
+      - name: Verify embedded Hermes is the selected Release framework
+        run: pnpm ios:release:verify-hermes "$RUNNER_TEMP/sqc-ios-derived/Build/Products/Release-iphonesimulator/SideQuestChess.app"
 
   signed-mobile-release:
     if: github.event_name == 'workflow_dispatch'

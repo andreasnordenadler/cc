@@ -1,4 +1,17 @@
+import path from "node:path";
+
 const UUID_LINE = /UUID:\s+([0-9A-F-]+)\s+\(([^)]+)\)/gi;
+
+export function deriveReleaseHermesReference(appPath) {
+  const releaseProducts = path.dirname(path.resolve(appPath));
+  if (!/^Release-(?:iphoneos|iphonesimulator)$/.test(path.basename(releaseProducts))) {
+    throw new Error("Release app must be inside Xcode's Release build products directory.");
+  }
+  return path.join(
+    releaseProducts,
+    "XCFrameworkIntermediates/hermes-engine/Pre-built/hermes.framework/hermes",
+  );
+}
 
 export function parseArchitectureUuids(output) {
   const uuids = new Map();
@@ -15,10 +28,16 @@ export function verifyHermesReleaseEvidence({
   builtUuidOutput,
   releaseUuidOutput,
   builtSymbolsOutput,
+  releaseSymbolsOutput,
 }) {
   if (/debugJavaScript/.test(builtSymbolsOutput)) {
     throw new Error(
       "Release app contains the Debug Hermes symbol debugJavaScript; rebuild from a clean Release Pods/DerivedData state.",
+    );
+  }
+  if (/debugJavaScript/.test(releaseSymbolsOutput)) {
+    throw new Error(
+      "Release reference contains the Debug Hermes symbol debugJavaScript; CocoaPods did not select a trusted Release framework.",
     );
   }
 
