@@ -51,7 +51,7 @@ export default function ShareProofActions({
   }, [imagePath]);
   const shareText = useMemo(() => `${copy}\n${shareUrl}`, [copy, shareUrl]);
   const socialCopy = useMemo(
-    () => socialCopyOverride || `I completed “${challengeTitle}” on Side Quest Chess. Proof + coat of arms unlocked.`,
+    () => socialCopyOverride || `I completed “${challengeTitle}” on Side Quest Chess. Proof + Coat of Arms unlocked.`,
     [challengeTitle, socialCopyOverride],
   );
   const socialTargets = useMemo<ShareTarget[]>(() => {

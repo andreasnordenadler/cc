@@ -93,7 +93,7 @@ test("signed-out home renders an app surface plus a desktop-only guided experien
   assert.match(html, /href="\/challenges\/queen-never-heard-of-her"[^>]*[\s\S]*?Lose the queen, win anyway/);
   assert.match(html, />Surprise me with a random Solo Side Quest<\/button>/);
   assert.match(html, />Or go find your own path\.<\/a>/);
-  assert.match(html, /Every bad idea deserves a coat of arms/);
+  assert.match(html, /Every bad idea deserves a Coat of Arms/);
   assert.match(html, />Open the Trophy Cabinet/);
   assert.match(html, />Start a Multiplayer Side Quest/);
   assert.match(html, /Knights Before Coffee/);
@@ -214,7 +214,7 @@ test("signed-in desktop home guides setup while retaining the existing app home"
   assert.match(html, /<nav class="sqc-desktop-dashboard-summary" aria-label="Quest log summary">/);
   assert.match(html, /<a href="\/side-quests"><span>Solo focus<\/span><strong>Choose a quest<\/strong><small>Start your next public-game objective<\/small><\/a>/);
   assert.match(html, /<a href="\/multiplayer"><span>Shared tables<\/span><strong>0 active<\/strong><small>Join or host a Multiplayer Side Quest<\/small><\/a>/);
-  assert.match(html, /<a href="\/trophy-cabinet"><span>Cabinet<\/span><strong>0 coat of arms<\/strong><small>0 proof receipts recorded<\/small><\/a>/);
+  assert.match(html, /<a href="\/trophy-cabinet"><span>Cabinet<\/span><strong>0 Coats of Arms<\/strong><small>0 proof receipts recorded<\/small><\/a>/);
   assert.match(css, /\.sqc-responsive-signed-home\s*\{[^}]*width:\s*min\(460px,\s*100%\)/, "signed-in Home content remains in the responsive mobile flow");
   assert.match(css, /\.sqc-desktop-dashboard-summary\s*\{[^}]*display:\s*none;/, "desktop summary is absent from the mobile web composition");
   assert.match(desktopMedia, /\.sqc-desktop-home-header-only\s*\{[^}]*display:\s*contents;/, "only the desktop header wrapper releases its sticky containing block");
@@ -982,12 +982,12 @@ test("Trophy Cabinet becomes one desktop collection workspace without duplicatin
   assert.match(html, /aria-label="Sign in to sync Trophy Cabinet"/);
   assert.match(html, />Sign in to sync your cabinet\.<\/h2>/);
   assert.match(html, /href="\/sign-in\?redirect_url=%2Ftrophy-cabinet"[^>]*>Sign in to view my rewards<\/a>/);
-  assert.match(html, />Browse all 1 official Side Quest coat\.<\/h2>/);
-  assert.doesNotMatch(html, /No unlocked trophies yet|No Solo coats yet|0 Official Multiplayer|0 Community Multiplayer|0 of 1 official|Locked preview|sqc-coat-tile-image locked/);
+  assert.match(html, />Browse all 1 official Side Quest Coat of Arms\.<\/h2>/);
+  assert.doesNotMatch(html, /No unlocked trophies yet|No Solo Coats of Arms yet|0 Official Multiplayer|0 Community Multiplayer|0 of 1 official|Locked preview|sqc-coat-tile-image locked/);
   assert.match(html, /class="sqc-coat-tile-details"/);
   assert.match(html, /class="sqc-coat-tile-context"[^>]*><span>Easy<\/span><span>Style Kill<\/span>/);
   assert.match(html, /class="sqc-coat-tile-objective">Deliver a back-rank mate with maximum goblin energy\.<\/span>/);
-  assert.match(html, />Official coat preview<\/small>/);
+  assert.match(html, />Official Coat of Arms preview<\/small>/);
   assert.equal(html.match(/href="\/challenges\//g)?.length, 1, "desktop and mobile share one official coat grid");
   assert.equal(html.match(/href="\/side-quests"/g)?.length, 1, "signed-out cabinet keeps the persistent Solo discovery shortcut without a false empty-reward action");
 });
@@ -1007,14 +1007,14 @@ test("Trophy Cabinet gives desktop collectors an actionable difficulty directory
   const desktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1180px)"));
 
   assert.match(html, /<div class="sqc-trophy-collection-workspace">/);
-  assert.match(html, /<aside class="sqc-trophy-difficulty-index" aria-label="Filter coats by difficulty">/);
+  assert.match(html, /<aside class="sqc-trophy-difficulty-index" aria-label="Filter Coats of Arms by difficulty">/);
   assert.match(html, /<strong>Browse by difficulty<\/strong>/);
-  assert.match(html, /<button[^>]*aria-pressed="true"[^>]*><span>All coats<\/span><small>13<\/small><\/button>/);
+  assert.match(html, /<button[^>]*aria-pressed="true"[^>]*><span>All Coats of Arms<\/span><small>13<\/small><\/button>/);
   for (const difficulty of ["Easy", "Medium", "Hard", "Brutal", "Absurd"]) {
     const count = CHALLENGES.filter((challenge) => challenge.difficulty === difficulty).length;
     assert.match(html, new RegExp(`<button[^>]*aria-pressed="false"[^>]*><span>${difficulty}<\\/span><small>${count}<\\/small><\\/button>`));
   }
-  assert.match(html, /<div class="sqc-trophy-results-column"><section class="sqc-trophy-results-bar" aria-label="Coat collection results"><div><span>Collection view<\/span><strong aria-live="polite">13 coats on display<\/strong><\/div><\/section>/);
+  assert.match(html, /<div class="sqc-trophy-results-column"><section class="sqc-trophy-results-bar" aria-label="Coat of Arms collection results"><div><span>Collection view<\/span><strong aria-live="polite">13 Coats of Arms on display<\/strong><\/div><\/section>/);
   assert.equal(html.match(/href="\/challenges\//g)?.length, CHALLENGES.length, "the difficulty directory must not duplicate coat destinations");
   assert.match(css, /\.sqc-trophy-difficulty-index,\s*\.sqc-trophy-results-bar\s*\{[^}]*display:\s*none;/, "mobile keeps the current coat grid without desktop collection controls");
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-trophy-cabinet\s+\.sqc-trophy-collection-workspace\s*\{[^}]*grid-template-columns:\s*180px\s+minmax\(0,\s*1fr\);/);
