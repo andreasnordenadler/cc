@@ -1901,6 +1901,7 @@ test("Help and Support becomes a wide triage workspace only at the desktop bound
   const css = readFileSync("src/app/mobile-web.css", "utf8");
   const route = readFileSync("src/app/support/page.tsx", "utf8");
   const desktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1180px)"));
+  const wideDesktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1680px)"));
   const reducedMotion = readCssBlock(css, css.lastIndexOf("@media (prefers-reduced-motion: reduce)"));
 
   assert.match(route, /desktopPresentation="support"/);
@@ -1910,7 +1911,7 @@ test("Help and Support becomes a wide triage workspace only at the desktop bound
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-support\s+\.sqc-support-report\s*\{[^}]*grid-column:\s*2;/);
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-support\s+\.sqc-support-overview\s*\{[^}]*position:\s*sticky;/);
   assert.match(reducedMotion, /\.sqc-mobile-web\.desktop-support\s+\.sqc-support-row\s*\{[^}]*transition:\s*none\s*!important;/);
-  assert.equal(css.replace(desktopMedia, "").replace(reducedMotion, "").includes(".sqc-mobile-web.desktop-support"), false, "desktop Support rules must not leak below 1180px");
+  assert.equal(css.replace(desktopMedia, "").replace(wideDesktopMedia, "").replace(reducedMotion, "").includes(".sqc-mobile-web.desktop-support"), false, "desktop Support rules must not leak below 1180px");
 });
 
 test("desktop Support presents help topics as one numbered directory instead of five floating cards", () => {
@@ -1928,13 +1929,14 @@ test("desktop Support presents help topics as one numbered directory instead of 
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-support\s+\.sqc-support-row:last-of-type\s*\{[^}]*grid-column:\s*1\s*\/\s*-1;/);
 });
 
-test("desktop Support keeps the legal and report row directly below the taller help directory", () => {
+test("desktop Support gives legal, contact, and report desks non-overlapping grid rows", () => {
   const css = readFileSync("src/app/mobile-web.css", "utf8");
   const desktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1180px)"));
 
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-support\s+\.sqc-support-overview\s*\{[^}]*grid-row:\s*1;/);
-  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-support\s+\.sqc-support-screen\s*>\s*\.sqc-support-card:not\(\.sqc-support-report\)\s*\{[^}]*grid-column:\s*1;[^}]*grid-row:\s*2;/);
-  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-support\s+\.sqc-support-report\s*\{[^}]*grid-column:\s*2;[^}]*grid-row:\s*2;/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-support\s+\.sqc-support-legal\s*\{[^}]*grid-column:\s*1;[^}]*grid-row:\s*2;/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-support\s+\.sqc-support-contact\s*\{[^}]*grid-column:\s*1;[^}]*grid-row:\s*3;/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-support\s+\.sqc-support-report\s*\{[^}]*grid-column:\s*2;[^}]*grid-row:\s*2\s*\/\s*span\s*2;/);
   assert.doesNotMatch(desktopMedia, /\.sqc-mobile-web\.desktop-support\s+\.sqc-support-overview\s*\{[^}]*grid-row:\s*1\s*\/\s*span\s*2;/);
 });
 

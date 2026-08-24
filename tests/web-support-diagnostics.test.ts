@@ -135,6 +135,24 @@ test("signed-out support exposes direct Crowdler contact information", () => {
   assert.match(html, /Kvarnängsvägen 15, 182 47 Enebyberg, Sweden/);
 });
 
+test("wide desktop Support separates legal, contact, and report desks without changing mobile", () => {
+  const html = renderToStaticMarkup(React.createElement(MobileSupportScreen, { signedIn: false }));
+  const css = readFileSync(new URL("../src/app/mobile-web.css", import.meta.url), "utf8");
+  const desktopSupport = css.match(/\/\* Support keeps Android's help topics[\s\S]*?\/\* The Trophy Cabinet keeps/)?.[0] ?? "";
+  const wideDesktop = css.match(/@media \(min-width: 1680px\) \{[\s\S]*?\n\}/)?.[0] ?? "";
+
+  assert.match(html, /class="[^"]*sqc-support-legal[^"]*"/);
+  assert.match(html, /class="[^"]*sqc-support-contact[^"]*"/);
+  assert.match(desktopSupport, /\.sqc-support-legal\s*\{[^}]*grid-row:\s*2/);
+  assert.match(desktopSupport, /\.sqc-support-contact\s*\{[^}]*grid-row:\s*3/);
+  assert.match(desktopSupport, /\.sqc-support-report\s*\{[^}]*grid-row:\s*2\s*\/\s*span\s*2/);
+  assert.match(wideDesktop, /\.sqc-mobile-web\.desktop-support\s+\.sqc-screen\s*\{[^}]*width:\s*min\(1500px,\s*calc\(100%\s*-\s*96px\)\)/);
+  assert.match(wideDesktop, /\.sqc-mobile-web\.desktop-support\s+\.sqc-support-screen\s*\{[^}]*grid-template-columns:\s*420px\s+repeat\(2,\s*minmax\(0,\s*1fr\)\)/);
+  assert.match(wideDesktop, /\.sqc-mobile-web\.desktop-support\s+\.sqc-support-contact\s*\{[^}]*grid-column:\s*2;[^}]*grid-row:\s*2/);
+  assert.match(wideDesktop, /\.sqc-mobile-web\.desktop-support\s+\.sqc-support-report\s*\{[^}]*grid-column:\s*3;[^}]*grid-row:\s*2/);
+  assert.match(wideDesktop, /\.sqc-mobile-web\.desktop-support\.signed-in\s+\.sqc-support-report\s*\{[^}]*grid-column:\s*2\s*\/\s*-1;[^}]*grid-row:\s*2\s*\/\s*span\s*2/);
+});
+
 test("web support diagnostics include the same account and quest context as Android", () => {
   const diagnostics = buildWebSupportDiagnostics({
     url: "https://sidequestchess.com/support",
