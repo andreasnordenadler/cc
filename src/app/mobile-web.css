@@ -11801,6 +11801,43 @@ body::after {
   .sqc-mobile-web.desktop-proof .sqc-public-proof-command-rail :is(button, a):hover {
     transform: translateY(-1px);
   }
+
+  .sqc-mobile-web.desktop-proof :is(a, button):focus-visible {
+    outline: 3px solid rgba(245, 200, 106, .84);
+    outline-offset: 3px;
+  }
+}
+
+/* Wide proof receipts use the full desktop evidence canvas instead of preserving
+   the standard 1240px desk inside oversized gutters. The receipt stays primary
+   while the same share and browse controls remain in a stable command rail. */
+@media (min-width: 1680px) {
+  .sqc-mobile-web.desktop-proof .sqc-screen {
+    width: min(1600px, calc(100% - 96px));
+  }
+
+  .sqc-mobile-web.desktop-proof .sqc-public-proof-workspace {
+    grid-template-columns: minmax(0, 1fr) 420px;
+    gap: 28px 32px;
+  }
+
+  .sqc-mobile-web.desktop-proof .sqc-public-proof-hero {
+    min-height: 270px;
+    padding: 46px 52px;
+  }
+
+  .sqc-mobile-web.desktop-proof .sqc-public-proof-hero h1 {
+    max-width: 960px;
+    font-size: clamp(58px, 4.5vw, 78px);
+  }
+
+  .sqc-mobile-web.desktop-proof .sqc-public-proof-scroll-card {
+    padding: 30px;
+  }
+
+  .sqc-mobile-web.desktop-proof .sqc-public-proof-command-rail {
+    padding: 36px;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

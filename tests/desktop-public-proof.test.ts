@@ -25,6 +25,19 @@ test("public proof receipt becomes a desktop evidence workspace at the establish
   assert.match(desktopProof, /\.sqc-mobile-web\.desktop-proof\s+\.sqc-public-proof-scroll-card\s*\{[^}]*grid-column:\s*1;[^}]*grid-row:\s*2\s*\/\s*span\s*2/);
 });
 
+test("public proof expands into a wider evidence desk on large desktop displays", () => {
+  const css = readFileSync("src/app/mobile-web.css", "utf8");
+  const wideProofStart = css.indexOf("/* Wide proof receipts use the full desktop evidence canvas");
+  const wideProof = css.slice(wideProofStart);
+
+  assert.notEqual(wideProofStart, -1);
+  assert.match(wideProof, /@media\s*\(min-width:\s*1680px\)/);
+  assert.match(wideProof, /\.sqc-mobile-web\.desktop-proof\s+\.sqc-screen\s*\{[^}]*width:\s*min\(1600px,\s*calc\(100%\s*-\s*96px\)\)/);
+  assert.match(wideProof, /\.sqc-mobile-web\.desktop-proof\s+\.sqc-public-proof-workspace\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\)\s+420px/);
+  assert.match(wideProof, /\.sqc-mobile-web\.desktop-proof\s+\.sqc-public-proof-hero\s*\{[^}]*padding:\s*46px\s+52px/);
+  assert.match(wideProof, /\.sqc-mobile-web\.desktop-proof\s+\.sqc-public-proof-scroll-card\s*\{[^}]*padding:\s*30px/);
+});
+
 test("public proof preserves one functional share and browse subtree across responsive layouts", () => {
   const page = readFileSync("src/app/proof/[token]/page.tsx", "utf8");
 

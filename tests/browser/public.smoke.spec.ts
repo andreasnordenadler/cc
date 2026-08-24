@@ -856,6 +856,41 @@ test("wide Multiplayer detail expands its tournament canvas without changing the
   await expect(action).toHaveCSS("outline-style", "solid");
 });
 
+test("wide public proof expands the evidence canvas while preserving the mobile receipt flow", async ({ page }) => {
+  await page.setViewportSize({ width: 1679, height: 900 });
+  await expectHealthyNavigation(page, "/proof/preview-back-rank-goblin");
+  await expect(page.getByRole("heading", { name: "Back Rank Goblin" })).toBeVisible();
+
+  const geometry = async () => page.evaluate(() => {
+    const screen = document.querySelector(".sqc-screen")?.getBoundingClientRect();
+    const workspace = document.querySelector(".sqc-public-proof-workspace");
+    const receipt = document.querySelector(".sqc-public-proof-scroll-card")?.getBoundingClientRect();
+    const rail = document.querySelector(".sqc-public-proof-command-rail")?.getBoundingClientRect();
+    return {
+      screenWidth: Math.round(screen?.width ?? 0),
+      columns: workspace ? getComputedStyle(workspace).gridTemplateColumns.split(" ").map((value) => Math.round(Number.parseFloat(value))) : [],
+      receiptWidth: Math.round(receipt?.width ?? 0),
+      railWidth: Math.round(rail?.width ?? 0),
+      overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+    };
+  });
+
+  expect(await geometry()).toMatchObject({ screenWidth: 1240, columns: [820, 394], receiptWidth: 820, railWidth: 394, overflow: 0 });
+
+  await page.setViewportSize({ width: 1680, height: 900 });
+  expect(await geometry()).toMatchObject({ screenWidth: 1584, columns: [1132, 420], receiptWidth: 1132, railWidth: 420, overflow: 0 });
+
+  await page.setViewportSize({ width: 1920, height: 1080 });
+  expect(await geometry()).toMatchObject({ screenWidth: 1600, columns: [1148, 420], receiptWidth: 1148, railWidth: 420, overflow: 0 });
+  const share = page.getByRole("button", { name: "Share public proof link" });
+  await share.focus();
+  await expect(share).toBeFocused();
+  await expect(share).toHaveCSS("outline-style", "solid");
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  expect(await geometry()).toMatchObject({ screenWidth: 370, columns: [370], receiptWidth: 370, railWidth: 370, overflow: 0 });
+});
+
 test("auth entry renders without requiring credentials", async ({ page }) => {
   await expectHealthyNavigation(page, "/sign-in");
 
