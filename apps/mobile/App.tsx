@@ -16,6 +16,7 @@ import {
   BackHandler,
   Easing,
   Image,
+  Linking,
   Modal,
   Platform,
   Pressable,
@@ -51,6 +52,7 @@ import { shouldStackActiveQuestSummary } from "./src/layout/activeQuestLayout";
 import { createMobileCommunityCreatorReportSubmitter } from "./src/reports/communityCreatorReport";
 import { canReportCommunityMultiplayerQuest, createMobileCommunityReportSubmitter } from "./src/reports/communityMultiplayerReport";
 import { buildMobileSupportMessage } from "./src/support/buildMobileSupportMessage";
+import { buildMobileSupportEmailUrl } from "./src/support/mobileSupportContact";
 import { getMobileCandidateIdentity as resolveMobileCandidateIdentity, type MobileCandidateConfig } from "./src/support/mobileCandidateIdentity";
 import type { MobileAccountResponse, MobileAccountState, MobileBootstrap, MobileChallenge, MobileCustomSideQuest, MobileGroupQuestParticipantRow, MobileGroupQuestSummary, MobileSupportMessage } from "./src/types/sqc";
 
@@ -3671,6 +3673,16 @@ function HelpSupportModal({ visible, onClose, signedIn, authBridge, initialMessa
     }
   }
 
+  async function openSupportEmail() {
+    const url = buildMobileSupportEmailUrl();
+
+    try {
+      await Linking.openURL(url);
+    } catch {
+      Alert.alert("Could not open email", "Email sam@crowdler.com for Side Quest Chess support.");
+    }
+  }
+
   return (
     <Modal visible={visible} animationType="slide" presentationStyle="fullScreen" onRequestClose={onClose}>
       <SafeAreaView style={compactStyles.detailScreen}>
@@ -3739,55 +3751,66 @@ function HelpSupportModal({ visible, onClose, signedIn, authBridge, initialMessa
 
           <View style={compactStyles.multiplayerNativeCard}>
             <Text style={compactStyles.multiplayerCardEyebrow}>Report a problem</Text>
-            <Text style={compactStyles.detailPanelCopy}>Something not working? Send a short note with what you tried and what happened. We can reply here if we need more details.</Text>
-            <View style={compactStyles.helpSupportThread}>
-              <Text style={compactStyles.appRowTitle}>Conversation</Text>
-              {supportThread.length ? supportThread.map((entry) => (
-                <View key={entry.id} style={[compactStyles.helpSupportMessageBubble, entry.source === "admin" ? compactStyles.helpSupportAdminBubble : null]}>
-                  <Text style={compactStyles.helpSupportMessageMeta}>{entry.source === "admin" ? "Side Quest Chess support" : "You"} · {formatAccountDate(entry.at)}</Text>
-                  <Text style={compactStyles.helpSupportBody}>{entry.message}</Text>
+            {authBridge.isSignedIn ? (
+              <>
+                <Text style={compactStyles.detailPanelCopy}>Something not working? Send a short note with what you tried and what happened. We can reply here if we need more details.</Text>
+                <View style={compactStyles.helpSupportThread}>
+                  <Text style={compactStyles.appRowTitle}>Conversation</Text>
+                  {supportThread.length ? supportThread.map((entry) => (
+                    <View key={entry.id} style={[compactStyles.helpSupportMessageBubble, entry.source === "admin" ? compactStyles.helpSupportAdminBubble : null]}>
+                      <Text style={compactStyles.helpSupportMessageMeta}>{entry.source === "admin" ? "Side Quest Chess support" : "You"} · {formatAccountDate(entry.at)}</Text>
+                      <Text style={compactStyles.helpSupportBody}>{entry.message}</Text>
+                    </View>
+                  )) : (
+                    <Text style={compactStyles.helpSupportBody}>Your messages and replies from Side Quest Chess support will appear here.</Text>
+                  )}
                 </View>
-              )) : (
-                <Text style={compactStyles.helpSupportBody}>Your messages and replies from Side Quest Chess support will appear here.</Text>
-              )}
-            </View>
-            <View style={styles.inputStack}>
-              <Text style={styles.inputLabel}>Message</Text>
-              <TextInput
-                value={supportMessage}
-                multiline
-                maxLength={MOBILE_SUPPORT_NOTE_MAX_LENGTH}
-                placeholder="What happened"
-                placeholderTextColor="rgba(255,247,232,.42)"
-                style={[styles.textInput, styles.textAreaInput]}
-                onChangeText={setSupportMessage}
-              />
-            </View>
-            <Pressable
-              accessibilityRole="checkbox"
-              accessibilityState={{ checked: includeDiagnostics }}
-              accessibilityLabel="Include app diagnostics with support message"
-              style={compactStyles.diagnosticsDisclosure}
-              onPress={() => setIncludeDiagnostics((current) => !current)}
-            >
-              <MaterialCommunityIcons
-                name={includeDiagnostics ? "checkbox-marked" : "checkbox-blank-outline"}
-                size={24}
-                color={colors.gold}
-              />
-              <View style={{ flex: 1 }}>
-                <Text style={compactStyles.appRowTitle}>Include app diagnostics</Text>
-                <Text style={compactStyles.detailPanelCopy}>Optional: sends your build, device, connected chess usernames, active quest, and Multiplayer counts with this message.</Text>
-              </View>
-            </Pressable>
-            {submitState.message ? <Text style={compactStyles.inlineSuccess}>{submitState.message}</Text> : null}
-            {submitState.error ? <Text style={compactStyles.inlineError}>{submitState.error}</Text> : null}
-            <Pressable accessibilityRole="button" accessibilityLabel="Send support message" style={[compactStyles.detailPrimaryButton, submitState.busy ? compactStyles.disabledAction : null]} disabled={submitState.busy} onPress={() => void submitSupport()}>
-              <Text style={compactStyles.detailPrimaryButtonText}>{submitState.busy ? "Sending..." : "Send support message"}</Text>
-            </Pressable>
-            <Pressable accessibilityRole="button" accessibilityLabel="Copy support details" style={compactStyles.detailPrimaryButton} onPress={() => void copySupportDetails()}>
-              <Text style={compactStyles.detailPrimaryButtonText}>Copy support details</Text>
-            </Pressable>
+                <View style={styles.inputStack}>
+                  <Text style={styles.inputLabel}>Message</Text>
+                  <TextInput
+                    value={supportMessage}
+                    multiline
+                    maxLength={MOBILE_SUPPORT_NOTE_MAX_LENGTH}
+                    placeholder="What happened"
+                    placeholderTextColor="rgba(255,247,232,.42)"
+                    style={[styles.textInput, styles.textAreaInput]}
+                    onChangeText={setSupportMessage}
+                  />
+                </View>
+                <Pressable
+                  accessibilityRole="checkbox"
+                  accessibilityState={{ checked: includeDiagnostics }}
+                  accessibilityLabel="Include app diagnostics with support message"
+                  style={compactStyles.diagnosticsDisclosure}
+                  onPress={() => setIncludeDiagnostics((current) => !current)}
+                >
+                  <MaterialCommunityIcons
+                    name={includeDiagnostics ? "checkbox-marked" : "checkbox-blank-outline"}
+                    size={24}
+                    color={colors.gold}
+                  />
+                  <View style={{ flex: 1 }}>
+                    <Text style={compactStyles.appRowTitle}>Include app diagnostics</Text>
+                    <Text style={compactStyles.detailPanelCopy}>Optional: sends your build, device, connected chess usernames, active quest, and Multiplayer counts with this message.</Text>
+                  </View>
+                </Pressable>
+                {submitState.message ? <Text style={compactStyles.inlineSuccess}>{submitState.message}</Text> : null}
+                {submitState.error ? <Text style={compactStyles.inlineError}>{submitState.error}</Text> : null}
+                <Pressable accessibilityRole="button" accessibilityLabel="Send support message" style={[compactStyles.detailPrimaryButton, submitState.busy ? compactStyles.disabledAction : null]} disabled={submitState.busy} onPress={() => void submitSupport()}>
+                  <Text style={compactStyles.detailPrimaryButtonText}>{submitState.busy ? "Sending..." : "Send support message"}</Text>
+                </Pressable>
+                <Pressable accessibilityRole="button" accessibilityLabel="Copy support details" style={compactStyles.detailPrimaryButton} onPress={() => void copySupportDetails()}>
+                  <Text style={compactStyles.detailPrimaryButtonText}>Copy support details</Text>
+                </Pressable>
+              </>
+            ) : (
+              <>
+                <Text style={compactStyles.detailPanelCopy}>Email Crowdler AB directly for help without signing in. Sign in to send an account-linked note and see replies in the app.</Text>
+                <Pressable accessibilityRole="button" accessibilityLabel="Email Side Quest Chess support" style={compactStyles.detailPrimaryButton} onPress={() => void openSupportEmail()}>
+                  <Text style={compactStyles.detailPrimaryButtonText}>Email support</Text>
+                </Pressable>
+              </>
+            )}
           </View>
         </ScrollHintedScrollView>
       </SafeAreaView>
