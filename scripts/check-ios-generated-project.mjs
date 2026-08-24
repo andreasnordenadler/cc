@@ -24,8 +24,9 @@ const decodeXml = (value) =>
     .replaceAll("&apos;", "'");
 
 const parsePlist = (source) => {
+  const sourceWithoutComments = source.replaceAll(/<!--[\s\S]*?-->/g, "");
   const tokens =
-    source.match(
+    sourceWithoutComments.match(
       /<dict>|<dict\s*\/>|<\/dict>|<array>|<array\s*\/>|<\/array>|<true\s*\/>|<false\s*\/>|<key>[\s\S]*?<\/key>|<string>[\s\S]*?<\/string>|<integer>[\s\S]*?<\/integer>|<real>[\s\S]*?<\/real>|<date>[\s\S]*?<\/date>|<data>[\s\S]*?<\/data>/g,
     ) ?? [];
   let index = 0;
