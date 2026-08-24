@@ -58,6 +58,14 @@ test("iOS release packet records the current local Xcode and CocoaPods receipt w
   assert.doesNotMatch(packet, /CocoaPods is unavailable/i);
 });
 
+test("iOS release packet records the current Release launch crash separately from build success", () => {
+  assert.match(packet, /Release Simulator build.*succeeded/i);
+  assert.match(packet, /SIGSEGV.*RCTKeyWindow.*UIScene/i);
+  assert.match(packet, /Debug build.*remained resident/i);
+  assert.match(packet, /no Simulator journey.*has passed/i);
+  assert.doesNotMatch(packet, /Simulator journey:\s*PASS/i);
+});
+
 test("iOS release packet preserves the independently verified current-candidate reconciliation receipt", () => {
   assert.match(packet, /\*\*Source baseline:\*\* `3cdfc0cf90629b3dbd0a57b167ca6700be055159` \(`origin\/main`/);
   assert.match(packet, /live Privacy, Support, and Terms pages.*HTTP 200/i);
