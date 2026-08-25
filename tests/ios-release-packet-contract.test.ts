@@ -48,11 +48,18 @@ test("iOS release packet distinguishes source-prepared safety disclosures from p
   assert.doesNotMatch(packet, /current privacy policy.*does not explicitly disclose content and creator reports/i);
 });
 
+test("iOS release packet is bound to the exact current origin main source", () => {
+  assert.match(packet, /Source baseline:\*\* `5aee72552afd8c33496eb536a8bc190032cf7e69` \(`origin\/main`/);
+  assert.match(packet, /Current-baseline local tooling receipt \(`5aee7255`/);
+  assert.doesNotMatch(packet, /current `origin\/main`[^\n]*`4f62e560`/i);
+});
+
 test("iOS release packet records current local tooling without turning inconclusive build evidence into a pass", () => {
   assert.match(packet, /Xcode 26\.6.*iOS 26\.5 SDK/i);
   assert.match(packet, /CocoaPods 1\.17\.0/i);
   assert.match(packet, /iOS 26\.5 Simulator runtime.*registered/i);
-  assert.match(packet, /xcresult.*zero tests.*unknown/i);
+  assert.match(packet, /historical build attempt[^\n]*xcresult[^\n]*zero tests[^\n]*unknown/i);
+  assert.doesNotMatch(packet, /existing `ios-build-[^`]+\.xcresult`/i);
   assert.doesNotMatch(packet, /simulator runtime.*not.*registered/i);
   assert.doesNotMatch(packet, /Full Xcode is unavailable locally/i);
   assert.doesNotMatch(packet, /CocoaPods is unavailable/i);
