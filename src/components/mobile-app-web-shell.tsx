@@ -1165,7 +1165,7 @@ export function MobileSupportScreen({
 
       <section className="sqc-support-card sqc-support-legal" aria-label="Legal and privacy">
         <span className="sqc-card-eyebrow">Legal & privacy</span>
-        <p>Read the Privacy Policy, support notes, or the Terms of Use. Side Quest Chess only asks for public chess usernames and never chess-site passwords.</p>
+        <p>Read the Privacy Policy, support notes, or the Terms of Use. Side Quest Chess never asks for your Lichess or Chess.com password. The Privacy Policy explains the account and app data used to provide the service.</p>
         <div className="sqc-support-link-row">
           <Link href="/privacy">Privacy Policy</Link>
           <Link href="/support">Support & privacy</Link>

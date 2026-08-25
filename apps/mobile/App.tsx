@@ -3731,7 +3731,7 @@ function HelpSupportModal({ visible, onClose, signedIn, authBridge, initialMessa
 
           <View style={compactStyles.multiplayerNativeCard}>
             <Text style={compactStyles.multiplayerCardEyebrow}>Legal & privacy</Text>
-            <Text style={compactStyles.detailPanelCopy}>Read the Privacy Policy, support notes, or the Terms of Use. Side Quest Chess only asks for public chess usernames and never chess-site passwords.</Text>
+            <Text style={compactStyles.detailPanelCopy}>Read the Privacy Policy, support notes, or the Terms of Use. Side Quest Chess never asks for your Lichess or Chess.com password. The Privacy Policy explains the account and app data used to provide the service.</Text>
             <View style={styles.buttonRow}>
               <Pressable accessibilityRole="button" accessibilityLabel="Open Side Quest Chess Privacy Policy" style={compactStyles.detailQuietButton} onPress={() => void openLegalPage("/privacy", "Privacy Policy")}>
                 <Text style={compactStyles.detailQuietButtonText}>Privacy Policy</Text>
@@ -9513,7 +9513,7 @@ function AccountShell({
           <Text style={styles.accountAuthHeroCopy}>Logging in lets Side Quest Chess remember your profile, public chess usernames, active Side Quest, badges, and proof cards.</Text>
           <View style={styles.authLightweightCopy} accessibilityLabel="Lightweight sign-in notes">
             <Text style={styles.authNote}><Text style={styles.authNoteStrong}>Lightweight by design.</Text> We do not need or ask for any Lichess or Chess.com passwords.</Text>
-            <Text style={styles.authNote}>Use a public chess username only. Side Quest Chess checks public games and stores the minimum needed to remember your quests, proof, and Coat of Arms progress.</Text>
+            <Text style={styles.authNote}>Use your public chess username for proof checks. Side Quest Chess also stores the account and app data described in the Privacy Policy to provide profiles, quests, proof, Multiplayer, support, and safety features.</Text>
             <Text style={styles.authNote}>You can browse Side Quests before signing in. Sign in when you want Side Quest Chess to save progress, verify proof, or manage Multiplayer Quests.</Text>
           </View>
         </View>
