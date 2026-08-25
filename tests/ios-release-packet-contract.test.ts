@@ -74,6 +74,18 @@ test("iOS release packet binds current status to the exact reconciled source com
   assert.doesNotMatch(packet, /source-preparation changes remain under PR review/i);
 });
 
+test("iOS release packet records retained cached Simulator build evidence without promoting it to a release candidate", () => {
+  assert.match(packet, /retained cross-worktree cached Simulator build receipt/i);
+  assert.match(packet, /build was invoked from the clean release-input commit `4f62e560ce2d14f82943c9fa0e2acd0f7669b470`/i);
+  assert.match(packet, /ios-build-4f62e560\.xcresult/);
+  assert.match(packet, /iPhone 17 Pro.*iOS 26\.5/i);
+  assert.match(packet, /ATS arbitrary loads.*false/i);
+  assert.match(packet, /484 dependency\/toolchain warnings/i);
+  assert.match(packet, /not a self-contained exact-current or pristine release build/i);
+  assert.match(packet, /diagnostic screenshot was deleted.*personal account and quest data/i);
+  assert.match(packet, /cached Debug Simulator build.*Metro.*not a signed archive, IPA, TestFlight build, physical-device smoke, or App Store screenshot/i);
+});
+
 test("iOS release packet prominently blocks Apple identity, agreements, and App Review access", () => {
   assert.match(packet, /Apple-side App ID ownership\/availability.*unverified/i);
   assert.match(packet, /App Store Connect app record.*unverified/i);
