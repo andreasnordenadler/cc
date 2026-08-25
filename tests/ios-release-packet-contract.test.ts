@@ -48,11 +48,34 @@ test("iOS release packet distinguishes source-prepared safety disclosures from p
   assert.doesNotMatch(packet, /current privacy policy.*does not explicitly disclose content and creator reports/i);
 });
 
-test("iOS release packet records the current local Xcode and CocoaPods receipt without claiming a build pass", () => {
+test("iOS release packet records current local tooling without turning inconclusive build evidence into a pass", () => {
   assert.match(packet, /Xcode 26\.6.*iOS 26\.5 SDK/i);
   assert.match(packet, /CocoaPods 1\.17\.0/i);
-  assert.match(packet, /unsigned generic Simulator build.*failed/i);
-  assert.match(packet, /simulator runtime.*not.*registered/i);
+  assert.match(packet, /iOS 26\.5 Simulator runtime.*registered/i);
+  assert.match(packet, /xcresult.*zero tests.*unknown/i);
+  assert.doesNotMatch(packet, /simulator runtime.*not.*registered/i);
   assert.doesNotMatch(packet, /Full Xcode is unavailable locally/i);
   assert.doesNotMatch(packet, /CocoaPods is unavailable/i);
+  assert.match(packet, /Complete Xcode build[^\n]*: NOT PASSED/i);
+  assert.doesNotMatch(packet, /Complete Xcode build[^\n]*: PASSED/i);
+});
+
+test("iOS release packet blocks account deletion until retained safety identifiers are resolved", () => {
+  assert.match(
+    packet,
+    /\| Account deletion \/ retained safety identifiers \| Blocked \|[^\n]*legally required retention[^\n]*scope[^\n]*duration[^\n]*user disclosure/i,
+  );
+  assert.match(packet, /Purge or anonymize[^\n]*legally required retention[^\n]*scope[^\n]*duration[^\n]*user disclosure/i);
+});
+
+test("iOS release packet territory-gates South Korea availability without assuming an RCN is required", () => {
+  assert.match(packet, /\| Republic of Korea availability \| Blocked \|[^\n]*verify whether[^\n]*RCN[^\n]*exclude Korea/i);
+  assert.match(packet, /manage-korea-compliance-information/);
+  assert.doesNotMatch(packet, /manage-information-for-apps-in-south-korea/);
+});
+
+test("iOS release packet treats accessibility nutrition labels as voluntary and evidence-bound", () => {
+  assert.match(packet, /Accessibility Nutrition Labels.*currently voluntary/i);
+  assert.match(packet, /iPhone.*iPad.*common-task evaluation/i);
+  assert.match(packet, /not indicated/i);
 });
