@@ -89,6 +89,7 @@ test("iOS release packet blocks account deletion until retained safety identifie
     /\| Account deletion \/ retained safety identifiers \| Blocked \|[^\n]*legally required retention[^\n]*scope[^\n]*duration[^\n]*user disclosure/i,
   );
   assert.match(packet, /Purge or anonymize[^\n]*legally required retention[^\n]*scope[^\n]*duration[^\n]*user disclosure/i);
+  assert.match(packet, /concurrency-safe[^\n]*atomic[^\n]*Clerk metadata arrays/i);
 });
 
 test("iOS release packet territory-gates South Korea availability without assuming an RCN is required", () => {
