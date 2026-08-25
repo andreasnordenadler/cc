@@ -47,6 +47,7 @@ A clean detached worktree at branch commit `1ec2401b45d209db722bcb13c9194a318cc0
 | Android and web public launch | Blocked | Verified public availability for both predecessors before iOS App Review submission or public release |
 | Crowdler AB Apple legal team | Blocked | Legal entity, Team ID, membership status/expiry |
 | Dedicated Crowdler/Sam operator | Blocked | Exact Apple Account, MFA/recovery custody, role and app scope; never Andreas’s personal identity |
+| Apple agreements | Blocked | Account Holder readback that every agreement required for free-app distribution is active; accepting any new or updated agreement remains separately approval-gated |
 | Bundle/app reconciliation | Blocked | Apple Developer and App Store Connect searches for `com.sidequestchess.app`, including duplicate/App ID/app record/SKU results |
 | Source freeze | Not frozen | Clean approved commit, lockfile hash, approved version and unique build number |
 | Guideline 4.8 login | Source prepared; deletion revocation and integration blocked | Apple authorization-token revocation implemented for account deletion; Crowdler App ID/provider configuration under separate approval; account linking, cancellation, relay email, Apple/Google/Facebook credential revocation, deletion, and physical-iPhone tests |
@@ -54,7 +55,9 @@ A clean detached worktree at branch commit `1ec2401b45d209db722bcb13c9194a318cc0
 | Guideline 1.2 UGC safety | Blocked | Objectionable-content filtering, timely report response/removal workflow, published contact information, and the required ability to block abusive users from the service verified end to end; central queue and broader interaction blocking are the proposed product design |
 | Generated native audit | Blocked | Clean prebuild diff; Info.plist, entitlements, URL types, deployment target, SDKs and privacy manifests |
 | Signed candidate | Blocked | IPA hash, identity/version/build, Crowdler signature/team, entitlements and export-compliance inspection |
+| Processed upload | Blocked | App Store Connect processed-upload readback binding the exact bundle ID, version, build, encryption/export compliance state, processing warnings and uploaded artifact to the approved candidate receipt |
 | Privacy labels | Draft only | Backend/provider/SDK/manifest/network reconciliation against exact IPA |
+| Consent and privacy choices | Blocked | Legal-basis inventory plus exact-candidate consent behavior and an accessible withdrawal mechanism wherever processing relies on consent; read back the optional User Privacy Choices URL only if Crowdler elects to publish one |
 | Privacy policy safety data | Production readback verified; source behavior blocked | Report and block disclosures are deployed in production and readable signed out; retained cross-account safety identifiers and the missing moderation workflow remain blockers |
 | Required-reason APIs | Blocked | Exact-archive inventory; every used category declared by the responsible app or SDK manifest with an Apple-approved reason that matches actual behavior |
 | Age rating / 13+ access | Draft only | Live questionnaire receipt and owner/legal-approved 13+ eligibility behavior |
@@ -68,6 +71,7 @@ A clean detached worktree at branch commit `1ec2401b45d209db722bcb13c9194a318cc0
 | Accessibility Nutrition Labels | Draft only; currently voluntary | Either publish only after exact-candidate iPhone and iPad common-task evaluation, or preserve and read back the deliberate not indicated state |
 | TestFlight | No verified Apple-side evidence; blocked | Approved upload, tester configuration and store-delivered install receipt |
 | Real iPhone smoke | Blocked | Exact TestFlight build, signed-out and signed-in flows, callback and deletion |
+| App Review information and access | Blocked | Owner-authorized non-personal review fixtures, every shipped SSO access path, international-format review phone, notes, seeded data, deletion fixture and monitored fallback verified on the submitted TestFlight build |
 | Review submission | No verified Apple-side evidence; blocked | Separate approval and App Store Connect readback |
 | Public release | No verified Apple-side evidence; blocked | Separate approval and storefront availability readback |
 
@@ -164,6 +168,8 @@ The contractual minimum age is 13; Apple’s calculated regional rating is separ
 
 Working answers:
 
+Beginning in September 2026, responses to Apple's new social media capability questions are required for new App Store submissions and updates. Side Quest Chess's working answers below must therefore be completed and read back from the live questionnaire before submission; do not infer compliance from this draft or wait for Apple to block the submission.
+
 - Made for Kids: No — provisional; confirm in the live app record and keep all screenshots/metadata suitable for the resulting audience
 - Advertising: No
 - Gambling, simulated gambling, loot boxes: No / None
@@ -232,7 +238,7 @@ Record device, OS, source SHA, version/build, TestFlight build ID, fixture, time
 | Accessibility | VoiceOver, Voice Control, Dynamic Type/Larger Text, focus, labels, contrast, Reduce Motion, touch targets | Same plus split-view overflow/focus |
 | Appearance/layout | Dark/light if supported, portrait and every generated orientation | Same across materially different widths |
 
-TestFlight acceptance also requires: processed build with no unresolved Missing Compliance status; correct name/icon/version/build/API; “What to Test”; internal group/build assignment; store-delivered installation; no debug endpoint; no secrets/tokens in logs; non-expiring review fixtures; public chess fixture; second-account multiplayer; background/foreground/forced relaunch; successful deletion and signed-out relaunch. External testing additionally requires Beta App Description, Feedback Email, Contact Information, and an internal group first. The first build added or submitted to an external testing group requires full TestFlight App Review; later builds for the same version may not. Read back each external-test field rather than assuming production review contact is reused. Record the build's 90-day expiry horizon. Internal testing, external TestFlight review, production App Review, approval, and public availability are separate states.
+TestFlight acceptance also requires: processed build with no unresolved Missing Compliance status; processed-upload readback binding the exact version, build and export compliance state to the candidate; correct name/icon/API; “What to Test”; internal group/build assignment; store-delivered installation; no debug endpoint; no secrets/tokens in logs; non-expiring review fixtures; public chess fixture; second-account multiplayer; background/foreground/forced relaunch; successful deletion and signed-out relaunch. External testing additionally requires Beta App Description, Feedback Email, Contact Information, and an internal group first. The first build added or submitted to an external testing group requires full TestFlight App Review; later builds for the same version may not. Read back each external-test field rather than assuming production review contact is reused. Record the build's 90-day expiry horizon. Internal testing, external TestFlight review, production App Review, approval, and public availability are separate states.
 
 ## 10. Least-privilege Apple access packet
 

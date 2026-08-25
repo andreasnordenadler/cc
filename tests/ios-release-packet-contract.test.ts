@@ -101,3 +101,11 @@ test("iOS release packet treats accessibility nutrition labels as voluntary and 
   assert.match(packet, /iPhone.*iPad.*common-task evaluation/i);
   assert.match(packet, /not indicated/i);
 });
+
+test("iOS release packet preserves the remaining Apple-side submission gates", () => {
+  assert.match(packet, /\| Apple agreements \| Blocked \|/i);
+  assert.match(packet, /\| App Review information and access \| Blocked \|/i);
+  assert.match(packet, /consent.*accessible withdrawal mechanism/i);
+  assert.match(packet, /processed-upload readback[^\n]*version[^\n]*build[^\n]*export compliance/i);
+  assert.match(packet, /September 2026[^\n]*social media[^\n]*required/i);
+});
