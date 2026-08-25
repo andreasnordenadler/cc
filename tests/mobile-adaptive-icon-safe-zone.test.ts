@@ -79,6 +79,48 @@ function decodeRgbaPng(bytes: Buffer) {
   return { width, height, pixels: rgba };
 }
 
+function assertAppStoreIconIsOpaqueRgbPng(bytes: Buffer) {
+  assert.deepEqual([...bytes.subarray(0, 8)], [137, 80, 78, 71, 13, 10, 26, 10]);
+  assert.equal(bytes.subarray(12, 16).toString("ascii"), "IHDR");
+  assert.equal(bytes[25], 2, "App Store icon must not contain an alpha channel");
+  let offset = 8;
+  while (offset + 12 <= bytes.length) {
+    const length = bytes.readUInt32BE(offset);
+    const type = bytes.subarray(offset + 4, offset + 8).toString("ascii");
+    assert.ok(offset + 12 + length <= bytes.length, "App Store icon must be a complete PNG");
+    assert.notEqual(type, "tRNS", "App Store icon must not contain a transparency chunk");
+    offset += 12 + length;
+    if (type === "IEND") return;
+  }
+  assert.fail("App Store icon must contain an IEND chunk");
+}
+
+function pngChunkFixture(type: string, data = Buffer.alloc(0)) {
+  const chunk = Buffer.alloc(12 + data.length);
+  chunk.writeUInt32BE(data.length, 0);
+  chunk.write(type, 4, "ascii");
+  data.copy(chunk, 8);
+  return chunk;
+}
+
+function rgbPngChunkFixture(...additionalChunks: Buffer[]) {
+  const header = Buffer.alloc(13);
+  header.writeUInt32BE(1, 0);
+  header.writeUInt32BE(1, 4);
+  header[8] = 8;
+  header[9] = 2;
+  return Buffer.concat([
+    Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]),
+    pngChunkFixture("IHDR", header),
+    ...additionalChunks,
+    pngChunkFixture("IEND"),
+  ]);
+}
+
+function effectiveAppStoreIcon(config: { expo: { icon: string; ios?: { icon?: string } } }) {
+  return config.expo.ios?.icon ?? config.expo.icon;
+}
+
 function contentBounds(
   image: ReturnType<typeof decodeRgbaPng>,
   isContent: (red: number, green: number, blue: number, alpha: number) => boolean,
@@ -150,11 +192,37 @@ test("Android launcher artwork stays inside the adaptive-icon safe zone", async 
   assertFitsCircularSafeZone(foreground, (_red, _green, _blue, alpha) => alpha > 8, "adaptive foreground");
 });
 
+test("App Store icon validator rejects PNG alpha channels", async () => {
+  const rgbaIcon = await readFile(foregroundPath);
+  assert.throws(
+    () => assertAppStoreIconIsOpaqueRgbPng(rgbaIcon),
+    /App Store icon must not contain an alpha channel/,
+  );
+});
+
+test("App Store icon validator rejects RGB PNG transparency chunks", () => {
+  const transparentRgbIcon = rgbPngChunkFixture(pngChunkFixture("tRNS", Buffer.from([0, 0, 0, 0, 0, 0])));
+  assert.throws(
+    () => assertAppStoreIconIsOpaqueRgbPng(transparentRgbIcon),
+    /App Store icon must not contain a transparency chunk/,
+  );
+});
+
+test("App Store icon contract follows an iOS-specific icon override", () => {
+  assert.equal(
+    effectiveAppStoreIcon({ expo: { icon: "./shared.png", ios: { icon: "./ios.png" } } }),
+    "./ios.png",
+  );
+});
+
 test("legacy launcher icon keeps the complete coat of arms away from mask edges", async () => {
   const appConfig = JSON.parse(await readFile(appConfigPath, "utf8"));
-  assert.equal(appConfig.expo.icon, "./assets/app-icon-light-blue.png");
+  const configuredIcon = effectiveAppStoreIcon(appConfig);
+  assert.equal(configuredIcon, "./assets/app-icon-light-blue.png");
 
-  const icon = decodeRgbaPng(await readFile(legacyIconPath));
+  const iconBytes = await readFile(path.resolve(mobileRoot, configuredIcon));
+  assertAppStoreIconIsOpaqueRgbPng(iconBytes);
+  const icon = decodeRgbaPng(iconBytes);
   assert.deepEqual([icon.width, icon.height], [1024, 1024]);
   const artworkBounds = contentBounds(icon, (red, green, blue, alpha) =>
     alpha > 8 && Math.max(Math.abs(red - background[0]), Math.abs(green - background[1]), Math.abs(blue - background[2])) > 12,
