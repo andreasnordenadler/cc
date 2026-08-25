@@ -121,3 +121,12 @@ test("iOS release packet states the external TestFlight review trigger precisely
   assert.match(packet, /first build submitted to TestFlight App Review requires a full review/i);
   assert.doesNotMatch(packet, /first build added or submitted to an external testing group requires full TestFlight App Review/i);
 });
+
+test("iOS release packet separately approval-gates EU trader verification and certification", () => {
+  assert.match(packet, /EU trader status \| Blocked/i);
+  assert.match(packet, /phone number and email[^\n]*verify both/i);
+  assert.match(packet, /business[^\n]*address[^\n]*documentation/i);
+  assert.match(packet, /payment account/i);
+  assert.match(packet, /certif(?:y|ication)[^\n]*EU law/i);
+  assert.match(packet, /separate approval/i);
+});
