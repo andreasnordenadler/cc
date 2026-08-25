@@ -42,17 +42,25 @@ test("iOS release packet approval-gates the remaining app-record and privacy-pol
   assert.match(packet, /must not download or export.*certificates.*profiles.*API keys.*credentials/i);
 });
 
-test("iOS release packet distinguishes source-prepared safety disclosures from production evidence", () => {
-  assert.match(packet, /report and block disclosures are source-prepared/i);
-  assert.match(packet, /production deployment and signed-out readback remain blocked/i);
-  assert.doesNotMatch(packet, /current privacy policy.*does not explicitly disclose content and creator reports/i);
+test("iOS release packet records live production safety and support disclosures without claiming UGC readiness", () => {
+  assert.match(packet, /production signed-out readback.*report and block disclosures/i);
+  assert.match(packet, /production signed-out Support.*Crowdler AB.*sam@crowdler\.com/i);
+  assert.match(packet, /Guideline 1\.2 UGC safety.*Blocked/i);
+  assert.doesNotMatch(packet, /production deployment and signed-out readback remain blocked/i);
 });
 
-test("iOS release packet records the current local Xcode and CocoaPods receipt without claiming a build pass", () => {
+test("iOS release packet records the current local Xcode, CocoaPods, and registered runtime without claiming a build pass", () => {
   assert.match(packet, /Xcode 26\.6.*iOS 26\.5 SDK/i);
   assert.match(packet, /CocoaPods 1\.17\.0/i);
-  assert.match(packet, /unsigned generic Simulator build.*failed/i);
-  assert.match(packet, /simulator runtime.*not.*registered/i);
+  assert.match(packet, /iOS 26\.5 Simulator runtime.*registered/i);
+  assert.match(packet, /no current-commit Xcode compile or Simulator launch pass/i);
+  assert.doesNotMatch(packet, /simulator runtime.*not.*registered/i);
   assert.doesNotMatch(packet, /Full Xcode is unavailable locally/i);
   assert.doesNotMatch(packet, /CocoaPods is unavailable/i);
+});
+
+test("iOS release packet binds current status to the exact reconciled source commit", () => {
+  assert.match(packet, /Source baseline:\*\* `3cf61fb1d5233a8899d5dfcd3a6caea4c2a8dc4a`/);
+  assert.match(packet, /current exact-commit verification/i);
+  assert.doesNotMatch(packet, /source-preparation changes remain under PR review/i);
 });
