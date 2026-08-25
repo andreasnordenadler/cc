@@ -12,10 +12,16 @@ test("iOS release packet blocks upload when required-reason API declarations are
 test("iOS release packet approval-gates immutable distribution and territory compliance choices", () => {
   assert.match(packet, /Distribution method \| Blocked/);
   assert.match(packet, /Public versus Private Distribution cannot be changed after approval/i);
-  assert.match(packet, /NPPA game approval number/);
-  assert.match(packet, /MIIT ICP Filing Number/);
+  assert.match(packet, /\| China mainland availability \| Blocked \|[^\n]*Owner\/legal-approved inclusion[^\n]*NPPA[^\n]*ICP/i);
   assert.match(packet, /Simplified Chinese localization[^\n]*primary language/i);
-  assert.match(packet, /Vietnam[^\n]*license number[^\n]*associated URL[^\n]*game description/i);
+  assert.match(
+    packet,
+    /\| Vietnam availability \| Blocked \|[^\n]*Owner\/legal-approved inclusion[^\n]*game-publishing license[^\n]*exclude Vietnam/i,
+  );
+  assert.doesNotMatch(
+    packet,
+    /Vietnam[^\n]*(?:license number[^\n]*(?:associated )?URL|(?:associated )?URL[^\n]*license number)[^\n]*(?:description|metadata)/i,
+  );
 });
 
 test("iOS review packet does not treat an ordinary demo account as a substitute for SSO review access", () => {
@@ -119,7 +125,11 @@ test("iOS release packet does not misattribute Google credential disconnection t
 });
 
 test("iOS release packet states the external TestFlight review trigger precisely", () => {
-  assert.match(packet, /first build submitted to TestFlight App Review requires a full review/i);
+  assert.match(
+    packet,
+    /For external testing,[^\n]*first build submitted for a version[^\n]*TestFlight App Review[^\n]*Submit Review/i,
+  );
+  assert.match(packet, /first build added to a group[^.]*sent to review/i);
   assert.doesNotMatch(packet, /first build added or submitted to an external testing group requires full TestFlight App Review/i);
 });
 
@@ -146,4 +156,18 @@ test("iOS release packet preserves the canonical product facts in one explicit c
   assert.match(section, /\| Terms URL \| https:\/\/sidequestchess\.com\/terms \|/);
   assert.match(section, /\| Monetization \| No ads, in-app purchases, subscriptions, or real-money activity \|/);
   assert.match(section, /Public copy must say `Side Quest Chess`, never `SQC`/);
+});
+
+test("iOS release packet requires exact-submission readback for every public listing URL", () => {
+  assert.match(
+    packet,
+    /\| Public listing URLs \| Blocked \|[^\n]*Marketing[^\n]*Support[^\n]*Privacy[^\n]*Terms[^\n]*exact-submission/i,
+  );
+});
+
+test("iOS release packet keeps public-name legal clearance separate from App Store availability", () => {
+  assert.match(
+    packet,
+    /\| Public name legal clearance \| Blocked \|[^\n]*trademark[^\n]*App Store name availability[^\n]*not legal clearance/i,
+  );
 });
