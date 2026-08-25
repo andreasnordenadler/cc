@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 
 const packet = readFileSync(new URL("../docs/IOS_APP_STORE_RELEASE_PACKET_2026-08-21.md", import.meta.url), "utf8");
+const packetLine = (needle: string) => packet.split("\n").find((line) => line.toLowerCase().includes(needle.toLowerCase())) ?? "";
 
 test("iOS release packet blocks upload when required-reason API declarations are missing or unsupported", () => {
   assert.match(packet, /Missing or unsupported reasons block upload/);
@@ -43,9 +44,11 @@ test("iOS release packet approval-gates the remaining app-record and privacy-pol
 });
 
 test("iOS release packet records the verified production safety and support readback", () => {
-  assert.match(packet, /signed-out production readback[\s\S]*Crowdler AB[\s\S]*sam@crowdler\.com/i);
-  assert.match(packet, /signed-out production readback[\s\S]*report and block/i);
+  const productionReadback = packetLine("Signed-out production readback on");
+  assert.match(productionReadback, /Crowdler AB.*sam@crowdler\.com/i);
+  assert.match(productionReadback, /report and block/i);
   assert.doesNotMatch(packet, /production deployment and signed-out readback remain blocked/i);
+  assert.doesNotMatch(packet, /Production deployment and readback remain separate gates/i);
   assert.doesNotMatch(packet, /current privacy policy.*does not explicitly disclose content and creator reports/i);
 });
 
@@ -61,13 +64,19 @@ test("iOS release packet records the exact-current unsigned Release build and si
   assert.match(packet, /iOS 26\.5 runtime.*registered/i);
   assert.match(packet, /iPhone 17 Pro Max.*iPad Pro 13-inch \(M5\)/i);
   assert.match(packet, /exact-current.*Release Simulator build.*PASS/i);
-  assert.match(packet, /iPhone 17 Pro Max[\s\S]*install[\s\S]*launch[\s\S]*PASS/i);
-  assert.match(packet, /iPad Pro 13-inch \(M5\)[\s\S]*install[\s\S]*launch[\s\S]*PASS/i);
+  assert.match(packetLine("iPhone 17 Pro Max, iOS 26.5"), /install PASS.*launch PASS/i);
+  assert.match(packetLine("iPad Pro 13-inch (M5), iOS 26.5"), /install PASS.*launch PASS/i);
   assert.match(packet, /1320.?×.?2868/);
   assert.match(packet, /2064.?×.?2752/);
   assert.match(packet, /unsigned.*not.*TestFlight/i);
   assert.doesNotMatch(packet, /Full Xcode is unavailable locally/i);
   assert.doesNotMatch(packet, /CocoaPods is unavailable/i);
+});
+
+test("iOS release packet attributes PR-only CI and local-only simulator receipts without overstating exact-main evidence", () => {
+  assert.doesNotMatch(packet, /Exact-current `pnpm test`: PASS — 814 tests/i);
+  assert.match(packetLine("PR #349 merge-ref CI"), /814 tests.*0 failures.*pnpm build.*PASS/i);
+  assert.match(packetLine("local-only simulator narrative receipt"), /supporting captures and build artifacts were not retained/i);
 });
 
 test("iOS release packet treats the DSA declaration and trader evidence as approval-gated app-record work", () => {
