@@ -139,6 +139,18 @@ test("desktop global navigation remains available while route workspaces scroll"
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-community-discovery\s+\.sqc-community-browse-panel\s*\{[^}]*top:\s*94px;/);
 });
 
+test("desktop primary navigation gives the current route a persistent non-color cue", () => {
+  const css = readFileSync("src/app/mobile-web.css", "utf8");
+  const preDesktopCss = css.slice(0, css.indexOf("@media (min-width: 1180px)"));
+  const desktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1180px)"));
+  const reducedMotion = readCssBlock(css, css.lastIndexOf("@media (prefers-reduced-motion: reduce)"));
+
+  assert.match(desktopMedia, /\.sqc-desktop-shortcuts a\s*\{[^}]*min-height:\s*38px;[^}]*display:\s*inline-flex;[^}]*padding:\s*0\s+10px;[^}]*border-radius:\s*999px;/);
+  assert.match(desktopMedia, /\.sqc-desktop-shortcuts a\[aria-current="page"\]\s*\{[^}]*background:\s*rgba\(245,\s*200,\s*106,\s*\.1\);[^}]*box-shadow:\s*inset\s+0\s+-2px\s+0\s+rgba\(245,\s*200,\s*106,\s*\.72\);/);
+  assert.match(reducedMotion, /\.sqc-desktop-shortcuts a\s*\{[^}]*transition:\s*none\s*!important;/);
+  assert.doesNotMatch(preDesktopCss, /\.sqc-desktop-shortcuts a\[aria-current="page"\]/, "the desktop orientation cue must not change mobile navigation");
+});
+
 test("desktop Home turns Android heroism choices into a decision workspace", () => {
   const css = readFileSync("src/app/mobile-web.css", "utf8");
   const desktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1180px)"));
