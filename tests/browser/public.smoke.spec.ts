@@ -18,6 +18,42 @@ test("signed-out desktop homepage explains the loop and exposes public browsing 
   await expect(page.getByText("Receive unnecessary heraldry", { exact: true })).toBeVisible();
 });
 
+test("desktop Home navigation and content share the expanded route canvas without changing mobile", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await expectHealthyNavigation(page, "/");
+  await expect(page.getByRole("heading", { name: "Your next chess game needs a terrible side plot." })).toBeVisible();
+
+  const desktopGeometry = await page.evaluate(() => {
+    const header = document.querySelector<HTMLElement>(".sqc-desktop-header");
+    const content = document.querySelector<HTMLElement>(".sqc-desktop-guest");
+    if (!header || !content) throw new Error("Expected the signed-out desktop Home workspace");
+    return {
+      headerWidth: Math.round(header.getBoundingClientRect().width),
+      contentWidth: Math.round(content.getBoundingClientRect().width),
+      overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+    };
+  });
+  expect(desktopGeometry).toEqual({ headerWidth: 1320, contentWidth: 1320, overflow: 0 });
+
+  await page.setViewportSize({ width: 1920, height: 1080 });
+  const wideGeometry = await page.evaluate(() => {
+    const header = document.querySelector<HTMLElement>(".sqc-desktop-header");
+    const content = document.querySelector<HTMLElement>(".sqc-desktop-guest");
+    if (!header || !content) throw new Error("Expected the signed-out wide Home workspace");
+    return {
+      headerWidth: Math.round(header.getBoundingClientRect().width),
+      contentWidth: Math.round(content.getBoundingClientRect().width),
+      overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+    };
+  });
+  expect(wideGeometry).toEqual({ headerWidth: 1600, contentWidth: 1600, overflow: 0 });
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expect(page.locator(".sqc-desktop-home-only")).toBeHidden();
+  await expect(page.locator(".sqc-app-only")).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBe(0);
+});
+
 test("desktop app menu dismisses with Escape, focus departure, and outside click", async ({ page, browser }, testInfo) => {
   const noJavaScriptContext = await browser.newContext({
     javaScriptEnabled: false,

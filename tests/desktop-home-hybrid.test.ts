@@ -139,6 +139,18 @@ test("desktop global navigation remains available while route workspaces scroll"
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-community-discovery\s+\.sqc-community-browse-panel\s*\{[^}]*top:\s*94px;/);
 });
 
+test("desktop primary navigation gives the current route a persistent non-color cue", () => {
+  const css = readFileSync("src/app/mobile-web.css", "utf8");
+  const preDesktopCss = css.slice(0, css.indexOf("@media (min-width: 1180px)"));
+  const desktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1180px)"));
+  const reducedMotion = readCssBlock(css, css.lastIndexOf("@media (prefers-reduced-motion: reduce)"));
+
+  assert.match(desktopMedia, /\.sqc-desktop-shortcuts a\s*\{[^}]*min-height:\s*38px;[^}]*display:\s*inline-flex;[^}]*padding:\s*0\s+10px;[^}]*border-radius:\s*999px;/);
+  assert.match(desktopMedia, /\.sqc-desktop-shortcuts a\[aria-current="page"\]\s*\{[^}]*background:\s*rgba\(245,\s*200,\s*106,\s*\.1\);[^}]*box-shadow:\s*inset\s+0\s+-2px\s+0\s+rgba\(245,\s*200,\s*106,\s*\.72\);/);
+  assert.match(reducedMotion, /\.sqc-desktop-shortcuts a\s*\{[^}]*transition:\s*none\s*!important;/);
+  assert.doesNotMatch(preDesktopCss, /\.sqc-desktop-shortcuts a\[aria-current="page"\]/, "the desktop orientation cue must not change mobile navigation");
+});
+
 test("desktop Home turns Android heroism choices into a decision workspace", () => {
   const css = readFileSync("src/app/mobile-web.css", "utf8");
   const desktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1180px)"));
@@ -164,19 +176,30 @@ test("desktop Home combines the ritual and quest picker into one wide command de
   assert.match(desktopMedia, /\.sqc-desktop-command-deck\s+\.sqc-desktop-path-grid\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\);/);
 });
 
-test("wide desktop Home uses the available canvas without stretching the mobile composition", () => {
+test("desktop Home and persistent navigation align to the route canvas at standard and wide widths", () => {
   const css = readFileSync("src/app/mobile-web.css", "utf8");
+  const desktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1180px)"));
   const wideDesktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1680px)"));
 
   assert.match(
-    wideDesktopMedia,
-    /\.sqc-desktop-header\s*\{[^}]*width:\s*min\(1440px,\s*calc\(100%\s*-\s*96px\)\)/,
-    "the persistent navigation should share the wide desktop canvas instead of floating inside a narrower 1240px strip",
+    desktopMedia,
+    /\.sqc-desktop-header\s*\{[^}]*width:\s*min\(1320px,\s*calc\(100%\s*-\s*64px\)\)/,
+    "persistent navigation should align with standard desktop route workspaces",
+  );
+  assert.match(
+    desktopMedia,
+    /\.sqc-desktop-guest,\s*\.sqc-desktop-signed-in\s*\{[^}]*width:\s*min\(1320px,\s*calc\(100%\s*-\s*64px\)\)/,
+    "guest and authenticated Home should use the same standard desktop canvas",
   );
   assert.match(
     wideDesktopMedia,
-    /\.sqc-desktop-guest,\s*\.sqc-desktop-signed-in\s*\{[^}]*width:\s*min\(1440px,\s*calc\(100%\s*-\s*96px\)\)/,
-    "guest and authenticated Home should share a deliberate wide desktop canvas",
+    /\.sqc-desktop-header\s*\{[^}]*width:\s*min\(1600px,\s*calc\(100%\s*-\s*80px\)\)/,
+    "persistent navigation should align with wide route workspaces instead of floating inside a narrower strip",
+  );
+  assert.match(
+    wideDesktopMedia,
+    /\.sqc-desktop-guest,\s*\.sqc-desktop-signed-in\s*\{[^}]*width:\s*min\(1600px,\s*calc\(100%\s*-\s*80px\)\)/,
+    "guest and authenticated Home should share the full wide desktop canvas",
   );
   assert.match(
     wideDesktopMedia,
@@ -1449,6 +1472,7 @@ test("Custom owner detail becomes a wide command workspace only at the desktop b
   const route = readFileSync("src/app/custom-side-quests/[id]/page.tsx", "utf8");
   const desktopMediaStart = css.indexOf("@media (min-width: 1180px)");
   const desktopMedia = readCssBlock(css, desktopMediaStart);
+  const wideDesktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1680px)"));
 
   assert.match(route, /desktopPresentation="custom-detail"/);
   assert.match(route, /className="sqc-stack sqc-custom-library-screen sqc-custom-owner-detail-screen"/);
@@ -1457,7 +1481,36 @@ test("Custom owner detail becomes a wide command workspace only at the desktop b
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-custom-detail\s+\.sqc-custom-owner-detail-hero\s*\{[^}]*grid-column:\s*1\s*\/\s*-1;/);
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-custom-detail\s+\.sqc-custom-owner-management\s*\{[^}]*grid-column:\s*2;[^}]*grid-row:\s*3\s*\/\s*span\s*3;[^}]*position:\s*sticky;/);
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-custom-detail\s+\.sqc-custom-owner-proof\s*\{[^}]*grid-column:\s*1;/);
-  assert.equal(css.replace(desktopMedia, "").includes(".sqc-mobile-web.desktop-custom-detail"), false, "desktop Custom detail rules must not leak below 1180px");
+  assert.equal(css.replace(desktopMedia, "").replace(wideDesktopMedia, "").includes(".sqc-mobile-web.desktop-custom-detail"), false, "desktop Custom detail rules must not leak below 1180px");
+});
+
+test("wide Custom owner detail expands the reading canvas and keeps management contextual", () => {
+  const css = readFileSync("src/app/mobile-web.css", "utf8");
+  const wideDesktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1680px)"));
+
+  assert.match(
+    wideDesktopMedia,
+    /\.sqc-mobile-web\.desktop-custom-detail\s+\.sqc-screen\s*\{[^}]*width:\s*min\(1600px,\s*calc\(100%\s*-\s*96px\)\)/,
+    "the owner workspace should use the available wide desktop canvas",
+  );
+  assert.match(
+    wideDesktopMedia,
+    /\.sqc-mobile-web\.desktop-custom-detail\s+\.sqc-custom-owner-detail-screen\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\)\s+440px/,
+    "management should stay a predictable contextual rail while the quest record gains reading room",
+  );
+  assert.match(
+    wideDesktopMedia,
+    /\.sqc-mobile-web\.desktop-custom-detail\s+\.sqc-custom-owner-detail-hero\s*\{[^}]*grid-template-columns:\s*280px\s+minmax\(0,\s*1fr\);[^}]*padding:\s*38px\s+52px/,
+    "the wide hero should read as an editorial quest record instead of a stretched mobile card",
+  );
+  assert.match(
+    wideDesktopMedia,
+    /\.sqc-mobile-web\.desktop-custom-detail\s+\.sqc-custom-owner-detail-hero\s+h1\s*\{[^}]*max-width:\s*1040px/,
+  );
+  assert.match(
+    wideDesktopMedia,
+    /\.sqc-mobile-web\.desktop-custom-detail\s+\.sqc-custom-owner-detail-hero\s+p\s*\{[^}]*max-width:\s*980px/,
+  );
 });
 
 test("Custom owner save feedback stays directly below the desktop hero", () => {
