@@ -6,6 +6,25 @@
 
 This packet supersedes the iOS portions of `SQC_MOBILE_APPLE_PRIVACY_PREP_2026-07-03.md`, `SQC_MOBILE_STORE_LAUNCH_PREP_2026-07-07.md`, and `SQC_MOBILE_STORE_SUBMISSION_PACK_2026-07-07.md` for this source baseline.
 
+## Canonical product facts contract
+
+These facts are the stable input contract for every later listing, privacy, build, screenshot, review, and release receipt. A source or Apple-side readback that conflicts with any row stops the lane for reconciliation rather than silently changing public identity or policy claims.
+
+| Fact | Contract value |
+| --- | --- |
+| Public app name | Side Quest Chess |
+| Bundle ID candidate | `com.sidequestchess.app` |
+| Expo scheme and auth callback | `sidequestchess`; `sidequestchess://sso-callback` |
+| Publisher and controller | Crowdler AB |
+| Minimum intended audience | Worldwide 13+ |
+| Privacy URL | https://sidequestchess.com/privacy |
+| Support URL | https://sidequestchess.com/support |
+| Terms URL | https://sidequestchess.com/terms |
+| Monetization | No ads, in-app purchases, subscriptions, or real-money activity |
+| Tablet policy | Supported until an explicitly approved source change; iPad QA and screenshots remain required |
+
+Public copy must say `Side Quest Chess`, never `SQC`. These product facts do not prove Apple account ownership, app-record availability, legal answers, privacy-label accuracy, signing, or release readiness; each remains independently gated below.
+
 ## 1. Verified baseline and blockers
 
 - Current source: Expo version `0.1.349`; Android source version code `349`.

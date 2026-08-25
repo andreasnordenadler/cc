@@ -131,3 +131,19 @@ test("iOS release packet separately approval-gates EU trader verification and ce
   assert.match(packet, /certif(?:y|ication)[^\n]*EU law/i);
   assert.match(packet, /separate approval/i);
 });
+
+test("iOS release packet preserves the canonical product facts in one explicit contract", () => {
+  const section = packet.match(/## Canonical product facts contract\n([\s\S]*?)\n## 1\./)?.[1];
+
+  assert.ok(section, "canonical product facts section must exist before section 1");
+  assert.match(section, /\| Public app name \| Side Quest Chess \|/);
+  assert.match(section, /\| Bundle ID candidate \| `com\.sidequestchess\.app` \|/);
+  assert.match(section, /\| Expo scheme and auth callback \| `sidequestchess`; `sidequestchess:\/\/sso-callback` \|/);
+  assert.match(section, /\| Publisher and controller \| Crowdler AB \|/);
+  assert.match(section, /\| Minimum intended audience \| Worldwide 13\+ \|/);
+  assert.match(section, /\| Privacy URL \| https:\/\/sidequestchess\.com\/privacy \|/);
+  assert.match(section, /\| Support URL \| https:\/\/sidequestchess\.com\/support \|/);
+  assert.match(section, /\| Terms URL \| https:\/\/sidequestchess\.com\/terms \|/);
+  assert.match(section, /\| Monetization \| No ads, in-app purchases, subscriptions, or real-money activity \|/);
+  assert.match(section, /Public copy must say `Side Quest Chess`, never `SQC`/);
+});
