@@ -85,7 +85,8 @@ test("iOS release packet records current local tooling without turning inconclus
   assert.doesNotMatch(packet, /simulator runtime.*not.*registered/i);
   assert.doesNotMatch(packet, /Full Xcode is unavailable locally/i);
   assert.doesNotMatch(packet, /CocoaPods is unavailable/i);
-  assert.match(packet, /Complete Xcode build[^\n]*: NOT PASSED/i);
+  assert.match(packet, /Simulator compilation and basic launch: PASSED/i);
+  assert.match(packet, /Simulator tests, archive[^\n]*NOT PASSED/i);
   assert.doesNotMatch(packet, /Complete Xcode build[^\n]*: PASSED/i);
 });
 
@@ -170,4 +171,12 @@ test("iOS release packet keeps public-name legal clearance separate from App Sto
     packet,
     /\| Public name legal clearance \| Blocked \|[^\n]*trademark[^\n]*App Store name availability[^\n]*not legal clearance/i,
   );
+});
+
+test("iOS release packet records the current frozen-install Simulator build without overstating device or test evidence", () => {
+  assert.match(packet, /frozen dependency install[^\n]*5edd63864c5af4d5a85718e5af02bc769ae7634d8b8b60349a4f08c03d3317e9/i);
+  assert.match(packet, /iPhone 17e[^\n]*iOS 26\.5[^\n]*build succeeded/i);
+  assert.match(packet, /Metro[^\n]*974 modules/i);
+  assert.match(packet, /no XCTest or Swift Testing targets?[^\n]*executed/i);
+  assert.match(packet, /not[^\n]*(?:TestFlight|physical-iPhone|archive|signing) evidence/i);
 });
