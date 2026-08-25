@@ -31,6 +31,12 @@ test("iOS release packet records the recoverable password-reset source receipt w
 test("iOS release packet preserves the Android and web launch-order gate", () => {
   assert.match(packet, /Android and web public launch must be verified before iOS App Review submission or public release/i);
   assert.match(packet, /preparation, source verification, and approved TestFlight work may proceed before that predecessor milestone/i);
+  assert.match(packet, /\| Android and web public launch \| Blocked \|[^\n]*verified public availability[^\n]*iOS App Review submission[^\n]*public release/i);
+});
+
+test("iOS release packet never makes Andreas's personal Apple identity an approvable path", () => {
+  assert.match(packet, /Andreas(?:'s|’s) personal Apple identity[^\n]*prohibited/i);
+  assert.doesNotMatch(packet, /approval is required before[^\n]*using Andreas(?:'s|’s) personal Apple identity/i);
 });
 
 test("iOS release packet approval-gates the remaining app-record and privacy-policy facts", () => {

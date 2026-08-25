@@ -44,6 +44,7 @@ A clean detached worktree at branch commit `1ec2401b45d209db722bcb13c9194a318cc0
 
 | Gate | State | Required evidence |
 | --- | --- | --- |
+| Android and web public launch | Blocked | Verified public availability for both predecessors before iOS App Review submission or public release |
 | Crowdler AB Apple legal team | Blocked | Legal entity, Team ID, membership status/expiry |
 | Dedicated Crowdler/Sam operator | Blocked | Exact Apple Account, MFA/recovery custody, role and app scope; never Andreas’s personal identity |
 | Bundle/app reconciliation | Blocked | Apple Developer and App Store Connect searches for `com.sidequestchess.app`, including duplicate/App ID/app record/SKU results |
@@ -255,7 +256,7 @@ Written approval is required before:
 
 - Apple Developer enrollment/renewal, payment, legal/tax/banking acceptance;
 - creating or changing App IDs, capabilities, App Store Connect records, users, roles, certificates, profiles, keys, credentials, metadata, privacy/age answers, territories, pricing, or release settings;
-- using Andreas’s personal Apple identity or communicating externally;
+- communicating externally. Andreas’s personal Apple identity is prohibited for Apple access, credentials, build, or submission; it is not an approval-gated fallback;
 - generating account-tied signing credentials, starting an account-authenticated iOS/EAS build, uploading, adding TestFlight groups/testers, submitting for beta or App Review, phased release, or public release.
 
 Before upload, inspect the exact IPA for bundle ID, display name, approved version/build, URL scheme, production API, Crowdler signing team, intended entitlements, export declaration, embedded SDK/privacy manifests/signatures, and absence of unexpected advertising, tracking, purchase, location, camera, microphone, photo, contacts, or biometric capability.
