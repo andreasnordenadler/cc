@@ -5426,7 +5426,7 @@ body::after {
   }
 
   .sqc-desktop-header {
-    width: min(1240px, calc(100% - 56px));
+    width: min(1320px, calc(100% - 64px));
     min-height: 78px;
     position: relative;
     z-index: 30;
@@ -5666,7 +5666,7 @@ body::after {
 
   .sqc-desktop-guest,
   .sqc-desktop-signed-in {
-    width: min(1200px, calc(100% - 64px));
+    width: min(1320px, calc(100% - 64px));
     margin: 0 auto;
   }
 
@@ -11425,7 +11425,7 @@ body::after {
 
 @media (min-width: 1680px) {
   .sqc-desktop-header {
-    width: min(1440px, calc(100% - 96px));
+    width: min(1600px, calc(100% - 80px));
   }
 
   .sqc-mobile-web.desktop-multiplayer-create .sqc-screen {
@@ -11442,7 +11442,7 @@ body::after {
 
   .sqc-desktop-guest,
   .sqc-desktop-signed-in {
-    width: min(1440px, calc(100% - 96px));
+    width: min(1600px, calc(100% - 80px));
   }
 
   .sqc-desktop-hero {

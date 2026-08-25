@@ -164,19 +164,30 @@ test("desktop Home combines the ritual and quest picker into one wide command de
   assert.match(desktopMedia, /\.sqc-desktop-command-deck\s+\.sqc-desktop-path-grid\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\);/);
 });
 
-test("wide desktop Home uses the available canvas without stretching the mobile composition", () => {
+test("desktop Home and persistent navigation align to the route canvas at standard and wide widths", () => {
   const css = readFileSync("src/app/mobile-web.css", "utf8");
+  const desktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1180px)"));
   const wideDesktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1680px)"));
 
   assert.match(
-    wideDesktopMedia,
-    /\.sqc-desktop-header\s*\{[^}]*width:\s*min\(1440px,\s*calc\(100%\s*-\s*96px\)\)/,
-    "the persistent navigation should share the wide desktop canvas instead of floating inside a narrower 1240px strip",
+    desktopMedia,
+    /\.sqc-desktop-header\s*\{[^}]*width:\s*min\(1320px,\s*calc\(100%\s*-\s*64px\)\)/,
+    "persistent navigation should align with standard desktop route workspaces",
+  );
+  assert.match(
+    desktopMedia,
+    /\.sqc-desktop-guest,\s*\.sqc-desktop-signed-in\s*\{[^}]*width:\s*min\(1320px,\s*calc\(100%\s*-\s*64px\)\)/,
+    "guest and authenticated Home should use the same standard desktop canvas",
   );
   assert.match(
     wideDesktopMedia,
-    /\.sqc-desktop-guest,\s*\.sqc-desktop-signed-in\s*\{[^}]*width:\s*min\(1440px,\s*calc\(100%\s*-\s*96px\)\)/,
-    "guest and authenticated Home should share a deliberate wide desktop canvas",
+    /\.sqc-desktop-header\s*\{[^}]*width:\s*min\(1600px,\s*calc\(100%\s*-\s*80px\)\)/,
+    "persistent navigation should align with wide route workspaces instead of floating inside a narrower strip",
+  );
+  assert.match(
+    wideDesktopMedia,
+    /\.sqc-desktop-guest,\s*\.sqc-desktop-signed-in\s*\{[^}]*width:\s*min\(1600px,\s*calc\(100%\s*-\s*80px\)\)/,
+    "guest and authenticated Home should share the full wide desktop canvas",
   );
   assert.match(
     wideDesktopMedia,
