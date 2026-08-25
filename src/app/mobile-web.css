@@ -11428,6 +11428,26 @@ body::after {
     width: min(1600px, calc(100% - 80px));
   }
 
+  /* Wide authentication uses the same desktop canvas as persistent navigation.
+     The provider form stays a stable action rail while account context gains the
+     extra reading room; the 1180px composition and mobile subtree remain intact. */
+  .sqc-mobile-web.desktop-auth .sqc-screen {
+    width: min(1600px, calc(100% - 80px));
+  }
+
+  .sqc-mobile-web.desktop-auth .sqc-auth-workspace {
+    grid-template-columns: minmax(0, 1fr) minmax(560px, .78fr);
+    min-height: 700px;
+  }
+
+  .sqc-mobile-web.desktop-auth .sqc-auth-intro {
+    padding: 76px 88px;
+  }
+
+  .sqc-mobile-web.desktop-auth .sqc-auth-card {
+    padding: 56px;
+  }
+
   .sqc-mobile-web.desktop-multiplayer-create .sqc-screen {
     width: min(1600px, calc(100% - 96px));
   }
