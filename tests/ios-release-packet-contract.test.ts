@@ -14,7 +14,8 @@ test("iOS release packet approval-gates immutable distribution and territory com
   assert.match(packet, /Public versus Private Distribution cannot be changed after approval/i);
   assert.match(packet, /NPPA game approval number/);
   assert.match(packet, /MIIT ICP Filing Number/);
-  assert.match(packet, /Vietnam.*game-publishing license/i);
+  assert.match(packet, /Simplified Chinese localization[^\n]*primary language/i);
+  assert.match(packet, /Vietnam[^\n]*license number[^\n]*associated URL[^\n]*game description/i);
 });
 
 test("iOS review packet does not treat an ordinary demo account as a substitute for SSO review access", () => {
@@ -108,4 +109,15 @@ test("iOS release packet preserves the remaining Apple-side submission gates", (
   assert.match(packet, /consent.*accessible withdrawal mechanism/i);
   assert.match(packet, /processed-upload readback[^\n]*version[^\n]*build[^\n]*export compliance/i);
   assert.match(packet, /September 2026[^\n]*social media[^\n]*required/i);
+});
+
+test("iOS release packet does not misattribute Google credential disconnection to Apple's social-network rule", () => {
+  assert.match(packet, /revoke Facebook social-network credentials[^\n]*Guideline 5\.1\.1\(v\)/i);
+  assert.match(packet, /Google credential disconnection[^\n]*Google[^\n]*account-deletion design/i);
+  assert.doesNotMatch(packet, /Google and Facebook credentials[^\n]*required by Guideline 5\.1\.1\(v\)/i);
+});
+
+test("iOS release packet states the external TestFlight review trigger precisely", () => {
+  assert.match(packet, /first build submitted to TestFlight App Review requires a full review/i);
+  assert.doesNotMatch(packet, /first build added or submitted to an external testing group requires full TestFlight App Review/i);
 });
