@@ -3,6 +3,9 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 
 const packet = readFileSync(new URL("../docs/IOS_APP_STORE_RELEASE_PACKET_2026-08-21.md", import.meta.url), "utf8");
+const app = JSON.parse(
+  readFileSync(new URL("../apps/mobile/app.json", import.meta.url), "utf8"),
+).expo;
 
 test("iOS release packet blocks upload when required-reason API declarations are missing or unsupported", () => {
   assert.match(packet, /Missing or unsupported reasons block upload/);
@@ -49,29 +52,39 @@ test("iOS release packet records live production safety and support disclosures 
   assert.doesNotMatch(packet, /production deployment and signed-out readback remain blocked/i);
 });
 
-test("iOS release packet records the exact-current unsigned Xcode build and Simulator launch without claiming release evidence", () => {
+test("iOS release packet binds immutable iOS identity to source and keeps unretained Simulator observations non-release evidence", () => {
+  assert.equal(app.ios.bundleIdentifier, "com.sidequestchess.app");
+  assert.equal(app.scheme, "sidequestchess");
+  assert.equal(app.ios.supportsTablet, true);
+  assert.equal(app.ios.usesAppleSignIn, true);
   assert.match(packet, /Xcode 26\.6.*iOS 26\.5 SDK/i);
-  assert.match(packet, /CocoaPods 1\.17\.0/i);
-  assert.match(packet, /iOS 26\.5 Simulator runtime.*registered/i);
-  assert.match(packet, /unsigned Debug Simulator build.*succeeded/i);
-  assert.match(packet, /iPhone 17 Pro.*94D16E18-197E-43FD-A133-572FF0A7FBE4/i);
-  assert.match(packet, /CODE_SIGNING_ALLOWED=NO/i);
-  assert.match(packet, /bundle `com\.sidequestchess\.app`, short version `0\.1\.349`, build `1`/i);
-  assert.match(packet, /`simctl install` completed and `simctl launch` returned PID `84337`/i);
-  assert.match(packet, /Metro bundled.*974 modules/i);
-  assert.match(packet, /local OCR confirmed the application home rendered/i);
+  assert.match(packet, /Unretained local observation \(not independently auditable evidence\)/i);
   assert.match(packet, /This is not a signed IPA, TestFlight build, physical-device smoke, screenshot asset, or release-readiness receipt/i);
-  assert.doesNotMatch(packet, /no current-commit Xcode compile or Simulator launch pass/i);
+  assert.match(packet, /Signed candidate \| Blocked/i);
+  assert.match(packet, /TestFlight \| Not started/i);
+  assert.match(packet, /Real iPhone smoke \| Blocked/i);
   assert.doesNotMatch(packet, /signed IPA (?:was|has been) produced/i);
   assert.doesNotMatch(packet, /TestFlight build (?:was|has been) uploaded/i);
   assert.doesNotMatch(packet, /physical-device smoke (?:passed|complete)/i);
-  assert.doesNotMatch(packet, /simulator runtime.*not.*registered/i);
-  assert.doesNotMatch(packet, /Full Xcode is unavailable locally/i);
-  assert.doesNotMatch(packet, /CocoaPods is unavailable/i);
 });
 
 test("iOS release packet binds current status to the exact reconciled source commit", () => {
-  assert.match(packet, /Source baseline:\*\* `3cf61fb1d5233a8899d5dfcd3a6caea4c2a8dc4a`/);
-  assert.match(packet, /current exact-commit verification/i);
+  assert.match(packet, /Release-input baseline:\*\* `f752e110cde6e0a38a85ae5d2e484b70feb83b6e` \(`origin\/main`/);
+  assert.match(packet, /mobile release inputs are unchanged from `3cf61fb1d5233a8899d5dfcd3a6caea4c2a8dc4a`/i);
   assert.doesNotMatch(packet, /source-preparation changes remain under PR review/i);
+});
+
+test("iOS release packet prominently blocks Apple identity, agreements, and App Review access", () => {
+  assert.match(packet, /Apple-side App ID ownership\/availability.*unverified/i);
+  assert.match(packet, /App Store Connect app record.*unverified/i);
+  assert.match(packet, /signing identity.*unverified/i);
+  assert.match(packet, /Apple agreements \| Blocked/i);
+  assert.match(packet, /App Review information\/access \| Blocked/i);
+  assert.match(packet, /non-expiring.*demo account/i);
+  assert.match(packet, /international-format phone/i);
+});
+
+test("iOS privacy gate requires consent and withdrawal behavior plus processed-upload readback", () => {
+  assert.match(packet, /accessible withdrawal mechanism/i);
+  assert.match(packet, /processed upload.*version\/build.*export compliance/i);
 });
