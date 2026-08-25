@@ -12,6 +12,7 @@ import {
   validateChessComUsername,
   validateLichessUsername,
 } from "@/lib/chess-username-validation";
+import { validatePublicProfileText } from "@/lib/mobile-profile-publication";
 
 export async function PATCH(request: Request) {
   const userId = await getMobileRequestUserId(request);
@@ -46,6 +47,18 @@ export async function PATCH(request: Request) {
   const record = payload && typeof payload === "object" ? (payload as Record<string, unknown>) : {};
   const runnerDisplayName = typeof record.runnerDisplayName === "string" ? record.runnerDisplayName.trim().slice(0, 60) : undefined;
   const runnerBio = typeof record.runnerBio === "string" ? record.runnerBio.trim().slice(0, 180) : undefined;
+  const profileValidationMessage = validatePublicProfileText(runnerDisplayName, runnerBio);
+  if (profileValidationMessage) {
+    return NextResponse.json(
+      {
+        apiVersion: 1,
+        authenticated: true,
+        ok: false,
+        message: profileValidationMessage,
+      },
+      { status: 422 },
+    );
+  }
   const lichessUsername = sanitizeChessUsername(record.lichessUsername);
   const chessComUsername = sanitizeChessUsername(record.chessComUsername);
 
