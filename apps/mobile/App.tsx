@@ -46,7 +46,7 @@ import { loadMobileAccount } from "./src/account/loadMobileAccount";
 import { clerkPublishableKey, clerkTokenCache, isClerkMobileAuthConfigured } from "./src/auth/clerk";
 import { completeAppleSignIn } from "./src/auth/completeAppleSignIn";
 import { isFacebookSignInEnabled } from "./src/auth/isFacebookSignInEnabled";
-import { completeSocialSignIn } from "./src/auth/completeSocialSignIn";
+import { completeSocialSignIn, socialSignInErrorMessage } from "./src/auth/completeSocialSignIn";
 import { completeMobilePasswordReset, prepareMobilePasswordReset, verifyMobilePasswordResetCode as verifyMobilePasswordResetCodeWithClerk } from "./src/auth/mobilePasswordReset";
 import { OFFLINE_MOBILE_BOOTSTRAP } from "./src/data/offlineBootstrap";
 import { shouldStackActiveQuestSummary } from "./src/layout/activeQuestLayout";
@@ -1337,8 +1337,7 @@ function ClerkMobileShell() {
 
       await completeSocialSignIn(result);
     } catch (caught) {
-      const message = caught instanceof Error ? caught.message : "Unknown mobile sign-in error.";
-      Alert.alert("Sign-in error", message);
+      Alert.alert("Sign-in error", socialSignInErrorMessage(caught));
     }
   }, [startSSOFlow]);
 
