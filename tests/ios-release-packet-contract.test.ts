@@ -94,3 +94,11 @@ test("iOS age-rating gate records Apple's September 2026 social-media questionna
   assert.match(packet, /Social Media: Yes/i);
   assert.match(packet, /Social Media Disabled for Users Under 13: No/i);
 });
+
+test("iOS release packet records the current reconciled verification without promoting it to release evidence", () => {
+  assert.match(packet, /current reconciled packet tree.*816 tests, 0 failures, 0 skipped\/todo/i);
+  assert.match(packet, /mobile TypeScript.*PASS/i);
+  assert.match(packet, /Expo Doctor.*18\/18/i);
+  assert.match(packet, /independent review.*no blocking findings/i);
+  assert.match(packet, /do not make this branch a signed candidate/i);
+});
