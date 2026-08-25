@@ -36,7 +36,7 @@ export async function GET(
   const proofLine = payload.summary || "Verified public-game proof accepted by Side Quest Chess.";
   const achievementCopy = payload.challengeId === "finish-any-game"
     ? "A public chess game was completed, verified, and entered into the Side Quest Chess ledgers."
-    : "The verifier accepted the public-game proof. The coat of arms may now be displayed with entirely appropriate smugness.";
+    : "The verifier accepted the public-game proof. The Coat of Arms may now be displayed with entirely appropriate smugness.";
 
   return new ImageResponse(
     (
@@ -93,7 +93,7 @@ export async function GET(
               {payload.challengeTitle}
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 9, fontFamily: "Arial, Helvetica, sans-serif", fontSize: 28, lineHeight: 1.18, color: "rgba(255,247,232,.86)", fontWeight: 850, maxWidth: 715 }}>
-              <span>Coat unlocked: <b style={{ color: "#f5c86a" }}>{payload.badgeName}</b></span>
+              <span>Coat of Arms unlocked: <b style={{ color: "#f5c86a" }}>{payload.badgeName}</b></span>
               <span>{achievementCopy}</span>
             </div>
             <div style={{ display: "flex", gap: 14, alignItems: "center", fontFamily: "Arial, Helvetica, sans-serif", fontSize: 22, lineHeight: 1.18, color: "rgba(255,247,232,.78)", fontWeight: 850, maxWidth: 690 }}>

@@ -164,7 +164,7 @@ export default async function ChallengeDetailPage({
                   />
                 </div>
                 <div className="sqc-quest-meta-row">
-                  <span className="sqc-coat-pill"><span aria-hidden="true">★</span> Coat</span>
+                  <span className="sqc-coat-pill"><span aria-hidden="true">★</span> Coat of Arms</span>
                   <span className={`sqc-difficulty-pill ${challenge.difficulty.toLowerCase()}`}>{challenge.difficulty}</span>
                 </div>
                 <p>{challenge.objective}</p>

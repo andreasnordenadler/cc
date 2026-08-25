@@ -36,14 +36,15 @@ test("desktop Home switches composition exactly at the established boundary", as
   await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBe(0);
 });
 
-test("wide desktop Home grows into a deliberate 1440px canvas", async ({ page }) => {
+test("wide desktop Home grows continuously into the expanded route canvas", async ({ page }) => {
   await page.setViewportSize({ width: 1679, height: 900 });
   await page.goto("/", { waitUntil: "domcontentloaded" });
-  await expect(page.locator(".sqc-desktop-guest")).toHaveCSS("width", "1200px");
+  await expect(page.locator(".sqc-desktop-guest")).toHaveCSS("width", "1320px");
+  await expect(page.locator(".sqc-desktop-header")).toHaveCSS("width", "1320px");
 
   await page.setViewportSize({ width: 1920, height: 1080 });
-  await expect(page.locator(".sqc-desktop-guest")).toHaveCSS("width", "1440px");
-  await expect(page.locator(".sqc-desktop-header")).toHaveCSS("width", "1440px");
+  await expect(page.locator(".sqc-desktop-guest")).toHaveCSS("width", "1600px");
+  await expect(page.locator(".sqc-desktop-header")).toHaveCSS("width", "1600px");
   await expect(page.locator(".sqc-desktop-featured-quest")).toBeVisible();
   await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBe(0);
 });
