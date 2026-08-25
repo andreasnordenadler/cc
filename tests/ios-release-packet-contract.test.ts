@@ -48,9 +48,18 @@ test("iOS release packet approval-gates the remaining app-record and privacy-pol
   assert.match(packet, /must not download or export.*certificates.*profiles.*API keys.*credentials/i);
 });
 
-test("iOS release packet distinguishes source-prepared safety disclosures from production evidence", () => {
-  assert.match(packet, /report and block disclosures are source-prepared/i);
-  assert.match(packet, /production deployment and signed-out readback remain blocked/i);
+test("iOS release packet records verified signed-out production safety and support readback", () => {
+  assert.match(
+    packet,
+    /Production signed-out readback verified on 2026-08-25:[^\n]*https:\/\/sidequestchess\.com\/support[^\n]*Crowdler AB[^\n]*sam@crowdler\.com[^\n]*Kvarnängsvägen 15/i,
+  );
+  assert.match(
+    packet,
+    /\| Privacy policy safety data \| Production readback verified; source behavior blocked \| Report and block disclosures are deployed in production and readable signed out;[^\n]*moderation workflow remain blockers/i,
+  );
+  assert.match(packet, /Report and block disclosures are deployed in production and were read successfully while signed out on 2026-08-25/i);
+  assert.doesNotMatch(packet, /production deployment and signed-out readback remain blocked/i);
+  assert.doesNotMatch(packet, /source fix pending deployment/i);
   assert.doesNotMatch(packet, /current privacy policy.*does not explicitly disclose content and creator reports/i);
 });
 
