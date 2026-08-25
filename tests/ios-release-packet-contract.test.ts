@@ -42,17 +42,38 @@ test("iOS release packet approval-gates the remaining app-record and privacy-pol
   assert.match(packet, /must not download or export.*certificates.*profiles.*API keys.*credentials/i);
 });
 
-test("iOS release packet distinguishes source-prepared safety disclosures from production evidence", () => {
-  assert.match(packet, /report and block disclosures are source-prepared/i);
-  assert.match(packet, /production deployment and signed-out readback remain blocked/i);
+test("iOS release packet records the verified production safety and support readback", () => {
+  assert.match(packet, /signed-out production readback[\s\S]*Crowdler AB[\s\S]*sam@crowdler\.com/i);
+  assert.match(packet, /signed-out production readback[\s\S]*report and block/i);
+  assert.doesNotMatch(packet, /production deployment and signed-out readback remain blocked/i);
   assert.doesNotMatch(packet, /current privacy policy.*does not explicitly disclose content and creator reports/i);
 });
 
-test("iOS release packet records the current local Xcode and CocoaPods receipt without claiming a build pass", () => {
+test("iOS release packet is bound to the exact current source candidate", () => {
+  assert.match(packet, /Source baseline:.*`5aee72552afd8c33496eb536a8bc190032cf7e69`/i);
+  assert.match(packet, /exact-current candidate.*`5aee72552afd8c33496eb536a8bc190032cf7e69`/i);
+  assert.doesNotMatch(packet, /Source baseline:.*`70545c4e50addce85ae2fdade56345b7293e3b2c`/i);
+});
+
+test("iOS release packet records the exact-current unsigned Release build and simulator launch without claiming store evidence", () => {
   assert.match(packet, /Xcode 26\.6.*iOS 26\.5 SDK/i);
   assert.match(packet, /CocoaPods 1\.17\.0/i);
-  assert.match(packet, /unsigned generic Simulator build.*failed/i);
-  assert.match(packet, /simulator runtime.*not.*registered/i);
+  assert.match(packet, /iOS 26\.5 runtime.*registered/i);
+  assert.match(packet, /iPhone 17 Pro Max.*iPad Pro 13-inch \(M5\)/i);
+  assert.match(packet, /exact-current.*Release Simulator build.*PASS/i);
+  assert.match(packet, /iPhone 17 Pro Max[\s\S]*install[\s\S]*launch[\s\S]*PASS/i);
+  assert.match(packet, /iPad Pro 13-inch \(M5\)[\s\S]*install[\s\S]*launch[\s\S]*PASS/i);
+  assert.match(packet, /1320.?×.?2868/);
+  assert.match(packet, /2064.?×.?2752/);
+  assert.match(packet, /unsigned.*not.*TestFlight/i);
   assert.doesNotMatch(packet, /Full Xcode is unavailable locally/i);
   assert.doesNotMatch(packet, /CocoaPods is unavailable/i);
+});
+
+test("iOS release packet treats the DSA declaration and trader evidence as approval-gated app-record work", () => {
+  assert.match(packet, /trader-status declaration.*even if.*not distributed in the EU/i);
+  assert.match(packet, /organization[\s\S]*phone number[\s\S]*email/i);
+  assert.match(packet, /payment-account details/i);
+  assert.match(packet, /EU-law compliance/i);
+  assert.match(packet, /business[\s\S]*address evidence/i);
 });
