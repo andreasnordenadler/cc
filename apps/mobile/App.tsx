@@ -45,6 +45,7 @@ import { finalizeMobileAccountDeletion } from "./src/account/finalizeMobileAccou
 import { loadMobileAccount } from "./src/account/loadMobileAccount";
 import { clerkPublishableKey, clerkTokenCache, isClerkMobileAuthConfigured } from "./src/auth/clerk";
 import { completeAppleSignIn } from "./src/auth/completeAppleSignIn";
+import { completeSocialSignIn } from "./src/auth/completeSocialSignIn";
 import { completeMobilePasswordReset, prepareMobilePasswordReset, verifyMobilePasswordResetCode as verifyMobilePasswordResetCodeWithClerk } from "./src/auth/mobilePasswordReset";
 import { OFFLINE_MOBILE_BOOTSTRAP } from "./src/data/offlineBootstrap";
 import { shouldStackActiveQuestSummary } from "./src/layout/activeQuestLayout";
@@ -1323,33 +1324,22 @@ function ClerkMobileShell() {
     };
   }, []);
 
-  const startSocialSignIn = useCallback(async (strategy: "oauth_google" | "oauth_facebook", providerLabel: "Google" | "Facebook") => {
+  const startSocialSignIn = useCallback(async (strategy: "oauth_google" | "oauth_facebook") => {
     try {
       const result = await startSSOFlow({
         strategy,
         redirectUrl: mobileOAuthRedirectUrl,
       });
 
-      if (result.createdSessionId && result.setActive) {
-        await result.setActive({ session: result.createdSessionId });
-        return;
-      }
-
-      const signInStatus = result.signIn?.status ?? "unknown";
-      const signUpStatus = result.signUp?.status ?? "unknown";
-      const authResultType = result.authSessionResult?.type ?? "unknown";
-      Alert.alert(
-        "Sign-in did not finish",
-        `${providerLabel} returned to Side Quest Chess, but Clerk did not create a mobile session yet. Details: auth=${authResultType}, signIn=${signInStatus}, signUp=${signUpStatus}.`,
-      );
+      await completeSocialSignIn(result);
     } catch (caught) {
       const message = caught instanceof Error ? caught.message : "Unknown mobile sign-in error.";
       Alert.alert("Sign-in error", message);
     }
   }, [startSSOFlow]);
 
-  const startGoogleSignIn = useCallback(() => startSocialSignIn("oauth_google", "Google"), [startSocialSignIn]);
-  const startFacebookSignIn = useCallback(() => startSocialSignIn("oauth_facebook", "Facebook"), [startSocialSignIn]);
+  const startGoogleSignIn = useCallback(() => startSocialSignIn("oauth_google"), [startSocialSignIn]);
+  const startFacebookSignIn = useCallback(() => startSocialSignIn("oauth_facebook"), [startSocialSignIn]);
   const startAppleSignIn = useCallback(async () => {
     try {
       if (!signInLoaded || !signUpLoaded) {
