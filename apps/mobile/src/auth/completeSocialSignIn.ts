@@ -4,6 +4,11 @@ type SocialSignInCompletion = {
   authSessionResult?: { type?: string } | null;
 };
 
+export function socialSignInErrorMessage(error: unknown): string {
+  void error;
+  return "Social sign-in could not finish. Try again. If the problem continues, contact Support.";
+}
+
 export async function completeSocialSignIn(
   result: SocialSignInCompletion,
 ): Promise<"complete" | "canceled"> {
