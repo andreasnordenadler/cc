@@ -69,7 +69,7 @@ test("iOS release packet binds immutable iOS identity to source and keeps unreta
 });
 
 test("iOS release packet binds current status to the exact reconciled source commit", () => {
-  assert.match(packet, /Release-input baseline:\*\* `f752e110cde6e0a38a85ae5d2e484b70feb83b6e` \(`origin\/main`/);
+  assert.match(packet, /Release-input baseline:\*\* `4f62e560ce2d14f82943c9fa0e2acd0f7669b470` \(`origin\/main`/);
   assert.match(packet, /mobile release inputs are unchanged from `3cf61fb1d5233a8899d5dfcd3a6caea4c2a8dc4a`/i);
   assert.doesNotMatch(packet, /source-preparation changes remain under PR review/i);
 });
@@ -87,4 +87,10 @@ test("iOS release packet prominently blocks Apple identity, agreements, and App 
 test("iOS privacy gate requires consent and withdrawal behavior plus processed-upload readback", () => {
   assert.match(packet, /accessible withdrawal mechanism/i);
   assert.match(packet, /processed upload.*version\/build.*export compliance/i);
+});
+
+test("iOS age-rating gate records Apple's September 2026 social-media questionnaire deadline", () => {
+  assert.match(packet, /beginning in September 2026.*social media.*required.*new apps and app updates/i);
+  assert.match(packet, /Social Media: Yes/i);
+  assert.match(packet, /Social Media Disabled for Users Under 13: No/i);
 });

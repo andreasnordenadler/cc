@@ -1,7 +1,7 @@
 # Side Quest Chess — iOS App Store release-preparation packet
 
 **Prepared:** 2026-08-21; reconciled 2026-08-25<br>
-**Release-input baseline:** `f752e110cde6e0a38a85ae5d2e484b70feb83b6e` (`origin/main`, fetched and reconciled 2026-08-25). The mobile release inputs are unchanged from `3cf61fb1d5233a8899d5dfcd3a6caea4c2a8dc4a`; historical receipts remain bound only to the commit/worktree they name.<br>
+**Release-input baseline:** `4f62e560ce2d14f82943c9fa0e2acd0f7669b470` (`origin/main`, fetched and reconciled 2026-08-25). The mobile release inputs are unchanged from `3cf61fb1d5233a8899d5dfcd3a6caea4c2a8dc4a`; historical receipts remain bound only to the commit/worktree they name.<br>
 **Status:** Drafts and source reconciliation only. This is not an App Store Connect record, Apple credential, IPA, TestFlight build, review submission, approval, or public release.
 
 This packet supersedes the iOS portions of `SQC_MOBILE_APPLE_PRIVACY_PREP_2026-07-03.md`, `SQC_MOBILE_STORE_LAUNCH_PREP_2026-07-07.md`, and `SQC_MOBILE_STORE_SUBMISSION_PACK_2026-07-07.md` for this source baseline.
@@ -161,6 +161,8 @@ Unresolved before adoption: IP address, user agent, session/device identifiers, 
 
 The contractual minimum age is 13; Apple’s calculated regional rating is separate. Preserve the exact live questionnaire version, every answer, calculated global/regional ratings, the separate ratings App Store Connect shows for operating systems earlier than version 26, and any override. If the EULA minimum age is above Apple's calculated rating, apply Apple's required qualifying higher-rating override. A storefront override does not enforce account eligibility, so the in-app 13+ eligibility behavior remains a separate owner/legal decision and candidate gate.
 
+Apple's 2026 age-rating update says that, beginning in September 2026, answers to the new social media questions are required for new apps and app updates. Side Quest Chess already needs truthful live answers for `Social Media` and `Social Media Disabled for Users Under 13`; the working answers below remain drafts until they are read back from the approval-gated app record.
+
 Working answers:
 
 - Made for Kids: No — provisional; confirm in the live app record and keep all screenshots/metadata suitable for the resulting audience
@@ -311,5 +313,6 @@ The implementation receipts below through the earlier 791-test result predate mo
 - Upload toolchain requirement effective 2026-04-28: https://developer.apple.com/news/upcoming-requirements/?id=04282026a
 - DSA trader requirements: https://developer.apple.com/help/app-store-connect/manage-compliance-information/manage-european-union-digital-services-act-trader-requirements
 - Age-rating values and definitions: https://developer.apple.com/help/app-store-connect/reference/app-information/age-ratings-values-and-definitions/
+- September 2026 social-media-question deadline: https://developer.apple.com/news/?id=tlur8uvi
 - iPhone/iPad app availability on Apple-silicon Mac: https://developer.apple.com/help/app-store-connect/manage-your-apps-availability/manage-availability-of-iphone-and-ipad-apps-on-macs-with-apple-silicon
 - iPhone/iPad app availability on Apple Vision Pro: https://developer.apple.com/help/app-store-connect/manage-your-apps-availability/manage-availability-of-iphone-and-ipad-apps-on-apple-vision-pro
