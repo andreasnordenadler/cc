@@ -71,7 +71,7 @@ export async function listPublicCommunitySideQuests(client: ClerkUserListClient,
     const creatorKey = makeCreatorKey(creatorName, user.id);
 
     return records
-      .filter((quest) => quest.lifecycle === "published" && quest.visibility === "public" && !containsObjectionablePublicText(quest.title, quest.summary))
+      .filter((quest) => quest.lifecycle === "published" && quest.visibility === "public" && !containsObjectionablePublicText(quest.title, quest.summary, creatorName))
       .map((quest) => {
         const stats = buildPublicCommunityStats(quest.id, userPublicMetadata, options.groupQuests ?? []);
         return {

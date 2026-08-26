@@ -205,6 +205,19 @@ test("public Community loading hides legacy Multiplayer quests with objectionabl
   assert.deepEqual(listed.filter((quest) => !quest.official).map(({ id }) => id), [safe.id]);
 });
 
+test("public Community loading hides legacy Multiplayer quests with objectionable leaderboard names", async () => {
+  const quest = buildGroupQuest({ hostUserId: "host-user", hostName: "Safe Host", name: "Friendly table", inviteMode: "public" });
+  quest.participants = [participant("unsafe-player", { leaderboardName: "f.u.c.k" })];
+  const client = { users: { getUserList: async () => ({
+    data: [{ id: quest.hostUserId, privateMetadata: { sqcGroupQuests: [quest] } }],
+    totalCount: 1,
+  }) } };
+
+  const listed = await listPublicGroupQuests(client);
+
+  assert.equal(listed.some(({ id }) => id === quest.id), false);
+});
+
 test("related quest loading prefers the host record over an earlier participant replica", async () => {
   const canonical = buildGroupQuest({ hostUserId: "host-user", hostName: "Host", name: "Canonical table", inviteMode: "private-key" });
   canonical.id = "related-replica-table";

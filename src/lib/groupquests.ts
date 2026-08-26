@@ -493,6 +493,7 @@ function hasObjectionablePublicGroupQuestText(quest: ServerGroupQuest) {
     quest.inviteCopy,
     quest.hostName,
     ...(quest.customQuestSnapshots ?? []).flatMap((snapshot) => [snapshot.title, snapshot.summary, snapshot.config]),
+    ...quest.participants.flatMap((participant) => [participant.leaderboardName, participant.username]),
   );
 }
 

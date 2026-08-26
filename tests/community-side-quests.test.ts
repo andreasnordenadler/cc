@@ -68,6 +68,16 @@ test("Community catalog suppresses legacy public quests with objectionable text"
   assert.deepEqual(rows, []);
 });
 
+test("Community catalog suppresses legacy quests attributed to an objectionable creator name", async () => {
+  const owner = questOwner("owner") as ReturnType<typeof questOwner>;
+  owner.publicMetadata = { runnerDisplayName: "f.u.c.k" };
+  const client = { users: { getUserList: async () => ({ data: [owner] }) } };
+
+  const rows = await listPublicCommunitySideQuests(client, { limit: null });
+
+  assert.deepEqual(rows, []);
+});
+
 test("Community catalog can return every public quest before client-side popularity sorting", async () => {
   const users = Array.from({ length: 81 }, (_, index) => questOwner(`owner-${index}`, [], `community-${index}`));
   const client = {
