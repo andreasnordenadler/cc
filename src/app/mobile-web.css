@@ -11498,11 +11498,38 @@ body::after {
   }
 }
 
+/* At the desktop boundary the launch board keeps its stable minimum width.
+   A slightly tighter headline preserves the same deliberate two-line rhythm
+   without forcing markup-only line breaks or crowding the board. */
+@media (min-width: 1180px) and (max-width: 1379px) {
+  .sqc-desktop-hero h1 {
+    max-width: 100%;
+    font-size: 53px;
+  }
+}
+
 /* The signed-out cabinet is a collection workspace at standard and wide
    desktop widths. Keep the same content and links, but move the contextual
    sign-in action beside its explanation so collection controls and a complete
    first coat row remain visible on arrival. */
 @media (min-width: 1380px) {
+  /* Standard desktop Home gives the headline enough editorial measure to hold
+     a deliberate two-line rhythm while the launch board keeps a stable
+     comparison width. Wide desktop refines this balance below. */
+  .sqc-desktop-hero {
+    grid-template-columns: minmax(0, 1fr) 540px;
+    gap: 54px;
+  }
+
+  .sqc-desktop-hero-copy {
+    max-width: none;
+  }
+
+  .sqc-desktop-hero h1 {
+    max-width: 720px;
+    font-size: 58px;
+  }
+
   /* The Custom editor grows continuously after standard desktop instead of
      jumping hundreds of pixels at the ultrawide boundary. */
   .sqc-mobile-web.desktop-custom-editor .sqc-screen {
@@ -11605,6 +11632,15 @@ body::after {
   .sqc-desktop-hero {
     grid-template-columns: minmax(0, 1fr) minmax(500px, .72fr);
     gap: 112px;
+  }
+
+  .sqc-desktop-hero-copy {
+    max-width: 780px;
+  }
+
+  .sqc-desktop-hero h1 {
+    max-width: 780px;
+    font-size: 64px;
   }
 
   .sqc-mobile-web.desktop-solo-discovery .sqc-screen {
