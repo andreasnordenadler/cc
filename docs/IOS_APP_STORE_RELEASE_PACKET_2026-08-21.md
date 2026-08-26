@@ -233,10 +233,10 @@ For every shipped SSO provider, provide the non-expiring demo login information 
 
 ## 8. Screenshot and localization plan
 
-Capture fresh images from the exact selected build with fictional, non-personal account data that truthfully represents the candidate. Initial locale: English (U.S.). Add localizations only with reviewed field copy and asset inheritance. Every frame must show the app in use rather than only a title, splash, or login screen, and remain suitable for a 4+ metadata audience regardless of the calculated app age rating.
+Capture fresh images from the exact selected build with fictional, non-personal account data that truthfully represents the candidate. Initial locale: English (U.S.). Add localizations only with reviewed field copy and asset inheritance. Every frame must show the app in use rather than only a title, splash, or login screen, and remain suitable for a 4+ metadata audience regardless of the calculated app age rating. Every iPhone and iPad screenshot must have no alpha channel or transparency.
 
 - App icon: verify the exact archive contains the visually approved 1024×1024 App Store icon with no alpha; inspect the rendered artwork for stale names or abbreviations and preserve an identity/hash receipt.
-- iPhone: 6.9-inch portrait at `1260×2736`, `1290×2796`, or `1320×2868`; 1–10 frames with no alpha. If a 6.9-inch set is not supplied, Apple's current fallback requires a 6.5-inch set at `1284×2778` or `1242×2688`. Proposed order: Home/selection, quest detail/proof, multiplayer, community, Trophy Cabinet, account/support.
+- iPhone: 6.9-inch portrait at `1260×2736`, `1290×2796`, or `1320×2868`; 1–10 frames. If a 6.9-inch set is not supplied, Apple's current fallback requires a 6.5-inch set at `1284×2778` or `1242×2688`. Proposed order: Home/selection, quest detail/proof, multiplayer, community, Trophy Cabinet, account/support.
 - iPad: while `supportsTablet` remains enabled, supply a required 13-inch set: portrait `2064×2752` or `2048×2732`; landscape `2752×2064` or `2732×2048`. Capture equivalent truthful tablet frames and re-read Apple's specification at capture time.
 - Re-verify all exact pixel dimensions and accepted fallback sizes in live Apple documentation at capture time.
 - Save each accepted screenshot as `.jpeg`, `.jpg`, or `.png`, and manifest source SHA, version/build, build ID, device/display, OS, orientation, locale, fixture, dimensions, filename, format, and SHA-256.

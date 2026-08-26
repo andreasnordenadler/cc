@@ -162,6 +162,10 @@ test("iOS release packet preserves the canonical product facts in one explicit c
   assert.match(section, /Public copy must say `Side Quest Chess`, never `SQC`/);
 });
 
+test("iOS release packet requires every screenshot set to be opaque", () => {
+  assert.match(packet, /Every iPhone and iPad screenshot[^\n]*no alpha channel or transparency/i);
+});
+
 test("iOS release packet requires exact-submission readback for every public listing URL", () => {
   assert.match(
     packet,
