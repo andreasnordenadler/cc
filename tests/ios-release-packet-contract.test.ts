@@ -56,8 +56,3 @@ test("iOS release packet records the current local Xcode and CocoaPods receipt w
   assert.doesNotMatch(packet, /Full Xcode is unavailable locally/i);
   assert.doesNotMatch(packet, /CocoaPods is unavailable/i);
 });
-
-test("iOS release packet records keyboard-safe forms without claiming device verification", () => {
-  assert.match(packet, /keyboard taps.*iOS keyboard insets/i);
-  assert.match(packet, /real-iPhone and iPad.*remain.*blocked/i);
-});

@@ -1,7 +1,7 @@
 # Side Quest Chess — iOS App Store release-preparation packet
 
 **Prepared:** 2026-08-21; reconciled 2026-08-22<br>
-**Source baseline:** `5a5cbd456900f3e75d4a9cbc9e7769c157b1d83b` (`origin/main`, fetched and fast-forwarded 2026-08-22); current keyboard-safety source-preparation changes remain under PR review<br>
+**Source baseline:** `70545c4e50addce85ae2fdade56345b7293e3b2c` (`origin/main`, fetched and merged 2026-08-22); branch audit and source-preparation changes remain under PR review<br>
 **Status:** Drafts and verified source audit only. This is not an App Store Connect record, Apple credential, IPA, TestFlight build, review submission, approval, or public release.
 
 This packet supersedes the iOS portions of `SQC_MOBILE_APPLE_PRIVACY_PREP_2026-07-03.md`, `SQC_MOBILE_STORE_LAUNCH_PREP_2026-07-07.md`, and `SQC_MOBILE_STORE_SUBMISSION_PACK_2026-07-07.md` for this source baseline.
@@ -269,7 +269,7 @@ Source freeze, archive, upload, TestFlight processing, store-delivered installat
 - Strict TDD receipt for post-deletion session cleanup: RED reproduced a completed deletion being reported as “Account not deleted” when sign-out failed; GREEN preserves deletion success, reports the cleanup limitation, and directs the user to close and reopen the app.
 - Contract-test receipts now lock the required-reason API upload gate, immutable distribution choice, China mainland/Vietnam territory requirements, provider-specific SSO review-access rule, and Android/web predecessor launch-order gate after independent Apple-primary-source review.
 - A direct local execution of the exact iOS prebuild command completed again on the current working tree, generated `com.sidequestchess.app` with version/build `0.1.349` / `1`, deployment target `15.1`, device family `1,2`, URL schemes `sidequestchess` and `com.sidequestchess.app`, ATS arbitrary loads disabled, and the expected Apple sign-in entitlement. No `.xcprivacy` file was generated before dependency installation. The generated tree was inspected and removed with no generated tracked change retained.
-- `pnpm test`: PASS — 796 tests, 0 failures, 0 skipped/todo.
+- `pnpm test`: PASS — 791 tests, 0 failures, 0 skipped/todo.
 - `pnpm build`: PASS — Next.js production build completed.
 - `pnpm --dir apps/mobile run typecheck`: PASS.
 - `pnpm --dir apps/mobile run doctor`: PASS — 18/18 checks before native generation.
@@ -286,7 +286,6 @@ Source freeze, archive, upload, TestFlight processing, store-delivered installat
 - Independent installed-API review confirmed that Clerk's current external-account destroy/delete APIs only prove unlinking and expose no provider-agnostic revocation contract; the native Clerk Apple hook also does not expose the Apple authorization code needed for a complete revocation flow. Google/Facebook and Apple provider revocation therefore remain fail-closed integration gates rather than being mislabeled as solved by Clerk user deletion.
 - Signed-in account-unavailable TDD receipt: RED reproduced an account-service failure being reduced to the signed-out fallback while Clerk remained authenticated, hiding deletion/logout and presenting social/password sign-in. GREEN preserves an explicit authenticated recovery surface with retry, deletion, logout and support controls; targeted account/deletion tests, mobile typecheck and the full suite pass.
 - A fresh independent packet/source review also identified the app-record Made for Kids, User Access, copyright, archive-icon, privacy-policy report/block disclosures, concrete least-privilege role, and exact-device matrix as unresolved facts. This packet now approval-gates each one rather than inferring it from source configuration.
-- Keyboard-safety TDD receipt: RED proved the root, shared form, and three nested horizontal filter scroll containers could consume the first submit/filter tap while a keyboard was open, and the vertical containers did not request automatic iOS keyboard insets; GREEN now preserves handled keyboard taps across those containers and enables iOS keyboard insets on the two vertical containers. Real-iPhone and iPad rendering remain device-blocked and are not claimed by this source receipt.
 - `git diff --check`: PASS.
 - `pnpm mobile:release:check` on a managed checkout cannot start because that script assumes a generated Android manifest. Its earlier disposable generated-checkout receipt stopped before CocoaPods was installed; that stale tooling blocker has now been superseded by the direct CocoaPods/native-build receipt below. Expo Doctor's warning that checked-in native folders change config-sync behavior remains applicable, so the generated tree was not adopted as source.
 - Current local native receipt: Xcode 26.6 with the iOS 26.5 SDK selected; first-launch setup PASS; CocoaPods 1.17.0 installation PASS; `pod install` PASS with 85 dependencies/84 pods; aggregate generated privacy manifest inspected; unsigned generic Simulator build FAILED after CoreSimulator interruption at `SplashScreen.storyboard`; retry BLOCKED because the downloaded simulator runtime was not registered. No signed archive, installable candidate, or `.xcresult` was produced.
