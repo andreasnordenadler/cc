@@ -42,6 +42,9 @@
       "autoIncrement": true,
       "node": "22.22.0",
       "pnpm": "11.12.0",
+      "ios": {
+        "image": "macos-sequoia-15.6-xcode-26.0"
+      },
       "android": {
         "image": "sdk-54"
       },
