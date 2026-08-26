@@ -28,8 +28,8 @@ test("bundled first-game fallback preserves the canonical starter-quest copy", (
     firstGame.rules[1],
     "Win, loss, draw, timeout, resignation, rated, casual, bullet, blitz, rapid, classical, daily — all are acceptable for this starter quest.",
   );
-  assert.equal(firstGame.rules[3], "This quest exists so every new player can unlock a first coat of arms with one normal finished game.");
+  assert.equal(firstGame.rules[3], "This quest exists so every new player can unlock a first Coat of Arms with one normal finished game.");
   assert.equal(firstGame.badgeIdentity?.rarity, "Starter token");
-  assert.equal(firstGame.badgeIdentity?.unlockCopy, "Complete any public game and unlock your first Side Quest Chess coat of arms.");
+  assert.equal(firstGame.badgeIdentity?.unlockCopy, "Complete any public game and unlock your first Side Quest Chess Coat of Arms.");
   assert.equal(firstGame.badgeIdentity?.heraldry.crest, "Tiny first-quest banner");
 });
