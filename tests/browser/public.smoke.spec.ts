@@ -333,6 +333,21 @@ test("desktop Solo discovery keeps every objective and Android opening hint read
   })));
   expect(standardDesktop.every(({ minHeight }) => minHeight === 178)).toBe(true);
   expect(standardDesktop.every(({ height, overflow }) => height >= 178 && overflow === 0)).toBe(true);
+  const desktopCommandCenter = await page.evaluate(() => {
+    const tabs = document.querySelector<HTMLElement>(".sqc-solo-brand-tabs")?.getBoundingClientRect();
+    const intro = document.querySelector<HTMLElement>(".sqc-desktop-catalog-intro")?.getBoundingClientRect();
+    const listHead = document.querySelector<HTMLElement>(".sqc-list-head.inline")?.getBoundingClientRect();
+    const search = document.querySelector<HTMLElement>(".sqc-solo-search")?.getBoundingClientRect();
+    const firstShelf = document.querySelector<HTMLElement>(".sqc-solo-difficulty-grid")?.getBoundingClientRect();
+    return {
+      mastheadAligned: Boolean(tabs && intro && Math.abs(tabs.bottom - intro.bottom) <= 10),
+      controlsAligned: Boolean(listHead && search && Math.abs((listHead.top + listHead.height / 2) - (search.top + search.height / 2)) < 1),
+      firstShelfTop: firstShelf?.y ?? Number.POSITIVE_INFINITY,
+    };
+  });
+  expect(desktopCommandCenter.mastheadAligned).toBe(true);
+  expect(desktopCommandCenter.controlsAligned).toBe(true);
+  expect(desktopCommandCenter.firstShelfTop).toBeLessThan(480);
   expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBe(0);
 
   await page.setViewportSize({ width: 1920, height: 1080 });
@@ -341,6 +356,21 @@ test("desktop Solo discovery keeps every objective and Android opening hint read
     overflow: row.scrollHeight - row.clientHeight,
   })));
   expect(wideDesktop.every(({ minHeight, overflow }) => minHeight === 176 && overflow === 0)).toBe(true);
+  const wideCommandCenter = await page.evaluate(() => {
+    const tabs = document.querySelector<HTMLElement>(".sqc-solo-brand-tabs")?.getBoundingClientRect();
+    const intro = document.querySelector<HTMLElement>(".sqc-desktop-catalog-intro")?.getBoundingClientRect();
+    const listHead = document.querySelector<HTMLElement>(".sqc-list-head.inline")?.getBoundingClientRect();
+    const search = document.querySelector<HTMLElement>(".sqc-solo-search")?.getBoundingClientRect();
+    const firstShelf = document.querySelector<HTMLElement>(".sqc-solo-difficulty-grid")?.getBoundingClientRect();
+    return {
+      mastheadAligned: Boolean(tabs && intro && Math.abs(tabs.bottom - intro.bottom) <= 10),
+      controlsAligned: Boolean(listHead && search && Math.abs((listHead.top + listHead.height / 2) - (search.top + search.height / 2)) < 1),
+      firstShelfTop: firstShelf?.y ?? Number.POSITIVE_INFINITY,
+    };
+  });
+  expect(wideCommandCenter.mastheadAligned).toBe(true);
+  expect(wideCommandCenter.controlsAligned).toBe(true);
+  expect(wideCommandCenter.firstShelfTop).toBeLessThan(480);
   expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBe(0);
 });
 

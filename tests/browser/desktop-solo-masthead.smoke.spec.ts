@@ -24,13 +24,17 @@ test("desktop Solo masthead keeps a stable two-line hierarchy as the canvas wide
         width: rect.width,
       };
     });
-    const paragraphWidth = await paragraph.evaluate((element) => element.getBoundingClientRect().width);
+    const paragraphBox = await paragraph.boundingBox();
+    const tabsBox = await page.locator(".sqc-solo-brand-tabs").boundingBox();
     const shelfBox = await firstShelf.boundingBox();
 
     if (width >= 1440) {
       expect(geometry.lineCount, `${width}px headline line count`).toBeLessThanOrEqual(2.05);
       expect(geometry.width, `${width}px headline should use the available desktop canvas`).toBeGreaterThanOrEqual(890);
-      expect(paragraphWidth, `${width}px supporting copy should use the wider reading measure`).toBeGreaterThanOrEqual(890);
+      expect(paragraphBox?.width, `${width}px supporting copy should retain a readable measure`).toBeGreaterThanOrEqual(650);
+      expect(paragraphBox, `${width}px supporting copy`).not.toBeNull();
+      expect(tabsBox, `${width}px catalog tabs`).not.toBeNull();
+      expect(paragraphBox!.x + paragraphBox!.width, `${width}px supporting copy should not run under catalog tabs`).toBeLessThanOrEqual(tabsBox!.x - 16);
     } else {
       expect(geometry.width, `${width}px boundary headline should fill the available desktop column`).toBeGreaterThanOrEqual(780);
     }
