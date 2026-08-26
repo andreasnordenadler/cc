@@ -102,6 +102,25 @@ test("signed-out home renders an app surface plus a desktop-only guided experien
   assert.doesNotMatch(html, /href="\/account">My Account<\/a>/);
 });
 
+test("desktop Home turns the featured quest into a compact launch board with real alternatives", () => {
+  const html = renderToStaticMarkup(
+    createElement(MobileAppWebShell, { activeTab: "home", signedIn: false }),
+  );
+  const css = readFileSync("src/app/mobile-web.css", "utf8");
+  const mobileCss = css.slice(0, css.indexOf("@media (min-width: 1180px)"));
+  const desktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1180px)"));
+
+  assert.match(html, /<nav class="sqc-desktop-featured-alternatives" aria-label="More recommended Solo Side Quests">/);
+  assert.match(html, /href="\/challenges\/bishop-field-trip"[^>]*><span>Next on the board<\/span><strong>Bishop Field Trip<\/strong>/);
+  assert.match(html, /href="\/challenges\/early-king-walk"[^>]*><span>Next on the board<\/span><strong>Early King Walk<\/strong>/);
+  assert.equal(html.match(/class="sqc-desktop-featured-alternative"/g)?.length, 2);
+  assert.match(mobileCss, /\.sqc-desktop-featured-alternatives\s*\{[^}]*display:\s*none;/, "mobile Home must retain the Android-derived composition");
+  assert.match(desktopMedia, /\.sqc-desktop-featured-quest\s*\{[^}]*grid-template-columns:\s*minmax\(180px,\s*\.78fr\)\s+minmax\(0,\s*1fr\);/);
+  assert.match(desktopMedia, /\.sqc-desktop-featured-alternatives\s*\{[^}]*display:\s*grid;[^}]*grid-template-columns:\s*repeat\(2,\s*minmax\(0,\s*1fr\)\);/);
+  assert.match(desktopMedia, /\.sqc-desktop-featured-alternative:focus-visible\s*\{[^}]*outline:\s*3px\s+solid/);
+  assert.match(desktopMedia, /\.sqc-desktop-featured-primary:focus-visible\s*\{[^}]*outline:\s*3px\s+solid[^;}]*;[^}]*outline-offset:\s*-4px;/);
+});
+
 test("desktop home stays hidden until the full-desktop breakpoint", () => {
   const css = readFileSync("src/app/mobile-web.css", "utf8");
   assert.match(css, /\.sqc-desktop-home-only\s*\{[^}]*display:\s*none;/);
