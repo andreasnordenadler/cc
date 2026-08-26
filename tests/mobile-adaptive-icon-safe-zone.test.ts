@@ -88,11 +88,28 @@ function assertAppStoreIconIsOpaqueRgbPng(bytes: Buffer) {
     const length = bytes.readUInt32BE(offset);
     const type = bytes.subarray(offset + 4, offset + 8).toString("ascii");
     assert.ok(offset + 12 + length <= bytes.length, "App Store icon must be a complete PNG");
+    const expectedCrc = bytes.readUInt32BE(offset + 8 + length);
+    const actualCrc = pngCrc32(bytes.subarray(offset + 4, offset + 8 + length));
+    assert.equal(actualCrc, expectedCrc, "App Store icon contains a PNG chunk with an invalid CRC");
     assert.notEqual(type, "tRNS", "App Store icon must not contain a transparency chunk");
     offset += 12 + length;
-    if (type === "IEND") return;
+    if (type === "IEND") {
+      assert.equal(offset, bytes.length, "App Store icon must end exactly at the IEND chunk");
+      return;
+    }
   }
   assert.fail("App Store icon must contain an IEND chunk");
+}
+
+function pngCrc32(bytes: Buffer) {
+  let crc = 0xffffffff;
+  for (const byte of bytes) {
+    crc ^= byte;
+    for (let bit = 0; bit < 8; bit += 1) {
+      crc = (crc >>> 1) ^ (crc & 1 ? 0xedb88320 : 0);
+    }
+  }
+  return (crc ^ 0xffffffff) >>> 0;
 }
 
 function pngChunkFixture(type: string, data = Buffer.alloc(0)) {
@@ -100,6 +117,7 @@ function pngChunkFixture(type: string, data = Buffer.alloc(0)) {
   chunk.writeUInt32BE(data.length, 0);
   chunk.write(type, 4, "ascii");
   data.copy(chunk, 8);
+  chunk.writeUInt32BE(pngCrc32(chunk.subarray(4, 8 + data.length)), 8 + data.length);
   return chunk;
 }
 
@@ -205,6 +223,23 @@ test("App Store icon validator rejects RGB PNG transparency chunks", () => {
   assert.throws(
     () => assertAppStoreIconIsOpaqueRgbPng(transparentRgbIcon),
     /App Store icon must not contain a transparency chunk/,
+  );
+});
+
+test("App Store icon validator rejects content after the PNG end marker", () => {
+  const iconWithTrailingContent = Buffer.concat([rgbPngChunkFixture(), Buffer.from("unexpected")]);
+  assert.throws(
+    () => assertAppStoreIconIsOpaqueRgbPng(iconWithTrailingContent),
+    /App Store icon must end exactly at the IEND chunk/,
+  );
+});
+
+test("App Store icon validator rejects corrupted PNG chunks", () => {
+  const corruptedIcon = rgbPngChunkFixture();
+  corruptedIcon[20] ^= 1;
+  assert.throws(
+    () => assertAppStoreIconIsOpaqueRgbPng(corruptedIcon),
+    /App Store icon contains a PNG chunk with an invalid CRC/,
   );
 });
 
