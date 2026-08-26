@@ -37,6 +37,7 @@ import CommunitySoloDuplicateControl from "./community-solo-duplicate-control";
 import { buildCommunityQuestDetailHref, type CommunityDiscoveryState } from "@/lib/community-discovery-state";
 import type { CustomOwnerSaveInput } from "@/lib/custom-owner-controls";
 import DesktopTrophyCollection from "./desktop-trophy-collection";
+import DesktopSoloDifficultyNav from "./desktop-solo-difficulty-nav";
 
 type AppTab = "home" | "sideQuests" | "multiplayerSideQuests" | "coatOfArms" | "account";
 
@@ -956,15 +957,12 @@ export function MobileSoloSideQuestsScreen({
         </form>
         {difficultyShelves.length ? (
           <div className="sqc-solo-browser">
-            <nav className="sqc-solo-difficulty-nav" aria-label="Jump to quest difficulty">
-              <span>Difficulty</span>
-              {difficultyShelves.map((shelf) => (
-                <a className="sqc-solo-difficulty-link" href={`#solo-difficulty-${shelf.difficulty.toLowerCase()}`} key={shelf.difficulty}>
-                  <span>{shelf.difficulty}</span>
-                  <small>{shelf.challenges.length}</small>
-                </a>
-              ))}
-            </nav>
+            <DesktopSoloDifficultyNav
+              items={difficultyShelves.map((shelf) => ({
+                difficulty: shelf.difficulty,
+                count: shelf.challenges.length,
+              }))}
+            />
             <div className="sqc-catalog">
               {difficultyShelves.map((shelf) => (
                 <div className="sqc-solo-difficulty-shelf" key={shelf.difficulty}>

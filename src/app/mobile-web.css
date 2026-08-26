@@ -6891,6 +6891,16 @@ body::after {
     transform: translateX(2px);
   }
 
+  .sqc-mobile-web.desktop-solo-discovery .sqc-solo-difficulty-link[aria-current="location"] {
+    color: #17100a;
+    background: linear-gradient(135deg, #f6d485, #d99a3d);
+    box-shadow: 0 10px 24px rgba(217, 154, 61, .18);
+  }
+
+  .sqc-mobile-web.desktop-solo-discovery .sqc-solo-difficulty-link[aria-current="location"] small {
+    color: rgba(23, 16, 10, .62);
+  }
+
   .sqc-mobile-web.desktop-solo-discovery .sqc-solo-difficulty-link:focus-visible {
     outline: 3px solid rgba(245, 200, 106, .9);
     outline-offset: 2px;
