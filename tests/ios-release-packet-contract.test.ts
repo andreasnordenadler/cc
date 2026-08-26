@@ -180,3 +180,10 @@ test("iOS release packet records the current frozen-install Simulator build with
   assert.match(packet, /no XCTest or Swift Testing targets?[^\n]*executed/i);
   assert.match(packet, /not[^\n]*(?:TestFlight|physical-iPhone|archive|signing) evidence/i);
 });
+
+test("iOS release packet fails closed when local disk headroom is insufficient for a fresh native build", () => {
+  assert.match(packet, /2026-08-26[^\n]*less than 1 GiB[^\n]*free disk space/i);
+  assert.match(packet, /fresh native build[^\n]*blocked[^\n]*disk headroom/i);
+  assert.match(packet, /do not delete[^\n]*(?:DerivedData|Simulator)[^\n]*without[^\n]*review/i);
+  assert.doesNotMatch(packet, /current-candidate native build[^\n]*passed on 2026-08-26/i);
+});
