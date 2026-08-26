@@ -70,25 +70,26 @@ test("wide desktop Home grows continuously into the expanded route canvas", asyn
   await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBe(0);
 });
 
-test("desktop Home headline keeps a stable editorial rhythm as the canvas widens", async ({ page }) => {
-  await page.setViewportSize({ width: 1440, height: 900 });
-  await page.goto("/", { waitUntil: "domcontentloaded" });
-
+test("desktop Home headline holds a confident two-line hierarchy from the desktop boundary through wide screens", async ({ page }) => {
   const headline = page.getByRole("heading", { name: "Your next chess game needs a terrible side plot." });
-  const lineCount = await headline.evaluate((element) => {
-    const styles = getComputedStyle(element);
-    return element.getBoundingClientRect().height / Number.parseFloat(styles.lineHeight);
-  });
-  expect(lineCount).toBeLessThanOrEqual(3.05);
-  await expect(page.locator(".sqc-desktop-hero")).toHaveCSS("min-height", "610px");
-  await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBe(0);
 
-  await page.setViewportSize({ width: 1920, height: 1080 });
-  const wideLineCount = await headline.evaluate((element) => {
-    const styles = getComputedStyle(element);
-    return element.getBoundingClientRect().height / Number.parseFloat(styles.lineHeight);
-  });
-  expect(wideLineCount).toBeLessThanOrEqual(3.05);
+  for (const { width, height } of [
+    { width: 1180, height: 900 },
+    { width: 1440, height: 900 },
+    { width: 1920, height: 1080 },
+  ]) {
+    await page.setViewportSize({ width, height });
+    await page.goto("/", { waitUntil: "domcontentloaded" });
+
+    const lineCount = await headline.evaluate((element) => {
+      const styles = getComputedStyle(element);
+      return element.getBoundingClientRect().height / Number.parseFloat(styles.lineHeight);
+    });
+    expect(lineCount).toBeGreaterThanOrEqual(1.95);
+    expect(lineCount).toBeLessThanOrEqual(2.05);
+    await expect(page.locator(".sqc-desktop-hero")).toHaveCSS("min-height", "610px");
+    await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBe(0);
+  }
 });
 
 test("desktop Home uses one side-by-side command deck while mobile keeps the original flow", async ({ page }) => {
