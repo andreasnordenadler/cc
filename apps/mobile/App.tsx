@@ -6214,7 +6214,7 @@ function AccountTrackerDashboard({ bootstrap, account, authBridge, onSelectTab, 
       <HelpSupportModal visible={helpOpen} onClose={() => setHelpOpen(false)} signedIn={accountState} authBridge={authBridge} />
       <View style={compactStyles.heroPanel}>
         <Text style={compactStyles.kicker}>Danger zone</Text>
-        <Text style={compactStyles.heroCopy}>Permanently delete your Side Quest Chess account, profile, progress, proofs, and Clerk sign-in. This cannot be undone.</Text>
+        <Text style={compactStyles.heroCopy}>Permanently delete your Side Quest Chess account, Clerk sign-in, account profile, and saved progress. Previously shared public proof links are not revoked, and public game records remain at Lichess or Chess.com. This cannot be undone.</Text>
         {showDeleteAccount ? (
           <View style={styles.inputStack}>
             <Text style={styles.inputLabel}>Type DELETE MY ACCOUNT to confirm</Text>
