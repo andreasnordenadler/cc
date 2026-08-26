@@ -16,6 +16,7 @@ import {
   BackHandler,
   Easing,
   Image,
+  Linking,
   Modal,
   Platform,
   Pressable,
@@ -45,12 +46,16 @@ import { finalizeMobileAccountDeletion } from "./src/account/finalizeMobileAccou
 import { loadMobileAccount } from "./src/account/loadMobileAccount";
 import { clerkPublishableKey, clerkTokenCache, isClerkMobileAuthConfigured } from "./src/auth/clerk";
 import { completeAppleSignIn } from "./src/auth/completeAppleSignIn";
+import { isFacebookSignInEnabled } from "./src/auth/isFacebookSignInEnabled";
+import { completeSocialSignIn, socialSignInErrorMessage } from "./src/auth/completeSocialSignIn";
 import { completeMobilePasswordReset, prepareMobilePasswordReset, verifyMobilePasswordResetCode as verifyMobilePasswordResetCodeWithClerk } from "./src/auth/mobilePasswordReset";
 import { OFFLINE_MOBILE_BOOTSTRAP } from "./src/data/offlineBootstrap";
 import { shouldStackActiveQuestSummary } from "./src/layout/activeQuestLayout";
+import { shouldUseDevTrackerPreview } from "./src/preview/devTrackerPreview";
 import { createMobileCommunityCreatorReportSubmitter } from "./src/reports/communityCreatorReport";
 import { canReportCommunityMultiplayerQuest, createMobileCommunityReportSubmitter } from "./src/reports/communityMultiplayerReport";
-import { buildMobileSupportMessage } from "./src/support/buildMobileSupportMessage";
+import { buildMobileSupportMessage, canComposeMobileSupportMessage } from "./src/support/buildMobileSupportMessage";
+import { buildMobileSupportEmailUrl } from "./src/support/mobileSupportContact";
 import { getMobileCandidateIdentity as resolveMobileCandidateIdentity, type MobileCandidateConfig } from "./src/support/mobileCandidateIdentity";
 import type { MobileAccountResponse, MobileAccountState, MobileBootstrap, MobileChallenge, MobileCustomSideQuest, MobileGroupQuestParticipantRow, MobileGroupQuestSummary, MobileSupportMessage } from "./src/types/sqc";
 
@@ -173,6 +178,7 @@ type MultiplayerCommunitySort = "closing" | "liked" | "newest" | "players";
 
 const MULTIPLAYER_DEFAULT_INVITE_COPY = "A Multiplayer Side Quest where everyone tries the same Side Quests with fresh public games.";
 const SQC_WEB_BASE_URL = getApiBaseUrl();
+const facebookSignInEnabled = isFacebookSignInEnabled(process.env.EXPO_PUBLIC_ENABLE_FACEBOOK_SIGN_IN);
 
 
 const MOBILE_CHESS_PIECES: Record<string, string> = {
@@ -1323,33 +1329,21 @@ function ClerkMobileShell() {
     };
   }, []);
 
-  const startSocialSignIn = useCallback(async (strategy: "oauth_google" | "oauth_facebook", providerLabel: "Google" | "Facebook") => {
+  const startSocialSignIn = useCallback(async (strategy: "oauth_google" | "oauth_facebook") => {
     try {
       const result = await startSSOFlow({
         strategy,
         redirectUrl: mobileOAuthRedirectUrl,
       });
 
-      if (result.createdSessionId && result.setActive) {
-        await result.setActive({ session: result.createdSessionId });
-        return;
-      }
-
-      const signInStatus = result.signIn?.status ?? "unknown";
-      const signUpStatus = result.signUp?.status ?? "unknown";
-      const authResultType = result.authSessionResult?.type ?? "unknown";
-      Alert.alert(
-        "Sign-in did not finish",
-        `${providerLabel} returned to Side Quest Chess, but Clerk did not create a mobile session yet. Details: auth=${authResultType}, signIn=${signInStatus}, signUp=${signUpStatus}.`,
-      );
+      await completeSocialSignIn(result);
     } catch (caught) {
-      const message = caught instanceof Error ? caught.message : "Unknown mobile sign-in error.";
-      Alert.alert("Sign-in error", message);
+      Alert.alert("Sign-in error", socialSignInErrorMessage(caught));
     }
   }, [startSSOFlow]);
 
-  const startGoogleSignIn = useCallback(() => startSocialSignIn("oauth_google", "Google"), [startSocialSignIn]);
-  const startFacebookSignIn = useCallback(() => startSocialSignIn("oauth_facebook", "Facebook"), [startSocialSignIn]);
+  const startGoogleSignIn = useCallback(() => startSocialSignIn("oauth_google"), [startSocialSignIn]);
+  const startFacebookSignIn = useCallback(() => startSocialSignIn("oauth_facebook"), [startSocialSignIn]);
   const startAppleSignIn = useCallback(async () => {
     try {
       if (!signInLoaded || !signUpLoaded) {
@@ -1449,7 +1443,7 @@ function ClerkMobileShell() {
       isSignedIn: Boolean(isSignedIn),
       getSessionToken: async () => getToken(),
       startGoogleSignIn,
-      startFacebookSignIn,
+      startFacebookSignIn: facebookSignInEnabled ? startFacebookSignIn : undefined,
       startAppleSignIn: appleSignInAvailable ? startAppleSignIn : undefined,
       startPasswordSignIn,
       startPasswordSignUp,
@@ -1679,6 +1673,8 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
       <ScrollView
         ref={scrollViewRef}
         style={styles.screen}
+        keyboardShouldPersistTaps="handled"
+        automaticallyAdjustKeyboardInsets={Platform.OS === "ios"}
         contentContainerStyle={[styles.content, { paddingBottom: Math.max(insets.bottom + 96, 124) }]}
         refreshControl={<RefreshControl tintColor="#f5c86a" refreshing={shell.refreshing} onRefresh={() => void refreshCurrentScreen()} />}
         scrollEventThrottle={32}
@@ -1845,6 +1841,8 @@ function ScrollHintedScrollView({ children, onScroll, onLayout, onContentSizeCha
     <View style={styles.scrollHintFrame}>
       <ScrollView
         {...props}
+        keyboardShouldPersistTaps="handled"
+        automaticallyAdjustKeyboardInsets={Platform.OS === "ios"}
         scrollEventThrottle={scrollEventThrottle ?? 32}
         onScroll={handleHintScroll}
         onLayout={handleHintLayout}
@@ -3620,6 +3618,7 @@ function HelpSupportModal({ visible, onClose, signedIn, authBridge, initialMessa
   const [submitState, setSubmitState] = useState<{ busy: boolean; message: string | null; error: string | null }>({ busy: false, message: null, error: null });
   const [diagnosticsOpen, setDiagnosticsOpen] = useState(false);
   const candidateIdentity = getMobileCandidateIdentity();
+  const canComposeSupportMessage = canComposeMobileSupportMessage({ isSignedIn: authBridge.isSignedIn, hasSessionTokenGetter: typeof authBridge.getSessionToken === "function" });
   const supportThread = [...(signedIn?.supportMessages ?? []), ...localSupportMessages]
     .sort((a, b) => Date.parse(a.at) - Date.parse(b.at));
 
@@ -3628,8 +3627,18 @@ function HelpSupportModal({ visible, onClose, signedIn, authBridge, initialMessa
     Alert.alert("Support details copied", "Paste this into the support form and add what went wrong.");
   }
 
+  async function openSupportEmail() {
+    const url = buildMobileSupportEmailUrl();
+
+    try {
+      await Linking.openURL(url);
+    } catch {
+      Alert.alert("Could not open email", "Email sam@crowdler.com for Side Quest Chess support.");
+    }
+  }
+
   async function submitSupport() {
-    if (!authBridge.isSignedIn || !authBridge.getSessionToken) {
+    if (!canComposeSupportMessage) {
       setSubmitState({ busy: false, message: null, error: "Sign in first so the support note can attach to your account." });
       return;
     }
@@ -3723,7 +3732,7 @@ function HelpSupportModal({ visible, onClose, signedIn, authBridge, initialMessa
 
           <View style={compactStyles.multiplayerNativeCard}>
             <Text style={compactStyles.multiplayerCardEyebrow}>Legal & privacy</Text>
-            <Text style={compactStyles.detailPanelCopy}>Read the Privacy Policy, support notes, or the Terms of Use. Side Quest Chess only asks for public chess usernames and never chess-site passwords.</Text>
+            <Text style={compactStyles.detailPanelCopy}>Read the Privacy Policy, support notes, or the Terms of Use. Side Quest Chess never asks for your Lichess or Chess.com password. The Privacy Policy explains the account and app data used to provide the service.</Text>
             <View style={styles.buttonRow}>
               <Pressable accessibilityRole="button" accessibilityLabel="Open Side Quest Chess Privacy Policy" style={compactStyles.detailQuietButton} onPress={() => void openLegalPage("/privacy", "Privacy Policy")}>
                 <Text style={compactStyles.detailQuietButtonText}>Privacy Policy</Text>
@@ -3739,6 +3748,7 @@ function HelpSupportModal({ visible, onClose, signedIn, authBridge, initialMessa
 
           <View style={compactStyles.multiplayerNativeCard}>
             <Text style={compactStyles.multiplayerCardEyebrow}>Report a problem</Text>
+            {canComposeSupportMessage ? (<>
             <Text style={compactStyles.detailPanelCopy}>Something not working? Send a short note with what you tried and what happened. We can reply here if we need more details.</Text>
             <View style={compactStyles.helpSupportThread}>
               <Text style={compactStyles.appRowTitle}>Conversation</Text>
@@ -3785,6 +3795,12 @@ function HelpSupportModal({ visible, onClose, signedIn, authBridge, initialMessa
             <Pressable accessibilityRole="button" accessibilityLabel="Send support message" style={[compactStyles.detailPrimaryButton, submitState.busy ? compactStyles.disabledAction : null]} disabled={submitState.busy} onPress={() => void submitSupport()}>
               <Text style={compactStyles.detailPrimaryButtonText}>{submitState.busy ? "Sending..." : "Send support message"}</Text>
             </Pressable>
+            </>) : (<>
+              <Text style={compactStyles.detailPanelCopy}>Email Crowdler AB directly for help without signing in. Sign in to send an account-linked note and see replies in the app.</Text>
+              <Pressable accessibilityRole="button" accessibilityLabel="Email Side Quest Chess support" style={compactStyles.detailPrimaryButton} onPress={() => void openSupportEmail()}>
+                <Text style={compactStyles.detailPrimaryButtonText}>Email support</Text>
+              </Pressable>
+            </>)}
             <Pressable accessibilityRole="button" accessibilityLabel="Copy support details" style={compactStyles.detailPrimaryButton} onPress={() => void copySupportDetails()}>
               <Text style={compactStyles.detailPrimaryButtonText}>Copy support details</Text>
             </Pressable>
@@ -5310,7 +5326,7 @@ function QuestBoardDashboard({
                     ) : null}
                   </View>
                   <View style={compactStyles.communityControlsRow}>
-                    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={compactStyles.communityChipRow}>
+                    <ScrollView horizontal keyboardShouldPersistTaps="handled" showsHorizontalScrollIndicator={false} contentContainerStyle={compactStyles.communityChipRow}>
                       {(["all", "popular", "new", "completed"] as CommunityBrowseFilter[]).map((filter) => (
                         <Pressable key={filter} accessibilityRole="button" accessibilityState={{ selected: communityFilter === filter }} style={[compactStyles.communityChip, communityFilter === filter && compactStyles.communityChipActive]} onPress={() => setCommunityFilter(filter)}>
                           <Text style={[compactStyles.communityChipText, communityFilter === filter && compactStyles.communityChipTextActive]}>{filter === "all" ? "All" : filter === "popular" ? "Popular" : filter === "new" ? "New" : "Completed"}</Text>
@@ -5392,7 +5408,7 @@ function QuestBoardDashboard({
                   </Pressable>
                 ) : null}
               </View>
-              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={compactStyles.communityChipRow}>
+              <ScrollView horizontal keyboardShouldPersistTaps="handled" showsHorizontalScrollIndicator={false} contentContainerStyle={compactStyles.communityChipRow}>
                 {(["all", "published", "drafts", "public", "archived"] as CustomLibraryFilter[]).map((filter) => (
                   <Pressable key={filter} accessibilityRole="button" accessibilityState={{ selected: customLibraryFilter === filter }} style={[compactStyles.communityChip, customLibraryFilter === filter && compactStyles.communityChipActive]} onPress={() => setCustomLibraryFilter(filter)}>
                     <Text style={[compactStyles.communityChipText, customLibraryFilter === filter && compactStyles.communityChipTextActive]}>{filter === "all" ? "All" : filter === "drafts" ? "Drafts" : filter === "public" ? "Public" : filter === "archived" ? "Archived" : "Published"}</Text>
@@ -6198,7 +6214,7 @@ function AccountTrackerDashboard({ bootstrap, account, authBridge, onSelectTab, 
       <HelpSupportModal visible={helpOpen} onClose={() => setHelpOpen(false)} signedIn={accountState} authBridge={authBridge} />
       <View style={compactStyles.heroPanel}>
         <Text style={compactStyles.kicker}>Danger zone</Text>
-        <Text style={compactStyles.heroCopy}>Permanently delete your Side Quest Chess account, profile, progress, proofs, and Clerk sign-in. This cannot be undone.</Text>
+        <Text style={compactStyles.heroCopy}>Permanently delete your Side Quest Chess account, Clerk sign-in, account profile, and saved progress. Previously shared public proof links are not revoked, and public game records remain at Lichess or Chess.com. This cannot be undone.</Text>
         {showDeleteAccount ? (
           <View style={styles.inputStack}>
             <Text style={styles.inputLabel}>Type DELETE MY ACCOUNT to confirm</Text>
@@ -8013,7 +8029,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
             ) : null}
           </View>
           <View style={compactStyles.communityControlsStack}>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={compactStyles.communityChipRow}>
+            <ScrollView horizontal keyboardShouldPersistTaps="handled" showsHorizontalScrollIndicator={false} contentContainerStyle={compactStyles.communityChipRow}>
               {(isSignedOutBrowse ? (["open", "all"] as MultiplayerCommunityFilter[]) : (["open", "all", "joined", "hosted", "finished"] as MultiplayerCommunityFilter[])).map((filter) => (
                 <Pressable key={filter} accessibilityRole="button" accessibilityState={{ selected: multiplayerCommunityFilter === filter }} style={[compactStyles.communityChip, multiplayerCommunityFilter === filter && compactStyles.communityChipActive]} onPress={() => setMultiplayerCommunityFilter(filter)}>
                   <Text style={[compactStyles.communityChipText, multiplayerCommunityFilter === filter && compactStyles.communityChipTextActive]}>{filter === "all" ? "All" : filter === "open" ? "Open" : filter === "joined" ? "Joined" : filter === "hosted" ? "Hosted" : "Finished"}</Text>
@@ -9498,7 +9514,7 @@ function AccountShell({
           <Text style={styles.accountAuthHeroCopy}>Logging in lets Side Quest Chess remember your profile, public chess usernames, active Side Quest, badges, and proof cards.</Text>
           <View style={styles.authLightweightCopy} accessibilityLabel="Lightweight sign-in notes">
             <Text style={styles.authNote}><Text style={styles.authNoteStrong}>Lightweight by design.</Text> We do not need or ask for any Lichess or Chess.com passwords.</Text>
-            <Text style={styles.authNote}>Use a public chess username only. Side Quest Chess checks public games and stores the minimum needed to remember your quests, proof, and Coat of Arms progress.</Text>
+            <Text style={styles.authNote}>Use your public chess username for proof checks. Side Quest Chess also stores the account and app data described in the Privacy Policy to provide profiles, quests, proof, Multiplayer, support, and safety features.</Text>
             <Text style={styles.authNote}>You can browse Side Quests before signing in. Sign in when you want Side Quest Chess to save progress, verify proof, or manage Multiplayer Quests.</Text>
           </View>
         </View>
@@ -9909,7 +9925,7 @@ function ChessUsernameEditor({
         <Text style={styles.inputLabel}>Display name</Text>
         <TextInput
           value={runnerDisplayName}
-          placeholder="e.g. Andreas"
+          placeholder="e.g. Alex"
           placeholderTextColor="rgba(255,247,232,.42)"
           maxLength={60}
           style={styles.textInput}
@@ -10177,7 +10193,7 @@ function FlowStep({ title, body, done = false }: { title: string; body: string; 
 
 
 function getDevTrackerPreviewAccount(account: MobileAccountResponse | null, bootstrap: MobileBootstrap): MobileAccountResponse | null {
-  if ((!__DEV__ && process.env.EXPO_PUBLIC_SQC_MOBILE_PREVIEW_AUTH !== "1") || isAuthenticatedAccount(account)) return account;
+  if (!shouldUseDevTrackerPreview({ isDev: __DEV__, authenticated: isAuthenticatedAccount(account) })) return account;
 
   const active = bootstrap.challenges.find((challenge) => challenge.id === "queen-never-heard-of-her") ?? bootstrap.challenges[0] ?? null;
   const completed = bootstrap.challenges.filter((challenge) => challenge.id !== active?.id).slice(0, 2);
@@ -10187,15 +10203,15 @@ function getDevTrackerPreviewAccount(account: MobileAccountResponse | null, boot
     authenticated: true,
     generatedAt: new Date().toISOString(),
     profile: {
-      displayName: "Andreas",
-      bio: "App review account",
+      displayName: "Preview Player",
+      bio: "Development preview account",
       imageUrl: null,
-      email: "andreas.nordenadler@gmail.com",
+      email: null,
       lastSignInAt: new Date().toISOString(),
     },
     chessAccounts: {
-      lichessUsername: "and72nor",
-      chessComUsername: "and72nor",
+      lichessUsername: "preview_player",
+      chessComUsername: "preview_player",
       hasAny: true,
     },
     progress: {
@@ -10239,8 +10255,8 @@ function getDevTrackerPreviewAccount(account: MobileAccountResponse | null, boot
           { label: "Winner", value: "First to complete all included Side Quests wins. If nobody finishes, best completion progress at the deadline wins." },
         ],
         leaderboardRows: [
-          { rank: "#1", name: "SAM", provider: "lichess · and72nor", progress: "3/4", verified: "3/4 verified", note: "Joined this Multiplayer Side Quest" },
-          { rank: "#2", name: "Andreas", provider: "lichess · and72nor", progress: "2/4", verified: "2/4 verified", note: "You" },
+          { rank: "#1", name: "Jordan", provider: "lichess · jordan_preview", progress: "3/4", verified: "3/4 verified", note: "Joined this Multiplayer Side Quest" },
+          { rank: "#2", name: "Preview Player", provider: "lichess · preview_player", progress: "2/4", verified: "2/4 verified", note: "You" },
         ],
       },
     ],
@@ -10288,7 +10304,7 @@ function getDevTrackerPreviewAccount(account: MobileAccountResponse | null, boot
         ],
         leaderboardRows: [
           { rank: "#1", name: "Greta", provider: "lichess · gretafork", progress: "2/2", verified: "2/2 verified", note: "Joined this Multiplayer Side Quest" },
-          { rank: "#4", name: "Andreas", provider: "lichess · and72nor", progress: "1/2", verified: "1/2 verified", note: "You" },
+          { rank: "#4", name: "Preview Player", provider: "lichess · preview_player", progress: "1/2", verified: "1/2 verified", note: "You" },
         ],
       },
       {
@@ -10331,7 +10347,7 @@ function getDevTrackerPreviewAccount(account: MobileAccountResponse | null, boot
           { label: "Winner", value: "Best verified completion progress at the deadline." },
         ],
         leaderboardRows: [
-          { rank: "#1", name: "Andreas", provider: "lichess · and72nor", progress: "2/2", verified: "2/2 verified", note: "Gold" },
+          { rank: "#1", name: "Preview Player", provider: "lichess · preview_player", progress: "2/2", verified: "2/2 verified", note: "Gold" },
           { rank: "#2", name: "Mira", provider: "lichess · miragambit", progress: "2/2", verified: "2/2 verified", note: "Silver" },
           { rank: "#3", name: "Jon", provider: "chess.com · jonforks", progress: "1/2", verified: "1/2 verified", note: "Bronze" },
         ],
@@ -10354,7 +10370,7 @@ function getDevTrackerPreviewAccount(account: MobileAccountResponse | null, boot
         ],
         leaderboardRows: [
           { rank: "#1", name: "Greta", provider: "lichess · gretafork", progress: "2/2", verified: "2/2 verified", note: "Gold" },
-          { rank: "#2", name: "Andreas", provider: "lichess · and72nor", progress: "1/2", verified: "1/2 verified", note: "Silver" },
+          { rank: "#2", name: "Preview Player", provider: "lichess · preview_player", progress: "1/2", verified: "1/2 verified", note: "Silver" },
           { rank: "#3", name: "Sasha", provider: "chess.com · sashaqueenless", progress: "1/2", verified: "1/2 verified", note: "Bronze" },
         ],
       },
@@ -10376,7 +10392,7 @@ function getDevTrackerPreviewAccount(account: MobileAccountResponse | null, boot
         ],
         leaderboardRows: [
           { rank: "#1", name: "Nils", provider: "lichess · nilsgremlin", progress: "2/2", verified: "2/2 verified", note: "Gold" },
-          { rank: "#2", name: "Andreas", provider: "lichess · and72nor", progress: "1/2", verified: "1/2 verified", note: "Silver" },
+          { rank: "#2", name: "Preview Player", provider: "lichess · preview_player", progress: "1/2", verified: "1/2 verified", note: "Silver" },
           { rank: "#3", name: "Mira", provider: "lichess · miragambit", progress: "1/2", verified: "1/2 verified", note: "Bronze" },
         ],
       },
@@ -10399,7 +10415,7 @@ function getDevTrackerPreviewAccount(account: MobileAccountResponse | null, boot
             questTitles: ["Any Game Counts"],
             leaderboardRows: [
               { rank: "#1", name: "Mira", provider: "lichess · miragambit", progress: "1/1", verified: "1/1 verified", note: "Gold" },
-              { rank: "#2", name: "Andreas", provider: "lichess · and72nor", progress: "1/1", verified: "1/1 verified", note: "Silver" },
+              { rank: "#2", name: "Preview Player", provider: "lichess · preview_player", progress: "1/1", verified: "1/1 verified", note: "Silver" },
               { rank: "#3", name: "Jon", provider: "chess.com · jonforks", progress: "1/1", verified: "1/1 verified", note: "Bronze" },
             ],
           },
@@ -10421,7 +10437,7 @@ function getDevTrackerPreviewAccount(account: MobileAccountResponse | null, boot
             timeLeftLabel: "Finished",
             questTitles: ["No Castle Club"],
             leaderboardRows: [
-              { rank: "#1", name: "Andreas", provider: "lichess · and72nor", progress: "1/1", verified: "1/1 verified", note: "Gold" },
+              { rank: "#1", name: "Preview Player", provider: "lichess · preview_player", progress: "1/1", verified: "1/1 verified", note: "Gold" },
               { rank: "#2", name: "Sasha", provider: "chess.com · sashaqueenless", progress: "1/1", verified: "1/1 verified", note: "Silver" },
               { rank: "#3", name: "Nils", provider: "lichess · nilsgremlin", progress: "0/1", verified: "0/1 verified", note: "Bronze" },
             ],

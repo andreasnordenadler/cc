@@ -131,9 +131,6 @@ export async function buildCompletedCustomPublicProofPath({
 export async function decodePublicProof(token: string | null | undefined): Promise<DecodedPublicProof | null> {
   if (!token || typeof token !== "string") return null;
 
-  const preview = decodePreviewProof(token);
-  if (preview) return preview;
-
   const parts = token.split(".");
   if (parts.length !== 2) return null;
 
@@ -154,35 +151,6 @@ export async function decodePublicProof(token: string | null | undefined): Promi
   } catch {
     return null;
   }
-}
-
-function decodePreviewProof(token: string | null | undefined): DecodedPublicProof | null {
-  if (!token || !token.startsWith("preview-")) return null;
-
-  const challengeId = token.slice("preview-".length);
-  const challenge = getChallengeById(challengeId);
-  if (!challenge) return null;
-
-  return {
-    challenge,
-    payload: {
-      v: 1,
-      challengeId: challenge.id,
-      challengeTitle: challenge.title,
-      badgeName: challenge.badgeIdentity.name,
-      badgeMotif: challenge.badgeIdentity.motif,
-      reward: challenge.reward,
-      summary: `Preview proof accepted for ${challenge.title}.`,
-      checkedAt: "2026-05-24T10:30:00.000Z",
-      completedGameAt: "2026-05-24T10:24:00.000Z",
-      gameId: "preview-proof-game",
-      provider: "lichess",
-      finalPositionFen: "r1bqkbnr/pppp1ppp/2n5/4p3/2B1P3/5N2/PPPP1PPP/RNBQK2R b KQkq - 2 3",
-      lastMoveUci: "f1c4",
-      lastMoveSan: "Bc4",
-      runnerName: "Andreas",
-    },
-  };
 }
 
 export function publicProofImagePath(token: string | null | undefined) {

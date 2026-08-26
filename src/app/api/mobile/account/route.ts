@@ -12,6 +12,7 @@ import { rankGroupQuestParticipants, listPublicGroupQuests, listUserRelatedGroup
 import { getCustomSideQuestBadgeUrl, getCustomSideQuests } from "@/lib/custom-side-quests";
 import { buildCustomQuestStats } from "@/lib/custom-side-quest-activity";
 import { filterBlockedCommunityGroupQuests, getBlockedUserIds } from "@/lib/user-blocking";
+import { containsObjectionablePublicText } from "@/lib/ugc-content-filter";
 import {
   buildAttemptSummary,
   challengeBanner,
@@ -460,7 +461,7 @@ async function listPublicCommunitySideQuests(
         emailAddress: user.primaryEmailAddress?.emailAddress,
       });
       return quests
-        .filter((quest) => quest.lifecycle === "published" && quest.visibility === "public")
+        .filter((quest) => quest.lifecycle === "published" && quest.visibility === "public" && !containsObjectionablePublicText(quest.title, quest.summary))
         .map((quest) => ({ quest, userId: user.id, creatorName: creatorName || "Quest runner" }));
     });
 

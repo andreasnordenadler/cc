@@ -1,3 +1,5 @@
+import { containsObjectionablePublicText } from "./ugc-content-filter";
+
 export type GroupQuestInviteMode = "public" | "unlisted-link" | "private-key";
 export type GroupQuestProviderMode = "both" | "lichess" | "chesscom";
 export type GroupQuestJoinProvider = "lichess" | "chesscom";
@@ -485,6 +487,16 @@ function clerkPageBound(totalCount: unknown) {
     : undefined;
 }
 
+function hasObjectionablePublicGroupQuestText(quest: ServerGroupQuest) {
+  return containsObjectionablePublicText(
+    quest.name,
+    quest.inviteCopy,
+    quest.hostName,
+    ...(quest.customQuestSnapshots ?? []).flatMap((snapshot) => [snapshot.title, snapshot.summary, snapshot.config]),
+    ...quest.participants.flatMap((participant) => [participant.leaderboardName, participant.username]),
+  );
+}
+
 export async function listPublicGroupQuests(
   client: { users: { getUserList: (params: { limit: number; offset?: number; orderBy?: "-created_at" }) => Promise<{ data: ClerkGroupQuestUser[] }> } },
 ) {
@@ -501,6 +513,7 @@ export async function listPublicGroupQuests(
     ...mergeStoredPublicGroupQuestCopies(storedCopies.filter(({ quest }) => !builtInOfficialQuestIds.has(quest.id)))
       .filter((quest) => quest.inviteMode === "public"),
   ]
+    .filter((quest) => !hasObjectionablePublicGroupQuestText(quest))
     .sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt));
 }
 

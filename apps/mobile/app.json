@@ -15,7 +15,11 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.sidequestchess.app",
-      "usesAppleSignIn": true
+      "usesAppleSignIn": true,
+      "config": {
+        "usesNonExemptEncryption": false
+      },
+      "newArchEnabled": true
     },
     "android": {
       "package": "com.sidequestchess.app",

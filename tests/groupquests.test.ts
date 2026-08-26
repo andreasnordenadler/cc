@@ -188,6 +188,36 @@ test("public Community loading prefers the host record over a stale participant 
   assert.deepEqual(listed?.participants.map(({ userId }) => userId), ["teammate"]);
 });
 
+test("public Community loading hides legacy Multiplayer quests with objectionable public metadata", async () => {
+  const safe = buildGroupQuest({ hostUserId: "safe-host", hostName: "Safe Host", name: "Friendly table", inviteMode: "public" });
+  const unsafeName = buildGroupQuest({ hostUserId: "name-host", hostName: "Host", name: "f u c k table", inviteMode: "public" });
+  const unsafeHost = buildGroupQuest({ hostUserId: "unsafe-host", hostName: "sh1t host", name: "Normal table", inviteMode: "public" });
+  const unsafeSnapshot = buildGroupQuest({ hostUserId: "snapshot-host", hostName: "Host", name: "Normal table", inviteMode: "public" });
+  unsafeSnapshot.customQuestSnapshots = [{ id: "legacy-custom", title: "Normal title", summary: "c.u.n.t summary", config: "win" }];
+  const quests = [safe, unsafeName, unsafeHost, unsafeSnapshot];
+  const client = { users: { getUserList: async () => ({
+    data: quests.map((quest) => ({ id: quest.hostUserId, privateMetadata: { sqcGroupQuests: [quest] } })),
+    totalCount: quests.length,
+  }) } };
+
+  const listed = await listPublicGroupQuests(client);
+
+  assert.deepEqual(listed.filter((quest) => !quest.official).map(({ id }) => id), [safe.id]);
+});
+
+test("public Community loading hides legacy Multiplayer quests with objectionable leaderboard names", async () => {
+  const quest = buildGroupQuest({ hostUserId: "host-user", hostName: "Safe Host", name: "Friendly table", inviteMode: "public" });
+  quest.participants = [participant("unsafe-player", { leaderboardName: "f.u.c.k" })];
+  const client = { users: { getUserList: async () => ({
+    data: [{ id: quest.hostUserId, privateMetadata: { sqcGroupQuests: [quest] } }],
+    totalCount: 1,
+  }) } };
+
+  const listed = await listPublicGroupQuests(client);
+
+  assert.equal(listed.some(({ id }) => id === quest.id), false);
+});
+
 test("related quest loading prefers the host record over an earlier participant replica", async () => {
   const canonical = buildGroupQuest({ hostUserId: "host-user", hostName: "Host", name: "Canonical table", inviteMode: "private-key" });
   canonical.id = "related-replica-table";

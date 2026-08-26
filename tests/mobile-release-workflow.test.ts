@@ -102,23 +102,39 @@ test("CI uses a pnpm release whose audit client supports the registry bulk advis
 
 test("pull-request release gate validates iOS and Android native generation without credentials", () => {
   const source = readRepoFile(".github/workflows/mobile-release-gate.yml");
-  const pullRequestJob = source.slice(source.indexOf("  mobile-release-gate:"), source.indexOf("  signed-mobile-release:"));
+  const pullRequestPaths = source.slice(source.indexOf("    paths:"), source.indexOf("  workflow_dispatch:"));
+  const pullRequestJob = source.slice(source.indexOf("  mobile-release-gate:"), source.indexOf("  ios-release-runtime-gate:"));
+
+  assert.match(pullRequestPaths, /scripts\/check-ios-generated-project\.mjs/);
 
   assert.match(pullRequestJob, /expo prebuild --platform ios --no-install/);
   assert.match(pullRequestJob, /expo prebuild --platform android --no-install/);
   assert.match(pullRequestJob, /Generate iOS project from Expo config \(unsigned source gate\)/);
 
   const iosPrebuildIndex = pullRequestJob.indexOf("expo prebuild --platform ios --no-install");
+  const iosVerificationIndex = pullRequestJob.indexOf("node scripts/check-ios-generated-project.mjs");
   const iosCleanupIndex = pullRequestJob.indexOf("rmSync('apps/mobile/ios', { recursive: true, force: true })");
   const androidPrebuildIndex = pullRequestJob.indexOf("expo prebuild --platform android --no-install");
   assert.ok(
-    iosPrebuildIndex < iosCleanupIndex && iosCleanupIndex < androidPrebuildIndex,
-    "generated iOS tree must be removed before Android generation and managed-config checks",
+    iosPrebuildIndex < iosVerificationIndex &&
+      iosVerificationIndex < iosCleanupIndex &&
+      iosCleanupIndex < androidPrebuildIndex,
+    "generated iOS project must be verified before removal, Android generation, and managed-config checks",
   );
   assert.doesNotMatch(
     pullRequestJob,
     /(?:eas(?:-cli)?|fastlane)\s+(?:build|submit|credentials)|expo\s+login|security find-identity|xcodebuild|SQC_(?:ANDROID|IOS)_/i,
   );
+});
+
+test("pull-request release gate compiles and verifies the unsigned iOS Release runtime on macOS", () => {
+  const source = readRepoFile(".github/workflows/mobile-release-gate.yml");
+  const packageJson = JSON.parse(readRepoFile("package.json"));
+
+  assert.match(source, /ios-release-runtime-gate:[\s\S]*runs-on: macos-26/);
+  assert.match(source, /xcodebuild[\s\S]*-configuration Release[\s\S]*CODE_SIGNING_ALLOWED=NO[\s\S]*build/);
+  assert.match(source, /pnpm ios:release:verify-hermes/);
+  assert.equal(packageJson.scripts["ios:release:verify-hermes"], "node scripts/check-ios-release-hermes.mjs");
 });
 
 test("iOS release packet records executable metadata and TestFlight review fields", () => {

@@ -16,6 +16,19 @@ test("privacy policy describes implemented web and mobile account deletion contr
   assert.match(source, /Deleting the account removes the account profile instead/i);
 });
 
+test("account deletion copy distinguishes deleted account data from persistent public proofs", async () => {
+  const privacySource = await readFile(new URL("../src/app/privacy/page.tsx", import.meta.url), "utf8");
+  const mobileSource = await readFile(new URL("../apps/mobile/App.tsx", import.meta.url), "utf8");
+  const webSource = await readFile(new URL("../src/components/delete-account-control.tsx", import.meta.url), "utf8");
+
+  assert.doesNotMatch(mobileSource, /delete your (?:SQC|Side Quest Chess) account, profile, progress, proofs, and Clerk sign-in/i);
+  assert.match(mobileSource, /Previously shared public proof links are not revoked/i);
+  assert.doesNotMatch(webSource, /deletes your (?:SQC|Side Quest Chess) profile, progress, proofs, custom Side Quests/i);
+  assert.match(webSource, /Previously shared public proof links are not revoked/i);
+  assert.match(privacySource, /Public proof links already shared can remain readable independently of the deleted account/i);
+  assert.match(privacySource, /Deleting an account does not revoke those links or remove the underlying public game from Lichess or Chess\.com/i);
+});
+
 test("privacy hero keeps the back link and brand kicker on separate readable rows", async () => {
   const css = await readFile(new URL("../src/app/globals.css", import.meta.url), "utf8");
 

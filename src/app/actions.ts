@@ -12,6 +12,7 @@ import {
 } from "@/lib/analytics";
 import { sanitizeChessUsername, validateChessComUsername, validateLichessUsername } from "@/lib/chess-username-validation";
 import { refreshChessRatingSnapshots } from "@/lib/chess-ratings";
+import { validatePublicProfileText } from "@/lib/mobile-profile-publication";
 import {
   verifyChessComDrawAnyGameAttempt,
   verifyChessComDrawAsBlackAttempt,
@@ -712,6 +713,11 @@ export async function saveRunnerProfile(formData: FormData) {
   const runnerBio = String(formData.get("runnerBio") ?? "").trim().slice(0, 180);
   const lichessUsername = sanitizeChessUsername(formData.get("lichessUsername"));
   const chessComUsername = sanitizeChessUsername(formData.get("chessComUsername"));
+  const profileTextError = validatePublicProfileText(runnerDisplayName, runnerBio);
+
+  if (profileTextError) {
+    throw new Error(profileTextError);
+  }
 
   if (lichessUsername === null || chessComUsername === null) {
     throw new Error("Chess usernames may only use letters, numbers, underscores, or hyphens.");

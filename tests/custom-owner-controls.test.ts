@@ -62,6 +62,16 @@ test("owner state mutation sends persisted quest copy with only Android v339 sta
   assert.equal(destination, `/custom-side-quests/${quest.id}`);
 });
 
+test("owner state mutation preserves the safe objectionable-text correction", async () => {
+  await assert.rejects(
+    saveCustomOwnerState(quest, { lifecycle: "published", visibility: "public" }, async () => Response.json({
+      ok: false,
+      message: "Remove objectionable language before publishing this Community Side Quest.",
+    }, { status: 422 })),
+    /Remove objectionable language before publishing this Community Side Quest\./,
+  );
+});
+
 test("owner duplicate matches Android v339 exact persisted-copy semantics", () => {
   assert.deepEqual(buildCustomOwnerDuplicatePayload({ ...quest, lifecycle: "archived" }), {
     title: "  Queenless sprint   Copy",
@@ -234,6 +244,12 @@ test("owner state action wiring cannot submit unsaved editor copy", async () => 
   assert.match(controls, /runStateMutation\(\{ lifecycle: "published", visibility: persistedVisibility === "public" \? "private" : "public" \}\)/);
   assert.match(controls, /runStateMutation\(\{ lifecycle: "archived", visibility: persistedVisibility \}\)/);
   assert.doesNotMatch(controls, /save\(undefined, \{ lifecycle:/);
+});
+
+test("owner state action displays the safe objectionable-text correction", async () => {
+  const controls = await source("src/components/custom-side-quest-owner-controls.tsx");
+  assert.match(controls, /caught instanceof Error && caught\.message === "Remove objectionable language before publishing this Community Side Quest\."/);
+  assert.match(controls, /setMessage\(caught\.message\)/);
 });
 
 test("later owner failures reset a prior direct-state success to an alert", async () => {
