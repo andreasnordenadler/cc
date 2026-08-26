@@ -1,5 +1,26 @@
 import { expect, test } from "@playwright/test";
 
+test("desktop Home turns the featured quest into a keyboard-ready launch board", async ({ page }) => {
+  for (const width of [1180, 1440, 1920]) {
+    await page.setViewportSize({ width, height: width === 1920 ? 1080 : 900 });
+    await page.goto("/", { waitUntil: "domcontentloaded" });
+
+    const board = page.locator(".sqc-desktop-featured-quest");
+    const alternatives = page.getByRole("navigation", { name: "More recommended Solo Side Quests" });
+    await expect(board).toBeVisible();
+    await expect(alternatives.getByRole("link")).toHaveCount(2);
+    await expect(alternatives.getByRole("link", { name: /Bishop Field Trip/ })).toHaveAttribute("href", "/challenges/bishop-field-trip");
+    await expect(alternatives.getByRole("link", { name: /Early King Walk/ })).toHaveAttribute("href", "/challenges/early-king-walk");
+    await expect.poll(() => board.evaluate((element) => element.scrollHeight <= element.clientHeight)).toBe(true);
+    await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBe(0);
+
+    const primary = page.locator(".sqc-desktop-featured-primary");
+    await primary.focus();
+    await expect(primary).toBeFocused();
+    await expect(primary).toHaveCSS("outline-style", "solid");
+  }
+});
+
 test("desktop Home offers Android-equivalent heroism paths and a working random choice", async ({ page }) => {
   await page.addInitScript(() => {
     Math.random = () => 0;

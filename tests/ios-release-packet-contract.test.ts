@@ -71,8 +71,11 @@ test("iOS release packet records verified signed-out production safety and suppo
 });
 
 test("iOS release packet is bound to the exact current origin main source", () => {
-  assert.match(packet, /Source baseline:\*\* `5aee72552afd8c33496eb536a8bc190032cf7e69` \(`origin\/main`/);
-  assert.match(packet, /Current-baseline local tooling receipt \(`5aee7255`/);
+  assert.match(packet, /Source baseline:\*\* `444539e1a0ffade891ff934e0615efe71d610395` \(`origin\/main`/);
+  assert.match(packet, /Historical source-equivalent local tooling receipt \(`5aee7255`/);
+  assert.match(packet, /Historical source-equivalent Xcode receipt:/);
+  assert.doesNotMatch(packet, /Current-baseline Xcode receipt:/);
+  assert.match(packet, /changes from `5aee7255` through `444539e1`[^\n]*do not touch mobile or native build inputs/i);
   assert.doesNotMatch(packet, /current `origin\/main`[^\n]*`4f62e560`/i);
 });
 
@@ -182,7 +185,7 @@ test("iOS release packet records the current frozen-install Simulator build with
 });
 
 test("iOS release packet fails closed when local disk headroom is insufficient for a fresh native build", () => {
-  assert.match(packet, /2026-08-26[^\n]*less than 1 GiB[^\n]*free disk space/i);
+  assert.match(packet, /2026-08-26[^\n]*about 1\.2 GiB[^\n]*free disk space/i);
   assert.match(packet, /fresh native build[^\n]*blocked[^\n]*disk headroom/i);
   assert.match(packet, /do not delete[^\n]*(?:DerivedData|Simulator)[^\n]*without[^\n]*review/i);
   assert.doesNotMatch(packet, /current-candidate native build[^\n]*passed on 2026-08-26/i);

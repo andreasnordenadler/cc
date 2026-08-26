@@ -457,18 +457,29 @@ function DesktopGuestHome() {
           <p className="sqc-desktop-trust">No chess-site password. No special game mode. One public game and an unreasonable amount of heraldry.</p>
         </div>
         {recommended ? (
-          <Link href={`/challenges/${recommended.id}`} className="sqc-desktop-featured-quest">
-            <span className="sqc-desktop-quest-kicker">A sensible first mistake</span>
-            <div className="sqc-desktop-featured-art" aria-hidden="true">
-              <Image src={toMobileAssetPath(recommended.badgeIdentity.image) ?? mobileAsset.fallbackBadge} alt="" width={224} height={250} priority />
-            </div>
-            <div>
-              <span className="sqc-desktop-difficulty">{recommended.difficulty}</span>
-              <h2>{recommended.title}</h2>
-              <p>{recommended.objective}</p>
-              <strong>Commit to this mistake <span aria-hidden="true">→</span></strong>
-            </div>
-          </Link>
+          <div className="sqc-desktop-featured-quest">
+            <Link href={`/challenges/${recommended.id}`} className="sqc-desktop-featured-primary">
+              <span className="sqc-desktop-quest-kicker">A sensible first mistake</span>
+              <div className="sqc-desktop-featured-art" aria-hidden="true">
+                <Image src={toMobileAssetPath(recommended.badgeIdentity.image) ?? mobileAsset.fallbackBadge} alt="" width={224} height={250} priority />
+              </div>
+              <div className="sqc-desktop-featured-copy">
+                <span className="sqc-desktop-difficulty">{recommended.difficulty}</span>
+                <h2>{recommended.title}</h2>
+                <p>{recommended.objective}</p>
+                <strong>Commit to this mistake <span aria-hidden="true">→</span></strong>
+              </div>
+            </Link>
+            <nav className="sqc-desktop-featured-alternatives" aria-label="More recommended Solo Side Quests">
+              {featuredQuests.slice(1).map((quest) => (
+                <Link key={quest.id} href={`/challenges/${quest.id}`} className="sqc-desktop-featured-alternative">
+                  <span>Next on the board</span>
+                  <strong>{quest.title}</strong>
+                  <small>{quest.difficulty} · {quest.reward} points</small>
+                </Link>
+              ))}
+            </nav>
+          </div>
         ) : null}
       </section>
 
