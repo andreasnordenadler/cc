@@ -477,6 +477,29 @@ test("Solo discovery uses three scan-friendly columns at a standard 1440px deskt
   );
 });
 
+test("Solo discovery compacts its masthead and catalog controls into a desktop command center", () => {
+  const css = readFileSync("src/app/mobile-web.css", "utf8");
+  const standardDesktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1380px)"));
+  const wideDesktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1680px)"));
+
+  assert.match(
+    standardDesktopMedia,
+    /\.sqc-mobile-web\.desktop-solo-discovery\s+\.sqc-catalog-screen\s*\{[^}]*grid-template-columns:\s*190px\s+minmax\(0,\s*1fr\)\s+360px;/,
+    "the desktop catalog switch should share the masthead row instead of adding a phone-style row",
+  );
+  assert.match(standardDesktopMedia, /\.sqc-mobile-web\.desktop-solo-discovery\s+\.sqc-desktop-catalog-intro\s*\{[^}]*grid-column:\s*2\s*\/\s*-1;[^}]*grid-row:\s*1;[^}]*padding-right:\s*0;/);
+  assert.match(standardDesktopMedia, /\.sqc-mobile-web\.desktop-solo-discovery\s+\.sqc-desktop-catalog-intro\s+p\s*\{[^}]*max-width:\s*calc\(100%\s*-\s*384px\);/);
+  assert.match(standardDesktopMedia, /\.sqc-mobile-web\.desktop-solo-discovery\s+\.sqc-solo-brand-tabs\s*\{[^}]*grid-column:\s*3;[^}]*grid-row:\s*1;/);
+  assert.match(
+    standardDesktopMedia,
+    /\.sqc-mobile-web\.desktop-solo-discovery\s+\.sqc-panel\.list\s*\{[^}]*display:\s*grid;[^}]*grid-template-columns:\s*280px\s+minmax\(0,\s*1fr\);/,
+    "catalog count and search should become one horizontal desktop control row",
+  );
+  assert.match(standardDesktopMedia, /\.sqc-mobile-web\.desktop-solo-discovery\s+\.sqc-solo-browser\s*\{[^}]*grid-column:\s*1\s*\/\s*-1;/);
+  assert.match(wideDesktopMedia, /\.sqc-mobile-web\.desktop-solo-discovery\s+\.sqc-catalog-screen\s*\{[^}]*grid-template-columns:\s*190px\s+minmax\(0,\s*1fr\)\s+420px;/);
+  assert.match(wideDesktopMedia, /\.sqc-mobile-web\.desktop-solo-discovery\s+\.sqc-panel\.list\s*\{[^}]*grid-template-columns:\s*300px\s+minmax\(0,\s*1fr\);/);
+});
+
 test("desktop Solo cards expose Android opening hints and an explicit detail affordance without changing mobile rows", () => {
   const html = renderToStaticMarkup(
     createElement(MobileSoloSideQuestsScreen, { challenges: CHALLENGES, signedIn: false }),
