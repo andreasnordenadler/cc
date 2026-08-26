@@ -19,6 +19,11 @@ test("signed-out mobile support provides a direct Crowdler email action", () => 
 test("signed-out mobile support replaces the account-linked composer with the email action", () => {
   assert.match(
     helpSupportModal,
-    /authBridge\.isSignedIn \? \([\s\S]*Something not working\?[\s\S]*accessibilityLabel="Send support message"[\s\S]*\) : \([\s\S]*Email Crowdler AB directly[\s\S]*accessibilityLabel="Email Side Quest Chess support"/,
+    /canComposeSupportMessage \? \([\s\S]*Something not working\?[\s\S]*accessibilityLabel="Send support message"[\s\S]*\) : \([\s\S]*Email Crowdler AB directly[\s\S]*accessibilityLabel="Email Side Quest Chess support"/,
   );
+});
+
+test("signed-out mobile support opens its mail URL through React Native Linking", () => {
+  assert.match(mobileSource, /import \{[\s\S]*\bLinking\b[\s\S]*\} from "react-native"/);
+  assert.match(helpSupportModal, /Linking\.openURL\(url\)/);
 });

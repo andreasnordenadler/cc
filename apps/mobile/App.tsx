@@ -16,6 +16,7 @@ import {
   BackHandler,
   Easing,
   Image,
+  Linking,
   Modal,
   Platform,
   Pressable,

@@ -27,18 +27,18 @@ test("support messages append diagnostics after explicit opt-in", () => {
   );
 });
 
-test("signed-out users are directed to public support instead of a message composer", () => {
+test("signed-out users are directed to direct email instead of a message composer", () => {
   assert.equal(canComposeMobileSupportMessage({ isSignedIn: false, hasSessionTokenGetter: false }), false);
   assert.equal(canComposeMobileSupportMessage({ isSignedIn: false, hasSessionTokenGetter: true }), false);
   assert.equal(canComposeMobileSupportMessage({ isSignedIn: true, hasSessionTokenGetter: false }), false);
   assert.equal(canComposeMobileSupportMessage({ isSignedIn: true, hasSessionTokenGetter: true }), true);
-  assert.match(appSource, /canComposeSupportMessage \? \(<>[\s\S]*Conversation[\s\S]*Send support message[\s\S]*<\/>\) : \(<>[\s\S]*Open public support[\s\S]*<\/>\)}/);
+  assert.match(appSource, /canComposeSupportMessage \? \(<>[\s\S]*Conversation[\s\S]*Send support message[\s\S]*<\/>\) : \(<>[\s\S]*Email support[\s\S]*<\/>\)}/);
 });
 
 test("signed-out users can copy native support diagnostics", () => {
-  const publicSupportAction = appSource.indexOf('accessibilityLabel="Open public support"');
-  const diagnosticCopyAction = appSource.indexOf('accessibilityLabel="Copy support details"', publicSupportAction);
+  const emailSupportAction = appSource.indexOf('accessibilityLabel="Email Side Quest Chess support"');
+  const diagnosticCopyAction = appSource.indexOf('accessibilityLabel="Copy support details"', emailSupportAction);
 
-  assert.notEqual(publicSupportAction, -1);
-  assert.ok(diagnosticCopyAction > publicSupportAction);
+  assert.notEqual(emailSupportAction, -1);
+  assert.ok(diagnosticCopyAction > emailSupportAction);
 });

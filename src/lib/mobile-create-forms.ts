@@ -488,6 +488,9 @@ const allowedClientMessages = [
 export function getCreateErrorMessage(status: number, payload: unknown) {
   if (status === 401) return "Sign in to create a Side Quest.";
   const result = payload && typeof payload === "object" ? payload as { error?: unknown; message?: unknown } : null;
+  if (status >= 400 && status < 500 && result?.error === "objectionable_public_text") {
+    return "Remove objectionable language before publishing this Multiplayer Side Quest.";
+  }
   const candidate = typeof result?.message === "string" ? result.message : typeof result?.error === "string" ? result.error : "";
   if (status >= 400 && status < 500 && allowedClientMessages.some((pattern) => pattern.test(candidate))) return candidate.slice(0, 240);
   return "Could not create this Side Quest right now. Please try again.";

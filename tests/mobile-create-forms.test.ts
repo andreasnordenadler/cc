@@ -1412,6 +1412,13 @@ test("public Custom save explains how to correct objectionable text", () => {
   );
 });
 
+test("public Multiplayer save explains how to correct objectionable text", () => {
+  assert.equal(
+    getCreateErrorMessage(422, { error: "objectionable_public_text" }),
+    "Remove objectionable language before publishing this Multiplayer Side Quest.",
+  );
+});
+
 test("new Custom form renders lifecycle-specific failure feedback for response and network failures", async () => {
   const form = await source("src/components/mobile-custom-create-form.tsx");
 
