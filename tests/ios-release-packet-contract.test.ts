@@ -71,8 +71,11 @@ test("iOS release packet records verified signed-out production safety and suppo
 });
 
 test("iOS release packet is bound to the exact current origin main source", () => {
-  assert.match(packet, /Source baseline:\*\* `5aee72552afd8c33496eb536a8bc190032cf7e69` \(`origin\/main`/);
-  assert.match(packet, /Current-baseline local tooling receipt \(`5aee7255`/);
+  assert.match(packet, /Source baseline:\*\* `444539e1a0ffade891ff934e0615efe71d610395` \(`origin\/main`/);
+  assert.match(packet, /Historical source-equivalent local tooling receipt \(`5aee7255`/);
+  assert.match(packet, /Historical source-equivalent Xcode receipt:/);
+  assert.doesNotMatch(packet, /Current-baseline Xcode receipt:/);
+  assert.match(packet, /changes from `5aee7255` through `444539e1`[^\n]*do not touch mobile or native build inputs/i);
   assert.doesNotMatch(packet, /current `origin\/main`[^\n]*`4f62e560`/i);
 });
 
