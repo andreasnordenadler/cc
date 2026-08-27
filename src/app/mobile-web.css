@@ -5513,6 +5513,10 @@ body::after {
     position: relative;
   }
 
+  .sqc-desktop-menu:not([open]) > nav {
+    display: none;
+  }
+
   .sqc-desktop-menu summary,
   .sqc-desktop-sign-in {
     min-height: 40px;

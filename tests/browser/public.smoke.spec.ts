@@ -77,8 +77,13 @@ test("desktop app menu dismisses with Escape, focus departure, and outside click
   await expectHealthyNavigation(page, "/");
 
   const trigger = page.locator(".sqc-desktop-menu summary");
-  const menu = page.getByRole("navigation", { name: "Desktop main menu" });
+  const menu = page.locator('nav[aria-label="Desktop main menu"]');
   await expect(page.locator(".sqc-desktop-menu")).not.toHaveAttribute("inert", "");
+  await expect(menu).toBeHidden();
+  await expect.poll(() => menu.evaluate((element) => {
+    const rect = element.getBoundingClientRect();
+    return { width: Math.round(rect.width), height: Math.round(rect.height) };
+  })).toEqual({ width: 0, height: 0 });
 
   await trigger.click();
   await expect(menu).toBeVisible();
