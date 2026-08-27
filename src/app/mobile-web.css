@@ -12049,6 +12049,46 @@ body::after {
   }
 }
 
+.sqc-public-proof-receipt-details {
+  display: grid;
+  gap: 0;
+  margin: 0;
+  border-block: 1px solid rgba(255, 247, 232, .12);
+}
+
+.sqc-public-proof-receipt-details > div {
+  display: grid;
+  grid-template-columns: minmax(88px, .42fr) minmax(0, 1fr);
+  gap: 16px;
+  padding: 13px 0;
+  border-bottom: 1px solid rgba(255, 247, 232, .09);
+}
+
+.sqc-public-proof-receipt-details > div:last-child {
+  border-bottom: 0;
+}
+
+.sqc-public-proof-receipt-details dt,
+.sqc-public-proof-receipt-details dd {
+  margin: 0;
+}
+
+.sqc-public-proof-receipt-details dt {
+  color: rgba(255, 247, 232, .56);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+
+.sqc-public-proof-receipt-details dd {
+  min-width: 0;
+  color: var(--paper);
+  font-size: 13px;
+  font-weight: 800;
+  overflow-wrap: anywhere;
+}
+
 /* Public proof keeps one shareable receipt subtree at every width. Desktop adds
    persistent navigation and separates evidence from contextual actions. */
 @media (min-width: 1180px) {
@@ -12164,6 +12204,16 @@ body::after {
     margin: 0;
     color: rgba(255, 247, 232, .7);
     line-height: 1.65;
+  }
+
+  .sqc-mobile-web.desktop-proof .sqc-public-proof-receipt-details > div {
+    grid-template-columns: 104px minmax(0, 1fr);
+    padding: 15px 0;
+  }
+
+  .sqc-mobile-web.desktop-proof .sqc-public-proof-receipt-details dd {
+    font-size: 14px;
+    line-height: 1.45;
   }
 
   .sqc-mobile-web.desktop-proof .sqc-public-proof-command-rail .sqc-action-pair {
