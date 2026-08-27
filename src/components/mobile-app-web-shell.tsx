@@ -1121,7 +1121,7 @@ export function MobileSupportScreen({
 
         <section className="sqc-support-hero" aria-label="Help and Support">
           <span className="sqc-card-eyebrow">Help & Support</span>
-          <h2>How can we help?</h2>
+          <h1>How can we help?</h1>
           <p>New to Side Quest Chess? Start here for Side Quests, proof, chess usernames, and Multiplayer.</p>
         </section>
 
@@ -1129,6 +1129,13 @@ export function MobileSupportScreen({
           <h3>Quick answers</h3>
           <p>Side Quest Chess checks public Lichess or Chess.com games after you choose a Side Quest or join a Multiplayer Side Quest. If proof looks wrong, wait until the game is fully finished and refresh proof.</p>
         </section>
+
+        <nav className="sqc-support-triage-nav" aria-label="Support tasks">
+          <Link href="#support-help-topics">Help topics</Link>
+          <Link href="#support-legal">Legal & privacy</Link>
+          <Link href="#support-contact">Contact</Link>
+          <Link href="#support-report">Report a problem</Link>
+        </nav>
 
         <details className="sqc-support-diagnostics">
           <summary>
@@ -1145,7 +1152,7 @@ export function MobileSupportScreen({
         </details>
       </div>
 
-      <section className="sqc-support-row-list" aria-label="Help topics">
+      <section id="support-help-topics" className="sqc-support-row-list" aria-label="Help topics">
         <header className="sqc-support-directory-head">
           <span className="sqc-card-eyebrow">Five essentials</span>
           <h2>Help directory</h2>
@@ -1161,7 +1168,7 @@ export function MobileSupportScreen({
         ))}
       </section>
 
-      <section className="sqc-support-card sqc-support-legal" aria-label="Legal and privacy">
+      <section id="support-legal" className="sqc-support-card sqc-support-legal" aria-label="Legal and privacy">
         <span className="sqc-card-eyebrow">Legal & privacy</span>
         <p>Read the Privacy Policy, support notes, or the Terms of Use. Side Quest Chess never asks for your Lichess or Chess.com password. The Privacy Policy explains the account and app data used to provide the service.</p>
         <div className="sqc-support-link-row">
@@ -1171,7 +1178,7 @@ export function MobileSupportScreen({
         </div>
       </section>
 
-      <section className="sqc-support-card sqc-support-contact" aria-label="Contact Side Quest Chess support">
+      <section id="support-contact" className="sqc-support-card sqc-support-contact" aria-label="Contact Side Quest Chess support">
         <span className="sqc-card-eyebrow">Contact</span>
         <h3>Crowdler AB</h3>
         <p>Email <a href="mailto:sam@crowdler.com">sam@crowdler.com</a> for product, account, privacy, or safety support.</p>
@@ -1179,9 +1186,9 @@ export function MobileSupportScreen({
       </section>
 
       {signedIn ? (
-        <MobileSupportComposer key={reportContext?.returnPath ?? "support"} signedIn initialMessages={supportMessages} accountContext={accountContext} initialMessage={reportContext?.initialMessage} />
+        <MobileSupportComposer key={reportContext?.returnPath ?? "support"} id="support-report" signedIn initialMessages={supportMessages} accountContext={accountContext} initialMessage={reportContext?.initialMessage} />
       ) : (
-        <section className="sqc-support-card sqc-support-report" aria-label="Report a problem">
+        <section id="support-report" className="sqc-support-card sqc-support-report" aria-label="Report a problem">
           <span className="sqc-card-eyebrow">{reportContext ? reportContext.type === "community-solo" ? "Report Community Solo Side Quest" : "Report Community Multiplayer Side Quest" : "Report a problem"}</span>
           {reportContext ? <>
             <h3>{reportContext.title}</h3>

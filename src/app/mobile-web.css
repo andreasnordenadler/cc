@@ -2247,7 +2247,7 @@ body::after {
   text-align: center;
 }
 
-.sqc-support-hero h2 {
+.sqc-support-hero :is(h1, h2) {
   margin: 0;
   color: var(--paper);
   font-size: 30px;
@@ -5333,6 +5333,10 @@ body::after {
 }
 
 .sqc-desktop-account-intro {
+  display: none;
+}
+
+.sqc-support-triage-nav {
   display: none;
 }
 
@@ -10626,12 +10630,60 @@ body::after {
     text-align: left;
   }
 
-  .sqc-mobile-web.desktop-support .sqc-support-hero h2 {
+  .sqc-mobile-web.desktop-support .sqc-support-hero h1 {
+    margin: 0;
     font-family: ui-serif, Georgia, Cambria, "Times New Roman", serif;
-    font-size: 30px;
+    font-size: 38px;
+    line-height: .96;
+    text-wrap: balance;
   }
 
   .sqc-mobile-web.desktop-support .sqc-support-hero p { width: auto; }
+
+  .sqc-mobile-web.desktop-support .sqc-support-triage-nav {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 7px;
+  }
+
+  .sqc-mobile-web.desktop-support .sqc-support-triage-nav a {
+    min-height: 38px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 8px 11px;
+    border: 1px solid rgba(255, 247, 232, .11);
+    border-radius: 12px;
+    background: rgba(255, 247, 232, .045);
+    color: rgba(255, 247, 232, .78);
+    font-size: 11px;
+    font-weight: 900;
+    text-decoration: none;
+    transition: border-color 150ms ease, background 150ms ease, color 150ms ease, transform 150ms ease;
+  }
+
+  .sqc-mobile-web.desktop-support .sqc-support-triage-nav a::after {
+    content: "↘";
+    color: var(--gold);
+  }
+
+  .sqc-mobile-web.desktop-support .sqc-support-triage-nav a:hover,
+  .sqc-mobile-web.desktop-support .sqc-support-triage-nav a:focus-visible {
+    border-color: rgba(245, 200, 106, .48);
+    background: rgba(245, 200, 106, .1);
+    color: var(--paper);
+    transform: translateY(-1px);
+  }
+
+  .sqc-mobile-web.desktop-support .sqc-support-triage-nav a:focus-visible {
+    outline: 3px solid rgba(245, 200, 106, .84);
+    outline-offset: 2px;
+  }
+
+  .sqc-mobile-web.desktop-support :is(#support-help-topics, #support-legal, #support-contact, #support-report) {
+    scroll-margin-top: 156px;
+  }
 
   .sqc-mobile-web.desktop-support .sqc-support-quick,
   .sqc-mobile-web.desktop-support .sqc-support-diagnostics {
@@ -12214,6 +12266,11 @@ body::after {
   }
 
   .sqc-mobile-web.desktop-support .sqc-support-row {
+    transition: none !important;
+    transform: none !important;
+  }
+
+  .sqc-support-triage-nav a {
     transition: none !important;
     transform: none !important;
   }
