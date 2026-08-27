@@ -2017,7 +2017,7 @@ test("Help and Support uses persistent desktop navigation without duplicating it
   assert.match(html, /<a[^>]*aria-current="page"[^>]*href="\/support"><span[^>]*><\/span>Help &amp; Support<\/a>/);
   assert.equal(html.match(/aria-label="Help topics"/g)?.length, 1, "desktop and mobile share one support-content subtree");
   assert.doesNotMatch(html, /sqc-desktop-support-intro/, "desktop composition must not invent support content beyond the Android contract");
-  assert.equal(html.match(/>How can we help\?<\/h2>/g)?.length, 1, "the Android support heading remains the single visible content authority");
+  assert.equal(html.match(/>How can we help\?<\/h1>/g)?.length, 1, "the Android support heading remains the single visible content authority");
 });
 
 test("Help and Support gives every desktop help topic a direct next destination without changing mobile", () => {

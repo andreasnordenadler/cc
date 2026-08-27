@@ -13,11 +13,13 @@ export type MobileWebSupportMessage = {
 const SUPPORT_NOTE_MAX_LENGTH = 900;
 
 export function MobileSupportComposer({
+  id,
   signedIn,
   initialMessages,
   accountContext,
   initialMessage = "",
 }: {
+  id?: string;
   signedIn: boolean;
   initialMessages: MobileWebSupportMessage[];
   accountContext: WebSupportAccountContext | null;
@@ -93,7 +95,7 @@ export function MobileSupportComposer({
   }
 
   return (
-    <section className="sqc-support-card sqc-support-report" aria-label="Report a problem">
+    <section id={id} className="sqc-support-card sqc-support-report" aria-label="Report a problem">
       <span className="sqc-card-eyebrow">Report a problem</span>
       <p>Something not working? Send a short note with what you tried and what happened. We can reply here if we need more details.</p>
 
