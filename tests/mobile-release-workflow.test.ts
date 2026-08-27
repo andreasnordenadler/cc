@@ -102,6 +102,7 @@ test("CI uses a pnpm release whose audit client supports the registry bulk advis
 
 test("pull-request release gate validates iOS and Android native generation without credentials", () => {
   const source = readRepoFile(".github/workflows/mobile-release-gate.yml");
+  const releaseScript = readRepoFile("scripts/mobile-release.mjs");
   const pullRequestPaths = source.slice(source.indexOf("    paths:"), source.indexOf("  workflow_dispatch:"));
   const pullRequestJob = source.slice(source.indexOf("  mobile-release-gate:"), source.indexOf("  ios-release-runtime-gate:"));
 
@@ -115,12 +116,20 @@ test("pull-request release gate validates iOS and Android native generation with
   const iosVerificationIndex = pullRequestJob.indexOf("node scripts/check-ios-generated-project.mjs");
   const iosCleanupIndex = pullRequestJob.indexOf("rmSync('apps/mobile/ios', { recursive: true, force: true })");
   const androidPrebuildIndex = pullRequestJob.indexOf("expo prebuild --platform android --no-install");
-  assert.ok(
-    iosPrebuildIndex < iosVerificationIndex &&
-      iosVerificationIndex < iosCleanupIndex &&
-      iosCleanupIndex < androidPrebuildIndex,
-    "generated iOS project must be verified before removal, Android generation, and managed-config checks",
+  const initialDoctorIndex = pullRequestJob.indexOf("pnpm mobile:doctor");
+  const generatedReleaseCheckIndex = pullRequestJob.indexOf(
+    "node scripts/mobile-release.mjs --skip-build --skip-doctor",
   );
+  assert.ok(
+    initialDoctorIndex < iosPrebuildIndex &&
+      iosPrebuildIndex < iosVerificationIndex &&
+      iosVerificationIndex < iosCleanupIndex &&
+      iosCleanupIndex < androidPrebuildIndex &&
+      androidPrebuildIndex < generatedReleaseCheckIndex,
+    "Expo Doctor must run on managed source before generated native projects, then the generated release check must reuse that result",
+  );
+  assert.match(releaseScript, /const shouldSkipDoctor = args\.has\("--skip-doctor"\)/);
+  assert.match(releaseScript, /if \(!shouldSkipDoctor\) \{\s*run\("pnpm", \["mobile:doctor"\]\);\s*\}/);
   assert.doesNotMatch(
     pullRequestJob,
     /(?:eas(?:-cli)?|fastlane)\s+(?:build|submit|credentials)|expo\s+login|security find-identity|xcodebuild|SQC_(?:ANDROID|IOS)_/i,
