@@ -83,6 +83,17 @@ test("wide Community Solo detail uses the desktop canvas without inflating the t
   expect(wideGeometry.overflow).toBe(0);
   await expect(readingPanel).toBeVisible();
   await expect(taskRail).toBeVisible();
+
+  const desktopActionFlow = await taskRail.locator('[aria-label="Community Solo Side Quest actions"]').evaluate((actions) => {
+    return [...actions.querySelectorAll<HTMLElement>('a[href], button:not([disabled])')].map((action) => ({
+      label: action.textContent?.trim() ?? "",
+      top: action.getBoundingClientRect().top,
+    }));
+  });
+  expect(desktopActionFlow.length).toBeGreaterThanOrEqual(5);
+  for (let index = 1; index < desktopActionFlow.length; index += 1) {
+    expect(desktopActionFlow[index].top).toBeGreaterThanOrEqual(desktopActionFlow[index - 1].top);
+  }
 });
 
 test("mobile Community Solo detail keeps the single app flow", async ({ page }) => {
