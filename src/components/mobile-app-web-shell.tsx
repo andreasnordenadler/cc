@@ -1516,26 +1516,28 @@ export function MobileCommunitySideQuestDetailScreen({
         </section>
       </div>
 
-      <section className="sqc-multiplayer-score-grid" aria-label="Community Solo Side Quest summary">
-        <div>
-          <span>Solo use</span>
-          <strong>{totalSolo || 0}</strong>
-        </div>
-        <div>
-          <span>Completed</span>
-          <strong>{quest.stats.soloCompletions || 0}</strong>
-        </div>
-        <div>
-          <span>Multiplayer</span>
-          <strong>{quest.stats.multiplayerLineups || 0}</strong>
-        </div>
-      </section>
+      <div className="sqc-community-detail-support">
+        <section className="sqc-multiplayer-score-grid" aria-label="Community Solo Side Quest summary">
+          <div>
+            <span>Solo use</span>
+            <strong>{totalSolo || 0}</strong>
+          </div>
+          <div>
+            <span>Completed</span>
+            <strong>{quest.stats.soloCompletions || 0}</strong>
+          </div>
+          <div>
+            <span>Multiplayer</span>
+            <strong>{quest.stats.multiplayerLineups || 0}</strong>
+          </div>
+        </section>
 
-      <section className="sqc-native-card sqc-multiplayer-native-card">
-        <span className="sqc-card-eyebrow">Creator</span>
-        <h2>Made by {quest.creatorName}</h2>
-        <p>Browse more public Side Quests from this creator when available.</p>
-      </section>
+        <section className="sqc-native-card sqc-multiplayer-native-card">
+          <span className="sqc-card-eyebrow">Creator</span>
+          <h2>Made by {quest.creatorName}</h2>
+          <p>Browse more public Side Quests from this creator when available.</p>
+        </section>
+      </div>
 
       <div className="sqc-community-task-rail">
         {completed || activeForViewer ? (

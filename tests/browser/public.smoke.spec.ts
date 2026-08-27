@@ -618,15 +618,22 @@ test("official Solo detail switches from the mobile flow to one desktop action w
 
 test("Community Solo detail switches from the mobile flow to one desktop task workspace", async ({ page }) => {
   await page.setViewportSize({ width: 1179, height: 900 });
-  await expectHealthyNavigation(page, "/challenges/community/seed-castle-never-heard-of-it-05-1");
+  await expectHealthyNavigation(page, "/community-side-quests");
+  const firstCommunityQuest = page.locator('a.sqc-app-row-main[href^="/challenges/community/"]').first();
+  await expect(firstCommunityQuest).toBeVisible();
+  const detailHref = await firstCommunityQuest.getAttribute("href");
+  expect(detailHref).toBeTruthy();
+  await expectHealthyNavigation(page, detailHref!);
 
   const detail = page.locator(".sqc-community-detail-screen");
   const readingPanel = detail.locator(".sqc-community-reading-panel");
+  const supportDeck = detail.locator(".sqc-community-detail-support");
   const share = page.getByRole("button", { name: "Share Community Solo Side Quest" });
   await expect(page.getByLabel("Close screen")).toBeVisible();
   await expect(page.getByRole("navigation", { name: "Desktop shortcuts" })).toBeHidden();
   await expect(share).toHaveCount(1);
   await expect(readingPanel).toHaveCSS("display", "contents");
+  await expect(supportDeck).toHaveCSS("display", "contents");
 
   await page.setViewportSize({ width: 1180, height: 900 });
   await expect(page.getByLabel("Close screen")).toBeHidden();
@@ -638,8 +645,11 @@ test("Community Solo detail switches from the mobile flow to one desktop task wo
     const style = getComputedStyle(element);
     const taskRail = element.querySelector(".sqc-community-task-rail");
     const readingPanel = element.querySelector<HTMLElement>(".sqc-community-reading-panel");
+    const supportDeck = element.querySelector<HTMLElement>(".sqc-community-detail-support");
+    const supportCards = supportDeck ? Array.from(supportDeck.children) as HTMLElement[] : [];
     const readingSections = readingPanel ? Array.from(readingPanel.children) as HTMLElement[] : [];
     const readingRect = readingPanel?.getBoundingClientRect();
+    const supportRects = supportCards.map((card) => card.getBoundingClientRect());
     return {
       width: Math.round(rect.width),
       columns: style.gridTemplateColumns.split(" ").filter(Boolean).length,
@@ -652,6 +662,12 @@ test("Community Solo detail switches from the mobile flow to one desktop task wo
         return sectionRect.left >= readingRect.left && sectionRect.right <= readingRect.right;
       }) : false,
       readingDividerStyle: readingSections[1] ? getComputedStyle(readingSections[1]).borderTopStyle : null,
+      supportDisplay: supportDeck ? getComputedStyle(supportDeck).display : null,
+      supportColumns: supportDeck ? getComputedStyle(supportDeck).gridTemplateColumns.split(" ").filter(Boolean).length : 0,
+      supportCardCount: supportCards.length,
+      supportCardsAligned: supportRects.length === 2
+        && Math.abs(supportRects[0].top - supportRects[1].top) < 1
+        && Math.abs(supportRects[0].bottom - supportRects[1].bottom) < 1,
       overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
     };
   });
@@ -663,6 +679,10 @@ test("Community Solo detail switches from the mobile flow to one desktop task wo
   expect(geometry.readingSectionCount).toBe(2);
   expect(geometry.readingSectionsInsidePanel).toBe(true);
   expect(geometry.readingDividerStyle).toBe("solid");
+  expect(geometry.supportDisplay).toBe("grid");
+  expect(geometry.supportColumns).toBe(2);
+  expect(geometry.supportCardCount).toBe(2);
+  expect(geometry.supportCardsAligned).toBe(true);
   expect(geometry.overflow).toBe(0);
 });
 
