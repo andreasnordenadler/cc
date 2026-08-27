@@ -41,7 +41,7 @@ test("desktop quest briefing renders only for an incomplete quest that is not ac
   assert.equal(activeAndCompleted, "");
 });
 
-test("desktop available quest puts the primary decision before supporting briefing", () => {
+test("desktop available quest keeps one primary rail decision beside the catalog navigator", () => {
   const css = readFileSync("src/app/mobile-web.css", "utf8");
   const page = readFileSync("src/app/challenges/[id]/page.tsx", "utf8");
   const sectionStart = css.indexOf("/* Official detail keeps the Android content");
@@ -62,7 +62,9 @@ test("desktop available quest puts the primary decision before supporting briefi
   assert.notEqual(actionsIndex, -1);
   assert.notEqual(briefingIndex, -1);
   assert.ok(actionsIndex < briefingIndex);
-  assert.match(desktopOfficialDetail, /\.sqc-official-available-action-card\s*>\s*\.sqc-action-pair\s*\{[^}]*grid-template-columns:\s*repeat\(2,\s*minmax\(0,\s*1fr\)\);/);
+  assert.match(desktopOfficialDetail, /\.sqc-official-available-action-card\s*>\s*\.sqc-action-pair\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\);/);
+  assert.match(desktopOfficialDetail, /\.sqc-official-available-action-card\s*>\s*\.sqc-action-pair\s*>\s*\.sqc-secondary-action\s*\{[^}]*display:\s*none;/);
+  assert.match(desktopOfficialDetail, /\.sqc-official-available-action-card\s*>\s*\.sqc-action-pair\s*>\s*:not\(\.sqc-secondary-action\)\s*\{[^}]*width:\s*100%;/);
   assert.doesNotMatch(desktopOfficialDetail, /\.sqc-proof-action-card\s*>\s*:(?:is\()?\.sqc-card-eyebrow/);
   assert.doesNotMatch(desktopOfficialDetail, /grid-template-areas:\s*"eyebrow"/);
 });

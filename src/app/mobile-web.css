@@ -8391,7 +8391,16 @@ body::after {
   }
 
   .sqc-mobile-web.desktop-official-detail .sqc-official-available-action-card > .sqc-action-pair {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    max-width: none;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .sqc-mobile-web.desktop-official-detail .sqc-official-available-action-card > .sqc-action-pair > .sqc-secondary-action {
+    display: none;
+  }
+
+  .sqc-mobile-web.desktop-official-detail .sqc-official-available-action-card > .sqc-action-pair > :not(.sqc-secondary-action) {
+    width: 100%;
   }
 
   .sqc-mobile-web.desktop-official-detail .sqc-quest-command-rail > .sqc-community-share-actions {

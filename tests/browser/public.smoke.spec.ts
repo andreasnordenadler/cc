@@ -151,9 +151,9 @@ test("official Solo command rail keeps responsive reading order and control iden
   await page.setViewportSize({ width: 1180, height: 900 });
   await expect.poll(labels).toEqual(["Back to list", "Sign in", "Share public link", "Copy public link"]);
   await expect(share).toBeFocused();
-  await rail.getByRole("link", { name: "Back to list" }).focus();
-  await page.keyboard.press("Tab");
-  await expect(rail.getByRole("link", { name: "Sign in", exact: true })).toBeFocused();
+  await expect(page.getByRole("navigation", { name: "Browse official Solo Side Quests" }).getByRole("link", { name: "All Solo Side Quests" })).toBeVisible();
+  await expect(rail.getByRole("link", { name: "Back to list" })).toBeHidden();
+  await rail.getByRole("link", { name: "Sign in", exact: true }).focus();
   await page.keyboard.press("Tab");
   await expect(share).toBeFocused();
   await page.keyboard.press("Tab");
@@ -568,10 +568,14 @@ test("official Solo detail switches from the mobile flow to one desktop action w
   const commandRail = detail.locator(":scope > .sqc-quest-command-rail");
   const shareActions = commandRail.locator(":scope > .sqc-community-share-actions");
   const briefing = detail.locator(".sqc-desktop-quest-briefing");
+  const actionCard = detail.locator(".sqc-proof-action-card");
+  const backToList = actionCard.getByRole("link", { name: "Back to list", exact: true });
+  const signIn = actionCard.getByRole("link", { name: "Sign in", exact: true });
   await expect(page.getByLabel("Close screen")).toBeVisible();
   await expect(page.getByRole("navigation", { name: "Desktop shortcuts" })).toBeHidden();
   await expect(briefing).toBeHidden();
-  await expect(detail.locator(".sqc-proof-action-card").getByRole("link", { name: "Sign in", exact: true })).toHaveCount(1);
+  await expect(backToList).toBeVisible();
+  await expect(signIn).toHaveCount(1);
   await expect(shareActions).toHaveCSS("grid-template-columns", /\d+px/);
   const mobileShareColumnCount = await shareActions.evaluate((element) => getComputedStyle(element).gridTemplateColumns.split(" ").filter(Boolean).length);
   expect(mobileShareColumnCount).toBe(1);
@@ -586,7 +590,9 @@ test("official Solo detail switches from the mobile flow to one desktop action w
   await expect(briefing.getByText("4", { exact: true })).toBeVisible();
   await expect(briefing.getByText("Proof", { exact: true })).toBeVisible();
   await expect(briefing.getByText("Automatic", { exact: true })).toBeVisible();
-  await expect(detail.locator(".sqc-proof-action-card").getByRole("link", { name: "Sign in", exact: true })).toHaveCount(1);
+  await expect(page.getByRole("navigation", { name: "Browse official Solo Side Quests" }).getByRole("link", { name: "All Solo Side Quests" })).toBeVisible();
+  await expect(backToList).toBeHidden();
+  await expect(signIn).toBeVisible();
 
   const geometry = await detail.evaluate((element) => {
     const rect = element.getBoundingClientRect();
@@ -614,6 +620,20 @@ test("official Solo detail switches from the mobile flow to one desktop action w
   expect(geometry.shareButtonHeights.every((height) => height >= 46)).toBe(true);
   expect(geometry.briefingColumns).toBe(3);
   expect(geometry.overflow).toBe(0);
+
+  await page.setViewportSize({ width: 1440, height: 900 });
+  const actionWidths = await actionCard.evaluate((element) => {
+    const card = element.getBoundingClientRect();
+    const pair = element.querySelector<HTMLElement>(".sqc-action-pair")!.getBoundingClientRect();
+    const primary = element.querySelector<HTMLElement>(".sqc-primary-action")!.getBoundingClientRect();
+    return {
+      cardWidth: Math.round(card.width),
+      pairWidth: Math.round(pair.width),
+      primaryWidth: Math.round(primary.width),
+    };
+  });
+  expect(actionWidths.pairWidth).toBeGreaterThanOrEqual(actionWidths.cardWidth - 34);
+  expect(actionWidths.primaryWidth).toBe(actionWidths.pairWidth);
 });
 
 test("Community Solo detail switches from the mobile flow to one desktop task workspace", async ({ page }) => {
