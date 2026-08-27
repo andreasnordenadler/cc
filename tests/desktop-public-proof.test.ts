@@ -1,6 +1,9 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
+import React from "react";
+import { renderToStaticMarkup } from "react-dom/server";
+import PublicProofReceiptDetails, { buildPublicProofReceiptDetails } from "../src/components/public-proof-receipt-details";
 
 test("public proof receipt becomes a desktop evidence workspace at the established boundary", () => {
   const page = readFileSync("src/app/proof/[token]/page.tsx", "utf8");
@@ -45,4 +48,52 @@ test("public proof preserves one functional share and browse subtree across resp
   assert.equal(page.match(/href="\/side-quests"/g)?.length, 1);
   assert.match(page, /aria-label="Victory scroll"/);
   assert.match(page, /<h1>\{payload\.challengeTitle\}<\/h1>/);
+});
+
+test("public proof receipt exposes the Android proof facts without inventing missing data", () => {
+  const details = buildPublicProofReceiptDetails({
+    v: 1,
+    challengeId: "back-rank-goblin",
+    challengeTitle: "Back Rank Goblin",
+    badgeName: "Goblin Crown",
+    badgeMotif: "♞",
+    reward: 120,
+    summary: "Passed all checks.",
+    provider: "lichess",
+    gameId: "abc123",
+    lastMoveSan: "Qh8#",
+    lastMoveUci: "h7h8q",
+    completedGameAt: "2026-08-27T19:42:00.000Z",
+  });
+
+  assert.deepEqual(details, [
+    { label: "Game", value: "Lichess · abc123" },
+    { label: "Final move", value: "Qh8#" },
+    { label: "Completed", value: "Aug 27, 2026, 7:42 PM UTC" },
+    { label: "Public proof", value: "Canonical proof link available" },
+  ]);
+
+  const missing = renderToStaticMarkup(React.createElement(PublicProofReceiptDetails, {
+    payload: {
+      v: 1,
+      challengeId: "legacy",
+      challengeTitle: "Legacy proof",
+      badgeName: "Legacy crest",
+      badgeMotif: "♞",
+      reward: 100,
+      summary: "Completion saved by Side Quest Chess.",
+    },
+  }));
+
+  assert.match(missing, /Game<\/dt><dd>Side Quest Chess verifier<\/dd>/);
+  assert.match(missing, /Final move<\/dt><dd>Final move not attached<\/dd>/);
+  assert.match(missing, /Completed<\/dt><dd>Completion time not attached<\/dd>/);
+  assert.doesNotMatch(missing, /undefined|Invalid Date/);
+});
+
+test("public proof keeps one receipt detail subtree across desktop and mobile", () => {
+  const page = readFileSync("src/app/proof/[token]/page.tsx", "utf8");
+
+  assert.equal(page.match(/<PublicProofReceiptDetails/g)?.length, 1);
+  assert.match(page, /<PublicProofReceiptDetails payload=\{payload\}\s*\/>/);
 });

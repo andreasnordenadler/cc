@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import MobileAppWebShell from "@/components/mobile-app-web-shell";
 import ProofImage from "@/components/proof-image";
+import PublicProofReceiptDetails from "@/components/public-proof-receipt-details";
 import PublicProofShareControls from "@/components/public-proof-share-controls";
 import { decodePublicProof, publicProofImagePath } from "@/lib/proof-share";
 
@@ -75,6 +76,7 @@ export default async function PublicProofPage({
           <span className="sqc-card-eyebrow">Receipt details</span>
           <h2>Latest verified proof</h2>
           <p>The app keeps the same proof receipt data as your Side Quest Chess account: provider, game reference, final move, completion time, and canonical proof link when available.</p>
+          <PublicProofReceiptDetails payload={payload} />
           <div className="sqc-action-pair one-or-two">
             <PublicProofShareControls
               token={token}
