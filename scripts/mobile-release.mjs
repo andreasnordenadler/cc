@@ -28,6 +28,7 @@ const getArg = (name) => {
 
 const shouldPublishGithub = args.has("--github-release");
 const shouldSkipBuild = args.has("--skip-build");
+const shouldSkipDoctor = args.has("--skip-doctor");
 const shouldPrepare = args.has("--prepare");
 const explicitVersionName = getArg("--version-name");
 const explicitVersionCode = getArg("--version-code");
@@ -142,7 +143,9 @@ if (!shouldSkipBuild) {
 disableAndroidBackup();
 
 run("node", ["scripts/check-production-audit.mjs"]);
-run("pnpm", ["mobile:doctor"]);
+if (!shouldSkipDoctor) {
+  run("pnpm", ["mobile:doctor"]);
+}
 run("pnpm", ["--dir", "apps/mobile", "typecheck"]);
 run("pnpm", ["lint", "--", "apps/mobile/App.tsx", "apps/mobile/src/api/sqc.ts", "apps/mobile/src/types/sqc.ts"]);
 run("pnpm", ["quest:release-gate"]);
