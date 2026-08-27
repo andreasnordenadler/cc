@@ -1417,7 +1417,7 @@ test("Community Solo detail offers desktop contextual wayfinding before the ques
   assert.match(mobileCss, /\.sqc-community-detail-wayfinding\s*\{[^}]*display:\s*none;/, "mobile keeps its existing detail composition below the desktop media query");
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-community-detail\s+\.sqc-community-detail-wayfinding\s*\{[^}]*grid-column:\s*1\s*\/\s*-1;[^}]*display:\s*flex;/);
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-community-detail\s+\.sqc-community-detail-hero\s*\{[^}]*grid-row:\s*2;/);
-  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-community-detail\s+\.sqc-community-task-rail\s*\{[^}]*grid-row:\s*3\s*\/\s*span\s*4;/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-community-detail\s+\.sqc-community-task-rail\s*\{[^}]*grid-row:\s*3\s*\/\s*span\s*2;/);
   assert.match(css, /@media\s*\(prefers-reduced-motion:\s*reduce\)[\s\S]*?\.sqc-mobile-web\.desktop-community-detail\s+\.sqc-community-detail-wayfinding\s*>\s*a\s*\{[^}]*transition:\s*none\s*!important;[^}]*transform:\s*none\s*!important;/);
 });
 
@@ -1431,7 +1431,7 @@ test("Community Solo detail becomes a wide reading workspace only at the desktop
   assert.match(css, /\.sqc-mobile-web\.desktop-community-detail\s+\.sqc-community-detail-hero\s*\{[^}]*grid-column:\s*1\s*\/\s*-1;/);
   assert.match(css, /\.sqc-mobile-web\.desktop-community-detail\s+\.sqc-community-detail-hero\s+\.sqc-active-detail-title-row\s*\{[^}]*width:\s*100%;[^}]*max-width:\s*720px;[^}]*justify-content:\s*space-between;/);
   assert.match(css, /\.sqc-mobile-web\.desktop-community-detail\s+\.sqc-community-detail-hero\s+\.sqc-active-detail-title-row\s+h1\s*\{[^}]*min-width:\s*0;/);
-  assert.match(css, /\.sqc-mobile-web\.desktop-community-detail\s+\.sqc-community-task-rail\s*\{[^}]*grid-column:\s*2;[^}]*grid-row:\s*3\s*\/\s*span\s*4;[^}]*position:\s*sticky;/);
+  assert.match(css, /\.sqc-mobile-web\.desktop-community-detail\s+\.sqc-community-task-rail\s*\{[^}]*grid-column:\s*2;[^}]*grid-row:\s*3\s*\/\s*span\s*2;[^}]*position:\s*sticky;/);
   assert.match(css, /\.sqc-mobile-web\.desktop-community-detail\s+\.sqc-multiplayer-score-grid\s*\{[^}]*grid-column:\s*1;/);
 });
 
@@ -1467,6 +1467,40 @@ test("Community Solo desktop groups briefing and conditions into one reading pan
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-community-detail\s+\.sqc-community-reading-panel\s*\{[^}]*grid-column:\s*1;[^}]*display:\s*grid;[^}]*border:\s*1px\s+solid/);
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-community-detail\s+\.sqc-community-reading-panel\s*>\s*\.sqc-native-card\s*\{[^}]*border:\s*0;[^}]*background:\s*transparent;[^}]*box-shadow:\s*none;/);
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-community-detail\s+\.sqc-community-reading-panel\s*>\s*\.sqc-native-card\s*\+\s*\.sqc-native-card\s*\{[^}]*border-top:\s*1px\s+solid/);
+});
+
+test("Community Solo desktop compacts activity and creator context into one support deck without changing mobile order", () => {
+  const html = renderToStaticMarkup(
+    createElement(MobileCommunitySideQuestDetailScreen, {
+      quest: {
+        id: "community-quest",
+        title: "Castle? Never Heard Of It",
+        summary: "Finish a game without castling.",
+        creatorName: "Nora Skewer",
+        creatorBrowsePath: "/community-side-quests?creator=nora-skewer#creator-nora-skewer",
+        ruleLabel: "No castling",
+        ruleDetails: ["Finish without castling."],
+        stats: {
+          soloAttempts: 3,
+          soloSelections: 1,
+          soloCompletions: 1,
+          multiplayerLineups: 2,
+          multiplayerAttempts: 0,
+          multiplayerFulfillments: 0,
+        },
+      },
+      signedIn: false,
+    }),
+  );
+  const css = readFileSync("src/app/mobile-web.css", "utf8");
+  const mobileCss = css.slice(0, css.indexOf("@media (min-width: 1180px)"));
+  const desktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1180px)"));
+
+  assert.match(html, /<div class="sqc-community-detail-support">[\s\S]*?aria-label="Community Solo Side Quest summary"[\s\S]*?<span class="sqc-card-eyebrow">Creator<\/span>[\s\S]*?<\/div>/);
+  assert.match(mobileCss, /\.sqc-community-detail-support\s*\{[^}]*display:\s*contents;/, "mobile keeps activity followed by creator in the established flow");
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-community-detail\s+\.sqc-community-detail-support\s*\{[^}]*grid-column:\s*1;[^}]*display:\s*grid;[^}]*grid-template-columns:\s*minmax\(0,\s*1\.15fr\)\s+minmax\(260px,\s*\.85fr\);/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-community-detail\s+\.sqc-community-detail-support\s*>\s*\.sqc-native-card\s*\{[^}]*height:\s*100%;/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-community-detail\s+\.sqc-community-task-rail\s*\{[^}]*grid-row:\s*3\s*\/\s*span\s*2;/, "the task rail spans the reading panel and compact support deck without creating empty grid tracks");
 });
 
 test("Community Solo desktop action rail separates primary, navigation, sharing, and safety priorities", () => {

@@ -3022,6 +3022,10 @@ body::after {
   display: contents;
 }
 
+.sqc-community-detail-support {
+  display: contents;
+}
+
 .sqc-community-detail-hero {
   gap: 5px;
   padding: 0 0 1px;
@@ -8750,6 +8754,28 @@ body::after {
     grid-column: 1;
   }
 
+  .sqc-mobile-web.desktop-community-detail .sqc-community-detail-support {
+    grid-column: 1;
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(260px, .85fr);
+    align-items: stretch;
+    gap: 18px;
+  }
+
+  .sqc-mobile-web.desktop-community-detail .sqc-community-detail-support > .sqc-native-card {
+    height: 100%;
+    align-content: center;
+    gap: 12px;
+    padding: 22px 24px;
+    border-radius: 20px;
+  }
+
+  .sqc-mobile-web.desktop-community-detail .sqc-community-detail-support > .sqc-native-card h2 {
+    font-family: ui-serif, Georgia, Cambria, "Times New Roman", serif;
+    font-size: 23px;
+    line-height: 1.1;
+  }
+
   .sqc-mobile-web.desktop-community-detail .sqc-multiplayer-score-grid > div {
     min-height: 92px;
     align-content: center;
@@ -8758,7 +8784,7 @@ body::after {
 
   .sqc-mobile-web.desktop-community-detail .sqc-community-task-rail {
     grid-column: 2;
-    grid-row: 3 / span 4;
+    grid-row: 3 / span 2;
     position: sticky;
     top: 108px;
     gap: 12px;
