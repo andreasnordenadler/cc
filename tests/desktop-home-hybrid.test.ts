@@ -1786,11 +1786,14 @@ test("Multiplayer creation keeps status and error feedback ahead of its desktop 
   const desktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1180px)"));
 
   assert.match(html, /class="sqc-native-card sqc-create-community-notice" role="status"/);
-  assert.ok(html.indexOf("sqc-create-community-notice") < html.indexOf("sqc-create-footer-bar"), "community status stays before the action in reading order");
+  assert.ok(html.indexOf("sqc-create-community-notice") < html.indexOf("sqc-create-setup-card"), "community status stays ahead of the planning workspace");
   assert.match(form, /className="groupquest-join-error sqc-create-error" role="alert"/);
+  assert.ok(form.indexOf("sqc-create-error") > form.indexOf("sqc-create-catalog-card"), "mobile keeps Android's feedback after the planning stack");
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-multiplayer-create\s+\.sqc-hydration-gate\s*\{[^}]*grid-auto-flow:\s*row dense;/);
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-multiplayer-create\s+:is\(\.sqc-create-community-notice,\s*\.sqc-create-error\)\s*\{[^}]*grid-column:\s*1\s*\/\s*-1;/);
-  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-multiplayer-create\s+\.sqc-create-catalog-card\s*\{[^}]*grid-column:\s*2;[^}]*grid-row:\s*span\s*2;/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-multiplayer-create\s+\.sqc-create-community-notice\s*\{[^}]*order:\s*-2;/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-multiplayer-create\s+\.sqc-create-error\s*\{[^}]*order:\s*-1;/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-multiplayer-create\s+\.sqc-create-catalog-card\s*\{[^}]*grid-column:\s*2;/);
 });
 
 test("Multiplayer creation becomes a wide two-column planner only at the desktop boundary", () => {
@@ -1807,11 +1810,38 @@ test("Multiplayer creation becomes a wide two-column planner only at the desktop
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-multiplayer-create\s+\.sqc-create-multiplayer-hero\s*\{[^}]*grid-template-columns:\s*200px\s+minmax\(0,\s*1fr\);/);
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-multiplayer-create\s+\.sqc-hydration-gate\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1\.15fr\)\s+minmax\(420px,\s*\.85fr\);/);
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-multiplayer-create\s+\.sqc-create-setup-card\s+\.sqc-option-grid\s*\{[^}]*grid-template-columns:\s*repeat\(3,\s*minmax\(0,\s*1fr\)\);/);
-  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-multiplayer-create\s+\.sqc-create-catalog-card\s*\{[^}]*grid-column:\s*2;[^}]*grid-row:\s*span\s*2;/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-multiplayer-create\s+\.sqc-create-catalog-card\s*\{[^}]*grid-column:\s*2;/);
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-multiplayer-create\s+\.sqc-screen\s*\{[^}]*padding:\s*46px\s+0\s+180px;/, "the desktop planner reserves space for its persistent action bar");
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-multiplayer-create\s+\.sqc-create-footer-bar\s*\{[^}]*grid-column:\s*1\s*\/\s*-1;[^}]*position:\s*fixed;[^}]*bottom:\s*24px;[^}]*left:\s*50%;[^}]*z-index:\s*20;[^}]*width:\s*min\(760px,\s*calc\(100%\s*-\s*64px\)\);[^}]*transform:\s*translateX\(-50%\);/, "the desktop creation action stays visible without changing the mobile footer");
   assert.match(wideDesktopMedia, /\.sqc-mobile-web\.desktop-multiplayer-create\s+\.sqc-screen\s*\{[^}]*width:\s*min\(1600px,\s*calc\(100%\s*-\s*96px\)\)/, "wide creation uses the available planning canvas");
   assert.equal(css.replace(desktopMedia, "").replace(wideDesktopMedia, "").includes(".sqc-mobile-web.desktop-multiplayer-create"), false, "desktop Multiplayer create rules must not leak below 1180px");
+});
+
+test("Multiplayer creation keeps the live draft beside setup and compacts the desktop catalog", () => {
+  const css = readFileSync("src/app/mobile-web.css", "utf8");
+  const desktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1180px)"));
+  const wideDesktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1680px)"));
+
+  assert.match(
+    desktopMedia,
+    /\.sqc-mobile-web\.desktop-multiplayer-create\s+\.sqc-create-setup-card\s*\{[^}]*grid-column:\s*1;[^}]*grid-row:\s*span\s*2;/,
+    "setup should own the left planning lane beside the live draft and catalog",
+  );
+  assert.match(
+    desktopMedia,
+    /\.sqc-mobile-web\.desktop-multiplayer-create\s+\.sqc-create-selected-card\s*\{[^}]*grid-column:\s*2;/,
+    "the selected draft should remain visible beside setup in DOM and focus order",
+  );
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-multiplayer-create\s+\.sqc-create-catalog-card\s+\.sqc-catalog\s*\{[^}]*grid-template-columns:\s*repeat\(2,\s*minmax\(0,\s*1fr\)\);/);
+  assert.match(
+    desktopMedia,
+    /\.sqc-mobile-web\.desktop-multiplayer-create\s+\.sqc-create-catalog-card\s*\{[^}]*grid-column:\s*2;/,
+  );
+  assert.match(
+    wideDesktopMedia,
+    /\.sqc-mobile-web\.desktop-multiplayer-create\s+\.sqc-screen\s*\{[^}]*width:\s*min\(1600px,\s*calc\(100%\s*-\s*96px\)\);/,
+  );
+  assert.doesNotMatch(wideDesktopMedia, /\.sqc-mobile-web\.desktop-multiplayer-create\s+\.sqc-hydration-gate/);
 });
 
 test("Account becomes one desktop command center while preserving the mobile account stack", () => {
