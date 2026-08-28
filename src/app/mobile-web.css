@@ -11909,6 +11909,41 @@ body::after {
     width: min(1500px, calc(100% - 96px));
   }
 
+  /* At wide desktop widths, authenticated Account uses a persistent task rail
+     rather than stretching the tablet-style horizontal section bar. */
+  .sqc-mobile-web.desktop-account .sqc-account-stack:not(.sqc-account-signed-out) {
+    grid-template-columns: 220px repeat(12, minmax(0, 1fr));
+  }
+
+  .sqc-mobile-web.desktop-account .sqc-account-section-nav {
+    grid-column: 1;
+    grid-row: 1 / span 5;
+    align-self: start;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 4px;
+    padding: 16px 12px;
+  }
+
+  .sqc-mobile-web.desktop-account .sqc-account-section-nav > span {
+    width: 100%;
+    margin: 0 0 8px;
+    padding: 0 10px;
+  }
+
+  .sqc-mobile-web.desktop-account .sqc-account-section-nav a {
+    width: 100%;
+    min-height: 40px;
+  }
+
+  .sqc-mobile-web.desktop-account .sqc-account-overview { grid-column: 2 / -1; grid-row: 1; }
+  .sqc-mobile-web.desktop-account .sqc-account-quests { grid-column: 2 / span 7; grid-row: 2; }
+  .sqc-mobile-web.desktop-account .sqc-account-progress { grid-column: 9 / -1; grid-row: 2; }
+  .sqc-mobile-web.desktop-account .sqc-account-strength { grid-column: 2 / span 7; grid-row: 3; }
+  .sqc-mobile-web.desktop-account .sqc-account-trophies { grid-column: 9 / -1; grid-row: 3; }
+  .sqc-mobile-web.desktop-account .sqc-account-support { grid-column: 2 / span 5; grid-row: 4; }
+  .sqc-mobile-web.desktop-account .sqc-account-security { grid-column: 7 / -1; grid-row: 4; }
+
   .sqc-mobile-web.desktop-account .sqc-account-sign-in-layout {
     grid-template-columns: minmax(0, .88fr) minmax(620px, 1.12fr);
     min-height: 620px;
