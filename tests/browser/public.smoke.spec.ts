@@ -183,30 +183,93 @@ test("desktop Multiplayer creation keeps its live draft action in view without c
   });
   expect(desktopGeometry).toEqual({ position: "fixed", bottom: 24, overflow: 0 });
   await expect(action.getByRole("button", { name: "Sign in to create Multiplayer Side Quest" })).toBeVisible();
+  const form = page.getByRole("form", { name: "Create Multiplayer Side Quest form" });
+  const selectedDraft = form.locator(".sqc-create-selected-card");
+  await expect(selectedDraft).toBeInViewport();
+  const standardGeometry = await form.evaluate((element) => {
+    const setup = element.querySelector<HTMLElement>(".sqc-create-setup-card");
+    const selected = element.querySelector<HTMLElement>(".sqc-create-selected-card");
+    const catalog = element.querySelector<HTMLElement>(".sqc-create-catalog-card");
+    if (!setup || !selected || !catalog) throw new Error("Expected the desktop creation workspace");
+    const catalogGrid = catalog.querySelector<HTMLElement>(".sqc-catalog");
+    if (!catalogGrid) throw new Error("Expected the desktop creation catalog");
+    const setupRect = setup.getBoundingClientRect();
+    const selectedRect = selected.getBoundingClientRect();
+    const catalogRect = catalog.getBoundingClientRect();
+    return {
+      selectedBesideSetup: selectedRect.left > setupRect.right,
+      selectedTopAligned: Math.round(selectedRect.top) === Math.round(setupRect.top),
+      catalogBelowSelected: catalogRect.top > selectedRect.bottom,
+      catalogAlignedWithSelected: Math.round(catalogRect.left) === Math.round(selectedRect.left),
+      catalogColumns: getComputedStyle(catalogGrid).gridTemplateColumns.split(" ").filter(Boolean).length,
+    };
+  });
+  expect(standardGeometry).toEqual({ selectedBesideSetup: true, selectedTopAligned: true, catalogBelowSelected: true, catalogAlignedWithSelected: true, catalogColumns: 2 });
+  const feedbackGeometry = await form.evaluate((element) => {
+    const fieldset = element.querySelector<HTMLElement>(".sqc-hydration-gate");
+    const setup = element.querySelector<HTMLElement>(".sqc-create-setup-card");
+    const selected = element.querySelector<HTMLElement>(".sqc-create-selected-card");
+    const catalog = element.querySelector<HTMLElement>(".sqc-create-catalog-card");
+    const footer = element.querySelector<HTMLElement>(".sqc-create-footer-bar");
+    if (!fieldset || !setup || !selected || !catalog || !footer) throw new Error("Expected the desktop creation workspace");
+    const notice = document.createElement("p");
+    notice.className = "sqc-native-card sqc-create-community-notice";
+    notice.textContent = "Community Side Quests could not load.";
+    const error = document.createElement("p");
+    error.className = "groupquest-join-error sqc-create-error";
+    error.textContent = "Could not create this Side Quest right now.";
+    fieldset.insertBefore(notice, fieldset.firstChild);
+    fieldset.insertBefore(error, footer);
+    const noticeRect = notice.getBoundingClientRect();
+    const errorRect = error.getBoundingClientRect();
+    const setupRect = setup.getBoundingClientRect();
+    const selectedRect = selected.getBoundingClientRect();
+    notice.remove();
+    error.remove();
+    return {
+      noticeAboveWorkspace: noticeRect.bottom <= errorRect.top,
+      errorAboveWorkspace: errorRect.bottom <= setupRect.top,
+      cardsTopAligned: Math.round(setupRect.top) === Math.round(selectedRect.top),
+    };
+  });
+  expect(feedbackGeometry).toEqual({ noticeAboveWorkspace: true, errorAboveWorkspace: true, cardsTopAligned: true });
 
   await page.setViewportSize({ width: 1920, height: 1080 });
-  const form = page.getByRole("form", { name: "Create Multiplayer Side Quest form" });
   const wideGeometry = await form.evaluate((element) => {
     const screen = element.closest<HTMLElement>(".sqc-screen");
     const setup = element.querySelector<HTMLElement>(".sqc-create-setup-card");
+    const selected = element.querySelector<HTMLElement>(".sqc-create-selected-card");
     const catalog = element.querySelector<HTMLElement>(".sqc-create-catalog-card");
-    if (!screen || !setup || !catalog) throw new Error("Expected the desktop creation workspace");
+    if (!screen || !setup || !selected || !catalog) throw new Error("Expected the desktop creation workspace");
+    const catalogGrid = catalog.querySelector<HTMLElement>(".sqc-catalog");
+    if (!catalogGrid) throw new Error("Expected the desktop creation catalog");
     const screenRect = screen.getBoundingClientRect();
     const setupRect = setup.getBoundingClientRect();
+    const selectedRect = selected.getBoundingClientRect();
     const catalogRect = catalog.getBoundingClientRect();
     return {
       screenWidth: Math.round(screenRect.width),
       setupWidth: Math.round(setupRect.width),
+      selectedWidth: Math.round(selectedRect.width),
       catalogWidth: Math.round(catalogRect.width),
-      catalogBesideSetup: catalogRect.left > setupRect.right,
+      selectedBesideSetup: selectedRect.left > setupRect.right,
+      selectedTopAligned: Math.round(selectedRect.top) === Math.round(setupRect.top),
+      catalogBelowSelected: catalogRect.top > selectedRect.bottom,
+      catalogAlignedWithSelected: Math.round(catalogRect.left) === Math.round(selectedRect.left),
+      catalogColumns: getComputedStyle(catalogGrid).gridTemplateColumns.split(" ").filter(Boolean).length,
       overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
     };
   });
   expect(wideGeometry).toEqual({
     screenWidth: 1600,
     setupWidth: 906,
+    selectedWidth: 670,
     catalogWidth: 670,
-    catalogBesideSetup: true,
+    selectedBesideSetup: true,
+    selectedTopAligned: true,
+    catalogBelowSelected: true,
+    catalogAlignedWithSelected: true,
+    catalogColumns: 2,
     overflow: 0,
   });
 
