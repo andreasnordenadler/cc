@@ -1,6 +1,7 @@
 import { auth, clerkClient } from "@clerk/nextjs/server";
 import { unstable_noStore as noStore } from "next/cache";
 import { notFound, redirect } from "next/navigation";
+import Link from "next/link";
 import GroupQuestEditForm from "@/components/group-quest-edit-form";
 import MobileAppWebShell from "@/components/mobile-app-web-shell";
 import { isAdminAnalyticsViewer } from "@/lib/analytics";
@@ -85,6 +86,7 @@ export default async function EditGroupQuestPage({ params }: { params: Promise<{
     <MobileAppWebShell
       activeTab="multiplayerSideQuests"
       signedIn
+      desktopPresentation="multiplayer-edit"
       displayName={displayName}
       lichessUsername={getLichessUsername(publicMetadata)}
       chessComUsername={getChessComUsername(publicMetadata)}
@@ -99,6 +101,13 @@ export default async function EditGroupQuestPage({ params }: { params: Promise<{
       }}
     >
       <div className="sqc-stack sqc-create-multiplayer-screen">
+        <nav className="sqc-multiplayer-edit-context-nav" aria-label="Multiplayer Side Quest editor context">
+          <Link href={`/groupquests/${encodeURIComponent(id)}`}>← Back to table</Link>
+          <span aria-hidden="true">/</span>
+          <strong>{record!.groupQuest.name}</strong>
+          <span aria-hidden="true">/</span>
+          <span aria-current="page">Edit table</span>
+        </nav>
         <section className="sqc-multiplayer-detail-hero sqc-create-multiplayer-hero">
           <span className="sqc-multiplayer-kicker">Host controls</span>
           <h1>Edit Multiplayer Side Quest.</h1>
