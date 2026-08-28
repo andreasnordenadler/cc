@@ -5308,6 +5308,14 @@ body::after {
   display: none;
 }
 
+.sqc-multiplayer-edit-context-nav {
+  display: none;
+}
+
+.sqc-mobile-web.desktop-multiplayer-edit .groupquests-builder {
+  grid-template-columns: minmax(0, 1fr);
+}
+
 .sqc-solo-browser {
   display: contents;
 }
@@ -10090,6 +10098,132 @@ body::after {
     transform: translateX(-50%);
     backdrop-filter: blur(18px);
   }
+
+  /* Multiplayer owner edit desktop workspace */
+  .sqc-mobile-web.desktop-multiplayer-edit .sqc-desktop-route-only {
+    display: block;
+  }
+
+  .sqc-mobile-web.desktop-multiplayer-edit {
+    display: block;
+    min-height: 100vh;
+    padding: 0;
+    background:
+      radial-gradient(circle at 14% 11%, rgba(245, 200, 106, .14), transparent 27%),
+      radial-gradient(circle at 86% 25%, rgba(96, 240, 175, .07), transparent 28%),
+      linear-gradient(180deg, #281916 0%, #15100f 42%, #070809 100%);
+  }
+
+  .sqc-mobile-web.desktop-multiplayer-edit > div:not(.sqc-mobile-backdrop):not(.sqc-desktop-route-only) > :is(.sqc-menu, .sqc-app-header, .sqc-close-screen),
+  .sqc-mobile-web.desktop-multiplayer-edit .sqc-guest-nav {
+    display: none;
+  }
+
+  .sqc-mobile-web.desktop-multiplayer-edit .sqc-screen {
+    width: min(1280px, calc(100% - 64px));
+    margin: 0 auto;
+    padding: 36px 0 108px;
+  }
+
+  .sqc-mobile-web.desktop-multiplayer-edit .sqc-create-multiplayer-screen {
+    gap: 22px;
+  }
+
+  .sqc-mobile-web.desktop-multiplayer-edit .sqc-multiplayer-edit-context-nav {
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: rgba(255, 247, 232, .46);
+    font-size: 11px;
+    font-weight: 850;
+  }
+
+  .sqc-mobile-web.desktop-multiplayer-edit .sqc-multiplayer-edit-context-nav a {
+    color: var(--gold);
+    text-decoration: none;
+  }
+
+  .sqc-mobile-web.desktop-multiplayer-edit .sqc-multiplayer-edit-context-nav strong {
+    min-width: 0;
+    overflow: hidden;
+    color: rgba(255, 247, 232, .72);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .sqc-mobile-web.desktop-multiplayer-edit .sqc-multiplayer-edit-context-nav [aria-current="page"] {
+    flex: none;
+    color: var(--paper);
+  }
+
+  .sqc-mobile-web.desktop-multiplayer-edit .sqc-create-multiplayer-hero {
+    min-height: 210px;
+    display: grid;
+    align-content: center;
+    gap: 12px;
+    padding: 38px 44px;
+    border-radius: 28px;
+  }
+
+  .sqc-mobile-web.desktop-multiplayer-edit .sqc-create-multiplayer-hero h1 {
+    max-width: 820px;
+    margin: 0;
+    font-family: ui-serif, Georgia, Cambria, "Times New Roman", serif;
+    font-size: clamp(44px, 4.2vw, 62px);
+    line-height: .96;
+    letter-spacing: -.04em;
+  }
+
+  .sqc-mobile-web.desktop-multiplayer-edit .sqc-create-multiplayer-hero p {
+    max-width: 760px;
+    margin: 0;
+    font-size: 15px;
+    line-height: 1.6;
+  }
+
+  .sqc-mobile-web.desktop-multiplayer-edit .groupquests-builder {
+    grid-template-columns: minmax(0, 1fr) minmax(360px, .58fr);
+    align-items: start;
+    gap: 24px;
+  }
+
+  .sqc-mobile-web.desktop-multiplayer-edit .groupquests-builder-form {
+    gap: 16px;
+    padding: 28px;
+    border: 1px solid rgba(255, 247, 232, .12);
+    border-radius: 26px;
+    background: rgba(18, 14, 13, .82);
+    box-shadow: 0 24px 64px rgba(0, 0, 0, .24);
+  }
+
+  .sqc-mobile-web.desktop-multiplayer-edit .groupquests-builder-guide {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .sqc-mobile-web.desktop-multiplayer-edit .groupquests-draft-preview {
+    position: sticky;
+    top: 102px;
+    padding: 24px;
+    border-radius: 26px;
+    box-shadow: 0 24px 64px rgba(0, 0, 0, .28);
+  }
+
+  .sqc-mobile-web.desktop-multiplayer-edit .groupquests-create-actions {
+    position: sticky;
+    bottom: 20px;
+    z-index: 12;
+    padding: 18px 20px;
+    background: rgba(18, 14, 13, .95);
+    box-shadow: 0 22px 60px rgba(0, 0, 0, .44);
+    backdrop-filter: blur(18px);
+  }
+
+  .sqc-mobile-web.desktop-multiplayer-edit :is(a, summary, button, input, textarea, select):focus-visible {
+    outline: 3px solid rgba(245, 200, 106, .84);
+    outline-offset: 3px;
+  }
+  /* End Multiplayer owner edit desktop workspace */
 
   /* Account keeps Android's data, actions, and reading order in one subtree,
      but arranges that subtree as a desktop command center. */
