@@ -1135,6 +1135,17 @@ test("wide Trophy Cabinet turns the complete coat archive into a four-column gal
   );
 });
 
+test("wide Trophy Cabinet keeps every comparison row on one equal card track", () => {
+  const css = readFileSync("src/app/mobile-web.css", "utf8");
+  const wideDesktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1680px)"));
+
+  assert.match(
+    wideDesktopMedia,
+    /\.sqc-mobile-web\.desktop-trophy-cabinet\s+\.sqc-coat-grid\s*\{[^}]*grid-auto-rows:\s*1fr;/,
+    "variable title and objective lengths must not create visibly uneven gallery rows",
+  );
+});
+
 test("standard and wide Trophy Cabinet keep the collection decision surface above the fold", () => {
   const css = readFileSync("src/app/mobile-web.css", "utf8");
   const collectionDesktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1380px) {"));
