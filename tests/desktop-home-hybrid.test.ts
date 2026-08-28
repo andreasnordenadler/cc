@@ -1998,6 +1998,18 @@ test("wide desktop Account expands the command center beyond the standard deskto
   );
 });
 
+test("wide authenticated Account turns section wayfinding into a persistent task rail", () => {
+  const css = readFileSync("src/app/mobile-web.css", "utf8");
+  const wideDesktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1680px)"));
+
+  assert.match(wideDesktopMedia, /\.sqc-mobile-web\.desktop-account\s+\.sqc-account-stack:not\(\.sqc-account-signed-out\)\s*\{[^}]*grid-template-columns:\s*220px\s+repeat\(12,\s*minmax\(0,\s*1fr\)\);/);
+  assert.match(wideDesktopMedia, /\.sqc-mobile-web\.desktop-account\s+\.sqc-account-section-nav\s*\{[^}]*grid-column:\s*1;[^}]*grid-row:\s*1\s*\/\s*span\s*5;[^}]*align-self:\s*start;[^}]*flex-direction:\s*column;/);
+  assert.match(wideDesktopMedia, /\.sqc-mobile-web\.desktop-account\s+\.sqc-account-section-nav\s+a\s*\{[^}]*width:\s*100%;/);
+  assert.match(wideDesktopMedia, /\.sqc-mobile-web\.desktop-account\s+\.sqc-account-overview\s*\{[^}]*grid-column:\s*2\s*\/\s*-1;/);
+  assert.match(wideDesktopMedia, /\.sqc-mobile-web\.desktop-account\s+\.sqc-account-quests\s*\{[^}]*grid-column:\s*2\s*\/\s*span\s*7;/);
+  assert.match(wideDesktopMedia, /\.sqc-mobile-web\.desktop-account\s+\.sqc-account-security\s*\{[^}]*grid-column:\s*7\s*\/\s*-1;/);
+});
+
 test("desktop account workspace navigation clears the sticky Support overview", () => {
   const css = readFileSync("src/app/mobile-web.css", "utf8");
   const desktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1180px)"));
