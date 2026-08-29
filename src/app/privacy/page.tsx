@@ -53,6 +53,7 @@ export function PrivacyPageView({ signedIn, displayName }: { signedIn: boolean; 
             <a href="#retention">Retention</a>
             <a href="#choices">Choices</a>
             <a href="#children">Children</a>
+            <a href="#changes">Changes</a>
             <a href="#contact">Contact</a>
           </nav>
         </div>

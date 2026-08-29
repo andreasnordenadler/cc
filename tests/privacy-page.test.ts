@@ -37,7 +37,12 @@ test("Privacy Policy becomes a desktop reading workspace at the established boun
   assert.match(desktopMedia, /\.privacy-workspace\s*\{[^}]*width:\s*min\(1320px,\s*100%\)[^}]*grid-template-columns:\s*minmax\(320px,\s*\.72fr\)\s+minmax\(0,\s*1\.8fr\)/);
   assert.match(desktopMedia, /\.privacy-workspace-rail\s*\{[^}]*position:\s*sticky[^}]*top:\s*32px/);
   assert.match(desktopMedia, /\.privacy-document-grid\s*\{[^}]*grid-template-columns:\s*repeat\(2,\s*minmax\(0,\s*1fr\)\)/);
+  assert.match(desktopMedia, /\.privacy-workspace\s+\.privacy-document-grid\s+section\s*\{[^}]*min-height:\s*0[^}]*padding:\s*34px/);
+  assert.match(desktopMedia, /\.privacy-workspace\s+\.privacy-document-grid\s+:is\(#information,\s*#sharing,\s*#retention,\s*#changes\)\s*\{[^}]*grid-column:\s*1\s*\/\s*-1/);
+  assert.match(desktopMedia, /\.privacy-workspace\s+\.privacy-topic-grid\s*\{[^}]*grid-template-columns:\s*repeat\(2,\s*minmax\(0,\s*1fr\)\)/);
+  assert.match(desktopMedia, /\.privacy-workspace\s+\.privacy-document-grid\s+:is\(#sharing,\s*#retention\)\s*>\s*p\s*\{[^}]*max-width:\s*96ch/);
   assert.match(desktopMedia, /\.privacy-document-grid\s+\.privacy-contact\s*\{[^}]*grid-column:\s*1\s*\/\s*-1/);
+  assert.match(html, /href="#changes"[^>]*>Changes<\/a>/, "the persistent desktop section index reaches every policy section");
   assert.equal(css.replace(desktopMedia, "").includes(".privacy-workspace"), false, "Privacy workspace rules must not alter mobile web below 1180px");
 });
 
