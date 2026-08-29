@@ -53,3 +53,13 @@ test("support triage wayfinding is desktop-only and clears the sticky account na
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-support\s+\.sqc-support-hero\s+h1\s*\{[^}]*font-size:\s*38px;/);
   assert.match(css, /@media\s*\(prefers-reduced-motion:\s*reduce\)[\s\S]*?\.sqc-support-triage-nav\s+a\s*\{[^}]*transition:\s*none\s*!important;/);
 });
+
+test("desktop Support aligns the page identity with the help directory instead of stacking it below a decorative crest", () => {
+  const css = readFileSync("src/app/mobile-web.css", "utf8");
+  const desktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1180px)"));
+
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-support\s+\.sqc-support-overview\s*\{[^}]*grid-template-columns:\s*88px\s+minmax\(0,\s*1fr\);/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-support\s+\.sqc-screen-emblem\.support\s*\{[^}]*grid-column:\s*1;[^}]*grid-row:\s*1;[^}]*min-height:\s*88px;/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-support\s+\.sqc-support-hero\s*\{[^}]*grid-column:\s*2;[^}]*grid-row:\s*1;/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-support\s+:is\(\.sqc-support-quick,\s*\.sqc-support-triage-nav,\s*\.sqc-support-diagnostics\)\s*\{[^}]*grid-column:\s*1\s*\/\s*-1;/);
+});
