@@ -981,19 +981,46 @@ test("privacy policy is public, dedicated, and links to privacy support", async 
   );
 });
 
-test("Terms of Use has a public dedicated launch-draft destination", async ({ page }) => {
+test("Terms of Use has an adopted desktop reading workspace without changing mobile", async ({ page }) => {
+  await page.setViewportSize({ width: 1920, height: 1080 });
   await expectHealthyNavigation(page, "/terms");
 
   await expect(page).toHaveURL(/\/terms$/);
   await expect(page.getByRole("heading", { name: "Terms of Use" })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Draft status" })).toBeVisible();
+  await expect(page.getByText("Effective: August 13, 2026")).toBeVisible();
   await expect(page.getByRole("link", { name: "Privacy Policy" })).toHaveAttribute("href", "/privacy");
   await expect(page.getByRole("link", { name: "Open Help & Support" })).toHaveAttribute("href", "/support");
-  const brandItemsOverlap = await page.locator(".terms-brand-row").evaluate((row) => {
-    const [back, kicker] = Array.from(row.children).map((element) => element.getBoundingClientRect());
-    return back.left < kicker.right && back.right > kicker.left && back.top < kicker.bottom && back.bottom > kicker.top;
+  await expect(page.getByRole("link", { name: "Liability & law" })).toHaveAttribute("href", "#law");
+
+  const desktopGeometry = await page.evaluate(() => {
+    const policy = document.querySelector(".terms-policy")?.getBoundingClientRect();
+    const grid = document.querySelector(".terms-document-grid");
+    const firstSection = grid?.querySelector("section");
+    return {
+      policyWidth: Math.round(policy?.width ?? 0),
+      columns: grid ? getComputedStyle(grid).gridTemplateColumns.split(" ").length : 0,
+      firstSectionNumber: firstSection ? getComputedStyle(firstSection, "::before").content : "none",
+      overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+    };
   });
-  expect(brandItemsOverlap).toBe(false);
+  expect(desktopGeometry.policyWidth).toBeGreaterThanOrEqual(1500);
+  expect(desktopGeometry.columns).toBe(2);
+  expect(desktopGeometry.firstSectionNumber).not.toBe("none");
+  expect(desktopGeometry.overflow).toBe(0);
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  const mobileGeometry = await page.evaluate(() => {
+    const grid = document.querySelector(".terms-document-grid");
+    const firstSection = grid?.querySelector("section");
+    return {
+      display: grid ? getComputedStyle(grid).display : "missing",
+      firstSectionNumber: firstSection ? getComputedStyle(firstSection, "::before").content : "missing",
+      overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+    };
+  });
+  expect(mobileGeometry.display).toBe("block");
+  expect(mobileGeometry.firstSectionNumber).toBe("none");
+  expect(mobileGeometry.overflow).toBe(0);
 });
 
 test("wide Multiplayer detail expands its tournament canvas without changing the established breakpoint", async ({ page }) => {
