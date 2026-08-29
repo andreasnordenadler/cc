@@ -55,7 +55,7 @@ export function TermsPageView({ signedIn, displayName }: { signedIn: boolean; di
             <a href="#conduct">Conduct</a>
             <a href="#third-parties">Third parties</a>
             <a href="#changes">Changes</a>
-            <a href="#law">Liability &amp; law</a>
+            <a className="terms-law-link" href="#law">Liability &amp; law</a>
             <a href="#contact">Contact</a>
           </nav>
         </div>

@@ -3022,6 +3022,7 @@ p { color: var(--muted); line-height: 1.5; }
 .privacy-lede { max-width: 68ch; color: rgba(255, 247, 232, .82); font-size: 1.1rem; }
 .privacy-contents { display: flex; flex-wrap: wrap; gap: 9px; margin: 18px 0; }
 .privacy-contents a { padding: 7px 13px; border: 1px solid rgba(255, 247, 232, .16); border-radius: 999px; background: rgba(255, 255, 255, .05); color: #fff7e8; font-size: .84rem; font-weight: 700; text-decoration: none; }
+.terms-law-link { display: none; }
 .privacy-policy h2 { margin: 0 0 14px; font-size: clamp(1.45rem, 4vw, 2rem); line-height: 1.15; }
 .privacy-policy h3 { margin: 24px 0 7px; color: #f1cd78; font-size: 1.02rem; }
 .privacy-policy p { margin: 0 0 14px; color: rgba(255, 247, 232, .78); }
@@ -3090,6 +3091,7 @@ p { color: var(--muted); line-height: 1.5; }
     font-size: .8rem;
     transition: color .16s ease, background .16s ease;
   }
+  .terms-law-link { display: block; }
   .terms-rail .privacy-contents a:hover,
   .terms-rail .privacy-contents a:focus-visible {
     color: #fff7e8;

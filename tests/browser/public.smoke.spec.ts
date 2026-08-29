@@ -996,30 +996,36 @@ test("Terms of Use has an adopted desktop reading workspace without changing mob
     const policy = document.querySelector(".terms-policy")?.getBoundingClientRect();
     const grid = document.querySelector(".terms-document-grid");
     const firstSection = grid?.querySelector("section");
+    const lawLink = document.querySelector(".terms-law-link");
     return {
       policyWidth: Math.round(policy?.width ?? 0),
       columns: grid ? getComputedStyle(grid).gridTemplateColumns.split(" ").length : 0,
       firstSectionNumber: firstSection ? getComputedStyle(firstSection, "::before").content : "none",
+      lawLinkDisplay: lawLink ? getComputedStyle(lawLink).display : "missing",
       overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
     };
   });
   expect(desktopGeometry.policyWidth).toBeGreaterThanOrEqual(1500);
   expect(desktopGeometry.columns).toBe(2);
   expect(desktopGeometry.firstSectionNumber).not.toBe("none");
+  expect(desktopGeometry.lawLinkDisplay).toBe("block");
   expect(desktopGeometry.overflow).toBe(0);
 
   await page.setViewportSize({ width: 390, height: 844 });
   const mobileGeometry = await page.evaluate(() => {
     const grid = document.querySelector(".terms-document-grid");
     const firstSection = grid?.querySelector("section");
+    const lawLink = document.querySelector(".terms-law-link");
     return {
       display: grid ? getComputedStyle(grid).display : "missing",
       firstSectionNumber: firstSection ? getComputedStyle(firstSection, "::before").content : "missing",
+      lawLinkDisplay: lawLink ? getComputedStyle(lawLink).display : "missing",
       overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
     };
   });
   expect(mobileGeometry.display).toBe("block");
   expect(mobileGeometry.firstSectionNumber).toBe("none");
+  expect(mobileGeometry.lawLinkDisplay).toBe("none");
   expect(mobileGeometry.overflow).toBe(0);
 });
 

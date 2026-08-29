@@ -42,6 +42,7 @@ test("Terms of Use becomes a desktop document workspace at the established bound
 });
 
 test("wide Terms uses an editorial reading hierarchy instead of stretching an undifferentiated card matrix", async () => {
+  const html = renderToStaticMarkup(React.createElement(TermsPageView, { signedIn: false }));
   const css = await readFile(new URL("../src/app/globals.css", import.meta.url), "utf8");
   const desktopMedia = css.match(/@media \(min-width: 1180px\) \{[\s\S]*?\/\* End desktop Terms workspace \*\/[\s\S]*?\}/)?.[0] ?? "";
   const wideDesktopMedia = css.match(/@media \(min-width: 1680px\) \{[\s\S]*?\/\* End wide desktop Terms workspace \*\/[\s\S]*?\}/)?.[0] ?? "";
@@ -50,6 +51,9 @@ test("wide Terms uses an editorial reading hierarchy instead of stretching an un
   assert.match(desktopMedia, /\.terms-policy \.terms-document-grid section\s*\{[^}]*min-height:\s*0;/);
   assert.match(desktopMedia, /\.terms-policy \.terms-document-grid section:nth-child\(odd\):not\(\.privacy-contact\)\s*\{[^}]*border-right:\s*1px\s+solid/);
   assert.match(desktopMedia, /\.terms-policy \.terms-document-grid section::before\s*\{[^}]*position:\s*absolute;[^}]*counter-increment:\s*terms-section;[^}]*content:\s*"0"\s+counter\(terms-section\);/);
+  assert.match(html, /class="terms-law-link" href="#law">Liability &amp; law<\/a>/);
+  assert.match(css, /\.terms-law-link\s*\{\s*display:\s*none;\s*\}/, "the extra desktop index entry must stay absent on mobile");
+  assert.match(desktopMedia, /\.terms-law-link\s*\{\s*display:\s*block;\s*\}/, "desktop restores the complete editorial index");
   assert.match(wideDesktopMedia, /\.terms-policy\s*\{[^}]*width:\s*min\(1600px,\s*100%\);[^}]*grid-template-columns:\s*420px\s+minmax\(0,\s*1fr\);/);
 });
 
