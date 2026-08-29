@@ -1219,7 +1219,7 @@ test("Custom library keeps the mobile composition below 1180px and exposes a des
   assert.match(css, /\.sqc-mobile-web\.desktop-custom-library\s+\.sqc-catalog\s*\{[^}]*grid-template-columns:\s*repeat\(2,\s*minmax\(0,\s*1fr\)\);/);
 });
 
-test("populated signed-in Custom libraries use the wide desktop canvas without changing signed-out layouts", () => {
+test("populated signed-in Custom libraries use the wide desktop canvas without changing local-draft card density", () => {
   const css = readFileSync("src/app/mobile-web.css", "utf8");
   const standardDesktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1380px)"));
   const wideDesktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1680px)"));
@@ -1240,8 +1240,18 @@ test("populated signed-in Custom libraries use the wide desktop canvas without c
     );
   }
   assert.doesNotMatch(standardDesktopMedia, /\.sqc-local-custom-drafts\s+\.sqc-app-row\s*\{/);
-  assert.doesNotMatch(wideDesktopMedia, new RegExp(`${unscopedLibrary}[^,{]*\\s+\\.sqc-screen`));
+  assert.doesNotMatch(wideDesktopMedia, /\.sqc-mobile-web\.desktop-custom-library\s+\.sqc-screen\s*\{/);
   assert.doesNotMatch(wideDesktopMedia, new RegExp(`${signedInLibrary}\\s+${accountCatalog}\\s+\\.sqc-app-row\\s*\\{`), "wide cards retain the readable standard-desktop geometry");
+});
+
+test("signed-out Custom workshop uses the wide desktop canvas without stretching its onboarding copy", () => {
+  const css = readFileSync("src/app/mobile-web.css", "utf8");
+  const wideDesktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1680px)"));
+
+  assert.match(wideDesktopMedia, /\.sqc-mobile-web\.desktop-custom-library\.signed-out\s+\.sqc-screen\s*\{[^}]*width:\s*min\(1600px,\s*calc\(100%\s*-\s*80px\)\);/);
+  assert.match(wideDesktopMedia, /\.sqc-mobile-web\.desktop-custom-library\.signed-out\s+\.sqc-custom-library-screen\s*\{[^}]*grid-template-columns:\s*280px\s+minmax\(0,\s*1fr\);/);
+  assert.match(wideDesktopMedia, /\.sqc-mobile-web\.desktop-custom-library\.signed-out\s+\.sqc-local-custom-empty\s*\{[^}]*grid-template-columns:\s*300px\s+minmax\(0,\s*1fr\);/);
+  assert.match(wideDesktopMedia, /\.sqc-mobile-web\.desktop-custom-library\.signed-out\s+\.sqc-local-custom-workflow\s*\{[^}]*max-width:\s*980px;/);
 });
 
 test("empty Custom library explains the local workshop path without replacing the existing create destination", () => {
