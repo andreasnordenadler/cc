@@ -25,18 +25,32 @@ test("Terms of Use becomes a desktop document workspace at the established bound
   const html = renderToStaticMarkup(React.createElement(TermsPageView, { signedIn: false }));
   const css = await readFile(new URL("../src/app/globals.css", import.meta.url), "utf8");
   const desktopMedia = css.match(/@media \(min-width: 1180px\) \{[\s\S]*?\/\* End desktop Terms workspace \*\/[\s\S]*?\}/)?.[0] ?? "";
+  const wideDesktopMedia = css.match(/@media \(min-width: 1680px\) \{[\s\S]*?\/\* End wide desktop Terms workspace \*\/[\s\S]*?\}/)?.[0] ?? "";
 
   assert.match(html, /class="privacy-policy terms-policy"/);
   assert.match(html, /class="terms-rail"/);
   assert.match(html, /class="terms-document-grid"/);
   assert.equal(html.match(/aria-label="Terms of Use sections"/g)?.length, 1, "desktop and mobile share one navigation subtree");
+  assert.match(html, /href="#law">Liability &amp; law<\/a>/, "every legal section must be reachable from the document navigator");
   const termsDocument = html.match(/<div class="terms-document-grid">([\s\S]*?)<\/div><aside/)?.[1] ?? "";
   assert.equal(termsDocument.match(/<section /g)?.length, 9, "the desktop composition preserves every terms section");
   assert.match(desktopMedia, /\.terms-policy\s*\{[^}]*width:\s*min\(1320px,\s*100%\)[^}]*grid-template-columns:\s*minmax\(300px,\s*\.7fr\)\s+minmax\(0,\s*1\.8fr\)/);
   assert.match(desktopMedia, /\.terms-rail\s*\{[^}]*position:\s*sticky[^}]*top:\s*32px/);
   assert.match(desktopMedia, /\.terms-document-grid\s*\{[^}]*grid-template-columns:\s*repeat\(2,\s*minmax\(0,\s*1fr\)\)/);
   assert.match(desktopMedia, /\.terms-document-grid\s+\.privacy-contact\s*\{[^}]*grid-column:\s*1\s*\/\s*-1/);
-  assert.equal(css.replace(desktopMedia, "").includes(".terms-policy"), false, "Terms workspace rules must not alter mobile web below 1180px");
+  assert.equal(css.replace(desktopMedia, "").replace(wideDesktopMedia, "").includes(".terms-policy"), false, "Terms workspace rules must not alter mobile web below 1180px");
+});
+
+test("wide Terms uses an editorial reading hierarchy instead of stretching an undifferentiated card matrix", async () => {
+  const css = await readFile(new URL("../src/app/globals.css", import.meta.url), "utf8");
+  const desktopMedia = css.match(/@media \(min-width: 1180px\) \{[\s\S]*?\/\* End desktop Terms workspace \*\/[\s\S]*?\}/)?.[0] ?? "";
+  const wideDesktopMedia = css.match(/@media \(min-width: 1680px\) \{[\s\S]*?\/\* End wide desktop Terms workspace \*\/[\s\S]*?\}/)?.[0] ?? "";
+
+  assert.match(desktopMedia, /\.terms-document-grid\s*\{[^}]*counter-reset:\s*terms-section;/);
+  assert.match(desktopMedia, /\.terms-policy \.terms-document-grid section\s*\{[^}]*min-height:\s*0;/);
+  assert.match(desktopMedia, /\.terms-policy \.terms-document-grid section:nth-child\(odd\):not\(\.privacy-contact\)\s*\{[^}]*border-right:\s*1px\s+solid/);
+  assert.match(desktopMedia, /\.terms-policy \.terms-document-grid section::before\s*\{[^}]*position:\s*absolute;[^}]*counter-increment:\s*terms-section;[^}]*content:\s*"0"\s+counter\(terms-section\);/);
+  assert.match(wideDesktopMedia, /\.terms-policy\s*\{[^}]*width:\s*min\(1600px,\s*100%\);[^}]*grid-template-columns:\s*420px\s+minmax\(0,\s*1fr\);/);
 });
 
 test("Terms of Use keeps global desktop navigation and signed-in account state without duplicating content", async () => {

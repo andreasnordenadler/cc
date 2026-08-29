@@ -3100,6 +3100,7 @@ p { color: var(--muted); line-height: 1.5; }
   .terms-document-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
+    counter-reset: terms-section;
     border: 1px solid rgba(255, 247, 232, .13);
     border-radius: 28px;
     overflow: hidden;
@@ -3107,7 +3108,8 @@ p { color: var(--muted); line-height: 1.5; }
     box-shadow: 0 28px 80px rgba(0, 0, 0, .24);
   }
   .terms-policy .terms-document-grid section {
-    min-height: 250px;
+    position: relative;
+    min-height: 0;
     margin: 0;
     padding: 34px;
     border: 0;
@@ -3117,7 +3119,21 @@ p { color: var(--muted); line-height: 1.5; }
     box-shadow: none;
     scroll-margin-top: 32px;
   }
-  .terms-policy .terms-document-grid section:nth-child(even) { border-right: 1px solid rgba(255, 247, 232, .1); }
+  .terms-policy .terms-document-grid section:nth-child(odd):not(.privacy-contact) { border-right: 1px solid rgba(255, 247, 232, .1); }
+  .terms-policy .terms-document-grid section::before {
+    position: absolute;
+    top: 36px;
+    right: 34px;
+    counter-increment: terms-section;
+    content: "0" counter(terms-section);
+    color: rgba(245, 200, 106, .66);
+    font-size: .72rem;
+    font-weight: 850;
+    letter-spacing: .14em;
+  }
+  .terms-policy .terms-document-grid section h2 {
+    padding-right: 46px;
+  }
   .terms-policy .terms-document-grid section:hover { background: rgba(255, 255, 255, .025); }
   .terms-policy .terms-document-grid #status {
     grid-column: 1 / -1;
@@ -3142,6 +3158,23 @@ p { color: var(--muted); line-height: 1.5; }
   }
   .terms-policy > .privacy-notice p { max-width: 86ch; }
   /* End desktop Terms workspace */
+}
+
+@media (min-width: 1680px) {
+  .terms-policy {
+    width: min(1600px, 100%);
+    grid-template-columns: 420px minmax(0, 1fr);
+  }
+
+  .terms-policy .terms-document-grid section {
+    padding: 38px 42px;
+  }
+
+  .terms-policy .terms-document-grid section::before {
+    top: 40px;
+    right: 42px;
+  }
+  /* End wide desktop Terms workspace */
 }
 
 @media (min-width: 1180px) {
