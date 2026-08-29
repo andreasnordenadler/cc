@@ -1311,13 +1311,13 @@ test("official Solo detail uses a wide two-column composition only at the deskto
   assert.doesNotMatch(css, /\.sqc-mobile-web\.desktop-official-detail\s+\.sqc-official-solo-detail-screen\s*>\s*\.sqc-proof-action-card\s*\{/);
 });
 
-test("wide official Solo detail uses the full desktop canvas for a denser quest briefing", () => {
+test("wide official Solo detail balances four condition cards into a readable two-column grid", () => {
   const css = readFileSync("src/app/mobile-web.css", "utf8");
   const wideDesktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1680px)"));
 
   assert.match(wideDesktopMedia, /\.sqc-mobile-web\.desktop-official-detail\s+\.sqc-screen\s*\{[^}]*width:\s*min\(1600px,\s*calc\(100%\s*-\s*80px\)\)/);
   assert.match(wideDesktopMedia, /\.sqc-mobile-web\.desktop-official-detail\s+\.sqc-official-solo-detail-screen\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\)\s+440px;/);
-  assert.match(wideDesktopMedia, /\.sqc-mobile-web\.desktop-official-detail\.signed-out\s+\.sqc-quest-instruction-card\s+\.sqc-condition-list\s*\{[^}]*grid-template-columns:\s*repeat\(4,\s*minmax\(0,\s*1fr\)\);/);
+  assert.match(wideDesktopMedia, /\.sqc-mobile-web\.desktop-official-detail\.signed-out\s+\.sqc-quest-instruction-card\s+\.sqc-condition-list\s*\{[^}]*grid-template-columns:\s*repeat\(2,\s*minmax\(0,\s*1fr\)\);/);
   assert.match(wideDesktopMedia, /\.sqc-mobile-web\.desktop-official-detail\.signed-out\s+\.sqc-quest-instruction-card\s+\.sqc-condition-compact-row\s*\{[^}]*min-height:\s*118px;/);
   assert.doesNotMatch(wideDesktopMedia, /\.sqc-mobile-web\.desktop-official-detail\s+\.sqc-quest-instruction-card\s+\.sqc-condition-list/);
 });
