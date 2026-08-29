@@ -11969,6 +11969,24 @@ body::after {
     width: min(1600px, calc(100% - 80px));
   }
 
+  /* The account-free workshop is still a desktop planning surface on wide displays.
+     Expand its canvas while keeping the onboarding steps at a readable measure. */
+  .sqc-mobile-web.desktop-custom-library.signed-out .sqc-screen {
+    width: min(1600px, calc(100% - 80px));
+  }
+
+  .sqc-mobile-web.desktop-custom-library.signed-out .sqc-custom-library-screen {
+    grid-template-columns: 280px minmax(0, 1fr);
+  }
+
+  .sqc-mobile-web.desktop-custom-library.signed-out .sqc-local-custom-empty {
+    grid-template-columns: 300px minmax(0, 1fr);
+  }
+
+  .sqc-mobile-web.desktop-custom-library.signed-out .sqc-local-custom-workflow {
+    max-width: 980px;
+  }
+
   .sqc-mobile-web.desktop-official-detail .sqc-screen {
     width: min(1600px, calc(100% - 80px));
   }
