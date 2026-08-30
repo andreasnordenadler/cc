@@ -967,6 +967,40 @@ test("multiplayer catalog is publicly browseable", async ({ page }) => {
   await expect(page.getByText(/official/, { exact: true }).first()).toBeVisible();
 });
 
+test("desktop Multiplayer desk stays aligned with persistent navigation across standard and wide canvases", async ({ page }) => {
+  for (const viewport of [{ width: 1440, height: 900 }, { width: 1920, height: 1080 }]) {
+    await page.setViewportSize(viewport);
+    await expectHealthyNavigation(page, "/multiplayer");
+
+    const header = page.locator(".sqc-desktop-header");
+    const screen = page.locator(".desktop-multiplayer-discovery .sqc-screen");
+    await expect(header).toBeVisible();
+    await expect(screen).toBeVisible();
+
+    const geometry = await page.evaluate(() => {
+      const header = document.querySelector<HTMLElement>(".sqc-desktop-header")?.getBoundingClientRect();
+      const screen = document.querySelector<HTMLElement>(".desktop-multiplayer-discovery .sqc-screen")?.getBoundingClientRect();
+      if (!header || !screen) throw new Error("Expected the desktop Multiplayer workspace");
+      return {
+        headerLeft: Math.round(header.left),
+        headerRight: Math.round(header.right),
+        screenLeft: Math.round(screen.left),
+        screenRight: Math.round(screen.right),
+        overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+      };
+    });
+
+    expect(geometry.screenLeft).toBe(geometry.headerLeft);
+    expect(geometry.screenRight).toBe(geometry.headerRight);
+    expect(geometry.overflow).toBe(0);
+  }
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expectHealthyNavigation(page, "/multiplayer");
+  await expect(page.getByRole("navigation", { name: "Desktop shortcuts" })).toBeHidden();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBe(0);
+});
+
 test("Privacy Policy keeps desktop navigation at 1180px without changing the mobile composition below it", async ({ page }) => {
   await page.setViewportSize({ width: 1180, height: 900 });
   await expectHealthyNavigation(page, "/privacy");
