@@ -959,15 +959,21 @@ test("Multiplayer discovery keeps mobile below 1180px and uses decision-ready ca
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-multiplayer-discovery\s+\.sqc-multiplayer-row-facts\s*\{[^}]*grid-template-columns:\s*repeat\(3,\s*minmax\(0,\s*1fr\)\);/);
   const cssWithoutDesktopMedia = css
     .replace(desktopMedia, "")
-    .replace(readCssBlock(css, css.indexOf("@media (min-width: 1400px)")), "")
     .replace(readCssBlock(css, css.indexOf("@media (min-width: 1680px)")), "");
   assert.equal(cssWithoutDesktopMedia.includes(".sqc-mobile-web.desktop-multiplayer-discovery"), false, "desktop Multiplayer rules must not leak below 1180px");
 });
 
-test("Multiplayer discovery expands continuously across wide desktop displays", () => {
+test("Multiplayer discovery shares the persistent navigation canvas at standard and wide desktop widths", () => {
   const css = readFileSync("src/app/mobile-web.css", "utf8");
-  const wideDesktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1400px)"));
+  const desktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1180px)"));
+  const wideDesktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1680px)"));
 
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-multiplayer-discovery\s+\.sqc-screen\s*\{[^}]*width:\s*min\(1320px,\s*calc\(100%\s*-\s*64px\)\)/);
+  assert.equal(
+    css.includes("@media (min-width: 1400px) {\n  .sqc-mobile-web.desktop-multiplayer-discovery .sqc-screen"),
+    false,
+    "a 1440px tournament desk must stay aligned with the 1320px persistent navigation canvas",
+  );
   assert.match(wideDesktopMedia, /\.sqc-mobile-web\.desktop-multiplayer-discovery\s+\.sqc-screen\s*\{[^}]*width:\s*min\(1600px,\s*calc\(100%\s*-\s*80px\)\)/);
 });
 

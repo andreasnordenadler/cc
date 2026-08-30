@@ -11760,12 +11760,6 @@ body::after {
   /* End desktop authentication workspace */
 }
 
-@media (min-width: 1400px) {
-  .sqc-mobile-web.desktop-multiplayer-discovery .sqc-screen {
-    width: min(1600px, calc(100% - 80px));
-  }
-}
-
 /* At the desktop boundary the launch board keeps its stable minimum width.
    A slightly tighter headline preserves the same deliberate two-line rhythm
    without forcing markup-only line breaks or crowding the board. */
@@ -11857,6 +11851,10 @@ body::after {
 
 @media (min-width: 1680px) {
   .sqc-desktop-header {
+    width: min(1600px, calc(100% - 80px));
+  }
+
+  .sqc-mobile-web.desktop-multiplayer-discovery .sqc-screen {
     width: min(1600px, calc(100% - 80px));
   }
 
