@@ -39,7 +39,9 @@ test("official quest navigator remains absent from responsive mobile composition
   assert.match(css, /\.sqc-desktop-quest-navigator\s*\{[^}]*display:\s*none;/);
   assert.match(css, /@media\s*\(min-width:\s*1180px\)[\s\S]*?\.sqc-mobile-web\.desktop-official-detail\s+\.sqc-desktop-quest-navigator\s*\{[^}]*display:\s*grid;/);
   assert.match(css, /\.sqc-mobile-web\.desktop-official-detail\s+\.sqc-official-quest-card\s*\{[^}]*grid-row:\s*2;/);
-  assert.match(css, /\.sqc-mobile-web\.desktop-official-detail\s+\.sqc-official-solo-detail-screen\s*>\s*\.sqc-quest-command-rail\s*\{[^}]*grid-row:\s*3\s*\/\s*span\s*2;/);
+  assert.match(css, /\.sqc-mobile-web\.desktop-official-detail\s+\.sqc-quest-flavor-card\s*\{[^}]*grid-row:\s*3;/);
+  assert.match(css, /\.sqc-mobile-web\.desktop-official-detail\s+\.sqc-quest-instruction-card\s*\{[^}]*grid-row:\s*4;/);
+  assert.match(css, /\.sqc-mobile-web\.desktop-official-detail\s+\.sqc-official-solo-detail-screen\s*>\s*\.sqc-quest-command-rail\s*\{[^}]*grid-row:\s*2\s*\/\s*span\s*3;/);
   assert.match(css, /\.sqc-mobile-web\.desktop-official-detail\s+\.sqc-active-detail-hero\s*\{[^}]*grid-row:\s*2;/);
   assert.match(css, /\.sqc-mobile-web\.desktop-official-detail\s+\.sqc-active-proof-summary\s*\{[^}]*grid-row:\s*3;/);
 });

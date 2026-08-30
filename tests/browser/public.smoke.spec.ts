@@ -660,13 +660,26 @@ test("official Solo detail switches from the mobile flow to one desktop action w
   const geometry = await detail.evaluate((element) => {
     const rect = element.getBoundingClientRect();
     const style = getComputedStyle(element);
-    const commandRail = element.querySelector(":scope > .sqc-quest-command-rail");
+    const questBrief = element.querySelector<HTMLElement>(":scope > .sqc-official-quest-card");
+    const flavor = element.querySelector<HTMLElement>(":scope > .sqc-quest-flavor-card");
+    const conditions = element.querySelector<HTMLElement>(":scope > .sqc-quest-instruction-card");
+    const commandRail = element.querySelector<HTMLElement>(":scope > .sqc-quest-command-rail");
     const share = commandRail?.querySelector(":scope > .sqc-community-share-actions") ?? null;
     const shareButtons = share ? Array.from(share.querySelectorAll("button")) : [];
+    const questBriefRect = questBrief?.getBoundingClientRect();
+    const flavorRect = flavor?.getBoundingClientRect();
+    const conditionsRect = conditions?.getBoundingClientRect();
+    const commandRailRect = commandRail?.getBoundingClientRect();
     return {
       width: Math.round(rect.width),
       columns: style.gridTemplateColumns.split(" ").filter(Boolean).length,
       commandRailPosition: commandRail ? getComputedStyle(commandRail).position : null,
+      questBriefTop: questBriefRect ? Math.round(questBriefRect.top) : null,
+      questBriefBottom: questBriefRect ? Math.round(questBriefRect.bottom) : null,
+      commandRailTop: commandRailRect ? Math.round(commandRailRect.top) : null,
+      flavorTop: flavorRect ? Math.round(flavorRect.top) : null,
+      flavorBottom: flavorRect ? Math.round(flavorRect.bottom) : null,
+      conditionsTop: conditionsRect ? Math.round(conditionsRect.top) : null,
       shareColumns: share ? getComputedStyle(share).gridTemplateColumns.split(" ").filter(Boolean).length : 0,
       shareButtonWidths: shareButtons.map((button) => Math.round(button.getBoundingClientRect().width)),
       shareButtonHeights: shareButtons.map((button) => Math.round(button.getBoundingClientRect().height)),
@@ -677,12 +690,18 @@ test("official Solo detail switches from the mobile flow to one desktop action w
   expect(geometry.width).toBeGreaterThan(1000);
   expect(geometry.columns).toBe(2);
   expect(geometry.commandRailPosition).toBe("sticky");
+  expect(geometry.commandRailTop).toBe(geometry.questBriefTop);
+  expect(geometry.flavorTop).toBeGreaterThan(geometry.questBriefBottom!);
+  expect(geometry.conditionsTop).toBeGreaterThan(geometry.flavorBottom!);
   expect(geometry.shareColumns).toBe(2);
   expect(geometry.shareButtonWidths).toHaveLength(2);
   expect(Math.abs(geometry.shareButtonWidths[0] - geometry.shareButtonWidths[1])).toBeLessThanOrEqual(2);
   expect(geometry.shareButtonHeights.every((height) => height >= 46)).toBe(true);
   expect(geometry.briefingColumns).toBe(3);
   expect(geometry.overflow).toBe(0);
+
+  await page.evaluate(() => window.scrollTo({ top: 420, behavior: "instant" }));
+  await expect.poll(async () => Math.round((await commandRail.boundingBox())?.y ?? -1)).toBe(108);
 
   await page.setViewportSize({ width: 1440, height: 900 });
   const actionWidths = await actionCard.evaluate((element) => {

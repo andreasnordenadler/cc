@@ -1308,14 +1308,16 @@ test("official Solo detail becomes one desktop workspace without duplicating its
   assert.equal(html.match(/>Share public link<\/button>/g)?.length, 1, "desktop and mobile share one action subtree");
 });
 
-test("official Solo detail uses a wide two-column composition only at the desktop boundary", () => {
+test("official Solo detail puts the quest brief beside its contextual command rail only at the desktop boundary", () => {
   const css = readFileSync("src/app/mobile-web.css", "utf8");
 
   assert.match(css, /\.sqc-quest-command-rail\s*\{[^}]*display:\s*contents;/);
   assert.match(css, /@media\s*\(min-width:\s*1180px\)[\s\S]*?\.sqc-mobile-web\.desktop-official-detail\s+\.sqc-screen\s*\{[^}]*width:\s*min\(1240px,\s*calc\(100%\s*-\s*64px\)\)/);
   assert.match(css, /\.sqc-mobile-web\.desktop-official-detail\s+\.sqc-official-solo-detail-screen\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1\.35fr\)\s+minmax\(340px,\s*\.65fr\);/);
-  assert.match(css, /\.sqc-mobile-web\.desktop-official-detail\s+\.sqc-official-quest-card\s*\{[^}]*grid-column:\s*1\s*\/\s*-1;/);
-  assert.match(css, /\.sqc-mobile-web\.desktop-official-detail\s+\.sqc-official-solo-detail-screen\s*>\s*\.sqc-quest-command-rail\s*\{[^}]*grid-column:\s*2;[^}]*grid-row:\s*3\s*\/\s*span\s*2;[^}]*position:\s*sticky;[^}]*top:\s*108px;/);
+  assert.match(css, /\.sqc-mobile-web\.desktop-official-detail\s+\.sqc-official-quest-card\s*\{[^}]*grid-column:\s*1;[^}]*grid-row:\s*2;/);
+  assert.match(css, /\.sqc-mobile-web\.desktop-official-detail\s+\.sqc-quest-flavor-card\s*\{[^}]*grid-column:\s*1;[^}]*grid-row:\s*3;/);
+  assert.match(css, /\.sqc-mobile-web\.desktop-official-detail\s+\.sqc-quest-instruction-card\s*\{[^}]*grid-column:\s*1;[^}]*grid-row:\s*4;/);
+  assert.match(css, /\.sqc-mobile-web\.desktop-official-detail\s+\.sqc-official-solo-detail-screen\s*>\s*\.sqc-quest-command-rail\s*\{[^}]*grid-column:\s*2;[^}]*grid-row:\s*2\s*\/\s*span\s*3;[^}]*align-self:\s*start;[^}]*position:\s*sticky;[^}]*top:\s*108px;/);
   assert.match(css, /\.sqc-mobile-web\.desktop-official-detail\s+\.sqc-quest-command-rail\s*>\s*\.sqc-community-share-actions\s*\{[^}]*grid-template-columns:\s*repeat\(2,\s*minmax\(0,\s*1fr\)\);/);
   assert.match(css, /\.sqc-mobile-web\.desktop-official-detail\s+\.sqc-community-share-actions\s*>\s*small\s*\{[^}]*grid-column:\s*1\s*\/\s*-1;/);
   assert.doesNotMatch(css, /\.sqc-mobile-web\.desktop-official-detail\s+\.sqc-official-solo-detail-screen\s*>\s*\.sqc-proof-action-card\s*\{/);
