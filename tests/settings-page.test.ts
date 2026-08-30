@@ -43,12 +43,13 @@ test("Settings becomes a desktop account workspace only at the established bound
   assert.doesNotMatch(route, /controlsOnlyHeader/, "mobile Settings keeps its existing signed-in app header below 1180px");
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-settings\s+\.sqc-screen\s*\{[^}]*width:\s*min\(1240px,\s*calc\(100%\s*-\s*64px\)\)/);
   assert.match(desktopMedia, /\.sqc-settings-editor-layout\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1\.35fr\)\s+minmax\(340px,\s*\.65fr\)/);
-  assert.match(desktopMedia, /\.sqc-settings-sign-in-layout\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1\.05fr\)\s+minmax\(380px,\s*\.95fr\)/);
+  assert.match(desktopMedia, /\.sqc-settings-sign-in-layout\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\)\s+440px/);
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-settings\s+:is\(a, button, input, textarea\):focus-visible/);
 });
 
-test("wide Settings uses the large desktop canvas and an editorial account split", async () => {
+test("wide Settings keeps sign-in primary and bounds the explanatory rail", async () => {
   const css = await readFile(new URL("../src/app/mobile-web.css", import.meta.url), "utf8");
+  const desktopMedia = css.match(/@media \(min-width: 1180px\) \{[\s\S]*?\/\* End desktop Settings workspace \*\/[\s\S]*?\}/)?.[0] ?? "";
   const wideDesktopMedia = css.match(/@media \(min-width: 1680px\) \{[\s\S]*?\n\}/)?.[0] ?? "";
 
   assert.match(wideDesktopMedia, /\.sqc-mobile-web\.desktop-settings\s+\.sqc-screen\s*\{[^}]*width:\s*min\(1500px,\s*calc\(100%\s*-\s*96px\)\)/);
@@ -57,7 +58,8 @@ test("wide Settings uses the large desktop canvas and an editorial account split
   assert.match(wideDesktopMedia, /\.sqc-mobile-web\.desktop-settings\s+\.sqc-settings-profile-panel\s*\{[^}]*padding:\s*48px\s+56px/);
   assert.match(wideDesktopMedia, /\.sqc-mobile-web\.desktop-settings\s+\.sqc-settings-profile-panel\s+\.sqc-input-stack,\s*\.sqc-mobile-web\.desktop-settings\s+\.sqc-settings-field-group\s*\{[^}]*grid-template-columns:\s*190px\s+minmax\(0,\s*1fr\)/);
   assert.match(wideDesktopMedia, /\.sqc-mobile-web\.desktop-settings\s+\.sqc-settings-profile-panel\s+\.sqc-primary-action\s*\{[^}]*margin-left:\s*214px/);
-  assert.match(wideDesktopMedia, /\.sqc-mobile-web\.desktop-settings\s+\.sqc-settings-sign-in-layout\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*\.82fr\)\s+minmax\(640px,\s*1\.18fr\);[^}]*min-height:\s*620px/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-settings\s+\.sqc-settings-sign-in-layout\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\)\s+440px/);
+  assert.match(wideDesktopMedia, /\.sqc-mobile-web\.desktop-settings\s+\.sqc-settings-sign-in-layout\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\)\s+520px;[^}]*min-height:\s*620px/);
   assert.match(wideDesktopMedia, /\.sqc-mobile-web\.desktop-settings\s+\.sqc-settings-sign-in-copy\s*\{[^}]*padding:\s*76px/);
   assert.match(wideDesktopMedia, /\.sqc-mobile-web\.desktop-settings\s+\.sqc-settings-sign-in-context\s*\{[^}]*padding:\s*72px/);
 });
