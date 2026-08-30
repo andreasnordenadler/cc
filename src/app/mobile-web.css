@@ -8242,8 +8242,9 @@ body::after {
   }
 
   .sqc-mobile-web.desktop-official-detail .sqc-official-quest-card {
-    grid-column: 1 / -1;
+    grid-column: 1;
     grid-row: 2;
+    align-self: stretch;
     min-height: 292px;
     padding: 34px 42px;
     border-color: rgba(245, 200, 106, .22);
@@ -8296,6 +8297,7 @@ body::after {
 
   .sqc-mobile-web.desktop-official-detail .sqc-quest-flavor-card {
     grid-column: 1;
+    grid-row: 3;
     padding: 20px 24px;
     border-radius: 20px;
   }
@@ -8308,6 +8310,7 @@ body::after {
 
   .sqc-mobile-web.desktop-official-detail .sqc-quest-instruction-card {
     grid-column: 1;
+    grid-row: 4;
     gap: 14px;
     padding: 28px;
     border-radius: 24px;
@@ -8333,7 +8336,8 @@ body::after {
 
   .sqc-mobile-web.desktop-official-detail .sqc-official-solo-detail-screen > .sqc-quest-command-rail {
     grid-column: 2;
-    grid-row: 3 / span 2;
+    grid-row: 2 / span 3;
+    align-self: start;
     position: sticky;
     top: 108px;
     display: grid;
