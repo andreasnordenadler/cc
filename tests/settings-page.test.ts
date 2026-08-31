@@ -59,7 +59,9 @@ test("wide Settings keeps sign-in primary and bounds the explanatory rail", asyn
   assert.match(wideDesktopMedia, /\.sqc-mobile-web\.desktop-settings\s+\.sqc-settings-profile-panel\s+\.sqc-input-stack,\s*\.sqc-mobile-web\.desktop-settings\s+\.sqc-settings-field-group\s*\{[^}]*grid-template-columns:\s*190px\s+minmax\(0,\s*1fr\)/);
   assert.match(wideDesktopMedia, /\.sqc-mobile-web\.desktop-settings\s+\.sqc-settings-profile-panel\s+\.sqc-primary-action\s*\{[^}]*margin-left:\s*214px/);
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-settings\s+\.sqc-settings-sign-in-layout\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\)\s+440px/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-settings\s+\.sqc-settings-sign-in-copy\s*\{[^}]*align-content:\s*start;[^}]*padding:\s*24px\s+64px/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-settings\s+\.sqc-settings-sign-in-context\s*\{[^}]*align-content:\s*start;[^}]*padding:\s*48px\s+56px/);
   assert.match(wideDesktopMedia, /\.sqc-mobile-web\.desktop-settings\s+\.sqc-settings-sign-in-layout\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\)\s+520px;[^}]*min-height:\s*620px/);
-  assert.match(wideDesktopMedia, /\.sqc-mobile-web\.desktop-settings\s+\.sqc-settings-sign-in-copy\s*\{[^}]*padding:\s*76px/);
-  assert.match(wideDesktopMedia, /\.sqc-mobile-web\.desktop-settings\s+\.sqc-settings-sign-in-context\s*\{[^}]*padding:\s*72px/);
+  assert.match(wideDesktopMedia, /\.sqc-mobile-web\.desktop-settings\s+\.sqc-settings-sign-in-copy\s*\{[^}]*padding:\s*24px\s+76px/);
+  assert.match(wideDesktopMedia, /\.sqc-mobile-web\.desktop-settings\s+\.sqc-settings-sign-in-context\s*\{[^}]*padding:\s*48px\s+72px/);
 });
