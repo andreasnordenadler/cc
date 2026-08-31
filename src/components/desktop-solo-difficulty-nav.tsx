@@ -24,7 +24,7 @@ export default function DesktopSoloDifficultyNav({ items }: { items: DifficultyI
     let animationFrame = 0;
     const updateActiveDifficulty = () => {
       animationFrame = 0;
-      const orientationLine = 144;
+      const orientationLine = 168;
       let current = difficulties[0];
 
       for (const difficulty of difficulties) {

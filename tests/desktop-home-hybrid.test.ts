@@ -435,7 +435,7 @@ test("Solo discovery offers a desktop-only sticky difficulty navigator for the l
   assert.match(html, /href="#solo-difficulty-easy"[^>]*><span>Easy<\/span><small>5<\/small><\/a>/);
   assert.match(html, /href="#solo-difficulty-absurd"[^>]*><span>Absurd<\/span><small>1<\/small><\/a>/);
   assert.match(css, /\.sqc-solo-difficulty-nav\s*\{[^}]*display:\s*none;/);
-  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-solo-discovery\s+\.sqc-solo-difficulty-nav\s*\{[^}]*display:\s*grid;[^}]*position:\s*sticky;[^}]*top:\s*104px;/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-solo-discovery\s+\.sqc-solo-difficulty-nav\s*\{[^}]*display:\s*grid;[^}]*position:\s*sticky;[^}]*top:\s*168px;/);
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-solo-discovery\s+\.sqc-solo-browser\s*\{[^}]*grid-template-columns:\s*160px\s+minmax\(0,\s*1fr\);/);
   assert.match(css, /@media\s*\(prefers-reduced-motion:\s*reduce\)[\s\S]*?\.sqc-mobile-web\.desktop-solo-discovery\s+\.sqc-solo-difficulty-link\s*\{[^}]*transition:\s*none\s*!important;[^}]*transform:\s*none\s*!important;/);
 });
@@ -517,6 +517,28 @@ test("Solo discovery compacts its masthead and catalog controls into a desktop c
   assert.match(standardDesktopMedia, /\.sqc-mobile-web\.desktop-solo-discovery\s+\.sqc-solo-browser\s*\{[^}]*grid-column:\s*1\s*\/\s*-1;/);
   assert.match(wideDesktopMedia, /\.sqc-mobile-web\.desktop-solo-discovery\s+\.sqc-catalog-screen\s*\{[^}]*grid-template-columns:\s*190px\s+minmax\(0,\s*1fr\)\s+420px;/);
   assert.match(wideDesktopMedia, /\.sqc-mobile-web\.desktop-solo-discovery\s+\.sqc-panel\.list\s*\{[^}]*grid-template-columns:\s*300px\s+minmax\(0,\s*1fr\);/);
+});
+
+test("desktop Solo keeps search and catalog context in one sticky command bar without changing mobile flow", () => {
+  const html = renderToStaticMarkup(
+    createElement(MobileSoloSideQuestsScreen, { challenges: CHALLENGES, signedIn: false }),
+  );
+  const css = readFileSync("src/app/mobile-web.css", "utf8");
+  const navSource = readFileSync("src/components/desktop-solo-difficulty-nav.tsx", "utf8");
+  const mobileCss = css.slice(0, css.indexOf("@media (min-width: 1180px)"));
+  const desktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1180px)"));
+
+  assert.equal(html.match(/class="sqc-solo-command-bar"/g)?.length, 1, "count and search share one responsive subtree");
+  assert.match(html, /class="sqc-solo-command-bar"><div class="sqc-list-head inline">[\s\S]*?<form class="sqc-solo-search"/);
+  assert.match(mobileCss, /\.sqc-solo-command-bar\s*\{[^}]*display:\s*contents;/, "mobile retains the established in-flow controls");
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-solo-discovery\s+\.sqc-screen\s*\{[^}]*padding:\s*28px\s+0\s+76px;/, "desktop browsing starts closer to the persistent navigation");
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-solo-discovery\s+\.sqc-desktop-catalog-intro\s*\{[^}]*min-height:\s*132px;/, "the masthead leaves useful first-viewport room for the catalog");
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-solo-discovery\s+\.sqc-solo-command-bar\s*\{[^}]*position:\s*sticky;[^}]*top:\s*88px;[^}]*z-index:\s*12;[^}]*grid-template-columns:\s*280px\s+minmax\(0,\s*1fr\);/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-solo-discovery\s+\.sqc-solo-command-bar\s*\{[^}]*margin-bottom:\s*12px;[^}]*padding:\s*8px\s+12px;[^}]*backdrop-filter:\s*blur\(18px\);/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-solo-discovery\s+\.sqc-solo-command-bar::before\s*\{[^}]*bottom:\s*100%;[^}]*height:\s*12px;[^}]*background:\s*rgba\(14,\s*10,\s*9,\s*\.98\);[^}]*pointer-events:\s*none;/, "the sticky bar masks scrolling content below the global header");
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-solo-discovery\s+\.sqc-solo-difficulty-nav\s*\{[^}]*top:\s*168px;/, "the difficulty rail clears the compact sticky command bar");
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-solo-discovery\s+\.sqc-solo-difficulty-heading\s+h3\s*\{[^}]*scroll-margin-top:\s*168px;/, "difficulty destinations clear both sticky desktop surfaces");
+  assert.match(navSource, /const orientationLine = 168;/, "difficulty wayfinding uses the same orientation line as anchored headings");
 });
 
 test("desktop Solo cards expose Android opening hints and an explicit detail affordance without changing mobile rows", () => {

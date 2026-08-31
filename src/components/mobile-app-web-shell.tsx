@@ -937,24 +937,26 @@ export function MobileSoloSideQuestsScreen({
       </nav>
 
       <section className="sqc-panel list">
-        <div className="sqc-list-head inline">
-          <h2>Official Side Quests</h2>
-          <span>{query ? `${sortedChallenges.length} of ${totalChallengeCount} official` : `${sortedChallenges.length} official`}</span>
-        </div>
-        <form className="sqc-solo-search" action="/side-quests" role="search">
-          <label htmlFor="official-solo-search">Find an official Side Quest</label>
-          <div>
-            <input
-              id="official-solo-search"
-              name="q"
-              type="search"
-              defaultValue={query}
-              placeholder="Search titles, rules, or difficulty"
-            />
-            <button type="submit">Search</button>
-            {query ? <Link className="sqc-solo-search-clear" href="/side-quests">Clear search</Link> : null}
+        <div className="sqc-solo-command-bar">
+          <div className="sqc-list-head inline">
+            <h2>Official Side Quests</h2>
+            <span>{query ? `${sortedChallenges.length} of ${totalChallengeCount} official` : `${sortedChallenges.length} official`}</span>
           </div>
-        </form>
+          <form className="sqc-solo-search" action="/side-quests" role="search">
+            <label htmlFor="official-solo-search">Find an official Side Quest</label>
+            <div>
+              <input
+                id="official-solo-search"
+                name="q"
+                type="search"
+                defaultValue={query}
+                placeholder="Search titles, rules, or difficulty"
+              />
+              <button type="submit">Search</button>
+              {query ? <Link className="sqc-solo-search-clear" href="/side-quests">Clear search</Link> : null}
+            </div>
+          </form>
+        </div>
         {difficultyShelves.length ? (
           <div className="sqc-solo-browser">
             <DesktopSoloDifficultyNav
