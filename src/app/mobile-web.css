@@ -10677,10 +10677,10 @@ body::after {
 
   .sqc-mobile-web.desktop-settings .sqc-settings-sign-in-copy {
     display: grid;
-    align-content: center;
+    align-content: start;
     justify-items: start;
     gap: 20px;
-    padding: 64px;
+    padding: 24px 64px;
     border: 0;
     border-radius: 0;
     background: transparent;
@@ -10701,8 +10701,8 @@ body::after {
   }
 
   .sqc-mobile-web.desktop-settings .sqc-settings-sign-in-context {
-    align-content: center;
-    padding: 56px;
+    align-content: start;
+    padding: 48px 56px;
     border: 0;
     border-left: 1px solid rgba(245, 200, 106, .17);
     border-radius: 0;
@@ -12188,11 +12188,11 @@ body::after {
   }
 
   .sqc-mobile-web.desktop-settings .sqc-settings-sign-in-copy {
-    padding: 76px;
+    padding: 24px 76px;
   }
 
   .sqc-mobile-web.desktop-settings .sqc-settings-sign-in-context {
-    padding: 72px;
+    padding: 48px 72px;
   }
 
   .sqc-mobile-web.desktop-support .sqc-screen {
