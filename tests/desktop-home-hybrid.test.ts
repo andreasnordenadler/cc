@@ -360,7 +360,15 @@ test("desktop home keeps account setup visible when a Solo quest is active witho
   assert.match(html, /Let’s finish setting up your quest log/);
   assert.match(html, /aria-label="Getting started"/);
   assert.match(html, /<li class="current"><span>1<\/span><a href="\/settings#lichess-username">Connect chess account<\/a><\/li>/);
-  assert.match(html, /<a class="sqc-blocker" data-desktop-href="\/settings#lichess-username" href="\/account"><strong>Connect a chess username<\/strong>/);
+  assert.match(html, /<span class="sqc-responsive-account-link-group"><a class="sqc-blocker sqc-responsive-account-link mobile" href="\/account"><strong>Connect a chess username<\/strong>/);
+  assert.match(html, /<a class="sqc-blocker sqc-responsive-account-link desktop" href="\/settings#lichess-username"><strong>Connect a chess username<\/strong>/);
+  const css = readFileSync("src/app/mobile-web.css", "utf8");
+  const mobileCss = css.slice(0, css.indexOf("@media (min-width: 1180px)"));
+  const desktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1180px)"));
+  assert.match(mobileCss, /\.sqc-responsive-account-link\.desktop\s*\{[^}]*display:\s*none;/);
+  assert.match(desktopMedia, /\.sqc-responsive-account-link\.mobile\s*\{[^}]*display:\s*none;/);
+  assert.match(desktopMedia, /\.sqc-responsive-account-link\.desktop\s*\{[^}]*display:\s*grid;/);
+  assert.doesNotMatch(html, /data-desktop-href=/);
   assert.doesNotMatch(html, /latest proof[^<]*ready below/);
   assert.equal(html.match(/class="sqc-current-card/g)?.length, 1, "active Solo remains available while setup is incomplete");
 });
@@ -413,10 +421,11 @@ test("desktop home keeps Play and verify current until the first Solo proof comp
     }),
   );
 
-  assert.match(previouslyVerifiedHtml, /Welcome back, Sam/);
-  assert.doesNotMatch(previouslyVerifiedHtml, /aria-label="Getting started"/);
-  assert.match(previouslyVerifiedHtml, />3\/3 setup steps complete</);
-  assert.match(previouslyVerifiedHtml, /latest proof[^<]*ready below/);
+  assert.match(previouslyVerifiedHtml, /Your first proof is the next move/);
+  assert.match(previouslyVerifiedHtml, /aria-label="Getting started"/);
+  assert.match(previouslyVerifiedHtml, /<li class="current"><span>3<\/span><strong>Play and verify<\/strong><\/li>/);
+  assert.match(previouslyVerifiedHtml, />2\/3 setup steps complete</);
+  assert.doesNotMatch(previouslyVerifiedHtml, /latest proof[^<]*ready below/);
 });
 
 test("desktop Home does not restart onboarding after a completed user deactivates their Solo quest", () => {

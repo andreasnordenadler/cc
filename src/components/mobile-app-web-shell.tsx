@@ -597,7 +597,9 @@ function DesktopSignedInHome({
   proofReceiptCount: number;
 }) {
   const hasActiveSolo = Boolean(activeSolo?.title ?? activeSoloTitle);
-  const hasVerifiedSolo = Boolean(activeSolo?.completed || activeSolo?.verifiedAt || completedSoloCount > 0);
+  const hasVerifiedSolo = hasActiveSolo
+    ? Boolean(activeSolo?.completed || activeSolo?.verifiedAt)
+    : completedSoloCount > 0;
   const setupComplete = hasChessAccount && hasVerifiedSolo;
   const completedSteps = setupComplete
     ? 3

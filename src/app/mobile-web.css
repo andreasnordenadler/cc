@@ -817,6 +817,14 @@ body::after {
   font-weight: 760;
 }
 
+.sqc-responsive-account-link-group {
+  display: contents;
+}
+
+.sqc-responsive-account-link.desktop {
+  display: none;
+}
+
 .sqc-current-card {
   position: relative;
   display: grid;
@@ -6483,6 +6491,14 @@ body::after {
     display: grid;
     grid-template-columns: minmax(0, 1.28fr) minmax(380px, .72fr);
     gap: 22px;
+  }
+
+  .sqc-responsive-account-link.mobile {
+    display: none;
+  }
+
+  .sqc-responsive-account-link.desktop {
+    display: grid;
   }
 
   .sqc-desktop-dashboard-grid .sqc-blocker {

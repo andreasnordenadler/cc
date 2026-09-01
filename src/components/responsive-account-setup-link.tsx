@@ -1,9 +1,5 @@
-"use client";
-
 import Link from "next/link";
-import { useEffect, useState, type ReactNode } from "react";
-
-const DESKTOP_QUERY = "(min-width: 1180px)";
+import type { ReactNode } from "react";
 
 export default function ResponsiveAccountSetupLink({
   mobileHref,
@@ -16,24 +12,16 @@ export default function ResponsiveAccountSetupLink({
   className?: string;
   children: ReactNode;
 }) {
-  const [href, setHref] = useState(mobileHref);
-
-  useEffect(() => {
-    if (!desktopHref) return;
-    const media = window.matchMedia(DESKTOP_QUERY);
-    const syncHref = () => setHref(media.matches ? desktopHref : mobileHref);
-    syncHref();
-    media.addEventListener("change", syncHref);
-    return () => media.removeEventListener("change", syncHref);
-  }, [desktopHref, mobileHref]);
-
   if (!desktopHref) {
     return <Link className={className} href={mobileHref}>{children}</Link>;
   }
 
+  const sharedClassName = className ? `${className} sqc-responsive-account-link` : "sqc-responsive-account-link";
+
   return (
-    <Link className={className} data-desktop-href={desktopHref} href={href}>
-      {children}
-    </Link>
+    <span className="sqc-responsive-account-link-group">
+      <Link className={`${sharedClassName} mobile`} href={mobileHref}>{children}</Link>
+      <Link className={`${sharedClassName} desktop`} href={desktopHref}>{children}</Link>
+    </span>
   );
 }
