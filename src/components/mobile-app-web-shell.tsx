@@ -597,24 +597,28 @@ function DesktopSignedInHome({
   proofReceiptCount: number;
 }) {
   const hasActiveSolo = Boolean(activeSolo?.title ?? activeSoloTitle);
-  const hasVerifiedSolo = hasActiveSolo
-    ? Boolean(activeSolo?.completed || activeSolo?.verifiedAt)
-    : completedSoloCount > 0;
+  const hasVerifiedSolo = completedSoloCount > 0
+    || Boolean(activeSolo?.completed || activeSolo?.verifiedAt);
+  const hasChosenSolo = hasActiveSolo || hasVerifiedSolo;
   const setupComplete = hasChessAccount && hasVerifiedSolo;
   const completedSteps = setupComplete
     ? 3
-    : Number(hasChessAccount) + Number(hasActiveSolo) + Number(hasVerifiedSolo);
+    : Number(hasChessAccount) + Number(hasChosenSolo) + Number(hasVerifiedSolo);
 
-  const setupHeading = !hasActiveSolo
-    ? "Let’s choose your first Side Quest."
-    : !hasChessAccount
-      ? "Let’s finish setting up your quest log."
-      : "Your first proof is the next move.";
-  const setupCopy = !hasActiveSolo
-    ? "Connect a public chess username, choose one quest, then play a new public game."
-    : !hasChessAccount
-      ? "Your active quest is ready below. Connect a public chess username before Side Quest Chess can check its proof."
-      : "Play a new public game on your connected chess account, then return to check the proof.";
+  const setupHeading = !hasChessAccount && hasVerifiedSolo
+    ? "Let’s reconnect your chess account."
+    : !hasActiveSolo
+      ? "Let’s choose your first Side Quest."
+      : !hasChessAccount
+        ? "Let’s finish setting up your quest log."
+        : "Your first proof is the next move.";
+  const setupCopy = !hasChessAccount && hasVerifiedSolo
+    ? "Reconnect a public chess username so Side Quest Chess can check your next proof."
+    : !hasActiveSolo
+      ? "Connect a public chess username, choose one quest, then play a new public game."
+      : !hasChessAccount
+        ? "Your active quest is ready below. Connect a public chess username before Side Quest Chess can check its proof."
+        : "Play a new public game on your connected chess account, then return to check the proof.";
 
   return (
     <div className="sqc-desktop-signed-in sqc-responsive-signed-home">
@@ -631,7 +635,7 @@ function DesktopSignedInHome({
         {!setupComplete ? (
           <ol className="sqc-desktop-onboarding-progress" aria-label="Getting started">
             <li className={hasChessAccount ? "done" : "current"}><span>1</span><Link href="/settings#lichess-username">Connect chess account</Link></li>
-            <li className={hasActiveSolo ? "done" : hasChessAccount ? "current" : ""}><span>2</span><Link href="/side-quests">Choose a Side Quest</Link></li>
+            <li className={hasChosenSolo ? "done" : hasChessAccount ? "current" : ""}><span>2</span><Link href="/side-quests">Choose a Side Quest</Link></li>
             <li className={hasVerifiedSolo ? "done" : hasChessAccount && hasActiveSolo ? "current" : ""}><span>3</span><strong>Play and verify</strong></li>
           </ol>
         ) : (

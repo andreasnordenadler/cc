@@ -421,11 +421,11 @@ test("desktop home keeps Play and verify current until the first Solo proof comp
     }),
   );
 
-  assert.match(previouslyVerifiedHtml, /Your first proof is the next move/);
-  assert.match(previouslyVerifiedHtml, /aria-label="Getting started"/);
-  assert.match(previouslyVerifiedHtml, /<li class="current"><span>3<\/span><strong>Play and verify<\/strong><\/li>/);
-  assert.match(previouslyVerifiedHtml, />2\/3 setup steps complete</);
-  assert.doesNotMatch(previouslyVerifiedHtml, /latest proof[^<]*ready below/);
+  assert.match(previouslyVerifiedHtml, /Welcome back, Sam/);
+  assert.doesNotMatch(previouslyVerifiedHtml, /aria-label="Getting started"/);
+  assert.match(previouslyVerifiedHtml, />3\/3 setup steps complete</);
+  assert.match(previouslyVerifiedHtml, /<strong>In progress<\/strong>/, "the new active quest remains the next dashboard task");
+  assert.match(previouslyVerifiedHtml, /latest proof[^<]*ready below/);
 });
 
 test("desktop Home does not restart onboarding after a completed user deactivates their Solo quest", () => {
@@ -448,6 +448,28 @@ test("desktop Home does not restart onboarding after a completed user deactivate
   assert.match(html, /Choose a Solo Side Quest when you want a new objective\./);
   assert.doesNotMatch(html, /Your active quest[^<]*ready below/);
   assert.match(html, /<strong>Choose a quest<\/strong>/, "the dashboard still offers the next real Solo action");
+});
+
+test("desktop Home asks a previously verified user to reconnect instead of choosing a first quest", () => {
+  const html = renderToStaticMarkup(
+    createElement(MobileAppWebShell, {
+      activeTab: "home",
+      signedIn: true,
+      displayName: "Sam",
+      activeMultiplayerRows: [],
+      trophyRows: [],
+      completedSoloCount: 1,
+      proofReceiptCount: 1,
+    }),
+  );
+
+  assert.match(html, /Let’s reconnect your chess account\./);
+  assert.match(html, /Reconnect a public chess username so Side Quest Chess can check your next proof\./);
+  assert.match(html, /<li class="current"><span>1<\/span><a href="\/settings#lichess-username">Connect chess account<\/a><\/li>/);
+  assert.match(html, /<li class="done"><span>2<\/span><a href="\/side-quests">Choose a Side Quest<\/a><\/li>/);
+  assert.match(html, /<li class="done"><span>3<\/span><strong>Play and verify<\/strong><\/li>/);
+  assert.match(html, />2\/3 setup steps complete</);
+  assert.doesNotMatch(html, /first Side Quest/);
 });
 
 test("shared signed-in Home keeps the mobile account destination unless a desktop override is supplied", () => {
