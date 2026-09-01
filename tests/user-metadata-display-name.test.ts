@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import test from "node:test";
 
 import { compactChallengeAttempts, getRunnerDisplayName } from "../src/lib/user-metadata";
@@ -28,4 +29,11 @@ test("attempt compaction preserves Solo and Multiplayer passed provenance for a 
   const compacted = compactChallengeAttempts([soloPassed, multiplayerPassed], 1);
 
   assert.deepEqual(compacted.map((attempt) => attempt.id), [soloPassed.id, multiplayerPassed.id]);
+});
+
+test("web Solo mutations use the shared source-preserving attempt compactor", () => {
+  const source = readFileSync("src/app/actions.ts", "utf8");
+
+  assert.match(source, /import \{[\s\S]*?compactChallengeAttempts[\s\S]*?\} from "@\/lib\/user-metadata";/);
+  assert.doesNotMatch(source, /function compactChallengeAttempts\(/);
 });

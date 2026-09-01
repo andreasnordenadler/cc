@@ -187,8 +187,10 @@ export function hasCompletedSoloProof(
   challengeId: string,
   completedChallengeIds: readonly string[],
   attempts: readonly ChallengeAttempt[],
+  activeChallenge?: { activeChallengeId?: string | null; activeChallengeStatus?: string | null },
 ) {
   if (!completedChallengeIds.includes(challengeId)) return false;
+  if (activeChallenge?.activeChallengeId === challengeId && activeChallenge.activeChallengeStatus === "verified") return true;
   const passedAttempts = attempts.filter((attempt) => getAttemptChallengeId(attempt) === challengeId && attempt.status === "passed");
   if (!passedAttempts.length) return true;
   return passedAttempts.some((attempt) => !isMultiplayerProofAttempt(attempt));
@@ -197,9 +199,10 @@ export function hasCompletedSoloProof(
 export function getCompletedSoloQuestIds(
   completedChallengeIds: readonly string[],
   attempts: readonly ChallengeAttempt[],
+  activeChallenge?: { activeChallengeId?: string | null; activeChallengeStatus?: string | null },
 ) {
   const completedIds = [...new Set(completedChallengeIds.filter(Boolean))];
-  return completedIds.filter((challengeId) => hasCompletedSoloProof(challengeId, completedIds, attempts));
+  return completedIds.filter((challengeId) => hasCompletedSoloProof(challengeId, completedIds, attempts, activeChallenge));
 }
 
 export function countCompletedSoloQuests(

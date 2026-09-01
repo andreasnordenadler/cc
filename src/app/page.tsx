@@ -48,10 +48,16 @@ export default async function Home() {
   const activeSoloQuest = resolveHomeActiveSoloQuest(activeChallenge?.id, customSideQuests, communitySideQuests, activeChallenge?.customQuestSnapshot);
   const progress = getChallengeProgress(metadata);
   const challengeAttempts = getChallengeAttempts(metadata);
-  const completedSoloIds = getCompletedSoloQuestIds(progress.completedChallengeIds, challengeAttempts);
+  const completedSoloIds = getCompletedSoloQuestIds(progress.completedChallengeIds, challengeAttempts, {
+    activeChallengeId: activeChallenge?.id,
+    activeChallengeStatus: activeChallenge?.status,
+  });
   const activeChallengeAttempt = activeChallenge?.id ? getLatestSoloChallengeAttempt(challengeAttempts, activeChallenge.id) : null;
   const activeChallengeSummary = buildAttemptSummary(activeChallengeAttempt);
-  const activeChallengeCompleted = Boolean(activeSoloQuest && hasCompletedSoloProof(activeSoloQuest.id, completedSoloIds, challengeAttempts));
+  const activeChallengeCompleted = Boolean(activeSoloQuest && hasCompletedSoloProof(activeSoloQuest.id, completedSoloIds, challengeAttempts, {
+    activeChallengeId: activeChallenge?.id,
+    activeChallengeStatus: activeChallenge?.status,
+  }));
   const activeChallengePassedAttempt = activeChallenge?.id ? getLatestPassedSoloChallengeAttempt(challengeAttempts, activeChallenge.id) : null;
   const activeCustomQuest = activeChallenge?.id && !activeOfficialChallenge
     ? customSideQuests.find((quest) => quest.id === activeChallenge.id)

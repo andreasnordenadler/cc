@@ -114,6 +114,7 @@ import {
 import { assertActiveSoloSubmissionTarget } from "@/lib/official-solo-exact-game";
 import { buildSoloCheckResult, runSoloCheckAction, type SoloCheckActionResult } from "@/lib/solo-check-result";
 import {
+  compactChallengeAttempts,
   getChallengeProgress,
   getChessComUsername,
   getLichessUsername,
@@ -179,33 +180,6 @@ const simulatedChallengeChecks: Record<string, Array<{ status: "passed" | "faile
   ],
 };
 
-
-function compactChallengeAttempts(attempts: ChallengeAttempt[], maxRecentAttempts = 8): ChallengeAttempt[] {
-  const compacted = attempts.map((attempt) => ({
-    ...attempt,
-    summary: attempt.summary ? attempt.summary.slice(0, 220) : attempt.summary,
-  }));
-  const latestPassedByChallenge = new Map<string, ChallengeAttempt>();
-
-  for (const attempt of compacted) {
-    const challengeId = attempt.challengeId ?? attempt.id?.split(":")[0];
-
-    if (attempt.status === "passed" && challengeId) {
-      latestPassedByChallenge.set(challengeId, attempt);
-    }
-  }
-
-  const keepKeys = new Set(
-    [
-      ...compacted.slice(-maxRecentAttempts),
-      ...latestPassedByChallenge.values(),
-    ].map((attempt) => attempt.id ?? `${attempt.challengeId}:${attempt.provider}:${attempt.checkedAt}:${attempt.gameId}`),
-  );
-
-  return compacted.filter((attempt) =>
-    keepKeys.has(attempt.id ?? `${attempt.challengeId}:${attempt.provider}:${attempt.checkedAt}:${attempt.gameId}`),
-  );
-}
 
 function getAttemptChallengeId(attempt: ChallengeAttempt): string | undefined {
   return typeof attempt.challengeId === "string"

@@ -105,6 +105,10 @@ test("Home onboarding excludes Multiplayer-only proof from completed Solo proof 
     "custom-solo-1",
   ], [multiplayerAttempt, soloAttempt]), ["custom-solo-1", "legacy-solo-without-attempt"]);
   assert.equal(countCompletedSoloQuests(["knights-before-coffee"], [multiplayerAttempt]), 0);
+  assert.deepEqual(getCompletedSoloQuestIds(["knights-before-coffee"], [multiplayerAttempt], {
+    activeChallengeId: "knights-before-coffee",
+    activeChallengeStatus: "verified",
+  }), ["knights-before-coffee"], "the verified active Solo completion survives legacy receipt compaction in Home totals");
   assert.equal(countCompletedSoloQuests(["knights-before-coffee"], [multiplayerAttempt, {
     ...soloAttempt,
     challengeId: "knights-before-coffee",
@@ -126,6 +130,10 @@ test("active Home quest is complete only when its persisted proof is Solo-source
     summary: "Solo proof verified.",
   }]), true);
   assert.equal(hasCompletedSoloProof("legacy-solo", ["legacy-solo"], []), true);
+  assert.equal(hasCompletedSoloProof("knights-before-coffee", ["knights-before-coffee"], [multiplayerAttempt], {
+    activeChallengeId: "knights-before-coffee",
+    activeChallengeStatus: "verified",
+  }), true, "a verified active Solo quest remains complete when legacy compaction retained only a later Multiplayer receipt");
   assert.equal(hasCompletedSoloProof("not-complete", [], []), false);
 });
 
@@ -164,10 +172,10 @@ test("Home route derives completed Solo onboarding from proof-source attempts", 
   const source = readFileSync("src/app/page.tsx", "utf8");
 
   assert.match(source, /const challengeAttempts = getChallengeAttempts\(metadata\)/);
-  assert.match(source, /const completedSoloIds = getCompletedSoloQuestIds\(progress\.completedChallengeIds, challengeAttempts\)/);
+  assert.match(source, /const completedSoloIds = getCompletedSoloQuestIds\(progress\.completedChallengeIds, challengeAttempts, \{[\s\S]*?activeChallengeId: activeChallenge\?\.id,[\s\S]*?activeChallengeStatus: activeChallenge\?\.status,[\s\S]*?\}\)/);
   assert.match(source, /getLatestSoloChallengeAttempt\(challengeAttempts, activeChallenge\.id\)/);
   assert.match(source, /getLatestPassedSoloChallengeAttempt\(challengeAttempts, activeChallenge\.id\)/);
-  assert.match(source, /hasCompletedSoloProof\(activeSoloQuest\.id, completedSoloIds, challengeAttempts\)/);
+  assert.match(source, /hasCompletedSoloProof\(activeSoloQuest\.id, completedSoloIds, challengeAttempts, \{[\s\S]*?activeChallengeId: activeChallenge\?\.id,[\s\S]*?activeChallengeStatus: activeChallenge\?\.status,[\s\S]*?\}\)/);
   assert.match(source, /loadHomeTrophyRows\(client, user\.id, completedSoloIds\)/);
   assert.match(source, /completedSoloCount=\{completedSoloIds\.length\}/);
   assert.doesNotMatch(source, /completedSoloCount=\{progress\.totalCompletedChallenges\}/);
