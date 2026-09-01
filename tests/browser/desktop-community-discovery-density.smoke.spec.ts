@@ -4,8 +4,9 @@ test("desktop Community discovery keeps a result above the fold with a compact c
   await page.setViewportSize({ width: 1180, height: 900 });
   await page.goto("/community-side-quests", { waitUntil: "domcontentloaded" });
 
-  const officialTab = page.getByRole("link", { name: "Official Side Quests", exact: true });
-  const communityTab = page.getByRole("link", { name: "Community Side Quests", exact: true });
+  const catalogSwitch = page.getByLabel("Current screen");
+  const officialTab = catalogSwitch.getByRole("link", { name: "Official Side Quests", exact: true });
+  const communityTab = catalogSwitch.getByRole("link", { name: "Community Side Quests", exact: true });
   const persistentCommunityLink = page.getByRole("navigation", { name: "Desktop shortcuts" }).getByRole("link", { name: "Community Side Quests", exact: true });
   const firstResult = page.locator(".sqc-community-results-layout .sqc-app-row").first();
 
