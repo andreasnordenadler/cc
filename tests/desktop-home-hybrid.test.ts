@@ -26,10 +26,9 @@ test("Community Solo structured row data stays required through the desktop view
 });
 
 test("desktop navigation preserves app destinations without duplicating the dedicated account action", () => {
-  assert.deepEqual(
-    desktopHomeMenuItems.slice(0, -1),
-    mobileWebMenuItems.filter((item) => item.id !== "account"),
-  );
+  assert.deepEqual(mobileWebMenuItems.find((item) => item.id === "account"), {
+    id: "account", label: "My Account", href: "/account", icon: "person",
+  });
   assert.deepEqual(desktopHomeMenuItems.at(-1), { id: "terms", label: "Terms of Use", href: "/terms", icon: "document" });
   const menuCss = readFileSync("src/app/mobile-web.css", "utf8");
   assert.match(menuCss, /\.sqc-menu-icon\.document\s*\{[^}]*--icon:\s*url\("data:image\/svg\+xml/);
@@ -39,6 +38,7 @@ test("desktop navigation preserves app destinations without duplicating the dedi
     [
       { label: "Home", href: "/" },
       { label: "Solo Side Quests", href: "/side-quests" },
+      { label: "Community Side Quests", href: "/community-side-quests" },
       { label: "Multiplayer Side Quests", href: "/multiplayer" },
       { label: "Trophy Cabinet", href: "/trophy-cabinet" },
       { label: "My Custom Side Quests", href: "/custom-side-quests" },
@@ -54,7 +54,7 @@ test("desktop navigation preserves app destinations without duplicating the dedi
 test("desktop Explore menu groups secondary destinations without repeating persistent shortcuts", () => {
   const html = renderToStaticMarkup(
     createElement(DesktopHomeMenu, {
-      items: desktopHomeMenuItems.slice(4),
+      items: desktopHomeMenuItems.slice(5),
       activeItemId: "custom",
     }),
   );
@@ -67,6 +67,7 @@ test("desktop Explore menu groups secondary destinations without repeating persi
   assert.doesNotMatch(html, /href="\/side-quests">Solo Side Quests<\/a>/);
   assert.doesNotMatch(html, /href="\/multiplayer">Multiplayer Side Quests<\/a>/);
   assert.doesNotMatch(html, /href="\/trophy-cabinet">Trophy Cabinet<\/a>/);
+  assert.doesNotMatch(html, /href="\/community-side-quests">Community Side Quests<\/a>/);
   assert.doesNotMatch(html, /href="\/account">My Account<\/a>/);
 });
 
@@ -381,7 +382,7 @@ test("Solo discovery renders one catalog plus desktop navigation with the correc
   assert.doesNotMatch(html, /sqc-desktop-command-deck/, "the Home-only command deck cannot leak into discovery routes");
   assert.match(html, /class="sqc-desktop-route-only"/);
   assert.match(html, /aria-label="Desktop shortcuts"/);
-  assert.match(html, /<a[^>]*aria-current="page"[^>]*href="\/side-quests">Solo Side Quests<\/a>/);
+  assert.match(html, /<a[^>]*aria-label="Solo Side Quests"[^>]*aria-current="page"[^>]*href="\/side-quests">Solo<\/a>/);
   assert.doesNotMatch(html, /<a[^>]*aria-current="page"[^>]*href="\/">Home<\/a>/);
   assert.match(html, /class="sqc-desktop-catalog-intro"/);
   assert.match(html, />Choose the rule that will ruin your next perfectly normal game\.<\/h1>/);
@@ -586,7 +587,8 @@ test("Community discovery becomes a desktop browsing workspace without duplicati
 
   assert.match(html, /class="sqc-desktop-route-only"/);
   assert.match(html, /aria-label="Desktop shortcuts"/);
-  assert.doesNotMatch(html, /<a[^>]*aria-current="page"[^>]*href="\/side-quests">Solo Side Quests<\/a>/);
+  assert.doesNotMatch(html, /<a[^>]*aria-label="Solo Side Quests"[^>]*aria-current="page"/);
+  assert.match(html, /<a[^>]*aria-label="Community Side Quests"[^>]*aria-current="page"[^>]*href="\/community-side-quests"[^>]*>Community<\/a>/);
   assert.match(html, /class="sqc-desktop-community-intro"/);
   assert.match(html, />Player-made rules, arranged for serious browsing\.<\/h1>/);
   assert.match(html, /<a class="sqc-community-row-creator" aria-label="Browse Side Quests by Nora Skewer" href="\/community-side-quests\?creator=nora#creator-nora">By Nora Skewer<\/a>/);
@@ -902,7 +904,7 @@ test("Multiplayer discovery becomes one desktop tournament desk without duplicat
 
   assert.match(html, /class="sqc-mobile-web desktop-multiplayer-discovery signed-out"/);
   assert.match(html, /class="sqc-desktop-route-only"/);
-  assert.match(html, /<a[^>]*aria-current="page"[^>]*href="\/multiplayer">Multiplayer Side Quests<\/a>/);
+  assert.match(html, /<a[^>]*aria-label="Multiplayer Side Quests"[^>]*aria-current="page"[^>]*href="\/multiplayer">Multiplayer<\/a>/);
   assert.match(html, /class="sqc-desktop-multiplayer-intro"/);
   assert.match(html, />Shared challenges, arranged like a tournament desk\.<\/h1>/);
   assert.match(html, /<nav class="sqc-desktop-multiplayer-launchpad" aria-label="Multiplayer quick actions">/);
@@ -1211,7 +1213,7 @@ test("Custom library becomes one desktop workshop without duplicating its filter
   assert.match(html, /class="sqc-desktop-route-only"/);
   assert.match(html, /class="sqc-desktop-custom-intro"/);
   assert.match(html, />Your Side Quest workshop, with room to think\.<\/h1>/);
-  assert.doesNotMatch(html, /<a[^>]*aria-current="page"[^>]*href="\/side-quests">Solo Side Quests<\/a>/);
+  assert.doesNotMatch(html, /<a[^>]*aria-label="Solo Side Quests"[^>]*aria-current="page"/);
   assert.match(html, /<a[^>]*aria-current="page"[^>]*href="\/custom-side-quests"><span[^>]*><\/span>My Custom Side Quests<\/a>/);
   assert.equal(html.match(/aria-label="My Custom Side Quest filters"/g)?.length, 1);
   assert.equal(html.match(/>\+ Create<\/a>/g)?.length, 1);
@@ -1332,7 +1334,7 @@ test("official Solo detail becomes one desktop workspace without duplicating its
 
   assert.match(html, /class="sqc-mobile-web desktop-official-detail signed-out"/);
   assert.match(html, /class="sqc-desktop-route-only"/);
-  assert.match(html, /<a[^>]*aria-current="page"[^>]*href="\/side-quests">Solo Side Quests<\/a>/);
+  assert.match(html, /<a[^>]*aria-label="Solo Side Quests"[^>]*aria-current="page"[^>]*href="\/side-quests">Solo<\/a>/);
   assert.equal(html.match(/>Share public link<\/button>/g)?.length, 1, "desktop and mobile share one action subtree");
 });
 
@@ -1429,6 +1431,8 @@ test("Community Solo detail opts into persistent desktop navigation without dupl
   assert.match(html, /class="sqc-mobile-web desktop-community-detail immersive signed-out"/);
   assert.match(html, /class="sqc-desktop-route-only"/);
   assert.match(html, /aria-label="Desktop shortcuts"/);
+  assert.match(html, /<a[^>]*aria-label="Community Side Quests"[^>]*aria-current="page"[^>]*href="\/community-side-quests"[^>]*>Community<\/a>/);
+  assert.doesNotMatch(html, /<a[^>]*aria-label="Solo Side Quests"[^>]*aria-current="page"/);
   assert.equal(html.match(/>Share public link<\/button>/g)?.length, 1, "desktop and mobile share one action subtree");
 });
 
