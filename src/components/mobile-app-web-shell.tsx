@@ -38,6 +38,7 @@ import { buildCommunityQuestDetailHref, type CommunityDiscoveryState } from "@/l
 import type { CustomOwnerSaveInput } from "@/lib/custom-owner-controls";
 import DesktopTrophyCollection from "./desktop-trophy-collection";
 import DesktopSoloDifficultyNav from "./desktop-solo-difficulty-nav";
+import ResponsiveAccountSetupLink from "./responsive-account-setup-link";
 
 type AppTab = "home" | "sideQuests" | "multiplayerSideQuests" | "coatOfArms" | "account";
 
@@ -597,8 +598,10 @@ function DesktopSignedInHome({
 }) {
   const hasActiveSolo = Boolean(activeSolo?.title ?? activeSoloTitle);
   const hasVerifiedSolo = Boolean(activeSolo?.completed || activeSolo?.verifiedAt || completedSoloCount > 0);
-  const setupComplete = hasChessAccount && hasActiveSolo && hasVerifiedSolo;
-  const completedSteps = Number(hasChessAccount) + Number(hasActiveSolo) + Number(hasVerifiedSolo);
+  const setupComplete = hasChessAccount && hasVerifiedSolo;
+  const completedSteps = setupComplete
+    ? 3
+    : Number(hasChessAccount) + Number(hasActiveSolo) + Number(hasVerifiedSolo);
 
   const setupHeading = !hasActiveSolo
     ? "Let’s choose your first Side Quest."
@@ -617,7 +620,11 @@ function DesktopSignedInHome({
         <div>
           <span className="sqc-desktop-eyebrow">Today&apos;s quest log</span>
           <h1>{setupComplete ? `Welcome back${displayName ? `, ${displayName}` : ""}.` : setupHeading}</h1>
-          <p>{setupComplete ? "Your active quest, latest proof, shared challenges, and unlocked Coats of Arms are ready below." : setupCopy}</p>
+          <p>{setupComplete
+            ? hasActiveSolo
+              ? "Your active quest, latest proof, shared challenges, and unlocked Coats of Arms are ready below."
+              : "Your proof history, shared challenges, and unlocked Coats of Arms are ready below. Choose a Solo Side Quest when you want a new objective."
+            : setupCopy}</p>
         </div>
         {!setupComplete ? (
           <ol className="sqc-desktop-onboarding-progress" aria-label="Getting started">
@@ -649,7 +656,7 @@ function DesktopSignedInHome({
       <div className="sqc-desktop-dashboard-grid">
         <SignedInHome
           hasChessAccount={hasChessAccount}
-          accountSetupHref="/settings#lichess-username"
+          desktopAccountSetupHref="/settings#lichess-username"
           activeSolo={activeSolo}
           activeSoloTitle={activeSoloTitle}
           activeMultiplayerRows={activeMultiplayerRows}
@@ -703,6 +710,7 @@ export function GuestHome({
 export function SignedInHome({
   hasChessAccount,
   accountSetupHref = "/account",
+  desktopAccountSetupHref,
   activeSolo,
   activeSoloTitle,
   activeMultiplayerRows,
@@ -712,6 +720,7 @@ export function SignedInHome({
 }: {
   hasChessAccount: boolean;
   accountSetupHref?: string;
+  desktopAccountSetupHref?: string;
   activeSolo?: ActiveSoloHome | null;
   activeSoloTitle?: string | null;
   activeMultiplayerRows: ActiveMultiplayerHomeRow[];
@@ -725,10 +734,14 @@ export function SignedInHome({
   return (
     <div className="sqc-stack">
       {!hasChessAccount ? (
-        <Link href={accountSetupHref} className="sqc-blocker">
+        <ResponsiveAccountSetupLink
+          mobileHref={accountSetupHref}
+          desktopHref={desktopAccountSetupHref}
+          className="sqc-blocker"
+        >
           <strong>Connect a chess username</strong>
           <span>Side Quest Chess needs Lichess or Chess.com before it can check real games.</span>
-        </Link>
+        </ResponsiveAccountSetupLink>
       ) : null}
 
       <section className={`sqc-current-card${activeSolo?.href ? " clickable" : ""}`}>

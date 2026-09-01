@@ -360,7 +360,7 @@ test("desktop home keeps account setup visible when a Solo quest is active witho
   assert.match(html, /Let’s finish setting up your quest log/);
   assert.match(html, /aria-label="Getting started"/);
   assert.match(html, /<li class="current"><span>1<\/span><a href="\/settings#lichess-username">Connect chess account<\/a><\/li>/);
-  assert.match(html, /<a class="sqc-blocker" href="\/settings#lichess-username"><strong>Connect a chess username<\/strong>/);
+  assert.match(html, /<a class="sqc-blocker" data-desktop-href="\/settings#lichess-username" href="\/account"><strong>Connect a chess username<\/strong>/);
   assert.doesNotMatch(html, /latest proof[^<]*ready below/);
   assert.equal(html.match(/class="sqc-current-card/g)?.length, 1, "active Solo remains available while setup is incomplete");
 });
@@ -417,6 +417,28 @@ test("desktop home keeps Play and verify current until the first Solo proof comp
   assert.doesNotMatch(previouslyVerifiedHtml, /aria-label="Getting started"/);
   assert.match(previouslyVerifiedHtml, />3\/3 setup steps complete</);
   assert.match(previouslyVerifiedHtml, /latest proof[^<]*ready below/);
+});
+
+test("desktop Home does not restart onboarding after a completed user deactivates their Solo quest", () => {
+  const html = renderToStaticMarkup(
+    createElement(MobileAppWebShell, {
+      activeTab: "home",
+      signedIn: true,
+      displayName: "Sam",
+      lichessUsername: "sam-on-lichess",
+      activeMultiplayerRows: [],
+      trophyRows: [],
+      completedSoloCount: 1,
+      proofReceiptCount: 1,
+    }),
+  );
+
+  assert.match(html, /Welcome back, Sam/);
+  assert.doesNotMatch(html, /aria-label="Getting started"/);
+  assert.match(html, />3\/3 setup steps complete</);
+  assert.match(html, /Choose a Solo Side Quest when you want a new objective\./);
+  assert.doesNotMatch(html, /Your active quest[^<]*ready below/);
+  assert.match(html, /<strong>Choose a quest<\/strong>/, "the dashboard still offers the next real Solo action");
 });
 
 test("shared signed-in Home keeps the mobile account destination unless a desktop override is supplied", () => {
