@@ -596,22 +596,34 @@ function DesktopSignedInHome({
   proofReceiptCount: number;
 }) {
   const hasActiveSolo = Boolean(activeSolo?.title ?? activeSoloTitle);
-  const setupComplete = hasChessAccount && hasActiveSolo;
-  const completedSteps = Number(hasChessAccount) + Number(hasActiveSolo);
+  const hasVerifiedSolo = Boolean(activeSolo?.completed || activeSolo?.verifiedAt || completedSoloCount > 0);
+  const setupComplete = hasChessAccount && hasActiveSolo && hasVerifiedSolo;
+  const completedSteps = Number(hasChessAccount) + Number(hasActiveSolo) + Number(hasVerifiedSolo);
+
+  const setupHeading = !hasActiveSolo
+    ? "Let’s choose your first Side Quest."
+    : !hasChessAccount
+      ? "Let’s finish setting up your quest log."
+      : "Your first proof is the next move.";
+  const setupCopy = !hasActiveSolo
+    ? "Connect a public chess username, choose one quest, then play a new public game."
+    : !hasChessAccount
+      ? "Your active quest is ready below. Connect a public chess username before Side Quest Chess can check its proof."
+      : "Play a new public game on your connected chess account, then return to check the proof.";
 
   return (
     <div className="sqc-desktop-signed-in sqc-responsive-signed-home">
       <section className="sqc-desktop-dashboard-intro">
         <div>
           <span className="sqc-desktop-eyebrow">Today&apos;s quest log</span>
-          <h1>{setupComplete ? `Welcome back${displayName ? `, ${displayName}` : ""}.` : hasActiveSolo ? "Let’s finish setting up your quest log." : "Let’s choose your first Side Quest."}</h1>
-          <p>{setupComplete ? "Your active quest, latest proof, shared challenges, and unlocked Coats of Arms are ready below." : hasActiveSolo ? "Your active quest is ready below. Connect a public chess username before Side Quest Chess can check its proof." : "Connect a public chess username, choose one quest, then play a new public game."}</p>
+          <h1>{setupComplete ? `Welcome back${displayName ? `, ${displayName}` : ""}.` : setupHeading}</h1>
+          <p>{setupComplete ? "Your active quest, latest proof, shared challenges, and unlocked Coats of Arms are ready below." : setupCopy}</p>
         </div>
         {!setupComplete ? (
           <ol className="sqc-desktop-onboarding-progress" aria-label="Getting started">
             <li className={hasChessAccount ? "done" : "current"}><span>1</span><Link href="/account">Connect chess account</Link></li>
             <li className={hasActiveSolo ? "done" : hasChessAccount ? "current" : ""}><span>2</span><Link href="/side-quests">Choose a Side Quest</Link></li>
-            <li><span>3</span><strong>Play and verify</strong></li>
+            <li className={hasVerifiedSolo ? "done" : hasChessAccount && hasActiveSolo ? "current" : ""}><span>3</span><strong>Play and verify</strong></li>
           </ol>
         ) : (
           <Link href="/side-quests" className="sqc-desktop-secondary">Explore more Side Quests</Link>
@@ -646,7 +658,7 @@ function DesktopSignedInHome({
         />
       </div>
       <footer className="sqc-desktop-footer">
-        <span>{completedSteps}/2 setup steps complete</span>
+        <span>{completedSteps}/3 setup steps complete</span>
         <nav aria-label="Footer">
           <Link href="/support">Help & Support</Link>
           <Link href="/privacy">Privacy Policy</Link>

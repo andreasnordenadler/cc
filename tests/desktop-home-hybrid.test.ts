@@ -364,6 +364,61 @@ test("desktop home keeps account setup visible when a Solo quest is active witho
   assert.equal(html.match(/class="sqc-current-card/g)?.length, 1, "active Solo remains available while setup is incomplete");
 });
 
+test("desktop home keeps Play and verify current until the first Solo proof completes", () => {
+  const html = renderToStaticMarkup(
+    createElement(MobileAppWebShell, {
+      activeTab: "home",
+      signedIn: true,
+      displayName: "Sam",
+      lichessUsername: "sam-on-lichess",
+      activeSolo: {
+        id: "knights-before-coffee",
+        href: "/challenges/knights-before-coffee",
+        title: "Knights Before Coffee",
+        objective: "Move only knights for the first four moves, then win.",
+        instruction: "Play a new public game.",
+        completed: false,
+      },
+      activeMultiplayerRows: [],
+      trophyRows: [],
+    }),
+  );
+
+  assert.match(html, /Your first proof is the next move/);
+  assert.match(html, /aria-label="Getting started"/);
+  assert.match(html, /<li class="done"><span>1<\/span><a href="\/account">Connect chess account<\/a><\/li>/);
+  assert.match(html, /<li class="done"><span>2<\/span><a href="\/side-quests">Choose a Side Quest<\/a><\/li>/);
+  assert.match(html, /<li class="current"><span>3<\/span><strong>Play and verify<\/strong><\/li>/);
+  assert.match(html, />2\/3 setup steps complete</);
+  assert.doesNotMatch(html, /latest proof[^<]*ready below/);
+
+  const completedHtml = renderToStaticMarkup(
+    createElement(MobileAppWebShell, {
+      activeTab: "home",
+      signedIn: true,
+      displayName: "Sam",
+      lichessUsername: "sam-on-lichess",
+      activeSolo: {
+        id: "knights-before-coffee",
+        href: "/challenges/knights-before-coffee",
+        title: "Knights Before Coffee",
+        objective: "Move only knights for the first four moves, then win.",
+        instruction: "Proof accepted.",
+        completed: true,
+        verifiedAt: "2026-09-01T08:00:00.000Z",
+      },
+      activeMultiplayerRows: [],
+      trophyRows: [],
+      completedSoloCount: 1,
+    }),
+  );
+
+  assert.match(completedHtml, /Welcome back, Sam/);
+  assert.doesNotMatch(completedHtml, /aria-label="Getting started"/);
+  assert.match(completedHtml, />3\/3 setup steps complete</);
+  assert.match(completedHtml, /latest proof[^<]*ready below/);
+});
+
 test("Solo discovery renders one catalog plus desktop navigation with the correct current route", () => {
   const html = renderToStaticMarkup(
     createElement(
