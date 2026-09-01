@@ -261,20 +261,24 @@ export function compactChallengeAttempts(attempts: ChallengeAttempt[], maxRecent
     ...attempt,
     summary: attempt.summary ? attempt.summary.slice(0, 220) : attempt.summary,
   }));
-  const latestPassedByChallenge = new Map<string, ChallengeAttempt>();
+  const latestPassedByChallengeAndSource = new Map<string, ChallengeAttempt>();
 
   for (const attempt of compacted) {
     const challengeId = attempt.challengeId ?? attempt.id?.split(":")[0];
 
     if (attempt.status === "passed" && challengeId) {
-      latestPassedByChallenge.set(challengeId, attempt);
+      const source = attempt.id?.includes(":multiplayer:") === true
+        || attempt.summary?.startsWith("Multiplayer proof verified:") === true
+        ? "multiplayer"
+        : "solo";
+      latestPassedByChallengeAndSource.set(`${challengeId}:${source}`, attempt);
     }
   }
 
   const keepKeys = new Set(
     [
       ...compacted.slice(-maxRecentAttempts),
-      ...latestPassedByChallenge.values(),
+      ...latestPassedByChallengeAndSource.values(),
     ].map((attempt) => attempt.id ?? `${attempt.challengeId}:${attempt.provider}:${attempt.checkedAt}:${attempt.gameId}`),
   );
 

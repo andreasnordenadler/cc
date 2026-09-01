@@ -6,7 +6,7 @@ import { listPublicCommunitySideQuests } from "@/lib/community-side-quests";
 import { getCustomSideQuests } from "@/lib/custom-side-quests";
 import { getMobileWebTheme } from "@/lib/mobile-web-theme";
 import { getChallengeGlowPath, loadOptionalCommunityTrophyQuests } from "@/lib/mobile-web-trophies";
-import { buildActiveMultiplayerHomeRows, buildHomeActiveSoloProofPath, loadHomeTrophyRows, resolveHomeActiveSoloQuest } from "@/lib/mobile-web-home";
+import { buildActiveMultiplayerHomeRows, buildHomeActiveSoloProofPath, getCompletedSoloQuestIds, getLatestPassedSoloChallengeAttempt, getLatestSoloChallengeAttempt, hasCompletedSoloProof, loadHomeTrophyRows, resolveHomeActiveSoloQuest } from "@/lib/mobile-web-home";
 import { listUserRelatedGroupQuests } from "@/lib/groupquests";
 import {
   buildAttemptSummary,
@@ -14,8 +14,6 @@ import {
   getChallengeAttempts,
   getChallengeProgress,
   getChessComUsername,
-  getLatestChallengeAttempt,
-  getLatestPassedChallengeAttempt,
   getLichessUsername,
   getPreferredRunnerName,
   type UserMetadataRecord,
@@ -48,17 +46,19 @@ export default async function Home() {
       }))
     : [];
   const activeSoloQuest = resolveHomeActiveSoloQuest(activeChallenge?.id, customSideQuests, communitySideQuests, activeChallenge?.customQuestSnapshot);
-  const activeChallengeAttempt = activeChallenge?.id ? getLatestChallengeAttempt(metadata, activeChallenge.id) : null;
-  const activeChallengeSummary = buildAttemptSummary(activeChallengeAttempt);
   const progress = getChallengeProgress(metadata);
-  const activeChallengeCompleted = Boolean(activeSoloQuest && progress.completedChallengeIds.includes(activeSoloQuest.id));
-  const activeChallengePassedAttempt = activeChallenge?.id ? getLatestPassedChallengeAttempt(metadata, activeChallenge.id) : null;
+  const challengeAttempts = getChallengeAttempts(metadata);
+  const completedSoloIds = getCompletedSoloQuestIds(progress.completedChallengeIds, challengeAttempts);
+  const activeChallengeAttempt = activeChallenge?.id ? getLatestSoloChallengeAttempt(challengeAttempts, activeChallenge.id) : null;
+  const activeChallengeSummary = buildAttemptSummary(activeChallengeAttempt);
+  const activeChallengeCompleted = Boolean(activeSoloQuest && hasCompletedSoloProof(activeSoloQuest.id, completedSoloIds, challengeAttempts));
+  const activeChallengePassedAttempt = activeChallenge?.id ? getLatestPassedSoloChallengeAttempt(challengeAttempts, activeChallenge.id) : null;
   const activeCustomQuest = activeChallenge?.id && !activeOfficialChallenge
     ? customSideQuests.find((quest) => quest.id === activeChallenge.id)
       ?? communitySideQuests.find((quest) => quest.id === activeChallenge.id)
       ?? null
     : null;
-  const proofReceiptCount = getChallengeAttempts(metadata).length;
+  const proofReceiptCount = challengeAttempts.length;
   const displayName = user
     ? getPreferredRunnerName(metadata, {
         firstName: user.firstName,
@@ -76,7 +76,7 @@ export default async function Home() {
   });
   const [trophyRows, relatedGroupQuests] = user && client
     ? await Promise.all([
-        loadHomeTrophyRows(client, user.id, progress.completedChallengeIds),
+        loadHomeTrophyRows(client, user.id, completedSoloIds),
         listUserRelatedGroupQuests(client, user.id),
       ])
     : [[], []];
@@ -119,7 +119,7 @@ export default async function Home() {
       } : null}
       activeMultiplayerRows={activeMultiplayerRows}
       trophyRows={trophyRows}
-      completedSoloCount={progress.totalCompletedChallenges}
+      completedSoloCount={completedSoloIds.length}
       proofReceiptCount={proofReceiptCount}
     />
   );
