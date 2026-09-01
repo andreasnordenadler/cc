@@ -176,9 +176,19 @@ export const mobileWebMenuItems = [
 // Desktop derives from the app menu, but its persistent account action owns that destination.
 // Terms remains available in the public footer on mobile and joins the roomier desktop menu.
 export const desktopHomeMenuItems = [
-  ...mobileWebMenuItems.filter((item) => item.id !== "account"),
+  ...mobileWebMenuItems.slice(0, 2),
+  { id: "community", label: "Community Side Quests", href: "/community-side-quests", icon: "group" },
+  ...mobileWebMenuItems.slice(2).filter((item) => item.id !== "account"),
   { id: "terms", label: "Terms of Use", href: "/terms", icon: "document" },
 ] as const;
+
+const desktopShortcutLabels: Record<string, string> = {
+  home: "Home",
+  sideQuests: "Solo",
+  community: "Community",
+  multiplayer: "Multiplayer",
+  coats: "Trophy Cabinet",
+};
 
 const menuItems = mobileWebMenuItems;
 
@@ -249,7 +259,7 @@ export default function MobileAppWebShell({
             signedIn={signedIn}
             displayName={displayName}
             activeTab={desktopPresentation.startsWith("community-") || desktopPresentation.startsWith("custom-") || desktopPresentation === "multiplayer-create" ? null : activeTab}
-            activeItemId={desktopPresentation === "custom-editor" ? "createCustom" : desktopPresentation === "multiplayer-create" ? "createMultiplayer" : desktopPresentation === "support" ? "support" : desktopPresentation.startsWith("custom-") ? "custom" : undefined}
+            activeItemId={desktopPresentation.startsWith("community-") ? "community" : desktopPresentation === "custom-editor" ? "createCustom" : desktopPresentation === "multiplayer-create" ? "createMultiplayer" : desktopPresentation === "support" ? "support" : desktopPresentation.startsWith("custom-") ? "custom" : undefined}
             accountIsCurrent={desktopPresentation === "account"}
           />
           {showDesktopAccountWorkspace ? <DesktopAccountWorkspaceNav current={desktopPresentation} /> : null}
@@ -366,7 +376,7 @@ function GuestNavigation({ activeTab }: { activeTab: AppTab }) {
 }
 
 export function DesktopHomeHeader({ signedIn, displayName, activeTab, activeItemId, accountIsCurrent = false }: { signedIn: boolean; displayName?: string | null; activeTab: AppTab | null; activeItemId?: string; accountIsCurrent?: boolean }) {
-  const shortcuts = desktopHomeMenuItems.slice(0, 4);
+  const shortcuts = desktopHomeMenuItems.slice(0, 5);
   const resolvedActiveItemId = activeItemId ?? (activeTab === "multiplayerSideQuests" ? "multiplayer" : activeTab === "coatOfArms" ? "coats" : activeTab ?? "");
 
   return (
@@ -381,8 +391,8 @@ export function DesktopHomeHeader({ signedIn, displayName, activeTab, activeItem
         </Link>
         <nav className="sqc-desktop-shortcuts" aria-label="Desktop shortcuts">
           {shortcuts.map((item) => (
-            <Link key={item.id} href={item.href} aria-current={activeTab && isActiveMenuItem(item.id, activeTab) ? "page" : undefined}>
-              {item.label}
+            <Link key={item.id} href={item.href} aria-label={item.label} aria-current={item.id === resolvedActiveItemId || (activeTab && isActiveMenuItem(item.id, activeTab)) ? "page" : undefined}>
+              {desktopShortcutLabels[item.id] ?? item.label}
             </Link>
           ))}
         </nav>
