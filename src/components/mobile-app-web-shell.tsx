@@ -621,7 +621,7 @@ function DesktopSignedInHome({
         </div>
         {!setupComplete ? (
           <ol className="sqc-desktop-onboarding-progress" aria-label="Getting started">
-            <li className={hasChessAccount ? "done" : "current"}><span>1</span><Link href="/account">Connect chess account</Link></li>
+            <li className={hasChessAccount ? "done" : "current"}><span>1</span><Link href="/settings#lichess-username">Connect chess account</Link></li>
             <li className={hasActiveSolo ? "done" : hasChessAccount ? "current" : ""}><span>2</span><Link href="/side-quests">Choose a Side Quest</Link></li>
             <li className={hasVerifiedSolo ? "done" : hasChessAccount && hasActiveSolo ? "current" : ""}><span>3</span><strong>Play and verify</strong></li>
           </ol>
@@ -649,6 +649,7 @@ function DesktopSignedInHome({
       <div className="sqc-desktop-dashboard-grid">
         <SignedInHome
           hasChessAccount={hasChessAccount}
+          accountSetupHref="/settings#lichess-username"
           activeSolo={activeSolo}
           activeSoloTitle={activeSoloTitle}
           activeMultiplayerRows={activeMultiplayerRows}
@@ -701,6 +702,7 @@ export function GuestHome({
 
 export function SignedInHome({
   hasChessAccount,
+  accountSetupHref = "/account",
   activeSolo,
   activeSoloTitle,
   activeMultiplayerRows,
@@ -709,6 +711,7 @@ export function SignedInHome({
   proofReceiptCount,
 }: {
   hasChessAccount: boolean;
+  accountSetupHref?: string;
   activeSolo?: ActiveSoloHome | null;
   activeSoloTitle?: string | null;
   activeMultiplayerRows: ActiveMultiplayerHomeRow[];
@@ -722,7 +725,7 @@ export function SignedInHome({
   return (
     <div className="sqc-stack">
       {!hasChessAccount ? (
-        <Link href="/account" className="sqc-blocker">
+        <Link href={accountSetupHref} className="sqc-blocker">
           <strong>Connect a chess username</strong>
           <span>Side Quest Chess needs Lichess or Chess.com before it can check real games.</span>
         </Link>

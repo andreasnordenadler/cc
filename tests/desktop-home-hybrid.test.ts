@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import MobileAppWebShell, { desktopHomeMenuItems, mobileWebMenuItems, MobileCommunitySideQuestDetailScreen, MobileCommunitySideQuestsScreen, MobileCreateCustomScreen, MobileCreateMultiplayerScreen, MobileCustomSideQuestsScreen, MobileMultiplayerDetailScreen, MobileMultiplayerSideQuestsScreen, MobileSoloSideQuestsScreen, MobileSupportScreen, MobileTrophyCabinetScreen } from "../src/components/mobile-app-web-shell";
+import MobileAppWebShell, { desktopHomeMenuItems, mobileWebMenuItems, MobileCommunitySideQuestDetailScreen, MobileCommunitySideQuestsScreen, MobileCreateCustomScreen, MobileCreateMultiplayerScreen, MobileCustomSideQuestsScreen, MobileMultiplayerDetailScreen, MobileMultiplayerSideQuestsScreen, MobileSoloSideQuestsScreen, MobileSupportScreen, MobileTrophyCabinetScreen, SignedInHome } from "../src/components/mobile-app-web-shell";
 import { MobileSupportComposer } from "../src/components/mobile-support-composer";
 import type { CommunitySoloCatalogClientRow } from "../src/components/catalog-clients";
 import DesktopHomeMenu from "../src/components/desktop-home-menu";
@@ -359,7 +359,8 @@ test("desktop home keeps account setup visible when a Solo quest is active witho
 
   assert.match(html, /Let’s finish setting up your quest log/);
   assert.match(html, /aria-label="Getting started"/);
-  assert.match(html, /<li class="current"><span>1<\/span><a href="\/account">Connect chess account<\/a><\/li>/);
+  assert.match(html, /<li class="current"><span>1<\/span><a href="\/settings#lichess-username">Connect chess account<\/a><\/li>/);
+  assert.match(html, /<a class="sqc-blocker" href="\/settings#lichess-username"><strong>Connect a chess username<\/strong>/);
   assert.doesNotMatch(html, /latest proof[^<]*ready below/);
   assert.equal(html.match(/class="sqc-current-card/g)?.length, 1, "active Solo remains available while setup is incomplete");
 });
@@ -386,13 +387,13 @@ test("desktop home keeps Play and verify current until the first Solo proof comp
 
   assert.match(html, /Your first proof is the next move/);
   assert.match(html, /aria-label="Getting started"/);
-  assert.match(html, /<li class="done"><span>1<\/span><a href="\/account">Connect chess account<\/a><\/li>/);
+  assert.match(html, /<li class="done"><span>1<\/span><a href="\/settings#lichess-username">Connect chess account<\/a><\/li>/);
   assert.match(html, /<li class="done"><span>2<\/span><a href="\/side-quests">Choose a Side Quest<\/a><\/li>/);
   assert.match(html, /<li class="current"><span>3<\/span><strong>Play and verify<\/strong><\/li>/);
   assert.match(html, />2\/3 setup steps complete</);
   assert.doesNotMatch(html, /latest proof[^<]*ready below/);
 
-  const completedHtml = renderToStaticMarkup(
+  const previouslyVerifiedHtml = renderToStaticMarkup(
     createElement(MobileAppWebShell, {
       activeTab: "home",
       signedIn: true,
@@ -403,9 +404,8 @@ test("desktop home keeps Play and verify current until the first Solo proof comp
         href: "/challenges/knights-before-coffee",
         title: "Knights Before Coffee",
         objective: "Move only knights for the first four moves, then win.",
-        instruction: "Proof accepted.",
-        completed: true,
-        verifiedAt: "2026-09-01T08:00:00.000Z",
+        instruction: "Play a new public game.",
+        completed: false,
       },
       activeMultiplayerRows: [],
       trophyRows: [],
@@ -413,10 +413,23 @@ test("desktop home keeps Play and verify current until the first Solo proof comp
     }),
   );
 
-  assert.match(completedHtml, /Welcome back, Sam/);
-  assert.doesNotMatch(completedHtml, /aria-label="Getting started"/);
-  assert.match(completedHtml, />3\/3 setup steps complete</);
-  assert.match(completedHtml, /latest proof[^<]*ready below/);
+  assert.match(previouslyVerifiedHtml, /Welcome back, Sam/);
+  assert.doesNotMatch(previouslyVerifiedHtml, /aria-label="Getting started"/);
+  assert.match(previouslyVerifiedHtml, />3\/3 setup steps complete</);
+  assert.match(previouslyVerifiedHtml, /latest proof[^<]*ready below/);
+});
+
+test("shared signed-in Home keeps the mobile account destination unless a desktop override is supplied", () => {
+  const html = renderToStaticMarkup(createElement(SignedInHome, {
+    hasChessAccount: false,
+    activeMultiplayerRows: [],
+    trophyRows: [],
+    completedSoloCount: 0,
+    proofReceiptCount: 0,
+  }));
+
+  assert.match(html, /<a class="sqc-blocker" href="\/account"><strong>Connect a chess username<\/strong>/);
+  assert.doesNotMatch(html, /href="\/settings#lichess-username"/);
 });
 
 test("Solo discovery renders one catalog plus desktop navigation with the correct current route", () => {
