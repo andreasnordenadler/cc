@@ -597,7 +597,12 @@ function DesktopSignedInHome({
   proofReceiptCount: number;
 }) {
   const hasActiveSolo = Boolean(activeSolo?.title ?? activeSoloTitle);
+  const hasHistoricalSoloTrophy = trophyRows.some((row) => row.source === "solo"
+    || row.source === "officialSolo"
+    || row.source === "customSolo"
+    || row.source === "communitySolo");
   const hasVerifiedSolo = completedSoloCount > 0
+    || hasHistoricalSoloTrophy
     || Boolean(activeSolo?.completed || activeSolo?.verifiedAt);
   const hasChosenSolo = hasActiveSolo || hasVerifiedSolo || proofReceiptCount > 0;
   const hasVisibleProof = proofReceiptCount > 0

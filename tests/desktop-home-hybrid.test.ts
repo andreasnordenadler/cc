@@ -379,17 +379,44 @@ test("desktop home keeps account setup visible when a Solo quest is active witho
   assert.match(html, /Let’s finish setting up your quest log/);
   assert.match(html, /aria-label="Getting started"/);
   assert.match(html, /<li class="current"><span>1<\/span><a href="\/settings#lichess-username">Connect chess account<\/a><\/li>/);
-  assert.match(html, /<a class="sqc-blocker" href="\/account"><strong>Connect a chess username<\/strong>/, "server rendering preserves Android's mobile account destination before hydration");
+  assert.match(html, /<a class="sqc-blocker" href="\/settings#lichess-username"><strong>Connect a chess username<\/strong>/, "the rendered anchor preserves the exact desktop destination for modified clicks");
   assert.equal(html.match(/<strong>Connect a chess username<\/strong>/g)?.length, 1, "responsive Home renders one interactive account-setup subtree");
   const responsiveLinkSource = readFileSync("src/components/responsive-account-setup-link.tsx", "utf8");
-  assert.match(responsiveLinkSource, /useState\(mobileHref\)/, "the shared responsive link must default to the mobile destination before hydration");
-  assert.match(responsiveLinkSource, /useLayoutEffect\(\(\)\s*=>/);
-  assert.match(responsiveLinkSource, /matchMedia\("\(min-width: 1180px\)"\)/);
-  assert.match(responsiveLinkSource, /setResolvedHref\(desktopHref\)/);
-  assert.match(responsiveLinkSource, /setResolvedHref\(mobileHref\)/);
+  assert.match(responsiveLinkSource, /href=\{desktopHref \?\? mobileHref\}/, "desktop gets a truthful href before hydration");
+  assert.match(responsiveLinkSource, /window\.matchMedia\("\(min-width: 1180px\)"\)\.matches/);
+  assert.match(responsiveLinkSource, /event\.preventDefault\(\)/);
+  assert.match(responsiveLinkSource, /window\.location\.assign\(mobileHref\)/, "an ordinary mobile activation preserves the Android account destination");
+  assert.doesNotMatch(responsiveLinkSource, /useState|useLayoutEffect/, "responsive routing does not rewrite the href after hydration");
   assert.doesNotMatch(html, /sqc-responsive-account-link-group|sqc-responsive-account-link mobile|sqc-responsive-account-link desktop/);
   assert.doesNotMatch(html, /latest proof[^<]*ready below/);
   assert.equal(html.match(/class="sqc-current-card/g)?.length, 1, "active Solo remains available while setup is incomplete");
+});
+
+test("desktop Home keeps onboarding complete after a historical Custom or Community Solo trophy", () => {
+  for (const source of ["customSolo", "communitySolo"] as const) {
+    const html = renderToStaticMarkup(
+      createElement(MobileAppWebShell, {
+        activeTab: "home",
+        signedIn: true,
+        displayName: "Sam",
+        lichessUsername: "sam-on-lichess",
+        activeMultiplayerRows: [],
+        completedSoloCount: 0,
+        proofReceiptCount: 1,
+        trophyRows: [{
+          id: `${source}-complete`,
+          title: "A completed quest",
+          meta: "Completed",
+          href: "/trophy-cabinet",
+          source,
+        }],
+      }),
+    );
+
+    assert.match(html, /Welcome back, Sam/);
+    assert.doesNotMatch(html, /aria-label="Getting started"/);
+    assert.match(html, />3\/3 setup steps complete</);
+  }
 });
 
 test("desktop home keeps Play and verify current until the first Solo proof completes", () => {

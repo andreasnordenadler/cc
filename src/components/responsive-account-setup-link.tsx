@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useLayoutEffect, useState, type ReactNode } from "react";
+import type { MouseEvent, ReactNode } from "react";
 
 export default function ResponsiveAccountSetupLink({
   mobileHref,
@@ -14,21 +14,21 @@ export default function ResponsiveAccountSetupLink({
   className?: string;
   children: ReactNode;
 }) {
-  const [resolvedHref, setResolvedHref] = useState(mobileHref);
+  const openMobileDestination = (event: MouseEvent<HTMLAnchorElement>) => {
+    if (
+      !desktopHref
+      || event.defaultPrevented
+      || event.button !== 0
+      || event.metaKey
+      || event.ctrlKey
+      || event.shiftKey
+      || event.altKey
+      || window.matchMedia("(min-width: 1180px)").matches
+    ) return;
 
-  useLayoutEffect(() => {
-    if (!desktopHref) return;
+    event.preventDefault();
+    window.location.assign(mobileHref);
+  };
 
-    const desktopQuery = window.matchMedia("(min-width: 1180px)");
-    const updateHref = () => {
-      if (desktopQuery.matches) setResolvedHref(desktopHref);
-      else setResolvedHref(mobileHref);
-    };
-
-    updateHref();
-    desktopQuery.addEventListener("change", updateHref);
-    return () => desktopQuery.removeEventListener("change", updateHref);
-  }, [desktopHref, mobileHref]);
-
-  return <Link className={className} href={resolvedHref}>{children}</Link>;
+  return <Link className={className} href={desktopHref ?? mobileHref} onClick={openMobileDestination}>{children}</Link>;
 }
