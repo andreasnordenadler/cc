@@ -444,7 +444,11 @@ test("desktop home keeps Play and verify current until the first Solo proof comp
   assert.doesNotMatch(previouslyVerifiedHtml, /aria-label="Getting started"/);
   assert.match(previouslyVerifiedHtml, />3\/3 setup steps complete</);
   assert.match(previouslyVerifiedHtml, /<strong>In progress<\/strong>/, "the new active quest remains the next dashboard task");
-  assert.match(previouslyVerifiedHtml, /latest proof[^<]*ready below/);
+  assert.doesNotMatch(
+    previouslyVerifiedHtml,
+    /latest proof[^<]*ready below/,
+    "legacy completion totals do not imply that a proof receipt is visible on Home",
+  );
 });
 
 test("desktop Home does not restart onboarding after a completed user deactivates their Solo quest", () => {
