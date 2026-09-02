@@ -379,10 +379,10 @@ test("desktop home keeps account setup visible when a Solo quest is active witho
   assert.match(html, /Let’s finish setting up your quest log/);
   assert.match(html, /aria-label="Getting started"/);
   assert.match(html, /<li class="current"><span>1<\/span><a href="\/settings#lichess-username">Connect chess account<\/a><\/li>/);
-  assert.match(html, /<a class="sqc-blocker" href="\/account"><strong>Connect a chess username<\/strong>/);
+  assert.match(html, /<a class="sqc-blocker" href="\/settings#lichess-username"><strong>Connect a chess username<\/strong>/);
   assert.equal(html.match(/<strong>Connect a chess username<\/strong>/g)?.length, 1, "responsive Home renders one interactive account-setup subtree");
   const responsiveLinkSource = readFileSync("src/components/responsive-account-setup-link.tsx", "utf8");
-  assert.match(responsiveLinkSource, /useState\(mobileHref\)/, "server rendering preserves the mobile account destination before client breakpoint resolution");
+  assert.match(responsiveLinkSource, /useState\(desktopHref\s*\?\?\s*mobileHref\)/, "server rendering makes the desktop setup destination immediately actionable");
   assert.match(responsiveLinkSource, /matchMedia\("\(min-width: 1180px\)"\)/);
   assert.match(responsiveLinkSource, /setResolvedHref\(desktopHref\)/);
   assert.match(responsiveLinkSource, /setResolvedHref\(mobileHref\)/);
