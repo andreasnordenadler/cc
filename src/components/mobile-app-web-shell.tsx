@@ -603,6 +603,7 @@ function DesktopSignedInHome({
   const hasVisibleProof = proofReceiptCount > 0
     || trophyRows.length > 0
     || Boolean(activeSolo?.completed || activeSolo?.verifiedAt);
+  const activeSoloHasVisibleProof = Boolean(activeSolo?.completed || activeSolo?.verifiedAt);
   const setupComplete = hasChessAccount && hasVerifiedSolo;
   const completedSteps = setupComplete
     ? 3
@@ -633,9 +634,11 @@ function DesktopSignedInHome({
           <h1>{setupComplete ? `Welcome back${displayName ? `, ${displayName}` : ""}.` : setupHeading}</h1>
           <p>{setupComplete
             ? hasActiveSolo
-              ? hasVisibleProof
+              ? activeSoloHasVisibleProof
                 ? "Your active quest, latest proof, shared challenges, and unlocked Coats of Arms are ready below."
-                : "Your active quest and shared challenges are ready below. Your next completed proof will appear in the quest log."
+                : hasVisibleProof
+                  ? "Your active quest, proof history, shared challenges, and unlocked Coats of Arms are ready below."
+                  : "Your active quest and shared challenges are ready below. Your next completed proof will appear in the quest log."
               : hasVisibleProof
                 ? "Your proof history, shared challenges, and unlocked Coats of Arms are ready below. Choose a Solo Side Quest when you want a new objective."
                 : "Your quest log and shared challenges are ready below. Choose a Solo Side Quest when you want a new objective."
