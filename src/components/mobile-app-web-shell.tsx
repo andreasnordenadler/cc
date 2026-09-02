@@ -607,7 +607,7 @@ function DesktopSignedInHome({
   const hasChosenSolo = hasActiveSolo || hasVerifiedSolo || proofReceiptCount > 0;
   const hasVisibleProof = proofReceiptCount > 0
     || trophyRows.length > 0
-    || Boolean(activeSolo?.completed || activeSolo?.verifiedAt);
+    || Boolean(activeSolo?.proofHref);
   const activeSoloHasVisibleProof = Boolean(activeSolo?.proofHref);
   const setupComplete = hasChessAccount && hasVerifiedSolo;
   const completedSteps = setupComplete

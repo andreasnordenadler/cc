@@ -545,7 +545,7 @@ test("desktop Home distinguishes historical proof from an unchecked active quest
   assert.match(html, /<strong>In progress<\/strong>/);
 });
 
-test("desktop Home does not claim a latest proof for a legacy completed active quest without a visible receipt", () => {
+test("desktop Home does not invent proof history for a legacy completed active quest without a visible receipt", () => {
   const html = renderToStaticMarkup(
     createElement(MobileAppWebShell, {
       activeTab: "home",
@@ -567,8 +567,8 @@ test("desktop Home does not claim a latest proof for a legacy completed active q
     }),
   );
 
-  assert.match(html, /Your active quest, proof history, shared challenges, and unlocked Coats of Arms are ready below\./);
-  assert.doesNotMatch(html, /Your active quest, latest proof/);
+  assert.match(html, /Your active quest and shared challenges are ready below\. Your next completed proof will appear in the quest log\./);
+  assert.doesNotMatch(html, /latest proof|proof history/);
   assert.match(html, /<strong>Proof complete<\/strong>/);
 });
 
