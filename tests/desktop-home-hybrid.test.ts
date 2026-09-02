@@ -498,6 +498,33 @@ test("desktop Home distinguishes historical proof from an unchecked active quest
   assert.match(html, /<strong>In progress<\/strong>/);
 });
 
+test("desktop Home does not claim a latest proof for a legacy completed active quest without a visible receipt", () => {
+  const html = renderToStaticMarkup(
+    createElement(MobileAppWebShell, {
+      activeTab: "home",
+      signedIn: true,
+      displayName: "Sam",
+      lichessUsername: "sam-on-lichess",
+      activeSolo: {
+        id: "knights-before-coffee",
+        href: "/challenges/knights-before-coffee",
+        title: "Knights Before Coffee",
+        objective: "Move only knights for the first four moves, then win.",
+        instruction: "Play a new public game.",
+        completed: true,
+      },
+      activeMultiplayerRows: [],
+      trophyRows: [],
+      completedSoloCount: 1,
+      proofReceiptCount: 0,
+    }),
+  );
+
+  assert.match(html, /Your active quest, proof history, shared challenges, and unlocked Coats of Arms are ready below\./);
+  assert.doesNotMatch(html, /Your active quest, latest proof/);
+  assert.match(html, /<strong>Proof complete<\/strong>/);
+});
+
 test("desktop Home asks a previously verified user to reconnect instead of choosing a first quest", () => {
   const html = renderToStaticMarkup(
     createElement(MobileAppWebShell, {
