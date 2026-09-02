@@ -156,62 +156,6 @@ export function buildActiveMultiplayerHomeRows(
     });
 }
 
-function isMultiplayerProofAttempt(attempt: ChallengeAttempt) {
-  return attempt.id?.includes(":multiplayer:") === true
-    || attempt.summary?.startsWith("Multiplayer proof verified:") === true;
-}
-
-function getAttemptChallengeId(attempt: ChallengeAttempt) {
-  return attempt.challengeId ?? attempt.id?.split(":")[0];
-}
-
-export function getLatestSoloChallengeAttempt(
-  attempts: readonly ChallengeAttempt[],
-  challengeId: string,
-) {
-  return attempts.filter((attempt) => getAttemptChallengeId(attempt) === challengeId && !isMultiplayerProofAttempt(attempt)).at(-1) ?? null;
-}
-
-export function getLatestPassedSoloChallengeAttempt(
-  attempts: readonly ChallengeAttempt[],
-  challengeId: string,
-) {
-  return attempts.filter((attempt) => (
-    getAttemptChallengeId(attempt) === challengeId
-    && attempt.status === "passed"
-    && !isMultiplayerProofAttempt(attempt)
-  )).at(-1) ?? null;
-}
-
-export function hasCompletedSoloProof(
-  challengeId: string,
-  completedChallengeIds: readonly string[],
-  attempts: readonly ChallengeAttempt[],
-  activeChallenge?: { activeChallengeId?: string | null; activeChallengeStatus?: string | null },
-) {
-  if (!completedChallengeIds.includes(challengeId)) return false;
-  if (activeChallenge?.activeChallengeId === challengeId && activeChallenge.activeChallengeStatus === "verified") return true;
-  const passedAttempts = attempts.filter((attempt) => getAttemptChallengeId(attempt) === challengeId && attempt.status === "passed");
-  if (!passedAttempts.length) return true;
-  return passedAttempts.some((attempt) => !isMultiplayerProofAttempt(attempt));
-}
-
-export function getCompletedSoloQuestIds(
-  completedChallengeIds: readonly string[],
-  attempts: readonly ChallengeAttempt[],
-  activeChallenge?: { activeChallengeId?: string | null; activeChallengeStatus?: string | null },
-) {
-  const completedIds = [...new Set(completedChallengeIds.filter(Boolean))];
-  return completedIds.filter((challengeId) => hasCompletedSoloProof(challengeId, completedIds, attempts, activeChallenge));
-}
-
-export function countCompletedSoloQuests(
-  completedChallengeIds: readonly string[],
-  attempts: readonly ChallengeAttempt[],
-) {
-  return getCompletedSoloQuestIds(completedChallengeIds, attempts).length;
-}
-
 export function loadHomeTrophyRows(
   client: Parameters<typeof getMobileWebTrophyRows>[0],
   userId: string,
