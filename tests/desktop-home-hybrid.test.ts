@@ -266,6 +266,25 @@ test("signed-in desktop home guides setup while retaining the existing app home"
   assert.match(desktopMedia, /\.sqc-desktop-dashboard-grid\s+\.sqc-active-solo-emblem\s*\{[^}]*position:\s*relative;[^}]*top:\s*auto;[^}]*right:\s*auto;[^}]*left:\s*auto;[^}]*width:\s*180px;[^}]*height:\s*180px;/, "desktop emblem stays in the active quest card flow instead of covering the summary rail");
 });
 
+test("connected desktop users are not told to reconnect while choosing their first quest", () => {
+  const html = renderToStaticMarkup(
+    createElement(MobileAppWebShell, {
+      activeTab: "home",
+      signedIn: true,
+      displayName: "Sam",
+      lichessUsername: "sam-on-lichess",
+      activeMultiplayerRows: [],
+      trophyRows: [],
+    }),
+  );
+
+  assert.match(html, /Let’s choose your first Side Quest/);
+  assert.match(html, /Choose one quest, then play a new public game and return to verify it\./);
+  assert.doesNotMatch(html, /Connect a public chess username, choose one quest/);
+  assert.match(html, /<li class="done"><span>1<\/span><a href="\/settings#lichess-username">Connect chess account<\/a><\/li>/);
+  assert.match(html, /<li class="current"><span>2<\/span><a href="\/side-quests">Choose a Side Quest<\/a><\/li>/);
+});
+
 test("signed-in desktop Home keeps secondary actions compact and intentional", () => {
   const css = readFileSync("src/app/mobile-web.css", "utf8");
   const desktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1180px)"));

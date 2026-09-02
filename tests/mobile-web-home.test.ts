@@ -5,12 +5,7 @@ import test from "node:test";
 import {
   buildActiveMultiplayerHomeRows,
   buildSoloProofHomeStatus,
-  countCompletedSoloQuests,
   formatHomeTrophyMeta,
-  getCompletedSoloQuestIds,
-  getLatestPassedSoloChallengeAttempt,
-  getLatestSoloChallengeAttempt,
-  hasCompletedSoloProof,
   loadHomeTrophyRows,
 } from "../src/lib/mobile-web-home";
 import { CHALLENGES } from "../src/lib/challenges";
@@ -78,107 +73,12 @@ test("excludes finished multiplayer quests without hiding active rows beyond the
   assert.deepEqual(rows.map((row) => row.id), ["quest-6", "quest-5", "quest-4", "quest-3", "quest-2", "quest-1"]);
 });
 
-test("Home onboarding excludes Multiplayer-only proof from completed Solo proof count", () => {
-  const multiplayerAttempt = {
-    id: "knights-before-coffee:multiplayer:lichess:game-1:2026-07-12T13:00:00.000Z",
-    challengeId: "knights-before-coffee",
-    status: "passed",
-    summary: "Multiplayer proof verified: objective complete.",
-  };
-  const soloAttempt = {
-    id: "custom-solo-1:lichess:game-2:2026-07-13T13:00:00.000Z",
-    challengeId: "custom-solo-1",
-    status: "passed",
-    summary: "Solo proof verified.",
-  };
-
-  assert.equal(countCompletedSoloQuests([
-    "knights-before-coffee",
-    "custom-solo-1",
-    "legacy-solo-without-attempt",
-    "custom-solo-1",
-  ], [multiplayerAttempt, soloAttempt]), 2);
-  assert.deepEqual(getCompletedSoloQuestIds([
-    "knights-before-coffee",
-    "custom-solo-1",
-    "legacy-solo-without-attempt",
-    "custom-solo-1",
-  ], [multiplayerAttempt, soloAttempt]), ["custom-solo-1", "legacy-solo-without-attempt"]);
-  assert.equal(countCompletedSoloQuests(["knights-before-coffee"], [multiplayerAttempt]), 0);
-  assert.deepEqual(getCompletedSoloQuestIds(["knights-before-coffee"], [multiplayerAttempt], {
-    activeChallengeId: "knights-before-coffee",
-    activeChallengeStatus: "verified",
-  }), ["knights-before-coffee"], "the verified active Solo completion survives legacy receipt compaction in Home totals");
-  assert.equal(countCompletedSoloQuests(["knights-before-coffee"], [multiplayerAttempt, {
-    ...soloAttempt,
-    challengeId: "knights-before-coffee",
-  }]), 1, "a later Solo proof keeps the shared objective classified as Solo-completed");
-});
-
-test("active Home quest is complete only when its persisted proof is Solo-sourced", () => {
-  const multiplayerAttempt = {
-    id: "knights-before-coffee:multiplayer:lichess:game-1:2026-07-12T13:00:00.000Z",
-    challengeId: "knights-before-coffee",
-    status: "passed",
-    summary: "Multiplayer proof verified: objective complete.",
-  };
-
-  assert.equal(hasCompletedSoloProof("knights-before-coffee", ["knights-before-coffee"], [multiplayerAttempt]), false);
-  assert.equal(hasCompletedSoloProof("knights-before-coffee", ["knights-before-coffee"], [{
-    ...multiplayerAttempt,
-    id: "knights-before-coffee:lichess:game-2:2026-07-13T13:00:00.000Z",
-    summary: "Solo proof verified.",
-  }]), true);
-  assert.equal(hasCompletedSoloProof("legacy-solo", ["legacy-solo"], []), true);
-  assert.equal(hasCompletedSoloProof("knights-before-coffee", ["knights-before-coffee"], [multiplayerAttempt], {
-    activeChallengeId: "knights-before-coffee",
-    activeChallengeStatus: "verified",
-  }), true, "a verified active Solo quest remains complete when legacy compaction retained only a later Multiplayer receipt");
-  assert.equal(hasCompletedSoloProof("not-complete", [], []), false);
-});
-
-test("active Home proof diagnostics ignore later Multiplayer attempts on the same objective", () => {
-  const soloFailed = {
-    id: "knights-before-coffee:lichess:game-1:2026-07-12T13:00:00.000Z",
-    challengeId: "knights-before-coffee",
-    status: "failed",
-    summary: "Solo proof did not pass.",
-  };
-  const soloPassed = {
-    ...soloFailed,
-    id: "knights-before-coffee:lichess:game-2:2026-07-13T13:00:00.000Z",
-    status: "passed",
-    summary: "Solo proof verified.",
-  };
-  const multiplayerPassed = {
-    ...soloPassed,
-    id: "knights-before-coffee:multiplayer:lichess:game-3:2026-07-14T13:00:00.000Z",
-    summary: "Multiplayer proof verified: objective complete.",
-  };
-
-  assert.equal(getLatestSoloChallengeAttempt([soloFailed, multiplayerPassed], "knights-before-coffee"), soloFailed);
-  assert.equal(getLatestPassedSoloChallengeAttempt([soloPassed, multiplayerPassed], "knights-before-coffee"), soloPassed);
-
-  const legacySoloPassed = {
-    ...soloPassed,
-    challengeId: undefined,
-    id: "knights-before-coffee:lichess:legacy-game:2026-07-11T13:00:00.000Z",
-  };
-  assert.equal(getLatestSoloChallengeAttempt([legacySoloPassed], "knights-before-coffee"), legacySoloPassed);
-  assert.equal(getLatestPassedSoloChallengeAttempt([legacySoloPassed], "knights-before-coffee"), legacySoloPassed);
-});
-
-test("Home route derives completed Solo onboarding from proof-source attempts", () => {
+test("Home route preserves established completion totals when legacy proof-source receipts are incomplete", () => {
   const source = readFileSync("src/app/page.tsx", "utf8");
 
-  assert.match(source, /const challengeAttempts = getChallengeAttempts\(metadata\)/);
-  assert.match(source, /const completedSoloIds = getCompletedSoloQuestIds\(progress\.completedChallengeIds, challengeAttempts, \{[\s\S]*?activeChallengeId: activeChallenge\?\.id,[\s\S]*?activeChallengeStatus: activeChallenge\?\.status,[\s\S]*?\}\)/);
-  assert.match(source, /getLatestSoloChallengeAttempt\(challengeAttempts, activeChallenge\.id\)/);
-  assert.match(source, /getLatestPassedSoloChallengeAttempt\(challengeAttempts, activeChallenge\.id\)/);
-  assert.match(source, /hasCompletedSoloProof\(activeSoloQuest\.id, completedSoloIds, challengeAttempts, \{[\s\S]*?activeChallengeId: activeChallenge\?\.id,[\s\S]*?activeChallengeStatus: activeChallenge\?\.status,[\s\S]*?\}\)/);
-  assert.match(source, /loadHomeTrophyRows\(client, user\.id, completedSoloIds\)/);
-  assert.match(source, /completedSoloCount=\{completedSoloIds\.length\}/);
-  assert.doesNotMatch(source, /completedSoloCount=\{progress\.totalCompletedChallenges\}/);
+  assert.match(source, /loadHomeTrophyRows\(client, user\.id, progress\.completedChallengeIds\)/);
+  assert.match(source, /completedSoloCount=\{progress\.totalCompletedChallenges\}/);
+  assert.doesNotMatch(source, /getCompletedSoloQuestIds\(/);
 });
 
 test("Home trophy loader keeps rows beyond Android's five-item preview boundary", async () => {

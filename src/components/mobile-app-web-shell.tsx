@@ -615,7 +615,9 @@ function DesktopSignedInHome({
   const setupCopy = !hasChessAccount && hasVerifiedSolo
     ? "Reconnect a public chess username so Side Quest Chess can check your next proof."
     : !hasActiveSolo
-      ? "Connect a public chess username, choose one quest, then play a new public game."
+      ? hasChessAccount
+        ? "Choose one quest, then play a new public game and return to verify it."
+        : "Connect a public chess username, choose one quest, then play a new public game."
       : !hasChessAccount
         ? "Your active quest is ready below. Connect a public chess username before Side Quest Chess can check its proof."
         : "Play a new public game on your connected chess account, then return to check the proof.";
