@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState, type ReactNode } from "react";
+import { useLayoutEffect, useState, type ReactNode } from "react";
 
 export default function ResponsiveAccountSetupLink({
   mobileHref,
@@ -14,9 +14,9 @@ export default function ResponsiveAccountSetupLink({
   className?: string;
   children: ReactNode;
 }) {
-  const [resolvedHref, setResolvedHref] = useState(desktopHref ?? mobileHref);
+  const [resolvedHref, setResolvedHref] = useState(mobileHref);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!desktopHref) return;
 
     const desktopQuery = window.matchMedia("(min-width: 1180px)");

@@ -379,10 +379,11 @@ test("desktop home keeps account setup visible when a Solo quest is active witho
   assert.match(html, /Let’s finish setting up your quest log/);
   assert.match(html, /aria-label="Getting started"/);
   assert.match(html, /<li class="current"><span>1<\/span><a href="\/settings#lichess-username">Connect chess account<\/a><\/li>/);
-  assert.match(html, /<a class="sqc-blocker" href="\/settings#lichess-username"><strong>Connect a chess username<\/strong>/);
+  assert.match(html, /<a class="sqc-blocker" href="\/account"><strong>Connect a chess username<\/strong>/, "server rendering preserves Android's mobile account destination before hydration");
   assert.equal(html.match(/<strong>Connect a chess username<\/strong>/g)?.length, 1, "responsive Home renders one interactive account-setup subtree");
   const responsiveLinkSource = readFileSync("src/components/responsive-account-setup-link.tsx", "utf8");
-  assert.match(responsiveLinkSource, /useState\(desktopHref\s*\?\?\s*mobileHref\)/, "server rendering makes the desktop setup destination immediately actionable");
+  assert.match(responsiveLinkSource, /useState\(mobileHref\)/, "the shared responsive link must default to the mobile destination before hydration");
+  assert.match(responsiveLinkSource, /useLayoutEffect\(\(\)\s*=>/);
   assert.match(responsiveLinkSource, /matchMedia\("\(min-width: 1180px\)"\)/);
   assert.match(responsiveLinkSource, /setResolvedHref\(desktopHref\)/);
   assert.match(responsiveLinkSource, /setResolvedHref\(mobileHref\)/);
@@ -470,6 +471,26 @@ test("desktop Home does not restart onboarding after a completed user deactivate
   assert.match(html, /Choose a Solo Side Quest when you want a new objective\./);
   assert.doesNotMatch(html, /Your active quest[^<]*ready below/);
   assert.match(html, /<strong>Choose a quest<\/strong>/, "the dashboard still offers the next real Solo action");
+});
+
+test("desktop Home remembers a deactivated quest after an unsuccessful proof check", () => {
+  const html = renderToStaticMarkup(
+    createElement(MobileAppWebShell, {
+      activeTab: "home",
+      signedIn: true,
+      displayName: "Sam",
+      lichessUsername: "sam-on-lichess",
+      activeMultiplayerRows: [],
+      trophyRows: [],
+      proofReceiptCount: 1,
+    }),
+  );
+
+  assert.match(html, /Let’s choose your next Side Quest\./);
+  assert.match(html, /Choose another quest, then play a new public game and return to verify it\./);
+  assert.doesNotMatch(html, /first Side Quest/);
+  assert.match(html, /<li class="done"><span>2<\/span><a href="\/side-quests">Choose a Side Quest<\/a><\/li>/);
+  assert.match(html, />2\/3 setup steps complete</);
 });
 
 test("desktop Home distinguishes historical proof from an unchecked active quest", () => {

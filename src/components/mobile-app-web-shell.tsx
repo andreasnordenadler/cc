@@ -599,7 +599,7 @@ function DesktopSignedInHome({
   const hasActiveSolo = Boolean(activeSolo?.title ?? activeSoloTitle);
   const hasVerifiedSolo = completedSoloCount > 0
     || Boolean(activeSolo?.completed || activeSolo?.verifiedAt);
-  const hasChosenSolo = hasActiveSolo || hasVerifiedSolo;
+  const hasChosenSolo = hasActiveSolo || hasVerifiedSolo || proofReceiptCount > 0;
   const hasVisibleProof = proofReceiptCount > 0
     || trophyRows.length > 0
     || Boolean(activeSolo?.completed || activeSolo?.verifiedAt);
@@ -612,7 +612,9 @@ function DesktopSignedInHome({
   const setupHeading = !hasChessAccount && hasVerifiedSolo
     ? "Let’s reconnect your chess account."
     : !hasActiveSolo
-      ? "Let’s choose your first Side Quest."
+      ? hasChosenSolo
+        ? "Let’s choose your next Side Quest."
+        : "Let’s choose your first Side Quest."
       : !hasChessAccount
         ? "Let’s finish setting up your quest log."
         : "Your first proof is the next move.";
@@ -620,8 +622,12 @@ function DesktopSignedInHome({
     ? "Reconnect a public chess username so Side Quest Chess can check your next proof."
     : !hasActiveSolo
       ? hasChessAccount
-        ? "Choose one quest, then play a new public game and return to verify it."
-        : "Connect a public chess username, choose one quest, then play a new public game."
+        ? hasChosenSolo
+          ? "Choose another quest, then play a new public game and return to verify it."
+          : "Choose one quest, then play a new public game and return to verify it."
+        : hasChosenSolo
+          ? "Reconnect a public chess username, choose another quest, then play a new public game."
+          : "Connect a public chess username, choose one quest, then play a new public game."
       : !hasChessAccount
         ? "Your active quest is ready below. Connect a public chess username before Side Quest Chess can check its proof."
         : "Play a new public game on your connected chess account, then return to check the proof.";
