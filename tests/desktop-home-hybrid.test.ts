@@ -7,6 +7,7 @@ import MobileAppWebShell, { desktopHomeMenuItems, mobileWebMenuItems, MobileComm
 import { MobileSupportComposer } from "../src/components/mobile-support-composer";
 import type { CommunitySoloCatalogClientRow } from "../src/components/catalog-clients";
 import DesktopHomeMenu from "../src/components/desktop-home-menu";
+import { resolveAccountSetupHref } from "../src/components/responsive-account-setup-link";
 import { LocalCustomDraftList } from "../src/components/local-custom-draft-library";
 import { CHALLENGES } from "../src/lib/challenges";
 import { getAccountReadinessHref } from "../src/lib/account-readiness-navigation";
@@ -379,14 +380,11 @@ test("desktop home keeps account setup visible when a Solo quest is active witho
   assert.match(html, /Let’s finish setting up your quest log/);
   assert.match(html, /aria-label="Getting started"/);
   assert.match(html, /<li class="current"><span>1<\/span><a href="\/settings#lichess-username">Connect chess account<\/a><\/li>/);
-  assert.match(html, /<a class="sqc-blocker" href="\/settings#lichess-username"><strong>Connect a chess username<\/strong>/, "the rendered anchor preserves the exact desktop destination for modified clicks");
+  assert.match(html, /<a class="sqc-blocker" href="\/account"><strong>Connect a chess username<\/strong>/, "the server-rendered anchor preserves the Android-derived mobile destination before hydration");
   assert.equal(html.match(/<strong>Connect a chess username<\/strong>/g)?.length, 1, "responsive Home renders one interactive account-setup subtree");
-  const responsiveLinkSource = readFileSync("src/components/responsive-account-setup-link.tsx", "utf8");
-  assert.match(responsiveLinkSource, /href=\{desktopHref \?\? mobileHref\}/, "desktop gets a truthful href before hydration");
-  assert.match(responsiveLinkSource, /window\.matchMedia\("\(min-width: 1180px\)"\)\.matches/);
-  assert.match(responsiveLinkSource, /event\.preventDefault\(\)/);
-  assert.match(responsiveLinkSource, /window\.location\.assign\(mobileHref\)/, "an ordinary mobile activation preserves the Android account destination");
-  assert.doesNotMatch(responsiveLinkSource, /useState|useLayoutEffect/, "responsive routing does not rewrite the href after hydration");
+  assert.equal(resolveAccountSetupHref(false, "/account", "/settings#lichess-username"), "/account");
+  assert.equal(resolveAccountSetupHref(true, "/account", "/settings#lichess-username"), "/settings#lichess-username");
+  assert.equal(resolveAccountSetupHref(true, "/account"), "/account");
   assert.doesNotMatch(html, /sqc-responsive-account-link-group|sqc-responsive-account-link mobile|sqc-responsive-account-link desktop/);
   assert.doesNotMatch(html, /latest proof[^<]*ready below/);
   assert.equal(html.match(/class="sqc-current-card/g)?.length, 1, "active Solo remains available while setup is incomplete");
