@@ -380,7 +380,7 @@ test("desktop home keeps account setup visible when a Solo quest is active witho
   assert.match(html, /Let’s finish setting up your quest log/);
   assert.match(html, /aria-label="Getting started"/);
   assert.match(html, /<li class="current"><span>1<\/span><a href="\/settings#lichess-username">Connect chess account<\/a><\/li>/);
-  assert.match(html, /<a class="sqc-blocker" href="\/account"><strong>Connect a chess username<\/strong>/, "the server-rendered anchor preserves the Android-derived mobile destination before hydration");
+  assert.match(html, /<a class="sqc-blocker" href="\/settings#lichess-username"><strong>Connect a chess username<\/strong>/, "the server-rendered desktop anchor reaches the exact proof-account field before hydration");
   assert.equal(html.match(/<strong>Connect a chess username<\/strong>/g)?.length, 1, "responsive Home renders one interactive account-setup subtree");
   assert.equal(resolveAccountSetupHref(false, "/account", "/settings#lichess-username"), "/account");
   assert.equal(resolveAccountSetupHref(true, "/account", "/settings#lichess-username"), "/settings#lichess-username");

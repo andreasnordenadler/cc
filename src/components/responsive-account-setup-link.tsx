@@ -20,7 +20,7 @@ export default function ResponsiveAccountSetupLink({
   className?: string;
   children: ReactNode;
 }) {
-  const [isDesktop, setIsDesktop] = useState(false);
+  const [isDesktop, setIsDesktop] = useState(Boolean(desktopHref));
 
   useEffect(() => {
     const query = window.matchMedia(DESKTOP_QUERY);
