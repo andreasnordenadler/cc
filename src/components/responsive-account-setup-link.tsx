@@ -14,7 +14,7 @@ export default function ResponsiveAccountSetupLink({
   className?: string;
   children: ReactNode;
 }) {
-  const [resolvedHref, setResolvedHref] = useState(mobileHref);
+  const [resolvedHref, setResolvedHref] = useState(desktopHref ?? mobileHref);
 
   useEffect(() => {
     if (!desktopHref) return;
