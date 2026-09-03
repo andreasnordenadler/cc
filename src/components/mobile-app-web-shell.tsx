@@ -45,7 +45,7 @@ type AppTab = "home" | "sideQuests" | "multiplayerSideQuests" | "coatOfArms" | "
 type MobileAppWebShellProps = {
   activeTab: AppTab;
   signedIn: boolean;
-  desktopPresentation?: "solo-discovery" | "community-discovery" | "multiplayer-discovery" | "multiplayer-detail" | "multiplayer-create" | "multiplayer-edit" | "custom-library" | "custom-detail" | "custom-editor" | "official-detail" | "community-detail" | "trophy-cabinet" | "account" | "settings" | "support" | "auth" | "proof";
+  desktopPresentation?: "solo-discovery" | "community-discovery" | "multiplayer-discovery" | "multiplayer-detail" | "multiplayer-create" | "multiplayer-edit" | "custom-library" | "custom-detail" | "custom-editor" | "official-detail" | "community-detail" | "trophy-cabinet" | "account" | "settings" | "support" | "auth" | "proof" | "recovery";
   displayName?: string | null;
   profileImageUrl?: string | null;
   lichessUsername?: string | null;
@@ -259,7 +259,7 @@ export default function MobileAppWebShell({
           <DesktopHomeHeader
             signedIn={signedIn}
             displayName={displayName}
-            activeTab={desktopPresentation.startsWith("community-") || desktopPresentation.startsWith("custom-") || desktopPresentation === "multiplayer-create" ? null : activeTab}
+            activeTab={desktopPresentation.startsWith("community-") || desktopPresentation.startsWith("custom-") || desktopPresentation === "multiplayer-create" || desktopPresentation === "recovery" ? null : activeTab}
             activeItemId={desktopPresentation.startsWith("community-") ? "community" : desktopPresentation === "custom-editor" ? "createCustom" : desktopPresentation === "multiplayer-create" ? "createMultiplayer" : desktopPresentation === "support" ? "support" : desktopPresentation.startsWith("custom-") ? "custom" : undefined}
             accountIsCurrent={desktopPresentation === "account"}
           />

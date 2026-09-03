@@ -5312,6 +5312,10 @@ body::after {
   display: none;
 }
 
+.sqc-desktop-recovery {
+  display: none;
+}
+
 .sqc-desktop-multiplayer-launchpad {
   display: none;
 }
@@ -5372,6 +5376,133 @@ body::after {
 }
 
 @media (min-width: 1180px) {
+  .sqc-mobile-web.desktop-recovery {
+    display: block;
+    min-height: 100vh;
+    padding: 0;
+    background:
+      radial-gradient(circle at 18% 16%, rgba(245, 200, 106, .15), transparent 28%),
+      radial-gradient(circle at 82% 54%, rgba(118, 169, 255, .08), transparent 26%),
+      linear-gradient(180deg, #25180f 0%, #14100e 44%, #070708 100%);
+  }
+
+  .sqc-mobile-web.desktop-recovery .sqc-desktop-route-only {
+    display: block;
+  }
+
+  .sqc-mobile-web.desktop-recovery > div:not(.sqc-mobile-backdrop):not(.sqc-desktop-route-only) > :is(.sqc-app-header, .sqc-close-screen),
+  .sqc-mobile-web.desktop-recovery .sqc-guest-nav,
+  .desktop-recovery .sqc-recovery-mobile {
+    display: none;
+  }
+
+  .sqc-mobile-web.desktop-recovery .sqc-screen {
+    width: min(1320px, calc(100% - 56px));
+    margin: 0 auto;
+    padding: clamp(72px, 9vh, 110px) 0 96px;
+  }
+
+  .desktop-recovery .sqc-desktop-recovery {
+    display: grid;
+    grid-template-columns: minmax(0, .8fr) minmax(560px, 1fr);
+    align-items: stretch;
+    gap: 28px;
+  }
+
+  .desktop-recovery .sqc-desktop-recovery-copy {
+    min-height: 520px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 58px;
+    border: 1px solid rgba(245, 200, 106, .22);
+    border-radius: 28px;
+    background:
+      linear-gradient(145deg, rgba(245, 200, 106, .12), transparent 56%),
+      rgba(18, 14, 12, .86);
+    box-shadow: 0 28px 76px rgba(0, 0, 0, .3);
+  }
+
+  .desktop-recovery .sqc-desktop-recovery-copy h1 {
+    max-width: 620px;
+    margin: 14px 0 20px;
+    color: var(--paper);
+    font-family: ui-serif, Georgia, Cambria, "Times New Roman", serif;
+    font-size: clamp(52px, 4.7vw, 76px);
+    line-height: .92;
+    letter-spacing: -.045em;
+  }
+
+  .desktop-recovery .sqc-desktop-recovery-copy p {
+    max-width: 600px;
+    margin: 0;
+    color: rgba(255, 247, 232, .72);
+    font-size: 16px;
+    line-height: 1.7;
+  }
+
+  .desktop-recovery .sqc-desktop-recovery-copy .sqc-primary-action {
+    width: auto;
+    min-width: 164px;
+    margin-top: 34px;
+    padding-inline: 22px;
+  }
+
+  .desktop-recovery .sqc-desktop-recovery-routes {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-rows: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+  }
+
+  .desktop-recovery .sqc-desktop-recovery-routes a {
+    min-width: 0;
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    align-content: start;
+    gap: 10px;
+    padding: 30px;
+    border: 1px solid rgba(255, 247, 232, .12);
+    border-radius: 22px;
+    background: rgba(14, 13, 13, .76);
+    color: var(--paper);
+    text-decoration: none;
+    transition: border-color .16s ease, background .16s ease, transform .16s ease;
+  }
+
+  .desktop-recovery .sqc-desktop-recovery-routes a:hover {
+    border-color: rgba(245, 200, 106, .42);
+    background: rgba(39, 29, 21, .86);
+    transform: translateY(-2px);
+  }
+
+  .desktop-recovery .sqc-desktop-recovery-routes a:focus-visible,
+  .desktop-recovery .sqc-desktop-recovery-copy a:focus-visible {
+    outline: 3px solid rgba(245, 200, 106, .88);
+    outline-offset: 3px;
+  }
+
+  .desktop-recovery .sqc-desktop-recovery-routes span {
+    color: rgba(245, 200, 106, .58);
+    font-size: 11px;
+    font-weight: 950;
+    letter-spacing: .16em;
+  }
+
+  .desktop-recovery .sqc-desktop-recovery-routes strong {
+    align-self: end;
+    font-family: ui-serif, Georgia, Cambria, "Times New Roman", serif;
+    font-size: 28px;
+    line-height: 1;
+  }
+
+  .desktop-recovery .sqc-desktop-recovery-routes small {
+    color: rgba(255, 247, 232, .62);
+    font-size: 13px;
+    line-height: 1.45;
+  }
+
   .terms-desktop-shell .sqc-desktop-route-only {
     display: block;
   }
@@ -12550,6 +12681,11 @@ body::after {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .desktop-recovery .sqc-desktop-recovery-routes a {
+    transition: none !important;
+    transform: none !important;
+  }
+
   .sqc-mobile-web.desktop-proof .sqc-public-proof-command-rail :is(button, a) {
     transition: none !important;
     transform: none !important;
