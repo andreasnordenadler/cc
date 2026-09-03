@@ -390,31 +390,50 @@ test("desktop home keeps account setup visible when a Solo quest is active witho
   assert.equal(html.match(/class="sqc-current-card/g)?.length, 1, "active Solo remains available while setup is incomplete");
 });
 
-test("desktop Home keeps onboarding complete after a historical Custom or Community Solo trophy", () => {
-  for (const source of ["customSolo", "communitySolo"] as const) {
-    const html = renderToStaticMarkup(
-      createElement(MobileAppWebShell, {
-        activeTab: "home",
-        signedIn: true,
-        displayName: "Sam",
-        lichessUsername: "sam-on-lichess",
-        activeMultiplayerRows: [],
-        completedSoloCount: 0,
-        proofReceiptCount: 1,
-        trophyRows: [{
-          id: `${source}-complete`,
-          title: "A completed quest",
-          meta: "Completed",
-          href: "/trophy-cabinet",
-          source,
-        }],
-      }),
-    );
+test("desktop Home does not let a non-authoritative trophy row contradict the completed Solo total", () => {
+  const html = renderToStaticMarkup(
+    createElement(MobileAppWebShell, {
+      activeTab: "home",
+      signedIn: true,
+      displayName: "Sam",
+      lichessUsername: "sam-on-lichess",
+      activeMultiplayerRows: [],
+      completedSoloCount: 0,
+      proofReceiptCount: 0,
+      trophyRows: [{
+        id: "custom-complete",
+        title: "A completed quest",
+        meta: "Completed",
+        href: "/trophy-cabinet",
+        source: "customSolo",
+      }],
+    }),
+  );
 
-    assert.match(html, /Welcome back, Sam/);
-    assert.doesNotMatch(html, /aria-label="Getting started"/);
-    assert.match(html, />3\/3 setup steps complete</);
-  }
+  assert.match(html, /Let’s choose your first Side Quest/);
+  assert.match(html, /aria-label="Getting started"/);
+  assert.match(html, />1\/3 setup steps complete</);
+  assert.doesNotMatch(html, /Welcome back, Sam/);
+});
+
+test("desktop Home trusts the production completion total when Custom trophy rows are unavailable", () => {
+  const html = renderToStaticMarkup(
+    createElement(MobileAppWebShell, {
+      activeTab: "home",
+      signedIn: true,
+      displayName: "Sam",
+      lichessUsername: "sam-on-lichess",
+      activeMultiplayerRows: [],
+      completedSoloCount: 1,
+      proofReceiptCount: 0,
+      trophyRows: [],
+    }),
+  );
+
+  assert.match(html, /Welcome back, Sam/);
+  assert.doesNotMatch(html, /aria-label="Getting started"/);
+  assert.match(html, />3\/3 setup steps complete</);
+  assert.match(html, /<strong>1 Coat of Arms<\/strong>/);
 });
 
 test("desktop home keeps Play and verify current until the first Solo proof completes", () => {
