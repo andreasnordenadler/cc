@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import test from "node:test";
 
 import {
@@ -70,6 +71,14 @@ test("excludes finished multiplayer quests without hiding active rows beyond the
 
   assert.equal(rows.some((row) => row.id === "quest-0"), false);
   assert.deepEqual(rows.map((row) => row.id), ["quest-6", "quest-5", "quest-4", "quest-3", "quest-2", "quest-1"]);
+});
+
+test("Home route preserves established completion totals when legacy proof-source receipts are incomplete", () => {
+  const source = readFileSync("src/app/page.tsx", "utf8");
+
+  assert.match(source, /loadHomeTrophyRows\(client, user\.id, progress\.completedChallengeIds\)/);
+  assert.match(source, /completedSoloCount=\{progress\.totalCompletedChallenges\}/);
+  assert.doesNotMatch(source, /getCompletedSoloQuestIds\(/);
 });
 
 test("Home trophy loader keeps rows beyond Android's five-item preview boundary", async () => {

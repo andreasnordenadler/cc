@@ -38,6 +38,7 @@ import { buildCommunityQuestDetailHref, type CommunityDiscoveryState } from "@/l
 import type { CustomOwnerSaveInput } from "@/lib/custom-owner-controls";
 import DesktopTrophyCollection from "./desktop-trophy-collection";
 import DesktopSoloDifficultyNav from "./desktop-solo-difficulty-nav";
+import ResponsiveAccountSetupLink from "./responsive-account-setup-link";
 
 type AppTab = "home" | "sideQuests" | "multiplayerSideQuests" | "coatOfArms" | "account";
 
@@ -596,22 +597,63 @@ function DesktopSignedInHome({
   proofReceiptCount: number;
 }) {
   const hasActiveSolo = Boolean(activeSolo?.title ?? activeSoloTitle);
-  const setupComplete = hasChessAccount && hasActiveSolo;
-  const completedSteps = Number(hasChessAccount) + Number(hasActiveSolo);
+  const hasVerifiedSolo = completedSoloCount > 0
+    || Boolean(activeSolo?.completed || activeSolo?.verifiedAt);
+  const hasChosenSolo = hasActiveSolo || hasVerifiedSolo || proofReceiptCount > 0;
+  const hasVisibleProof = proofReceiptCount > 0
+    || Boolean(activeSolo?.proofHref);
+  const activeSoloHasVisibleProof = Boolean(activeSolo?.proofHref);
+  const setupComplete = hasChessAccount && hasVerifiedSolo;
+  const completedSteps = setupComplete
+    ? 3
+    : Number(hasChessAccount) + Number(hasChosenSolo) + Number(hasVerifiedSolo);
+
+  const setupHeading = !hasChessAccount && hasVerifiedSolo
+    ? "Let’s reconnect your chess account."
+    : !hasActiveSolo
+      ? hasChosenSolo
+        ? "Let’s choose your next Side Quest."
+        : "Let’s choose your first Side Quest."
+      : !hasChessAccount
+        ? "Let’s finish setting up your quest log."
+        : "Your first proof is the next move.";
+  const setupCopy = !hasChessAccount && hasVerifiedSolo
+    ? "Reconnect a public chess username so Side Quest Chess can check your next proof."
+    : !hasActiveSolo
+      ? hasChessAccount
+        ? hasChosenSolo
+          ? "Choose another quest, then play a new public game and return to verify it."
+          : "Choose one quest, then play a new public game and return to verify it."
+        : hasChosenSolo
+          ? "Reconnect a public chess username, choose another quest, then play a new public game."
+          : "Connect a public chess username, choose one quest, then play a new public game."
+      : !hasChessAccount
+        ? "Your active quest is ready below. Connect a public chess username before Side Quest Chess can check its proof."
+        : "Play a new public game on your connected chess account, then return to check the proof.";
 
   return (
     <div className="sqc-desktop-signed-in sqc-responsive-signed-home">
       <section className="sqc-desktop-dashboard-intro">
         <div>
           <span className="sqc-desktop-eyebrow">Today&apos;s quest log</span>
-          <h1>{setupComplete ? `Welcome back${displayName ? `, ${displayName}` : ""}.` : hasActiveSolo ? "Let’s finish setting up your quest log." : "Let’s choose your first Side Quest."}</h1>
-          <p>{setupComplete ? "Your active quest, latest proof, shared challenges, and unlocked Coats of Arms are ready below." : hasActiveSolo ? "Your active quest is ready below. Connect a public chess username before Side Quest Chess can check its proof." : "Connect a public chess username, choose one quest, then play a new public game."}</p>
+          <h1>{setupComplete ? `Welcome back${displayName ? `, ${displayName}` : ""}.` : setupHeading}</h1>
+          <p>{setupComplete
+            ? hasActiveSolo
+              ? activeSoloHasVisibleProof
+                ? "Your active quest, latest proof, shared challenges, and unlocked Coats of Arms are ready below."
+                : hasVisibleProof
+                  ? "Your active quest, proof history, shared challenges, and unlocked Coats of Arms are ready below."
+                  : "Your active quest and shared challenges are ready below. Your next completed proof will appear in the quest log."
+              : hasVisibleProof
+                ? "Your proof history, shared challenges, and unlocked Coats of Arms are ready below. Choose a Solo Side Quest when you want a new objective."
+                : "Your quest log and shared challenges are ready below. Choose a Solo Side Quest when you want a new objective."
+            : setupCopy}</p>
         </div>
         {!setupComplete ? (
           <ol className="sqc-desktop-onboarding-progress" aria-label="Getting started">
-            <li className={hasChessAccount ? "done" : "current"}><span>1</span><Link href="/account">Connect chess account</Link></li>
-            <li className={hasActiveSolo ? "done" : hasChessAccount ? "current" : ""}><span>2</span><Link href="/side-quests">Choose a Side Quest</Link></li>
-            <li><span>3</span><strong>Play and verify</strong></li>
+            <li className={hasChessAccount ? "done" : "current"}><span>1</span><Link href="/settings#lichess-username">Connect chess account</Link></li>
+            <li className={hasChosenSolo ? "done" : hasChessAccount ? "current" : ""}><span>2</span><Link href="/side-quests">Choose a Side Quest</Link></li>
+            <li className={hasVerifiedSolo ? "done" : hasChessAccount && hasActiveSolo ? "current" : ""}><span>3</span><strong>Play and verify</strong></li>
           </ol>
         ) : (
           <Link href="/side-quests" className="sqc-desktop-secondary">Explore more Side Quests</Link>
@@ -637,6 +679,7 @@ function DesktopSignedInHome({
       <div className="sqc-desktop-dashboard-grid">
         <SignedInHome
           hasChessAccount={hasChessAccount}
+          desktopAccountSetupHref="/settings#lichess-username"
           activeSolo={activeSolo}
           activeSoloTitle={activeSoloTitle}
           activeMultiplayerRows={activeMultiplayerRows}
@@ -646,7 +689,7 @@ function DesktopSignedInHome({
         />
       </div>
       <footer className="sqc-desktop-footer">
-        <span>{completedSteps}/2 setup steps complete</span>
+        <span>{completedSteps}/3 setup steps complete</span>
         <nav aria-label="Footer">
           <Link href="/support">Help & Support</Link>
           <Link href="/privacy">Privacy Policy</Link>
@@ -689,6 +732,8 @@ export function GuestHome({
 
 export function SignedInHome({
   hasChessAccount,
+  accountSetupHref = "/account",
+  desktopAccountSetupHref,
   activeSolo,
   activeSoloTitle,
   activeMultiplayerRows,
@@ -697,6 +742,8 @@ export function SignedInHome({
   proofReceiptCount,
 }: {
   hasChessAccount: boolean;
+  accountSetupHref?: string;
+  desktopAccountSetupHref?: string;
   activeSolo?: ActiveSoloHome | null;
   activeSoloTitle?: string | null;
   activeMultiplayerRows: ActiveMultiplayerHomeRow[];
@@ -710,10 +757,14 @@ export function SignedInHome({
   return (
     <div className="sqc-stack">
       {!hasChessAccount ? (
-        <Link href="/account" className="sqc-blocker">
+        <ResponsiveAccountSetupLink
+          mobileHref={accountSetupHref}
+          desktopHref={desktopAccountSetupHref}
+          className="sqc-blocker"
+        >
           <strong>Connect a chess username</strong>
           <span>Side Quest Chess needs Lichess or Chess.com before it can check real games.</span>
-        </Link>
+        </ResponsiveAccountSetupLink>
       ) : null}
 
       <section className={`sqc-current-card${activeSolo?.href ? " clickable" : ""}`}>
