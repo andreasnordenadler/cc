@@ -25,11 +25,12 @@ export default function DesktopSoloDifficultyNav({ items }: { items: DifficultyI
     const updateActiveDifficulty = () => {
       animationFrame = 0;
       const orientationLine = 168;
+      const alignmentTolerance = 1;
       let current = difficulties[0];
 
       for (const difficulty of difficulties) {
         const heading = document.getElementById(`solo-difficulty-${difficulty.toLowerCase()}`);
-        if (heading && heading.getBoundingClientRect().top <= orientationLine) {
+        if (heading && heading.getBoundingClientRect().top <= orientationLine + alignmentTolerance) {
           current = difficulty;
         }
       }

@@ -1319,6 +1319,10 @@ body::after {
   display: none;
 }
 
+.sqc-solo-card-facts {
+  display: none;
+}
+
 .sqc-solo-difficulty-shelf + .sqc-solo-difficulty-shelf .sqc-app-row:first-child {
   border-top: 1px solid rgba(255, 255, 255, .065);
 }
@@ -7098,6 +7102,26 @@ body::after {
     display: grid;
     gap: 9px;
     margin-top: 5px;
+  }
+
+  .sqc-mobile-web.desktop-solo-discovery .sqc-solo-card-facts {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 5px;
+  }
+
+  .sqc-mobile-web.desktop-solo-discovery .sqc-solo-card-facts > span {
+    padding: 3px 5px;
+    border: 1px solid rgba(245, 200, 106, .2);
+    border-radius: 999px;
+    background: rgba(245, 200, 106, .065);
+    color: rgba(255, 247, 232, .72);
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: .02em;
+    line-height: 1;
+    text-transform: uppercase;
+    white-space: nowrap;
   }
 
   .sqc-mobile-web.desktop-solo-discovery .sqc-solo-card-note {

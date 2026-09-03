@@ -1042,6 +1042,10 @@ export function MobileSoloSideQuestsScreen({
                         key={challenge.id}
                         title={challenge.title}
                         meta={challenge.objective}
+                        desktopSoloFacts={{
+                          category: challenge.category,
+                          reward: "Coat of Arms reward",
+                        }}
                         desktopNote={challenge.openingHint}
                         status={challenge.id === activeChallengeId ? "Active" : completedSet.has(challenge.id) ? "Completed" : challenge.difficulty}
                         href={`/challenges/${challenge.id}`}
@@ -2413,6 +2417,7 @@ function AppRow({
   sourceBadge,
   likeSummary,
   likeAction,
+  desktopSoloFacts,
   desktopMultiplayerFacts,
 }: {
   title: string;
@@ -2431,6 +2436,10 @@ function AppRow({
     targetType: "solo" | "multiplayer";
     targetId: string;
     returnTo: string;
+  };
+  desktopSoloFacts?: {
+    category: string;
+    reward: string;
   };
   desktopMultiplayerFacts?: {
     players: string;
@@ -2451,6 +2460,7 @@ function AppRow({
           {likeSummary && !likeAction ? <MobileRowLikeSummary summary={likeSummary} label={title} /> : null}
         </strong>
         <small>{meta}</small>
+        {desktopSoloFacts ? <SoloRowFacts facts={desktopSoloFacts} /> : null}
         {desktopMultiplayerFacts ? <MultiplayerRowDetails facts={desktopMultiplayerFacts} /> : null}
         {desktopNote ? (
           <span className="sqc-solo-card-details">
@@ -2490,7 +2500,8 @@ function AppRow({
             />
           </span>
           <small>{meta}</small>
-        {desktopMultiplayerFacts ? <MultiplayerRowDetails facts={desktopMultiplayerFacts} /> : null}
+          {desktopSoloFacts ? <SoloRowFacts facts={desktopSoloFacts} /> : null}
+          {desktopMultiplayerFacts ? <MultiplayerRowDetails facts={desktopMultiplayerFacts} /> : null}
           {desktopNote ? (
             <span className="sqc-solo-card-details">
               <span className="sqc-solo-card-note">{desktopNote}</span>
@@ -2508,6 +2519,15 @@ function AppRow({
   }
 
   return <Link href={href} className="sqc-app-row">{content}</Link>;
+}
+
+function SoloRowFacts({ facts }: { facts: { category: string; reward: string } }) {
+  return (
+    <span className="sqc-solo-card-facts" aria-label="Quest facts">
+      <span>{facts.category}</span>
+      <span>{facts.reward}</span>
+    </span>
+  );
 }
 
 function MultiplayerRowDetails({ facts }: { facts: { players: string; quests: string; closes: string } }) {

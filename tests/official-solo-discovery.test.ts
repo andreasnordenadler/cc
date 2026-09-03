@@ -45,6 +45,27 @@ test("official Solo discovery renders a desktop search workspace with truthful r
   assert.doesNotMatch(html, /No Castle Club/);
 });
 
+test("desktop Official Solo cards expose canonical category and Coat reward facts without changing mobile cards", () => {
+  const matches = filterOfficialSideQuests(CHALLENGES, "starter quest");
+  const html = renderToStaticMarkup(createElement(MobileSoloSideQuestsScreen, {
+    challenges: matches,
+    totalChallengeCount: CHALLENGES.length,
+    query: "starter quest",
+  }));
+  const css = readFileSync("src/app/mobile-web.css", "utf8");
+  const desktopStart = css.indexOf("@media (min-width: 1180px)");
+  const mobileCss = css.slice(0, desktopStart);
+  const desktopCss = css.slice(desktopStart);
+
+  assert.match(html, /class="sqc-solo-card-facts" aria-label="Quest facts"/);
+  assert.match(html, /<span>Starter Quest<\/span>/);
+  assert.match(html, /<span>Coat of Arms reward<\/span>/);
+  assert.doesNotMatch(html, /\b\d+ points\b/);
+  assert.match(mobileCss, /\.sqc-solo-card-facts\s*\{[^}]*display:\s*none;/);
+  assert.match(desktopCss, /\.sqc-mobile-web\.desktop-solo-discovery\s+\.sqc-solo-card-facts\s*\{[^}]*display:\s*flex;[^}]*flex-wrap:\s*nowrap;/);
+  assert.match(desktopCss, /\.sqc-mobile-web\.desktop-solo-discovery\s+\.sqc-solo-card-facts\s*>\s*span\s*\{[^}]*white-space:\s*nowrap;/);
+});
+
 test("official Solo discovery gives zero matches an honest recovery state", () => {
   const html = renderToStaticMarkup(createElement(MobileSoloSideQuestsScreen, {
     challenges: [],
