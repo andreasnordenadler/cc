@@ -143,6 +143,10 @@ export function CommunitySoloCatalog({ rows, signedIn, initialCreator = null, in
   const creator = creatorRow?.creatorKey ?? null;
   const filtered = useMemo(() => filterCommunitySoloCatalog(liveRows, { query, filter, sort, creator }), [liveRows, query, filter, sort, creator]);
   const page = paginateCatalog(filtered, limit);
+  const catalogTotal = creator ? liveRows.filter((row) => row.creatorKey === creator).length : liveRows.length;
+  const resultSummary = catalogTotal
+    ? `${page.total} of ${catalogTotal} public Side Quests match the current filters. ${page.rows.length} shown.`
+    : "No public Side Quests";
   const catalogSummary = useMemo(() => {
     const creators = new Set(liveRows.map((row) => row.creatorKey ?? row.creatorName ?? `quest:${row.id}`));
     return liveRows.reduce((summary, row) => {
@@ -173,21 +177,30 @@ export function CommunitySoloCatalog({ rows, signedIn, initialCreator = null, in
 
   return (
     <>
-      <div className="sqc-community-browse-panel" aria-label="Community Side Quest filters">
-        <label className="sqc-search-shell">
-          <span className="sr-only">Search Community Side Quests</span>
-          <input value={query} onChange={(event) => { const nextQuery = event.target.value; setQuery(nextQuery); setLimit(10); replaceDiscoveryState({ query: nextQuery, limit: 10 }); }} placeholder="Search by name or rule" aria-label="Search Community Side Quests" />
-        </label>
-        <div className="sqc-community-controls">
-          <div className="sqc-filter-row" aria-label="Filter Community Side Quests">
-            {filters.map(({ value, label }) => (
-              <button type="button" key={value} className={filter === value ? "active" : ""} aria-pressed={filter === value} onClick={() => { setFilter(value); setLimit(10); replaceDiscoveryState({ filter: value, limit: 10 }); }}>{label}</button>
-            ))}
+      <div className="sqc-community-catalog-command">
+        <div className="sqc-community-section-header sqc-community-live-header">
+          <h2>Community Side Quests</h2>
+          <span className="sqc-community-desktop-result-summary" aria-live="polite">
+            <span className="sr-only">{resultSummary}</span>
+            <span aria-hidden="true">{catalogTotal ? `${page.total}/${catalogTotal}` : "0 public"}</span>
+          </span>
+        </div>
+        <div className="sqc-community-browse-panel" aria-label="Community Side Quest filters">
+          <label className="sqc-search-shell">
+            <span className="sr-only">Search Community Side Quests</span>
+            <input value={query} onChange={(event) => { const nextQuery = event.target.value; setQuery(nextQuery); setLimit(10); replaceDiscoveryState({ query: nextQuery, limit: 10 }); }} placeholder="Search by name or rule" aria-label="Search Community Side Quests" />
+          </label>
+          <div className="sqc-community-controls">
+            <div className="sqc-filter-row" aria-label="Filter Community Side Quests">
+              {filters.map(({ value, label }) => (
+                <button type="button" key={value} className={filter === value ? "active" : ""} aria-pressed={filter === value} onClick={() => { setFilter(value); setLimit(10); replaceDiscoveryState({ filter: value, limit: 10 }); }}>{label}</button>
+              ))}
+            </div>
+            <label className="sqc-sort-pill">Sort <select aria-label="Sort Community Side Quests" value={sort} onChange={(event) => { const nextSort = event.target.value as CommunitySoloCatalogSort; setSort(nextSort); setLimit(10); replaceDiscoveryState({ sort: nextSort, limit: 10 }); }}><option value="popular">Top</option><option value="liked">Liked</option><option value="newest">Newest</option><option value="name">A–Z</option></select></label>
           </div>
-          <label className="sqc-sort-pill">Sort <select aria-label="Sort Community Side Quests" value={sort} onChange={(event) => { const nextSort = event.target.value as CommunitySoloCatalogSort; setSort(nextSort); setLimit(10); replaceDiscoveryState({ sort: nextSort, limit: 10 }); }}><option value="popular">Top</option><option value="liked">Liked</option><option value="newest">Newest</option><option value="name">A–Z</option></select></label>
         </div>
       </div>
-      <span>{page.total} result{page.total === 1 ? "" : "s"}</span>
+      <span className="sqc-community-mobile-result-count">{page.total} result{page.total === 1 ? "" : "s"}</span>
       {page.rows.length ? (
         <div className={page.rows.length === 1 ? "sqc-community-results-layout single-result" : "sqc-community-results-layout"}>
           <div className={page.rows.length === 1 ? "sqc-catalog single-result" : "sqc-catalog"}>
