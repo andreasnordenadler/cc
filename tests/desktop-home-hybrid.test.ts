@@ -436,6 +436,32 @@ test("desktop Home trusts the production completion total when Custom trophy row
   assert.match(html, /<strong>1 Coat of Arms<\/strong>/);
 });
 
+test("desktop Home does not present trophy rows as authoritative proof history", () => {
+  const html = renderToStaticMarkup(
+    createElement(MobileAppWebShell, {
+      activeTab: "home",
+      signedIn: true,
+      displayName: "Sam",
+      lichessUsername: "sam-on-lichess",
+      activeMultiplayerRows: [],
+      completedSoloCount: 1,
+      proofReceiptCount: 0,
+      trophyRows: [{
+        id: "legacy-completion",
+        title: "A completed quest",
+        meta: "Completed",
+        href: "/trophy-cabinet",
+        source: "officialSolo",
+      }],
+    }),
+  );
+
+  assert.match(html, /Welcome back, Sam/);
+  assert.match(html, /0 proof receipts recorded/);
+  assert.doesNotMatch(html, /Your proof history/);
+  assert.match(html, /Your quest log and shared challenges are ready below/);
+});
+
 test("desktop home keeps Play and verify current until the first Solo proof completes", () => {
   const html = renderToStaticMarkup(
     createElement(MobileAppWebShell, {
