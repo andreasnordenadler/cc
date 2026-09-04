@@ -7542,10 +7542,10 @@ body::after {
 
   .sqc-mobile-web.desktop-community-discovery .sqc-community-live-header {
     align-self: stretch;
-    display: flex;
+    display: grid;
     align-items: center;
-    justify-content: space-between;
-    gap: 12px;
+    justify-content: start;
+    gap: 6px;
     padding: 0 14px 0 2px;
     border-right: 1px solid rgba(255, 247, 232, .1);
     border-bottom: 0;
@@ -11914,6 +11914,9 @@ body::after {
     }
 
     .sqc-mobile-web.desktop-community-discovery .sqc-community-live-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
       padding: 0 14px 0 2px;
       border-right: 1px solid rgba(255, 247, 232, .1);
       border-bottom: 0;
@@ -12240,6 +12243,9 @@ body::after {
   }
 
   .sqc-mobile-web.desktop-community-discovery .sqc-community-live-header {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
     padding: 0 14px 0 2px;
     border-right: 1px solid rgba(255, 247, 232, .1);
     border-bottom: 0;

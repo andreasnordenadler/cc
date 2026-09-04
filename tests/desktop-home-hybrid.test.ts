@@ -970,12 +970,14 @@ test("Community discovery keeps live result context with its sticky desktop cont
   assert.match(wideDesktopMedia, /\.sqc-mobile-web\.desktop-community-discovery\s+\.sqc-community-catalog-command\s*\{[^}]*grid-template-columns:\s*280px\s+minmax\(0,\s*1fr\);/);
   assert.match(wideDesktopMedia, /\.sqc-mobile-web\.desktop-community-discovery\s+\.sqc-community-browse-panel\s*\{[^}]*grid-template-columns:\s*minmax\(260px,\s*1fr\)\s+auto;/);
   assert.match(wideDesktopMedia, /\.sqc-mobile-web\.desktop-community-discovery\s+\.sqc-community-controls\s*\{[^}]*justify-content:\s*flex-end;/);
-  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-community-discovery\s+\.sqc-community-live-header\s*\{[^}]*display:\s*flex;[^}]*justify-content:\s*space-between;[^}]*border-right:\s*1px\s+solid[^}]*border-bottom:\s*0;/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-community-discovery\s+\.sqc-community-live-header\s*\{[^}]*display:\s*grid;[^}]*justify-content:\s*start;[^}]*gap:\s*6px;[^}]*border-right:\s*1px\s+solid[^}]*border-bottom:\s*0;/, "the 220px command rail stacks its title and count instead of colliding with search at the desktop boundary");
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-community-discovery\s+\.sqc-community-live-header\s+h2\s*\{[^}]*font-size:\s*19px;[^}]*white-space:\s*nowrap;/);
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-community-discovery\s+\.sqc-community-browse-panel\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\);/ , "the command bar keeps its outer two-column identity while stacking dense controls at the narrow desktop boundary");
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-community-discovery\s+\.sqc-community-controls\s*\{[^}]*justify-content:\s*flex-start;/);
   assert.match(standardDesktopMedia, /\.sqc-mobile-web\.desktop-community-discovery\s+\.sqc-community-browse-panel\s*\{[^}]*grid-template-columns:\s*minmax\(260px,\s*1fr\)\s+auto;/);
   assert.match(standardDesktopMedia, /\.sqc-mobile-web\.desktop-community-discovery\s+\.sqc-community-controls\s*\{[^}]*justify-content:\s*flex-end;/);
+  assert.match(standardDesktopMedia, /\.sqc-mobile-web\.desktop-community-discovery\s+\.sqc-community-live-header\s*\{[^}]*display:\s*flex;[^}]*justify-content:\s*space-between;[^}]*gap:\s*12px;/, "roomier desktops keep the compact title and live count on one line");
+  assert.match(wideDesktopMedia, /\.sqc-mobile-web\.desktop-community-discovery\s+\.sqc-community-live-header\s*\{[^}]*display:\s*flex;[^}]*justify-content:\s*space-between;[^}]*gap:\s*12px;/, "wide desktops retain the inline title and live count after the final cascade boundary");
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-community-discovery\s+\.sqc-community-catalog-command\s*\{[^}]*backdrop-filter:\s*blur\(18px\);/);
 });
 
