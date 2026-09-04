@@ -12648,6 +12648,21 @@ body::after {
     font-size: 54px;
   }
 
+  .sqc-desktop-featured-primary {
+    grid-template-columns: 152px minmax(0, 1fr);
+    column-gap: 16px;
+    padding-inline: 22px;
+  }
+
+  .sqc-desktop-featured-art img {
+    width: 152px;
+    height: 190px;
+  }
+
+  .sqc-desktop-featured-quest h2 {
+    font-size: 29px;
+  }
+
   .sqc-desktop-loop,
   .sqc-desktop-quest-shelf,
   .sqc-desktop-coat-story,

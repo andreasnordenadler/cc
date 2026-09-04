@@ -131,6 +131,7 @@ test("desktop Home turns the featured quest into a compact launch board with rea
   const css = readFileSync("src/app/mobile-web.css", "utf8");
   const mobileCss = css.slice(0, css.indexOf("@media (min-width: 1180px)"));
   const desktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1180px)"));
+  const compactDesktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1180px) and (max-width: 1280px)"));
 
   assert.match(html, /<nav class="sqc-desktop-featured-alternatives" aria-label="More recommended Solo Side Quests">/);
   assert.match(html, /href="\/challenges\/bishop-field-trip"[^>]*><span>Next on the board<\/span><strong>Bishop Field Trip<\/strong>/);
@@ -141,6 +142,8 @@ test("desktop Home turns the featured quest into a compact launch board with rea
   assert.match(desktopMedia, /\.sqc-desktop-featured-alternatives\s*\{[^}]*display:\s*grid;[^}]*grid-template-columns:\s*repeat\(2,\s*minmax\(0,\s*1fr\)\);/);
   assert.match(desktopMedia, /\.sqc-desktop-featured-alternative:focus-visible\s*\{[^}]*outline:\s*3px\s+solid/);
   assert.match(desktopMedia, /\.sqc-desktop-featured-primary:focus-visible\s*\{[^}]*outline:\s*3px\s+solid[^;}]*;[^}]*outline-offset:\s*-4px;/);
+  assert.match(compactDesktopMedia, /\.sqc-desktop-featured-primary\s*\{[^}]*grid-template-columns:\s*152px\s+minmax\(0,\s*1fr\);[^}]*column-gap:\s*16px;/);
+  assert.match(compactDesktopMedia, /\.sqc-desktop-featured-art img\s*\{[^}]*width:\s*152px;[^}]*height:\s*190px;/);
 });
 
 test("desktop home stays hidden until the full-desktop breakpoint", () => {
