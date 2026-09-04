@@ -1,5 +1,41 @@
 import { expect, test } from "@playwright/test";
 
+test("desktop Home gives Community and Multiplayer equal keyboard-ready discovery cards", async ({ page }) => {
+  for (const { width, height } of [
+    { width: 1180, height: 900 },
+    { width: 1440, height: 900 },
+    { width: 1920, height: 1080 },
+  ]) {
+    await page.setViewportSize({ width, height });
+    await page.goto("/", { waitUntil: "domcontentloaded" });
+
+    const band = page.locator(".sqc-desktop-discovery-band");
+    const community = band.getByRole("link", { name: /Community Side Quests/ });
+    const multiplayer = band.getByRole("link", { name: /Multiplayer Side Quests/ });
+    await expect(band).toBeVisible();
+    await expect(community).toHaveAttribute("href", "/community-side-quests");
+    await expect(multiplayer).toHaveAttribute("href", "/multiplayer");
+    await expect.poll(async () => {
+      const [communityBox, multiplayerBox] = await Promise.all([community.boundingBox(), multiplayer.boundingBox()]);
+      return Boolean(
+        communityBox
+        && multiplayerBox
+        && Math.abs(communityBox.y - multiplayerBox.y) < 1
+        && Math.abs(communityBox.height - multiplayerBox.height) < 1
+        && multiplayerBox.x > communityBox.x + communityBox.width,
+      );
+    }).toBe(true);
+    await community.focus();
+    await expect(community).toBeFocused();
+    await expect(community).toHaveCSS("outline-style", "solid");
+    await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBe(0);
+  }
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expect(page.locator(".sqc-desktop-discovery-band")).toBeHidden();
+  await expect(page.locator(".sqc-app-only")).toBeVisible();
+});
+
 test("desktop Home turns the featured quest into a keyboard-ready launch board", async ({ page }) => {
   for (const width of [1180, 1440, 1920]) {
     await page.setViewportSize({ width, height: width === 1920 ? 1080 : 900 });

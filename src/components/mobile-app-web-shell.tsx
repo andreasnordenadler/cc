@@ -555,14 +555,32 @@ function DesktopGuestHome() {
         </div>
       </section>
 
-      <section className="sqc-desktop-multiplayer-teaser" aria-labelledby="desktop-multiplayer-title">
-        <Image src={mobileAsset.multiplayerSeal} alt="" width={132} height={132} />
-        <div>
-          <span className="sqc-desktop-eyebrow">Multiplayer Side Quests</span>
-          <h2 id="desktop-multiplayer-title">Same nonsense, now with witnesses.</h2>
-          <p>Invite friends, agree on one terrible idea, then let public games decide who must live with the result.</p>
+      <section className="sqc-desktop-discovery-band" aria-labelledby="desktop-discovery-title">
+        <div className="sqc-desktop-discovery-heading">
+          <span className="sqc-desktop-eyebrow">Two ways to make this less sensible</span>
+          <h2 id="desktop-discovery-title">Choose who brings the bad idea.</h2>
+          <p>Borrow a challenge from another player, or gather a table and make the consequences social.</p>
         </div>
-        <Link href="/multiplayer" className="sqc-desktop-secondary">Start a Multiplayer Side Quest</Link>
+        <div className="sqc-desktop-discovery-grid">
+          <Link href="/community-side-quests" className="sqc-desktop-discovery-card community">
+            <Image src={mobileAsset.coat} alt="" width={118} height={132} />
+            <span>
+              <small>Player-made Solo</small>
+              <h3>Community Side Quests</h3>
+              <p>Browse public challenges invented by people who also thought ordinary chess was insufficient.</p>
+              <strong>Browse Community Side Quests</strong>
+            </span>
+          </Link>
+          <Link href="/multiplayer" className="sqc-desktop-discovery-card multiplayer">
+            <Image src={mobileAsset.multiplayerSeal} alt="" width={118} height={118} />
+            <span>
+              <small>Shared tables</small>
+              <h3>Multiplayer Side Quests</h3>
+              <p>Invite friends, agree on one terrible idea, then let public games decide who lives with the result.</p>
+              <strong>Start a Multiplayer Side Quest</strong>
+            </span>
+          </Link>
+        </div>
       </section>
 
       <footer className="sqc-desktop-footer">

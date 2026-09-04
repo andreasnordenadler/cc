@@ -104,6 +104,26 @@ test("signed-out home renders an app surface plus a desktop-only guided experien
   assert.doesNotMatch(html, /href="\/account">My Account<\/a>/);
 });
 
+test("desktop Home gives Community and Multiplayer equal discovery destinations", () => {
+  const html = renderToStaticMarkup(
+    createElement(MobileAppWebShell, { activeTab: "home", signedIn: false }),
+  );
+  const css = readFileSync("src/app/mobile-web.css", "utf8");
+  const mobileCss = css.slice(0, css.indexOf("@media (min-width: 1180px)"));
+  const desktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1180px)"));
+
+  assert.match(html, /<section class="sqc-desktop-discovery-band" aria-labelledby="desktop-discovery-title">/);
+  assert.match(html, /<h2 id="desktop-discovery-title">Choose who brings the bad idea\.<\/h2>/);
+  assert.match(html, /class="sqc-desktop-discovery-card community"[^>]*href="\/community-side-quests"/);
+  assert.match(html, /class="sqc-desktop-discovery-card multiplayer"[^>]*href="\/multiplayer"/);
+  assert.match(html, />Browse Community Side Quests<\/strong>/);
+  assert.match(html, />Start a Multiplayer Side Quest<\/strong>/);
+  assert.equal(html.match(/class="sqc-desktop-discovery-card /g)?.length, 2);
+  assert.match(mobileCss, /\.sqc-desktop-discovery-band\s*\{[^}]*display:\s*none;/, "mobile Home must retain the Android-derived composition");
+  assert.match(desktopMedia, /\.sqc-desktop-discovery-grid\s*\{[^}]*grid-template-columns:\s*repeat\(2,\s*minmax\(0,\s*1fr\)\);/);
+  assert.match(desktopMedia, /\.sqc-desktop-discovery-card:focus-visible\s*\{[^}]*outline:\s*3px\s+solid/);
+});
+
 test("desktop Home turns the featured quest into a compact launch board with real alternatives", () => {
   const html = renderToStaticMarkup(
     createElement(MobileAppWebShell, { activeTab: "home", signedIn: false }),

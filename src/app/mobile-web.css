@@ -5312,6 +5312,10 @@ body::after {
   display: none;
 }
 
+.sqc-desktop-discovery-band {
+  display: none;
+}
+
 .sqc-desktop-route-only,
 .sqc-desktop-catalog-intro,
 .sqc-desktop-community-intro,
@@ -5950,7 +5954,8 @@ body::after {
   .sqc-desktop-hero h1,
   .sqc-desktop-section-heading h2,
   .sqc-desktop-coat-story h2,
-  .sqc-desktop-multiplayer-teaser h2,
+  .sqc-desktop-discovery-heading h2,
+  .sqc-desktop-discovery-card h3,
   .sqc-desktop-dashboard-intro h1 {
     margin: 0;
     font-family: ui-serif, Georgia, Cambria, "Times New Roman", serif;
@@ -6163,7 +6168,8 @@ body::after {
   .sqc-desktop-quest-card p,
   .sqc-desktop-section-heading p,
   .sqc-desktop-coat-story p,
-  .sqc-desktop-multiplayer-teaser p,
+  .sqc-desktop-discovery-heading p,
+  .sqc-desktop-discovery-card p,
   .sqc-desktop-dashboard-intro p {
     margin: 0;
     color: var(--muted);
@@ -6179,7 +6185,7 @@ body::after {
   .sqc-desktop-loop,
   .sqc-desktop-quest-shelf,
   .sqc-desktop-coat-story,
-  .sqc-desktop-multiplayer-teaser {
+  .sqc-desktop-discovery-band {
     margin-top: 34px;
     padding: 54px;
     border: 1px solid rgba(255, 247, 232, .11);
@@ -6289,7 +6295,7 @@ body::after {
 
   .sqc-desktop-section-heading h2,
   .sqc-desktop-coat-story h2,
-  .sqc-desktop-multiplayer-teaser h2 {
+  .sqc-desktop-discovery-heading h2 {
     font-size: clamp(34px, 3.5vw, 48px);
     line-height: 1.02;
   }
@@ -6498,25 +6504,112 @@ body::after {
     transform: rotate(4deg);
   }
 
-  .sqc-desktop-multiplayer-teaser {
+  .sqc-desktop-discovery-band {
     display: grid;
-    grid-template-columns: 132px minmax(0, 1fr) auto;
+    grid-template-columns: minmax(240px, .55fr) minmax(0, 1.45fr);
+    align-items: stretch;
+    gap: 34px;
+    padding-block: 42px;
+    background:
+      radial-gradient(circle at 74% 50%, rgba(96, 240, 175, .08), transparent 34%),
+      linear-gradient(135deg, rgba(118, 169, 255, .06), rgba(255, 247, 232, .035));
+  }
+
+  .sqc-desktop-discovery-heading {
+    display: grid;
+    align-content: center;
+    gap: 12px;
+  }
+
+  .sqc-desktop-discovery-heading h2 {
+    font-size: 38px;
+  }
+
+  .sqc-desktop-discovery-heading p {
+    max-width: 420px;
+    font-size: 14px;
+  }
+
+  .sqc-desktop-discovery-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+  }
+
+  .sqc-desktop-discovery-card {
+    min-width: 0;
+    min-height: 230px;
+    display: grid;
+    grid-template-columns: 108px minmax(0, 1fr);
     align-items: center;
-    gap: 28px;
-    padding-block: 38px;
+    gap: 18px;
+    padding: 24px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 247, 232, .13);
+    border-radius: 24px;
+    background: rgba(255, 247, 232, .045);
+    color: var(--paper);
+    text-decoration: none;
+    transition: transform 160ms ease, border-color 160ms ease, background 160ms ease;
   }
 
-  .sqc-desktop-multiplayer-teaser img {
-    filter: drop-shadow(0 18px 22px rgba(0, 0, 0, .4));
+  .sqc-desktop-discovery-card.community {
+    border-color: rgba(96, 240, 175, .22);
+    background: linear-gradient(145deg, rgba(96, 240, 175, .075), rgba(255, 247, 232, .035));
   }
 
-  .sqc-desktop-multiplayer-teaser > div {
+  .sqc-desktop-discovery-card.multiplayer {
+    border-color: rgba(245, 200, 106, .2);
+    background: linear-gradient(145deg, rgba(245, 200, 106, .075), rgba(255, 247, 232, .035));
+  }
+
+  .sqc-desktop-discovery-card:hover {
+    transform: translateY(-3px);
+    border-color: rgba(245, 200, 106, .5);
+    background-color: rgba(255, 247, 232, .075);
+  }
+
+  .sqc-desktop-discovery-card:focus-visible {
+    outline: 3px solid rgba(245, 200, 106, .88);
+    outline-offset: 4px;
+  }
+
+  .sqc-desktop-discovery-card img {
+    width: 108px;
+    height: 120px;
+    object-fit: contain;
+    filter: drop-shadow(0 18px 22px rgba(0, 0, 0, .42));
+  }
+
+  .sqc-desktop-discovery-card > span {
+    min-width: 0;
     display: grid;
+    align-content: center;
     gap: 8px;
   }
 
-  .sqc-desktop-multiplayer-teaser h2 {
-    font-size: 34px;
+  .sqc-desktop-discovery-card small {
+    color: var(--gold);
+    font-size: 10px;
+    font-weight: 950;
+    letter-spacing: .13em;
+    text-transform: uppercase;
+  }
+
+  .sqc-desktop-discovery-card h3 {
+    margin: 0;
+    font-size: clamp(24px, 2vw, 30px);
+    line-height: 1.03;
+  }
+
+  .sqc-desktop-discovery-card p {
+    font-size: 13px;
+  }
+
+  .sqc-desktop-discovery-card strong {
+    color: var(--gold);
+    font-size: 12px;
+    font-weight: 900;
   }
 
   .sqc-desktop-footer {
