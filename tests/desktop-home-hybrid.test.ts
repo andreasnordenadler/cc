@@ -5,7 +5,7 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import MobileAppWebShell, { desktopHomeMenuItems, mobileWebMenuItems, MobileCommunitySideQuestDetailScreen, MobileCommunitySideQuestsScreen, MobileCreateCustomScreen, MobileCreateMultiplayerScreen, MobileCustomSideQuestsScreen, MobileMultiplayerDetailScreen, MobileMultiplayerSideQuestsScreen, MobileSoloSideQuestsScreen, MobileSupportScreen, MobileTrophyCabinetScreen, SignedInHome } from "../src/components/mobile-app-web-shell";
 import { MobileSupportComposer } from "../src/components/mobile-support-composer";
-import type { CommunitySoloCatalogClientRow } from "../src/components/catalog-clients";
+import { CommunitySoloCatalog, type CommunitySoloCatalogClientRow } from "../src/components/catalog-clients";
 import DesktopHomeMenu from "../src/components/desktop-home-menu";
 import { resolveAccountSetupHref } from "../src/components/responsive-account-setup-link";
 import { LocalCustomDraftList } from "../src/components/local-custom-draft-library";
@@ -157,7 +157,7 @@ test("desktop global navigation remains available while route workspaces scroll"
   assert.match(html, /<div class="sqc-desktop-header-shell"><header class="sqc-desktop-header">/);
   assert.match(desktopMedia, /\.sqc-desktop-route-only\s*\{[^}]*position:\s*sticky;[^}]*top:\s*0;[^}]*z-index:\s*30;/);
   assert.match(desktopMedia, /\.sqc-desktop-header-shell\s*\{[^}]*position:\s*sticky;[^}]*top:\s*0;[^}]*z-index:\s*30;[^}]*backdrop-filter:\s*blur\(18px\);/);
-  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-community-discovery\s+\.sqc-community-browse-panel\s*\{[^}]*top:\s*94px;/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-community-discovery\s+\.sqc-community-catalog-command\s*\{[^}]*top:\s*94px;/);
 });
 
 test("desktop primary navigation gives the current route a persistent non-color cue", () => {
@@ -929,14 +929,54 @@ test("Community discovery exposes URL-backed controls and carries the workspace 
   assert.match(html, /href="\/challenges\/community\/community-one\?returnTo=%2Fcommunity-side-quests%3Fq%3Dcastle%26filter%3Dnew%26sort%3Dliked%26limit%3D20"/);
 });
 
-test("Community discovery keeps its shared search and filters available while desktop users browse the long catalog", () => {
+test("Community discovery keeps live result context with its sticky desktop controls", () => {
+  const html = renderToStaticMarkup(createElement(CommunitySoloCatalog, {
+    signedIn: false,
+    initialState: { query: "", filter: "all", sort: "popular", limit: 10, creator: null },
+    rows: Array.from({ length: 11 }, (_, index) => ({
+      id: `quiet-quest-${index}`,
+      title: `Quiet Quest ${index}`,
+      meta: "By Nora · A public rule.",
+      href: `/challenges/community/quiet-quest-${index}`,
+      sourceBadge: "Community",
+      status: "Ready",
+      creatorKey: "nora",
+      creatorName: "Nora",
+      creatorBrowsePath: "/community-side-quests?creator=nora",
+      summary: "A public rule.",
+      stats: { soloAttempts: 0, soloCompletions: 0, multiplayerLineups: 0 },
+      updatedAtMs: index,
+      popularityScore: 0,
+      likeCount: 0,
+      likedByViewer: false,
+      completedByViewer: false,
+      isNew: false,
+    })),
+  }));
   const css = readFileSync("src/app/mobile-web.css", "utf8");
-  const mobilePanel = readCssBlock(css, css.indexOf(".sqc-community-browse-panel"));
+  const mobileCommand = readCssBlock(css, css.indexOf(".sqc-community-catalog-command"));
   const desktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1180px)"));
+  const standardDesktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1380px)"));
+  const wideDesktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1680px)"));
 
-  assert.doesNotMatch(mobilePanel, /position:\s*sticky;/, "mobile retains the established in-flow filter panel");
-  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-community-discovery\s+\.sqc-community-browse-panel\s*\{[^}]*position:\s*sticky;[^}]*top:\s*94px;[^}]*z-index:\s*12;/);
-  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-community-discovery\s+\.sqc-community-browse-panel\s*\{[^}]*backdrop-filter:\s*blur\(18px\);/);
+  assert.match(html, /class="sqc-community-catalog-command">[\s\S]*class="sqc-community-section-header sqc-community-live-header"[\s\S]*class="sqc-community-desktop-result-summary"[^>]*aria-live="polite"[\s\S]*class="sr-only">11 of 11 public Side Quests match the current filters\. 10 shown\.<\/span>[\s\S]*aria-hidden="true">11\/11<\/span>[\s\S]*aria-label="Community Side Quest filters"/);
+  assert.match(html, /class="sqc-community-mobile-result-count">11 results<\/span>/, "mobile keeps its established result-count rhythm");
+  assert.match(mobileCommand, /display:\s*contents;/, "mobile retains the established in-flow heading and filter panel");
+  assert.match(css, /\.sqc-community-desktop-result-summary\s*\{[^}]*display:\s*none;/, "the live desktop count must not duplicate the established mobile result count");
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-community-discovery\s+\.sqc-community-desktop-result-summary\s*\{[^}]*display:\s*inline;/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-community-discovery\s+\.sqc-community-mobile-result-count\s*\{[^}]*display:\s*none;/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-community-discovery\s+\.sqc-community-catalog-command\s*\{[^}]*position:\s*sticky;[^}]*top:\s*94px;[^}]*z-index:\s*12;[^}]*grid-template-columns:\s*220px\s+minmax\(0,\s*1fr\);/);
+  assert.match(standardDesktopMedia, /\.sqc-mobile-web\.desktop-community-discovery\s+\.sqc-community-catalog-command\s*\{[^}]*grid-template-columns:\s*280px\s+minmax\(0,\s*1fr\);/);
+  assert.match(wideDesktopMedia, /\.sqc-mobile-web\.desktop-community-discovery\s+\.sqc-community-catalog-command\s*\{[^}]*grid-template-columns:\s*280px\s+minmax\(0,\s*1fr\);/);
+  assert.match(wideDesktopMedia, /\.sqc-mobile-web\.desktop-community-discovery\s+\.sqc-community-browse-panel\s*\{[^}]*grid-template-columns:\s*minmax\(260px,\s*1fr\)\s+auto;/);
+  assert.match(wideDesktopMedia, /\.sqc-mobile-web\.desktop-community-discovery\s+\.sqc-community-controls\s*\{[^}]*justify-content:\s*flex-end;/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-community-discovery\s+\.sqc-community-live-header\s*\{[^}]*display:\s*flex;[^}]*justify-content:\s*space-between;[^}]*border-right:\s*1px\s+solid[^}]*border-bottom:\s*0;/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-community-discovery\s+\.sqc-community-live-header\s+h2\s*\{[^}]*font-size:\s*19px;[^}]*white-space:\s*nowrap;/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-community-discovery\s+\.sqc-community-browse-panel\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\);/ , "the command bar keeps its outer two-column identity while stacking dense controls at the narrow desktop boundary");
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-community-discovery\s+\.sqc-community-controls\s*\{[^}]*justify-content:\s*flex-start;/);
+  assert.match(standardDesktopMedia, /\.sqc-mobile-web\.desktop-community-discovery\s+\.sqc-community-browse-panel\s*\{[^}]*grid-template-columns:\s*minmax\(260px,\s*1fr\)\s+auto;/);
+  assert.match(standardDesktopMedia, /\.sqc-mobile-web\.desktop-community-discovery\s+\.sqc-community-controls\s*\{[^}]*justify-content:\s*flex-end;/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-community-discovery\s+\.sqc-community-catalog-command\s*\{[^}]*backdrop-filter:\s*blur\(18px\);/);
 });
 
 test("Community discovery balances a lone result with a real desktop catalog summary", () => {

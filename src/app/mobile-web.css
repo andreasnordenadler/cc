@@ -1659,6 +1659,14 @@ body::after {
   display: none;
 }
 
+.sqc-community-catalog-command {
+  display: contents;
+}
+
+.sqc-community-desktop-result-summary {
+  display: none;
+}
+
 .sqc-community-catalog-summary {
   display: none;
 }
@@ -7516,19 +7524,60 @@ body::after {
     letter-spacing: -.025em;
   }
 
-  .sqc-mobile-web.desktop-community-discovery .sqc-community-browse-panel {
+  .sqc-mobile-web.desktop-community-discovery .sqc-community-catalog-command {
     position: sticky;
     top: 94px;
     z-index: 12;
-    grid-template-columns: minmax(260px, 1fr) auto;
+    display: grid;
+    grid-template-columns: 220px minmax(0, 1fr);
     align-items: center;
     gap: 14px;
     padding: 14px;
-    border-color: rgba(96, 240, 175, .2);
+    border: 1px solid rgba(96, 240, 175, .2);
     border-radius: 20px;
     background: rgba(10, 9, 9, .9);
     box-shadow: 0 18px 42px rgba(0, 0, 0, .34);
     backdrop-filter: blur(18px);
+  }
+
+  .sqc-mobile-web.desktop-community-discovery .sqc-community-live-header {
+    align-self: stretch;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 0 14px 0 2px;
+    border-right: 1px solid rgba(255, 247, 232, .1);
+    border-bottom: 0;
+  }
+
+  .sqc-mobile-web.desktop-community-discovery .sqc-community-live-header h2 {
+    font-size: 19px;
+    line-height: 1.05;
+    white-space: nowrap;
+  }
+
+  .sqc-mobile-web.desktop-community-discovery .sqc-community-live-header > span {
+    justify-self: start;
+  }
+
+  .sqc-mobile-web.desktop-community-discovery .sqc-community-desktop-result-summary {
+    display: inline;
+  }
+
+  .sqc-mobile-web.desktop-community-discovery .sqc-community-mobile-result-count {
+    display: none;
+  }
+
+  .sqc-mobile-web.desktop-community-discovery .sqc-community-browse-panel {
+    grid-template-columns: minmax(0, 1fr);
+    align-items: center;
+    gap: 14px;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
   }
 
   .sqc-mobile-web.desktop-community-discovery .sqc-community-browse-panel > .sqc-empty-panel {
@@ -7542,7 +7591,7 @@ body::after {
   .sqc-mobile-web.desktop-community-discovery .sqc-community-controls {
     display: flex;
     align-items: center;
-    justify-content: flex-end;
+    justify-content: flex-start;
     gap: 10px;
   }
 
@@ -11852,6 +11901,24 @@ body::after {
     /* Community has the same compare-before-opening task as the official catalog.
        At a standard 1440px desktop, three compact cards expose 50% more choices
        without changing the mobile composition or the established 1180px boundary. */
+    .sqc-mobile-web.desktop-community-discovery .sqc-community-catalog-command {
+      grid-template-columns: 280px minmax(0, 1fr);
+    }
+
+    .sqc-mobile-web.desktop-community-discovery .sqc-community-browse-panel {
+      grid-template-columns: minmax(260px, 1fr) auto;
+    }
+
+    .sqc-mobile-web.desktop-community-discovery .sqc-community-controls {
+      justify-content: flex-end;
+    }
+
+    .sqc-mobile-web.desktop-community-discovery .sqc-community-live-header {
+      padding: 0 14px 0 2px;
+      border-right: 1px solid rgba(255, 247, 232, .1);
+      border-bottom: 0;
+    }
+
     .sqc-mobile-web.desktop-community-discovery .sqc-catalog {
       grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 12px;
@@ -12158,6 +12225,24 @@ body::after {
 
   .sqc-mobile-web.desktop-community-discovery .sqc-screen {
     width: min(1600px, calc(100% - 80px));
+  }
+
+  .sqc-mobile-web.desktop-community-discovery .sqc-community-catalog-command {
+    grid-template-columns: 280px minmax(0, 1fr);
+  }
+
+  .sqc-mobile-web.desktop-community-discovery .sqc-community-browse-panel {
+    grid-template-columns: minmax(260px, 1fr) auto;
+  }
+
+  .sqc-mobile-web.desktop-community-discovery .sqc-community-controls {
+    justify-content: flex-end;
+  }
+
+  .sqc-mobile-web.desktop-community-discovery .sqc-community-live-header {
+    padding: 0 14px 0 2px;
+    border-right: 1px solid rgba(255, 247, 232, .1);
+    border-bottom: 0;
   }
 
   .sqc-mobile-web.desktop-custom-library.signed-in:has(.sqc-community-catalog-section > .sqc-catalog:not(.sqc-local-custom-drafts)) .sqc-screen {

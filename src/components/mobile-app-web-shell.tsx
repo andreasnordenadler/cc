@@ -1484,11 +1484,6 @@ export function MobileCommunitySideQuestsScreen({
       ) : null}
 
       <section className="sqc-community-catalog-section" aria-label="Community Solo Discover">
-        <div className="sqc-community-section-header">
-          <h2>Community Side Quests</h2>
-          <span>{creatorRowCount ? `${creatorRowCount}/${creatorRowCount}` : "0 public"}</span>
-        </div>
-
         <CommunitySoloCatalog rows={rows} signedIn={signedIn} initialCreator={initialCreator} initialState={initialState} />
       </section>
     </div>
