@@ -1874,6 +1874,27 @@ test("Community Solo desktop groups briefing and conditions into one reading pan
   assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-community-detail\s+\.sqc-community-reading-panel\s*>\s*\.sqc-native-card\s*\+\s*\.sqc-native-card\s*\{[^}]*border-top:\s*1px\s+solid/);
 });
 
+test("Community Solo desktop uses the reading width for a two-column condition matrix without changing mobile", () => {
+  const css = readFileSync("src/app/mobile-web.css", "utf8");
+  const mobileCss = css.slice(0, css.indexOf("@media (min-width: 1180px)"));
+  const desktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1180px)"));
+
+  assert.doesNotMatch(
+    mobileCss,
+    /\.sqc-community-reading-panel[\s\S]*?\.sqc-condition-list\s*\{[^}]*grid-template-columns:/,
+    "mobile retains the established single-column condition flow",
+  );
+  assert.match(
+    desktopMedia,
+    /\.sqc-mobile-web\.desktop-community-detail\s+\.sqc-community-reading-panel\s+\.sqc-condition-list\s*\{[^}]*grid-template-columns:\s*repeat\(2,\s*minmax\(0,\s*1fr\)\);[^}]*grid-auto-rows:\s*1fr;/,
+  );
+  assert.match(
+    desktopMedia,
+    /\.sqc-mobile-web\.desktop-community-detail\s+\.sqc-community-reading-panel\s+\.sqc-condition-compact-row:last-child:nth-child\(odd\)\s*\{[^}]*grid-column:\s*1\s*\/\s*-1;/,
+    "a lone or final odd condition uses the full reading measure instead of stranding an empty cell",
+  );
+});
+
 test("Community Solo desktop compacts activity and creator context into one support deck without changing mobile order", () => {
   const html = renderToStaticMarkup(
     createElement(MobileCommunitySideQuestDetailScreen, {

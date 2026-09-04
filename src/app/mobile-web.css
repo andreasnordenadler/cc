@@ -9103,6 +9103,20 @@ body::after {
     line-height: 1.1;
   }
 
+  .sqc-mobile-web.desktop-community-detail .sqc-community-reading-panel .sqc-condition-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-auto-rows: 1fr;
+  }
+
+  .sqc-mobile-web.desktop-community-detail .sqc-community-reading-panel .sqc-condition-compact-row {
+    align-items: start;
+    min-height: 100%;
+  }
+
+  .sqc-mobile-web.desktop-community-detail .sqc-community-reading-panel .sqc-condition-compact-row:last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+  }
+
   .sqc-mobile-web.desktop-community-detail .sqc-condition-compact-row {
     min-height: 82px;
     align-items: center;

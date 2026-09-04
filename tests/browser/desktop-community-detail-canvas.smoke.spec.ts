@@ -102,21 +102,23 @@ test("mobile Community Solo detail keeps the single app flow", async ({ page }) 
 
   const detail = page.locator(".sqc-community-detail-screen");
   const readingPanel = detail.locator(".sqc-community-reading-panel");
+  const supportDeck = detail.locator(".sqc-community-detail-support");
   const taskRail = detail.locator(".sqc-community-task-rail");
   await expect(page.locator(".sqc-desktop-header")).toBeHidden();
   await expect(page.getByLabel("Close screen")).toBeVisible();
   await expect(detail).toHaveCount(1);
   await expect(detail.locator("h1")).toHaveCount(1);
   await expect(detail.locator(".sqc-community-detail-hero .sqc-like-pill")).toHaveCount(1);
-  await expect(detail.locator(":scope > .sqc-native-card")).toHaveCount(1);
   await expect(readingPanel).toHaveCSS("display", "contents");
+  await expect(supportDeck).toHaveCSS("display", "contents");
+  await expect(supportDeck.locator(":scope > .sqc-multiplayer-score-grid")).toHaveCount(1);
+  await expect(supportDeck.locator(":scope > .sqc-native-card")).toHaveCount(1);
   await expect(taskRail).toBeVisible();
   const sourceOrderIsPreserved = await detail.evaluate((element) => {
     const selectors = [
       ".sqc-community-detail-hero",
       ".sqc-community-reading-panel",
-      ".sqc-multiplayer-score-grid",
-      ":scope > .sqc-native-card",
+      ".sqc-community-detail-support",
       ".sqc-community-task-rail",
     ];
     const nodes = selectors.map((selector) => element.querySelector(selector));
