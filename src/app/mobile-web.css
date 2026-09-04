@@ -8993,14 +8993,14 @@ body::after {
   .sqc-mobile-web.desktop-community-detail .sqc-community-detail-hero {
     grid-column: 1 / -1;
     grid-row: 2;
-    min-height: 286px;
+    min-height: 220px;
     display: grid;
-    grid-template-columns: 240px minmax(0, 1fr);
+    grid-template-columns: 176px minmax(0, 1fr);
     grid-template-rows: auto auto auto auto;
     align-content: center;
     justify-items: start;
-    gap: 10px 42px;
-    padding: 30px 42px;
+    gap: 8px 34px;
+    padding: 24px 34px;
     border: 1px solid rgba(245, 200, 106, .2);
     border-radius: 30px;
     background:
@@ -9014,19 +9014,19 @@ body::after {
     grid-column: 1;
     grid-row: 1 / span 4;
     align-self: center;
-    width: 220px;
-    height: 220px;
-    min-height: 220px;
+    width: 164px;
+    height: 164px;
+    min-height: 164px;
   }
 
   .sqc-mobile-web.desktop-community-detail .sqc-section-mark.community .sqc-mark-glow {
-    width: 236px;
-    height: 244px;
+    width: 188px;
+    height: 194px;
   }
 
   .sqc-mobile-web.desktop-community-detail .sqc-section-mark.community .sqc-mark-image {
-    width: 188px;
-    height: 188px;
+    width: 146px;
+    height: 146px;
   }
 
   .sqc-mobile-web.desktop-community-detail .sqc-community-detail-hero > :not(.sqc-section-mark) {
@@ -9046,16 +9046,13 @@ body::after {
   .sqc-mobile-web.desktop-community-detail .sqc-community-detail-hero h1 {
     max-width: 720px;
     font-family: ui-serif, Georgia, Cambria, "Times New Roman", serif;
-    font-size: clamp(42px, 4vw, 60px);
+    font-size: clamp(38px, 3.5vw, 52px);
     line-height: 1;
     letter-spacing: -.04em;
   }
 
-  .sqc-mobile-web.desktop-community-detail .sqc-community-detail-hero p {
-    max-width: 680px;
-    color: rgba(255, 247, 232, .72);
-    font-size: 17px;
-    line-height: 1.55;
+  .sqc-mobile-web.desktop-community-detail .sqc-community-detail-hero > p {
+    display: none;
   }
 
   .sqc-mobile-web.desktop-community-detail .sqc-community-detail-screen > .sqc-native-card {

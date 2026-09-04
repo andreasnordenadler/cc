@@ -1840,6 +1840,18 @@ test("Community Solo detail becomes a wide reading workspace only at the desktop
   assert.match(css, /\.sqc-mobile-web\.desktop-community-detail\s+\.sqc-multiplayer-score-grid\s*\{[^}]*grid-column:\s*1;/);
 });
 
+test("Community Solo desktop hero becomes a compact identity masthead without changing mobile copy", () => {
+  const css = readFileSync("src/app/mobile-web.css", "utf8");
+  const mobileCss = css.slice(0, css.indexOf("@media (min-width: 1180px)"));
+  const desktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1180px)"));
+
+  assert.doesNotMatch(mobileCss, /\.sqc-community-detail-hero\s*>\s*p\s*\{[^}]*display:\s*none;/, "mobile keeps the Android-derived summary in its hero");
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-community-detail\s+\.sqc-community-detail-hero\s*\{[^}]*min-height:\s*220px;[^}]*grid-template-columns:\s*176px\s+minmax\(0,\s*1fr\);[^}]*padding:\s*24px\s+34px;/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-community-detail\s+\.sqc-community-detail-hero\s*>\s*\.sqc-section-mark\s*\{[^}]*width:\s*164px;[^}]*height:\s*164px;[^}]*min-height:\s*164px;/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-community-detail\s+\.sqc-section-mark\.community\s+\.sqc-mark-image\s*\{[^}]*width:\s*146px;[^}]*height:\s*146px;/);
+  assert.match(desktopMedia, /\.sqc-mobile-web\.desktop-community-detail\s+\.sqc-community-detail-hero\s*>\s*p\s*\{[^}]*display:\s*none;/, "desktop removes the duplicate summary from the masthead while retaining it in What to do");
+});
+
 test("Community Solo desktop groups briefing and conditions into one reading panel without changing the mobile stack", () => {
   const html = renderToStaticMarkup(
     createElement(MobileCommunitySideQuestDetailScreen, {
