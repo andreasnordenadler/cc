@@ -51,6 +51,32 @@ test("desktop Home turns the featured quest into a keyboard-ready launch board",
     await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBe(0);
 
     const primary = page.locator(".sqc-desktop-featured-primary");
+    const art = page.locator(".sqc-desktop-featured-art img");
+    const copy = page.locator(".sqc-desktop-featured-copy");
+    const title = copy.getByRole("heading", { name: "Knights Before Coffee" });
+    await expect.poll(async () => {
+      const [primaryBox, artBox, copyBox] = await Promise.all([
+        primary.boundingBox(),
+        art.boundingBox(),
+        copy.boundingBox(),
+      ]);
+      return Boolean(
+        primaryBox
+        && artBox
+        && copyBox
+        && artBox.x >= primaryBox.x
+        && artBox.x + artBox.width <= primaryBox.x + primaryBox.width
+        && copyBox.width >= 190,
+      );
+    }).toBe(true);
+    if (width === 1180) {
+      const titleLineCount = await title.evaluate((element) => {
+        const styles = getComputedStyle(element);
+        return element.getBoundingClientRect().height / Number.parseFloat(styles.lineHeight);
+      });
+      expect(titleLineCount).toBeLessThanOrEqual(2.05);
+    }
+
     await primary.focus();
     await expect(primary).toBeFocused();
     await expect(primary).toHaveCSS("outline-style", "solid");
