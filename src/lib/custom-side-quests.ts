@@ -216,7 +216,7 @@ export function getCustomSideQuestBadgeUrl(quest: Pick<CustomSideQuest, "id" | "
 
 export function getCustomSideQuests(metadata: Record<string, unknown>): CustomSideQuest[] {
   return Array.isArray(metadata.customSideQuests)
-    ? metadata.customSideQuests.filter((entry): entry is CustomSideQuest => Boolean(entry && typeof entry === "object" && typeof (entry as CustomSideQuest).id === "string" && typeof (entry as CustomSideQuest).title === "string" && typeof (entry as CustomSideQuest).config === "string")).map(normalizeCustomSideQuestLifecycle).slice(0, 20)
+    ? metadata.customSideQuests.filter((entry): entry is CustomSideQuest => Boolean(entry && typeof entry === "object" && typeof (entry as CustomSideQuest).id === "string" && typeof (entry as CustomSideQuest).title === "string" && typeof (entry as CustomSideQuest).config === "string")).map(normalizeCustomSideQuestLifecycle)
     : [];
 }
 
