@@ -541,7 +541,7 @@ test("custom quest create preserves the metadata-capacity error contract and san
     logPersistenceError: (...args) => { logs.push(args); },
   }));
   assert.equal(failed.status, 400);
-  assert.deepEqual(await body(failed), { apiVersion: 1, authenticated: true, ok: false, message: "Your Side Quest library is full. Side Quest Chess cleaned up older saved data; please try again." });
+  assert.deepEqual(await body(failed), { apiVersion: 1, authenticated: true, ok: false, message: "Could not save this custom Side Quest right now." });
   assert.deepEqual(logs, [["mobile custom Side Quest save failed", { reason: "metadata_capacity" }]]);
 });
 

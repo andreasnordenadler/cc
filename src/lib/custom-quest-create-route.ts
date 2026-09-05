@@ -17,7 +17,7 @@ export type CustomQuestPersistenceErrorReason = "metadata_capacity" | "persisten
 export function classifyCustomQuestPersistenceError(caught: unknown): { message: string; reason: CustomQuestPersistenceErrorReason } {
   const text = caught instanceof Error ? caught.message : String(caught ?? "");
   if (/metadata exceeds|metadata.*too large|exceeds the maximum allowed size|form_param_exceeds_allowed_size|too large|maximum allowed|unprocessable entity/i.test(text)) {
-    return { message: "Your Side Quest library is full. Side Quest Chess cleaned up older saved data; please try again.", reason: "metadata_capacity" };
+    return { message: "Could not save this custom Side Quest right now.", reason: "metadata_capacity" };
   }
   return { message: "Could not save this custom Side Quest right now.", reason: "persistence_error" };
 }
@@ -55,7 +55,7 @@ export async function handleCustomQuestCreateRequest(request: Request, dependenc
       ? "Add at least one condition before this Side Quest can be scored."
       : "Draft Side Quest";
     const quest = compact({ id, title, summary: summary || (lifecycle === "draft" ? draftSummary : "Custom Side Quest"), config, visibility, lifecycle, createdAt: previous?.createdAt ?? now, updatedAt: now, badgeImageUrl: previous?.badgeImageUrl ?? dependencies.chooseBadge() }, Boolean(requestedId));
-    const next = [quest, ...existing.filter(item => item.id !== id)].slice(0, 8);
+    const next = [quest, ...existing.filter(item => item.id !== id)];
     const saved = await dependencies.saveCustomQuests(userId, next, privateMetadata);
     return Response.json({ apiVersion: 1, authenticated: true, ok: true, action: "save", customQuest: quest, customSideQuests: saved, message: "Custom Side Quest saved." });
   } catch (caught) {
