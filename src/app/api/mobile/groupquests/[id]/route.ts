@@ -268,7 +268,16 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       );
     }
 
-    const joined = joinGroupQuest(found.groupQuest, participant);
+    let joined: ServerGroupQuest;
+    try {
+      joined = joinGroupQuest(found.groupQuest, participant);
+    } catch (error) {
+      if (!(error instanceof Error) || error.message !== "groupquest_full") throw error;
+      return NextResponse.json(
+        { apiVersion: 1, authenticated: true, ok: false, code: "groupquest_full", message: "Could not join this Multiplayer Side Quest right now. Please try again." },
+        { status: 409 },
+      );
+    }
     const saveError = await saveMobileGroupQuest(client, found.userId, joined, userId);
     if (saveError) {
       return NextResponse.json(

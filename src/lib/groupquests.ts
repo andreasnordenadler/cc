@@ -540,6 +540,9 @@ export function removeStoredGroupQuest(metadata: unknown, groupQuestId: string) 
 
 export function joinGroupQuest(groupQuest: ServerGroupQuest, participant: GroupQuestParticipant): ServerGroupQuest {
   const existing = groupQuest.participants.find((entry) => entry.userId === participant.userId);
+  if (!existing && !isBuiltInOfficialGroupQuestHost(groupQuest.hostUserId) && groupQuest.participants.length >= MAX_PARTICIPANTS) {
+    throw new Error("groupquest_full");
+  }
   const participants = [
     {
       ...existing,
@@ -551,7 +554,7 @@ export function joinGroupQuest(groupQuest: ServerGroupQuest, participant: GroupQ
       lastProofAt: existing?.lastProofAt ?? participant.lastProofAt,
     },
     ...groupQuest.participants.filter((entry) => entry.userId !== participant.userId),
-  ].slice(0, MAX_PARTICIPANTS);
+  ];
   return { ...groupQuest, participants };
 }
 
@@ -664,7 +667,7 @@ function compactGroupQuestForStorage(groupQuest: ServerGroupQuest) {
     startAt: groupQuest.startAt,
     endAt: groupQuest.endAt,
     createdAt: groupQuest.createdAt,
-    participants: groupQuest.participants.slice(0, MAX_PARTICIPANTS).map((participant) => ({
+    participants: groupQuest.participants.map((participant) => ({
       userId: participant.userId,
       provider: participant.provider,
       username: participant.username,
