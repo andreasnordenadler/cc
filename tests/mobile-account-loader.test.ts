@@ -66,8 +66,12 @@ test("a signed-in user keeps retry, deletion, and logout controls when account d
   assert.match(accountDashboard, /onPress=\{\(\) => void onAccountUpdated\(\)\}/);
 });
 
-test("mobile account state is discarded when the authenticated Clerk user changes", () => {
+test("mobile account shells are owned by the loaded Clerk session, not just the user", () => {
   const appSource = readFileSync(new URL("../apps/mobile/App.tsx", import.meta.url), "utf8");
 
-  assert.match(appSource, /<MobileShell key=\{user\?\.id \?\? "signed-out"\} authBridge=\{authBridge\} \/>/);
+  assert.match(appSource, /const sessionKey = isLoaded && isSignedIn && sessionId \? sessionId : "signed-out"/);
+  assert.match(appSource, /<SessionMobileShell key=\{sessionKey\} authBridge=\{authBridge\} \/>/);
+  assert.match(appSource, /<MobileShell key=\{locallySignedOut \? "signed-out" : "session"\} authBridge=\{scopedBridge\} \/>/);
+  assert.match(appSource, /isCurrent: authBridge\.isSessionCurrent/);
+  assert.match(appSource, /applyFallback: \(\) => setShell\(\(current\) => \(\{ \.\.\.current, account: MOBILE_ACCOUNT_FALLBACK \}\)\)/);
 });
