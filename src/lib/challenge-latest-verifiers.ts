@@ -120,16 +120,10 @@ const latestChallengeVerifiers: Record<string, Record<SupportedLatestChallengePr
   },
 };
 
-const latestFinishedBoardCache = new Map<string, Promise<LatestChallengeVerdict>>();
-
-function getLatestFinishedBoardVerdict(provider: SupportedLatestChallengeProvider, username: string) {
-  const cacheKey = `${provider}:${username.trim().toLowerCase()}`;
-  const cached = latestFinishedBoardCache.get(cacheKey);
-  if (cached) return cached;
-
-  const lookup = provider === "lichess" ? checkLatestLichessFinishedGame(username) : checkLatestChessComFinishedGame(username);
-  latestFinishedBoardCache.set(cacheKey, lookup);
-  return lookup;
+function getLatestFinishedBoardVerdict(provider: SupportedLatestChallengeProvider, username: string): Promise<LatestChallengeVerdict> {
+  // A player's latest game is mutable. Never retain its verdict (including
+  // provider failures) across checks in a long-lived server worker.
+  return provider === "lichess" ? checkLatestLichessFinishedGame(username) : checkLatestChessComFinishedGame(username);
 }
 
 export function getLatestFinishedGameVerdict(provider: SupportedLatestChallengeProvider, username: string) {
