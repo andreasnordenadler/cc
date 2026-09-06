@@ -304,7 +304,7 @@ export async function checkSubmittedCustomSideQuestForProvider(input: { quest: P
 
 function evaluateCustomSideQuestGame(quest: Pick<CustomSideQuest, "id" | "title" | "config">, provider: "lichess" | "chesscom", game: LatestGame): LatestChallengeVerdict {
   const config = parseCustomRuleConfig(quest.config);
-  if (!config?.blocks.length) {
+  if (!config?.blocks.length || !config.blocks.every(hasEvaluableSequence)) {
     return { status: "pending", gameId: `${provider}-custom-rule-invalid`, summary: "This custom Side Quest needs at least one launch-ready rule block before it can be checked.", evidence: ["Rule config was empty or invalid."] };
   }
   if (game.status !== "finished") return { status: "pending", gameId: game.gameId, summary: `Found ${game.gameId}, but the game is not finished yet.`, startedGameAt: game.startedGameAt, completedGameAt: game.completedGameAt, evidence: ["Only finished public games can complete a custom Side Quest."] };
@@ -516,14 +516,103 @@ type EvalResult = { passed: boolean; label: string; explanation: string; ply?: n
 function evaluateBlock(block: CustomSideQuestRuleBlock, game: LatestGame, replay: { snapshots: Snapshot[] }): EvalResult {
   const snapshot = pickSnapshot(block, replay);
   let base: EvalResult;
-  if (block.type === "openingSequence") base = evalSequence(block.moves, game.pgnMoves, 1, snapshot);
-  else if (block.type === "moveSequence") base = evalSequence(block.sequence.split(/\s+/).filter(Boolean), game.pgnMoves, block.timing?.atMove ?? block.timing?.byMove ?? 1, snapshot);
+  if (block.type === "openingSequence") base = evalOpeningSequence(block.moves, replay, snapshot);
+  else if (block.type === "moveSequence") base = evalSequence(block, replay, snapshot);
   else if (block.type === "gameResult") base = evalGameResult(block, game, replay.snapshots.at(-1));
   else base = evalPieceState(block, game, snapshot, replay);
   return block.negate ? { ...base, passed: !base.passed, explanation: base.passed ? `This condition happened, but the Side Quest required it not to happen.` : `The forbidden condition did not happen.` } : base;
 }
 function pickSnapshot(block: CustomSideQuestRuleBlock, replay: { snapshots: Snapshot[] }) { if (block.type !== "pieceState" && block.type !== "moveSequence") return replay.snapshots.at(-1); const moveNo = block.timing && "atMove" in block.timing ? block.timing.atMove : block.timing && "byMove" in block.timing ? block.timing.byMove : undefined; return moveNo ? replay.snapshots[Math.min(replay.snapshots.length - 1, Math.max(0, moveNo * 2 - 1))] : replay.snapshots.at(-1); }
-function evalSequence(expected: string[], actual: string[], moveNumber: number, snapshot?: Snapshot): EvalResult { const norm = (v: string) => v.replace(/[+#?!]+$/g, "").replace(/0/g, "O"); const ok = expected.every((token, index) => norm(actual[index]) === norm(token)); return { passed: ok, label: "Move sequence", explanation: ok ? `The game followed ${expected.join(" ")}.` : `Expected ${expected.join(" ")}, but the latest game began ${actual.slice(0, Math.max(expected.length, 1)).join(" ") || "with no parsed moves"}.`, ply: snapshot?.ply, moveNumber, san: snapshot?.san, uci: snapshot?.uci, fenAtBreak: snapshot?.fen }; }
+function normalizeMoveToken(value: string) { return value.trim().replace(/[+#?!]+$/g, "").replace(/0/g, "O"); }
+type SequencePiece = "Q" | "R" | "B" | "N";
+type SequenceSquare = readonly [file: number, rank: number];
+const sequenceSquares: SequenceSquare[] = Array.from({ length: 64 }, (_, index) => [index % 8, Math.floor(index / 8)] as const);
+function canSequencePieceReach(kind: SequencePiece, source: SequenceSquare, destination: SequenceSquare) {
+  const fileDistance = Math.abs(source[0] - destination[0]);
+  const rankDistance = Math.abs(source[1] - destination[1]);
+  if (!fileDistance && !rankDistance) return false;
+  if (kind === "N") return fileDistance * rankDistance === 2;
+  if (kind === "B") return fileDistance === rankDistance;
+  if (kind === "R") return fileDistance === 0 || rankDistance === 0;
+  return fileDistance === 0 || rankDistance === 0 || fileDistance === rankDistance;
+}
+function canSequencePieceReachWithSources(kind: SequencePiece, source: SequenceSquare, destination: SequenceSquare, sources: SequenceSquare[]) {
+  if (!canSequencePieceReach(kind, source, destination)) return false;
+  if (kind === "N") return true;
+  const fileStep = Math.sign(destination[0] - source[0]);
+  const rankStep = Math.sign(destination[1] - source[1]);
+  for (let file = source[0] + fileStep, rank = source[1] + rankStep; file !== destination[0] || rank !== destination[1]; file += fileStep, rank += rankStep) {
+    if (sources.some((candidate) => candidate !== source && candidate[0] === file && candidate[1] === rank)) return false;
+  }
+  return true;
+}
+function hasCanonicalSequenceDisambiguation(kind: SequencePiece, disambiguation: string, destinationFile: string, destinationRank: string) {
+  const destination: SequenceSquare = [destinationFile.charCodeAt(0) - 97, Number(destinationRank) - 1];
+  const sources = sequenceSquares.filter(([file, rank]) => disambiguation.length === 2
+    ? file === disambiguation.charCodeAt(0) - 97 && rank === Number(disambiguation[1]) - 1
+    : /^[a-h]$/.test(disambiguation) ? file === disambiguation.charCodeAt(0) - 97 : rank === Number(disambiguation) - 1);
+  if (disambiguation.length === 1 && /^[a-h]$/.test(disambiguation)) {
+    return sources.some((source) => sequenceSquares.some((alternate) => alternate[0] !== source[0]
+      && [source, alternate].every((candidate) => canSequencePieceReachWithSources(kind, candidate, destination, [source, alternate]))));
+  }
+  if (disambiguation.length === 1) {
+    return sources.some((source) => sequenceSquares.some((alternate) => alternate[0] === source[0] && alternate[1] !== source[1]
+      && [source, alternate].every((candidate) => canSequencePieceReachWithSources(kind, candidate, destination, [source, alternate]))));
+  }
+  return sources.some((source) => sequenceSquares.some((sameRank) => sameRank[1] === source[1] && sameRank[0] !== source[0]
+    && sequenceSquares.some((sameFile) => sameFile[0] === source[0] && sameFile[1] !== source[1]
+      && [source, sameRank, sameFile].every((candidate) => canSequencePieceReachWithSources(kind, candidate, destination, [source, sameRank, sameFile])))));
+}
+function isEvaluableMoveToken(value: string) {
+  const token = normalizeMoveToken(value);
+  if (!token || /\s/.test(token) || /^\$\d+$/.test(token) || /^\d+\.{1,3}$/.test(token) || /^(?:1-0|0-1|1\/2-1\/2|\*)$/.test(value.trim())) return false;
+  const pawn = token.match(/^([a-h])(?:x([a-h]))?([1-8])(=[QRBN])?$/);
+  if (pawn) {
+    const [, sourceFile, destinationFile, rank, promotion] = pawn;
+    if (destinationFile && Math.abs(destinationFile.charCodeAt(0) - sourceFile.charCodeAt(0)) !== 1) return false;
+    return rank === "1" || rank === "8" ? Boolean(promotion) : !promotion;
+  }
+  if (/^(?:O-O(?:-O)?|Kx?[a-h][1-8])$/.test(token)) return true;
+  const piece = token.match(/^([QRBN])([a-h]|[1-8]|[a-h][1-8])?x?([a-h])([1-8])$/);
+  if (!piece) return false;
+  const [, kind, disambiguation, destinationFile, destinationRank] = piece;
+  if (!disambiguation) return true;
+  return hasCanonicalSequenceDisambiguation(kind as SequencePiece, disambiguation, destinationFile, destinationRank);
+}
+function hasValidSequenceTokens(value: string) { const tokens = value.split(/\s+/).filter(Boolean); return tokens.length > 0 && tokens.every(isEvaluableMoveToken); }
+function hasEvaluableSequence(block: CustomSideQuestRuleBlock) { return block.type === "moveSequence" ? hasValidSequenceTokens(block.sequence) : block.type !== "openingSequence" || (block.moves.length > 0 && block.moves.every(isEvaluableMoveToken)); }
+function sequenceMatchesAt(expected: string[], actual: string[], start: number) { return start >= 0 && start + expected.length <= actual.length && expected.every((token, index) => normalizeMoveToken(actual[start + index]) === normalizeMoveToken(token)); }
+function sequenceResult(passed: boolean, snapshot: Snapshot | undefined, explanation: string): EvalResult { return { passed, label: "Move sequence", explanation, ply: snapshot?.ply, moveNumber: snapshot?.moveNumber, san: snapshot?.san, uci: snapshot?.uci, fenAtBreak: snapshot?.fen }; }
+function replaySanMoves(replay: { snapshots: Snapshot[] }) { return replay.snapshots.map((item) => item.san).filter((item): item is string => Boolean(item)); }
+function evalOpeningSequence(expected: string[], replay: { snapshots: Snapshot[] }, snapshot?: Snapshot): EvalResult {
+  const actual = replaySanMoves(replay);
+  const passed = sequenceMatchesAt(expected, actual, 0);
+  const matchedSnapshot = passed ? replay.snapshots[expected.length - 1] : undefined;
+  return sequenceResult(passed, matchedSnapshot ?? snapshot, passed ? `The game followed ${expected.join(" ")}.` : `Expected ${expected.join(" ")}, but the latest game began ${actual.slice(0, Math.max(expected.length, 1)).join(" ") || "with no parsed moves"}.`);
+}
+function evalSequence(block: Extract<CustomSideQuestRuleBlock, { type: "moveSequence" }>, replay: { snapshots: Snapshot[] }, fallbackSnapshot?: Snapshot): EvalResult {
+  const expected = block.sequence.split(/\s+/).filter(Boolean);
+  const actual = replaySanMoves(replay);
+  if (block.timing?.atMove) {
+    const targetMove = block.timing.atMove;
+    const targetEndPlies = [targetMove * 2 - 1, targetMove * 2];
+    const matchedEndPly = targetEndPlies.find((endPly) => endPly <= actual.length && sequenceMatchesAt(expected, actual, endPly - expected.length));
+    const matchedSnapshot = matchedEndPly ? replay.snapshots[matchedEndPly - 1] : undefined;
+    return sequenceResult(Boolean(matchedSnapshot), matchedSnapshot ?? fallbackSnapshot, matchedSnapshot ? `The game followed ${expected.join(" ")} at move ${targetMove}.` : `Expected ${expected.join(" ")} to finish at move ${targetMove}.`);
+  }
+  if (block.timing?.byMove) {
+    const deadlineMove = block.timing.byMove;
+    const deadlinePly = Math.min(actual.length, deadlineMove * 2);
+    const matchedEndPly = Array.from({ length: Math.max(0, deadlinePly - expected.length + 1) }, (_, index) => expected.length + index)
+      .find((endPly) => sequenceMatchesAt(expected, actual, endPly - expected.length));
+    const matchedSnapshot = matchedEndPly ? replay.snapshots[matchedEndPly - 1] : undefined;
+    return sequenceResult(Boolean(matchedSnapshot), matchedSnapshot ?? fallbackSnapshot, matchedSnapshot ? `The game followed ${expected.join(" ")} by move ${deadlineMove}.` : `Expected ${expected.join(" ")} to finish by move ${deadlineMove}.`);
+  }
+  const matchedEndPly = Array.from({ length: Math.max(0, actual.length - expected.length + 1) }, (_, index) => expected.length + index)
+    .find((endPly) => sequenceMatchesAt(expected, actual, endPly - expected.length));
+  const matchedSnapshot = matchedEndPly ? replay.snapshots[matchedEndPly - 1] : undefined;
+  return sequenceResult(Boolean(matchedSnapshot), matchedSnapshot ?? fallbackSnapshot, matchedSnapshot ? `The game included ${expected.join(" ")}.` : `Expected the game to include ${expected.join(" ")}.`);
+}
 function evalGameResult(block: Extract<CustomSideQuestRuleBlock, { type: "gameResult" }>, game: LatestGame, snapshot?: Snapshot): EvalResult {
   const passed = game.outcome === block.result;
   return { passed, label: "Game result", explanation: passed ? `Game result was ${block.result}.` : `Game result was ${game.outcome === "unknown" ? "unknown" : game.outcome}, but needed ${block.result}.`, ply: snapshot?.ply, moveNumber: snapshot?.moveNumber, san: snapshot?.san, uci: snapshot?.uci, fenAtBreak: snapshot?.fen };
