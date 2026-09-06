@@ -1,4 +1,5 @@
 import { auth, clerkClient } from "@clerk/nextjs/server";
+import { AsyncLocalStorage } from "node:async_hooks";
 import { compactAnalyticsStore, getAnalyticsStore } from "@/lib/analytics";
 import {
   OFFICIAL_GROUP_QUEST_METADATA_KEY,
@@ -7,7 +8,7 @@ import {
   upsertHostGroupQuest,
   upsertOfficialGroupQuestParticipation,
 } from "@/lib/groupquests";
-import { handleGroupQuestJoinRequest } from "@/lib/groupquest-join-route";
+import { handleGroupQuestJoinRequest, type GroupQuestJoinDependencies } from "@/lib/groupquest-join-route";
 import type { ServerGroupQuest } from "@/lib/groupquests";
 
 type MetadataClient = {
@@ -49,8 +50,17 @@ export async function saveWebJoinedQuest(client: MetadataClient, input: {
   });
 }
 
+const testJoinDependencies = new AsyncLocalStorage<GroupQuestJoinDependencies>();
+
+export function withWebJoinRouteTestDependencies<Result>(dependencies: GroupQuestJoinDependencies, callback: () => Result): Result {
+  if (process.env.NODE_ENV !== "test") throw new Error("Join route dependency overrides are test-only.");
+  return testJoinDependencies.run(dependencies, callback);
+}
+
 export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
+  const testDependencies = process.env.NODE_ENV === "test" ? testJoinDependencies.getStore() : undefined;
+  if (testDependencies) return handleGroupQuestJoinRequest(request, id, testDependencies);
   const client = await clerkClient();
   return handleGroupQuestJoinRequest(request, id, {
     getAuthenticatedUserId: async () => (await auth()).userId,

@@ -80,7 +80,10 @@ export async function handleGroupQuestJoinRequest(
       hostUserId: found.userId,
       joinedQuest: joinGroupQuest(found.groupQuest, participant),
     });
-  } catch {
+  } catch (error) {
+    if (error instanceof Error && error.message === "groupquest_full") {
+      return Response.json({ ok: false, error: "groupquest_full" }, { status: 409 });
+    }
     return Response.json({ ok: false, error: "join_unavailable" }, { status: 503 });
   }
   return Response.json({ ok: true, href: `/groupquests/${encodeURIComponent(routeQuestId)}?accepted=1` });
