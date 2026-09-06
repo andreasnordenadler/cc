@@ -45,6 +45,7 @@ import { findSignedOutPublicMultiplayerQuest, getSignedOutPublicMultiplayerCatal
 import { finalizeMobileAccountDeletion } from "./src/account/finalizeMobileAccountDeletion";
 import { createMobileSessionGuard, loadMobileAccount } from "./src/account/loadMobileAccount";
 import { clerkPublishableKey, clerkTokenCache, isClerkMobileAuthConfigured } from "./src/auth/clerk";
+import { shouldExposeAppleSignIn } from "./src/auth/appleSignInReadiness";
 import { completeAppleSignIn } from "./src/auth/completeAppleSignIn";
 import { isFacebookSignInEnabled } from "./src/auth/isFacebookSignInEnabled";
 import { completeSocialSignIn, socialSignInErrorMessage } from "./src/auth/completeSocialSignIn";
@@ -1331,6 +1332,13 @@ function ClerkMobileShell() {
     };
   }, []);
 
+  const appleSignInReady = shouldExposeAppleSignIn({
+    platform: Platform.OS,
+    nativeAvailable: appleSignInAvailable,
+    signInLoaded,
+    signUpLoaded,
+  });
+
   const startSocialSignIn = useCallback(async (strategy: "oauth_google" | "oauth_facebook") => {
     try {
       const result = await startSSOFlow({
@@ -1451,7 +1459,7 @@ function ClerkMobileShell() {
       getSessionToken: async () => getToken(),
       startGoogleSignIn,
       startFacebookSignIn: facebookSignInEnabled ? startFacebookSignIn : undefined,
-      startAppleSignIn: appleSignInAvailable ? startAppleSignIn : undefined,
+      startAppleSignIn: appleSignInReady ? startAppleSignIn : undefined,
       startPasswordSignIn,
       startPasswordSignUp,
       attemptPasswordSignUpVerification,
@@ -1461,7 +1469,7 @@ function ClerkMobileShell() {
       signOut,
       signedInLabel,
     }),
-    [appleSignInAvailable, attemptPasswordSignUpVerification, completePasswordReset, getToken, isLoaded, isSignedIn, signOut, signedInLabel, startAppleSignIn, startFacebookSignIn, startGoogleSignIn, startPasswordReset, startPasswordSignIn, startPasswordSignUp, verifyPasswordResetCode],
+    [appleSignInReady, attemptPasswordSignUpVerification, completePasswordReset, getToken, isLoaded, isSignedIn, signOut, signedInLabel, startAppleSignIn, startFacebookSignIn, startGoogleSignIn, startPasswordReset, startPasswordSignIn, startPasswordSignUp, verifyPasswordResetCode],
   );
 
   const sessionKey = isLoaded && isSignedIn && sessionId ? sessionId : "signed-out";
