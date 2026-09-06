@@ -5,21 +5,18 @@ import { getChallengeById } from "@/lib/challenges";
 import { checkLatestGroupQuestChallenge } from "@/lib/groupquest-proof";
 import { createGroupQuestRefreshRouteHandler } from "@/lib/groupquest-refresh-route-handler";
 import {
-  OFFICIAL_GROUP_QUEST_METADATA_KEY,
+  buildMultiplayerCompletionAccountPatch,
+  buildPendingGroupQuestCompletions,
+} from "@/lib/groupquest-completion-reconciliation";
+import {
   findGroupQuestById,
   isBuiltInOfficialGroupQuestHost,
   isGroupQuestFinished,
+  persistOfficialGroupQuestCompletions,
   updateParticipantProgress,
   upsertHostGroupQuest,
-  upsertOfficialGroupQuestParticipation,
 } from "@/lib/groupquests";
-import {
-  buildChallengeProgressRecord,
-  compactChallengeAttempts,
-  getChallengeAttempts,
-  getChallengeProgress,
-  type UserMetadataRecord,
-} from "@/lib/user-metadata";
+
 
 type WebRefreshRouteDependencies = {
   authenticate: () => Promise<string | null>;
@@ -74,75 +71,43 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       if (!found) throw new Error("Group quest disappeared during refresh.");
       const participant = found.groupQuest.participants.find((entry) => entry.userId === userId)!;
       const lastCheck = checks[checks.length - 1]?.result;
+      const pendingCompletions = buildPendingGroupQuestCompletions({
+        groupQuestId: found.groupQuest.id,
+        provider: participant.provider,
+        existing: participant.pendingCompletions ?? [],
+        newlyPassedQuestIds,
+        checks,
+      });
       const refreshedQuest = updateParticipantProgress(found.groupQuest, userId, {
         ...nextProgress,
-        lastProofSummary: lastCheck?.summary,
-        lastProofAt: new Date().toISOString(),
+        pendingCompletions,
+        ...(lastCheck ? { lastProofSummary: lastCheck.summary, lastProofAt: new Date().toISOString() } : {}),
       });
-      const storeOnParticipant = isBuiltInOfficialGroupQuestHost(found.userId);
-      const storageUserId = storeOnParticipant ? userId : found.userId;
-      const storageUser = await client.users.getUser(storageUserId);
-      if (storeOnParticipant) {
-        const publicMetadata = storageUser.publicMetadata && typeof storageUser.publicMetadata === "object"
-          ? storageUser.publicMetadata as Record<string, unknown>
-          : {};
-        const participationPatch = upsertOfficialGroupQuestParticipation(publicMetadata, refreshedQuest, userId);
-        if (!(refreshedQuest.id in participationPatch)) {
-          throw new Error("official_participation_metadata_capacity");
-        }
-        await client.users.updateUserMetadata(storageUserId, {
-          publicMetadata: {
-            [OFFICIAL_GROUP_QUEST_METADATA_KEY]: participationPatch,
-          },
-        });
-      } else {
+      if (isBuiltInOfficialGroupQuestHost(found.userId)) {
+        await persistOfficialGroupQuestCompletions(
+          client, refreshedQuest, userId, Boolean(newlyPassedQuestIds.length),
+        );
+        return;
+      }
+      const storageUserId = found.userId;
+      const saveProgress = async (quest: typeof refreshedQuest) => {
+        const storageUser = await client.users.getUser(storageUserId);
         await client.users.updateUserMetadata(storageUserId, {
           privateMetadata: {
             ...(storageUser.privateMetadata ?? {}),
             sqcAnalytics: compactAnalyticsStore(getAnalyticsStore(storageUser.privateMetadata)),
-            sqcGroupQuests: upsertHostGroupQuest(storageUser.privateMetadata, refreshedQuest),
+            sqcGroupQuests: upsertHostGroupQuest(storageUser.privateMetadata, quest),
           },
         });
-      }
+      };
+
+      await saveProgress(refreshedQuest);
       const participantUser = await client.users.getUser(userId);
-      await mergeWebMultiplayerCompletions(client, userId, participantUser.publicMetadata, participant, checks.filter((check) => newlyPassedQuestIds.includes(check.questId)));
+      await client.users.updateUserMetadata(userId, {
+        publicMetadata: buildMultiplayerCompletionAccountPatch(participantUser.publicMetadata, pendingCompletions),
+      });
+      await saveProgress(updateParticipantProgress(refreshedQuest, userId, { pendingCompletions: [] }));
     },
   });
   return handler(request, id);
-}
-
-async function mergeWebMultiplayerCompletions(
-  client: Awaited<ReturnType<typeof clerkClient>>,
-  userId: string,
-  metadata: UserMetadataRecord,
-  participant: { provider: "lichess" | "chesscom"; username: string },
-  checks: Array<{ questId: string; result: Awaited<ReturnType<typeof checkLatestGroupQuestChallenge>> }>,
-) {
-  const passedChecks = checks.filter((entry) => entry.result.status === "passed");
-  if (!passedChecks.length) return;
-
-  const progress = getChallengeProgress(metadata);
-  const completedChallengeIds = Array.from(new Set([...progress.completedChallengeIds, ...passedChecks.map((entry) => entry.questId)]));
-  const existingAttempts = getChallengeAttempts(metadata);
-  const now = new Date().toISOString();
-  const newAttempts = passedChecks.map((entry) => ({
-    id: `${entry.questId}:multiplayer:${participant.provider}:${entry.result.gameId}:${now}`,
-    challengeId: entry.questId,
-    gameId: entry.result.gameId,
-    provider: participant.provider === "chesscom" ? "chess.com" as const : "lichess" as const,
-    status: "passed",
-    summary: `Multiplayer proof verified: ${entry.result.summary}`,
-    checkedAt: now,
-    completedGameAt: entry.result.gameTime,
-    finalPositionFen: entry.result.finalPositionFen,
-    lastMoveUci: entry.result.lastMoveUci,
-    lastMoveSan: entry.result.lastMoveSan,
-  }));
-
-  await client.users.updateUserMetadata(userId, {
-    publicMetadata: {
-      challengeProgress: buildChallengeProgressRecord(completedChallengeIds),
-      challengeAttempts: compactChallengeAttempts([...existingAttempts, ...newAttempts]),
-    },
-  });
 }

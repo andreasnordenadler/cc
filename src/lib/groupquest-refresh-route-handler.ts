@@ -1,11 +1,13 @@
 import { applyGroupQuestProofResults, type GroupQuestProofProgress } from "@/lib/groupquest-proof-progress";
 import { buildGroupQuestRefreshChecks } from "@/lib/groupquest-refresh-contract";
 import type { GroupQuestCheckResult } from "@/lib/groupquest-proof";
+import type { GroupQuestPendingCompletion } from "@/lib/groupquest-completion-reconciliation";
 
 type Participant = Partial<GroupQuestProofProgress> & {
   userId: string;
   provider: "lichess" | "chesscom";
   username: string;
+  pendingCompletions?: GroupQuestPendingCompletion[];
 };
 
 type RefreshQuest = {
@@ -41,17 +43,22 @@ export function createGroupQuestRefreshRouteHandler(dependencies: {
     if (!participant) return json(dependencies.mode === "mobile"
       ? { apiVersion: 1, authenticated: true, ok: false, message: "Join this Multiplayer Side Quest before refreshing proof." }
       : { ok: false, error: "not_joined" }, 403);
-    if (dependencies.isFinished(quest)) return json(dependencies.mode === "mobile"
+    const isFinished = dependencies.isFinished(quest);
+    const hasPendingCompletions = Boolean(participant.pendingCompletions?.length);
+    if (isFinished && !hasPendingCompletions) return json(dependencies.mode === "mobile"
       ? { apiVersion: 1, authenticated: true, ok: false, message: "This Multiplayer Side Quest has ended." }
       : { ok: false, error: "finished" }, 400);
 
     const uniqueQuestIds = Array.from(new Set(quest.questIds));
-    const checks = await Promise.all(uniqueQuestIds.map(async (questId) => ({
-      questId,
-      result: await dependencies.check({ questId, quest, participant }),
-    })));
+    const checks = isFinished || hasPendingCompletions
+      ? []
+      : await Promise.all(uniqueQuestIds.map(async (questId) => ({
+          questId,
+          result: await dependencies.check({ questId, quest, participant }),
+        })));
     const progress = await applyGroupQuestProofResults({
       participant,
+      mutateWhenUnchanged: Boolean(participant.pendingCompletions?.length),
       checks: checks.map((entry) => ({ ...entry, reward: dependencies.reward(entry.questId) })),
       mutate: async (nextProgress, { newlyPassedQuestIds }) => dependencies.persist({
         userId,
