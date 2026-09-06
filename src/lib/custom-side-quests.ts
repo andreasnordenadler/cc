@@ -246,10 +246,14 @@ function isValidCustomRuleBlock(block: unknown): block is CustomSideQuestRuleBlo
     && value.moves.every(move => typeof move === "string")
     && (value.raw === undefined || typeof value.raw === "string")
     && (value.anchor === undefined || value.anchor === "gameStart");
-  if (value.type !== "pieceState" || !isValidSelector(value.selector)) return false;
-  return ["king", "queen", "rook", "bishop", "knight", "pawn"].includes(String(value.piece))
-    && ["my", "opponent", "either"].includes(String(value.owner))
-    && ["gone", "still on board", "moved", "not moved", "captured", "on square"].includes(String(value.condition))
+  if (value.type !== "pieceState" || typeof value.piece !== "string") return false;
+  const piece = value.piece;
+  return ["king", "queen", "rook", "bishop", "knight", "pawn"].includes(piece)
+    && isValidSelector(value.selector, piece)
+    && typeof value.owner === "string"
+    && ["my", "opponent", "either"].includes(value.owner)
+    && typeof value.condition === "string"
+    && ["gone", "still on board", "moved", "not moved", "captured", "on square"].includes(value.condition)
     && (value.targetSquare === undefined || value.targetSquare === null || typeof value.targetSquare === "string");
 }
 
@@ -262,14 +266,20 @@ function isValidTiming(value: unknown) {
     && (timing.atGameEnd === undefined || timing.atGameEnd === true);
 }
 
-function isValidSelector(value: unknown) {
+function isValidSelector(value: unknown, piece: string) {
   if (value === undefined) return true;
   if (!value || typeof value !== "object" || Array.isArray(value)) return false;
   const selector = value as Record<string, unknown>;
-  return (selector.quantifier === undefined || ["any one", "at least", "exactly", "all"].includes(String(selector.quantifier)))
+  const identity = selector.identity;
+  const validIdentity = identity === undefined
+    || identity === "any"
+    || ((piece === "king" || piece === "queen") && identity === "original")
+    || ((piece === "rook" || piece === "bishop" || piece === "knight") && (identity === "queenside" || identity === "kingside"))
+    || (piece === "pawn" && typeof identity === "string" && /^[a-h]-pawn$/.test(identity));
+  return (selector.quantifier === undefined || (typeof selector.quantifier === "string" && ["any one", "at least", "exactly", "all"].includes(selector.quantifier)))
     && isOptionalPositiveInteger(selector.count)
     && isOptionalPositiveInteger(selector.maxAvailable)
-    && (selector.identity === undefined || typeof selector.identity === "string");
+    && validIdentity;
 }
 
 function isOptionalPositiveInteger(value: unknown) {
@@ -642,5 +652,5 @@ function evalPieceStateAtSnapshot(block: Extract<CustomSideQuestRuleBlock, { typ
   const passed = quantifier === "exactly" ? count === required : quantifier === "all" ? count === origins.length : count >= required;
   return { passed, label: "Piece condition", explanation: passed ? `Matched ${count} piece${count === 1 ? "" : "s"}.` : `Matched ${count}, but needed ${quantifier === "exactly" ? "exactly" : "at least"} ${required}.`, ply: snapshot?.ply, moveNumber: snapshot?.moveNumber, san: snapshot?.san, uci: snapshot?.uci, fenAtBreak: snapshot?.fen };
 }
-function candidateOrigins(piece: string, color: "white" | "black", identity: string) { const entries = HOME_SQUARES[color][piece] ?? {}; if (identity !== "any" && entries[identity]) return [entries[identity]]; return Object.values(entries); }
+function candidateOrigins(piece: string, color: "white" | "black", identity: string) { const entries = HOME_SQUARES[color][piece] ?? {}; const entryKey = piece === "pawn" && /^[a-h]-pawn$/.test(identity) ? identity[0] : identity; if (identity !== "any" && entries[entryKey]) return [entries[entryKey]]; return Object.values(entries); }
 function conditionMatches(block: Extract<CustomSideQuestRuleBlock, { type: "pieceState" }>, square: string | null, piece: { moved: boolean } | null) { if (block.condition === "gone" || block.condition === "captured") return !piece; if (!piece || !square) return false; if (block.condition === "moved") return piece.moved; if (block.condition === "not moved") return !piece.moved; if (block.condition === "on square") return square === block.targetSquare; return true; }
