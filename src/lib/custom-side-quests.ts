@@ -309,6 +309,7 @@ function evaluateCustomSideQuestGame(quest: Pick<CustomSideQuest, "id" | "title"
   if (game.status !== "finished") return { status: "pending", gameId: game.gameId, summary: `Found ${game.gameId}, but the game is not finished yet.`, startedGameAt: game.startedGameAt, completedGameAt: game.completedGameAt, evidence: ["Only finished public games can complete a custom Side Quest."] };
 
   const replay = replayGame(game);
+  if (!replay.snapshots.length) return { status: "pending", gameId: game.gameId, summary: `Could not load public ${provider === "lichess" ? "Lichess" : "Chess.com"} game ${game.gameId} for ${game.username}.` };
   const results = config.blocks.map((block) => evaluateBlock(block, game, replay));
   const passed = config.logic === "any" ? results.some((r) => r.passed) : results.every((r) => r.passed);
   const firstPassed = results.find((r) => r.passed) ?? null;
@@ -479,9 +480,9 @@ function replayGame(game: LatestGame) {
         ? chess.move({ from: token.slice(0, 2), to: token.slice(2, 4), promotion: token[4] })
         : chess.move(token, { strict: false });
     } catch {
-      continue;
+      return { snapshots: [] };
     }
-    if (!move) continue;
+    if (!move) return { snapshots: [] };
     pieces = applyMovePieces(pieces, move);
     snapshots.push({ ply: snapshots.length + 1, moveNumber: Math.ceil((snapshots.length + 1) / 2), fen: chess.fen(), san: move.san, uci: `${move.from}${move.to}${move.promotion ?? ""}`, before, after: clonePieces(pieces) });
   }
