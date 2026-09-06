@@ -1,4 +1,9 @@
 import { containsObjectionablePublicText } from "./ugc-content-filter";
+import {
+  buildMultiplayerCompletionAccountPatch,
+  normalizePendingGroupQuestCompletions,
+  type GroupQuestPendingCompletion,
+} from "./groupquest-completion-reconciliation";
 
 export type GroupQuestInviteMode = "public" | "unlisted-link" | "private-key";
 export type GroupQuestProviderMode = "both" | "lichess" | "chesscom";
@@ -16,6 +21,7 @@ export type GroupQuestParticipant = {
   score?: number;
   completedQuestIds?: string[];
   questFinishedAt?: Record<string, string>;
+  pendingCompletions?: GroupQuestPendingCompletion[];
   lastProofSummary?: string;
   lastProofAt?: string;
 };
@@ -120,6 +126,7 @@ type OfficialGroupQuestParticipationRecord = {
   score?: number;
   completedQuestIds?: string[];
   questFinishedAt?: Record<string, string>;
+  pendingCompletions?: GroupQuestPendingCompletion[];
   lastProofSummary?: string;
   lastProofAt?: string;
 };
@@ -142,6 +149,7 @@ export function getStoredOfficialGroupQuestParticipations(metadata: unknown, use
         score: record.score ?? 0,
         completedQuestIds: record.completedQuestIds ?? [],
         questFinishedAt: record.questFinishedAt ?? {},
+        ...(record.pendingCompletions?.length ? { pendingCompletions: record.pendingCompletions } : {}),
         lastProofSummary: record.lastProofSummary,
         lastProofAt: record.lastProofAt,
       }],
@@ -163,6 +171,9 @@ export function upsertOfficialGroupQuestParticipation(metadata: unknown, groupQu
   const questFinishedAt = Object.fromEntries(
     completedQuestIds.flatMap((id) => participant.questFinishedAt?.[id] ? [[id, participant.questFinishedAt[id]]] : []),
   );
+  const pendingCompletions = (participant.pendingCompletions ?? [])
+    .filter((completion) => allowedQuestIds.has(completion.challengeId));
+  if (pendingCompletions.length > 8) return {};
   const next: OfficialGroupQuestParticipationRecord = {
     active: true,
     left: false,
@@ -173,16 +184,61 @@ export function upsertOfficialGroupQuestParticipation(metadata: unknown, groupQu
     ...(participant.score ? { score: Math.max(0, Math.min(100_000, participant.score)) } : {}),
     ...(completedQuestIds.length ? { completedQuestIds } : {}),
     ...(Object.keys(questFinishedAt).length ? { questFinishedAt } : {}),
+    pendingCompletions,
     ...(participant.lastProofSummary ? { lastProofSummary: participant.lastProofSummary.slice(0, 120) } : {}),
     ...(participant.lastProofAt ? { lastProofAt: participant.lastProofAt.slice(0, 40) } : {}),
   };
   const metadataRecord = metadata && typeof metadata === "object" ? metadata as Record<string, unknown> : {};
-  const existingMap = getRawOfficialMetadataMap(metadata);
-  const projectedOfficial = { ...existingMap, [groupQuest.id]: next };
-  const projectedMetadata = { ...metadataRecord, [OFFICIAL_GROUP_QUEST_METADATA_KEY]: projectedOfficial };
-  if (serializedByteLength({ [groupQuest.id]: next }) > MAX_OFFICIAL_PARTICIPATION_BYTES) return {};
+  const participationPatch = { [groupQuest.id]: next };
+  const projectedMetadata = mergePublicMetadata(metadataRecord, {
+    [OFFICIAL_GROUP_QUEST_METADATA_KEY]: participationPatch,
+  });
+  if (serializedByteLength(participationPatch) > MAX_OFFICIAL_PARTICIPATION_BYTES) return {};
   if (serializedByteLength(projectedMetadata) > MAX_SAFE_CLERK_PUBLIC_METADATA_BYTES) return {};
-  return { [groupQuest.id]: next };
+  return participationPatch;
+}
+
+export async function persistOfficialGroupQuestCompletions(
+  client: { users: {
+    getUser: (userId: string) => Promise<{ publicMetadata: Record<string, unknown> }>;
+    updateUserMetadata: (userId: string, patch: { publicMetadata: Record<string, unknown> }) => Promise<unknown>;
+  } },
+  groupQuest: ServerGroupQuest,
+  participantUserId: string,
+  hasNewCompletions: boolean,
+) {
+  const pending = groupQuest.participants.find((entry) => entry.userId === participantUserId)?.pendingCompletions ?? [];
+  const acknowledgedQuest = updateParticipantProgress(groupQuest, participantUserId, { pendingCompletions: [] });
+  const completionPatch = (metadata: Record<string, unknown>) => {
+    const accountPatch = buildMultiplayerCompletionAccountPatch(metadata, pending);
+    const participationPatch = upsertOfficialGroupQuestParticipation(
+      mergePublicMetadata(metadata, accountPatch), acknowledgedQuest, participantUserId,
+    );
+    if (!(groupQuest.id in participationPatch)) throw new Error("official_participation_metadata_capacity");
+    return { ...accountPatch, [OFFICIAL_GROUP_QUEST_METADATA_KEY]: participationPatch };
+  };
+  let { publicMetadata } = await client.users.getUser(participantUserId);
+  if (hasNewCompletions) {
+    const participationPatch = upsertOfficialGroupQuestParticipation(publicMetadata, groupQuest, participantUserId);
+    if (!(groupQuest.id in participationPatch)) throw new Error("official_participation_metadata_capacity");
+    const receiptPatch = { [OFFICIAL_GROUP_QUEST_METADATA_KEY]: participationPatch };
+    // Check both real writes before accepting progress, not receipt/attempt duplication.
+    completionPatch(mergePublicMetadata(publicMetadata, receiptPatch));
+    await client.users.updateUserMetadata(participantUserId, { publicMetadata: receiptPatch });
+    ({ publicMetadata } = await client.users.getUser(participantUserId));
+  }
+  // Existing receipts can go directly to this atomic projection + acknowledgement.
+  await client.users.updateUserMetadata(participantUserId, { publicMetadata: completionPatch(publicMetadata) });
+}
+
+function mergePublicMetadata(target: Record<string, unknown>, patch: Record<string, unknown>): Record<string, unknown> {
+  const merged = { ...target };
+  for (const [key, value] of Object.entries(patch)) {
+    merged[key] = value && typeof value === "object" && !Array.isArray(value)
+      ? mergePublicMetadata(merged[key] && typeof merged[key] === "object" && !Array.isArray(merged[key]) ? merged[key] as Record<string, unknown> : {}, value as Record<string, unknown>)
+      : value;
+  }
+  return merged;
 }
 
 export function removeOfficialGroupQuestParticipation(_metadata: unknown, groupQuestId: string): OfficialGroupQuestMetadataMap {
@@ -518,8 +574,18 @@ export async function listPublicGroupQuests(
 }
 
 export function upsertHostGroupQuest(metadata: unknown, groupQuest: ServerGroupQuest) {
-  const existing = getStoredGroupQuests(metadata).filter((quest) => quest.id !== groupQuest.id);
-  return [groupQuest, ...existing].slice(0, MAX_HOST_QUESTS).map(compactGroupQuestForStorage);
+  const stored = getStoredGroupQuests(metadata);
+  const current = stored.find((quest) => quest.id === groupQuest.id);
+  const nextQuestIds = new Set(groupQuest.questIds);
+  if (current?.participants.some((participant) => participant.pendingCompletions?.some(
+    (completion) => current.questIds.includes(completion.challengeId) && !nextQuestIds.has(completion.challengeId),
+  ))) throw new Error("groupquest_pending_completion_lineup");
+  const existing = stored.filter((quest) => quest.id !== groupQuest.id);
+  const ordered = [groupQuest, ...existing];
+  if (ordered.slice(MAX_HOST_QUESTS).some((quest) => quest.participants.some((participant) => participant.pendingCompletions?.length))) {
+    throw new Error("groupquest_pending_completion_history");
+  }
+  return ordered.slice(0, MAX_HOST_QUESTS).map(compactGroupQuestForStorage);
 }
 
 export function upsertParticipantGroupQuest(metadata: unknown, groupQuest: ServerGroupQuest, participantUserId: string) {
@@ -547,6 +613,12 @@ export function joinGroupQuest(groupQuest: ServerGroupQuest, participant: GroupQ
     {
       ...existing,
       ...participant,
+      // Accepted receipts remain bound to the original provider account until projected.
+      ...(existing?.pendingCompletions?.length ? {
+        provider: existing.provider,
+        username: existing.username,
+        pendingCompletions: existing.pendingCompletions,
+      } : {}),
       score: existing?.score ?? participant.score ?? 0,
       completedQuestIds: existing?.completedQuestIds ?? participant.completedQuestIds ?? [],
       questFinishedAt: existing?.questFinishedAt ?? participant.questFinishedAt ?? {},
@@ -674,8 +746,9 @@ function compactGroupQuestForStorage(groupQuest: ServerGroupQuest) {
       leaderboardName: participant.leaderboardName,
       joinedAt: participant.joinedAt,
       ...(participant.score ? { score: participant.score } : {}),
-      ...(participant.completedQuestIds?.length ? { completedQuestIds: participant.completedQuestIds.slice(0, 8) } : {}),
+      ...(participant.completedQuestIds?.length ? { completedQuestIds: participant.completedQuestIds } : {}),
       ...(participant.questFinishedAt && Object.keys(participant.questFinishedAt).length ? { questFinishedAt: participant.questFinishedAt } : {}),
+      ...(participant.pendingCompletions?.length ? { pendingCompletions: participant.pendingCompletions } : {}),
       ...(participant.lastProofSummary ? { lastProofSummary: participant.lastProofSummary.slice(0, 120) } : {}),
       ...(participant.lastProofAt ? { lastProofAt: participant.lastProofAt } : {}),
     })),
@@ -690,6 +763,9 @@ function normalizeGroupQuest(value: unknown): ServerGroupQuest | null {
   const name = cleanText(record.name, 64);
   const storedHostName = cleanText(record.hostName, 80);
   if (!id || !hostUserId || !name) return null;
+  const questIds = Array.isArray(record.questIds)
+    ? record.questIds.filter((entry): entry is string => typeof entry === "string")
+    : ["knights-before-coffee"];
   return {
     id,
     hostUserId,
@@ -698,7 +774,7 @@ function normalizeGroupQuest(value: unknown): ServerGroupQuest | null {
     inviteCopy: cleanText(record.inviteCopy, 280) ?? defaultInviteCopy,
     inviteMode: normalizeInviteMode(record.inviteMode),
     inviteKey: cleanInviteKey(record.inviteKey),
-    questIds: Array.isArray(record.questIds) ? record.questIds.filter((entry): entry is string => typeof entry === "string") : ["knights-before-coffee"],
+    questIds,
     providerMode: normalizeProviderMode(record.providerMode),
     providerLabel: cleanText(record.providerLabel, 80) ?? providerLabelFor(record.providerMode),
     official: record.official === true,
@@ -708,7 +784,11 @@ function normalizeGroupQuest(value: unknown): ServerGroupQuest | null {
     endAt: cleanText(record.endAt, 40) ?? "Not set",
     rules: normalizeRules(record.rules),
     createdAt: cleanText(record.createdAt, 40) ?? new Date().toISOString(),
-    participants: Array.isArray(record.participants) ? record.participants.map(normalizeParticipant).filter((entry): entry is GroupQuestParticipant => Boolean(entry)) : [],
+    participants: Array.isArray(record.participants)
+      ? record.participants
+          .map((participant) => normalizeParticipant(participant, { groupQuestId: id }))
+          .filter((entry): entry is GroupQuestParticipant => Boolean(entry))
+      : [],
   };
 }
 
@@ -745,7 +825,10 @@ function normalizeCustomQuestSnapshot(value: unknown): GroupQuestCustomQuestSnap
   };
 }
 
-function normalizeParticipant(value: unknown): GroupQuestParticipant | null {
+function normalizeParticipant(
+  value: unknown,
+  context: { groupQuestId: string },
+): GroupQuestParticipant | null {
   if (!value || typeof value !== "object") return null;
   const record = value as Record<string, unknown>;
   const userId = cleanText(record.userId, 120);
@@ -754,22 +837,37 @@ function normalizeParticipant(value: unknown): GroupQuestParticipant | null {
   const leaderboardName = storedLeaderboardName && /^SQC player$/i.test(storedLeaderboardName) ? "Quest runner" : storedLeaderboardName;
   const joinedAt = cleanText(record.joinedAt, 40);
   if (!userId || !username || !leaderboardName || !joinedAt) return null;
+  const storedProvider = record.provider === "chesscom" || record.provider === "lichess" ? record.provider : null;
+  const provider = storedProvider ?? "lichess";
+  const completedQuestIds = Array.isArray(record.completedQuestIds)
+    ? Array.from(new Set(record.completedQuestIds.filter((entry): entry is string => typeof entry === "string" && entry.length > 0 && entry.length <= 100 && entry === entry.trim())))
+    : [];
+  const questFinishedAt = record.questFinishedAt && typeof record.questFinishedAt === "object"
+    ? (Object.fromEntries(
+        Object.entries(record.questFinishedAt as Record<string, unknown>)
+          .filter(([challengeId, value]) => completedQuestIds.includes(challengeId) && typeof value === "string"),
+      ) as Record<string, string>)
+    : {};
   return {
     userId,
     username,
     leaderboardName,
     joinedAt,
-    provider: record.provider === "chesscom" ? "chesscom" : "lichess",
+    provider,
     wantsEmailUpdates: record.wantsEmailUpdates === true,
     email: cleanText(record.email, 120),
     location: cleanText(record.location, 80),
     score: typeof record.score === "number" && record.score >= 0 ? record.score : 0,
-    completedQuestIds: Array.isArray(record.completedQuestIds) ? record.completedQuestIds.filter((entry): entry is string => typeof entry === "string") : [],
-    questFinishedAt: record.questFinishedAt && typeof record.questFinishedAt === "object"
-      ? (Object.fromEntries(
-          Object.entries(record.questFinishedAt as Record<string, unknown>).filter(([, value]) => typeof value === "string"),
-        ) as Record<string, string>)
-      : {},
+    completedQuestIds,
+    questFinishedAt,
+    pendingCompletions: storedProvider
+      ? normalizePendingGroupQuestCompletions(record.pendingCompletions, {
+          groupQuestId: context.groupQuestId,
+          participantProvider: storedProvider,
+          acceptedChallengeIds: new Set(completedQuestIds),
+          acceptedCompletionTimes: questFinishedAt,
+        })
+      : [],
     lastProofSummary: cleanText(record.lastProofSummary, 240),
     lastProofAt: cleanText(record.lastProofAt, 40),
   };
@@ -824,20 +922,32 @@ function normalizeOfficialParticipationRecord(questId: string, value: unknown): 
   const completedQuestIds = Array.isArray(record.completedQuestIds)
     ? record.completedQuestIds.filter((id): id is string => typeof id === "string" && allowedQuestIds.has(id))
     : [];
+  const questFinishedAt = record.questFinishedAt && typeof record.questFinishedAt === "object"
+    ? Object.fromEntries(Object.entries(record.questFinishedAt as Record<string, unknown>)
+        .filter(([id, timestamp]) => allowedQuestIds.has(id) && typeof timestamp === "string")
+        .map(([id, timestamp]) => [id, (timestamp as string).slice(0, 40)]))
+    : {};
+  const storedProvider = record.provider === "chesscom" || record.provider === "lichess" ? record.provider : null;
+  const participantProvider = storedProvider ?? "lichess";
+  const pendingCompletions = storedProvider
+    ? normalizePendingGroupQuestCompletions(record.pendingCompletions, {
+        groupQuestId: questId,
+        participantProvider: storedProvider,
+        acceptedChallengeIds: new Set(completedQuestIds),
+        acceptedCompletionTimes: questFinishedAt,
+      }).filter((completion) => allowedQuestIds.has(completion.challengeId))
+    : [];
   return {
     active: true,
     left: false,
-    provider: record.provider === "chesscom" ? "chesscom" : "lichess",
+    provider: participantProvider,
     username,
     leaderboardName,
     joinedAt,
     score: typeof record.score === "number" && Number.isFinite(record.score) ? Math.max(0, Math.min(100_000, record.score)) : 0,
     completedQuestIds,
-    questFinishedAt: record.questFinishedAt && typeof record.questFinishedAt === "object"
-      ? Object.fromEntries(Object.entries(record.questFinishedAt as Record<string, unknown>)
-          .filter(([id, timestamp]) => allowedQuestIds.has(id) && typeof timestamp === "string")
-          .map(([id, timestamp]) => [id, (timestamp as string).slice(0, 40)]))
-      : {},
+    questFinishedAt,
+    pendingCompletions,
     lastProofSummary: cleanText(record.lastProofSummary, 120),
     lastProofAt: cleanText(record.lastProofAt, 40),
   };

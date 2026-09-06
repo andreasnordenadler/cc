@@ -7,6 +7,10 @@ import { findPublicCommunityCustomSideQuestById } from "@/lib/community-side-que
 import { getCustomSideQuests, parseCustomRuleConfig, type CustomSideQuest } from "@/lib/custom-side-quests";
 import { checkLatestGroupQuestChallenge } from "@/lib/groupquest-proof";
 import { createGroupQuestRefreshRouteHandler } from "@/lib/groupquest-refresh-route-handler";
+import {
+  buildMultiplayerCompletionAccountPatch,
+  buildPendingGroupQuestCompletions,
+} from "@/lib/groupquest-completion-reconciliation";
 import { validateMultiplayerProofConfiguration, validateMultiplayerProofUpdate } from "@/lib/multiplayer-proof-rules";
 import {
   OFFICIAL_GROUP_QUEST_METADATA_KEY,
@@ -16,6 +20,7 @@ import {
   findGroupQuestByInviteKey,
   isBuiltInOfficialGroupQuestHost,
   isGroupQuestFinished,
+  persistOfficialGroupQuestCompletions,
   joinGroupQuest,
   removeParticipantFromGroupQuest,
   removeOfficialGroupQuestParticipation,
@@ -26,10 +31,6 @@ import {
 } from "@/lib/groupquests";
 import { getMobileRequestUserId } from "@/lib/mobile-auth";
 import {
-  buildChallengeProgressRecord,
-  compactChallengeAttempts,
-  getChallengeAttempts,
-  getChallengeProgress,
   getChessComUsername,
   getLichessUsername,
   getPreferredRunnerName,
@@ -166,7 +167,9 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       { status: 404 },
     );
   }
-  if (isGroupQuestFinished(found.groupQuest)) {
+  const hasPendingReconciliation = action === "refresh"
+    && Boolean(found.groupQuest.participants.find((participant) => participant.userId === userId)?.pendingCompletions?.length);
+  if (isGroupQuestFinished(found.groupQuest) && !hasPendingReconciliation) {
     return NextResponse.json(
       { apiVersion: 1, authenticated: true, ok: false, message: "This Multiplayer Side Quest has ended. Final standings are frozen, so table changes and proof checks are closed." },
       { status: 400 },
@@ -345,20 +348,38 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     persist: async ({ progress: nextProgress, newlyPassedQuestIds, checks }) => {
       const participant = found.groupQuest.participants.find((entry) => entry.userId === userId)!;
       const lastCheck = checks[checks.length - 1]?.result;
+      const pendingCompletions = buildPendingGroupQuestCompletions({
+        groupQuestId: found.groupQuest.id,
+        provider: participant.provider,
+        existing: participant.pendingCompletions ?? [],
+        newlyPassedQuestIds,
+        checks,
+      });
       const refreshedQuest = updateParticipantProgress(found.groupQuest, userId, {
         ...nextProgress,
-        lastProofSummary: lastCheck?.summary,
-        lastProofAt: new Date().toISOString(),
+        pendingCompletions,
+        ...(lastCheck ? { lastProofSummary: lastCheck.summary, lastProofAt: new Date().toISOString() } : {}),
       });
+      if (isBuiltInOfficialGroupQuestHost(found.userId)) {
+        await persistOfficialGroupQuestCompletions(
+          client, refreshedQuest, userId, Boolean(newlyPassedQuestIds.length),
+        );
+        return;
+      }
       saveError = await saveMobileGroupQuest(client, found.userId, refreshedQuest, userId);
       if (!saveError) {
         const latestParticipantUser = await client.users.getUser(userId);
-        await mergeMobileMultiplayerCompletions(
+        await client.users.updateUserMetadata(userId, {
+          publicMetadata: buildMultiplayerCompletionAccountPatch(
+            (latestParticipantUser.publicMetadata as UserMetadataRecord) ?? {},
+            pendingCompletions,
+          ),
+        });
+        saveError = await saveMobileGroupQuest(
           client,
+          found.userId,
+          updateParticipantProgress(refreshedQuest, userId, { pendingCompletions: [] }),
           userId,
-          (latestParticipantUser.publicMetadata as UserMetadataRecord) ?? {},
-          participant,
-          checks.filter((check) => newlyPassedQuestIds.includes(check.questId)),
         );
       }
     },
@@ -481,39 +502,6 @@ function cleanText(value: unknown, maxLength: number) {
   if (typeof value !== "string") return undefined;
   const trimmed = value.trim().slice(0, maxLength);
   return trimmed || undefined;
-}
-
-async function mergeMobileMultiplayerCompletions(
-  client: Awaited<ReturnType<typeof clerkClient>>,
-  userId: string,
-  metadata: UserMetadataRecord,
-  participant: { provider: "lichess" | "chesscom"; username: string },
-  checks: Array<{ questId: string; result: Awaited<ReturnType<typeof checkLatestGroupQuestChallenge>> }>,
-) {
-  const passedChecks = checks.filter((entry) => entry.result.status === "passed");
-  if (!passedChecks.length) return;
-
-  const progress = getChallengeProgress(metadata);
-  const completedChallengeIds = Array.from(new Set([...progress.completedChallengeIds, ...passedChecks.map((entry) => entry.questId)]));
-  const existingAttempts = getChallengeAttempts(metadata);
-  const now = new Date().toISOString();
-  const newAttempts = passedChecks.map((entry) => ({
-    id: `${entry.questId}:multiplayer:${participant.provider}:${entry.result.gameId}:${now}`,
-    challengeId: entry.questId,
-    gameId: entry.result.gameId,
-    provider: participant.provider === "chesscom" ? "chess.com" as const : "lichess" as const,
-    status: "passed",
-    summary: `Multiplayer proof verified: ${entry.result.summary}`,
-    checkedAt: now,
-    completedGameAt: entry.result.gameTime,
-  }));
-
-  await client.users.updateUserMetadata(userId, {
-    publicMetadata: {
-      challengeProgress: buildChallengeProgressRecord(completedChallengeIds),
-      challengeAttempts: compactChallengeAttempts([...existingAttempts, ...newAttempts]),
-    },
-  });
 }
 
 function buildMobileParticipant({

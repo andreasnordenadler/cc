@@ -12,6 +12,7 @@ export async function applyGroupQuestProofResults(input: {
     result: { status: "passed" | "failed" | "pending"; gameTime?: string };
   }>;
   mutate: (progress: GroupQuestProofProgress, mutation: { newlyPassedQuestIds: string[] }) => Promise<void>;
+  mutateWhenUnchanged?: boolean;
 }): Promise<GroupQuestProofProgress & { mutated: boolean; newlyPassedQuestIds: string[] }> {
   const existingIds = input.participant.completedQuestIds ?? [];
   const existing = new Set(existingIds);
@@ -30,7 +31,7 @@ export async function applyGroupQuestProofResults(input: {
     score: (input.participant.score ?? 0) + newlyPassed.reduce((sum, check) => sum + check.reward, 0),
   };
   const newlyPassedQuestIds = newlyPassed.map((check) => check.questId);
-  if (!newlyPassed.length) return { ...progress, mutated: false, newlyPassedQuestIds };
+  if (!newlyPassed.length && !input.mutateWhenUnchanged) return { ...progress, mutated: false, newlyPassedQuestIds };
   await input.mutate(progress, { newlyPassedQuestIds });
   return { ...progress, mutated: true, newlyPassedQuestIds };
 }
