@@ -43,7 +43,7 @@ import { SafeAreaProvider, SafeAreaView, useSafeAreaInsets } from "react-native-
 import { blockMobileCommunityCreator, buildMobileUrl, getApiBaseUrl, deleteMobileAccount, deleteMobileCustomSideQuest, fetchMobileAccountState, fetchMobileBootstrap, runMobileCommunityLikeAction, runMobileGroupQuestAction, runMobileQuestAction, saveMobileCustomSideQuest, submitMobileSupportMessage, updateMobileChessUsernames } from "./src/api/sqc";
 import { findSignedOutPublicMultiplayerQuest, getSignedOutPublicMultiplayerCatalog } from "./src/multiplayer/publicCatalog";
 import { finalizeMobileAccountDeletion } from "./src/account/finalizeMobileAccountDeletion";
-import { loadMobileAccount } from "./src/account/loadMobileAccount";
+import { createMobileSessionGuard, loadMobileAccount } from "./src/account/loadMobileAccount";
 import { clerkPublishableKey, clerkTokenCache, isClerkMobileAuthConfigured } from "./src/auth/clerk";
 import { completeAppleSignIn } from "./src/auth/completeAppleSignIn";
 import { isFacebookSignInEnabled } from "./src/auth/isFacebookSignInEnabled";
@@ -1089,6 +1089,7 @@ type MobileAuthBridge = {
   verifyPasswordResetCode?: (params: { code: string }) => Promise<void>;
   completePasswordReset?: (params: { password: string }) => Promise<void>;
   signOut?: () => Promise<void>;
+  isSessionCurrent?: () => boolean;
   signedInLabel: string | null;
 };
 
@@ -1302,7 +1303,7 @@ export default function App() {
 }
 
 function ClerkMobileShell() {
-  const { getToken, isLoaded, isSignedIn } = useAuth();
+  const { getToken, isLoaded, isSignedIn, sessionId } = useAuth();
   const { signOut } = useClerk();
   const { startSSOFlow } = useSSO();
   const { startAppleAuthenticationFlow } = useSignInWithApple();
@@ -1457,7 +1458,27 @@ function ClerkMobileShell() {
     [appleSignInAvailable, attemptPasswordSignUpVerification, completePasswordReset, getToken, isLoaded, isSignedIn, signOut, signedInLabel, startAppleSignIn, startFacebookSignIn, startGoogleSignIn, startPasswordReset, startPasswordSignIn, startPasswordSignUp, verifyPasswordResetCode],
   );
 
-  return <MobileShell key={user?.id ?? "signed-out"} authBridge={authBridge} />;
+  const sessionKey = isLoaded && isSignedIn && sessionId ? sessionId : "signed-out";
+  return <SessionMobileShell key={sessionKey} authBridge={authBridge} />;
+}
+
+function SessionMobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
+  const [locallySignedOut, setLocallySignedOut] = useState(false);
+  const [sessionGuard] = useState(() => createMobileSessionGuard({
+    getSessionToken: authBridge.getSessionToken,
+    signOut: async () => { await authBridge.signOut?.(); },
+    onInvalidate: () => setLocallySignedOut(true),
+  }));
+  const scopedBridge = useMemo<MobileAuthBridge>(() => ({
+    ...authBridge,
+    isSignedIn: !locallySignedOut && authBridge.isSignedIn,
+    signedInLabel: locallySignedOut ? null : authBridge.signedInLabel,
+    getSessionToken: locallySignedOut ? async () => null : sessionGuard.getSessionToken,
+    isSessionCurrent: locallySignedOut ? () => true : sessionGuard.isCurrent,
+    signOut: authBridge.signOut ? sessionGuard.signOut : undefined,
+  }), [authBridge, locallySignedOut, sessionGuard]);
+
+  return <MobileShell key={locallySignedOut ? "signed-out" : "session"} authBridge={scopedBridge} />;
 }
 
 const signedOutAuthBridge: MobileAuthBridge = {
@@ -1527,13 +1548,14 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
   const loadAccount = useCallback(() => loadMobileAccount({
     isLoaded: authBridge.isLoaded,
     isSignedIn: authBridge.isSignedIn,
+    isCurrent: authBridge.isSessionCurrent,
     getSessionToken: authBridge.getSessionToken,
     fetchAccount: fetchMobileAccountState,
     applyAccount: (account) => setShell((current) => ({ ...current, account })),
-    applyFallback: () => setShell((current) => ({ ...current, account: current.account ?? MOBILE_ACCOUNT_FALLBACK })),
+    applyFallback: () => setShell((current) => ({ ...current, account: MOBILE_ACCOUNT_FALLBACK })),
     applySignedInFallback: () => setShell((current) => ({ ...current, account: current.account ?? MOBILE_ACCOUNT_FALLBACK })),
     fallbackAccount: MOBILE_ACCOUNT_FALLBACK,
-  }), [authBridge.getSessionToken, authBridge.isLoaded, authBridge.isSignedIn]);
+  }), [authBridge.getSessionToken, authBridge.isLoaded, authBridge.isSignedIn, authBridge.isSessionCurrent]);
 
   const refreshBoardAndAccount = useCallback(async () => {
     await Promise.all([loadBootstrap({ refresh: true }), loadAccount()]);
@@ -6145,8 +6167,12 @@ function AccountTrackerDashboard({ bootstrap, account, authBridge, onSelectTab, 
       return;
     }
 
-    await authBridge.signOut();
-    onSelectTab("home");
+    try {
+      await authBridge.signOut();
+      onSelectTab("home");
+    } catch (caught) {
+      Alert.alert("Log out", caught instanceof Error ? caught.message : "Please try again.");
+    }
   }
 
   async function handleDeleteAccount() {
