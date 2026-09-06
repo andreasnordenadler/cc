@@ -15,7 +15,7 @@ test("iOS prepares native Sign in with Apple alongside existing account methods"
   assert.equal(mobilePackage.dependencies["expo-apple-authentication"], "~8.0.8");
   assert.match(appSource, /useSignInWithApple/);
   assert.match(appSource, /startAppleAuthenticationFlow\(\)/);
-  assert.match(appSource, /code === "ERR_REQUEST_CANCELED"/);
+  assert.match(appSource, /isAppleSignInCancellation/);
   assert.match(appSource, /AppleAuthentication\.isAvailableAsync\(\)/);
   assert.match(appSource, /startAppleSignIn:\s*appleSignInAvailable\s*\?\s*startAppleSignIn\s*:\s*undefined/);
   assert.match(appSource, /AppleAuthenticationButtonType\.SIGN_IN/);
@@ -40,5 +40,9 @@ test("Apple sign-in reports an activatable session that cannot be activated", as
 
   const appSource = readRepoFile("apps/mobile/App.tsx");
   assert.match(appSource, /if \(!signInLoaded \|\| !signUpLoaded\)/);
-  assert.match(appSource, /await completeAppleSignIn\(result\)/);
+  assert.match(appSource, /await runAppleSignInWithOAuthFallback\(\{/);
+  assert.match(appSource, /completeNative:\s*completeAppleSignIn/);
+  assert.match(appSource, /strategy:\s*"oauth_apple"/);
+  assert.match(appSource, /if \(isAppleSignInCancellation\(caught\)\) return;/);
+  assert.match(appSource, /Alert\.alert\("Sign-in error", socialSignInErrorMessage\(caught\)\)/);
 });
