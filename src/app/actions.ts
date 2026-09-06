@@ -114,6 +114,7 @@ import {
 import { assertActiveSoloSubmissionTarget } from "@/lib/official-solo-exact-game";
 import { buildSoloCheckResult, runSoloCheckAction, type SoloCheckActionResult } from "@/lib/solo-check-result";
 import {
+  buildChallengeProgressRecord,
   getChallengeProgress,
   getChessComUsername,
   getLichessUsername,
@@ -213,17 +214,6 @@ function getAttemptChallengeId(attempt: ChallengeAttempt): string | undefined {
     : typeof attempt.id === "string"
       ? attempt.id.split(":")[0]
       : undefined;
-}
-
-function buildProgressRecord(completedChallengeIds: string[]) {
-  return {
-    completedChallengeIds,
-    totalCompletedChallenges: completedChallengeIds.length,
-    totalRewardPoints: completedChallengeIds.reduce((sum, id) => {
-      const completedChallenge = getChallengeById(id);
-      return sum + (completedChallenge?.reward ?? 0);
-    }, 0),
-  };
 }
 
 function pickProofReceiptFields(attempt: Partial<ChallengeAttempt>): Partial<ChallengeAttempt> {
@@ -817,14 +807,7 @@ export async function startChallenge(formData: FormData) {
           ...pickProofReceiptFields(check),
         })),
       ]),
-      challengeProgress: {
-        completedChallengeIds,
-        totalCompletedChallenges: completedChallengeIds.length,
-        totalRewardPoints: completedChallengeIds.reduce((sum, id) => {
-          const completedChallenge = getChallengeById(id);
-          return sum + (completedChallenge?.reward ?? 0);
-        }, 0),
-      },
+      challengeProgress: buildChallengeProgressRecord(completedChallengeIds),
     },
   });
 
@@ -914,7 +897,7 @@ export async function resetCompletedChallenge(formData: FormData) {
       ...metadata,
       activeChallenge: activeChallenge?.id === challenge.id ? null : metadata.activeChallenge,
       challengeAttempts: compactChallengeAttempts(remainingAttempts),
-      challengeProgress: buildProgressRecord(completedChallengeIds),
+      challengeProgress: buildChallengeProgressRecord(completedChallengeIds),
     },
   });
 
@@ -1046,7 +1029,7 @@ export async function submitChallengeAttempt(formData: FormData) {
           ...pickProofReceiptFields(checkedVerification),
         },
       ]),
-      challengeProgress: buildProgressRecord(completedChallengeIds),
+      challengeProgress: buildChallengeProgressRecord(completedChallengeIds),
     },
   });
 
@@ -1128,14 +1111,7 @@ async function runActiveChallengeCheck() {
           ...pickProofReceiptFields(check),
         })),
       ]),
-      challengeProgress: {
-        completedChallengeIds,
-        totalCompletedChallenges: completedChallengeIds.length,
-        totalRewardPoints: completedChallengeIds.reduce((sum, id) => {
-          const completedChallenge = getChallengeById(id);
-          return sum + (completedChallenge?.reward ?? 0);
-        }, 0),
-      },
+      challengeProgress: buildChallengeProgressRecord(completedChallengeIds),
     },
   });
 
