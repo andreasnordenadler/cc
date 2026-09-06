@@ -48,6 +48,7 @@ import { clerkPublishableKey, clerkTokenCache, isClerkMobileAuthConfigured } fro
 import { completeAppleSignIn } from "./src/auth/completeAppleSignIn";
 import { isFacebookSignInEnabled } from "./src/auth/isFacebookSignInEnabled";
 import { completeSocialSignIn, socialSignInErrorMessage } from "./src/auth/completeSocialSignIn";
+import { isAppleSignInCancellation, runAppleSignInWithOAuthFallback } from "./src/auth/runAppleSignInWithOAuthFallback";
 import { completeMobilePasswordReset, prepareMobilePasswordReset, verifyMobilePasswordResetCode as verifyMobilePasswordResetCodeWithClerk } from "./src/auth/mobilePasswordReset";
 import { OFFLINE_MOBILE_BOOTSTRAP } from "./src/data/offlineBootstrap";
 import { shouldStackActiveQuestSummary } from "./src/layout/activeQuestLayout";
@@ -1350,15 +1351,20 @@ function ClerkMobileShell() {
       if (!signInLoaded || !signUpLoaded) {
         throw new Error("Sign-in is still loading. Try again in a moment.");
       }
-      const result = await startAppleAuthenticationFlow();
-      await completeAppleSignIn(result);
+      await runAppleSignInWithOAuthFallback({
+        startNative: () => startAppleAuthenticationFlow(),
+        completeNative: completeAppleSignIn,
+        startOAuth: () => startSSOFlow({
+          strategy: "oauth_apple",
+          redirectUrl: mobileOAuthRedirectUrl,
+        }),
+        completeOAuth: completeSocialSignIn,
+      });
     } catch (caught) {
-      const code = typeof caught === "object" && caught !== null && "code" in caught ? String(caught.code) : "";
-      if (code === "ERR_REQUEST_CANCELED") return;
-      const message = caught instanceof Error ? caught.message : "Unknown Apple sign-in error.";
-      Alert.alert("Sign-in error", message);
+      if (isAppleSignInCancellation(caught)) return;
+      Alert.alert("Sign-in error", socialSignInErrorMessage(caught));
     }
-  }, [signInLoaded, signUpLoaded, startAppleAuthenticationFlow]);
+  }, [signInLoaded, signUpLoaded, startAppleAuthenticationFlow, startSSOFlow]);
 
   const startPasswordSignIn = useCallback(async ({ identifier, password }: { identifier: string; password: string }) => {
     if (!signInLoaded) throw new Error("Sign-in is still loading. Try again in a moment.");
