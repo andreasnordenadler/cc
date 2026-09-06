@@ -68,6 +68,7 @@ type LatestGame = {
   username: string;
   pgnMoves: string[];
   standardStart: boolean;
+  replayComplete: boolean;
   uciMoves?: string[];
   playerColor: "white" | "black";
   status: "finished" | "open" | "unknown";
@@ -318,6 +319,7 @@ function evaluateCustomSideQuestGame(quest: Pick<CustomSideQuest, "id" | "title"
     return { status: "pending", gameId: `${provider}-custom-rule-invalid`, summary: "This custom Side Quest needs at least one launch-ready rule block before it can be checked.", evidence: ["Rule config was empty or invalid."] };
   }
   if (game.status !== "finished") return { status: "pending", gameId: game.gameId, summary: `Found ${game.gameId}, but the game is not finished yet.`, startedGameAt: game.startedGameAt, completedGameAt: game.completedGameAt, evidence: ["Only finished public games can complete a custom Side Quest."] };
+  if (!game.replayComplete) return { status: "pending", gameId: game.gameId, summary: `Could not load public ${provider === "lichess" ? "Lichess" : "Chess.com"} game ${game.gameId} for ${game.username}.`, evidence: ["Provider replay evidence was incomplete or inconsistent."] };
 
   const replay = replayGame(game);
   if (!replay.snapshots.length) return { status: "pending", gameId: game.gameId, summary: `Could not load public ${provider === "lichess" ? "Lichess" : "Chess.com"} game ${game.gameId} for ${game.username}.` };
@@ -350,6 +352,7 @@ async function fetchLatestLichessGame(username: string): Promise<LatestGame | nu
   const [line] = body.split("\n").filter(Boolean);
   if (!line) return null;
   const game = JSON.parse(line) as { id?: string; status?: string; winner?: "white" | "black"; moves?: string; pgn?: string; variant?: unknown; initialFen?: unknown; createdAt?: number; lastMoveAt?: number; players?: { white?: { user?: { name?: string } }; black?: { user?: { name?: string } } } };
+  if (typeof game.id !== "string" || !/^[A-Za-z0-9]{8}$/.test(game.id)) return null;
   const normalized = username.trim().toLowerCase();
   const white = game.players?.white?.user?.name?.toLowerCase();
   const black = game.players?.black?.user?.name?.toLowerCase();
@@ -357,16 +360,20 @@ async function fetchLatestLichessGame(username: string): Promise<LatestGame | nu
   if (!playerColor) return null;
   const moveTokens = (game.moves ?? "").split(/\s+/).filter(Boolean);
   const uciMoves = moveTokens.length && moveTokens.every((token) => /^[a-h][1-8][a-h][1-8][qrbn]?$/i.test(token)) ? moveTokens : undefined;
-  return { provider: "lichess", gameId: game.id ?? "lichess-latest-game", username, standardStart: (game.variant === undefined || game.variant === "standard") && hasStandardPgnStart(game.pgn, game.initialFen), pgnMoves: extractSanMoveTokens(game.pgn ?? game.moves ?? ""), uciMoves, playerColor, status: game.status && !["created", "started"].includes(game.status) ? "finished" : "open", outcome: getLichessOutcome(game.status, game.winner, playerColor), startedGameAt: typeof game.createdAt === "number" ? new Date(game.createdAt).toISOString() : undefined, completedGameAt: typeof (game.lastMoveAt ?? game.createdAt) === "number" ? new Date((game.lastMoveAt ?? game.createdAt) as number).toISOString() : undefined };
+  const providerMoves = game.moves === undefined ? undefined : canonicalReplayMoves(moveTokens, uciMoves !== undefined);
+  const outcome = getLichessOutcome(game.status, game.winner, playerColor);
+  const replayPgn = parseReplayPgn(game.pgn ?? game.moves ?? "");
+  const pgnMoves = replayPgn?.moves ?? [];
+  return { provider: "lichess", gameId: game.id ?? "lichess-latest-game", username, standardStart: (game.variant === undefined || game.variant === "standard") && hasStandardPgnStart(game.pgn ?? game.moves, game.initialFen), pgnMoves, uciMoves, replayComplete: matchesReplayIdentity(replayPgn, "lichess", game.id, white, black) && matchesLichessReplayTermination(replayPgn, game.status) && outcome !== "unknown" && (game.pgn === undefined ? replayPgn !== null && (replayPgn.result === undefined || hasCompleteReplayPgn(replayPgn, outcome, playerColor)) : hasCompleteReplayPgn(replayPgn, outcome, playerColor, providerMoves)) && hasLichessTerminalPosition(replayPgn, game.status, game.winner), playerColor, status: game.status && !["created", "started"].includes(game.status) ? "finished" : "open", outcome, startedGameAt: typeof game.createdAt === "number" ? new Date(game.createdAt).toISOString() : undefined, completedGameAt: typeof (game.lastMoveAt ?? game.createdAt) === "number" ? new Date((game.lastMoveAt ?? game.createdAt) as number).toISOString() : undefined };
 }
 
 async function fetchSubmittedLichessGame(username: string, gameId: string): Promise<LatestGame | null> {
-  if (!username.trim() || !/^[A-Za-z0-9]{8,12}$/.test(gameId)) return null;
+  if (!username.trim() || !/^(?:[A-Za-z0-9]{8}|[A-Za-z0-9]{12})$/.test(gameId)) return null;
   const game = await fetchBoundedProviderJson(`https://lichess.org/game/export/${encodeURIComponent(gameId)}`, {
     headers: { Accept: "application/json", "User-Agent": "cc-verifier/0.1 (+https://sidequestchess.com)" },
     cache: "no-store",
   }) as { id?: string; status?: string; winner?: "white" | "black"; moves?: string; pgn?: string; variant?: unknown; initialFen?: unknown; createdAt?: number; lastMoveAt?: number; players?: { white?: { user?: { name?: string } }; black?: { user?: { name?: string } } } } | null;
-  if (!game) return null;
+  if (!game || game.id !== gameId.slice(0, 8)) return null;
   const normalized = username.trim().toLowerCase();
   const white = game.players?.white?.user?.name?.toLowerCase();
   const black = game.players?.black?.user?.name?.toLowerCase();
@@ -374,7 +381,11 @@ async function fetchSubmittedLichessGame(username: string, gameId: string): Prom
   if (!playerColor) return null;
   const moveTokens = (game.moves ?? "").split(/\s+/).filter(Boolean);
   const uciMoves = moveTokens.length && moveTokens.every((token) => /^[a-h][1-8][a-h][1-8][qrbn]?$/i.test(token)) ? moveTokens : undefined;
-  return { provider: "lichess", gameId: game.id ?? gameId, username, standardStart: (game.variant === undefined || game.variant === "standard") && hasStandardPgnStart(game.pgn, game.initialFen), pgnMoves: extractSanMoveTokens(game.pgn ?? game.moves ?? ""), uciMoves, playerColor, status: game.status && !["created", "started"].includes(game.status) ? "finished" : "open", outcome: getLichessOutcome(game.status, game.winner, playerColor), startedGameAt: typeof game.createdAt === "number" ? new Date(game.createdAt).toISOString() : undefined, completedGameAt: typeof (game.lastMoveAt ?? game.createdAt) === "number" ? new Date((game.lastMoveAt ?? game.createdAt) as number).toISOString() : undefined };
+  const providerMoves = game.moves === undefined ? undefined : canonicalReplayMoves(moveTokens, uciMoves !== undefined);
+  const outcome = getLichessOutcome(game.status, game.winner, playerColor);
+  const replayPgn = parseReplayPgn(game.pgn ?? game.moves ?? "");
+  const pgnMoves = replayPgn?.moves ?? [];
+  return { provider: "lichess", gameId: game.id ?? gameId, username, standardStart: (game.variant === undefined || game.variant === "standard") && hasStandardPgnStart(game.pgn ?? game.moves, game.initialFen), pgnMoves, uciMoves, replayComplete: matchesReplayIdentity(replayPgn, "lichess", game.id, white, black) && matchesLichessReplayTermination(replayPgn, game.status) && outcome !== "unknown" && (game.pgn === undefined ? replayPgn !== null && (replayPgn.result === undefined || hasCompleteReplayPgn(replayPgn, outcome, playerColor)) : hasCompleteReplayPgn(replayPgn, outcome, playerColor, providerMoves)) && hasLichessTerminalPosition(replayPgn, game.status, game.winner), playerColor, status: game.status && !["created", "started"].includes(game.status) ? "finished" : "open", outcome, startedGameAt: typeof game.createdAt === "number" ? new Date(game.createdAt).toISOString() : undefined, completedGameAt: typeof (game.lastMoveAt ?? game.createdAt) === "number" ? new Date((game.lastMoveAt ?? game.createdAt) as number).toISOString() : undefined };
 }
 
 async function fetchLatestChessComGame(username: string): Promise<LatestGame | null> {
@@ -382,14 +393,25 @@ async function fetchLatestChessComGame(username: string): Promise<LatestGame | n
   const archivePayload = await fetchBoundedProviderJson(`https://api.chess.com/pub/player/${encodeURIComponent(username.trim())}/games/archives`, { headers: { Accept: "application/json", "User-Agent": "cc-verifier/0.1 (+https://sidequestchess.com)" }, cache: "no-store" }) as { archives?: string[] } | null;
   if (!archivePayload) return null;
   const archives = archivePayload.archives ?? [];
-  for (const archive of archives.filter((value) => isAuthenticatedChessComArchiveUrl(value, username)).slice(-3).reverse()) {
+  const recentArchives = archives.slice(-3).reverse();
+  if (!recentArchives.every((value) => isAuthenticatedChessComArchiveUrl(value, username))) return null;
+  for (const archive of recentArchives) {
     const archiveGames = await fetchBoundedProviderJson(archive, { headers: { Accept: "application/json", "User-Agent": "cc-verifier/0.1 (+https://sidequestchess.com)" }, cache: "no-store" }) as { games?: Array<{ url?: string; pgn?: string; rules?: unknown; end_time?: number; white?: { username?: string; result?: string }; black?: { username?: string; result?: string } }> } | null;
-    if (!archiveGames) continue;
-    const games = archiveGames.games ?? [];
-    const game = games.reverse().find((item) => item.white?.username?.toLowerCase() === username.trim().toLowerCase() || item.black?.username?.toLowerCase() === username.trim().toLowerCase());
-    if (!game) continue;
-    const playerColor = game.white?.username?.toLowerCase() === username.trim().toLowerCase() ? "white" : "black";
-    return { provider: "chesscom", gameId: game.url ?? "chesscom-latest-game", username, standardStart: (game.rules === undefined || game.rules === "chess") && hasStandardPgnStart(game.pgn), pgnMoves: extractSanMoveTokens(game.pgn ?? ""), playerColor, status: game.end_time ? "finished" : "open", outcome: getChessComOutcome(playerColor === "white" ? game.white?.result : game.black?.result), startedGameAt: getChessComStartedGameAt(game.pgn), completedGameAt: game.end_time ? new Date(game.end_time * 1000).toISOString() : undefined };
+    if (!archiveGames || !Array.isArray(archiveGames.games)) return null;
+    const games = archiveGames.games;
+    if (!games.length) continue;
+    const game = games.at(-1);
+    if (!game) return null;
+    const normalizedUsername = username.trim().toLowerCase();
+    const playerColor = game.white?.username?.toLowerCase() === normalizedUsername ? "white" : game.black?.username?.toLowerCase() === normalizedUsername ? "black" : null;
+    if (!playerColor) return null;
+    const gameUrl = game.url;
+    const gameMode = gameUrl ? getChessComGameMode(gameUrl) : null;
+    if (!gameMode || !gameUrl) return null;
+    const outcome = getChessComOutcomeForPlayers(game.white?.result, game.black?.result, playerColor);
+    const replayPgn = parseReplayPgn(game.pgn ?? "", gameMode === "daily");
+    const completedGameAt = getChessComCompletedGameAt(game.end_time);
+    return { provider: "chesscom", gameId: gameUrl, username, standardStart: (game.rules === undefined || game.rules === "chess") && hasStandardPgnStart(game.pgn), pgnMoves: replayPgn?.moves ?? [], replayComplete: matchesReplayIdentity(replayPgn, "chesscom", gameUrl, game.white?.username, game.black?.username) && matchesChessComReplayTermination(replayPgn, game.white?.result, game.black?.result, game.white?.username, game.black?.username) && hasCompleteReplayPgn(replayPgn, outcome, playerColor) && hasChessComTerminalPosition(replayPgn, game.white?.result, game.black?.result, gameMode), playerColor, status: completedGameAt ? "finished" : "open", outcome, startedGameAt: getChessComStartedGameAt(game.pgn), completedGameAt };
   }
   return null;
 }
@@ -416,7 +438,12 @@ async function fetchSubmittedChessComGame(username: string, gameUrl: string, act
     const normalizedUsername = username.trim().toLowerCase();
     const playerColor = game.white?.username?.toLowerCase() === normalizedUsername ? "white" : game.black?.username?.toLowerCase() === normalizedUsername ? "black" : null;
     if (!playerColor) return null;
-    return { provider: "chesscom", gameId: game.url ?? gameUrl, username, standardStart: (game.rules === undefined || game.rules === "chess") && hasStandardPgnStart(game.pgn), pgnMoves: extractSanMoveTokens(game.pgn ?? ""), playerColor, status: game.end_time ? "finished" : "open", outcome: getChessComOutcome(playerColor === "white" ? game.white?.result : game.black?.result), startedGameAt: getChessComStartedGameAt(game.pgn), completedGameAt: game.end_time ? new Date(game.end_time * 1000).toISOString() : undefined };
+    const gameMode = getChessComGameMode(game.url ?? gameUrl);
+    if (!gameMode) return null;
+    const outcome = getChessComOutcomeForPlayers(game.white?.result, game.black?.result, playerColor);
+    const replayPgn = parseReplayPgn(game.pgn ?? "", gameMode === "daily");
+    const completedGameAt = getChessComCompletedGameAt(game.end_time);
+    return { provider: "chesscom", gameId: game.url ?? gameUrl, username, standardStart: (game.rules === undefined || game.rules === "chess") && hasStandardPgnStart(game.pgn), pgnMoves: replayPgn?.moves ?? [], replayComplete: matchesReplayIdentity(replayPgn, "chesscom", game.url ?? gameUrl, game.white?.username, game.black?.username) && matchesChessComReplayTermination(replayPgn, game.white?.result, game.black?.result, game.white?.username, game.black?.username) && hasCompleteReplayPgn(replayPgn, outcome, playerColor) && hasChessComTerminalPosition(replayPgn, game.white?.result, game.black?.result, gameMode), playerColor, status: completedGameAt ? "finished" : "open", outcome, startedGameAt: getChessComStartedGameAt(game.pgn), completedGameAt };
   }
   return null;
 }
@@ -450,28 +477,44 @@ function normalizeChessComGameUrl(value: string) {
   return value.trim().toLowerCase().replace(/^http:/, "https:").replace("https://chess.com/", "https://www.chess.com/").replace(/[?#].*$/, "").replace(/\/$/, "");
 }
 
-function getLichessOutcome(status: string | undefined, winner: "white" | "black" | undefined, playerColor: "white" | "black"): LatestGame["outcome"] {
-  if (winner === playerColor) return "win";
-  if (winner && winner !== playerColor) return "lose";
-  if (["draw", "stalemate"].includes(status ?? "")) return "draw";
+function getChessComGameMode(value: string): "live" | "daily" | null {
+  const match = normalizeChessComGameUrl(value).match(/^https:\/\/www\.chess\.com\/game\/(live|daily)\/\d+$/);
+  return match?.[1] === "live" || match?.[1] === "daily" ? match[1] : null;
+}
+
+function getLichessOutcome(status: string | undefined, winner: unknown, playerColor: "white" | "black"): LatestGame["outcome"] {
+  if (["draw", "stalemate"].includes(status ?? "")) return winner === undefined ? "draw" : "unknown";
+  if (!["mate", "resign", "timeout", "outoftime"].includes(status ?? "")) return "unknown";
+  if (["timeout", "outoftime"].includes(status ?? "") && winner === undefined) return "draw";
+  if (winner === "white" || winner === "black") return winner === playerColor ? "win" : "lose";
   return "unknown";
 }
 
 function getChessComOutcome(result: string | undefined): LatestGame["outcome"] {
   if (result === "win") return "win";
   if (["agreed", "repetition", "stalemate", "insufficient", "50move", "timevsinsufficient"].includes(result ?? "")) return "draw";
-  if (result) return "lose";
+  if (["checkmated", "resigned", "timeout", "abandoned", "lose"].includes(result ?? "")) return "lose";
   return "unknown";
+}
+
+function getChessComOutcomeForPlayers(whiteResult: string | undefined, blackResult: string | undefined, playerColor: "white" | "black"): LatestGame["outcome"] {
+  const whiteOutcome = getChessComOutcome(whiteResult);
+  const blackOutcome = getChessComOutcome(blackResult);
+  const compatible = (whiteOutcome === "win" && blackOutcome === "lose")
+    || (whiteOutcome === "lose" && blackOutcome === "win")
+    || (whiteOutcome === "draw" && blackOutcome === "draw" && whiteResult === blackResult);
+  if (!compatible) return "unknown";
+  return playerColor === "white" ? whiteOutcome : blackOutcome;
 }
 
 function hasStandardPgnStart(pgn?: string, initialFen?: unknown): boolean {
   const standardFen = new Chess().fen();
   if (initialFen !== undefined && initialFen !== standardFen) return false;
   const tags = new Map<string, string>();
-  for (const match of (pgn ?? "").matchAll(/\[\s*(FEN|Variant|SetUp)\b[^\]\r\n]*\]?/g)) {
-    const tag = match[0].match(/^\[(FEN|Variant|SetUp)\s+"([^"\\]*)"\s*\]$/);
-    if (!tag || tags.has(tag[1])) return false;
-    tags.set(tag[1], tag[2]);
+  for (const [name, value] of extractPgnSections(pgn ?? "").tags) {
+    if (!new Set(["FEN", "Variant", "SetUp"]).has(name)) continue;
+    if (tags.has(name)) return false;
+    tags.set(name, value);
   }
   const fen = tags.get("FEN");
   const variant = tags.get("Variant");
@@ -482,9 +525,352 @@ function hasStandardPgnStart(pgn?: string, initialFen?: unknown): boolean {
   return fen === undefined || fen === standardFen;
 }
 
-function extractSanMoveTokens(pgn: string): string[] {
-  const body = pgn.includes("\n\n") ? pgn.split(/\r?\n\r?\n/).slice(1).join("\n") : pgn;
-  return body.replace(/\{[^}]*\}/g, " ").replace(/\([^)]*\)/g, " ").split(/\s+/).map((token) => token.trim()).filter(Boolean).filter((token) => !/^\d+\.{1,3}$/.test(token) && !/^(1-0|0-1|1\/2-1\/2|\*)$/.test(token)).map((token) => token.replace(/^\d+\.{1,3}/, "").replace(/\$\d+/g, "")).filter(Boolean);
+function extractPgnSections(pgn: string): { movetext: string; resultTags: string[]; tags: Array<[string, string]> } {
+  const normalized = pgn.replace(/\r\n/g, "\n");
+  const separator = /\n[ \t]*\n/.exec(normalized);
+  const headerless = { movetext: normalized, resultTags: [], tags: [] as Array<[string, string]> };
+  if (!separator) return headerless;
+  const header = normalized.slice(0, separator.index);
+  const tagPattern = /\[\s*([A-Za-z][A-Za-z0-9_]*)\s+"((?:\\.|[^"\\])*)"\s*\]/g;
+  const tags: RegExpExecArray[] = [];
+  let cursor = 0;
+  for (const tag of header.matchAll(tagPattern)) {
+    if (header.slice(cursor, tag.index).trim()) return headerless;
+    tags.push(tag);
+    cursor = (tag.index ?? 0) + tag[0].length;
+  }
+  if (!tags.length || header.slice(cursor).trim()) return headerless;
+  const pairs = tags.map((tag): [string, string] => [tag[1], tag[2]]);
+  if (new Set(pairs.map(([name]) => name)).size !== pairs.length) return headerless;
+  return {
+    movetext: normalized.slice(separator.index + separator[0].length),
+    resultTags: pairs.filter(([name]) => name === "Result").map(([, value]) => value),
+    tags: pairs,
+  };
+}
+
+function stripPgnAnnotations(body: string): string | null {
+  let movetext = "";
+  let inLineComment = false;
+  let inBraceComment = false;
+  let variationDepth = 0;
+  for (const char of body) {
+    if (inLineComment) {
+      if (char === "\r" || char === "\n") inLineComment = false;
+      continue;
+    }
+    if (inBraceComment) {
+      if (char === "}") inBraceComment = false;
+      continue;
+    }
+    if (char === ";" || char === "{") {
+      inLineComment = char === ";";
+      inBraceComment = char === "{";
+      if (variationDepth === 0) movetext += " ";
+    } else if (char === "(") {
+      if (variationDepth === 0) movetext += " ";
+      variationDepth += 1;
+    } else if (char === ")") {
+      if (variationDepth === 0) return null;
+      variationDepth -= 1;
+    } else if (char === "}") {
+      return null;
+    } else if (variationDepth === 0) {
+      movetext += char;
+    }
+  }
+  return inBraceComment || variationDepth !== 0 ? null : movetext;
+}
+
+type ParsedReplayPgn = { moves: string[]; canonicalUci: string[]; result?: string; tags: Map<string, string> };
+
+function replayPositionKey(chess: Chess): string {
+  return chess.fen().split(" ").slice(0, 4).join(" ");
+}
+
+function replayHalfmoveClock(chess: Chess): number {
+  return Number(chess.fen().split(" ")[4]);
+}
+
+function canonicalReplayMoves(tokens: string[], uci = false, allowHalfmoveContinuation = false): string[] | null {
+  // chess.js's permissive parser can ignore suffixes; admit only whole SAN/UCI tokens.
+  const moveToken = /^(?:[a-h][1-8][a-h][1-8][qrbn]?|(?:[KQRBN][a-h]?[1-8]?x?|[a-h]x)?[a-h][1-8](?:=[QRBN])?|O-O(?:-O)?|0-0(?:-0)?)[+#]?[!?]*$/;
+  if (!tokens.every((token) => moveToken.test(token))) return null;
+  const chess = new Chess();
+  const repetitions = new Map([[replayPositionKey(chess), 1]]);
+  try {
+    return tokens.map((token) => {
+      if (chess.isCheckmate() || chess.isStalemate() || chess.isInsufficientMaterial()) {
+        throw new Error("Replay continues after automatic game termination.");
+      }
+      if ((repetitions.get(replayPositionKey(chess)) ?? 0) >= 5 || (!allowHalfmoveContinuation && replayHalfmoveClock(chess) >= 100)) {
+        throw new Error("Replay continues after an automatic draw.");
+      }
+      let move;
+      const semanticToken = token.replace(/[!?]+$/, "");
+      const coordinateToken = semanticToken.replace(/[+#]$/, "");
+      const coordinate = uci || /^[a-h][1-8][a-h][1-8][qrbn]?$/i.test(coordinateToken);
+      const declaredSanPromotion = coordinate ? undefined : semanticToken.match(/=([QRBN])(?=[+#]?$)/)?.[1].toLowerCase();
+      if (coordinate) {
+        if (/[+#]$/.test(semanticToken)) throw new Error("UCI evidence cannot include SAN check semantics.");
+        const from = coordinateToken.slice(0, 2).toLowerCase();
+        const to = coordinateToken.slice(2, 4).toLowerCase();
+        const promotion = coordinateToken[4]?.toLowerCase();
+        const promotes = chess.get(from as Parameters<typeof chess.get>[0])?.type === "p" && /[18]$/.test(to);
+        if (Boolean(promotion) !== promotes) throw new Error("Invalid UCI promotion evidence.");
+        move = chess.move({ from, to, promotion });
+      } else {
+        move = chess.move(semanticToken, { strict: false });
+        if (semanticToken.replace(/0/g, "O") !== move.san) {
+          throw new Error("SAN evidence does not match the canonical move.");
+        }
+        if (Boolean(declaredSanPromotion) !== Boolean(move.promotion)
+          || (declaredSanPromotion && declaredSanPromotion !== move.promotion)) {
+          throw new Error("Invalid SAN promotion evidence.");
+        }
+      }
+      if (move.san === "--") throw new Error("Null moves are not valid replay evidence.");
+      const position = replayPositionKey(chess);
+      repetitions.set(position, (repetitions.get(position) ?? 0) + 1);
+      return `${move.from}${move.to}${move.promotion ?? ""}`;
+    });
+  } catch {
+    return null;
+  }
+}
+
+function parseReplayPgn(pgn: string, allowHalfmoveContinuation = false): ParsedReplayPgn | null {
+  const { movetext, resultTags, tags } = extractPgnSections(pgn);
+  const body = stripPgnAnnotations(movetext);
+  if (body === null) return null;
+  const moves: string[] = [];
+  let result: string | undefined;
+  const tokens = body.replace(/(\$\d+)/g, " $1 ").split(/\s+/).filter(Boolean);
+  for (const rawToken of tokens) {
+    // Comments and variations are gone; no mainline token may follow termination.
+    if (result !== undefined) return null;
+    const token = rawToken.replace(/^\d+\.{1,3}/, "");
+    if (!token || /^\$\d+$/.test(token)) continue;
+    if (/^(1-0|0-1|1\/2-1\/2|\*)$/.test(token)) result = token;
+    else moves.push(token);
+  }
+  const canonicalUci = canonicalReplayMoves(moves, false, allowHalfmoveContinuation);
+  if (!canonicalUci || resultTags.length > 1) return null;
+  if (resultTags.some((tag) => tag !== result)) return null;
+  const tagMap = new Map(tags);
+  const plyCount = tagMap.get("PlyCount");
+  if (plyCount !== undefined && (!/^(?:0|[1-9]\d*)$/.test(plyCount) || Number(plyCount) !== canonicalUci.length)) return null;
+  return { moves, canonicalUci, result, tags: tagMap };
+}
+
+function matchesReplayIdentity(replay: ParsedReplayPgn | null, provider: LatestGame["provider"], gameId: string, white: string | undefined, black: string | undefined): boolean {
+  if (!replay) return false;
+  const declaredWhite = replay.tags.get("White");
+  const declaredBlack = replay.tags.get("Black");
+  if ((declaredWhite !== undefined && declaredWhite.toLowerCase() !== white?.toLowerCase())
+    || (declaredBlack !== undefined && declaredBlack.toLowerCase() !== black?.toLowerCase())) return false;
+  const declaredUrls = [
+    ["Site", replay.tags.get("Site")],
+    ["Link", replay.tags.get("Link")],
+  ] as const;
+  return declaredUrls.every(([tag, value]) => {
+    if (value === undefined) return true;
+    if (value !== value.trim()) return false;
+    if (provider === "chesscom") {
+      if (tag === "Site" && value.toLowerCase() === "chess.com") return true;
+      return /^https:\/\/(?:www\.)?chess\.com\/game\/(?:live|daily)\/\d+\/?$/i.test(value)
+        && normalizeChessComGameUrl(value) === normalizeChessComGameUrl(gameId);
+    }
+    const pathId = value.match(/^https:\/\/lichess\.org\/([A-Za-z0-9]{8}(?:[A-Za-z0-9]{4})?)$/i)?.[1];
+    return pathId?.slice(0, 8) === gameId.slice(0, 8);
+  });
+}
+
+function matchesLichessReplayTermination(replay: ParsedReplayPgn | null, status: string | undefined): boolean {
+  const termination = replay?.tags.get("Termination")?.toLowerCase();
+  if (termination === undefined) return true;
+  if (termination === "time forfeit") return status === "timeout" || status === "outoftime";
+  if (termination === "normal") return !["timeout", "outoftime"].includes(status ?? "");
+  return false;
+}
+
+function matchesChessComReplayTermination(replay: ParsedReplayPgn | null, whiteResult: string | undefined, blackResult: string | undefined, whiteUsername: string | undefined, blackUsername: string | undefined): boolean {
+  const termination = replay?.tags.get("Termination")?.toLowerCase();
+  if (termination === undefined) return true;
+  const results = [whiteResult, blackResult];
+  const winner = whiteResult === "win" ? whiteUsername : blackResult === "win" ? blackUsername : undefined;
+  const winnerPrefix = winner?.toLowerCase();
+  if (winnerPrefix && termination === `${winnerPrefix} won by checkmate`) {
+    return replayCanonicalPosition(replay)?.isCheckmate() === true && results.includes("checkmated");
+  }
+  if (winnerPrefix && termination === `${winnerPrefix} won by resignation`) return results.includes("resigned");
+  if (winnerPrefix && termination === `${winnerPrefix} won on time`) return results.includes("timeout");
+  if (winnerPrefix && termination === `${winnerPrefix} won by abandonment`) return results.includes("abandoned");
+  if (termination === "game drawn by timeout vs insufficient material") return results.every((result) => result === "timevsinsufficient");
+  if (termination === "game drawn by repetition") return results.every((result) => result === "repetition");
+  if (termination === "game drawn by stalemate") return results.every((result) => result === "stalemate");
+  if (termination === "game drawn by insufficient material") return results.every((result) => result === "insufficient");
+  if (termination === "game drawn by agreement") return results.every((result) => result === "agreed");
+  if (termination === "game drawn by 50-move rule") return results.every((result) => result === "50move");
+  return false;
+}
+
+function replayCanonicalPosition(replay: ParsedReplayPgn | null): Chess | null {
+  if (!replay) return null;
+  const chess = new Chess();
+  try {
+    for (const token of replay.canonicalUci) {
+      chess.move({
+        from: token.slice(0, 2),
+        to: token.slice(2, 4),
+        promotion: token[4],
+      });
+    }
+    return chess;
+  } catch {
+    return null;
+  }
+}
+
+function getAutomaticReplayDraw(replay: ParsedReplayPgn | null): { fivefold: boolean; halfmove: boolean } | null {
+  if (!replay) return null;
+  const chess = new Chess();
+  const repetitions = new Map([[replayPositionKey(chess), 1]]);
+  try {
+    for (const token of replay.canonicalUci) {
+      chess.move({
+        from: token.slice(0, 2),
+        to: token.slice(2, 4),
+        promotion: token[4],
+      });
+      const position = replayPositionKey(chess);
+      repetitions.set(position, (repetitions.get(position) ?? 0) + 1);
+    }
+    return {
+      fivefold: (repetitions.get(replayPositionKey(chess)) ?? 0) >= 5,
+      halfmove: replayHalfmoveClock(chess) >= 100,
+    };
+  } catch {
+    return null;
+  }
+}
+
+function hasLichessTimeoutMatingMaterial(chess: Chess, color: "w" | "b"): boolean {
+  const board = chess.board();
+  const ownPieces = board.flat().filter((piece) => piece?.color === color && piece.type !== "k");
+  if (ownPieces.length === 0) return false;
+  if (ownPieces.length === 1 && ownPieces[0]?.type === "n") {
+    const opponentPieces = board.flat().filter((piece) => piece !== null && piece.color !== color && piece.type !== "k");
+    if (opponentPieces.every((piece) => piece?.type === "q")) return false;
+  }
+  if (ownPieces.every((piece) => piece?.type === "b")) {
+    const bishopSquareColors = new Set<number>();
+    board.forEach((rank, rankIndex) => rank.forEach((piece, fileIndex) => {
+      if (piece?.type === "b") bishopSquareColors.add((rankIndex + fileIndex) % 2);
+    }));
+    const opponentHasKnightOrPawn = board.flat().some((piece) => piece !== null && piece.color !== color && (piece.type === "n" || piece.type === "p"));
+    return bishopSquareColors.size > 1 || opponentHasKnightOrPawn;
+  }
+  return true;
+}
+
+function hasChessComAutomaticInsufficientMaterial(chess: Chess): boolean {
+  const pieces = chess.board().flat().filter((piece): piece is NonNullable<typeof piece> => piece !== null && piece.type !== "k");
+  if (pieces.some((piece) => piece.type === "p" || piece.type === "r" || piece.type === "q")) return false;
+  const white = pieces.filter((piece) => piece.color === "w");
+  const black = pieces.filter((piece) => piece.color === "b");
+  if (white.length <= 1 && black.length <= 1) return true;
+  return (white.length === 2 && white.every((piece) => piece.type === "n") && black.length === 0)
+    || (black.length === 2 && black.every((piece) => piece.type === "n") && white.length === 0);
+}
+
+function replayContinuesAfterChessComAutomaticInsufficient(replay: ParsedReplayPgn): boolean {
+  const chess = new Chess();
+  for (const token of replay.canonicalUci) {
+    if (hasChessComAutomaticInsufficientMaterial(chess)) return true;
+    chess.move({
+      from: token.slice(0, 2),
+      to: token.slice(2, 4),
+      promotion: token[4],
+    });
+  }
+  return false;
+}
+
+function hasChessComTimeoutMatingMaterial(chess: Chess, color: "w" | "b"): boolean {
+  const pieces = chess.board().flat().filter((piece) => piece?.color === color && piece.type !== "k");
+  return pieces.some((piece) => piece?.type === "p" || piece?.type === "r" || piece?.type === "q")
+    || pieces.length >= 2;
+}
+
+function hasLichessTerminalPosition(replay: ParsedReplayPgn | null, status: string | undefined, winner: unknown): boolean {
+  const chess = replayCanonicalPosition(replay);
+  if (!chess) return false;
+  if (chess.isCheckmate()) {
+    const checkmatingColor = chess.turn() === "w" ? "black" : "white";
+    return status === "mate" && winner === checkmatingColor;
+  }
+  if (chess.isStalemate()) return status === "stalemate" && winner === undefined;
+  if (chess.isInsufficientMaterial()) return status === "draw" && winner === undefined;
+  const automaticDraw = getAutomaticReplayDraw(replay);
+  if (automaticDraw?.fivefold || automaticDraw?.halfmove) return status === "draw" && winner === undefined;
+  if (status === "timeout" && winner === undefined) return true;
+  if (["timeout", "outoftime"].includes(status ?? "")) {
+    const sideToMove = chess.turn() === "w" ? "white" : "black";
+    const nonFlaggingColor = sideToMove === "white" ? "b" : "w";
+    if (winner === undefined) return !hasLichessTimeoutMatingMaterial(chess, nonFlaggingColor);
+    const winnerColor = winner === "white" ? "w" : winner === "black" ? "b" : null;
+    return winner === (sideToMove === "white" ? "black" : "white")
+      && winnerColor !== null
+      && hasLichessTimeoutMatingMaterial(chess, winnerColor);
+  }
+  return status !== "mate" && status !== "stalemate";
+}
+
+function hasChessComTerminalPosition(replay: ParsedReplayPgn | null, whiteResult: string | undefined, blackResult: string | undefined, gameMode: "live" | "daily" = "live"): boolean {
+  const chess = replayCanonicalPosition(replay);
+  if (!chess) return false;
+  if (replay && replayContinuesAfterChessComAutomaticInsufficient(replay)) return false;
+  if (chess.isCheckmate()) {
+    return chess.turn() === "w"
+      ? whiteResult === "checkmated" && blackResult === "win"
+      : blackResult === "checkmated" && whiteResult === "win";
+  }
+  if (chess.isStalemate()) return whiteResult === "stalemate" && blackResult === "stalemate";
+  if (chess.isInsufficientMaterial() || hasChessComAutomaticInsufficientMaterial(chess)) return whiteResult === "insufficient" && blackResult === "insufficient";
+
+  const results = [whiteResult, blackResult];
+  const automaticDraw = getAutomaticReplayDraw(replay);
+  if (automaticDraw?.fivefold || (gameMode === "live" && automaticDraw?.halfmove)) {
+    return (automaticDraw.fivefold && results.every((result) => result === "repetition"))
+      || (automaticDraw.halfmove && results.every((result) => result === "50move"));
+  }
+  if (results.some((result) => ["checkmated", "stalemate", "insufficient"].includes(result ?? ""))) return false;
+  if (results.includes("timeout")) {
+    const flaggingColor = chess.turn();
+    const winnerColor = flaggingColor === "w" ? "b" : "w";
+    return (flaggingColor === "w"
+      ? whiteResult === "timeout" && blackResult === "win"
+      : blackResult === "timeout" && whiteResult === "win")
+      && hasChessComTimeoutMatingMaterial(chess, winnerColor);
+  }
+  if (results.includes("repetition")) return chess.isThreefoldRepetition();
+  if (results.includes("50move")) return chess.isDrawByFiftyMoves();
+  if (results.includes("timevsinsufficient")) {
+    const nonFlaggingColor = chess.turn() === "w" ? "b" : "w";
+    return !hasChessComTimeoutMatingMaterial(chess, nonFlaggingColor);
+  }
+  return true;
+}
+
+function hasCompleteReplayPgn(replay: ParsedReplayPgn | null, outcome: LatestGame["outcome"], playerColor: LatestGame["playerColor"], providerMoves?: string[] | null) {
+  if (!replay?.result || replay.result === "*") return false;
+  const pgnOutcome = replay.result === "1/2-1/2" ? "draw"
+    : (replay.result === "1-0") === (playerColor === "white") ? "win" : "lose";
+  if (outcome === "unknown" || outcome !== pgnOutcome) return false;
+  if (providerMoves === undefined) return true;
+  return providerMoves !== null && providerMoves.length === replay.canonicalUci.length
+    && providerMoves.every((move, index) => move === replay.canonicalUci[index]);
 }
 
 function getChessComStartedGameAt(pgn?: string) {
@@ -493,6 +879,14 @@ function getChessComStartedGameAt(pgn?: string) {
   if (!date) return undefined;
   const parsed = Date.parse(`${date}T${time}Z`);
   return Number.isFinite(parsed) ? new Date(parsed).toISOString() : undefined;
+}
+
+function getChessComCompletedGameAt(value: unknown): string | undefined {
+  if (typeof value !== "number" || !Number.isSafeInteger(value) || value <= 0) return undefined;
+  const timestamp = value * 1000;
+  if (!Number.isFinite(timestamp)) return undefined;
+  const date = new Date(timestamp);
+  return Number.isFinite(date.getTime()) ? date.toISOString() : undefined;
 }
 
 type Snapshot = { ply: number; moveNumber: number; fen: string; san?: string; uci?: string; before: Map<string, { type: string; color: "w" | "b"; origin: string; moved: boolean }>; after: Map<string, { type: string; color: "w" | "b"; origin: string; moved: boolean }> };
