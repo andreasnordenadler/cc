@@ -897,7 +897,7 @@ function mergeOfficialParticipantCopies(base: ServerGroupQuest, copies: ServerGr
       }
     }
   }
-  return { ...base, participants: Array.from(participantsByUserId.values()).slice(0, MAX_PARTICIPANTS) };
+  return { ...base, participants: Array.from(participantsByUserId.values()) };
 }
 
 function mergeStoredPublicGroupQuestCopies(copies: Array<{ userId: string; quest: ServerGroupQuest }>) {
