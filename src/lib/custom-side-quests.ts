@@ -67,6 +67,7 @@ type LatestGame = {
   gameId: string;
   username: string;
   pgnMoves: string[];
+  standardStart: boolean;
   uciMoves?: string[];
   playerColor: "white" | "black";
   status: "finished" | "open" | "unknown";
@@ -338,7 +339,7 @@ async function fetchLatestLichessGame(username: string): Promise<LatestGame | nu
   if (body === null) return null;
   const [line] = body.split("\n").filter(Boolean);
   if (!line) return null;
-  const game = JSON.parse(line) as { id?: string; status?: string; winner?: "white" | "black"; moves?: string; pgn?: string; createdAt?: number; lastMoveAt?: number; players?: { white?: { user?: { name?: string } }; black?: { user?: { name?: string } } } };
+  const game = JSON.parse(line) as { id?: string; status?: string; winner?: "white" | "black"; moves?: string; pgn?: string; variant?: unknown; initialFen?: unknown; createdAt?: number; lastMoveAt?: number; players?: { white?: { user?: { name?: string } }; black?: { user?: { name?: string } } } };
   const normalized = username.trim().toLowerCase();
   const white = game.players?.white?.user?.name?.toLowerCase();
   const black = game.players?.black?.user?.name?.toLowerCase();
@@ -346,7 +347,7 @@ async function fetchLatestLichessGame(username: string): Promise<LatestGame | nu
   if (!playerColor) return null;
   const moveTokens = (game.moves ?? "").split(/\s+/).filter(Boolean);
   const uciMoves = moveTokens.length && moveTokens.every((token) => /^[a-h][1-8][a-h][1-8][qrbn]?$/i.test(token)) ? moveTokens : undefined;
-  return { provider: "lichess", gameId: game.id ?? "lichess-latest-game", username, pgnMoves: extractSanMoveTokens(game.pgn ?? game.moves ?? ""), uciMoves, playerColor, status: game.status && !["created", "started"].includes(game.status) ? "finished" : "open", outcome: getLichessOutcome(game.status, game.winner, playerColor), startedGameAt: typeof game.createdAt === "number" ? new Date(game.createdAt).toISOString() : undefined, completedGameAt: typeof (game.lastMoveAt ?? game.createdAt) === "number" ? new Date((game.lastMoveAt ?? game.createdAt) as number).toISOString() : undefined };
+  return { provider: "lichess", gameId: game.id ?? "lichess-latest-game", username, standardStart: (game.variant === undefined || game.variant === "standard") && hasStandardPgnStart(game.pgn, game.initialFen), pgnMoves: extractSanMoveTokens(game.pgn ?? game.moves ?? ""), uciMoves, playerColor, status: game.status && !["created", "started"].includes(game.status) ? "finished" : "open", outcome: getLichessOutcome(game.status, game.winner, playerColor), startedGameAt: typeof game.createdAt === "number" ? new Date(game.createdAt).toISOString() : undefined, completedGameAt: typeof (game.lastMoveAt ?? game.createdAt) === "number" ? new Date((game.lastMoveAt ?? game.createdAt) as number).toISOString() : undefined };
 }
 
 async function fetchSubmittedLichessGame(username: string, gameId: string): Promise<LatestGame | null> {
@@ -354,7 +355,7 @@ async function fetchSubmittedLichessGame(username: string, gameId: string): Prom
   const game = await fetchBoundedProviderJson(`https://lichess.org/game/export/${encodeURIComponent(gameId)}`, {
     headers: { Accept: "application/json", "User-Agent": "cc-verifier/0.1 (+https://sidequestchess.com)" },
     cache: "no-store",
-  }) as { id?: string; status?: string; winner?: "white" | "black"; moves?: string; pgn?: string; createdAt?: number; lastMoveAt?: number; players?: { white?: { user?: { name?: string } }; black?: { user?: { name?: string } } } } | null;
+  }) as { id?: string; status?: string; winner?: "white" | "black"; moves?: string; pgn?: string; variant?: unknown; initialFen?: unknown; createdAt?: number; lastMoveAt?: number; players?: { white?: { user?: { name?: string } }; black?: { user?: { name?: string } } } } | null;
   if (!game) return null;
   const normalized = username.trim().toLowerCase();
   const white = game.players?.white?.user?.name?.toLowerCase();
@@ -363,7 +364,7 @@ async function fetchSubmittedLichessGame(username: string, gameId: string): Prom
   if (!playerColor) return null;
   const moveTokens = (game.moves ?? "").split(/\s+/).filter(Boolean);
   const uciMoves = moveTokens.length && moveTokens.every((token) => /^[a-h][1-8][a-h][1-8][qrbn]?$/i.test(token)) ? moveTokens : undefined;
-  return { provider: "lichess", gameId: game.id ?? gameId, username, pgnMoves: extractSanMoveTokens(game.pgn ?? game.moves ?? ""), uciMoves, playerColor, status: game.status && !["created", "started"].includes(game.status) ? "finished" : "open", outcome: getLichessOutcome(game.status, game.winner, playerColor), startedGameAt: typeof game.createdAt === "number" ? new Date(game.createdAt).toISOString() : undefined, completedGameAt: typeof (game.lastMoveAt ?? game.createdAt) === "number" ? new Date((game.lastMoveAt ?? game.createdAt) as number).toISOString() : undefined };
+  return { provider: "lichess", gameId: game.id ?? gameId, username, standardStart: (game.variant === undefined || game.variant === "standard") && hasStandardPgnStart(game.pgn, game.initialFen), pgnMoves: extractSanMoveTokens(game.pgn ?? game.moves ?? ""), uciMoves, playerColor, status: game.status && !["created", "started"].includes(game.status) ? "finished" : "open", outcome: getLichessOutcome(game.status, game.winner, playerColor), startedGameAt: typeof game.createdAt === "number" ? new Date(game.createdAt).toISOString() : undefined, completedGameAt: typeof (game.lastMoveAt ?? game.createdAt) === "number" ? new Date((game.lastMoveAt ?? game.createdAt) as number).toISOString() : undefined };
 }
 
 async function fetchLatestChessComGame(username: string): Promise<LatestGame | null> {
@@ -372,13 +373,13 @@ async function fetchLatestChessComGame(username: string): Promise<LatestGame | n
   if (!archivePayload) return null;
   const archives = archivePayload.archives ?? [];
   for (const archive of archives.filter((value) => isAuthenticatedChessComArchiveUrl(value, username)).slice(-3).reverse()) {
-    const archiveGames = await fetchBoundedProviderJson(archive, { headers: { Accept: "application/json", "User-Agent": "cc-verifier/0.1 (+https://sidequestchess.com)" }, cache: "no-store" }) as { games?: Array<{ url?: string; pgn?: string; end_time?: number; white?: { username?: string; result?: string }; black?: { username?: string; result?: string } }> } | null;
+    const archiveGames = await fetchBoundedProviderJson(archive, { headers: { Accept: "application/json", "User-Agent": "cc-verifier/0.1 (+https://sidequestchess.com)" }, cache: "no-store" }) as { games?: Array<{ url?: string; pgn?: string; rules?: unknown; end_time?: number; white?: { username?: string; result?: string }; black?: { username?: string; result?: string } }> } | null;
     if (!archiveGames) continue;
     const games = archiveGames.games ?? [];
     const game = games.reverse().find((item) => item.white?.username?.toLowerCase() === username.trim().toLowerCase() || item.black?.username?.toLowerCase() === username.trim().toLowerCase());
     if (!game) continue;
     const playerColor = game.white?.username?.toLowerCase() === username.trim().toLowerCase() ? "white" : "black";
-    return { provider: "chesscom", gameId: game.url ?? "chesscom-latest-game", username, pgnMoves: extractSanMoveTokens(game.pgn ?? ""), playerColor, status: game.end_time ? "finished" : "open", outcome: getChessComOutcome(playerColor === "white" ? game.white?.result : game.black?.result), startedGameAt: getChessComStartedGameAt(game.pgn), completedGameAt: game.end_time ? new Date(game.end_time * 1000).toISOString() : undefined };
+    return { provider: "chesscom", gameId: game.url ?? "chesscom-latest-game", username, standardStart: (game.rules === undefined || game.rules === "chess") && hasStandardPgnStart(game.pgn), pgnMoves: extractSanMoveTokens(game.pgn ?? ""), playerColor, status: game.end_time ? "finished" : "open", outcome: getChessComOutcome(playerColor === "white" ? game.white?.result : game.black?.result), startedGameAt: getChessComStartedGameAt(game.pgn), completedGameAt: game.end_time ? new Date(game.end_time * 1000).toISOString() : undefined };
   }
   return null;
 }
@@ -397,7 +398,7 @@ async function fetchSubmittedChessComGame(username: string, gameUrl: string, act
     .slice(-MAX_SUBMITTED_CHESSCOM_ARCHIVE_MONTHS)
     .reverse();
   for (const archive of eligibleArchives) {
-    const archiveGames = await fetchBoundedProviderJson(archive, { headers, cache: "no-store" }) as { games?: Array<{ url?: string; pgn?: string; end_time?: number; white?: { username?: string; result?: string }; black?: { username?: string; result?: string } }> } | null;
+    const archiveGames = await fetchBoundedProviderJson(archive, { headers, cache: "no-store" }) as { games?: Array<{ url?: string; pgn?: string; rules?: unknown; end_time?: number; white?: { username?: string; result?: string }; black?: { username?: string; result?: string } }> } | null;
     if (!archiveGames) continue;
     const games = archiveGames.games ?? [];
     const game = games.find((item) => item.url && normalizeChessComGameUrl(item.url) === normalizedTarget);
@@ -405,7 +406,7 @@ async function fetchSubmittedChessComGame(username: string, gameUrl: string, act
     const normalizedUsername = username.trim().toLowerCase();
     const playerColor = game.white?.username?.toLowerCase() === normalizedUsername ? "white" : game.black?.username?.toLowerCase() === normalizedUsername ? "black" : null;
     if (!playerColor) return null;
-    return { provider: "chesscom", gameId: game.url ?? gameUrl, username, pgnMoves: extractSanMoveTokens(game.pgn ?? ""), playerColor, status: game.end_time ? "finished" : "open", outcome: getChessComOutcome(playerColor === "white" ? game.white?.result : game.black?.result), startedGameAt: getChessComStartedGameAt(game.pgn), completedGameAt: game.end_time ? new Date(game.end_time * 1000).toISOString() : undefined };
+    return { provider: "chesscom", gameId: game.url ?? gameUrl, username, standardStart: (game.rules === undefined || game.rules === "chess") && hasStandardPgnStart(game.pgn), pgnMoves: extractSanMoveTokens(game.pgn ?? ""), playerColor, status: game.end_time ? "finished" : "open", outcome: getChessComOutcome(playerColor === "white" ? game.white?.result : game.black?.result), startedGameAt: getChessComStartedGameAt(game.pgn), completedGameAt: game.end_time ? new Date(game.end_time * 1000).toISOString() : undefined };
   }
   return null;
 }
@@ -453,6 +454,24 @@ function getChessComOutcome(result: string | undefined): LatestGame["outcome"] {
   return "unknown";
 }
 
+function hasStandardPgnStart(pgn?: string, initialFen?: unknown): boolean {
+  const standardFen = new Chess().fen();
+  if (initialFen !== undefined && initialFen !== standardFen) return false;
+  const tags = new Map<string, string>();
+  for (const match of (pgn ?? "").matchAll(/\[\s*(FEN|Variant|SetUp)\b[^\]\r\n]*\]?/g)) {
+    const tag = match[0].match(/^\[(FEN|Variant|SetUp)\s+"([^"\\]*)"\s*\]$/);
+    if (!tag || tags.has(tag[1])) return false;
+    tags.set(tag[1], tag[2]);
+  }
+  const fen = tags.get("FEN");
+  const variant = tags.get("Variant");
+  const setup = tags.get("SetUp");
+  if (variant !== undefined && variant !== "Standard") return false;
+  if (setup !== undefined && setup !== "0" && setup !== "1") return false;
+  if (setup === "1" && fen === undefined) return false;
+  return fen === undefined || fen === standardFen;
+}
+
 function extractSanMoveTokens(pgn: string): string[] {
   const body = pgn.includes("\n\n") ? pgn.split(/\r?\n\r?\n/).slice(1).join("\n") : pgn;
   return body.replace(/\{[^}]*\}/g, " ").replace(/\([^)]*\)/g, " ").split(/\s+/).map((token) => token.trim()).filter(Boolean).filter((token) => !/^\d+\.{1,3}$/.test(token) && !/^(1-0|0-1|1\/2-1\/2|\*)$/.test(token)).map((token) => token.replace(/^\d+\.{1,3}/, "").replace(/\$\d+/g, "")).filter(Boolean);
@@ -468,6 +487,7 @@ function getChessComStartedGameAt(pgn?: string) {
 
 type Snapshot = { ply: number; moveNumber: number; fen: string; san?: string; uci?: string; before: Map<string, { type: string; color: "w" | "b"; origin: string; moved: boolean }>; after: Map<string, { type: string; color: "w" | "b"; origin: string; moved: boolean }> };
 function replayGame(game: LatestGame) {
+  if (!game.standardStart) return { snapshots: [] };
   const chess = new Chess();
   let pieces = initialPieces();
   const snapshots: Snapshot[] = [];
