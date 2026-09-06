@@ -95,7 +95,7 @@ test("provider JSON reads do not fall back to an unbounded bodyless text read", 
 test("latest Lichess proof rejects an oversized provider payload", async (t) => {
   const originalFetch = globalThis.fetch;
   const validGame = JSON.stringify({
-    id: "Latest123",
+    id: "Latest12",
     status: "mate",
     winner: "white",
     createdAt: Date.parse("2026-07-18T10:00:00.000Z"),
@@ -500,7 +500,7 @@ test("latest custom checks keep active snapshot rules after mutable edit, delete
   t.after(() => Object.defineProperty(process.env, "NODE_ENV", { value: previousNodeEnv, configurable: true, writable: true, enumerable: true }));
   const originalFetch = globalThis.fetch;
   globalThis.fetch = async () => new Response(`${JSON.stringify({
-    id: "Latest123",
+    id: "Latest12",
     status: "mate",
     winner: "white",
     createdAt: Date.parse("2026-07-18T10:00:00.000Z"),
@@ -537,7 +537,7 @@ test("latest custom check returns a server-derived celebration only for a new co
   t.after(() => Object.defineProperty(process.env, "NODE_ENV", { value: previousNodeEnv, configurable: true, writable: true, enumerable: true }));
   const originalFetch = globalThis.fetch;
   globalThis.fetch = async () => new Response(`${JSON.stringify({
-    id: "Latest123",
+    id: "Latest12",
     status: "mate",
     winner: "white",
     createdAt: Date.parse("2026-07-18T10:00:00.000Z"),
@@ -589,7 +589,7 @@ test("latest Community check returns the authoritative Community coat and label"
   t.after(() => Object.defineProperty(process.env, "NODE_ENV", { value: previousNodeEnv, configurable: true, writable: true, enumerable: true }));
   const originalFetch = globalThis.fetch;
   globalThis.fetch = async () => new Response(`${JSON.stringify({
-    id: "Latest123",
+    id: "Latest12",
     status: "mate",
     winner: "white",
     createdAt: Date.parse("2026-07-18T10:00:00.000Z"),
@@ -635,7 +635,7 @@ test("overlapping latest checks emit one Custom completion celebration", async (
   t.after(() => Object.defineProperty(process.env, "NODE_ENV", { value: previousNodeEnv, configurable: true, writable: true, enumerable: true }));
   const originalFetch = globalThis.fetch;
   globalThis.fetch = async () => new Response(`${JSON.stringify({
-    id: "Latest123", status: "mate", winner: "white",
+    id: "Latest12", status: "mate", winner: "white",
     createdAt: Date.parse("2026-07-18T10:00:00.000Z"), lastMoveAt: Date.parse("2026-07-18T10:10:00.000Z"),
     moves: "e2e4 e7e5 d1h5 b8c6 f1c4 g8f6 h5f7",
     players: { white: { user: { name: "Alice" } }, black: { user: { name: "Bob" } } },
@@ -671,7 +671,7 @@ test("latest custom checks persist only the canonical bounded active snapshot", 
   t.after(() => Object.defineProperty(process.env, "NODE_ENV", { value: previousNodeEnv, configurable: true, writable: true, enumerable: true }));
   const originalFetch = globalThis.fetch;
   globalThis.fetch = async () => new Response(`${JSON.stringify({
-    id: "Latest123",
+    id: "Latest12",
     status: "mate",
     winner: "white",
     createdAt: Date.parse("2026-07-18T10:00:00.000Z"),
