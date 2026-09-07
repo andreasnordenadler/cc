@@ -14,6 +14,7 @@ import {
 function publicQuest(overrides: Partial<PublicMultiplayerQuestSource> = {}): PublicMultiplayerQuestSource {
   return {
     id: "official-real-quest",
+    hostName: "Side Quest Chess",
     name: "Real public quest",
     official: true,
     inviteMode: "public",
@@ -71,6 +72,18 @@ test("signed-out mobile catalog exposes populated real public quest records with
   assert.equal(findSignedOutPublicMultiplayerQuest(mobileCatalog.official, "official-real-quest")?.title, "Real public quest");
   assert.equal(findSignedOutPublicMultiplayerQuest(mobileCatalog.official, "official-preview-knights"), null);
   assert.equal(findSignedOutPublicMultiplayerQuest(mobileCatalog.official, "nonexistent-fixture-id"), null);
+});
+
+test("signed-out mobile catalog rejects an objectionable unresolved challenge label", async () => {
+  const catalog = await loadMobilePublicMultiplayerCatalog({
+    baseUrl: "https://sqc.test",
+    now: new Date("2026-07-13T12:00:00.000Z"),
+    listPublicGroupQuests: async () => [publicQuest({ questIds: ["sh1t"] })],
+  });
+
+  assert.equal(catalog.status, "available");
+  assert.deepEqual(catalog.officialGroupQuests, []);
+  assert.deepEqual(catalog.communityGroupQuests, []);
 });
 
 test("signed-out mobile catalog renders an honest empty state when no public quests exist", async () => {

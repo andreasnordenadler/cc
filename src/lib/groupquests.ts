@@ -1,3 +1,5 @@
+import { CHALLENGES } from "./challenges";
+import { parseCustomRuleConfig } from "./custom-side-quests";
 import { containsObjectionablePublicText } from "./ugc-content-filter";
 import { getPreferredRunnerName, sanitizePublicIdentityName, type UserMetadataRecord } from "./user-metadata";
 import {
@@ -578,13 +580,78 @@ function clerkPageBound(totalCount: unknown) {
     : undefined;
 }
 
-function hasObjectionablePublicGroupQuestText(quest: ServerGroupQuest) {
+export function getPublicGroupQuestParticipantIdentity(
+  participant: Pick<GroupQuestParticipant, "username" | "leaderboardName">,
+) {
+  const leaderboardName = sanitizePublicIdentityName(participant.leaderboardName, "Quest runner");
+  return {
+    username: containsObjectionablePublicText(participant.username) ? "Hidden player" : participant.username,
+    leaderboardName: containsObjectionablePublicText(leaderboardName) ? "Quest runner" : leaderboardName,
+  };
+}
+
+export function getPublicGroupQuestProofSummary(value: string | undefined) {
+  const summary = value?.trim();
+  return summary && !containsObjectionablePublicText(summary) ? summary : undefined;
+}
+
+export function getGroupQuestChallengeTitle(
+  quest: Pick<ServerGroupQuest, "customQuestSnapshots">,
+  challengeId: string,
+) {
+  return quest.customQuestSnapshots?.find((snapshot) => snapshot.id === challengeId)?.title
+    ?? CHALLENGES.find((challenge) => challenge.id === challengeId)?.title
+    ?? challengeId;
+}
+
+function redactObjectionablePublicParticipantIdentities(quest: ServerGroupQuest): ServerGroupQuest {
+  return {
+    ...quest,
+    participants: quest.participants.map((participant) => ({
+      ...participant,
+      ...getPublicGroupQuestParticipantIdentity(participant),
+      lastProofSummary: getPublicGroupQuestProofSummary(participant.lastProofSummary),
+    })),
+  };
+}
+
+function getPublicCustomRuleText(config: string): string[] {
+  const values = [config];
+  try {
+    const decoded = JSON.parse(config) as unknown;
+    const pending = [decoded];
+    while (pending.length) {
+      const value = pending.pop();
+      if (typeof value === "string") values.push(value);
+      else if (Array.isArray(value)) pending.push(...value);
+      else if (value && typeof value === "object") pending.push(...Object.values(value));
+    }
+  } catch {
+    // Malformed legacy configuration remains represented by its persisted text.
+  }
+  const parsed = parseCustomRuleConfig(config);
+  if (parsed) {
+    for (const block of parsed.blocks) {
+      if (block.type === "openingSequence") values.push(block.moves.join(" "));
+      if (block.type === "moveSequence") values.push(block.sequence);
+    }
+  }
+  return values;
+}
+
+export function hasObjectionablePublicGroupQuestMetadata(
+  quest: Pick<ServerGroupQuest, "name" | "inviteCopy" | "hostName" | "providerLabel" | "startAt" | "endAt" | "rules" | "questIds" | "customQuestSnapshots">,
+) {
   return containsObjectionablePublicText(
     quest.name,
     quest.inviteCopy,
     quest.hostName,
-    ...(quest.customQuestSnapshots ?? []).flatMap((snapshot) => [snapshot.title, snapshot.summary, snapshot.config]),
-    ...quest.participants.flatMap((participant) => [participant.leaderboardName, participant.username]),
+    quest.providerLabel,
+    quest.startAt,
+    quest.endAt,
+    ...Object.values(quest.rules),
+    ...quest.questIds.map((questId) => getGroupQuestChallengeTitle(quest, questId)),
+    ...(quest.customQuestSnapshots ?? []).flatMap((snapshot) => [snapshot.title, snapshot.summary, ...getPublicCustomRuleText(snapshot.config)]),
   );
 }
 
@@ -604,7 +671,8 @@ export async function listPublicGroupQuests(
     ...mergeStoredPublicGroupQuestCopies(storedCopies.filter(({ quest }) => !builtInOfficialQuestIds.has(quest.id)))
       .filter((quest) => quest.inviteMode === "public"),
   ]
-    .filter((quest) => !hasObjectionablePublicGroupQuestText(quest))
+    .filter((quest) => !hasObjectionablePublicGroupQuestMetadata(quest))
+    .map(redactObjectionablePublicParticipantIdentities)
     .sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt));
 }
 
@@ -735,7 +803,10 @@ export function buildParticipant(input: {
   location?: unknown;
 }): GroupQuestParticipant | null {
   const username = cleanText(input.username, 60);
-  const leaderboardName = cleanText(input.leaderboardName, 60);
+  const requestedLeaderboardName = cleanText(input.leaderboardName, 60);
+  const leaderboardName = requestedLeaderboardName && containsObjectionablePublicText(requestedLeaderboardName)
+    ? "Quest runner"
+    : requestedLeaderboardName;
   if (!username || !leaderboardName) return null;
   return {
     userId: input.userId,

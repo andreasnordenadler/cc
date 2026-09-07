@@ -27,14 +27,19 @@ function isBlockedCandidate(candidate: string): boolean {
 }
 
 function hasBlockedToken(value: string): boolean {
-  const tokens = value.split(/\s+/u).map(canonicalToken).filter(Boolean);
-  if (tokens.some(isBlockedCandidate)) return true;
+  const tokenGroups = [
+    value.split(/\s+/u),
+    value.split(/[^\p{L}\p{N}@$]+/u),
+  ].map((tokens) => tokens.map(canonicalToken).filter(Boolean));
 
-  for (let start = 0; start < tokens.length; start += 1) {
-    let joined = "";
-    for (let end = start; end < Math.min(tokens.length, start + 8); end += 1) {
-      joined += tokens[end];
-      if (isBlockedCandidate(joined)) return true;
+  for (const tokens of tokenGroups) {
+    if (tokens.some(isBlockedCandidate)) return true;
+    for (let start = 0; start < tokens.length; start += 1) {
+      let joined = "";
+      for (let end = start; end < Math.min(tokens.length, start + 8); end += 1) {
+        joined += tokens[end];
+        if (isBlockedCandidate(joined)) return true;
+      }
     }
   }
   return false;
