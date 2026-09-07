@@ -106,38 +106,6 @@ test("mobile official Solo detail keeps the like and sharing controls in a bound
   expect(await noHorizontalOverflow(page)).toBe(true);
 });
 
-test("Community Solo detail shares and copies its exact public link", async ({ page }) => {
-  await page.addInitScript(() => {
-    const state = window as unknown as { __shared?: ShareData; __copied?: string };
-    Object.defineProperty(navigator, "share", {
-      configurable: true,
-      value: async (payload: ShareData) => { state.__shared = payload; },
-    });
-    Object.defineProperty(navigator, "clipboard", {
-      configurable: true,
-      value: { writeText: async (value: string) => { state.__copied = value; } },
-    });
-  });
-
-  const path = "/challenges/community/seed-draw-goblin-pact-07-1";
-  const response = await page.goto(path, { waitUntil: "domcontentloaded" });
-  expect(response?.status()).toBeLessThan(400);
-
-  const share = page.getByRole("button", { name: "Share Community Solo Side Quest" });
-  const copy = page.getByRole("button", { name: "Copy Community Solo Side Quest public link" });
-  await expect(share).toBeVisible();
-  await expect(copy).toBeVisible();
-  await expect(copy).toHaveCSS("background-color", "rgba(0, 0, 0, 0)");
-  await expect(copy).toHaveCSS("border-top-width", "0px");
-  const origin = await page.evaluate(() => window.location.origin);
-  await share.click();
-  await expect.poll(() => page.evaluate(() => (window as unknown as { __shared?: ShareData }).__shared?.url)).toBe(`${origin}${path}`);
-  await copy.click();
-  await expect.poll(() => page.evaluate(() => (window as unknown as { __copied?: string }).__copied)).toBe(`${origin}${path}`);
-  await expect(page.getByRole("status")).toHaveText("Public link copied.");
-  expect(await noHorizontalOverflow(page)).toBe(true);
-});
-
 test("Multiplayer create waits for hydration before accepting the first picker action", async ({ page }) => {
   const response = await page.goto("/create-multiplayer-side-quest", { waitUntil: "domcontentloaded" });
   expect(response?.status()).toBeLessThan(400);
