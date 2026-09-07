@@ -114,3 +114,109 @@ for (const surface of ["web", "mobile"] as const) {
     assert.deepEqual(full, before);
   });
 }
+
+test("mobile join rejects a historical profile-truncated login email before persistence", async () => {
+  const emailPrefix = "m".repeat(60);
+  const loginEmail = `${emailPrefix}@private.example.test`;
+  const storedWrites: Array<Record<string, unknown>> = [];
+  const getUser = async (id: string) => id === "new-player"
+    ? {
+        id,
+        firstName: null,
+        lastName: null,
+        username: null,
+        primaryEmailAddress: { emailAddress: loginEmail },
+        publicMetadata: { lichessUsername: "PublicPlayer", runnerDisplayName: emailPrefix },
+        privateMetadata: {},
+      }
+    : { id, publicMetadata: {}, privateMetadata: {} };
+  const response = await mobileRoute.withMobileRefreshRouteTestDependencies({
+    authenticate: async () => "new-player",
+    getClient: async () => ({ users: {
+      getUser,
+      updateUserMetadata: async (_id: string, update: Record<string, unknown>) => { storedWrites.push(update); },
+    } }),
+    findQuest: async () => ({ userId: "host", groupQuest: quest(0) }),
+    check: async () => { throw new Error("not a proof request"); },
+  } as never, () => mobileRoute.POST(new Request("https://sqc.test/api/mobile/groupquests/capacity-quest", {
+    method: "POST",
+    body: JSON.stringify({ action: "join" }),
+  }), { params: Promise.resolve({ id: "capacity-quest" }) }));
+
+  assert.equal(response.status, 200);
+  const persisted = (storedWrites[0]?.privateMetadata as { sqcGroupQuests?: ServerGroupQuest[] })?.sqcGroupQuests?.[0];
+  assert.equal(persisted?.participants[0]?.leaderboardName, "Quest runner");
+  assert.equal(JSON.stringify(storedWrites).includes(emailPrefix), false);
+});
+
+test("mobile join rejects an email-shaped Clerk first name before persistence", async () => {
+  const loginEmail = "private.login@example.test";
+  const storedWrites: Array<Record<string, unknown>> = [];
+  const getUser = async (id: string) => id === "new-player"
+    ? {
+        id,
+        firstName: loginEmail,
+        lastName: null,
+        username: null,
+        primaryEmailAddress: { emailAddress: loginEmail },
+        publicMetadata: { lichessUsername: "PublicPlayer" },
+        privateMetadata: {},
+      }
+    : { id, publicMetadata: {}, privateMetadata: {} };
+  const response = await mobileRoute.withMobileRefreshRouteTestDependencies({
+    authenticate: async () => "new-player",
+    getClient: async () => ({ users: {
+      getUser,
+      updateUserMetadata: async (_id: string, update: Record<string, unknown>) => { storedWrites.push(update); },
+    } }),
+    findQuest: async () => ({ userId: "host", groupQuest: quest(0) }),
+    check: async () => { throw new Error("not a proof request"); },
+  } as never, () => mobileRoute.POST(new Request("https://sqc.test/api/mobile/groupquests/capacity-quest", {
+    method: "POST",
+    body: JSON.stringify({ action: "join" }),
+  }), { params: Promise.resolve({ id: "capacity-quest" }) }));
+
+  assert.equal(response.status, 200);
+  const persisted = (storedWrites[0]?.privateMetadata as { sqcGroupQuests?: ServerGroupQuest[] })?.sqcGroupQuests?.[0];
+  assert.equal(persisted?.participants[0]?.leaderboardName, "Quest runner");
+  assert.equal(JSON.stringify(storedWrites).includes(loginEmail), false);
+});
+
+test("mobile creation rejects a historical profile-truncated login email before persistence", async () => {
+  const emailPrefix = "c".repeat(60);
+  const loginEmail = `${emailPrefix}@private.example.test`;
+  const storedWrites: Array<Record<string, unknown>> = [];
+  const user = {
+    id: "creator",
+    firstName: null,
+    lastName: null,
+    username: null,
+    primaryEmailAddress: { emailAddress: loginEmail },
+    publicMetadata: { lichessUsername: "PublicCreator", runnerDisplayName: emailPrefix },
+    privateMetadata: {},
+  };
+  const response = await mobileRoute.withMobileRefreshRouteTestDependencies({
+    authenticate: async () => "creator",
+    getClient: async () => ({ users: {
+      getUser: async () => user,
+      updateUserMetadata: async (_id: string, update: Record<string, unknown>) => { storedWrites.push(update); },
+    } }),
+    findQuest: async () => { throw new Error("create must not look up an existing quest"); },
+    check: async () => { throw new Error("not a proof request"); },
+  } as never, () => mobileRoute.POST(new Request("https://sqc.test/api/mobile/groupquests/create", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({
+      action: "create",
+      name: "Fresh table",
+      providerMode: "lichess",
+      questIds: ["finish-any-game"],
+    }),
+  }), { params: Promise.resolve({ id: "create" }) }));
+
+  assert.equal(response.status, 200);
+  const persisted = (storedWrites[0]?.privateMetadata as { sqcGroupQuests?: ServerGroupQuest[] })?.sqcGroupQuests?.[0];
+  assert.equal(persisted?.hostName, "Quest host");
+  assert.equal(persisted?.participants[0]?.leaderboardName, "Quest host");
+  assert.equal(JSON.stringify(storedWrites).includes(emailPrefix), false);
+});

@@ -2,6 +2,7 @@ import { CHALLENGES } from "@/lib/challenges";
 import { getCommunityLikeSummaries, type CommunityLikeSummary } from "@/lib/community-likes";
 import { describeCustomSideQuestRuleDetails } from "@/lib/community-side-quests";
 import { findGroupQuestById, listPublicGroupQuests, listUserRelatedGroupQuests, rankGroupQuestParticipants, type ServerGroupQuest } from "@/lib/groupquests";
+import { sanitizePublicIdentityName } from "@/lib/user-metadata";
 import type { clerkClient } from "@clerk/nextjs/server";
 
 export type MobileWebMultiplayerPreview = {
@@ -208,7 +209,7 @@ export function buildMobileWebMultiplayerPreview(
     meta,
     href: `/groupquests/${quest.id}${joined && !isOwner ? "?accepted=1" : ""}`,
     sourceBadge,
-    hostName: quest.hostName,
+    hostName: sanitizePublicIdentityName(quest.hostName, "Quest host"),
     publiclyListed: quest.inviteMode === "public",
     ...(canonicalOwnerUserId && isOwner && quest.inviteMode === "private-key" && quest.inviteKey ? { inviteKey: quest.inviteKey } : {}),
     inviteCopy: quest.inviteCopy,
@@ -295,7 +296,7 @@ export function buildMobileWebMultiplayerLeaderboardRows(
     const note = formatLeaderboardNote(participant, userId, index, quest.questIds.length);
     return {
       rank: index + 1,
-      name: participant.leaderboardName,
+      name: sanitizePublicIdentityName(participant.leaderboardName, "Quest runner"),
       provider: `${participant.provider === "chesscom" ? "chess.com" : "lichess"} · ${participant.username}`,
       progress: `${participant.completedQuestIds?.length ?? 0}/${Math.max(quest.questIds.length, 1)}`,
       placement: podiumPlacements[index] ?? null,
@@ -396,7 +397,7 @@ function buildOfficialResultRow(quest: ServerGroupQuest): MobileWebMultiplayerRe
     const completedCount = participant.completedQuestIds?.length ?? 0;
     return {
       rank: `#${index + 1}`,
-      name: participant.leaderboardName,
+      name: sanitizePublicIdentityName(participant.leaderboardName, "Quest runner"),
       provider: `${participant.provider === "chesscom" ? "chess.com" : "lichess"} · ${participant.username}`,
       progress: `${completedCount}/${Math.max(quest.questIds.length, 1)}`,
     };

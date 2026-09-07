@@ -10,6 +10,7 @@ import { CHALLENGES } from "../src/lib/challenges";
 import { checkActiveCustomSoloQuest, shouldReloadCustomSoloAfterCheck } from "../src/lib/mobile-web-active-solo-check";
 import { buildHomeActiveSoloProofPath, resolveHomeActiveSoloQuest } from "../src/lib/mobile-web-home";
 import { decodePublicProof } from "../src/lib/proof-share";
+import { getPreferredRunnerIdentity, withPublishedRunnerIdentity } from "../src/lib/user-metadata";
 
 const failedSolo = {
   id: "one-bishop-to-rule-them-all",
@@ -229,6 +230,25 @@ test("Home keeps the accepted Official Solo proof contract unchanged", async () 
   assert.equal(decoded?.payload.challengeId, challenge.id);
   assert.equal(decoded?.payload.runnerName, "Side Quest Chess tester");
   assert.equal(decoded?.payload.gameId, attempt.gameId);
+});
+
+test("Home proof issuance preserves a trusted maximum-length public alias", async () => {
+  const alias = "h".repeat(60);
+  const runnerIdentity = getPreferredRunnerIdentity(withPublishedRunnerIdentity({}, alias), {});
+  assert.ok(runnerIdentity);
+  const challenge = CHALLENGES[0];
+  const path = await buildHomeActiveSoloProofPath({
+    completed: true,
+    officialChallenge: challenge,
+    customQuest: null,
+    attempt: { challengeId: challenge.id, status: "passed", checkedAt: "2026-09-07T00:00:00.000Z" },
+    runnerIdentity,
+    runnerName: alias,
+  });
+  const decoded = await decodePublicProof(path?.slice("/proof/".length));
+
+  assert.equal(decoded?.payload.runnerName, alias);
+  assert.equal(decoded?.payload.runnerIdentity?.displayName, alias);
 });
 
 test("authenticated Home resolves an active owned Custom Solo quest instead of showing the empty state", () => {

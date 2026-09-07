@@ -1,6 +1,11 @@
 import { getChallengeById, type Challenge } from "@/lib/challenges";
 import { getCustomSideQuestBadgeUrl, type CustomSideQuest } from "@/lib/custom-side-quests";
-import { sanitizeAttemptSummary, type ChallengeAttempt } from "@/lib/user-metadata";
+import {
+  sanitizeAttemptSummary,
+  sanitizePublicIdentityName,
+  type ChallengeAttempt,
+  type PreferredRunnerIdentity,
+} from "@/lib/user-metadata";
 
 export type PublicProofPayload = {
   v: 1;
@@ -19,11 +24,17 @@ export type PublicProofPayload = {
   lastMoveUci?: string;
   lastMoveSan?: string;
   runnerName?: string;
+  runnerIdentity?: {
+    v: 1;
+    displayName: string;
+    source: "profile-save";
+  };
 };
 
 export type DecodedPublicProof = {
   payload: PublicProofPayload;
   challenge: Challenge | null;
+  canonicalToken: string;
 };
 
 export function normalizePublicProofBadgeMotif(value: string | undefined) {
@@ -32,13 +43,17 @@ export function normalizePublicProofBadgeMotif(value: string | undefined) {
 
 export function normalizePublicProofPayload(payload: PublicProofPayload): PublicProofPayload {
   const normalizeText = (value: string) => value.replace(/\bSQC\b/gi, "Side Quest Chess");
+  const trustedIdentity = normalizeSignedProofRunnerIdentity(payload.runnerIdentity, payload.runnerName, normalizeText);
   return {
     ...payload,
     challengeTitle: normalizeText(payload.challengeTitle),
     badgeName: normalizeText(payload.badgeName),
     badgeMotif: normalizePublicProofBadgeMotif(payload.badgeMotif),
     summary: normalizeText(payload.summary),
-    runnerName: payload.runnerName ? normalizeText(payload.runnerName) : undefined,
+    runnerName: trustedIdentity?.displayName ?? (payload.runnerName
+      ? normalizePublicProofRunnerName(normalizeText(normalizePublicProofRunnerName(payload.runnerName)))
+      : undefined),
+    runnerIdentity: trustedIdentity,
   };
 }
 
@@ -46,11 +61,14 @@ export async function buildPublicProofPath({
   attempt,
   challenge,
   runnerName,
+  runnerIdentity,
 }: {
   attempt: ChallengeAttempt | null;
   challenge: Challenge;
   runnerName?: string;
+  runnerIdentity?: PreferredRunnerIdentity | null;
 }) {
+  const trustedRunnerName = normalizeTrustedRunnerIdentity(runnerIdentity);
   const payload: PublicProofPayload = {
     v: 1,
     challengeId: challenge.id,
@@ -67,7 +85,10 @@ export async function buildPublicProofPath({
     finalPositionFen: attempt?.finalPositionFen,
     lastMoveUci: attempt?.lastMoveUci,
     lastMoveSan: attempt?.lastMoveSan,
-    runnerName: normalizeRunnerName(runnerName),
+    runnerName: trustedRunnerName ?? normalizeRunnerName(runnerName),
+    runnerIdentity: trustedRunnerName
+      ? { v: 1, displayName: trustedRunnerName, source: "profile-save" }
+      : undefined,
   };
 
   return `/proof/${await encodePublicProof(payload)}`;
@@ -78,14 +99,16 @@ export async function buildCompletedOfficialPublicProofPath({
   attempt,
   challenge,
   runnerName,
+  runnerIdentity,
 }: {
   completed: boolean;
   attempt: ChallengeAttempt | null;
   challenge: Challenge;
   runnerName?: string;
+  runnerIdentity?: PreferredRunnerIdentity | null;
 }) {
   if (!completed || attempt?.status !== "passed") return null;
-  return buildPublicProofPath({ attempt, challenge, runnerName });
+  return buildPublicProofPath({ attempt, challenge, runnerName, runnerIdentity });
 }
 
 export async function buildCustomPublicProofPath({
@@ -144,9 +167,11 @@ export async function decodePublicProof(token: string | null | undefined): Promi
       return null;
     }
 
+    const normalizedPayload = normalizePublicProofPayload(payload);
     return {
-      payload: normalizePublicProofPayload(payload),
+      payload: normalizedPayload,
       challenge: getChallengeById(payload.challengeId) ?? null,
+      canonicalToken: await encodePublicProof(normalizedPayload),
     };
   } catch {
     return null;
@@ -225,7 +250,40 @@ function safeEqual(a: string, b: string) {
   return mismatch === 0;
 }
 
+function normalizePublicProofRunnerName(value: unknown) {
+  const sanitized = sanitizePublicIdentityName(value, "Quest runner");
+  return sanitized.length >= 60 ? "Quest runner" : sanitized;
+}
+
+function normalizeSignedProofRunnerIdentity(
+  value: unknown,
+  runnerName: unknown,
+  normalizeText: (value: string) => string,
+): PublicProofPayload["runnerIdentity"] {
+  if (!value || typeof value !== "object") return undefined;
+  const record = value as Record<string, unknown>;
+  if (
+    record.v !== 1
+    || record.source !== "profile-save"
+    || typeof record.displayName !== "string"
+    || typeof runnerName !== "string"
+    || record.displayName !== runnerName
+  ) return undefined;
+  const rawDisplayName = sanitizePublicIdentityName(record.displayName, "");
+  if (!rawDisplayName) return undefined;
+  const displayName = normalizeText(rawDisplayName);
+  if (displayName.length > 256) return undefined;
+  return { v: 1, displayName, source: "profile-save" };
+}
+
+function normalizeTrustedRunnerIdentity(identity: PreferredRunnerIdentity | null | undefined) {
+  if (identity?.provenance !== "profile-save") return undefined;
+  const name = sanitizePublicIdentityName(identity.name, "");
+  return name && name.length <= 60 ? name : undefined;
+}
+
 function normalizeRunnerName(value?: string) {
   const trimmed = value?.trim();
-  return trimmed ? trimmed.slice(0, 80) : undefined;
+  if (!trimmed) return undefined;
+  return normalizePublicProofRunnerName(trimmed);
 }

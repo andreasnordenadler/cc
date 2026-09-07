@@ -21,6 +21,7 @@ import {
   getChallengeProgress,
   getChessComUsername,
   getLichessUsername,
+  getPreferredRunnerIdentity,
   getPreferredRunnerName,
   getRunnerBio,
   shouldPreselectDefaultStarterQuest,
@@ -85,28 +86,25 @@ export async function GET(request: Request) {
   const latestChallengeRecord = latestAttempt?.challengeId
     ? CHALLENGES.find((challenge) => challenge.id === latestAttempt.challengeId) ?? null
     : null;
-  const latestProofPath = latestAttempt && latestAttempt.status === "passed" && latestChallengeRecord
-    ? await buildPublicProofPath({
-        attempt: latestAttempt,
-        challenge: latestChallengeRecord,
-        runnerName: getPreferredRunnerName(metadata, {
-          firstName: user.firstName,
-          lastName: user.lastName,
-          username: user.username,
-          emailAddress: user.primaryEmailAddress?.emailAddress,
-        }),
-      })
-    : null;
-  const runnerName = getPreferredRunnerName(metadata, {
+  const runnerIdentity = getPreferredRunnerIdentity(metadata, {
     firstName: user.firstName,
     lastName: user.lastName,
     username: user.username,
     emailAddress: user.primaryEmailAddress?.emailAddress,
   });
+  const runnerName = runnerIdentity?.name ?? "";
+  const latestProofPath = latestAttempt && latestAttempt.status === "passed" && latestChallengeRecord
+    ? await buildPublicProofPath({
+        attempt: latestAttempt,
+        challenge: latestChallengeRecord,
+        runnerIdentity,
+        runnerName,
+      })
+    : null;
   const completedQuestPayloads = await Promise.all(completedChallenges.map(async (challenge) => {
     const latestPassed = getLatestPassedAttempt(metadata, challenge.id);
     const proofPath = latestPassed
-      ? await buildPublicProofPath({ attempt: latestPassed, challenge, runnerName })
+      ? await buildPublicProofPath({ attempt: latestPassed, challenge, runnerIdentity, runnerName })
       : null;
 
     return {

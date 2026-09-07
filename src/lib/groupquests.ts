@@ -1,4 +1,5 @@
 import { containsObjectionablePublicText } from "./ugc-content-filter";
+import { getPreferredRunnerName, sanitizePublicIdentityName, type UserMetadataRecord } from "./user-metadata";
 import {
   buildMultiplayerCompletionAccountPatch,
   normalizePendingGroupQuestCompletions,
@@ -71,6 +72,8 @@ const MAX_PARTICIPANTS = 80;
 const MAX_OFFICIAL_PARTICIPATION_BYTES = 4096;
 const MAX_SAFE_CLERK_PUBLIC_METADATA_BYTES = 7680;
 const CLERK_USER_PAGE_SIZE = 100;
+const CLERK_IDENTITY_PROVENANCE_LOOKUP_LIMIT = 100;
+const CLERK_IDENTITY_PROVENANCE_LOOKUP_DEADLINE_MS = 250;
 export const OFFICIAL_GROUP_QUEST_METADATA_KEY = "sqcOfficialGroupQuestParticipations";
 /**
  * Conservative fallback when Clerk omits totalCount or supplies a malformed
@@ -358,7 +361,7 @@ export function buildGroupQuest(input: {
 }
 
 export async function findGroupQuestById(
-  client: { users: { getUserList: (params: { limit: number; offset?: number; orderBy?: "-created_at" }) => Promise<ClerkUserListResponse> } },
+  client: ClerkGroupQuestClient,
   id: string,
 ): Promise<GroupQuestHostRecord | null> {
   const builtInOfficialQuest = getBuiltInOfficialGroupQuestById(id);
@@ -380,14 +383,16 @@ export async function findGroupQuestById(
   let replicaFallback: GroupQuestHostRecord | null = null;
   let canonicalRecord: GroupQuestHostRecord | null = null;
   let conflictingOwnerClaim = false;
+  const identityProvenance = new Map<string, ClerkIdentityProvenance>();
   while (pageCount < (pageBound ?? CLERK_USER_SCAN_MAX_PAGES)) {
     const users = await client.users.getUserList({ limit: CLERK_USER_PAGE_SIZE, offset, orderBy: "-created_at" });
     pageCount += 1;
-    if (pageBound === undefined && isValidClerkTotalCount(users.totalCount) && users.totalCount >= users.data.length) {
+    if (offset === 0 && pageBound === undefined && isValidClerkTotalCount(users.totalCount) && users.totalCount >= users.data.length) {
       snapshottedTotalCount = users.totalCount;
       pageBound = clerkPageBound(users.totalCount);
     }
     for (const user of users.data) {
+      collectClerkIdentityProvenance(identityProvenance, user);
       const groupQuest = getAllStoredGroupQuests(user).find((quest) => quest.id === id);
       if (!groupQuest) continue;
       const record = { userId: user.id, groupQuest };
@@ -400,7 +405,9 @@ export async function findGroupQuestById(
     if (users.data.length < CLERK_USER_PAGE_SIZE) {
       const shortPageMatchesSnapshot = snapshottedTotalCount === undefined
         || offset + users.data.length === snapshottedTotalCount;
-      return shortPageMatchesSnapshot && !conflictingOwnerClaim ? canonicalRecord ?? replicaFallback : null;
+      return shortPageMatchesSnapshot && !conflictingOwnerClaim
+        ? await redactGroupQuestHostRecord(canonicalRecord ?? replicaFallback, identityProvenance, client)
+        : null;
     }
     offset += CLERK_USER_PAGE_SIZE;
   }
@@ -411,11 +418,13 @@ export async function findGroupQuestById(
     && snapshottedTotalCount > 0
     && snapshottedTotalCount % CLERK_USER_PAGE_SIZE === 0
     && snapshottedTotalCount <= CLERK_USER_SCAN_MAX_PAGES * CLERK_USER_PAGE_SIZE;
-  return totalCountProvesCompletion && !conflictingOwnerClaim ? canonicalRecord ?? replicaFallback : null;
+  return totalCountProvesCompletion && !conflictingOwnerClaim
+    ? await redactGroupQuestHostRecord(canonicalRecord ?? replicaFallback, identityProvenance, client)
+    : null;
 }
 
 export async function findGroupQuestByInviteKey(
-  client: { users: { getUserList: (params: { limit: number; offset?: number; orderBy?: "-created_at" }) => Promise<ClerkUserListResponse> } },
+  client: ClerkGroupQuestClient,
   inviteKey: string,
 ): Promise<GroupQuestHostRecord | null> {
   if (!isValidInviteKey(inviteKey)) return null;
@@ -440,6 +449,7 @@ export async function findGroupQuestByInviteKey(
   let snapshottedTotalCount: number | undefined;
   let canonicalRecord: GroupQuestHostRecord | null = null;
   let conflictingOwnerClaim = false;
+  const identityProvenance = new Map<string, ClerkIdentityProvenance>();
   while (pageCount < (pageBound ?? CLERK_USER_SCAN_MAX_PAGES)) {
     const users = await client.users.getUserList({ limit: CLERK_USER_PAGE_SIZE, offset, orderBy: "-created_at" });
     pageCount += 1;
@@ -448,6 +458,7 @@ export async function findGroupQuestByInviteKey(
       pageBound = clerkPageBound(users.totalCount);
     }
     for (const user of users.data) {
+      collectClerkIdentityProvenance(identityProvenance, user);
       const groupQuest = getAllStoredGroupQuests(user).find((quest) => cleanInviteKey(quest.inviteKey) === normalizedKey);
       if (!groupQuest) continue;
       const record = { userId: user.id, groupQuest };
@@ -459,7 +470,9 @@ export async function findGroupQuestByInviteKey(
     if (users.data.length < CLERK_USER_PAGE_SIZE) {
       const shortPageMatchesSnapshot = snapshottedTotalCount === undefined
         || offset + users.data.length === snapshottedTotalCount;
-      return shortPageMatchesSnapshot && !conflictingOwnerClaim ? canonicalRecord : null;
+      return shortPageMatchesSnapshot && !conflictingOwnerClaim
+        ? await redactGroupQuestHostRecord(canonicalRecord, identityProvenance, client)
+        : null;
     }
     offset += CLERK_USER_PAGE_SIZE;
   }
@@ -467,7 +480,9 @@ export async function findGroupQuestByInviteKey(
     && snapshottedTotalCount > 0
     && snapshottedTotalCount % CLERK_USER_PAGE_SIZE === 0
     && snapshottedTotalCount <= CLERK_USER_SCAN_MAX_PAGES * CLERK_USER_PAGE_SIZE;
-  return totalCountProvesCompletion && !conflictingOwnerClaim ? canonicalRecord : null;
+  return totalCountProvesCompletion && !conflictingOwnerClaim
+    ? await redactGroupQuestHostRecord(canonicalRecord, identityProvenance, client)
+    : null;
 }
 
 
@@ -475,6 +490,17 @@ type ClerkGroupQuestUser = {
   id: string;
   privateMetadata: unknown;
   publicMetadata?: unknown;
+  emailAddresses?: Array<{ emailAddress?: unknown }>;
+  firstName?: string | null;
+  lastName?: string | null;
+  username?: string | null;
+};
+
+type ClerkIdentityProvenance = {
+  participantEmailPrefixes: Set<string>;
+  hostEmailPrefixes: Set<string>;
+  participantPublicAliases: Set<string>;
+  hostPublicAliases: Set<string>;
 };
 
 type ClerkUserListResponse = {
@@ -482,11 +508,19 @@ type ClerkUserListResponse = {
   totalCount?: number;
 };
 
+type ClerkGroupQuestClient = {
+  users: {
+    getUserList: (params: { limit: number; offset?: number; orderBy?: "-created_at" }) => Promise<ClerkUserListResponse>;
+    getUser?: (userId: string) => Promise<ClerkGroupQuestUser>;
+  };
+};
+
 export async function listUserRelatedGroupQuests(
-  client: { users: { getUserList: (params: { limit: number; offset?: number; orderBy?: "-created_at" }) => Promise<ClerkUserListResponse> } },
+  client: ClerkGroupQuestClient,
   userId: string,
 ) {
   const storedCopies: Array<{ userId: string; quest: ServerGroupQuest }> = [];
+  const identityProvenance = new Map<string, ClerkIdentityProvenance>();
   let offset = 0;
   let pageCount = 0;
   let snapshottedPageBound: number | undefined;
@@ -505,6 +539,7 @@ export async function listUserRelatedGroupQuests(
       );
     }
     for (const user of users.data) {
+      collectClerkIdentityProvenance(identityProvenance, user);
       storedCopies.push(...getAllStoredGroupQuests(user).map((quest) => ({ userId: user.id, quest })));
     }
     if (users.data.length < CLERK_USER_PAGE_SIZE) break;
@@ -512,7 +547,7 @@ export async function listUserRelatedGroupQuests(
   }
 
   const copiesById = new Map<string, Array<{ userId: string; quest: ServerGroupQuest }>>();
-  for (const copy of storedCopies) {
+  for (const copy of await redactStoredGroupQuestCopies(storedCopies, identityProvenance, client)) {
     const copies = copiesById.get(copy.quest.id) ?? [];
     copies.push(copy);
     copiesById.set(copy.quest.id, copies);
@@ -554,7 +589,7 @@ function hasObjectionablePublicGroupQuestText(quest: ServerGroupQuest) {
 }
 
 export async function listPublicGroupQuests(
-  client: { users: { getUserList: (params: { limit: number; offset?: number; orderBy?: "-created_at" }) => Promise<{ data: ClerkGroupQuestUser[] }> } },
+  client: ClerkGroupQuestClient,
 ) {
   const storedCopies = await listStoredGroupQuestCopies(client);
   const storedPublicQuests = storedCopies.filter(({ quest }) => quest.inviteMode === "public").map(({ quest }) => quest);
@@ -761,7 +796,7 @@ function normalizeGroupQuest(value: unknown): ServerGroupQuest | null {
   const id = cleanText(record.id, 80);
   const hostUserId = cleanText(record.hostUserId, 120);
   const name = cleanText(record.name, 64);
-  const storedHostName = cleanText(record.hostName, 80);
+  const storedHostName = sanitizePublicIdentityName(record.hostName, "Quest host").slice(0, 80);
   if (!id || !hostUserId || !name) return null;
   const questIds = Array.isArray(record.questIds)
     ? record.questIds.filter((entry): entry is string => typeof entry === "string")
@@ -769,7 +804,9 @@ function normalizeGroupQuest(value: unknown): ServerGroupQuest | null {
   return {
     id,
     hostUserId,
-    hostName: storedHostName && /^SQC host$/i.test(storedHostName) ? "Quest host" : storedHostName ?? "Quest host",
+    hostName: storedHostName && /^SQC host$/i.test(storedHostName)
+      ? "Quest host"
+      : sanitizePublicIdentityName(storedHostName, "Quest host"),
     name,
     inviteCopy: cleanText(record.inviteCopy, 280) ?? defaultInviteCopy,
     inviteMode: normalizeInviteMode(record.inviteMode),
@@ -833,8 +870,10 @@ function normalizeParticipant(
   const record = value as Record<string, unknown>;
   const userId = cleanText(record.userId, 120);
   const username = cleanText(record.username, 60);
-  const storedLeaderboardName = cleanText(record.leaderboardName, 60);
-  const leaderboardName = storedLeaderboardName && /^SQC player$/i.test(storedLeaderboardName) ? "Quest runner" : storedLeaderboardName;
+  const storedLeaderboardName = sanitizePublicIdentityName(record.leaderboardName, "Quest runner").slice(0, 60);
+  const leaderboardName = storedLeaderboardName && /^SQC player$/i.test(storedLeaderboardName)
+    ? "Quest runner"
+    : sanitizePublicIdentityName(storedLeaderboardName, "Quest runner");
   const joinedAt = cleanText(record.joinedAt, 40);
   if (!userId || !username || !leaderboardName || !joinedAt) return null;
   const storedProvider = record.provider === "chesscom" || record.provider === "lichess" ? record.provider : null;
@@ -913,7 +952,7 @@ function normalizeOfficialParticipationRecord(questId: string, value: unknown): 
   if (!value || typeof value !== "object") return null;
   const record = value as Record<string, unknown>;
   const username = cleanText(record.username, 60);
-  const leaderboardName = cleanText(record.leaderboardName, 60);
+  const leaderboardName = sanitizePublicIdentityName(record.leaderboardName, "Quest runner").slice(0, 60);
   const joinedAt = cleanText(record.joinedAt, 40);
   if (!username || !leaderboardName || !joinedAt) return null;
   const definition = getBuiltInOfficialGroupQuestDefinitionById(questId);
@@ -964,15 +1003,16 @@ function normalizeInviteMode(value: unknown): GroupQuestInviteMode {
 }
 
 async function listStoredGroupQuests(
-  client: { users: { getUserList: (params: { limit: number; offset?: number; orderBy?: "-created_at" }) => Promise<ClerkUserListResponse> } },
+  client: ClerkGroupQuestClient,
 ) {
   return (await listStoredGroupQuestCopies(client)).map(({ quest }) => quest);
 }
 
 async function listStoredGroupQuestCopies(
-  client: { users: { getUserList: (params: { limit: number; offset?: number; orderBy?: "-created_at" }) => Promise<ClerkUserListResponse> } },
+  client: ClerkGroupQuestClient,
 ) {
   const copies: Array<{ userId: string; quest: ServerGroupQuest }> = [];
+  const identityProvenance = new Map<string, ClerkIdentityProvenance>();
   let offset = 0;
   let pageCount = 0;
   let pageBound: number | undefined;
@@ -981,12 +1021,151 @@ async function listStoredGroupQuestCopies(
     pageCount += 1;
     pageBound ??= clerkPageBound(users.totalCount);
     for (const user of users.data) {
+      collectClerkIdentityProvenance(identityProvenance, user);
       copies.push(...getAllStoredGroupQuests(user).map((quest) => ({ userId: user.id, quest })));
     }
-    if (users.data.length < CLERK_USER_PAGE_SIZE) return copies;
+    if (users.data.length < CLERK_USER_PAGE_SIZE) return redactStoredGroupQuestCopies(copies, identityProvenance, client);
     offset += CLERK_USER_PAGE_SIZE;
   }
-  return copies;
+  return redactStoredGroupQuestCopies(copies, identityProvenance, client);
+}
+
+function collectClerkIdentityProvenance(
+  provenanceByUserId: Map<string, ClerkIdentityProvenance>,
+  user: ClerkGroupQuestUser,
+) {
+  const provenance = provenanceByUserId.get(user.id) ?? {
+    participantEmailPrefixes: new Set<string>(),
+    hostEmailPrefixes: new Set<string>(),
+    participantPublicAliases: new Set<string>(),
+    hostPublicAliases: new Set<string>(),
+  };
+  for (const entry of user.emailAddresses ?? []) {
+    if (typeof entry?.emailAddress !== "string") continue;
+    const email = entry.emailAddress.trim();
+    if (!email || !/^[^\s@]+@[^\s@]+$/.test(email)) continue;
+    if (email.length > 60) {
+      provenance.participantEmailPrefixes.add(email.slice(0, 60));
+      provenance.hostEmailPrefixes.add(email.slice(0, 60));
+    }
+    if (email.length > 80) provenance.hostEmailPrefixes.add(email.slice(0, 80));
+  }
+  const metadata = user.publicMetadata && typeof user.publicMetadata === "object"
+    ? user.publicMetadata as UserMetadataRecord
+    : {};
+  const publicAlias = getPreferredRunnerName(metadata, user);
+  if (publicAlias) {
+    provenance.participantPublicAliases.add(publicAlias.slice(0, 60));
+    provenance.hostPublicAliases.add(publicAlias.slice(0, 80));
+  }
+  provenanceByUserId.set(user.id, provenance);
+}
+
+async function resolveMissingIdentityProvenance(
+  quests: ServerGroupQuest[],
+  provenanceByUserId: Map<string, ClerkIdentityProvenance>,
+  client: ClerkGroupQuestClient,
+) {
+  const unresolvedUserIds = new Set<string>();
+  for (const quest of quests) {
+    if ((quest.hostName.length === 60 || quest.hostName.length === 80) && !provenanceByUserId.has(quest.hostUserId)) {
+      unresolvedUserIds.add(quest.hostUserId);
+    }
+    for (const participant of quest.participants) {
+      if (participant.leaderboardName.length === 60 && !provenanceByUserId.has(participant.userId)) {
+        unresolvedUserIds.add(participant.userId);
+      }
+    }
+  }
+  if (unresolvedUserIds.size === 0) return;
+  if (!client.users.getUser) return;
+  let lookupCount = 0;
+  const deadline = Date.now() + CLERK_IDENTITY_PROVENANCE_LOOKUP_DEADLINE_MS;
+  for (const userId of unresolvedUserIds) {
+    const remainingMs = deadline - Date.now();
+    if (lookupCount >= CLERK_IDENTITY_PROVENANCE_LOOKUP_LIMIT || remainingMs <= 0) break;
+    lookupCount += 1;
+    try {
+      const user = await resolveClerkUserBeforeDeadline(
+        (lookupUserId) => client.users.getUser!(lookupUserId),
+        userId,
+        remainingMs,
+      );
+      if (!user) break;
+      if (user.id !== userId) throw new Error("groupquest_identity_provenance_mismatch");
+      collectClerkIdentityProvenance(provenanceByUserId, user);
+    } catch {
+      continue;
+    }
+  }
+}
+
+function resolveClerkUserBeforeDeadline(
+  getUser: NonNullable<ClerkGroupQuestClient["users"]["getUser"]>,
+  userId: string,
+  timeoutMs: number,
+): Promise<ClerkGroupQuestUser | null> {
+  return new Promise((resolve) => {
+    let settled = false;
+    const finish = (user: ClerkGroupQuestUser | null) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      resolve(user);
+    };
+    const timer = setTimeout(() => finish(null), timeoutMs);
+    getUser(userId).then((user) => finish(user), () => finish(null));
+  });
+}
+
+async function redactStoredGroupQuestCopies(
+  copies: Array<{ userId: string; quest: ServerGroupQuest }>,
+  provenanceByUserId: Map<string, ClerkIdentityProvenance>,
+  client: ClerkGroupQuestClient,
+) {
+  await resolveMissingIdentityProvenance(copies.map(({ quest }) => quest), provenanceByUserId, client);
+  return copies.map((copy) => ({
+    ...copy,
+    quest: redactHistoricalEmailIdentityPrefixes(copy.quest, provenanceByUserId),
+  }));
+}
+
+async function redactGroupQuestHostRecord(
+  record: GroupQuestHostRecord | null,
+  provenanceByUserId: Map<string, ClerkIdentityProvenance>,
+  client: ClerkGroupQuestClient,
+) {
+  if (!record) return null;
+  await resolveMissingIdentityProvenance([record.groupQuest], provenanceByUserId, client);
+  return {
+    ...record,
+    groupQuest: redactHistoricalEmailIdentityPrefixes(record.groupQuest, provenanceByUserId),
+  };
+}
+
+function redactHistoricalEmailIdentityPrefixes(
+  quest: ServerGroupQuest,
+  provenanceByUserId: Map<string, ClerkIdentityProvenance>,
+): ServerGroupQuest {
+  const hostProvenance = provenanceByUserId.get(quest.hostUserId);
+  return {
+    ...quest,
+    hostName: hostProvenance?.hostEmailPrefixes.has(quest.hostName)
+      || ((quest.hostName.length === 60 || quest.hostName.length === 80)
+        && !hostProvenance?.hostPublicAliases.has(quest.hostName))
+      ? "Quest host"
+      : quest.hostName,
+    participants: quest.participants.map((participant) => {
+      const provenance = provenanceByUserId.get(participant.userId);
+      return {
+        ...participant,
+        leaderboardName: provenance?.participantEmailPrefixes.has(participant.leaderboardName)
+          || (participant.leaderboardName.length === 60 && !provenance?.participantPublicAliases.has(participant.leaderboardName))
+          ? "Quest runner"
+          : participant.leaderboardName,
+      };
+    }),
+  };
 }
 
 function getAllStoredGroupQuests(user: ClerkGroupQuestUser) {

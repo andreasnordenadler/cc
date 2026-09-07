@@ -130,7 +130,18 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       rules: normalizedPayload?.rules,
     });
 
-    const hostParticipant = buildMobileParticipant({ groupQuest, userId, metadata, fallbackName: hostName });
+    const hostParticipant = buildMobileParticipant({
+      groupQuest,
+      userId,
+      metadata,
+      identity: {
+        firstName: user.firstName,
+        lastName: user.lastName,
+        username: user.username,
+        emailAddress: user.primaryEmailAddress?.emailAddress,
+      },
+      fallbackName: hostName,
+    });
     if (hostParticipant) {
       groupQuest.participants = [hostParticipant];
     }
@@ -256,7 +267,18 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   }
 
   if (action === "join") {
-    const participant = buildMobileParticipant({ groupQuest: found.groupQuest, userId, metadata, fallbackName: user.firstName ?? user.username ?? "Quest runner" });
+    const participant = buildMobileParticipant({
+      groupQuest: found.groupQuest,
+      userId,
+      metadata,
+      identity: {
+        firstName: user.firstName,
+        lastName: user.lastName,
+        username: user.username,
+        emailAddress: user.primaryEmailAddress?.emailAddress,
+      },
+      fallbackName: "Quest runner",
+    });
     if (!participant) {
       return NextResponse.json(
         { apiVersion: 1, authenticated: true, ok: false, message: "Add a public Lichess or Chess.com username before joining Multiplayer Side Quests." },
@@ -508,11 +530,18 @@ function buildMobileParticipant({
   groupQuest,
   userId,
   metadata,
+  identity = {},
   fallbackName,
 }: {
   groupQuest: ServerGroupQuest;
   userId: string;
   metadata: UserMetadataRecord;
+  identity?: {
+    firstName?: string | null;
+    lastName?: string | null;
+    username?: string | null;
+    emailAddress?: string | null;
+  };
   fallbackName: string;
 }) {
   const lichessUsername = getLichessUsername(metadata);
@@ -529,7 +558,7 @@ function buildMobileParticipant({
         userId,
         provider,
         username,
-        leaderboardName: getPreferredRunnerName(metadata, {}) || fallbackName || username,
+        leaderboardName: getPreferredRunnerName(metadata, identity) || fallbackName || username,
       })
     : null;
 }
