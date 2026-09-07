@@ -754,6 +754,48 @@ test("active Multiplayer detail renders the live leaderboard and marks the viewe
   assert.doesNotMatch(html, /Final leaderboard|Frozen player standings/);
 });
 
+test("Multiplayer detail keeps every ranking in its source while initially paginating a long leaderboard", () => {
+  const leaderboardRows = Array.from({ length: 10 }, (_, index) => ({
+    rank: index + 1,
+    name: `Player ${index + 1}`,
+    provider: `lichess · player-${index + 1}`,
+    progress: "0/1",
+    placement: index === 0 ? "Gold" as const : index === 1 ? "Silver" as const : index === 2 ? "Bronze" as const : null,
+    viewer: index === 9,
+  }));
+  const html = renderDetail({ ...officialJoinedQuest, positionLabel: "#10", leaderboardRows });
+
+  assert.match(html, />Player 8</);
+  assert.doesNotMatch(html, />Player 9</);
+  assert.doesNotMatch(html, />Player 10/);
+  assert.match(html, /aria-label="Show 2 more players"/);
+  assert.match(html, />Show 2 more players/);
+  assert.match(html, />10 players ranked\./);
+});
+
+test("Multiplayer detail labels the next leaderboard batch instead of every remaining player", () => {
+  const leaderboardRows = Array.from({ length: 25 }, (_, index) => ({
+    rank: index + 1,
+    name: `Player ${index + 1}`,
+    provider: `lichess · player-${index + 1}`,
+    progress: "0/1",
+    placement: null,
+    viewer: false,
+  }));
+  const html = renderDetail({ ...officialJoinedQuest, leaderboardRows });
+
+  assert.match(html, /aria-label="Show 8 more players"/);
+  assert.match(html, />Show 8 more players/);
+  assert.doesNotMatch(html, /Show 17 more players/);
+});
+
+test("finished Multiplayer detail keeps an unknown standings state distinct from an empty live table", () => {
+  const html = renderDetail({ ...officialJoinedQuest, lifecycle: "finished", eventStatus: "Finished", leaderboardRows: [] });
+
+  assert.match(html, />No verified player standings were recorded\./);
+  assert.doesNotMatch(html, />No players have joined yet\./);
+});
+
 test("active Multiplayer detail reports an authoritative empty leaderboard truthfully", () => {
   const html = renderDetail({
     ...officialJoinedQuest,
