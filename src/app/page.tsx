@@ -17,7 +17,7 @@ import {
   getLatestChallengeAttempt,
   getLatestPassedChallengeAttempt,
   getLichessUsername,
-  getPreferredRunnerName,
+  getPreferredRunnerIdentity,
   type UserMetadataRecord,
 } from "@/lib/user-metadata";
 
@@ -59,20 +59,22 @@ export default async function Home() {
       ?? null
     : null;
   const proofReceiptCount = getChallengeAttempts(metadata).length;
-  const displayName = user
-    ? getPreferredRunnerName(metadata, {
+  const runnerIdentity = user
+    ? getPreferredRunnerIdentity(metadata, {
         firstName: user.firstName,
         lastName: user.lastName,
         username: user.username,
         emailAddress: user.primaryEmailAddress?.emailAddress,
-      }) || "Side Quest Chess"
+      })
     : null;
+  const displayName = user ? runnerIdentity?.name || "Side Quest Chess" : null;
   const activeChallengeProofPath = await buildHomeActiveSoloProofPath({
     completed: activeChallengeCompleted,
     officialChallenge: activeOfficialChallenge,
     customQuest: activeCustomQuest,
     attempt: activeChallengePassedAttempt,
     runnerName: displayName ?? undefined,
+    runnerIdentity,
   });
   const [trophyRows, relatedGroupQuests] = user && client
     ? await Promise.all([

@@ -27,7 +27,7 @@ import {
   getLatestChallengeAttempt,
   getLatestPassedChallengeAttempt,
   getLichessUsername,
-  getPreferredRunnerName,
+  getPreferredRunnerIdentity,
   type UserMetadataRecord,
 } from "@/lib/user-metadata";
 
@@ -70,14 +70,15 @@ export default async function ChallengeDetailPage({
 
   const user = await currentUser();
   const metadata = user?.publicMetadata ? (user.publicMetadata as UserMetadataRecord) : {};
-  const displayName = user
-    ? getPreferredRunnerName(metadata, {
+  const runnerIdentity = user
+    ? getPreferredRunnerIdentity(metadata, {
         firstName: user.firstName,
         lastName: user.lastName,
         username: user.username,
         emailAddress: user.primaryEmailAddress?.emailAddress,
-      }) || "Side Quest Chess"
+      })
     : null;
+  const displayName = user ? runnerIdentity?.name || "Side Quest Chess" : null;
   const activeChallenge = getActiveChallenge(metadata);
   const existingActiveChallenge = activeChallenge?.id ? getChallengeById(activeChallenge.id) : null;
   const activeChallengeTitle = activeChallenge?.id && activeChallenge.id !== challenge.id
@@ -111,6 +112,7 @@ export default async function ChallengeDetailPage({
     completed,
     attempt: getLatestPassedChallengeAttempt(metadata, challenge.id),
     challenge,
+    runnerIdentity,
     runnerName: displayName ?? undefined,
   });
   const likeSummary = (await getCommunityLikeSummaries(await clerkClient(), user?.id ?? null)).get("solo", challenge.id);

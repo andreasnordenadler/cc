@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import MobileAppWebShell from "@/components/mobile-app-web-shell";
 import ProofImage from "@/components/proof-image";
 import PublicProofReceiptDetails from "@/components/public-proof-receipt-details";
@@ -19,21 +19,22 @@ export async function generateMetadata({
     return { title: "Side Quest Chess proof" };
   }
 
-  const image = publicProofImagePath(token);
-  const title = `${decoded.payload.challengeTitle} completed — Side Quest Chess`;
-  const description = `${decoded.payload.badgeName} unlocked on Side Quest Chess.`;
+  const { canonicalToken, payload } = decoded;
+  const image = publicProofImagePath(canonicalToken);
+  const title = `${payload.challengeTitle} completed — Side Quest Chess`;
+  const description = `${payload.badgeName} unlocked on Side Quest Chess.`;
 
   return {
     title,
     description,
-    alternates: { canonical: `/proof/${token}` },
+    alternates: { canonical: `/proof/${canonicalToken}` },
     openGraph: {
       title,
       description,
-      url: `/proof/${token}`,
+      url: `/proof/${canonicalToken}`,
       siteName: "Side Quest Chess",
       type: "website",
-      images: [{ url: image, width: 1200, height: 630, alt: `${decoded.payload.challengeTitle} victory proof card` }],
+      images: [{ url: image, width: 1200, height: 630, alt: `${payload.challengeTitle} victory proof card` }],
     },
     twitter: {
       card: "summary_large_image",
@@ -56,7 +57,10 @@ export default async function PublicProofPage({
     notFound();
   }
 
-  const { payload } = decoded;
+  const { payload, canonicalToken } = decoded;
+  if (token !== canonicalToken) {
+    redirect(`/proof/${canonicalToken}`);
+  }
 
   return (
     <MobileAppWebShell activeTab="sideQuests" signedIn={false} desktopPresentation="proof">
@@ -69,7 +73,7 @@ export default async function PublicProofPage({
         </section>
 
         <section className="sqc-native-card sqc-public-proof-scroll-card" aria-label="Victory scroll">
-          <ProofImage imagePath={publicProofImagePath(token)} alt={`Victory scroll image for ${payload.challengeTitle}`} className="sqc-proof-image" />
+          <ProofImage imagePath={publicProofImagePath(canonicalToken)} alt={`Victory scroll image for ${payload.challengeTitle}`} className="sqc-proof-image" />
         </section>
 
         <section className="sqc-native-card sqc-public-proof-command-rail">
@@ -79,7 +83,7 @@ export default async function PublicProofPage({
           <PublicProofReceiptDetails payload={payload} />
           <div className="sqc-action-pair one-or-two">
             <PublicProofShareControls
-              token={token}
+              token={canonicalToken}
               challengeTitle={payload.challengeTitle}
               badgeName={payload.badgeName}
             />

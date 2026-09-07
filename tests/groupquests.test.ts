@@ -1,7 +1,8 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { CLERK_USER_SCAN_MAX_PAGES, OFFICIAL_GROUP_QUEST_METADATA_KEY, buildGroupQuest, findGroupQuestById, findGroupQuestByInviteKey, getBuiltInOfficialGroupQuests, getGroupQuestParticipantFinishedAt, getGroupQuestResultMode, getStoredGroupQuests, getStoredOfficialGroupQuestParticipations, listPublicGroupQuests, listUserRelatedGroupQuests, rankGroupQuestParticipants, upsertOfficialGroupQuestParticipation } from "../src/lib/groupquests";
+import { CLERK_USER_SCAN_MAX_PAGES, OFFICIAL_GROUP_QUEST_METADATA_KEY, buildGroupQuest, buildParticipant, findGroupQuestById, findGroupQuestByInviteKey, getBuiltInOfficialGroupQuests, getGroupQuestParticipantFinishedAt, getGroupQuestResultMode, getStoredGroupQuests, getStoredOfficialGroupQuestParticipations, listPublicGroupQuests, listUserRelatedGroupQuests, rankGroupQuestParticipants, upsertOfficialGroupQuestParticipation } from "../src/lib/groupquests";
+import { withPublishedRunnerIdentity } from "../src/lib/user-metadata";
 
 type Participant = {
   id: string;
@@ -417,6 +418,28 @@ test("non-official lookup accepts a canonical owner at an exact total-count page
   assert.equal(found?.userId, "host-user");
 });
 
+test("non-official lookup ignores a late total that could hide a conflicting owner", async () => {
+  const canonical = buildGroupQuest({ hostUserId: "host-user", hostName: "Host", name: "Canonical table" });
+  canonical.id = "community-table";
+  const conflicting = { ...structuredClone(canonical), hostUserId: "other-host" };
+  let page = 0;
+  const client = { users: { getUserList: async ({ limit }: { limit: number }) => {
+    page += 1;
+    if (page === 3) {
+      return { data: [{ id: "other-host", privateMetadata: { sqcGroupQuests: [conflicting] } }], totalCount: 100 };
+    }
+    return {
+      data: Array.from({ length: limit }, (_, index) => page === 1 && index === 0
+        ? { id: "host-user", privateMetadata: { sqcGroupQuests: [canonical] } }
+        : { id: `user-${page}-${index}`, privateMetadata: {} }),
+      ...(page === 2 ? { totalCount: 100 } : {}),
+    };
+  } } };
+
+  assert.equal(await findGroupQuestById(client, canonical.id), null);
+  assert.equal(page, 3);
+});
+
 test("non-official lookup rejects a full final page that contradicts a non-multiple total count", async () => {
   const canonical = buildGroupQuest({ hostUserId: "host-user", hostName: "Host", name: "Canonical table" });
   canonical.id = "community-table";
@@ -628,6 +651,389 @@ test("normalizes the retired public acronym in stored official labels", () => {
   assert.equal(stored.officialLabel, "Official Side Quest Chess · 14 days");
   assert.equal(stored.hostName, "Quest host");
   assert.equal(stored.participants[0].leaderboardName, "Quest runner");
+});
+
+test("stored Multiplayer readers migrate legacy email identities to neutral names", () => {
+  const loginEmail = "private.login@example.test";
+  const hosted = buildGroupQuest({ hostUserId: "host", hostName: loginEmail, name: "Legacy hosted" });
+  hosted.participants = [participant("legacy-runner", { leaderboardName: loginEmail })];
+  const [storedHosted] = getStoredGroupQuests({ sqcGroupQuests: [hosted] });
+
+  const official = getBuiltInOfficialGroupQuests(new Date("2026-07-06T12:00:00.000Z"))[0];
+  const [storedOfficial] = getStoredOfficialGroupQuestParticipations({
+    [OFFICIAL_GROUP_QUEST_METADATA_KEY]: {
+      [official.id]: {
+        active: true,
+        left: false,
+        provider: "lichess",
+        username: "public-chess-name",
+        leaderboardName: loginEmail,
+        joinedAt: "2026-07-01T12:00:00.000Z",
+      },
+    },
+  }, "official-runner");
+
+  assert.equal(storedHosted.hostName, "Quest host");
+  assert.equal(storedHosted.participants[0].leaderboardName, "Quest runner");
+  assert.equal(storedOfficial.participants[0].leaderboardName, "Quest runner");
+});
+
+test("stored Multiplayer readers detect emails before limiting identity length", () => {
+  const loginEmail = `${"private".repeat(14)}@example.test`;
+  const hosted = buildGroupQuest({ hostUserId: "host", hostName: "Temporary", name: "Legacy hosted" });
+  hosted.hostName = loginEmail;
+  hosted.participants = [participant("legacy-runner", { leaderboardName: loginEmail })];
+  const [storedHosted] = getStoredGroupQuests({ sqcGroupQuests: [hosted] });
+
+  const official = getBuiltInOfficialGroupQuests(new Date("2026-07-06T12:00:00.000Z"))[0];
+  const [storedOfficial] = getStoredOfficialGroupQuestParticipations({
+    [OFFICIAL_GROUP_QUEST_METADATA_KEY]: {
+      [official.id]: {
+        active: true,
+        left: false,
+        provider: "lichess",
+        username: "public-chess-name",
+        leaderboardName: loginEmail,
+        joinedAt: "2026-07-01T12:00:00.000Z",
+      },
+    },
+  }, "official-runner");
+
+  assert.equal(storedHosted.hostName, "Quest host");
+  assert.equal(storedHosted.participants[0].leaderboardName, "Quest runner");
+  assert.equal(storedOfficial.participants[0].leaderboardName, "Quest runner");
+});
+
+test("Clerk-backed loaders redact identities truncated by the historical writer", async () => {
+  const participantEmail = `${"p".repeat(60)}@private.example.test`;
+  const historicalParticipant = buildParticipant({
+    userId: "legacy-runner",
+    provider: "lichess",
+    username: "public-chess-name",
+    leaderboardName: participantEmail,
+  });
+  assert.ok(historicalParticipant);
+  assert.equal(historicalParticipant.leaderboardName, "p".repeat(60));
+
+  const hosted = buildGroupQuest({
+    hostUserId: "host-user",
+    hostName: "Public Host Alias",
+    name: "Legacy hosted",
+    inviteMode: "public",
+  });
+  hosted.participants = [historicalParticipant];
+  const client = { users: { getUserList: async () => ({
+    data: [
+      { id: "host-user", emailAddresses: [], privateMetadata: { sqcGroupQuests: [hosted] } },
+      { id: "legacy-runner", emailAddresses: [{ emailAddress: participantEmail }], privateMetadata: {} },
+    ],
+    totalCount: 2,
+  }) } };
+
+  const publicQuest = (await listPublicGroupQuests(client)).find(({ id }) => id === hosted.id);
+  const [relatedQuest] = await listUserRelatedGroupQuests(client, "legacy-runner");
+
+  assert.equal(publicQuest?.hostName, "Public Host Alias");
+  assert.equal(publicQuest?.participants[0]?.leaderboardName, "Quest runner");
+  assert.equal(relatedQuest?.participants[0]?.leaderboardName, "Quest runner");
+  assert.equal(JSON.stringify([publicQuest, relatedQuest]).includes("p".repeat(60)), false);
+});
+
+test("Clerk-backed loaders redact host names truncated by the historical profile writer", async () => {
+  const emailPrefix = "h".repeat(60);
+  const loginEmail = `${emailPrefix}@private.example.test`;
+  const hosted = buildGroupQuest({
+    hostUserId: "host-user",
+    hostName: emailPrefix,
+    name: "Legacy hosted",
+    inviteMode: "public",
+  });
+  const client = { users: { getUserList: async () => ({
+    data: [{
+      id: "host-user",
+      emailAddresses: [{ emailAddress: loginEmail }],
+      publicMetadata: { runnerDisplayName: emailPrefix },
+      privateMetadata: { sqcGroupQuests: [hosted] },
+    }],
+    totalCount: 1,
+  }) } };
+
+  const publicQuest = (await listPublicGroupQuests(client)).find(({ id }) => id === hosted.id);
+
+  assert.equal(publicQuest?.hostName, "Quest host");
+  assert.equal(JSON.stringify(publicQuest).includes(emailPrefix), false);
+});
+
+test("public catalog resolves historical identity provenance beyond the scan cap", async () => {
+  const participantEmail = `${"p".repeat(60)}@private.example.test`;
+  const historicalParticipant = buildParticipant({
+    userId: "legacy-runner",
+    provider: "lichess",
+    username: "public-chess-name",
+    leaderboardName: participantEmail,
+  });
+  assert.ok(historicalParticipant);
+  const hosted = buildGroupQuest({
+    hostUserId: "host-user",
+    hostName: "Public Host Alias",
+    name: "Legacy hosted",
+    inviteMode: "public",
+  });
+  hosted.participants = [historicalParticipant];
+  let directLookups = 0;
+  const client = { users: {
+    getUserList: async ({ limit, offset = 0 }: { limit: number; offset?: number }) => ({
+      data: Array.from({ length: limit }, (_, index) => offset === 0 && index === 0
+        ? { id: "host-user", emailAddresses: [], privateMetadata: { sqcGroupQuests: [hosted] } }
+        : { id: `user-${offset + index}`, privateMetadata: {} }),
+    }),
+    getUser: async (userId: string) => {
+      directLookups += 1;
+      assert.equal(userId, "legacy-runner");
+      return { id: userId, emailAddresses: [{ emailAddress: participantEmail }], privateMetadata: {} };
+    },
+  } };
+
+  const publicQuest = (await listPublicGroupQuests(client)).find(({ id }) => id === hosted.id);
+  const relatedQuest = (await listUserRelatedGroupQuests(client, "legacy-runner")).find(({ id }) => id === hosted.id);
+
+  assert.equal(publicQuest?.participants[0]?.leaderboardName, "Quest runner");
+  assert.equal(relatedQuest?.participants[0]?.leaderboardName, "Quest runner");
+  assert.equal(directLookups, 2);
+});
+
+test("public catalog resolves historical host profile prefixes beyond the scan cap", async () => {
+  const emailPrefix = "h".repeat(60);
+  const loginEmail = `${emailPrefix}@private.example.test`;
+  const hosted = buildGroupQuest({
+    hostUserId: "legacy-host",
+    hostName: emailPrefix,
+    name: "Legacy hosted",
+    inviteMode: "public",
+  });
+  let directLookups = 0;
+  const client = { users: {
+    getUserList: async ({ limit, offset = 0 }: { limit: number; offset?: number }) => ({
+      data: Array.from({ length: limit }, (_, index) => offset === 0 && index === 0
+        ? { id: "replica-user", privateMetadata: { sqcGroupQuests: [hosted] } }
+        : { id: `user-${offset + index}`, privateMetadata: {} }),
+    }),
+    getUser: async (userId: string) => {
+      directLookups += 1;
+      assert.equal(userId, "legacy-host");
+      return { id: userId, emailAddresses: [{ emailAddress: loginEmail }], privateMetadata: {} };
+    },
+  } };
+
+  const publicQuest = (await listPublicGroupQuests(client)).find(({ id }) => id === hosted.id);
+
+  assert.equal(publicQuest?.hostName, "Quest host");
+  assert.equal(directLookups, 1);
+});
+
+test("public catalog redacts a maximum-length identity when provenance is unavailable", async () => {
+  const hosted = buildGroupQuest({
+    hostUserId: "host-user",
+    hostName: "Public Host Alias",
+    name: "Legacy hosted",
+    inviteMode: "public",
+  });
+  hosted.participants = [participant("deleted-runner", { leaderboardName: "p".repeat(60) })];
+  const unrelated = buildGroupQuest({
+    hostUserId: "other-host",
+    hostName: "Other Host",
+    name: "Unrelated table",
+    inviteMode: "public",
+  });
+  const client = { users: {
+    getUserList: async () => ({
+      data: [
+        { id: "host-user", emailAddresses: [], privateMetadata: { sqcGroupQuests: [hosted] } },
+        { id: "other-host", emailAddresses: [], privateMetadata: { sqcGroupQuests: [unrelated] } },
+      ],
+      totalCount: 2,
+    }),
+    getUser: async (userId: string) => {
+      assert.equal(userId, "deleted-runner");
+      throw new Error("user_not_found");
+    },
+  } };
+
+  const listed = await listPublicGroupQuests(client);
+
+  assert.deepEqual(listed.filter(({ official }) => !official).map(({ name }) => name).sort(), ["Legacy hosted", "Unrelated table"]);
+  assert.equal(listed.find(({ id }) => id === hosted.id)?.participants[0]?.leaderboardName, "Quest runner");
+});
+
+test("public catalog redacts a historical 60-character host prefix when provenance is unavailable", async () => {
+  const hosted = buildGroupQuest({
+    hostUserId: "deleted-host",
+    hostName: "h".repeat(60),
+    name: "Legacy hosted",
+    inviteMode: "public",
+  });
+  const client = { users: {
+    getUserList: async () => ({
+      data: [{ id: "replica-user", privateMetadata: { sqcGroupQuests: [hosted] } }],
+      totalCount: 1,
+    }),
+    getUser: async () => {
+      throw new Error("user_not_found");
+    },
+  } };
+
+  const listed = await listPublicGroupQuests(client);
+
+  assert.equal(listed.find(({ id }) => id === hosted.id)?.hostName, "Quest host");
+});
+
+test("public catalog preserves a maximum-length alias with trusted profile provenance", async () => {
+  const alias = "a".repeat(60);
+  const hosted = buildGroupQuest({
+    hostUserId: "profile-runner",
+    hostName: alias,
+    name: "Legacy hosted",
+    inviteMode: "public",
+  });
+  hosted.participants = [participant("profile-runner", { leaderboardName: alias })];
+  const client = { users: {
+    getUserList: async () => ({
+      data: [
+        {
+          id: "profile-runner",
+          username: "PublicKnight",
+          emailAddresses: [],
+          publicMetadata: withPublishedRunnerIdentity({}, alias),
+          privateMetadata: { sqcGroupQuests: [hosted] },
+        },
+      ],
+      totalCount: 1,
+    }),
+  } };
+
+  const listed = await listPublicGroupQuests(client);
+
+  assert.equal(listed.find(({ id }) => id === hosted.id)?.participants[0]?.leaderboardName, alias);
+});
+
+test("supplemental identity lookup preserves its Clerk client receiver", async () => {
+  const alias = "a".repeat(60);
+  const hosted = buildGroupQuest({
+    hostUserId: "host-user",
+    hostName: "Public Host",
+    name: "Legacy hosted",
+    inviteMode: "public",
+  });
+  hosted.participants = [participant("profile-runner", { leaderboardName: alias })];
+  const users = {
+    getUserList: async () => ({
+      data: [{ id: "host-user", privateMetadata: { sqcGroupQuests: [hosted] } }],
+      totalCount: 1,
+    }),
+    async getUser(userId: string) {
+      assert.equal(this, users);
+      assert.equal(userId, "profile-runner");
+      return {
+        id: userId,
+        emailAddresses: [],
+        publicMetadata: withPublishedRunnerIdentity({}, alias),
+        privateMetadata: {},
+      };
+    },
+  };
+
+  const listed = await listPublicGroupQuests({ users });
+
+  assert.equal(listed.find(({ id }) => id === hosted.id)?.participants[0]?.leaderboardName, alias);
+});
+
+test("public catalog bounds supplemental identity lookups and redacts unresolved identities", async () => {
+  const quests = ["First", "Second"].map((name, questIndex) => {
+    const quest = buildGroupQuest({ hostUserId: "host-user", hostName: "Host", name, inviteMode: "public" });
+    quest.id = `legacy-${questIndex}`;
+    quest.participants = Array.from({ length: 60 }, (_, participantIndex) => participant(
+      `runner-${questIndex}-${participantIndex}`,
+      { leaderboardName: `${questIndex}${String(participantIndex).padStart(2, "0")}${"a".repeat(57)}` },
+    ));
+    return quest;
+  });
+  let directLookups = 0;
+  const client = { users: {
+    getUserList: async () => ({
+      data: [{ id: "host-user", emailAddresses: [], privateMetadata: { sqcGroupQuests: quests } }],
+      totalCount: 1,
+    }),
+    getUser: async (userId: string) => {
+      directLookups += 1;
+      return { id: userId, emailAddresses: [], privateMetadata: {} };
+    },
+  } };
+
+  const listed = await listPublicGroupQuests(client);
+  const participantNames = listed.filter(({ official }) => !official).flatMap(({ participants }) => participants.map(({ leaderboardName }) => leaderboardName));
+
+  assert.equal(directLookups, 100);
+  assert.equal(participantNames.filter((name) => name === "Quest runner").length, 120);
+  assert.equal(participantNames.length, 120);
+});
+
+test("public catalog stops stalled optional identity lookups at an elapsed-time deadline", async () => {
+  const hosted = buildGroupQuest({
+    hostUserId: "stalled-host",
+    hostName: "h".repeat(60),
+    name: "Still available",
+    inviteMode: "public",
+  });
+  const client = { users: {
+    getUserList: async () => ({
+      data: [{ id: "storage-owner", emailAddresses: [], privateMetadata: { sqcGroupQuests: [hosted] } }],
+      totalCount: 1,
+    }),
+    getUser: async () => new Promise<never>(() => undefined),
+  } };
+
+  let deadlineTimer: NodeJS.Timeout | undefined;
+  const listed = await Promise.race([
+    listPublicGroupQuests(client),
+    new Promise<never>((_resolve, reject) => {
+      deadlineTimer = setTimeout(() => reject(new Error("optional identity lookup exceeded deadline")), 750);
+    }),
+  ]);
+  if (deadlineTimer) clearTimeout(deadlineTimer);
+
+  assert.equal(listed.find(({ id }) => id === hosted.id)?.hostName, "Quest host");
+});
+
+test("exact-resource Clerk loaders redact identities truncated by the historical writer", async () => {
+  const participantEmail = `${"p".repeat(60)}@private.example.test`;
+  const historicalParticipant = buildParticipant({
+    userId: "legacy-runner",
+    provider: "lichess",
+    username: "public-chess-name",
+    leaderboardName: participantEmail,
+  });
+  assert.ok(historicalParticipant);
+  const hosted = buildGroupQuest({
+    hostUserId: "host-user",
+    hostName: "Public Host Alias",
+    name: "Legacy hosted",
+    inviteMode: "private-key",
+    inviteKey: "ROOK-742",
+  });
+  hosted.participants = [historicalParticipant];
+  const client = { users: { getUserList: async () => ({
+    data: [
+      { id: "host-user", emailAddresses: [], privateMetadata: { sqcGroupQuests: [hosted] } },
+      { id: "legacy-runner", emailAddresses: [{ emailAddress: participantEmail }], privateMetadata: {} },
+    ],
+    totalCount: 2,
+  }) } };
+
+  const byId = await findGroupQuestById(client, hosted.id);
+  const byInvite = await findGroupQuestByInviteKey(client, "ROOK-742");
+
+  assert.equal(byId?.groupQuest.participants[0]?.leaderboardName, "Quest runner");
+  assert.equal(byInvite?.groupQuest.participants[0]?.leaderboardName, "Quest runner");
 });
 
 for (const lookup of ["id", "invite", "catalog"] as const) {

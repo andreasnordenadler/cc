@@ -118,6 +118,7 @@ import {
   getChallengeProgress,
   getChessComUsername,
   getLichessUsername,
+  withPublishedRunnerIdentity,
   type ChallengeAttempt,
   type UserMetadataRecord,
 } from "@/lib/user-metadata";
@@ -699,11 +700,11 @@ export async function saveChessUsernames(formData: FormData) {
 
 export async function saveRunnerProfile(formData: FormData) {
   const { userId, metadata } = await getUserContext();
-  const runnerDisplayName = String(formData.get("runnerDisplayName") ?? "").trim().slice(0, 60);
+  const runnerDisplayNameInput = String(formData.get("runnerDisplayName") ?? "").trim();
   const runnerBio = String(formData.get("runnerBio") ?? "").trim().slice(0, 180);
   const lichessUsername = sanitizeChessUsername(formData.get("lichessUsername"));
   const chessComUsername = sanitizeChessUsername(formData.get("chessComUsername"));
-  const profileTextError = validatePublicProfileText(runnerDisplayName, runnerBio);
+  const profileTextError = validatePublicProfileText(runnerDisplayNameInput, runnerBio);
 
   if (profileTextError) {
     throw new Error(profileTextError);
@@ -718,13 +719,12 @@ export async function saveRunnerProfile(formData: FormData) {
   }
 
   const { lichess, chessCom } = await validateChessAccountsOrThrow(lichessUsername, chessComUsername);
-  const nextMetadata = await refreshChessRatingSnapshots({
+  const nextMetadata = await refreshChessRatingSnapshots(withPublishedRunnerIdentity({
     ...metadata,
-    runnerDisplayName,
     runnerBio,
     lichessUsername: lichess,
     chessComUsername: chessCom,
-  }, { force: true });
+  }, runnerDisplayNameInput), { force: true });
 
   const client = await clerkClient();
   await client.users.updateUserMetadata(userId, {

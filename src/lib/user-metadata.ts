@@ -2,6 +2,19 @@ import { CHALLENGES } from "@/lib/challenges";
 
 export type UserMetadataRecord = Record<string, unknown>;
 
+export type PreferredRunnerIdentity = {
+  name: string;
+  provenance: "profile-save" | "legacy" | "clerk";
+};
+
+const PUBLIC_IDENTITY_METADATA_KEY = "sqcPublicIdentity";
+
+type PublishedRunnerIdentity = {
+  v: 1;
+  displayName: string;
+  source: "profile-save";
+};
+
 export type ChallengeProgress = {
   completedChallengeIds: string[];
   totalCompletedChallenges: number;
@@ -65,31 +78,84 @@ export function getRunnerDisplayName(metadata: UserMetadataRecord): string {
   return stored;
 }
 
+export function withPublishedRunnerIdentity(
+  metadata: UserMetadataRecord,
+  displayName: string,
+): UserMetadataRecord {
+  const normalized = sanitizePublicIdentityName(displayName, "").slice(0, 60);
+  const nextMetadata: UserMetadataRecord = {
+    ...metadata,
+    runnerDisplayName: normalized,
+  };
+  if (!normalized) {
+    nextMetadata[PUBLIC_IDENTITY_METADATA_KEY] = null;
+    return nextMetadata;
+  }
+  nextMetadata[PUBLIC_IDENTITY_METADATA_KEY] = {
+    v: 1,
+    displayName: normalized,
+    source: "profile-save",
+  } satisfies PublishedRunnerIdentity;
+  return nextMetadata;
+}
+
+function getPublishedRunnerIdentity(metadata: UserMetadataRecord): PreferredRunnerIdentity | null {
+  const value = metadata[PUBLIC_IDENTITY_METADATA_KEY];
+  if (!value || typeof value !== "object") return null;
+  const record = value as Record<string, unknown>;
+  if (record.v !== 1 || record.source !== "profile-save") return null;
+  const name = sanitizePublicIdentityName(record.displayName, "");
+  if (!name || name.length > 60 || metadata.runnerDisplayName !== record.displayName) return null;
+  return { name, provenance: "profile-save" };
+}
+
+export function sanitizePublicIdentityName(value: unknown, fallback: string): string {
+  if (typeof value !== "string") return fallback;
+  const trimmed = value.trim();
+  if (!trimmed || /[^\s@]+@[^\s@]+/.test(trimmed)) return fallback;
+  return trimmed;
+}
+
 export function getClerkHumanName(user: {
   firstName?: string | null;
   lastName?: string | null;
   username?: string | null;
   emailAddress?: string | null;
 }): string {
-  const fullName = [user.firstName, user.lastName].filter(Boolean).join(" ").trim();
+  const email = user.emailAddress?.trim().toLowerCase() ?? "";
+  const publicComponent = (value: string | null | undefined) => {
+    const component = value?.trim() ?? "";
+    if (!component) return "";
+    if (/^[^\s@]+@[^\s@]+$/.test(component)) return "";
+    if (email && component.toLowerCase() === email) return "";
+    return component;
+  };
+  const fullName = [publicComponent(user.firstName), publicComponent(user.lastName)]
+    .filter(Boolean)
+    .join(" ");
 
-  if (fullName) {
-    return fullName;
-  }
+  if (fullName) return fullName;
 
-  if (user.firstName?.trim()) {
-    return user.firstName.trim();
-  }
+  return publicComponent(user.username);
+}
 
-  if (user.username?.trim()) {
-    return user.username.trim();
-  }
+export function getPreferredRunnerIdentity(
+  metadata: UserMetadataRecord,
+  user: {
+    firstName?: string | null;
+    lastName?: string | null;
+    username?: string | null;
+    emailAddress?: string | null;
+  },
+): PreferredRunnerIdentity | null {
+  const published = getPublishedRunnerIdentity(metadata);
+  if (published) return published;
 
-  if (user.emailAddress?.trim()) {
-    return user.emailAddress.trim();
-  }
+  const stored = sanitizePublicIdentityName(getRunnerDisplayName(metadata), "");
+  if (stored && stored.length < 60) return { name: stored, provenance: "legacy" };
 
-  return "";
+  const clerkName = sanitizePublicIdentityName(getClerkHumanName(user), "");
+  return clerkName ? { name: clerkName, provenance: "clerk" } : null;
 }
 
 export function getPreferredRunnerName(
@@ -101,7 +167,7 @@ export function getPreferredRunnerName(
     emailAddress?: string | null;
   },
 ): string {
-  return getRunnerDisplayName(metadata) || getClerkHumanName(user);
+  return getPreferredRunnerIdentity(metadata, user)?.name ?? "";
 }
 
 export function getRunnerBio(metadata: UserMetadataRecord): string {

@@ -64,7 +64,7 @@ export function getAnalyticsStore(metadata: unknown): SQCAnalyticsStore {
   if (!metadata || typeof metadata !== "object") return {};
   const candidate = (metadata as { sqcAnalytics?: unknown }).sqcAnalytics;
   if (!candidate || typeof candidate !== "object") return {};
-  return candidate as SQCAnalyticsStore;
+  return sanitizeAnalyticsStorePaths(candidate as SQCAnalyticsStore);
 }
 
 export function getSupportMessages(metadata: unknown): SQCSupportMessage[] {
@@ -95,13 +95,277 @@ export function normalizeAnalyticsEvent(event: Partial<SQCAnalyticsEvent>): SQCA
   return {
     type: event.type,
     at: typeof event.at === "string" ? event.at : new Date().toISOString(),
-    path: cleanText(event.path, 180),
+    path: sanitizeAnalyticsPath(event.path),
     questId: cleanText(event.questId, 80),
     provider: cleanText(event.provider, 40),
     status: cleanText(event.status, 40),
     gameId: cleanText(event.gameId, 120),
     source: cleanText(event.source, 40),
     deviceType: normalizeDeviceType(event.deviceType),
+  };
+}
+
+export function sanitizeAnalyticsPath(value: unknown) {
+  if (typeof value !== "string") return undefined;
+  if (hasUrlPreprocessingControls(value)) return undefined;
+  const path = value.trim();
+  if (!path) return undefined;
+  if (classifyStructuralPath(path).unsafe) return undefined;
+
+  const directProofPath = sanitizedProofPath(path);
+  if (directProofPath) return directProofPath;
+
+  const authenticationPath = sanitizedAuthenticationPath(path, 0);
+  if (authenticationPath) return cleanText(authenticationPath, 180);
+
+  return cleanText(path, 180);
+}
+
+const MAX_AUTHENTICATION_RETURN_DEPTH = 3;
+const MAX_ANALYTICS_PATH_INPUT_LENGTH = 2_048;
+const MAX_STRUCTURAL_DECODING_PASSES = 6;
+
+type StructuralPathClassification = {
+  pathname?: string;
+  pathnames?: string[];
+  unsafe: boolean;
+};
+
+type ParsedStructuralPath = StructuralPathClassification & {
+  parsed?: URL;
+  rawPathname?: string;
+  rawPathnames?: string[];
+};
+
+type StructuralDecodingPipeline = {
+  states: string[];
+  unsafe: boolean;
+};
+
+const utf8Decoder = new TextDecoder("utf-8", { fatal: true, ignoreBOM: true });
+
+function decodePercentByteRun(encoded: string): { decoded: string; unsafe: boolean } {
+  const bytes = new Uint8Array(encoded.match(/[0-9a-f]{2}/gi)?.map((hex) => Number.parseInt(hex, 16)) ?? []);
+  try {
+    return { decoded: utf8Decoder.decode(bytes), unsafe: false };
+  } catch {
+    return { decoded: encoded, unsafe: true };
+  }
+}
+
+function decodeOneStructuralLayer(value: string): { value: string; unsafe: boolean } {
+  let unsafe = false;
+  const decoded = value.replace(/(?:%[0-9a-f]{2})+/gi, (encoded) => {
+    const result = decodePercentByteRun(encoded);
+    unsafe ||= result.unsafe;
+    return result.decoded;
+  });
+  return { value: decoded, unsafe };
+}
+
+function hasUrlPreprocessingControls(value: string) {
+  return /[\u0000-\u001f\u007f]/.test(value);
+}
+
+function structuralDecodingPipeline(value: string): StructuralDecodingPipeline {
+  const states = [value];
+  let decoded = value;
+  for (let pass = 0; pass < MAX_STRUCTURAL_DECODING_PASSES; pass += 1) {
+    const next = decodeOneStructuralLayer(decoded);
+    if (next.unsafe) return { states, unsafe: true };
+    if (next.value === decoded) return { states, unsafe: false };
+    decoded = next.value;
+    states.push(decoded);
+    if (hasUrlPreprocessingControls(decoded)) return { states, unsafe: true };
+  }
+
+  return { states, unsafe: /%[0-9a-f]{2}/i.test(decoded) };
+}
+
+function decodeStructuralComponent(value: string): StructuralPathClassification {
+  const pipeline = structuralDecodingPipeline(value);
+  if (pipeline.unsafe) return { unsafe: true };
+  return {
+    pathname: pipeline.states.at(-1),
+    pathnames: pipeline.states,
+    unsafe: false,
+  };
+}
+
+function unwrapEncodedUrlPrefix(value: string): { candidate: string; unsafe: boolean } {
+  if (/^(?:https?:|[\\/])/i.test(value)) return { candidate: value, unsafe: false };
+
+  const pipeline = structuralDecodingPipeline(value);
+  if (pipeline.unsafe) return { candidate: value, unsafe: true };
+  for (const decoded of pipeline.states.slice(1)) {
+    const structuralCandidate = decoded.trimStart();
+    if (/^(?:https?:|[\\/])/i.test(structuralCandidate)) {
+      return structuralCandidate === decoded
+        ? { candidate: decoded, unsafe: false }
+        : { candidate: value, unsafe: true };
+    }
+  }
+
+  return { candidate: value, unsafe: false };
+}
+
+function hasAmbiguousAuthorityPrefix(value: string) {
+  const hasLiteralAuthority = /^[\\/]{2}/.test(value);
+  if (/^[\\/]{3,}/.test(value)) return true;
+
+  const pipeline = structuralDecodingPipeline(extractRawPathname(value));
+  if (pipeline.unsafe) return true;
+  const decodedPathname = pipeline.states.at(-1) ?? value;
+
+  return !hasLiteralAuthority && /^[\\/]{2}/.test(decodedPathname);
+}
+
+function extractRawPathname(value: string) {
+  let pathStart = 0;
+  const scheme = value.match(/^https?:\/\//i)?.[0];
+  const hasProtocolRelativeAuthority = /^[\\/]{2}/.test(value);
+  const authorityStart = scheme ? scheme.length : hasProtocolRelativeAuthority ? 2 : undefined;
+
+  if (authorityStart !== undefined) {
+    const boundaryOffset = value.slice(authorityStart).search(/[\\/?#]/);
+    if (boundaryOffset < 0) return "/";
+    const boundary = authorityStart + boundaryOffset;
+    if (value[boundary] !== "/" && value[boundary] !== "\\") return "/";
+    pathStart = boundary;
+  }
+
+  const suffixOffset = value.slice(pathStart).search(/[?#]/);
+  const pathname = (suffixOffset < 0
+    ? value.slice(pathStart)
+    : value.slice(pathStart, pathStart + suffixOffset))
+    .replaceAll("\\", "/");
+  if (!pathname) return "/";
+  return pathname.startsWith("/") ? pathname : `/${pathname}`;
+}
+
+function pathResolutionSnapshots(pathname: string | undefined) {
+  if (!pathname) return [];
+  const segments: string[] = [];
+  const snapshots: string[] = [];
+  for (const segment of pathname.split("/")) {
+    if (segment === "" && segments.length === 0) continue;
+    if (segment === ".") continue;
+    if (segment === "..") segments.pop();
+    else segments.push(segment);
+    snapshots.push(`/${segments.join("/")}`);
+  }
+  return snapshots;
+}
+
+function parseStructuralPath(value: string): ParsedStructuralPath {
+  if (value.length > MAX_ANALYTICS_PATH_INPUT_LENGTH || hasUrlPreprocessingControls(value)) {
+    return { unsafe: true };
+  }
+
+  const unwrapped = unwrapEncodedUrlPrefix(value.trim());
+  if (unwrapped.unsafe) return { unsafe: true };
+  const candidate = unwrapped.candidate;
+
+  if (hasUrlPreprocessingControls(candidate)) return { unsafe: true };
+  if (hasAmbiguousAuthorityPrefix(candidate)) return { unsafe: true };
+  if (/^https?:/i.test(candidate) && !/^https?:\/\/[^\\/?#]+(?:[\\/?#]|$)/i.test(candidate)) {
+    return { unsafe: true };
+  }
+
+  try {
+    const parsed = new URL(candidate, "https://analytics.sidequestchess.invalid");
+    const rawStructuralPath = decodeStructuralComponent(extractRawPathname(candidate));
+    if (rawStructuralPath.unsafe) return rawStructuralPath;
+    const structuralPath = decodeStructuralComponent(parsed.pathname);
+    if (structuralPath.unsafe) return structuralPath;
+    return {
+      pathname: structuralPath.pathname?.replaceAll("\\", "/"),
+      pathnames: structuralPath.pathnames?.map((pathname) => pathname.replaceAll("\\", "/")),
+      unsafe: false,
+      parsed,
+      rawPathname: rawStructuralPath.pathname?.replaceAll("\\", "/"),
+      rawPathnames: rawStructuralPath.pathnames?.map((pathname) => pathname.replaceAll("\\", "/")),
+    };
+  } catch {
+    return { unsafe: true };
+  }
+}
+
+function classifyStructuralPath(value: string): StructuralPathClassification {
+  const { pathname, unsafe } = parseStructuralPath(value);
+  return { pathname, unsafe };
+}
+
+function structuralPathCandidates(structural: ParsedStructuralPath) {
+  const rawPathnames = structural.rawPathnames ?? (structural.rawPathname ? [structural.rawPathname] : []);
+  const pathnames = structural.pathnames ?? (structural.pathname ? [structural.pathname] : []);
+  return [
+    ...rawPathnames.flatMap((pathname) => pathResolutionSnapshots(pathname)),
+    ...rawPathnames,
+    ...pathnames,
+  ];
+}
+
+function sanitizedAuthenticationPath(value: string, depth: number): string | undefined {
+  const structural = parseStructuralPath(value);
+  if (structural.unsafe || !structural.parsed) return undefined;
+
+  const authenticationPath = structuralPathCandidates(structural)
+    .map((pathname) => pathname?.match(/^\/+(sign-(?:in|up))(?:\/|[?#]|$)/)?.[1])
+    .find(Boolean);
+  if (!authenticationPath) return undefined;
+
+  const sanitizedPathname = `/${authenticationPath}`;
+  const sanitizedSearch = new URLSearchParams();
+  for (const [key, entry] of structural.parsed.searchParams) {
+    if (key !== "redirect_url") continue;
+    if (classifyStructuralPath(entry).unsafe) continue;
+
+    if (sanitizedProofPath(entry)) {
+      sanitizedSearch.append(key, "/proof/[token]");
+      continue;
+    }
+
+    if (depth >= MAX_AUTHENTICATION_RETURN_DEPTH) continue;
+    const nestedAuthenticationPath = sanitizedAuthenticationPath(entry, depth + 1);
+    sanitizedSearch.append(
+      key,
+      nestedAuthenticationPath && authenticationPathReturnsProof(nestedAuthenticationPath)
+        ? "/proof/[token]"
+        : nestedAuthenticationPath ?? entry,
+    );
+  }
+
+  const query = sanitizedSearch.toString();
+  return `${sanitizedPathname}${query ? `?${query}` : ""}`;
+}
+
+function authenticationPathReturnsProof(value: string) {
+  try {
+    const parsed = new URL(value, "https://analytics.sidequestchess.invalid");
+    if (!/^\/sign-(?:in|up)$/.test(parsed.pathname)) return false;
+    return parsed.searchParams.getAll("redirect_url").some((entry) => Boolean(sanitizedProofPath(entry)));
+  } catch {
+    return false;
+  }
+}
+
+function sanitizedProofPath(value: string) {
+  const structural = parseStructuralPath(value);
+  if (structural.unsafe) return undefined;
+  return structuralPathCandidates(structural).some(
+    (pathname) => Boolean(pathname && /^\/+proof\/+[^/?#]+/i.test(pathname)),
+  )
+    ? "/proof/[token]"
+    : undefined;
+}
+
+function sanitizeAnalyticsStorePaths(store: SQCAnalyticsStore): SQCAnalyticsStore {
+  return {
+    ...store,
+    recentEvents: Array.isArray(store.recentEvents)
+      ? store.recentEvents.map((event) => ({ ...event, path: sanitizeAnalyticsPath(event.path) }))
+      : store.recentEvents,
   };
 }
 
@@ -151,7 +415,7 @@ export function compactAnalyticsStore(store: SQCAnalyticsStore): SQCAnalyticsSto
     ? store.recentEvents.slice(-COMPACT_RECENT_EVENTS).map((event) => ({
         type: event.type,
         at: event.at,
-        path: event.path,
+        path: sanitizeAnalyticsPath(event.path),
         questId: event.questId,
         provider: event.provider,
         status: event.status,

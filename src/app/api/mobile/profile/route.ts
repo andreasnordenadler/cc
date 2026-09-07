@@ -1,10 +1,12 @@
 import { clerkClient } from "@clerk/nextjs/server";
+import { AsyncLocalStorage } from "node:async_hooks";
 import { NextResponse } from "next/server";
 import { getMobileRequestUserId } from "@/lib/mobile-auth";
 import { getChessRatingSnapshots, refreshChessRatingSnapshots } from "@/lib/chess-ratings";
 import {
   getChessComUsername,
   getLichessUsername,
+  withPublishedRunnerIdentity,
   type UserMetadataRecord,
 } from "@/lib/user-metadata";
 import {
@@ -14,8 +16,39 @@ import {
 } from "@/lib/chess-username-validation";
 import { validatePublicProfileText } from "@/lib/mobile-profile-publication";
 
+type MobileProfileRouteDependencies = {
+  authenticate: typeof getMobileRequestUserId;
+  getClient: () => ReturnType<typeof clerkClient>;
+  validateLichess: typeof validateLichessUsername;
+  validateChessCom: typeof validateChessComUsername;
+  refreshRatings: typeof refreshChessRatingSnapshots;
+};
+
+const mobileProfileTestDependencies = new AsyncLocalStorage<MobileProfileRouteDependencies>();
+
+export function withMobileProfileRouteTestDependencies<Result>(
+  dependencies: MobileProfileRouteDependencies,
+  callback: () => Result,
+): Result {
+  if (process.env.NODE_ENV !== "test") throw new Error("Profile route dependency overrides are test-only.");
+  return mobileProfileTestDependencies.run(dependencies, callback);
+}
+
+function createMobileProfileRouteDependencies(): MobileProfileRouteDependencies {
+  return {
+    authenticate: getMobileRequestUserId,
+    getClient: clerkClient,
+    validateLichess: validateLichessUsername,
+    validateChessCom: validateChessComUsername,
+    refreshRatings: refreshChessRatingSnapshots,
+  };
+}
+
 export async function PATCH(request: Request) {
-  const userId = await getMobileRequestUserId(request);
+  const dependencies = process.env.NODE_ENV === "test"
+    ? mobileProfileTestDependencies.getStore() ?? createMobileProfileRouteDependencies()
+    : createMobileProfileRouteDependencies();
+  const userId = await dependencies.authenticate(request);
 
   if (!userId) {
     return NextResponse.json(
@@ -45,9 +78,9 @@ export async function PATCH(request: Request) {
   }
 
   const record = payload && typeof payload === "object" ? (payload as Record<string, unknown>) : {};
-  const runnerDisplayName = typeof record.runnerDisplayName === "string" ? record.runnerDisplayName.trim().slice(0, 60) : undefined;
+  const runnerDisplayNameInput = typeof record.runnerDisplayName === "string" ? record.runnerDisplayName.trim() : undefined;
   const runnerBio = typeof record.runnerBio === "string" ? record.runnerBio.trim().slice(0, 180) : undefined;
-  const profileValidationMessage = validatePublicProfileText(runnerDisplayName, runnerBio);
+  const profileValidationMessage = validatePublicProfileText(runnerDisplayNameInput, runnerBio);
   if (profileValidationMessage) {
     return NextResponse.json(
       {
@@ -87,8 +120,8 @@ export async function PATCH(request: Request) {
   }
 
   const [lichessValidation, chessComValidation] = await Promise.all([
-    validateLichessUsername(lichessUsername),
-    validateChessComUsername(chessComUsername),
+    dependencies.validateLichess(lichessUsername),
+    dependencies.validateChessCom(chessComUsername),
   ]);
 
   if (!lichessValidation.ok || !chessComValidation.ok) {
@@ -103,17 +136,19 @@ export async function PATCH(request: Request) {
     );
   }
 
-  const client = await clerkClient();
+  const client = await dependencies.getClient();
   const user = await client.users.getUser(userId);
   const metadata = user.publicMetadata ? (user.publicMetadata as UserMetadataRecord) : {};
-  const nextMetadata = {
+  const profileMetadata = {
     ...metadata,
-    ...(runnerDisplayName !== undefined ? { runnerDisplayName } : {}),
     ...(runnerBio !== undefined ? { runnerBio } : {}),
     lichessUsername: lichessValidation.username,
     chessComUsername: chessComValidation.username,
   };
-  const refreshed = await refreshChessRatingSnapshots(nextMetadata, { force: true });
+  const nextMetadata = runnerDisplayNameInput === undefined
+    ? profileMetadata
+    : withPublishedRunnerIdentity(profileMetadata, runnerDisplayNameInput ?? "");
+  const refreshed = await dependencies.refreshRatings(nextMetadata, { force: true });
 
   await client.users.updateUserMetadata(userId, {
     publicMetadata: refreshed.metadata,

@@ -4,7 +4,7 @@ import type { PublicCommunitySideQuest } from "./community-side-quests";
 import type { CustomSideQuest } from "./custom-side-quests";
 import { getMobileWebTrophyRows } from "./mobile-web-trophies";
 import { buildCompletedCustomPublicProofPath, buildCompletedOfficialPublicProofPath } from "./proof-share";
-import type { ActiveChallenge, ChallengeAttempt } from "./user-metadata";
+import type { ActiveChallenge, ChallengeAttempt, PreferredRunnerIdentity } from "./user-metadata";
 
 const HOME_TROPHY_ROW_LIMIT = 12;
 
@@ -47,12 +47,14 @@ export async function buildHomeActiveSoloProofPath({
   customQuest,
   attempt,
   runnerName,
+  runnerIdentity,
 }: {
   completed: boolean;
   officialChallenge: Challenge | null;
   customQuest: CustomSideQuest | null;
   attempt: ChallengeAttempt | null;
   runnerName?: string;
+  runnerIdentity?: PreferredRunnerIdentity | null;
 }) {
   if (officialChallenge) {
     return buildCompletedOfficialPublicProofPath({
@@ -60,6 +62,7 @@ export async function buildHomeActiveSoloProofPath({
       attempt,
       challenge: officialChallenge,
       runnerName,
+      runnerIdentity,
     });
   }
   if (customQuest) {

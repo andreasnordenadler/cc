@@ -94,6 +94,24 @@ test("Multiplayer previews preserve Android's Soon, Live, and Finished status pr
   ], ["Soon", "Live", "Finished"]);
 });
 
+test("anonymous Multiplayer previews redact legacy email identities", () => {
+  const loginEmail = "private.login@example.test";
+  const preview = buildMobileWebMultiplayerPreview(quest({
+    hostName: loginEmail,
+    participants: [{
+      userId: "email-only-player",
+      provider: "lichess",
+      username: "public-chess-name",
+      leaderboardName: loginEmail,
+      joinedAt: "2026-07-11T00:00:00.000Z",
+    }],
+  }), null, "Community", likeSummary, true);
+
+  assert.equal(preview.hostName, "Quest host");
+  assert.equal(preview.leaderboardRows[0]?.name, "Quest runner");
+  assert.equal(JSON.stringify(preview).includes(loginEmail), false);
+});
+
 test("private invite codes use the canonical storage owner and never participant replicas", () => {
   const privateQuest = quest({ inviteMode: "private-key", inviteKey: "ROOK-742", participants: [{ userId: "participant", provider: "lichess", username: "rook-player", leaderboardName: "Rook Player", joinedAt: "2026-07-11T00:00:00.000Z" }] });
   const spoofedReplica = { ...privateQuest, hostUserId: "attacker" };

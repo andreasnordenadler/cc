@@ -88,6 +88,23 @@ test("provider-restricted join derives the matching username from authenticated 
   assert.equal(saved?.participants[0]?.username, "auth-chess");
 });
 
+test("email-only accounts join with a neutral public leaderboard name", async () => {
+  let saved: ServerGroupQuest | undefined;
+  const loginEmail = "private.login@example.test";
+  const response = await handleGroupQuestJoinRequest(post(), "email-only", joinDeps({
+    getUser: async (id) => ({
+      id,
+      primaryEmailAddress: { emailAddress: loginEmail },
+      publicMetadata: { lichessUsername: "public-chess-name" },
+    }),
+    saveJoinedQuest: async ({ joinedQuest }) => { saved = joinedQuest; },
+  }));
+
+  assert.equal(response.status, 200);
+  assert.equal(saved?.participants[0]?.leaderboardName, "Quest runner");
+  assert.equal(JSON.stringify(saved).includes(loginEmail), false);
+});
+
 test("join route rejects malformed JSON without looking up or mutating a quest", async () => {
   let calls = 0;
   const response = await handleGroupQuestJoinRequest(post("{"), "quest-route-id", joinDeps({

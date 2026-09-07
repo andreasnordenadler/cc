@@ -70,7 +70,7 @@ export async function handleGroupQuestJoinRequest(
       lastName: sessionUser.lastName,
       username: sessionUser.username,
       emailAddress: sessionUser.primaryEmailAddress?.emailAddress,
-    }),
+    }) || "Quest runner",
   });
   if (!participant) return Response.json({ ok: false, error: "missing_participant" }, { status: 400 });
 

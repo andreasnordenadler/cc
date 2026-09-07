@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
+import { sanitizeAnalyticsPath } from "@/lib/analytics";
 
 export default function AnalyticsTracker() {
   const pathname = usePathname();
@@ -10,7 +11,7 @@ export default function AnalyticsTracker() {
 
   useEffect(() => {
     const query = searchParams.toString();
-    const path = query ? `${pathname}?${query}` : pathname;
+    const path = sanitizeAnalyticsPath(query ? `${pathname}?${query}` : pathname);
 
     if (!path || lastTracked.current === path) return;
     lastTracked.current = path;
@@ -27,6 +28,7 @@ export default function AnalyticsTracker() {
       headers: { "content-type": "application/json" },
       body,
       keepalive: true,
+      referrerPolicy: "no-referrer",
     }).catch(() => undefined);
   }, [pathname, searchParams]);
 
