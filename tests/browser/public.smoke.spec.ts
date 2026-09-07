@@ -286,7 +286,7 @@ test("desktop Trophy Cabinet turns coat previews into decision-ready collection 
   await page.setViewportSize({ width: 1179, height: 900 });
   await expectHealthyNavigation(page, "/trophy-cabinet");
 
-  const grid = page.getByLabel("Official Solo Side Quest coat grid");
+  const grid = page.getByLabel("Official Solo Side Quest Coat of Arms grid");
   const firstCoat = grid.getByRole("link").first();
   await expect(firstCoat.locator(".sqc-coat-tile-context")).toBeHidden();
   await expect(firstCoat.locator(".sqc-coat-tile-objective")).toBeHidden();
@@ -332,15 +332,15 @@ test("desktop Trophy Cabinet turns coat previews into decision-ready collection 
   expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBe(0);
 });
 
-test("desktop Trophy Cabinet difficulty directory filters the shared coat collection", async ({ page }) => {
+test("desktop Trophy Cabinet difficulty directory filters the shared Coat of Arms collection", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await expectHealthyNavigation(page, "/trophy-cabinet");
 
-  const directory = page.getByRole("complementary", { name: "Filter coats by difficulty" });
-  const results = page.getByRole("region", { name: "Coat collection results" });
-  const grid = page.getByLabel("Official Solo Side Quest coat grid");
+  const directory = page.getByRole("complementary", { name: "Filter Coats of Arms by difficulty" });
+  const results = page.getByRole("region", { name: "Coat of Arms collection results" });
+  const grid = page.getByLabel("Official Solo Side Quest Coat of Arms grid");
   await expect(directory).toBeVisible();
-  await expect(results).toContainText("13 coats on display");
+  await expect(results).toContainText("13 Coats of Arms on display");
   await expect(grid.getByRole("link")).toHaveCount(13);
 
   const hardFilter = directory.getByRole("button", { name: "Hard 3" });
@@ -348,14 +348,14 @@ test("desktop Trophy Cabinet difficulty directory filters the shared coat collec
     await hardFilter.click();
     await expect(hardFilter).toHaveAttribute("aria-pressed", "true");
   }).toPass();
-  await expect(results).toContainText("3 Hard coats");
-  await expect(results.getByRole("button", { name: "Show all coats" })).toBeVisible();
+  await expect(results).toContainText("3 Hard Coats of Arms");
+  await expect(results.getByRole("button", { name: "Show all Coats of Arms" })).toBeVisible();
   await expect(grid.getByRole("link")).toHaveCount(3);
   await expect(grid.getByText("No Castle Club", { exact: true })).toHaveCount(0);
   expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBe(0);
 
-  await results.getByRole("button", { name: "Show all coats" }).click();
-  await expect(results).toContainText("13 coats on display");
+  await results.getByRole("button", { name: "Show all Coats of Arms" }).click();
+  await expect(results).toContainText("13 Coats of Arms on display");
   await expect(grid.getByRole("link")).toHaveCount(13);
 
   await page.setViewportSize({ width: 390, height: 844 });
@@ -1116,39 +1116,14 @@ test("wide Multiplayer detail expands its tournament canvas without changing the
   await expect(action).toHaveCSS("outline-style", "solid");
 });
 
-test("wide public proof expands the evidence canvas while preserving the mobile receipt flow", async ({ page }) => {
+test("unsigned preview proof tokens never render a public receipt", async ({ page }) => {
   await page.setViewportSize({ width: 1679, height: 900 });
-  await expectHealthyNavigation(page, "/proof/preview-back-rank-goblin");
-  await expect(page.getByRole("heading", { name: "Back Rank Goblin" })).toBeVisible();
+  const response = await page.goto("/proof/preview-back-rank-goblin", { waitUntil: "domcontentloaded" });
 
-  const geometry = async () => page.evaluate(() => {
-    const screen = document.querySelector(".sqc-screen")?.getBoundingClientRect();
-    const workspace = document.querySelector(".sqc-public-proof-workspace");
-    const receipt = document.querySelector(".sqc-public-proof-scroll-card")?.getBoundingClientRect();
-    const rail = document.querySelector(".sqc-public-proof-command-rail")?.getBoundingClientRect();
-    return {
-      screenWidth: Math.round(screen?.width ?? 0),
-      columns: workspace ? getComputedStyle(workspace).gridTemplateColumns.split(" ").map((value) => Math.round(Number.parseFloat(value))) : [],
-      receiptWidth: Math.round(receipt?.width ?? 0),
-      railWidth: Math.round(rail?.width ?? 0),
-      overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
-    };
-  });
-
-  expect(await geometry()).toMatchObject({ screenWidth: 1240, columns: [820, 394], receiptWidth: 820, railWidth: 394, overflow: 0 });
-
-  await page.setViewportSize({ width: 1680, height: 900 });
-  expect(await geometry()).toMatchObject({ screenWidth: 1584, columns: [1132, 420], receiptWidth: 1132, railWidth: 420, overflow: 0 });
-
-  await page.setViewportSize({ width: 1920, height: 1080 });
-  expect(await geometry()).toMatchObject({ screenWidth: 1600, columns: [1148, 420], receiptWidth: 1148, railWidth: 420, overflow: 0 });
-  const share = page.getByRole("button", { name: "Share public proof link" });
-  await share.focus();
-  await expect(share).toBeFocused();
-  await expect(share).toHaveCSS("outline-style", "solid");
-
-  await page.setViewportSize({ width: 390, height: 844 });
-  expect(await geometry()).toMatchObject({ screenWidth: 370, columns: [370], receiptWidth: 370, railWidth: 370, overflow: 0 });
+  expect(response, "the invalid token should still return a document for truthful recovery").not.toBeNull();
+  await expect(page.getByRole("heading", { name: "That page wandered off the board." })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Back Rank Goblin" })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Share public proof link" })).toHaveCount(0);
 });
 
 test("auth entry renders without requiring credentials", async ({ page }) => {
