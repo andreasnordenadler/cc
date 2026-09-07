@@ -9,6 +9,12 @@ export type VerifierStatus = {
 };
 
 export const verifierStatusByChallenge: Record<string, VerifierStatus> = {
+  "back-rank-goblin": {
+    state: "live",
+    summary: "Latest-game proof enabled",
+    evidence:
+      "Checks that the player wins by back-rank checkmate in a public Lichess or Chess.com game.",
+  },
   "finish-any-game": {
     state: "live",
     summary: "Latest-game proof enabled",
@@ -32,6 +38,12 @@ export const verifierStatusByChallenge: Record<string, VerifierStatus> = {
     summary: "Latest-game proof enabled",
     evidence:
       "Checks player win, a non-castling king move before the player’s move 12, legal time class, and standard chess from normalized Lichess UCI or Chess.com PGN moves.",
+  },
+  "pawn-only-picnic": {
+    state: "live",
+    summary: "Latest-game proof enabled",
+    evidence:
+      "Checks player win and the first eight player moves as pawns from normalized Lichess UCI or Chess.com PGN moves.",
   },
   "queen-never-heard-of-her": {
     state: "live",
