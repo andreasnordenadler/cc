@@ -4,6 +4,8 @@ import { NextResponse } from "next/server";
 
 const encodedBackslashPattern = /%5c/gi;
 const decodedBackslashPattern = /\\+/g;
+const canonicalPublicOrigin = "https://sidequestchess.com";
+const authenticationPathPattern = /^\/sign-(?:in|up)(?:\/|$)/;
 
 const clerkProxy = clerkMiddleware();
 
@@ -15,6 +17,10 @@ export function proxy(request: NextRequest, event: NextFetchEvent) {
     const url = request.nextUrl.clone();
     url.pathname = normalizedPathname;
     return NextResponse.redirect(url, 308);
+  }
+
+  if (authenticationPathPattern.test(pathname) && request.nextUrl.hostname.endsWith(".vercel.app")) {
+    return NextResponse.redirect(new URL(`${pathname}${request.nextUrl.search}`, canonicalPublicOrigin));
   }
 
   return clerkProxy(request, event);
