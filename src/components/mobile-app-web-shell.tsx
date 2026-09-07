@@ -24,9 +24,9 @@ import ActiveSoloActions from "./active-solo-actions";
 import GroupQuestRefreshButton from "./group-quest-refresh-button";
 import GroupQuestShareControls from "./group-quest-share-controls";
 import GroupQuestLeaveAction from "./group-quest-leave-action";
-import GroupQuestRemoveParticipantAction from "./group-quest-remove-participant-action";
 import CommunityMultiplayerReportControl from "./community-multiplayer-report-control";
 import GroupQuestInviteKeyControl from "./group-quest-invite-key-control";
+import MultiplayerLeaderboardRows from "./multiplayer-leaderboard-rows";
 import type { CustomEditQuestInput } from "@/lib/mobile-create-forms";
 import type { WebSupportAccountContext, WebSupportReportContext } from "@/lib/web-support-diagnostics";
 import DesktopHomeMenu from "./desktop-home-menu";
@@ -2231,21 +2231,11 @@ export function MobileMultiplayerDetailScreen({
         <section className="sqc-native-card sqc-multiplayer-native-card sqc-multiplayer-leaderboard" aria-label="Final leaderboard">
           <span className="sqc-card-eyebrow">Final leaderboard</span>
           <h2>Frozen player standings.</h2>
-          <div className="sqc-condition-list">
-            {quest.leaderboardRows.length ? quest.leaderboardRows.map((row) => (
-              <div key={`${row.rank}-${row.name}`} className="sqc-condition-compact-row">
-                <span>#{row.rank}</span>
-                <div>
-                  <strong>{row.name}{row.viewer ? " · You" : ""}</strong>
-                  <p>{[row.placement, row.progress, row.provider].filter(Boolean).join(" · ")}</p>
-                  <MultiplayerLeaderboardProgress progress={row.progress} />
-                  {row.note ? <p className="sqc-multiplayer-proof-note">{row.note}</p> : null}
-                </div>
-              </div>
-            )) : (
-              <p>No verified player standings were recorded.</p>
-            )}
-          </div>
+          <MultiplayerLeaderboardRows
+            id={quest.id}
+            rows={quest.leaderboardRows}
+            emptyMessage="No verified player standings were recorded."
+          />
         </section>
       ) : null}
 
@@ -2326,28 +2316,7 @@ export function MobileMultiplayerDetailScreen({
         <section className="sqc-native-card sqc-multiplayer-native-card sqc-multiplayer-leaderboard" aria-label="Live leaderboard">
           <span className="sqc-card-eyebrow">Leaderboard</span>
           <h2>{participating ? "Current Multiplayer Side Quest standings." : "Who is in so far."}</h2>
-          <div className="sqc-condition-list">
-            {quest.leaderboardRows.length ? quest.leaderboardRows.map((row) => (
-              <div key={`${row.rank}-${row.name}`} className="sqc-condition-compact-row">
-                <span>#{row.rank}</span>
-                <div>
-                  <strong>{row.name}{row.viewer ? " · You" : ""}</strong>
-                  <p>{[row.progress, row.provider].filter(Boolean).join(" · ")}</p>
-                  <MultiplayerLeaderboardProgress progress={row.progress} />
-                  {row.note ? <p className="sqc-multiplayer-proof-note">{row.note}</p> : null}
-                  {row.participantUserId ? (
-                    <GroupQuestRemoveParticipantAction
-                      id={quest.id}
-                      participantUserId={row.participantUserId}
-                      participantName={row.name}
-                    />
-                  ) : null}
-                </div>
-              </div>
-            )) : (
-              <p>No players have joined yet.</p>
-            )}
-          </div>
+          <MultiplayerLeaderboardRows id={quest.id} rows={quest.leaderboardRows} showRemoveControls />
         </section>
       ) : null}
 
@@ -2363,26 +2332,6 @@ export function MobileMultiplayerDetailScreen({
         </div>
       </section>
     </div>
-  );
-}
-
-function MultiplayerLeaderboardProgress({ progress }: { progress: string }) {
-  const match = progress.match(/(\d+)\s*\/\s*(\d+)/);
-  const done = Number(match?.[1] ?? 0);
-  const total = Number(match?.[2] ?? 0);
-  const percent = total > 0 ? Math.max(0, Math.min(100, Math.round((done / total) * 100))) : 0;
-  return (
-    <span className="sqc-multiplayer-progress-track">
-      <span
-        className="sqc-multiplayer-progress-fill"
-        role="progressbar"
-        aria-label={`${progress} Side Quests verified`}
-        aria-valuemin={0}
-        aria-valuemax={100}
-        aria-valuenow={percent}
-        style={{ width: `${percent}%` }}
-      />
-    </span>
   );
 }
 
