@@ -35,12 +35,14 @@ Mobile environment variable names and non-secret examples are documented in `app
 Run the same commands as CI:
 
 ```sh
+pnpm test
 pnpm lint
 pnpm --dir apps/mobile typecheck
+pnpm mobile:doctor
 pnpm build
 ```
 
-Lint warnings are reported but do not fail unless ESLint reports an error. There is no general-purpose `test` script at present; do not represent targeted QA scripts as a complete automated test suite.
+`pnpm test` is the general-purpose TypeScript suite. Lint warnings are reported but do not fail unless ESLint reports an error. Targeted QA scripts are additional coverage, not a substitute for the complete baseline.
 
 ## Release and production safety
 
