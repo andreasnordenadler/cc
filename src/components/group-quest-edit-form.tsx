@@ -304,7 +304,7 @@ export default function GroupQuestEditForm({ canMarkOfficial = false, groupQuest
             <div className="groupquests-rule-builder" aria-label="Host game settings">
               <div>
                 <span className="groupquests-rule-title">Host game settings</span>
-                <p>These describe the intended run. Automatic checks currently enforce quest, provider, and window.</p>
+                <p>Automatic checks enforce the Side Quest objective, selected provider, time control, rated or casual setting, player color, required result, and event window.</p>
               </div>
               <div className="groupquests-rule-grid">
                 {gameRuleGroups.map((group) => (
