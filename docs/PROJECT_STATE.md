@@ -14,11 +14,13 @@ This file is the concise entry point for the repository's current technical shap
 GitHub Actions runs the following checks for pull requests and pushes to `main`:
 
 1. `pnpm install --frozen-lockfile`
-2. `pnpm lint`
-3. `pnpm --dir apps/mobile typecheck`
-4. `pnpm build`
+2. `pnpm test`
+3. `pnpm lint`
+4. `pnpm --dir apps/mobile typecheck`
+5. `pnpm mobile:doctor`
+6. `pnpm build`
 
-There is currently no general-purpose automated test script in either package manifest, so CI does not claim to run a test suite. The repository does contain targeted QA, smoke, release-gate, and deployment scripts; these are intentionally excluded from baseline CI because they may require services, credentials, browsers, devices, or release context.
+The root package's general-purpose `pnpm test` script runs the TypeScript test suite in `tests/**/*.test.ts`. The repository also contains targeted QA, smoke, release-gate, and deployment scripts; these are intentionally excluded from baseline CI because they may require services, credentials, browsers, devices, or release context.
 
 ## Operational boundaries
 
