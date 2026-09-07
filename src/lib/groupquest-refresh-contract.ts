@@ -9,6 +9,8 @@ export function buildGroupQuestRefreshChecks(
     summary: result.summary,
     gameId: result.gameId,
     gameUrl: result.gameUrl,
+    gameTime: result.gameTime,
+    outcome: result.outcome,
     mismatchCode: result.mismatchReasons?.[0],
     mismatchReasons: result.mismatchReasons,
     finalPositionFen: result.finalPositionFen,
