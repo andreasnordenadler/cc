@@ -15,7 +15,7 @@ type ProviderValidation = {
 };
 
 export function sanitizeChessUsername(value: unknown): string | null {
-  const username = typeof value === "string" ? value.trim().slice(0, CHESS_USERNAME_MAX_LENGTH) : "";
+  const username = typeof value === "string" ? value.trim() : "";
 
   if (!CHESS_USERNAME_PATTERN.test(username)) {
     return null;
