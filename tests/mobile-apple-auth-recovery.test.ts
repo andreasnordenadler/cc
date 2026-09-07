@@ -42,7 +42,7 @@ test("Apple authorization_invalid falls back to browser OAuth and activates the 
   assert.deepEqual(events, ["native", "oauth", "active:session_review", "complete-oauth"]);
 });
 
-test("Apple native cancellation without a created session stays silent", async () => {
+test("Apple native authorization without a created session falls back to browser OAuth", async () => {
   let oauthStarted = false;
 
   const result = await runAppleSignInWithOAuthFallback({
@@ -55,8 +55,8 @@ test("Apple native cancellation without a created session stays silent", async (
     completeOAuth: async () => "complete",
   });
 
-  assert.equal(result, "canceled");
-  assert.equal(oauthStarted, false);
+  assert.equal(result, "oauth");
+  assert.equal(oauthStarted, true);
 });
 
 test("a thrown Apple cancellation never starts OAuth fallback", async () => {

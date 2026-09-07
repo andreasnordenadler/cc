@@ -72,13 +72,6 @@ test("the replacement iOS candidate advances beyond rejected build 1", () => {
   assert.equal(config.ios.buildNumber, "2");
 });
 
-test("Apple sign-in treats Clerk's canceled return shape as a non-error", async () => {
-  assert.equal(
-    await completeAppleSignIn({ createdSessionId: null, setActive: async () => undefined }),
-    "canceled",
-  );
-});
-
 test("Apple sign-in reports an activatable session that cannot be activated", async () => {
   await assert.rejects(
     completeAppleSignIn({ createdSessionId: "session_123", setActive: undefined }),
