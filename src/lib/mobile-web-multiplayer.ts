@@ -1,7 +1,7 @@
 import { CHALLENGES } from "@/lib/challenges";
 import { getCommunityLikeSummaries, type CommunityLikeSummary } from "@/lib/community-likes";
 import { describeCustomSideQuestRuleDetails } from "@/lib/community-side-quests";
-import { findGroupQuestById, listPublicGroupQuests, listUserRelatedGroupQuests, rankGroupQuestParticipants, type ServerGroupQuest } from "@/lib/groupquests";
+import { findGroupQuestById, getGroupQuestChallengeTitle, getPublicGroupQuestParticipantIdentity, getPublicGroupQuestProofSummary, hasObjectionablePublicGroupQuestMetadata, listPublicGroupQuests, listUserRelatedGroupQuests, rankGroupQuestParticipants, type ServerGroupQuest } from "@/lib/groupquests";
 import { sanitizePublicIdentityName } from "@/lib/user-metadata";
 import type { clerkClient } from "@clerk/nextjs/server";
 
@@ -167,7 +167,8 @@ export async function getMobileWebMultiplayerDetail(
   if (!found) return null;
   const canonicalOwnerUserId = found.userId === found.groupQuest.hostUserId ? found.userId : undefined;
   const joined = Boolean(userId) && found.groupQuest.participants.some((participant) => participant.userId === userId);
-  const hosted = canonicalOwnerUserId === userId;
+  const hosted = Boolean(userId) && canonicalOwnerUserId === userId;
+  if (found.groupQuest.inviteMode === "public" && !joined && !hosted && hasObjectionablePublicGroupQuestMetadata(found.groupQuest)) return null;
   if (found.groupQuest.inviteMode !== "public" && !joined && !hosted) return null;
   const likeSummaries = await dependencies.getLikeSummaries(client, userId ?? null);
   return buildMobileWebMultiplayerPreview(
@@ -293,16 +294,18 @@ export function buildMobileWebMultiplayerLeaderboardRows(
   canManageParticipants = false,
 ): MobileWebMultiplayerLeaderboardRow[] {
   return rankGroupQuestParticipants(quest).map((participant, index) => {
-    const note = formatLeaderboardNote(participant, userId, index, quest.questIds.length);
+    const lastProofSummary = getPublicGroupQuestProofSummary(participant.lastProofSummary);
+    const note = formatLeaderboardNote({ ...participant, lastProofSummary }, userId, index, quest.questIds.length);
+    const publicIdentity = getPublicGroupQuestParticipantIdentity(participant);
     return {
       rank: index + 1,
-      name: sanitizePublicIdentityName(participant.leaderboardName, "Quest runner"),
-      provider: `${participant.provider === "chesscom" ? "chess.com" : "lichess"} · ${participant.username}`,
+      name: publicIdentity.leaderboardName,
+      provider: `${participant.provider === "chesscom" ? "chess.com" : "lichess"} · ${publicIdentity.username}`,
       progress: `${participant.completedQuestIds?.length ?? 0}/${Math.max(quest.questIds.length, 1)}`,
       placement: podiumPlacements[index] ?? null,
       viewer: Boolean(userId) && participant.userId === userId,
       ...(note ? { note } : {}),
-      ...(participant.lastProofSummary?.trim() ? { lastProofSummary: participant.lastProofSummary.trim() } : {}),
+      ...(lastProofSummary ? { lastProofSummary } : {}),
       ...(canManageParticipants && participant.userId !== userId ? { participantUserId: participant.userId } : {}),
     };
   });
@@ -326,12 +329,6 @@ function formatLeaderboardNote(
   return [selfPrefix, finalPrefix, `Latest proof${proofDate ? ` ${proofDate}` : ""}: ${summary}`]
     .filter(Boolean)
     .join(" · ");
-}
-
-function getGroupQuestChallengeTitle(quest: Pick<ServerGroupQuest, "customQuestSnapshots">, challengeId: string) {
-  return quest.customQuestSnapshots?.find((snapshot) => snapshot.id === challengeId)?.title
-    ?? CHALLENGES.find((challenge) => challenge.id === challengeId)?.title
-    ?? challengeId;
 }
 
 function getGroupQuestChallengeRuleDetail(
@@ -395,10 +392,11 @@ function buildRuleRows(quest: Pick<ServerGroupQuest, "providerLabel" | "rules">)
 function buildOfficialResultRow(quest: ServerGroupQuest): MobileWebMultiplayerResult {
   const leaderboardRows = rankGroupQuestParticipants(quest).map((participant, index) => {
     const completedCount = participant.completedQuestIds?.length ?? 0;
+    const publicIdentity = getPublicGroupQuestParticipantIdentity(participant);
     return {
       rank: `#${index + 1}`,
-      name: sanitizePublicIdentityName(participant.leaderboardName, "Quest runner"),
-      provider: `${participant.provider === "chesscom" ? "chess.com" : "lichess"} · ${participant.username}`,
+      name: publicIdentity.leaderboardName,
+      provider: `${participant.provider === "chesscom" ? "chess.com" : "lichess"} · ${publicIdentity.username}`,
       progress: `${completedCount}/${Math.max(quest.questIds.length, 1)}`,
     };
   });

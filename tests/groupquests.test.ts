@@ -206,9 +206,9 @@ test("public Community loading hides legacy Multiplayer quests with objectionabl
   assert.deepEqual(listed.filter((quest) => !quest.official).map(({ id }) => id), [safe.id]);
 });
 
-test("public Community loading hides legacy Multiplayer quests with objectionable leaderboard names", async () => {
-  const quest = buildGroupQuest({ hostUserId: "host-user", hostName: "Safe Host", name: "Friendly table", inviteMode: "public" });
-  quest.participants = [participant("unsafe-player", { leaderboardName: "f.u.c.k" })];
+test("public Community loading rejects objectionable provider labels", async () => {
+  const quest = buildGroupQuest({ hostUserId: "provider-host", hostName: "Safe Host", name: "Friendly table", inviteMode: "public" });
+  quest.providerLabel = "f u c k chess";
   const client = { users: { getUserList: async () => ({
     data: [{ id: quest.hostUserId, privateMetadata: { sqcGroupQuests: [quest] } }],
     totalCount: 1,
@@ -217,6 +217,180 @@ test("public Community loading hides legacy Multiplayer quests with objectionabl
   const listed = await listPublicGroupQuests(client);
 
   assert.equal(listed.some(({ id }) => id === quest.id), false);
+});
+
+test("public Community loading rejects objectionable legacy date text", async () => {
+  const quest = buildGroupQuest({ hostUserId: "date-host", hostName: "Safe Host", name: "Friendly table", inviteMode: "public" });
+  quest.startAt = "sh1t";
+  const client = { users: { getUserList: async () => ({
+    data: [{ id: quest.hostUserId, privateMetadata: { sqcGroupQuests: [quest] } }],
+    totalCount: 1,
+  }) } };
+
+  const listed = await listPublicGroupQuests(client);
+
+  assert.equal(listed.some(({ id }) => id === quest.id), false);
+});
+
+test("public Community loading rejects objectionable custom rule summaries", async () => {
+  const quest = buildGroupQuest({ hostUserId: "rule-host", hostName: "Safe Host", name: "Friendly table", inviteMode: "public" });
+  quest.rules = { ...quest.rules, customRuleSummary: "f u c k every rook" };
+  const client = { users: { getUserList: async () => ({
+    data: [{ id: quest.hostUserId, privateMetadata: { sqcGroupQuests: [quest] } }],
+    totalCount: 1,
+  }) } };
+
+  const listed = await listPublicGroupQuests(client);
+
+  assert.equal(listed.some(({ id }) => id === quest.id), false);
+});
+
+test("public Community loading rejects objectionable text decoded from custom rule configuration", async () => {
+  const quest = buildGroupQuest({ hostUserId: "decoded-rule-host", hostName: "Safe Host", name: "Friendly table", inviteMode: "public" });
+  quest.questIds = ["custom-decoded-rule"];
+  quest.customQuestSnapshots = [{
+    id: "custom-decoded-rule",
+    title: "Friendly sequence",
+    summary: "Play the listed move sequence.",
+    config: JSON.stringify({
+      version: 2,
+      logic: "all",
+      blocks: [{ type: "moveSequence", sequence: "fuck", timing: { atGameEnd: true } }],
+    }),
+  }];
+  const client = { users: { getUserList: async () => ({
+    data: [{ id: quest.hostUserId, privateMetadata: { sqcGroupQuests: [quest] } }],
+    totalCount: 1,
+  }) } };
+
+  const listed = await listPublicGroupQuests(client);
+
+  assert.equal(listed.some(({ id }) => id === quest.id), false);
+});
+
+test("public Community loading rejects objectionable text decoded from Unicode-escaped custom rule configuration", async () => {
+  const quest = buildGroupQuest({ hostUserId: "escaped-rule-host", hostName: "Safe Host", name: "Friendly table", inviteMode: "public" });
+  quest.questIds = ["custom-escaped-rule"];
+  quest.customQuestSnapshots = [{
+    id: "custom-escaped-rule",
+    title: "Friendly sequence",
+    summary: "Play the listed move sequence.",
+    config: '{"version":2,"logic":"all","blocks":[{"type":"moveSequence","sequence":"\\u0066\\u0075\\u0063\\u006b","timing":{"atGameEnd":true}}]}',
+  }];
+  const client = { users: { getUserList: async () => ({
+    data: [{ id: quest.hostUserId, privateMetadata: { sqcGroupQuests: [quest] } }],
+    totalCount: 1,
+  }) } };
+
+  const listed = await listPublicGroupQuests(client);
+
+  assert.equal(listed.some(({ id }) => id === quest.id), false);
+});
+
+test("public Community loading rejects objectionable text assembled by an escaped opening sequence", async () => {
+  const quest = buildGroupQuest({ hostUserId: "escaped-opening-host", hostName: "Safe Host", name: "Friendly table", inviteMode: "public" });
+  quest.questIds = ["custom-escaped-opening"];
+  quest.customQuestSnapshots = [{
+    id: "custom-escaped-opening",
+    title: "Friendly opening",
+    summary: "Play the listed opening.",
+    config: '{"version":2,"logic":"all","blocks":[{"type":"openingSequence","moves":["\\u0066","\\u0075","\\u0063","\\u006b"]}]}',
+  }];
+  const client = { users: { getUserList: async () => ({
+    data: [{ id: quest.hostUserId, privateMetadata: { sqcGroupQuests: [quest] } }],
+    totalCount: 1,
+  }) } };
+
+  const listed = await listPublicGroupQuests(client);
+
+  assert.equal(listed.some(({ id }) => id === quest.id), false);
+});
+
+test("public metadata gate covers rendered challenge labels without rejecting known sources", async () => {
+  const unresolved = buildGroupQuest({
+    hostUserId: "unresolved-host",
+    hostName: "Safe Host",
+    name: "Legacy unresolved table",
+    inviteMode: "public",
+    questIds: ["sh1t"],
+  });
+  const known = buildGroupQuest({
+    hostUserId: "known-host",
+    hostName: "Safe Host",
+    name: "Known challenge table",
+    inviteMode: "public",
+    questIds: ["knights-before-coffee"],
+  });
+  const custom = buildGroupQuest({
+    hostUserId: "custom-host",
+    hostName: "Safe Host",
+    name: "Known custom table",
+    inviteMode: "public",
+    questIds: ["sh1t"],
+  });
+  custom.customQuestSnapshots = [{
+    id: "sh1t",
+    title: "Gentle pawn tour",
+    summary: "Move one pawn and finish the game.",
+    config: "win",
+  }];
+  const quests = [unresolved, known, custom];
+  const client = { users: { getUserList: async () => ({
+    data: quests.map((quest) => ({ id: quest.hostUserId, privateMetadata: { sqcGroupQuests: [quest] } })),
+    totalCount: quests.length,
+  }) } };
+
+  const listed = await listPublicGroupQuests(client);
+
+  assert.deepEqual(listed.filter((quest) => !quest.official).map(({ id }) => id).sort(), [known.id, custom.id].sort());
+});
+
+test("public Community loading redacts an objectionable participant without hiding the shared quest", async () => {
+  const quest = buildGroupQuest({ hostUserId: "host-user", hostName: "Safe Host", name: "Friendly table", inviteMode: "public" });
+  quest.participants = [participant("unsafe-player", { username: "sh1t", leaderboardName: "f.u.c.k" })];
+  const client = { users: { getUserList: async () => ({
+    data: [{ id: quest.hostUserId, privateMetadata: { sqcGroupQuests: [quest] } }],
+    totalCount: 1,
+  }) } };
+
+  const listed = await listPublicGroupQuests(client);
+  const publicQuest = listed.find(({ id }) => id === quest.id);
+
+  assert.ok(publicQuest);
+  assert.deepEqual(publicQuest.participants.map(({ userId, username, leaderboardName, score }) => ({ userId, username, leaderboardName, score })), [{
+    userId: "unsafe-player",
+    username: "Hidden player",
+    leaderboardName: "Quest runner",
+    score: 0,
+  }]);
+});
+
+test("all three official tiers stay public when one participant identity is redacted", async () => {
+  const officialQuests = getBuiltInOfficialGroupQuests();
+  const storedCopies = officialQuests.map((quest, index) => ({
+    ...structuredClone(quest),
+    participants: [
+      participant(`unsafe-${index}`, { username: "sh1t", leaderboardName: "f.u.c.k", score: index + 1 }),
+      participant(`safe-${index}`, { username: "classic-bishop", leaderboardName: "Scunthorpe", score: index + 2 }),
+    ],
+  }));
+  const client = { users: { getUserList: async () => ({
+    data: storedCopies.map((quest, index) => ({ id: `stored-${index}`, privateMetadata: { sqcGroupQuests: [quest] } })),
+    totalCount: storedCopies.length,
+  }) } };
+
+  const listed = await listPublicGroupQuests(client);
+  const listedById = new Map(listed.map((quest) => [quest.id, quest]));
+
+  assert.equal(officialQuests.length, 3);
+  for (const quest of officialQuests) {
+    const listedQuest = listedById.get(quest.id);
+    assert.ok(listedQuest);
+    assert.deepEqual(listedQuest.participants.map(({ username, leaderboardName }) => ({ username, leaderboardName })), [
+      { username: "Hidden player", leaderboardName: "Quest runner" },
+      { username: "classic-bishop", leaderboardName: "Scunthorpe" },
+    ]);
+  }
 });
 
 test("related quest loading prefers the host record over an earlier participant replica", async () => {

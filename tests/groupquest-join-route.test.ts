@@ -105,6 +105,22 @@ test("email-only accounts join with a neutral public leaderboard name", async ()
   assert.equal(JSON.stringify(saved).includes(loginEmail), false);
 });
 
+test("join route replaces an objectionable Clerk display name before persistence", async () => {
+  let saved: ServerGroupQuest | undefined;
+  const response = await handleGroupQuestJoinRequest(post(), "objectionable-name", joinDeps({
+    getUser: async (id) => ({
+      id,
+      firstName: "f.u.c.k",
+      publicMetadata: { lichessUsername: "public-chess-name" },
+    }),
+    saveJoinedQuest: async ({ joinedQuest }) => { saved = joinedQuest; },
+  }));
+
+  assert.equal(response.status, 200);
+  assert.equal(saved?.participants[0]?.leaderboardName, "Quest runner");
+  assert.equal(JSON.stringify(saved).includes("f.u.c.k"), false);
+});
+
 test("join route rejects malformed JSON without looking up or mutating a quest", async () => {
   let calls = 0;
   const response = await handleGroupQuestJoinRequest(post("{"), "quest-route-id", joinDeps({

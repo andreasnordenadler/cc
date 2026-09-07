@@ -1,7 +1,8 @@
-import { CHALLENGES } from "@/lib/challenges";
+import { getGroupQuestChallengeTitle, hasObjectionablePublicGroupQuestMetadata } from "@/lib/groupquests";
 
 export type PublicMultiplayerQuestSource = {
   id: string;
+  hostName: string;
   name: string;
   official?: boolean | null;
   inviteMode: "public" | "unlisted-link" | "private-key";
@@ -16,6 +17,7 @@ export type PublicMultiplayerQuestSource = {
     id: string;
     title: string;
     summary: string;
+    config: string;
     badgeImageUrl?: string | null;
     reward?: number;
   }>;
@@ -71,6 +73,7 @@ export async function loadMobilePublicMultiplayerCatalog({
     const quests = await listPublicGroupQuests();
     const summaries = quests
       .filter((quest) => quest.inviteMode === "public")
+      .filter((quest) => !hasObjectionablePublicGroupQuestMetadata(quest))
       .map((quest) => toMobilePublicMultiplayerQuest(quest, baseUrl, now));
 
     return {
@@ -96,8 +99,6 @@ function toMobilePublicMultiplayerQuest(quest: PublicMultiplayerQuestSource, bas
     badgeImageUrl: snapshot.badgeImageUrl ?? null,
     reward: snapshot.reward ?? 100,
   }));
-  const snapshotTitles = new Map(customQuestSummaries.map((snapshot) => [snapshot.id, snapshot.title]));
-
   return {
     id: quest.id,
     title: quest.name,
@@ -116,7 +117,7 @@ function toMobilePublicMultiplayerQuest(quest: PublicMultiplayerQuestSource, bas
     endAt: quest.endAt,
     rules: { ...quest.rules },
     questIds: [...quest.questIds],
-    questTitles: quest.questIds.map((id) => CHALLENGES.find((challenge) => challenge.id === id)?.title ?? snapshotTitles.get(id) ?? id),
+    questTitles: quest.questIds.map((id) => getGroupQuestChallengeTitle(quest, id)),
     customQuestSummaries,
     ruleRows: [
       { label: "Games allowed", value: quest.providerLabel },

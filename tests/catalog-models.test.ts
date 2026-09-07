@@ -112,6 +112,30 @@ test("anonymous Multiplayer previews redact legacy email identities", () => {
   assert.equal(JSON.stringify(preview).includes(loginEmail), false);
 });
 
+test("direct public Multiplayer detail redacts objectionable participant identity", () => {
+  const preview = buildMobileWebMultiplayerPreview(quest({
+    participants: [{
+      userId: "objectionable-player",
+      provider: "lichess",
+      username: "sh1t",
+      leaderboardName: "f.u.c.k",
+      joinedAt: "2026-07-11T00:00:00.000Z",
+      lastProofSummary: "No public Lichess games were found for sh1t.",
+      lastProofAt: "2026-07-11T01:00:00.000Z",
+    }],
+  }), null, "Community", likeSummary, true);
+
+  assert.deepEqual(preview.leaderboardRows, [{
+    rank: 1,
+    name: "Quest runner",
+    provider: "lichess · Hidden player",
+    progress: "0/1",
+    placement: "Gold",
+    viewer: false,
+  }]);
+  assert.doesNotMatch(JSON.stringify(preview), /sh1t|f\.u\.c\.k/);
+});
+
 test("private invite codes use the canonical storage owner and never participant replicas", () => {
   const privateQuest = quest({ inviteMode: "private-key", inviteKey: "ROOK-742", participants: [{ userId: "participant", provider: "lichess", username: "rook-player", leaderboardName: "Rook Player", joinedAt: "2026-07-11T00:00:00.000Z" }] });
   const spoofedReplica = { ...privateQuest, hostUserId: "attacker" };
@@ -195,6 +219,66 @@ test("private detail loader authorizes and discloses only from a canonical host 
 
   assert.equal(participantOnly?.status, "Joined");
   assert.equal(participantOnly?.inviteKey, undefined);
+});
+
+test("direct public detail suppresses objectionable quest-authored metadata", async () => {
+  const unsafeQuest = quest({ name: "f u c k table" });
+  let likeReads = 0;
+
+  const detail = await getMobileWebMultiplayerDetail({} as never, unsafeQuest.id, null, {
+    findQuestById: async () => ({ userId: unsafeQuest.hostUserId, groupQuest: unsafeQuest }),
+    getLikeSummaries: async () => { likeReads += 1; return new Map(); },
+  });
+
+  assert.equal(detail, null);
+  assert.equal(likeReads, 0);
+});
+
+test("anonymous direct detail suppresses objectionable text assembled by an escaped opening sequence", async () => {
+  const unsafeQuest = quest({
+    questIds: ["custom-escaped-opening"],
+    customQuestSnapshots: [{
+      id: "custom-escaped-opening",
+      title: "Friendly opening",
+      summary: "Play the listed opening.",
+      config: '{"version":2,"logic":"all","blocks":[{"type":"openingSequence","moves":["\\u0066","\\u0075","\\u0063","\\u006b"]}]}',
+    }],
+  });
+  let likeReads = 0;
+
+  const detail = await getMobileWebMultiplayerDetail({} as never, unsafeQuest.id, null, {
+    findQuestById: async () => ({ userId: unsafeQuest.hostUserId, groupQuest: unsafeQuest }),
+    getLikeSummaries: async () => { likeReads += 1; return new Map(); },
+  });
+
+  assert.equal(detail, null);
+  assert.equal(likeReads, 0);
+});
+
+test("direct public detail suppresses an objectionable unresolved challenge label", async () => {
+  const unsafeQuest = quest({ questIds: ["sh1t"] });
+  let likeReads = 0;
+
+  const detail = await getMobileWebMultiplayerDetail({} as never, unsafeQuest.id, null, {
+    findQuestById: async () => ({ userId: unsafeQuest.hostUserId, groupQuest: unsafeQuest }),
+    getLikeSummaries: async () => { likeReads += 1; return new Map(); },
+  });
+
+  assert.equal(detail, null);
+  assert.equal(likeReads, 0);
+});
+
+test("signed-out direct detail does not treat a participant replica as its viewer", async () => {
+  const unsafeQuest = quest({ name: "f u c k table" });
+  let likeReads = 0;
+
+  const detail = await getMobileWebMultiplayerDetail({} as never, unsafeQuest.id, undefined, {
+    findQuestById: async () => ({ userId: "participant-replica", groupQuest: unsafeQuest }),
+    getLikeSummaries: async () => { likeReads += 1; return new Map(); },
+  });
+
+  assert.equal(detail, null);
+  assert.equal(likeReads, 0);
 });
 
 test("solo catalog matches title and rule text, filters status, and sorts by name", () => {

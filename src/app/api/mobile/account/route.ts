@@ -8,7 +8,7 @@ import { CHALLENGES } from "@/lib/challenges";
 import { getSupportMessages } from "@/lib/analytics";
 import { getCommunityLikeSummaries } from "@/lib/community-likes";
 import { buildPublicProofPath } from "@/lib/proof-share";
-import { rankGroupQuestParticipants, listPublicGroupQuests, listUserRelatedGroupQuests, type ServerGroupQuest } from "@/lib/groupquests";
+import { getGroupQuestChallengeTitle, getPublicGroupQuestParticipantIdentity, getPublicGroupQuestProofSummary, rankGroupQuestParticipants, listPublicGroupQuests, listUserRelatedGroupQuests, type ServerGroupQuest } from "@/lib/groupquests";
 import { getCustomSideQuestBadgeUrl, getCustomSideQuests } from "@/lib/custom-side-quests";
 import { buildCustomQuestStats } from "@/lib/custom-side-quest-activity";
 import { filterBlockedCommunityGroupQuests, getBlockedUserIds } from "@/lib/user-blocking";
@@ -616,12 +616,6 @@ function deriveGroupQuestStatus(startAt: string, endAt: string) {
   return "Live";
 }
 
-function getGroupQuestChallengeTitle(quest: Pick<ServerGroupQuest, "customQuestSnapshots">, challengeId: string) {
-  return CHALLENGES.find((challenge) => challenge.id === challengeId)?.title
-    ?? quest.customQuestSnapshots?.find((snapshot) => snapshot.id === challengeId)?.title
-    ?? challengeId;
-}
-
 function buildCustomQuestSummaries(quest: Pick<ServerGroupQuest, "customQuestSnapshots">) {
   return quest.customQuestSnapshots?.map((snapshot) => ({
     id: snapshot.id,
@@ -648,18 +642,22 @@ function buildLeaderboardRows(
 ) {
   const totalCount = Math.max(quest.questIds.length, 1);
   return rankGroupQuestParticipants(quest)
-    .map((participant, index) => ({
-      userId: participant.userId,
-      rank: `#${index + 1}`,
-      name: participant.leaderboardName,
-      provider: `${participant.provider === "chesscom" ? "chess.com" : "lichess"} · ${participant.username}`,
-      progress: `${participant.completedQuestIds?.length ?? 0}/${totalCount}`,
-      verified: `${participant.completedQuestIds?.length ?? 0}/${totalCount} verified`,
-      note: formatLeaderboardNote(participant, userId, index, quest),
-      lastProofSummary: participant.lastProofSummary ?? undefined,
-      lastProofAt: participant.lastProofAt ?? undefined,
-      removable: participant.userId !== userId,
-    }));
+    .map((participant, index) => {
+      const publicIdentity = getPublicGroupQuestParticipantIdentity(participant);
+      const lastProofSummary = getPublicGroupQuestProofSummary(participant.lastProofSummary);
+      return {
+        userId: participant.userId,
+        rank: `#${index + 1}`,
+        name: publicIdentity.leaderboardName,
+        provider: `${participant.provider === "chesscom" ? "chess.com" : "lichess"} · ${publicIdentity.username}`,
+        progress: `${participant.completedQuestIds?.length ?? 0}/${totalCount}`,
+        verified: `${participant.completedQuestIds?.length ?? 0}/${totalCount} verified`,
+        note: formatLeaderboardNote({ ...participant, lastProofSummary }, userId, index, quest),
+        lastProofSummary,
+        lastProofAt: participant.lastProofAt ?? undefined,
+        removable: participant.userId !== userId,
+      };
+    });
 }
 
 function formatLeaderboardNote(
