@@ -92,3 +92,38 @@ test("failed quest attempts still report mismatched Multiplayer table rules", as
   assert.match(result.summary, /Proof was not awarded/);
   assert.equal(result.failureDiagnostic?.label, "Latest checked position");
 });
+
+test("first-break quest diagnostics do not bypass Multiplayer table rule checks", async (t) => {
+  let requests = 0;
+  t.mock.method(globalThis, "fetch", async () => {
+    requests += 1;
+    return new Response(`${JSON.stringify({
+      id: "li-first-break-table-mismatch",
+      status: "mate",
+      winner: "white",
+      speed: "rapid",
+      rated: false,
+      variant: "standard",
+      clock: { initial: 600, increment: 5 },
+      createdAt: Date.parse("2026-07-02T09:55:00.000Z"),
+      lastMoveAt: Date.parse("2026-07-02T10:00:00.000Z"),
+      players: { white: { user: { name: "RuleAlice" } }, black: { user: { name: "Bob" } } },
+      moves: "e2e4 e7e5 g1f3 b8c6 f1c4 g8f6 e1g1 f8c5 d2d3 e8g8 c2c3 d7d6 b1d2 c8g4 h2h3 g4h5 b2b4 c5b6 a2a4",
+    })}\n`, { status: 200 });
+  });
+
+  const result = await checkLatestGroupQuestChallenge({
+    challengeId: "no-castle-club",
+    provider: "lichess",
+    username: "RuleAlice",
+    startAt: "2026-07-02T09:00:00.000Z",
+    endAt: "2026-07-02T11:00:00.000Z",
+    rules: { timeControl: "Blitz", rated: "Rated only", color: "Black only" },
+  });
+
+  assert.equal(requests, 2, "the first-break verdict must still load provider rule metadata");
+  assert.equal(result.status, "failed");
+  assert.deepEqual(result.mismatchReasons, ["time_control_mismatch", "rated_state_mismatch", "player_color_mismatch"]);
+  assert.equal(result.failureDiagnostic?.label, "Castling broke the condition");
+  assert.equal(result.failureDiagnostic?.ply, 7);
+});
