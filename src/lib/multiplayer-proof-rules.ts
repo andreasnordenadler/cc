@@ -165,13 +165,24 @@ export function validateMultiplayerProofConfiguration(input: {
 
 export function validateMultiplayerProofUpdate(
   input: { providerMode?: unknown; startAt?: unknown; endAt?: unknown; rules?: unknown },
-  existing: { startAt?: string; endAt?: string },
+  existing: { startAt?: string; endAt?: string; providerMode?: "both" | MultiplayerProvider; participants?: unknown[] },
 ) {
-  return validateMultiplayerProofConfiguration({
+  const configuration = validateMultiplayerProofConfiguration({
     ...input,
     startAt: input.startAt ?? existing.startAt,
     endAt: input.endAt ?? existing.endAt,
   });
+  if (!configuration.ok) return configuration;
+  if (configuration.providerMode && configuration.providerMode !== existing.providerMode && providerChangeWouldStrandParticipant(configuration.providerMode, existing.participants)) {
+    return { ok: false as const, code: "provider_locked" as const };
+  }
+  return configuration;
+}
+
+function providerChangeWouldStrandParticipant(providerMode: "both" | MultiplayerProvider, participants?: unknown[]) {
+  return providerMode !== "both" && Boolean(participants?.some((participant) => (
+    !participant || typeof participant !== "object" || (participant as { provider?: unknown }).provider !== providerMode
+  )));
 }
 
 function titleCaseRule(value: string) {

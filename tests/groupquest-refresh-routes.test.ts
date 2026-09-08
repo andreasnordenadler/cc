@@ -1220,6 +1220,50 @@ test("hosted history survives lineup removal, storage, and restoration without r
   }
 });
 
+test("exported hosted update routes reject provider changes after players join", async () => {
+  for (const variant of ["web", "mobile"] as const) {
+    const state = statefulHostedClient(false);
+    const findQuest = async () => ({ userId: "host", groupQuest: getStoredGroupQuests(state.user("host").privateMetadata)[0] });
+    const request = new Request("https://sqc.test/api/groupquests/gq", {
+      method: variant === "web" ? "PATCH" : "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(variant === "web" ? { providerMode: "chesscom" } : { action: "update", providerMode: "chesscom" }),
+    });
+    const response = await (variant === "web"
+      ? webUpdateRoute({ client: state.client, findQuest }).PATCH(request, { params: Promise.resolve({ id: "gq" }) })
+      : mobileRoute.withMobileRefreshRouteTestDependencies({ authenticate: async () => "host", getClient: async () => state.client, findQuest, check: async () => mismatch } as never,
+        () => mobileRoute.POST(request, { params: Promise.resolve({ id: "gq" }) })));
+
+    assert.equal(response.status, 400, variant);
+    const body = await response.json();
+    assert.equal(variant === "web" ? body.error : body.code, "provider_locked", variant);
+    assert.equal(state.writes.length, 0, variant);
+    assert.equal((await findQuest()).groupQuest.providerMode, "both", variant);
+  }
+});
+
+test("exported hosted update routes allow a provider change when every player already uses it", async () => {
+  for (const variant of ["web", "mobile"] as const) {
+    const state = statefulHostedClient(false);
+    const compatibleQuest = structuredClone(baseQuest);
+    for (const participant of compatibleQuest.participants) participant.provider = "chesscom";
+    state.setHostPrivateMetadata({ sqcGroupQuests: [compatibleQuest] });
+    const findQuest = async () => ({ userId: "host", groupQuest: getStoredGroupQuests(state.user("host").privateMetadata)[0] });
+    const request = new Request("https://sqc.test/api/groupquests/gq", {
+      method: variant === "web" ? "PATCH" : "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(variant === "web" ? { providerMode: "chesscom" } : { action: "update", providerMode: "chesscom" }),
+    });
+    const response = await (variant === "web"
+      ? webUpdateRoute({ client: state.client, findQuest }).PATCH(request, { params: Promise.resolve({ id: "gq" }) })
+      : mobileRoute.withMobileRefreshRouteTestDependencies({ authenticate: async () => "host", getClient: async () => state.client, findQuest, check: async () => mismatch } as never,
+        () => mobileRoute.POST(request, { params: Promise.resolve({ id: "gq" }) })));
+
+    assert.equal(response.status, 200, variant);
+    assert.equal((await findQuest()).groupQuest.providerMode, "chesscom", variant);
+  }
+});
+
 test("exported hosted update routes cannot remove a lineup challenge with an outstanding receipt", async () => {
   for (const variant of ["mobile", "web"] as const) {
     const state = statefulHostedClient(false);
