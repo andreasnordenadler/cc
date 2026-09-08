@@ -23,18 +23,46 @@ export function buildMobileUrl(path: string) {
   return new URL(safePath.startsWith("/") ? safePath : `/${safePath}`, `${getApiBaseUrl()}/`).toString();
 }
 
-async function fetchWithTimeout(url: string, init: RequestInit = {}, timeoutMs = DEFAULT_REQUEST_TIMEOUT_MS) {
+type MobileResponseDeadline = {
+  controller: AbortController;
+  deadline: number;
+};
+
+const mobileResponseDeadlines = new WeakMap<Response, MobileResponseDeadline>();
+
+function mobileRequestTimeoutError() {
+  return new Error("Side Quest Chess mobile request timed out. Check network access and try again.");
+}
+
+function cancelMobileResponseBody(response: Response) {
+  try {
+    const cancellation = response.body?.cancel();
+    void cancellation?.catch(() => undefined);
+  } catch {
+    // Some native Response implementations expose no cancellable body.
+  }
+}
+
+export async function fetchMobileResponseWithTimeout(
+  url: string,
+  init: RequestInit = {},
+  timeoutMs = DEFAULT_REQUEST_TIMEOUT_MS,
+  fetcher: typeof fetch = fetch,
+) {
   const controller = new AbortController();
+  const deadline = Date.now() + timeoutMs;
   const timeout = setTimeout(() => controller.abort(), timeoutMs);
 
   try {
-    return await fetch(url, {
+    const response = await fetcher(url, {
       ...init,
       signal: controller.signal,
     });
+    mobileResponseDeadlines.set(response, { controller, deadline });
+    return response;
   } catch (caught) {
-    if (caught instanceof Error && caught.name === "AbortError") {
-      throw new Error("Side Quest Chess mobile request timed out. Check network access and try again.");
+    if (controller.signal.aborted || caught instanceof Error && caught.name === "AbortError") {
+      throw mobileRequestTimeoutError();
     }
 
     throw caught;
@@ -44,7 +72,7 @@ async function fetchWithTimeout(url: string, init: RequestInit = {}, timeoutMs =
 }
 
 export async function fetchMobileBootstrap(): Promise<MobileBootstrap> {
-  const response = await fetchWithTimeout(buildMobileUrl("/api/mobile/bootstrap"), {
+  const response = await fetchMobileResponseWithTimeout(buildMobileUrl("/api/mobile/bootstrap"), {
     headers: {
       Accept: "application/json",
     },
@@ -58,7 +86,7 @@ export async function fetchMobileBootstrap(): Promise<MobileBootstrap> {
 }
 
 export async function fetchMobileAccountState(sessionToken?: string | null): Promise<MobileAccountResponse> {
-  const response = await fetchWithTimeout(buildMobileUrl("/api/mobile/account"), {
+  const response = await fetchMobileResponseWithTimeout(buildMobileUrl("/api/mobile/account"), {
     headers: buildMobileAuthHeaders(sessionToken),
   });
 
@@ -80,7 +108,7 @@ export async function deleteMobileAccount({
   sessionToken?: string | null;
   confirmation: string;
 }): Promise<MobileAccountDeletionResponse> {
-  const response = await fetchWithTimeout(buildMobileUrl("/api/mobile/account"), {
+  const response = await fetchMobileResponseWithTimeout(buildMobileUrl("/api/mobile/account"), {
     method: "DELETE",
     headers: buildMobileAuthHeaders(sessionToken),
     body: JSON.stringify({ confirmation }),
@@ -107,7 +135,7 @@ export async function updateMobileChessUsernames({
   lichessUsername: string;
   chessComUsername: string;
 }): Promise<MobileProfileUpdateResponse> {
-  const response = await fetchWithTimeout(buildMobileUrl("/api/mobile/profile"), {
+  const response = await fetchMobileResponseWithTimeout(buildMobileUrl("/api/mobile/profile"), {
     method: "PATCH",
     headers: buildMobileAuthHeaders(sessionToken),
     body: JSON.stringify({ runnerDisplayName, runnerBio, lichessUsername, chessComUsername }),
@@ -128,7 +156,7 @@ export async function submitMobileSupportMessage({
   sessionToken?: string | null;
   message: string;
 }): Promise<MobileSupportMessageResponse> {
-  const response = await fetchWithTimeout(buildMobileUrl("/api/mobile/support"), {
+  const response = await fetchMobileResponseWithTimeout(buildMobileUrl("/api/mobile/support"), {
     method: "POST",
     headers: buildMobileAuthHeaders(sessionToken),
     body: JSON.stringify({ message }),
@@ -160,7 +188,7 @@ export async function saveMobileCustomSideQuest({
   lifecycle?: "draft" | "published" | "archived";
   visibility?: "private" | "public";
 }): Promise<MobileCustomQuestSaveResponse> {
-  const response = await fetchWithTimeout(buildMobileUrl("/api/mobile/custom-quests"), {
+  const response = await fetchMobileResponseWithTimeout(buildMobileUrl("/api/mobile/custom-quests"), {
     method: "POST",
     headers: buildMobileAuthHeaders(sessionToken),
     body: JSON.stringify({ id, title, summary, config, lifecycle, visibility }),
@@ -181,7 +209,7 @@ export async function deleteMobileCustomSideQuest({
   sessionToken?: string | null;
   id: string;
 }): Promise<MobileCustomQuestSaveResponse> {
-  const response = await fetchWithTimeout(buildMobileUrl(`/api/mobile/custom-quests?id=${encodeURIComponent(id)}`), {
+  const response = await fetchMobileResponseWithTimeout(buildMobileUrl(`/api/mobile/custom-quests?id=${encodeURIComponent(id)}`), {
     method: "DELETE",
     headers: buildMobileAuthHeaders(sessionToken),
   }, 20000);
@@ -205,7 +233,7 @@ export async function runMobileQuestAction({
   challengeId?: string;
   gameId?: string;
 }): Promise<MobileQuestActionResponse> {
-  const response = await fetchWithTimeout(buildMobileUrl("/api/mobile/quest"), {
+  const response = await fetchMobileResponseWithTimeout(buildMobileUrl("/api/mobile/quest"), {
     method: "POST",
     headers: buildMobileAuthHeaders(sessionToken),
     body: JSON.stringify({ action, challengeId, gameId }),
@@ -230,7 +258,7 @@ export async function runMobileGroupQuestAction({
   action: "join" | "leave" | "refresh" | "create" | "update" | "remove-participant";
   payload?: Record<string, unknown>;
 }): Promise<MobileGroupQuestActionResponse> {
-  const response = await fetchWithTimeout(buildMobileUrl(`/api/mobile/groupquests/${groupQuestId}`), {
+  const response = await fetchMobileResponseWithTimeout(buildMobileUrl(`/api/mobile/groupquests/${groupQuestId}`), {
     method: "POST",
     headers: buildMobileAuthHeaders(sessionToken),
     body: JSON.stringify({ action, ...(payload ?? {}) }),
@@ -260,7 +288,7 @@ export async function submitMobileCommunityMultiplayerReport({
   if (reason.length > 500) throw new Error("Keep the report reason to 500 characters or fewer.");
   if (!/^[A-Za-z0-9][A-Za-z0-9_./:-]{0,119}$/.test(targetId)) throw new Error("Choose a valid Community Multiplayer Side Quest.");
 
-  const response = await fetchWithTimeout(buildMobileUrl("/api/reports/content"), {
+  const response = await fetchMobileResponseWithTimeout(buildMobileUrl("/api/reports/content"), {
     method: "POST",
     headers: { ...buildMobileAuthHeaders(sessionToken), "X-Side-Quest-Chess-Client": clientPlatform },
     body: JSON.stringify({ targetType: "community-multiplayer", targetId, reason: cleanReason }),
@@ -303,7 +331,7 @@ export async function submitMobileCommunityCreatorReport({
   if (reason.length > 500) throw new Error("Keep the creator report reason to 500 characters or fewer.");
   if (!/^[A-Za-z0-9][A-Za-z0-9_./:-]{0,119}$/.test(targetId)) throw new Error("Choose a valid Community creator.");
 
-  const response = await fetchWithTimeout(buildMobileUrl("/api/reports/creators"), {
+  const response = await fetchMobileResponseWithTimeout(buildMobileUrl("/api/reports/creators"), {
     method: "POST",
     headers: { ...buildMobileAuthHeaders(sessionToken), "X-Side-Quest-Chess-Client": clientPlatform },
     body: JSON.stringify({ targetType: "community-multiplayer", targetId, reason: cleanReason }),
@@ -338,7 +366,7 @@ export async function blockMobileCommunityCreator({
   clientPlatform?: "android" | "ios";
 }): Promise<{ ok: true; action: "blocked"; message: string }> {
   if (!/^[A-Za-z0-9][A-Za-z0-9_./:-]{0,119}$/.test(targetId)) throw new Error("Choose a valid Community Multiplayer creator.");
-  const response = await fetchWithTimeout(buildMobileUrl("/api/blocks/users"), {
+  const response = await fetchMobileResponseWithTimeout(buildMobileUrl("/api/blocks/users"), {
     method: "POST",
     headers: { ...buildMobileAuthHeaders(sessionToken), "X-Side-Quest-Chess-Client": clientPlatform },
     body: JSON.stringify({ targetType: "community-multiplayer", targetId, action: "block" }),
@@ -365,7 +393,7 @@ export async function runMobileCommunityLikeAction({
   targetId: string;
   intent: "like" | "unlike";
 }): Promise<MobileCommunityLikeResponse> {
-  const response = await fetchWithTimeout(buildMobileUrl("/api/mobile/community-likes"), {
+  const response = await fetchMobileResponseWithTimeout(buildMobileUrl("/api/mobile/community-likes"), {
     method: "POST",
     headers: buildMobileAuthHeaders(sessionToken),
     body: JSON.stringify({ targetType, targetId, intent }),
@@ -379,16 +407,49 @@ export async function runMobileCommunityLikeAction({
   return result;
 }
 
-async function readMobileJson<T>(response: Response, label: string): Promise<T> {
-  const contentType = response.headers.get("content-type") ?? "";
+export async function readMobileJson<T>(response: Response, label: string): Promise<T> {
+  const responseDeadline = mobileResponseDeadlines.get(response);
+  const remainingMs = responseDeadline
+    ? responseDeadline.deadline - Date.now()
+    : DEFAULT_REQUEST_TIMEOUT_MS;
 
-  if (!contentType.includes("application/json")) {
-    const text = await response.text().catch(() => "");
-    const htmlTitle = text.match(/<title>(.*?)<\/title>/i)?.[1]?.trim();
-    throw new Error(htmlTitle ? `${label} returned ${response.status}: ${htmlTitle}` : `${label} returned ${response.status} instead of JSON.`);
+  if (remainingMs <= 0) {
+    responseDeadline?.controller.abort();
+    cancelMobileResponseBody(response);
+    mobileResponseDeadlines.delete(response);
+    throw mobileRequestTimeoutError();
   }
 
-  return response.json() as Promise<T>;
+  let timeout: ReturnType<typeof setTimeout> | undefined;
+  const timedOut = new Promise<never>((_resolve, reject) => {
+    timeout = setTimeout(() => {
+      reject(mobileRequestTimeoutError());
+      responseDeadline?.controller.abort();
+      cancelMobileResponseBody(response);
+    }, remainingMs);
+  });
+  const read = async () => {
+    const contentType = response.headers.get("content-type") ?? "";
+    if (!contentType.includes("application/json")) {
+      const text = await response.text().catch(() => "");
+      const htmlTitle = text.match(/<title>(.*?)<\/title>/i)?.[1]?.trim();
+      throw new Error(htmlTitle ? `${label} returned ${response.status}: ${htmlTitle}` : `${label} returned ${response.status} instead of JSON.`);
+    }
+
+    return response.json() as Promise<T>;
+  };
+
+  try {
+    return await Promise.race([read(), timedOut]);
+  } catch (caught) {
+    if (responseDeadline?.controller.signal.aborted || caught instanceof Error && caught.name === "AbortError") {
+      throw mobileRequestTimeoutError();
+    }
+    throw caught;
+  } finally {
+    if (timeout) clearTimeout(timeout);
+    mobileResponseDeadlines.delete(response);
+  }
 }
 
 function buildMobileAuthHeaders(sessionToken?: string | null): Record<string, string> {
