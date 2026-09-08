@@ -41,6 +41,31 @@ test("web and mobile refresh contracts share stable mismatch diagnostics", () =>
   });
 });
 
+test("refresh contract preserves the server-derived first-break diagnostic", () => {
+  const failureDiagnostic = {
+    label: "First rule break",
+    explanation: "Move 12 let the knight move.",
+    moveNumber: 12,
+    ply: 23,
+    san: "Ne4",
+    uci: "f6e4",
+    fenAtBreak: "8/8/8/8/4n3/8/8/8 w - - 0 12",
+    playerColor: "white" as const,
+  };
+
+  const [check] = buildGroupQuestRefreshChecks([{
+    questId: "no-knight-moves",
+    result: {
+      status: "failed" as const,
+      gameId: "game-102",
+      summary: "Proof was not awarded.",
+      failureDiagnostic,
+    },
+  }]);
+
+  assert.deepEqual(check.failureDiagnostic, failureDiagnostic);
+});
+
 test("web refresh returns only server-derived newly completed quest IDs", async () => {
   const handler = createGroupQuestRefreshRouteHandler({
     mode: "web",

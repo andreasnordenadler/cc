@@ -16,5 +16,6 @@ export function buildGroupQuestRefreshChecks(
     finalPositionFen: result.finalPositionFen,
     lastMoveUci: result.lastMoveUci,
     lastMoveSan: result.lastMoveSan,
+    ...(result.failureDiagnostic ? { failureDiagnostic: result.failureDiagnostic } : {}),
   }));
 }
