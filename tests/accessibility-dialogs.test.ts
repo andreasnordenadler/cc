@@ -111,3 +111,34 @@ test("Multiplayer completion enables its return-focus target before opening the 
   assert.ok(enableIndex < openIndex, "return-focus target must be enabled before the modal mounts");
   assert.doesNotMatch(source, /setTimeout\(\(\) => setRefreshing\(false\)/);
 });
+
+test("Multiplayer reward previews use the shared keyboard-modal boundary and restore their openers", async () => {
+  const source = await readFile(new URL("../src/components/group-quest-leaderboard.tsx", import.meta.url), "utf8");
+
+  assert.match(source, /import \{ useRef, useState \} from "react"/);
+  assert.equal(source.match(/<AccessibleModalDialog/g)?.length, 2);
+  assert.match(source, /returnFocusRef=\{sealPreviewTriggerRef\}/);
+  assert.match(source, /returnFocusRef=\{scrollTriggerRef\}/);
+  assert.equal(source.match(/data-dialog-initial-focus/g)?.length, 2);
+  assert.match(source, /id="groupquest-seal-preview-title">\{previewSeal\.label\} placement seal for \{selectedSealPreview\.name\}/);
+  assert.doesNotMatch(source, /className="groupquest-(?:seal|scroll)-modal" role="dialog"/);
+});
+
+test("Multiplayer reward preview modal wrappers retain the dimmed backdrop", async () => {
+  const css = await readFile(new URL("../src/app/globals.css", import.meta.url), "utf8");
+  const wrapper = css.match(/\.groupquest-scroll-modal, \.groupquest-seal-modal\s*\{([^}]*)\}/)?.[1] ?? "";
+
+  assert.match(wrapper, /background:\s*rgba\(0,0,0,\.72\)/);
+  assert.match(wrapper, /backdrop-filter:\s*blur\(6px\)/);
+});
+
+test("Multiplayer reward previews remain reachable in short viewports", async () => {
+  const css = await readFile(new URL("../src/app/globals.css", import.meta.url), "utf8");
+  const wrapper = css.match(/\.groupquest-scroll-modal, \.groupquest-seal-modal\s*\{([^}]*)\}/)?.[1] ?? "";
+  const sheets = css.match(/\.groupquest-scroll-sheet, \.groupquest-seal-sheet\s*\{([^}]*)\}/)?.[1] ?? "";
+
+  assert.match(wrapper, /place-items:\s*start center/);
+  assert.match(wrapper, /overflow-y:\s*auto/);
+  assert.match(wrapper, /overscroll-behavior:\s*contain/);
+  assert.match(sheets, /margin-block:\s*auto/);
+});
