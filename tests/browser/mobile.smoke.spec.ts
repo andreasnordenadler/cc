@@ -223,23 +223,36 @@ test("custom builder asks before discarding unsaved changes", async ({ page }) =
   await expect(page).toHaveURL(/\/create-custom-side-quest$/);
 
   const close = page.getByRole("link", { name: "Close screen" });
-  const dialog = new Promise<{ type: string; message: string }>((resolve) => {
-    page.once("dialog", async (confirmation) => {
-      const observed = { type: confirmation.type(), message: confirmation.message() };
-      await confirmation.dismiss();
-      resolve(observed);
-    });
-  });
   await close.click();
-  const confirmation = await dialog;
-  expect(confirmation.type).toBe("confirm");
-  expect(confirmation.message).toBe("Discard custom Side Quest? You have unsaved custom Side Quest changes.");
+  const discardDialog = page.getByRole("alertdialog", { name: "Discard Custom draft?" });
+  const keepEditing = discardDialog.getByRole("button", { name: "Keep editing" });
+  const discardChanges = discardDialog.getByRole("button", { name: "Discard changes" });
+  await expect(discardDialog).toBeVisible();
+  await expect(keepEditing).toBeFocused();
+  await page.keyboard.press("Shift+Tab");
+  await expect(discardChanges).toBeFocused();
+  await page.keyboard.press("Tab");
+  await expect(keepEditing).toBeFocused();
+  await page.keyboard.press("Escape");
+  await expect(discardDialog).toHaveCount(0);
+  await expect(close).toBeFocused();
   await expect(page).toHaveURL(/\/create-custom-side-quest$/);
   await expect(page.getByRole("textbox", { name: "Side Quest name" })).toHaveValue("Unfinished pawn adventure");
 
+  await page.evaluate(() => {
+    const fragmentLink = document.createElement("a");
+    fragmentLink.href = "/create-custom-side-quest#custom-builder-save";
+    fragmentLink.textContent = "Jump to save controls";
+    document.body.append(fragmentLink);
+  });
+  await page.getByRole("link", { name: "Jump to save controls" }).click();
+  await expect(page).toHaveURL(/\/create-custom-side-quest#custom-builder-save$/);
+  await expect(discardDialog).toHaveCount(0);
+
   const homeUrl = new URL("/", page.url()).href;
-  page.once("dialog", (next) => next.accept());
   await close.click();
+  await expect(discardDialog).toBeVisible();
+  await discardChanges.click();
   await expect(page).toHaveURL(homeUrl);
 });
 

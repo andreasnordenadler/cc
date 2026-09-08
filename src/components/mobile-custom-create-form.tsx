@@ -1,7 +1,8 @@
 "use client";
 
-import { FormEvent, useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { FormEvent, useCallback, useEffect, useRef, useState, useSyncExternalStore, type RefObject } from "react";
 import Image from "next/image";
+import AccessibleModalDialog from "@/components/accessible-modal-dialog";
 import type { CustomSideQuestRuleBlock } from "@/lib/custom-side-quests";
 import {
   buildCustomCreatePayload,
@@ -56,6 +57,44 @@ const conditionChoices: Array<{ id: string; label: string; helper: string; block
 
 const subscribeToHydration = () => () => undefined;
 
+type CustomDraftLeaveIntent = { href: string };
+
+export function isSameDocumentCustomDraftNavigation(currentHref: string, destinationHref: string, rawHref: string) {
+  if (!rawHref.includes("#")) return false;
+  const current = new URL(currentHref);
+  const destination = new URL(destinationHref, current);
+  return destination.origin === current.origin
+    && destination.pathname === current.pathname
+    && destination.search === current.search;
+}
+
+export function CustomDraftLeaveDialog({
+  onDismiss,
+  onDiscard,
+  returnFocusRef,
+}: {
+  onDismiss: () => void;
+  onDiscard: () => void;
+  returnFocusRef: RefObject<HTMLElement | null>;
+}) {
+  return <AccessibleModalDialog
+    className="quest-switch-dialog sqc-draft-leave-dialog"
+    describedBy="custom-draft-leave-copy"
+    labelledBy="custom-draft-leave-title"
+    onDismiss={onDismiss}
+    returnFocusRef={returnFocusRef}
+    role="alertdialog"
+  >
+    <span className="eyebrow">Unsaved Custom draft</span>
+    <h2 id="custom-draft-leave-title">Discard Custom draft?</h2>
+    <p id="custom-draft-leave-copy">Your changes are still here. Keep editing, or discard the changes and leave this screen.</p>
+    <div className="button-row quest-switch-actions">
+      <button className="button secondary" data-dialog-initial-focus onClick={onDismiss} type="button">Keep editing</button>
+      <button className="button danger" onClick={onDiscard} type="button">Discard changes</button>
+    </div>
+  </AccessibleModalDialog>;
+}
+
 export default function MobileCustomCreateForm({ signedIn, initialQuest = null }: { signedIn: boolean; initialQuest?: CustomEditQuestInput | null }) {
   const initialState = initialQuest ? getCustomEditFormState(initialQuest) : null;
   const initialBlocks = initialState?.blocks ?? [];
@@ -77,6 +116,8 @@ export default function MobileCustomCreateForm({ signedIn, initialQuest = null }
     lifecycle: initialState?.lifecycle ?? "published",
   }));
   const allowNavigation = useRef(false);
+  const [leaveIntent, setLeaveIntent] = useState<CustomDraftLeaveIntent | null>(null);
+  const leaveTrigger = useRef<HTMLElement | null>(null);
   const [saving, setSaving] = useState(false);
   const [activeBuilderStage, setActiveBuilderStage] = useState<"custom-builder-conditions" | "custom-builder-identity" | "custom-builder-save">("custom-builder-conditions");
   const [error, setError] = useState("");
@@ -120,7 +161,6 @@ export default function MobileCustomCreateForm({ signedIn, initialQuest = null }
     const input = { title, summary, logic, blocks, visibility, lifecycle };
     if (!hasUnsavedCustomBuilderChanges(baselineSnapshot.current, input)) return;
 
-    const message = "Discard custom Side Quest? You have unsaved custom Side Quest changes.";
     const handleBeforeUnload = (event: BeforeUnloadEvent) => {
       if (allowNavigation.current) return;
       event.preventDefault();
@@ -129,10 +169,12 @@ export default function MobileCustomCreateForm({ signedIn, initialQuest = null }
       if (allowNavigation.current || event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
       const target = event.target instanceof Element ? event.target.closest<HTMLAnchorElement>("a[href]") : null;
       if (!target || target.target === "_blank" || target.hasAttribute("download")) return;
+      const destination = new URL(target.href, window.location.href);
+      if (isSameDocumentCustomDraftNavigation(window.location.href, destination.href, target.getAttribute("href") ?? "")) return;
       event.preventDefault();
-      if (!window.confirm(message)) return;
-      allowNavigation.current = true;
-      window.location.assign(target.href);
+      event.stopPropagation();
+      leaveTrigger.current = target;
+      setLeaveIntent({ href: destination.href });
     };
 
     window.addEventListener("beforeunload", handleBeforeUnload);
@@ -221,6 +263,13 @@ export default function MobileCustomCreateForm({ signedIn, initialQuest = null }
     stage.focus({ preventScroll: true });
   }
 
+  function discardChanges() {
+    const intent = leaveIntent;
+    if (!intent) return;
+    allowNavigation.current = true;
+    setLeaveIntent(null);
+    window.location.assign(intent.href);
+  }
 
   async function submit(event: FormEvent) {
     event.preventDefault();
@@ -383,5 +432,10 @@ export default function MobileCustomCreateForm({ signedIn, initialQuest = null }
     {error ? <p className="groupquest-join-error" role="alert">{error}</p> : null}
       <button className="sqc-create-footer-button" disabled={saving} id="custom-builder-save" type="submit">{saving ? "Saving…" : initialState ? "Save Rule Changes" : signedIn ? "Save Custom Side Quest" : "Save Draft Locally"}</button>
     </div>
+    {leaveIntent ? <CustomDraftLeaveDialog
+      onDismiss={() => setLeaveIntent(null)}
+      onDiscard={discardChanges}
+      returnFocusRef={leaveTrigger}
+    /> : null}
   </form>;
 }
