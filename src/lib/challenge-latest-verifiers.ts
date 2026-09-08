@@ -156,7 +156,7 @@ async function enrichVerdictWithLatestBoard(input: {
     return verdict;
   }
 
-  if (verdict.finalPositionFen && verdict.failureDiagnostic?.fenAtBreak) {
+  if (verdict.finalPositionFen && verdict.failureDiagnostic?.fenAtBreak && verdict.metadata) {
     return {
       ...verdict,
       playerColor: verdict.playerColor ?? verdict.failureDiagnostic?.playerColor,
