@@ -125,6 +125,10 @@ test("Multiplayer create waits for hydration before accepting the first picker a
   await page.getByRole("button", { name: "Add Any Game Counts to Multiplayer Side Quest" }).click();
   await expect(selectedTray.getByRole("button", { name: "Remove Any Game Counts from Multiplayer Side Quest" })).toBeVisible();
   await expect(selectedCard.getByText("1/4 Side Quests selected", { exact: true })).toBeVisible();
+  await page.getByRole("textbox", { name: "Quest name" }).fill("Pocket sign-in-bound draft");
+  await page.getByRole("link", { name: "Sign in to create Multiplayer Side Quest" }).click();
+  await expect(page.getByRole("alertdialog", { name: "Discard Multiplayer draft?" })).toHaveCount(0);
+  await expect(page).toHaveURL(/\/sign-in\?redirect_url=%2Fcreate-multiplayer-side-quest$/);
   expect(await noHorizontalOverflow(page)).toBe(true);
 });
 
