@@ -48,22 +48,23 @@ function buildWindowedResult(
   const endTs = endAt ? Date.parse(endAt) : NaN;
   const gameTs = gameTime ? Date.parse(gameTime) : NaN;
 
-  if (verdict.status === "passed") {
-    const ruleDecision = evaluateMultiplayerProofRules({ expectedProvider, rules, startAt, endAt, game: verdict.metadata });
-    if (!ruleDecision.ok) {
-      return {
-        status: "failed",
-        gameId: verdict.gameId,
-        summary: ruleDecision.summary,
-        gameTime,
-        gameUrl: verdict.metadata?.gameUrl,
-        mismatchReasons: ruleDecision.reasons,
-        finalPositionFen: verdict.finalPositionFen,
-        lastMoveUci: verdict.lastMoveUci,
-        lastMoveSan: verdict.lastMoveSan,
-        outcome: verdict.outcome,
-      };
-    }
+  const ruleDecision = verdict.status !== "pending" && verdict.metadata
+    ? evaluateMultiplayerProofRules({ expectedProvider, rules, startAt, endAt, game: verdict.metadata })
+    : null;
+  if (ruleDecision && !ruleDecision.ok) {
+    return {
+      status: "failed",
+      gameId: verdict.gameId,
+      summary: ruleDecision.summary,
+      gameTime,
+      gameUrl: verdict.metadata?.gameUrl,
+      mismatchReasons: ruleDecision.reasons,
+      finalPositionFen: verdict.finalPositionFen,
+      lastMoveUci: verdict.lastMoveUci,
+      lastMoveSan: verdict.lastMoveSan,
+      outcome: verdict.outcome,
+      failureDiagnostic: verdict.failureDiagnostic,
+    };
   }
 
   if (verdict.status !== "pending" && Number.isFinite(startTs)) {
