@@ -57,3 +57,14 @@ test("Solo confirmation content remains reachable in a short viewport", async ()
   assert.match(dialog, /overflow-y:\s*auto/);
   assert.match(dialog, /overscroll-behavior:\s*contain/);
 });
+
+test("active Solo deactivation uses the shared keyboard-modal boundary and restores its opener", async () => {
+  const source = await readFile(new URL("../src/components/deactivate-quest-control.tsx", import.meta.url), "utf8");
+
+  assert.match(source, /import \{ useRef, useState \} from "react"/);
+  assert.match(source, /<AccessibleModalDialog/);
+  assert.match(source, /ref=\{openDeactivateDialogRef\}/);
+  assert.match(source, /returnFocusRef=\{openDeactivateDialogRef\}/);
+  assert.match(source, /data-dialog-initial-focus/);
+  assert.doesNotMatch(source, /<div className="quest-switch-dialog-backdrop"/);
+});
