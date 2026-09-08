@@ -281,7 +281,9 @@ test("desktop Multiplayer creation keeps its live draft action in view without c
     overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
   }));
   expect(mobileGeometry).toEqual({ position: "sticky", bottom: "10px", overflow: 0 });
+  await page.getByRole("textbox", { name: "Quest name" }).fill("Sign-in-bound draft");
   await signInAction.click();
+  await expect(page.getByRole("alertdialog", { name: "Discard Multiplayer draft?" })).toHaveCount(0);
   await expect(page).toHaveURL(/\/sign-in\?redirect_url=%2Fcreate-multiplayer-side-quest$/);
 });
 

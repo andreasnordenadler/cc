@@ -1,12 +1,68 @@
 "use client";
 
 import Link from "next/link";
-import { FormEvent, useEffect, useMemo, useState, useSyncExternalStore } from "react";
+import { FormEvent, useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { buildSignInHref } from "@/lib/auth-return-path";
 import { buildMultiplayerCreatePayload, getCreateErrorMessage, getMultiplayerCreateDestination, getMultiplayerLocalDateTimeDefaults } from "@/lib/mobile-create-forms";
 import { getMultiplayerCreateQuestPicker, toggleMultiplayerCreateQuest, type MultiplayerCreateQuestChoice, type MultiplayerCreateQuestSource } from "@/lib/multiplayer-create-quest-choices";
 
 export type MultiplayerCreateQuest = MultiplayerCreateQuestChoice;
+
+type MultiplayerDraftLeaveIntent = { href: string };
+export type MultiplayerDraftNavigationReason = "saved" | "discarded" | "none";
+
+export type MultiplayerDraftSnapshot = {
+  name: string;
+  inviteCopy: string;
+  inviteMode: string;
+  inviteKey: string;
+  providerMode: string;
+  startAt: string;
+  endAt: string;
+  selected: string[];
+  timeControl: string;
+  rated: string;
+  color: string;
+};
+
+export function shouldProtectMultiplayerDraft({ signedIn, hasChanges }: { signedIn: boolean; hasChanges: boolean }) {
+  return signedIn && hasChanges;
+}
+
+export function shouldDisableMultiplayerDraftControls({ hydrated, saving }: { hydrated: boolean; saving: boolean }) {
+  return !hydrated || saving;
+}
+
+export function getMultiplayerDraftDirty(initial: MultiplayerDraftSnapshot, current: MultiplayerDraftSnapshot) {
+  return initial.name !== current.name
+    || initial.inviteCopy !== current.inviteCopy
+    || initial.inviteMode !== current.inviteMode
+    || initial.inviteKey !== current.inviteKey
+    || initial.providerMode !== current.providerMode
+    || initial.startAt !== current.startAt
+    || initial.endAt !== current.endAt
+    || initial.timeControl !== current.timeControl
+    || initial.rated !== current.rated
+    || initial.color !== current.color
+    || initial.selected.length !== current.selected.length
+    || initial.selected.some((id, index) => id !== current.selected[index]);
+}
+
+export function restoreMultiplayerDraftLifecycle({
+  reason,
+  saving,
+  current,
+}: {
+  reason: MultiplayerDraftNavigationReason;
+  saving: boolean;
+  current: MultiplayerDraftSnapshot;
+}): { reason: "none"; saving: boolean; baseline: MultiplayerDraftSnapshot | null } {
+  return {
+    reason: "none",
+    saving: reason === "none" ? saving : false,
+    baseline: reason === "saved" ? { ...current, selected: [...current.selected] } : null,
+  };
+}
 
 const accessChoices = [
   { id: "public", title: "Public", helper: "Visible in Browse" },
@@ -67,6 +123,34 @@ export default function MobileMultiplayerCreateForm({ signedIn, quests, stableNo
   const [source, setSource] = useState<MultiplayerCreateQuestSource>(initialQuest?.source === "official" ? "official" : initialQuest ? "community" : "official"); const [selectedOnly, setSelectedOnly] = useState(Boolean(initialQuest)); const [questLimit, setQuestLimit] = useState(8); const [selectionError, setSelectionError] = useState("");
   const [timeControl, setTimeControl] = useState("Any time control"); const [rated, setRated] = useState("Any rated state"); const [color, setColor] = useState("Any color"); const [advancedOpen, setAdvancedOpen] = useState(false);
   const [saving, setSaving] = useState(false); const [error, setError] = useState("");
+  const [initialDraft, setInitialDraft] = useState<MultiplayerDraftSnapshot>({
+    name: "",
+    inviteCopy: multiplayerDefaultIntro,
+    inviteMode: "public",
+    inviteKey: "",
+    providerMode: "both",
+    startAt: "",
+    endAt: "",
+    selected: [...defaultQuestIds],
+    timeControl: "Any time control",
+    rated: "Any rated state",
+    color: "Any color",
+  });
+  const currentDraft = useMemo<MultiplayerDraftSnapshot>(() => ({
+    name, inviteCopy, inviteMode, inviteKey, providerMode, startAt, endAt, selected, timeControl, rated, color,
+  }), [name, inviteCopy, inviteMode, inviteKey, providerMode, startAt, endAt, selected, timeControl, rated, color]);
+  const dirty = getMultiplayerDraftDirty(initialDraft, currentDraft);
+  const protectDraft = shouldProtectMultiplayerDraft({ signedIn, hasChanges: dirty });
+  const [leaveIntent, setLeaveIntent] = useState<MultiplayerDraftLeaveIntent | null>(null);
+  const leaveDialog = useRef<HTMLElement | null>(null);
+  const leaveTrigger = useRef<HTMLElement | null>(null);
+  const navigationReason = useRef<MultiplayerDraftNavigationReason>("none");
+  const restoreLeaveTriggerFocus = useCallback(() => {
+    const trigger = leaveTrigger.current;
+    const details = trigger?.closest("details");
+    if (details && !details.open) details.open = true;
+    queueMicrotask(() => trigger?.focus());
+  }, []);
   const hydrated = useSyncExternalStore(subscribeToHydration, () => true, () => false);
   const signInHref = buildSignInHref(`/create-multiplayer-side-quest${initialQuestId ? `?quest=${encodeURIComponent(initialQuestId)}` : ""}`);
   useEffect(() => {
@@ -74,25 +158,115 @@ export default function MobileMultiplayerCreateForm({ signedIn, quests, stableNo
     queueMicrotask(() => {
       if (!mounted) return;
       const initial = getMultiplayerLocalDateTimeDefaults(stableNow);
+      setInitialDraft((current) => ({ ...current, startAt: initial.startAt, endAt: initial.endAt }));
       setStartAt(initial.startAt);
       setEndAt(initial.endAt);
     });
     return () => { mounted = false; };
   }, [stableNow]);
+  useEffect(() => {
+    if (!protectDraft) return;
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      if (navigationReason.current !== "none") return;
+      event.preventDefault();
+      event.returnValue = "";
+    };
+    const handleDocumentClick = (event: MouseEvent) => {
+      if (navigationReason.current !== "none" || event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+      const target = event.target instanceof Element ? event.target.closest<HTMLAnchorElement>("a[href]") : null;
+      if (!target || target.target === "_blank" || target.hasAttribute("download")) return;
+      const destination = new URL(target.href, window.location.href);
+      const current = new URL(window.location.href);
+      if (destination.origin === current.origin && destination.pathname === current.pathname && destination.search === current.search && destination.hash) return;
+      event.preventDefault();
+      event.stopPropagation();
+      leaveTrigger.current = target;
+      setLeaveIntent({ href: destination.href });
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    document.addEventListener("click", handleDocumentClick, true);
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+      document.removeEventListener("click", handleDocumentClick, true);
+    };
+  }, [protectDraft]);
+  useEffect(() => {
+    const handlePageShow = (event: PageTransitionEvent) => {
+      if (!event.persisted) return;
+      const restored = restoreMultiplayerDraftLifecycle({
+        reason: navigationReason.current,
+        saving,
+        current: currentDraft,
+      });
+      navigationReason.current = restored.reason;
+      setSaving(restored.saving);
+      if (restored.baseline) setInitialDraft(restored.baseline);
+    };
+    window.addEventListener("pageshow", handlePageShow);
+    return () => window.removeEventListener("pageshow", handlePageShow);
+  }, [currentDraft, saving]);
+  useEffect(() => {
+    if (!leaveIntent) return;
+    const previousOverflow = document.body.style.overflow;
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        setLeaveIntent(null);
+        restoreLeaveTriggerFocus();
+        return;
+      }
+      if (event.key !== "Tab") return;
+      const controls = Array.from(leaveDialog.current?.querySelectorAll<HTMLButtonElement>("button:not(:disabled)") ?? []);
+      const first = controls[0];
+      const last = controls.at(-1);
+      if (!first || !last) return;
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+    const handleFocusIn = (event: FocusEvent) => {
+      if (event.target instanceof Node && leaveDialog.current?.contains(event.target)) return;
+      leaveDialog.current?.querySelector<HTMLButtonElement>("button:not(:disabled)")?.focus();
+    };
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", handleKeyDown);
+    document.addEventListener("focusin", handleFocusIn);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", handleKeyDown);
+      document.removeEventListener("focusin", handleFocusIn);
+    };
+  }, [leaveIntent, restoreLeaveTriggerFocus]);
   const picker = useMemo(() => getMultiplayerCreateQuestPicker({ choices: quests, source, selectedIds: selected, selectedOnly, search, limit: questLimit }), [quests, source, selected, selectedOnly, search, questLimit]);
   const selectedQuests = selected.flatMap((id) => { const quest = quests.find((choice) => choice.id === id); return quest ? [quest] : []; });
   function resetPickerPage() { setQuestLimit(8); }
   function toggle(id: string) { const result = toggleMultiplayerCreateQuest(selected, id); setSelected(result.selectedIds); setSelectionError(result.error ?? ""); }
   function duration(days: number) { const start = new Date(startAt); start.setDate(start.getDate() + days); setEndAt(localDateTime(start)); }
+  function keepEditing() {
+    setLeaveIntent(null);
+    restoreLeaveTriggerFocus();
+  }
+  function discardDraft() {
+    const intent = leaveIntent;
+    if (!intent) return;
+    setLeaveIntent(null);
+    navigationReason.current = "discarded";
+    window.location.replace(intent.href);
+  }
   async function submit(event: FormEvent) {
     event.preventDefault(); if (!signedIn) { setError("Sign in to create a Side Quest."); return; } setError("");
     let body; try { body = buildMultiplayerCreatePayload({ name, inviteCopy, inviteMode, inviteKey, questIds: selected, providerMode, startAt, endAt, rules: { timeControl, rated, color } }); } catch (caught) { setError(caught instanceof Error ? caught.message : "Check the form and try again."); return; }
     setSaving(true);
-    try { const response = await fetch("/api/groupquests", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) }); const result = await response.json().catch(() => null); const destination = response.ok ? getMultiplayerCreateDestination(result) : null; if (!destination) { setError(getCreateErrorMessage(response.status, result)); setSaving(false); return; } window.location.assign(destination); }
+    try { const response = await fetch("/api/groupquests", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) }); const result = await response.json().catch(() => null); const destination = response.ok ? getMultiplayerCreateDestination(result) : null; if (!destination) { setError(getCreateErrorMessage(response.status, result)); setSaving(false); return; } navigationReason.current = "saved"; window.location.assign(destination); }
     catch { setError("Could not create this Side Quest right now. Please try again."); setSaving(false); }
   }
   return <form className="sqc-stack sqc-multiplayer-create-form" aria-label="Create Multiplayer Side Quest form" onSubmit={submit}>
-    <fieldset className="sqc-hydration-gate" disabled={!hydrated}>
+    <fieldset className="sqc-hydration-gate" disabled={shouldDisableMultiplayerDraftControls({ hydrated, saving })}>
     {communityUnavailable ? <p className="sqc-native-card sqc-create-community-notice" role="status"><strong>Community Side Quests could not load.</strong> Official and your own published Side Quests are still available.</p> : null}
     <section className="sqc-native-card sqc-create-setup-card"><div className="sqc-form-list">
       <label className="sqc-form-row"><span>Quest name</span><input aria-describedby={signedIn ? "multiplayer-quest-name-help" : undefined} aria-label="Quest name" maxLength={54} onChange={(e) => setName(e.target.value)} placeholder={signedIn ? "Name this Multiplayer Side Quest" : undefined} required value={name} />{signedIn ? <small id="multiplayer-quest-name-help">Required. Make it clear enough that players know what they are joining.</small> : null}</label>
@@ -141,5 +315,25 @@ export default function MobileMultiplayerCreateForm({ signedIn, quests, stableNo
         : <Link aria-label="Sign in to create Multiplayer Side Quest" className="sqc-create-footer-button" href={signInHref}>Sign in</Link>}
     </div>
     </fieldset>
+    {leaveIntent ? (
+      <div className="quest-switch-dialog-backdrop" role="presentation">
+        <section
+          aria-describedby="multiplayer-draft-leave-copy"
+          aria-labelledby="multiplayer-draft-leave-title"
+          aria-modal="true"
+          className="quest-switch-dialog sqc-draft-leave-dialog"
+          ref={leaveDialog}
+          role="alertdialog"
+        >
+          <span className="eyebrow">Unsaved Multiplayer draft</span>
+          <h2 id="multiplayer-draft-leave-title">Discard Multiplayer draft?</h2>
+          <p id="multiplayer-draft-leave-copy">Your draft is still here. Keep editing, or discard the changes and leave this screen.</p>
+          <div className="button-row quest-switch-actions">
+            <button autoFocus className="button secondary" onClick={keepEditing} type="button">Keep editing</button>
+            <button className="button primary" onClick={discardDraft} type="button">Discard</button>
+          </div>
+        </section>
+      </div>
+    ) : null}
   </form>;
 }

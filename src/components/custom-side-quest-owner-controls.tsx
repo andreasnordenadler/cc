@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { deleteCustomOwnerQuest, duplicateCustomOwnerQuest, getCustomOwnerDeleteConfirmation, getCustomOwnerDuplicateSuccessMessage, getCustomOwnerMultiplayerHref, getCustomOwnerStateReloadDestination, getCustomOwnerStateSavedMessage, saveCustomOwnerState, type CustomOwnerSaveInput } from "@/lib/custom-owner-controls";
+import FullDocumentLink from "./full-document-link";
 
 export default function CustomSideQuestOwnerControls({ quest, active = false }: { quest: CustomOwnerSaveInput; active?: boolean }) {
   const [persistedVisibility, setPersistedVisibility] = useState(quest.visibility);
@@ -59,7 +60,7 @@ export default function CustomSideQuestOwnerControls({ quest, active = false }: 
   return <section className="sqc-native-card sqc-custom-builder-card sqc-custom-owner-management" aria-label="Manage Custom Side Quest">
     <span className="sqc-card-eyebrow">Owner controls</span>
     <Link className="sqc-detail-secondary-button" href={`/create-custom-side-quest?edit=${encodeURIComponent(quest.id)}`}>Edit name &amp; rules</Link>
-    {multiplayerHref ? <Link className="sqc-detail-secondary-button" href={multiplayerHref}>Use in Multiplayer</Link> : null}
+    {multiplayerHref ? <FullDocumentLink className="sqc-detail-secondary-button" href={multiplayerHref}>Use in Multiplayer</FullDocumentLink> : null}
     {message ? <p className={messageIsError ? "groupquest-join-error" : "sqc-action-success"} role={messageIsError ? "alert" : "status"}>{message}</p> : null}
     <div className="sqc-community-detail-actions" aria-label="Custom Side Quest lifecycle actions">
       <button className="sqc-detail-secondary-button" disabled={Boolean(busy)} onClick={duplicate} type="button">{busy === "duplicate" ? "Duplicating…" : "Duplicate"}</button>

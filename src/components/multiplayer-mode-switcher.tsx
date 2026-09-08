@@ -1,4 +1,5 @@
 import Link from "next/link";
+import FullDocumentLink from "./full-document-link";
 
 type MultiplayerMode = "overview" | "community" | "create" | "join" | "official" | "proof";
 
@@ -105,7 +106,18 @@ export default function MultiplayerModeSwitcher({ active }: MultiplayerModeSwitc
         ))}
       </div>
       <div className="side-quest-library-actions" aria-label="Multiplayer actions">
-        {actionModes.map((mode) => (
+        {actionModes.map((mode) => mode.id === "create" ? (
+          <FullDocumentLink
+            aria-current={active === mode.id ? "page" : undefined}
+            className={active === mode.id ? "side-quest-mode-switch active" : "side-quest-mode-switch"}
+            href={mode.href}
+            key={mode.id}
+          >
+            <span>{mode.label}</span>
+            <strong>{mode.title}</strong>
+            <small>{mode.copy}</small>
+          </FullDocumentLink>
+        ) : (
           <Link
             aria-current={active === mode.id ? "page" : undefined}
             className={active === mode.id ? "side-quest-mode-switch active" : "side-quest-mode-switch"}

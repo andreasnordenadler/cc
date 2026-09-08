@@ -15,6 +15,7 @@ import GroupQuestInviteKeyJoin from "./group-quest-invite-key-join";
 import { getMultiplayerJoinState } from "@/lib/mobile-web-parity-actions";
 import MobileCustomCreateForm from "./mobile-custom-create-form";
 import MobileMultiplayerCreateForm, { type MultiplayerCreateQuest } from "./mobile-multiplayer-create-form";
+import FullDocumentLink from "./full-document-link";
 import { CommunityMultiplayerCatalog, CommunitySoloCatalog, CustomSoloCatalog } from "./catalog-clients";
 import CommunitySoloSocialActions from "./community-solo-social-actions";
 import CommunitySoloShareControls from "./community-solo-share-controls";
@@ -239,6 +240,7 @@ export default function MobileAppWebShell({
 
   const showDesktopHome = activeTab === "home" && children == null && !modalPresentation && !immersivePresentation && !loadingPresentation;
   const showDesktopAccountWorkspace = desktopPresentation === "account" || desktopPresentation === "settings" || desktopPresentation === "support";
+  const createDraftNavigation = desktopPresentation === "multiplayer-create";
 
   return (
     <main
@@ -262,6 +264,7 @@ export default function MobileAppWebShell({
             activeTab={desktopPresentation.startsWith("community-") || desktopPresentation.startsWith("custom-") || desktopPresentation === "multiplayer-create" || desktopPresentation === "recovery" ? null : activeTab}
             activeItemId={desktopPresentation.startsWith("community-") ? "community" : desktopPresentation === "custom-editor" ? "createCustom" : desktopPresentation === "multiplayer-create" ? "createMultiplayer" : desktopPresentation === "support" ? "support" : desktopPresentation.startsWith("custom-") ? "custom" : undefined}
             accountIsCurrent={desktopPresentation === "account"}
+            fullDocumentNavigation={createDraftNavigation}
           />
           {showDesktopAccountWorkspace ? <DesktopAccountWorkspaceNav current={desktopPresentation} /> : null}
         </div>
@@ -300,9 +303,15 @@ export default function MobileAppWebShell({
         ) : null}
 
         {activeTab !== "home" || modalPresentation ? (
-          <Link href={closeHref} className="sqc-close-screen" aria-label="Close screen">
-            <span aria-hidden="true" />
-          </Link>
+          createDraftNavigation ? (
+            <FullDocumentLink href={closeHref} className="sqc-close-screen" aria-label="Close screen">
+              <span aria-hidden="true" />
+            </FullDocumentLink>
+          ) : (
+            <Link href={closeHref} className="sqc-close-screen" aria-label="Close screen">
+              <span aria-hidden="true" />
+            </Link>
+          )
         ) : null}
 
         {showDesktopHome && signedIn ? null : (
@@ -376,30 +385,31 @@ function GuestNavigation({ activeTab }: { activeTab: AppTab }) {
   );
 }
 
-export function DesktopHomeHeader({ signedIn, displayName, activeTab, activeItemId, accountIsCurrent = false }: { signedIn: boolean; displayName?: string | null; activeTab: AppTab | null; activeItemId?: string; accountIsCurrent?: boolean }) {
+export function DesktopHomeHeader({ signedIn, displayName, activeTab, activeItemId, accountIsCurrent = false, fullDocumentNavigation = false }: { signedIn: boolean; displayName?: string | null; activeTab: AppTab | null; activeItemId?: string; accountIsCurrent?: boolean; fullDocumentNavigation?: boolean }) {
   const shortcuts = desktopHomeMenuItems.slice(0, 5);
   const resolvedActiveItemId = activeItemId ?? (activeTab === "multiplayerSideQuests" ? "multiplayer" : activeTab === "coatOfArms" ? "coats" : activeTab ?? "");
+  const NavigationLink = fullDocumentNavigation ? FullDocumentLink : Link;
 
   return (
     <div className="sqc-desktop-header-shell">
       <header className="sqc-desktop-header">
-        <Link href="/" className="sqc-desktop-brand" aria-label="Side Quest Chess home">
+        <NavigationLink href="/" className="sqc-desktop-brand" aria-label="Side Quest Chess home">
           <Image src={mobileAsset.coat} alt="" width={42} height={47} />
           <span>
             <strong>Side Quest Chess</strong>
             <small>Public games. Unreasonable objectives.</small>
           </span>
-        </Link>
+        </NavigationLink>
         <nav className="sqc-desktop-shortcuts" aria-label="Desktop shortcuts">
           {shortcuts.map((item) => (
-            <Link key={item.id} href={item.href} aria-label={item.label} aria-current={item.id === resolvedActiveItemId || (activeTab && isActiveMenuItem(item.id, activeTab)) ? "page" : undefined}>
+            <NavigationLink key={item.id} href={item.href} aria-label={item.label} aria-current={item.id === resolvedActiveItemId || (activeTab && isActiveMenuItem(item.id, activeTab)) ? "page" : undefined}>
               {desktopShortcutLabels[item.id] ?? item.label}
-            </Link>
+            </NavigationLink>
           ))}
         </nav>
-        <DesktopHomeMenu items={desktopHomeMenuItems.slice(shortcuts.length)} activeItemId={resolvedActiveItemId} />
+        <DesktopHomeMenu items={desktopHomeMenuItems.slice(shortcuts.length)} activeItemId={resolvedActiveItemId} fullDocumentNavigation={fullDocumentNavigation} />
         {signedIn ? (
-          <Link href="/account" className="sqc-desktop-sign-in" aria-current={accountIsCurrent ? "page" : undefined}>{displayName || "My Account"}</Link>
+          <NavigationLink href="/account" className="sqc-desktop-sign-in" aria-current={accountIsCurrent ? "page" : undefined}>{displayName || "My Account"}</NavigationLink>
         ) : (
           <CurrentPageSignInLink className="sqc-desktop-sign-in">Sign in</CurrentPageSignInLink>
         )}
@@ -1652,7 +1662,7 @@ export function MobileCommunitySideQuestDetailScreen({
             <span className="sqc-community-action-group-label" id="community-next-actions-label">Continue exploring</span>
             <Link href={returnHref} className="sqc-detail-quiet-button">{hasDiscoveryContext ? "Back to results" : "Back to list"}</Link>
             <Link href={quest.creatorBrowsePath} className="sqc-detail-secondary-button">More by {quest.creatorName}</Link>
-            {signedIn ? <Link href={`/create-multiplayer-side-quest?quest=${encodeURIComponent(quest.id)}`} className="sqc-detail-secondary-button">Use in Multiplayer</Link> : null}
+            {signedIn ? <FullDocumentLink href={`/create-multiplayer-side-quest?quest=${encodeURIComponent(quest.id)}`} className="sqc-detail-secondary-button">Use in Multiplayer</FullDocumentLink> : null}
             {signedIn && duplicateInput ? <CommunitySoloDuplicateControl quest={duplicateInput} /> : null}
             {!signedIn ? <CurrentPageSignInLink aria-label="Sign in to duplicate custom Side Quest" className="sqc-detail-secondary-button">Duplicate</CurrentPageSignInLink> : null}
           </div>
@@ -1773,7 +1783,7 @@ export function MobileMultiplayerSideQuestsScreen({
         <h1>Shared challenges, arranged like a tournament desk.</h1>
         <p>Join an official challenge, browse community tables, or create one for friends. Every result still comes from fresh public games and checked proof.</p>
         <nav className="sqc-desktop-multiplayer-launchpad" aria-label="Multiplayer quick actions">
-          <Link href="/create-multiplayer-side-quest">Create a Multiplayer Side Quest</Link>
+          <FullDocumentLink href="/create-multiplayer-side-quest">Create a Multiplayer Side Quest</FullDocumentLink>
           <Link href="/multiplayer-side-quests?tab=community#join-private-multiplayer">Join with invite code</Link>
         </nav>
       </div>
@@ -1967,7 +1977,7 @@ function CommunityMultiplayerPanel({ signedIn, rows, initialHost, catalogStatus 
           <span className="sqc-card-eyebrow">Create</span>
           <h2>Create a Community Multiplayer Side Quest.</h2>
           <p>Pick up to four Side Quests, set the time window, then share the table with players.</p>
-          <Link href="/create-multiplayer-side-quest" className="sqc-primary-action">Create Multiplayer Side Quest</Link>
+          <FullDocumentLink href="/create-multiplayer-side-quest" className="sqc-primary-action">Create Multiplayer Side Quest</FullDocumentLink>
         </section>
       ) : null}
 
@@ -1985,7 +1995,7 @@ export function MobileCreateMultiplayerScreen({ signedIn = false, quests = [], c
   return (
     <div className="sqc-stack sqc-create-multiplayer-screen">
       <nav className="sqc-multiplayer-create-context-nav" aria-label="Multiplayer creation context">
-        <Link href="/multiplayer">Multiplayer Side Quests</Link>
+        <FullDocumentLink href="/multiplayer">Multiplayer Side Quests</FullDocumentLink>
         <span aria-hidden="true">/</span>
         <span aria-current="page">Create Multiplayer Side Quest</span>
       </nav>
@@ -2039,7 +2049,7 @@ export function MobileCreateMultiplayerScreen({ signedIn = false, quests = [], c
             <span className="active">1 week</span>
             <span>2 weeks</span>
           </div>
-          <Link href="/create-multiplayer-side-quest" className="sqc-quiet-button">Advanced: time, rated, color</Link>
+          <FullDocumentLink href="/create-multiplayer-side-quest" className="sqc-quiet-button">Advanced: time, rated, color</FullDocumentLink>
         </div>
       </section>
 
@@ -2068,11 +2078,11 @@ export function MobileCreateMultiplayerScreen({ signedIn = false, quests = [], c
           <span>Selected (0)</span>
         </div>
         <div className="sqc-brand-tabs" role="tablist" aria-label="Choose Side Quest source">
-          <Link href="/create-multiplayer-side-quest" className="sqc-brand-tab official active" role="tab" aria-selected="true">Official (13)</Link>
-          <Link href="/create-multiplayer-side-quest" className="sqc-brand-switch" aria-label="Switch to Community Side Quests">
+          <FullDocumentLink href="/create-multiplayer-side-quest" className="sqc-brand-tab official active" role="tab" aria-selected="true">Official (13)</FullDocumentLink>
+          <FullDocumentLink href="/create-multiplayer-side-quest" className="sqc-brand-switch" aria-label="Switch to Community Side Quests">
             <span aria-hidden="true" />
-          </Link>
-          <Link href="/create-multiplayer-side-quest" className="sqc-brand-tab community" role="tab" aria-selected="false">Community (0)</Link>
+          </FullDocumentLink>
+          <FullDocumentLink href="/create-multiplayer-side-quest" className="sqc-brand-tab community" role="tab" aria-selected="false">Community (0)</FullDocumentLink>
         </div>
         <div className="sqc-catalog">
           <AppRow title="Any Game Counts" meta="Play any finished game — win, lose, or draw — and complete the quest." status="Add" href="/challenges/finish-any-game" image="/mobile-source/badges/v6/proof-loop-test-badge.png" glow="/mobile-source/badges/glow/finish-any-game-glow.png" />
