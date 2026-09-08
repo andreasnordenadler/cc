@@ -24,6 +24,15 @@ type ProofCheck = {
   finalPositionFen?: string | null;
   lastMoveUci?: string | null;
   lastMoveSan?: string | null;
+  failureDiagnostic?: {
+    label?: string | null;
+    explanation?: string | null;
+    moveNumber?: number | null;
+    ply?: number | null;
+    san?: string | null;
+    uci?: string | null;
+    fenAtBreak?: string | null;
+  } | null;
 };
 
 type BoardSquare = {
@@ -112,15 +121,20 @@ function parseFenBoard(fen?: string | null, lastMoveUci?: string | null): BoardS
   return board.length === 64 ? board : null;
 }
 
-function MultiplayerProofBoard({ check }: { check: ProofCheck }) {
-  const board = parseFenBoard(check.finalPositionFen, check.lastMoveUci);
+export function MultiplayerProofBoard({ check }: { check: ProofCheck }) {
+  const diagnostic = check.failureDiagnostic;
+  const isFirstBreak = Boolean(diagnostic && (diagnostic.moveNumber != null || diagnostic.ply != null || diagnostic.san || diagnostic.uci));
+  const boardFen = isFirstBreak ? diagnostic?.fenAtBreak ?? check.finalPositionFen : check.finalPositionFen;
+  const boardUci = isFirstBreak ? diagnostic?.uci : check.lastMoveUci;
+  const boardSan = isFirstBreak ? diagnostic?.san : check.lastMoveSan;
+  const board = parseFenBoard(boardFen, boardUci);
   if (!board) return null;
 
   return (
     <div className="groupquest-proof-board" aria-label="Multiplayer proof board">
       <span className="eyebrow">Proof board</span>
       <div className="proof-board-wrap" data-board-state="ready">
-        <div className="proof-board" role="img" aria-label="Chess position with last move highlighted">
+        <div className="proof-board" role="img" aria-label={isFirstBreak ? "Chess position with first failing move highlighted" : "Chess position with last move highlighted"}>
           {board.map((square) => (
             <span
               key={square.square}
@@ -132,7 +146,9 @@ function MultiplayerProofBoard({ check }: { check: ProofCheck }) {
           ))}
         </div>
       </div>
-      {check.lastMoveSan || check.lastMoveUci ? <small>Last move: {check.lastMoveSan ?? check.lastMoveUci}</small> : null}
+      {diagnostic?.label ? <small>{isFirstBreak ? "First break" : "Checked position"}: {diagnostic.label}</small> : null}
+      {diagnostic?.explanation ? <small>{diagnostic.explanation}</small> : null}
+      {boardSan || boardUci ? <small>{isFirstBreak ? "Breaking move" : "Last move"}: {boardSan ?? boardUci}</small> : null}
     </div>
   );
 }

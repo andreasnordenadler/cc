@@ -14,6 +14,7 @@ export type GroupQuestCheckResult = {
   outcome?: LatestChallengeOutcome;
   gameUrl?: string;
   mismatchReasons?: MultiplayerProofMismatchReason[];
+  failureDiagnostic?: LatestChallengeVerdict["failureDiagnostic"];
 };
 
 function resolveVerdictTime(verdict: { completedGameAt?: string; startedGameAt?: string }) {
@@ -35,6 +36,7 @@ function buildWindowedResult(
     lastMoveSan?: string;
     outcome?: LatestChallengeOutcome;
     metadata?: MultiplayerGameMetadata;
+    failureDiagnostic?: LatestChallengeVerdict["failureDiagnostic"];
   },
   startAt?: string,
   endAt?: string,
@@ -109,6 +111,7 @@ function buildWindowedResult(
     outcome: verdict.outcome,
     gameUrl: verdict.metadata?.gameUrl,
     mismatchReasons: verdict.status === "passed" ? [] : undefined,
+    failureDiagnostic: verdict.failureDiagnostic,
   };
 }
 
