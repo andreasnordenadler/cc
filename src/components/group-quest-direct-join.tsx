@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { continueDirectGroupQuestJoin } from "@/lib/mobile-web-parity-actions";
 
 const joinErrorMessages: Record<string, string> = {
   sign_in_required: "Sign in to join this Multiplayer Side Quest.",
@@ -24,12 +25,14 @@ export default function GroupQuestDirectJoin({
   buttonClassName = "button primary",
   buttonLabel = "Join Side Quest",
   inviteKey,
+  returnHref,
 }: {
   id: string;
   isSignedIn?: boolean;
   buttonClassName?: string;
   buttonLabel?: string;
   inviteKey?: string;
+  returnHref?: string;
 }) {
   const [joining, setJoining] = useState(false);
   const [error, setError] = useState("");
@@ -42,19 +45,19 @@ export default function GroupQuestDirectJoin({
 
     setJoining(true);
     setError("");
-    try {
-      const response = await fetch(`/api/groupquests/${encodeURIComponent(id)}/join`, {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify(inviteKey ? { inviteKey } : {}),
-      });
-      const result = await response.json().catch(() => null) as { href?: string; error?: string } | null;
-      if (!response.ok || !result?.href) throw new Error(normalizeGroupQuestJoinError(result?.error));
-      window.location.href = result.href;
-    } catch (caught) {
-      setError(caught instanceof Error ? caught.message : normalizeGroupQuestJoinError(null));
-      setJoining(false);
+    const result = await continueDirectGroupQuestJoin({
+      questId: id,
+      inviteKey,
+      returnHref,
+      origin: window.location.origin,
+      fetch,
+    });
+    if (result.ok) {
+      window.location.href = result.destination;
+      return;
     }
+    setError(normalizeGroupQuestJoinError(result.error));
+    setJoining(false);
   }
 
   return (

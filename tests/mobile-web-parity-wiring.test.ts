@@ -19,14 +19,19 @@ test("mobile community detail uses a real pick control and receives active quest
 });
 
 test("multiplayer detail uses direct session-derived joining without identity/profile fields", async () => {
-  const [screen, directJoin] = await Promise.all([
+  const [screen, directJoin, actions] = await Promise.all([
     source("src/components/mobile-app-web-shell.tsx"),
     source("src/components/group-quest-direct-join.tsx"),
+    source("src/lib/mobile-web-parity-actions.ts"),
   ]);
   assert.match(screen, /GroupQuestDirectJoin/);
   assert.match(screen, /id=\{quest\.id\}/);
+  assert.match(screen, /returnHref=\{official \? undefined : returnHref\}/);
   assert.match(screen, /joinState\.kind === "join"/);
-  assert.match(directJoin, /JSON\.stringify\(inviteKey \? \{ inviteKey \} : \{\}\)/);
+  assert.match(directJoin, /continueDirectGroupQuestJoin/);
+  assert.match(directJoin, /window\.location\.href = result\.destination/);
+  assert.match(actions, /JSON\.stringify\(inviteKey \? \{ inviteKey \} : \{\}\)/);
+  assert.match(actions, /safeGroupQuestHref\(result\.href, origin, returnHref\)/);
   assert.match(directJoin, /Joining…/);
   assert.match(directJoin, /\/sign-in\?redirect_url=/);
   assert.doesNotMatch(directJoin, /localStorage|Public username|Leaderboard name|Email address|Location \/ country|Chess provider|groupquest_join_failed/);

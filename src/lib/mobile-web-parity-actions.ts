@@ -1,3 +1,5 @@
+import { buildCommunityMultiplayerDetailHref } from "./multiplayer-discovery-state";
+
 type CommunitySoloPickInput = {
   questId: string;
   signedIn: boolean;
@@ -9,6 +11,7 @@ type MultiplayerJoinInput = {
   questId: string;
   signedIn: boolean;
   status: "Not joined" | "Joined" | "Hosted";
+  detailHref?: string;
 };
 
 function detailPath(prefix: string, id: string) {
@@ -30,9 +33,9 @@ export function getCommunitySoloPickState({ questId, signedIn, activeQuestId, de
   return { kind: "pick" as const, label: "Pick this Side Quest" };
 }
 
-export function getMultiplayerJoinState({ questId, signedIn, status }: MultiplayerJoinInput) {
+export function getMultiplayerJoinState({ questId, signedIn, status, detailHref }: MultiplayerJoinInput) {
   const href = detailPath("/groupquests", questId);
-  if (!signedIn) return { kind: "signed-out" as const, href: signInPath(href), label: "Sign in to join" };
+  if (!signedIn) return { kind: "signed-out" as const, href: signInPath(detailHref ?? href), label: "Sign in to join" };
   if (status === "Joined") return { kind: "joined" as const, href: `${href}?accepted=1`, label: "Joined Side Quest" };
   if (status === "Hosted") return { kind: "hosted" as const, href, label: "You host this Side Quest" };
   return { kind: "join" as const, label: "Join Side Quest" };
@@ -58,10 +61,46 @@ export function groupQuestIdFromLookupHref(href: string, currentOrigin: string):
   return matchedPath?.[1] ? decodeURIComponent(matchedPath[1]) : null;
 }
 
-export function safeGroupQuestHref(href: string, currentOrigin: string): string | null {
+export function safeGroupQuestHref(href: string, currentOrigin: string, communityReturnHref?: string): string | null {
   const destination = new URL(href, currentOrigin);
   if (destination.origin !== currentOrigin || !/^\/groupquests\/[^/]+$/.test(destination.pathname)) return null;
-  return `${destination.pathname}${destination.search}${destination.hash}`;
+  const safeDestination = `${destination.pathname}${destination.search}${destination.hash}`;
+  return communityReturnHref
+    ? buildCommunityMultiplayerDetailHref(safeDestination, communityReturnHref)
+    : safeDestination;
+}
+
+export async function continueDirectGroupQuestJoin({
+  questId,
+  inviteKey,
+  returnHref,
+  origin,
+  fetch,
+}: {
+  questId: string;
+  inviteKey?: string;
+  returnHref?: string;
+  origin: string;
+  fetch: typeof globalThis.fetch;
+}) {
+  try {
+    const response = await fetch(`/api/groupquests/${encodeURIComponent(questId)}/join`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(inviteKey ? { inviteKey } : {}),
+    });
+    const result = await response.json().catch(() => null) as { href?: string; error?: string } | null;
+    if (!response.ok || !result?.href) {
+      return { ok: false as const, error: result?.error };
+    }
+
+    const destination = safeGroupQuestHref(result.href, origin, returnHref);
+    return destination
+      ? { ok: true as const, destination }
+      : { ok: false as const, error: "join_unavailable" };
+  } catch {
+    return { ok: false as const, error: "join_unavailable" };
+  }
 }
 
 export function takePendingPrivateInvite(storage: Pick<Storage, "getItem" | "removeItem">) {
