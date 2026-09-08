@@ -68,7 +68,7 @@ test("Multiplayer create matches Android option cards and quick-duration guidanc
   assert.match(html, /aria-label="Quick duration"/);
   assert.match(html, />Dates save as your local time\. Start defaults to shortly after creation; no typing needed\.</);
   assert.match(html, /aria-label="Toggle advanced Multiplayer game settings"[^>]*>Advanced: time, rated, color<\/button>/);
-  assert.match(html, /aria-label="Sign in to create Multiplayer Side Quest"[^>]*>Sign in<\/button>/);
+  assert.match(html, /<a[^>]*aria-label="Sign in to create Multiplayer Side Quest"[^>]*href="\/sign-in\?redirect_url=%2Fcreate-multiplayer-side-quest"[^>]*>Sign in<\/a>/);
   assert.doesNotMatch(html, /aria-label="Create Multiplayer Side Quest now"/);
   assert.doesNotMatch(html, /<select/);
   assert.doesNotMatch(html, /Rapid 10\+0|Blitz 5\+0/);

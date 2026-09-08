@@ -1,6 +1,8 @@
 "use client";
 
+import Link from "next/link";
 import { FormEvent, useEffect, useMemo, useState, useSyncExternalStore } from "react";
+import { buildSignInHref } from "@/lib/auth-return-path";
 import { buildMultiplayerCreatePayload, getCreateErrorMessage, getMultiplayerCreateDestination, getMultiplayerLocalDateTimeDefaults } from "@/lib/mobile-create-forms";
 import { getMultiplayerCreateQuestPicker, toggleMultiplayerCreateQuest, type MultiplayerCreateQuestChoice, type MultiplayerCreateQuestSource } from "@/lib/multiplayer-create-quest-choices";
 
@@ -66,6 +68,7 @@ export default function MobileMultiplayerCreateForm({ signedIn, quests, stableNo
   const [timeControl, setTimeControl] = useState("Any time control"); const [rated, setRated] = useState("Any rated state"); const [color, setColor] = useState("Any color"); const [advancedOpen, setAdvancedOpen] = useState(false);
   const [saving, setSaving] = useState(false); const [error, setError] = useState("");
   const hydrated = useSyncExternalStore(subscribeToHydration, () => true, () => false);
+  const signInHref = buildSignInHref(`/create-multiplayer-side-quest${initialQuestId ? `?quest=${encodeURIComponent(initialQuestId)}` : ""}`);
   useEffect(() => {
     let mounted = true;
     queueMicrotask(() => {
@@ -133,7 +136,9 @@ export default function MobileMultiplayerCreateForm({ signedIn, quests, stableNo
         <strong className="sqc-create-footer-title">{selected.length ? `${selected.length}/4 selected` : "Choose at least one Side Quest"}</strong>
         <span className="sqc-create-footer-meta">{name.trim() || "Name the Multiplayer Side Quest before creating."}</span>
       </div>
-      <button aria-label={signedIn ? "Create Multiplayer Side Quest now" : "Sign in to create Multiplayer Side Quest"} className="sqc-create-footer-button" disabled={saving} type="submit">{saving ? "Creating…" : signedIn ? "Create" : "Sign in"}</button>
+      {signedIn
+        ? <button aria-label="Create Multiplayer Side Quest now" className="sqc-create-footer-button" disabled={saving} type="submit">{saving ? "Creating…" : "Create"}</button>
+        : <Link aria-label="Sign in to create Multiplayer Side Quest" className="sqc-create-footer-button" href={signInHref}>Sign in</Link>}
     </div>
     </fieldset>
   </form>;

@@ -132,6 +132,23 @@ test("multiplayer create form preserves the signed-out field rendering", () => {
   assert.doesNotMatch(html, /Shown to players before they join\./);
 });
 
+test("signed-out Multiplayer creation opens return-preserving authentication without form validation", () => {
+  const html = renderToStaticMarkup(
+    createElement(MobileMultiplayerCreateForm, {
+      signedIn: false,
+      quests: buildMultiplayerCreateQuestChoices({ official, owned, community }),
+      stableNow: "2026-07-17T12:00:00.000Z",
+      initialQuestId: "community-1",
+    }),
+  );
+
+  assert.match(
+    html,
+    /<a[^>]*aria-label="Sign in to create Multiplayer Side Quest"[^>]*href="\/sign-in\?redirect_url=%2Fcreate-multiplayer-side-quest%3Fquest%3Dcommunity-1"[^>]*>Sign in<\/a>/,
+  );
+  assert.doesNotMatch(html, /<button[^>]*aria-label="Sign in to create Multiplayer Side Quest"/);
+});
+
 test("multiplayer create form renders each quest source instead of collapsing provenance", () => {
   const choices = buildMultiplayerCreateQuestChoices({ official, owned, community });
   const html = renderToStaticMarkup(
