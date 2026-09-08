@@ -62,3 +62,33 @@ test("Chess.com mismatching selected rules returns machine-readable reasons", as
   assert.deepEqual(result.mismatchReasons, ["time_control_mismatch", "rated_state_mismatch", "player_color_mismatch", "result_mismatch"]);
   assert.match(result.summary, /Proof was not awarded/);
 });
+
+test("failed quest attempts still report mismatched Multiplayer table rules", async (t) => {
+  t.mock.method(globalThis, "fetch", async () => new Response(`${JSON.stringify({
+    id: "li-quest-fail-table-mismatch",
+    status: "mate",
+    winner: "white",
+    speed: "rapid",
+    rated: false,
+    variant: "standard",
+    clock: { initial: 600, increment: 5 },
+    createdAt: Date.parse("2026-07-02T09:55:00.000Z"),
+    lastMoveAt: Date.parse("2026-07-02T10:00:00.000Z"),
+    players: { white: { user: { name: "RuleAlice" } }, black: { user: { name: "Bob" } } },
+    moves: "e2e4 e7e5 g1f3 b8c6 f1c4 g8f6 d2d3 f8c5 c2c3 d7d6 b2b4 c5b6 a2a4 a7a6",
+  })}\n`, { status: 200 }));
+
+  const result = await checkLatestGroupQuestChallenge({
+    challengeId: "queen-never-heard-of-her",
+    provider: "lichess",
+    username: "RuleAlice",
+    startAt: "2026-07-02T09:00:00.000Z",
+    endAt: "2026-07-02T11:00:00.000Z",
+    rules: { timeControl: "Blitz", rated: "Rated only", color: "Black only" },
+  });
+
+  assert.equal(result.status, "failed");
+  assert.deepEqual(result.mismatchReasons, ["time_control_mismatch", "rated_state_mismatch", "player_color_mismatch"]);
+  assert.match(result.summary, /Proof was not awarded/);
+  assert.equal(result.failureDiagnostic?.label, "Latest checked position");
+});
