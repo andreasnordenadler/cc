@@ -239,6 +239,61 @@ test("custom builder asks before discarding unsaved changes", async ({ page }) =
   await expect(page).toHaveURL(homeUrl);
 });
 
+test("dirty Multiplayer draft keeps narrow-screen Close and browser Back behind an explicit choice", async ({ page }) => {
+  const mutations: string[] = [];
+  await page.route("**/api/groupquests", async (route) => {
+    if (route.request().method() === "POST") {
+      mutations.push(route.request().url());
+      await route.abort();
+      return;
+    }
+    await route.continue();
+  });
+  await page.goto("/multiplayer", { waitUntil: "domcontentloaded" });
+  let response = await page.goto("/create-multiplayer-side-quest", { waitUntil: "domcontentloaded" });
+  expect(response?.status()).toBeLessThan(400);
+  await expect(page.locator(".sqc-hydration-gate")).not.toHaveAttribute("disabled", "", { timeout: 10_000 });
+
+  let questName = page.getByRole("textbox", { name: "Quest name" });
+  await questName.fill("Pocket-sized Friday Knight Shift");
+  const close = page.getByRole("link", { name: "Close screen" });
+  await close.click();
+  let dialog = page.getByRole("alertdialog", { name: "Discard Multiplayer draft?" });
+  await expect(dialog).toBeVisible();
+  await dialog.getByRole("button", { name: "Keep editing" }).click();
+  await expect(close).toBeFocused();
+  await expect(questName).toHaveValue("Pocket-sized Friday Knight Shift");
+
+  await close.click();
+  dialog = page.getByRole("alertdialog", { name: "Discard Multiplayer draft?" });
+  await dialog.getByRole("button", { name: "Discard" }).click();
+  await expect(page).toHaveURL(/\/multiplayer$/);
+
+  response = await page.goto("/create-multiplayer-side-quest", { waitUntil: "domcontentloaded" });
+  expect(response?.status()).toBeLessThan(400);
+  await expect(page.locator(".sqc-hydration-gate")).not.toHaveAttribute("disabled", "", { timeout: 10_000 });
+  questName = page.getByRole("textbox", { name: "Quest name" });
+  await questName.fill("Pocket browser Back draft");
+
+  const keepDraft = new Promise<{ type: string; message: string }>((resolve) => {
+    page.once("dialog", async (confirmation) => {
+      const observed = { type: confirmation.type(), message: confirmation.message() };
+      await confirmation.dismiss();
+      resolve(observed);
+    });
+  });
+  await page.evaluate(() => window.history.back());
+  await expect(keepDraft).resolves.toEqual({ type: "beforeunload", message: "" });
+  await expect(page).toHaveURL(/\/create-multiplayer-side-quest$/);
+  await expect(questName).toHaveValue("Pocket browser Back draft");
+
+  page.once("dialog", (confirmation) => confirmation.accept());
+  await page.goBack();
+  await expect(page).toHaveURL(/\/multiplayer$/);
+  expect(mutations).toEqual([]);
+  expect(await noHorizontalOverflow(page)).toBe(true);
+});
+
 test("multiplayer catalog opens Official by default and Community stays app-styled", async ({ page }) => {
   await page.goto("/multiplayer-side-quests", { waitUntil: "domcontentloaded" });
   await expect(page.getByRole("navigation", { name: "Multiplayer Side Quest catalog" }).getByRole("link", { name: "Official Side Quests" })).toHaveAttribute("aria-current", "page");

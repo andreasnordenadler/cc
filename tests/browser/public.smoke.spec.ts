@@ -285,6 +285,165 @@ test("desktop Multiplayer creation keeps its live draft action in view without c
   await expect(page).toHaveURL(/\/sign-in\?redirect_url=%2Fcreate-multiplayer-side-quest$/);
 });
 
+test("dirty Multiplayer draft requires an explicit leave choice on every desktop exit surface", async ({ page }) => {
+  const mutations: string[] = [];
+  await page.route("**/api/groupquests", async (route) => {
+    if (route.request().method() === "POST") {
+      mutations.push(route.request().url());
+      await route.abort();
+      return;
+    }
+    await route.continue();
+  });
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await expectHealthyNavigation(page, "/multiplayer");
+  const createLink = page.getByRole("navigation", { name: "Multiplayer quick actions" }).getByRole("link", { name: "Create a Multiplayer Side Quest" });
+  await expect(createLink).toHaveAttribute("href", "/create-multiplayer-side-quest");
+  await createLink.click();
+  await expect(page).toHaveURL(/\/create-multiplayer-side-quest$/);
+
+  let questName = page.getByRole("textbox", { name: "Quest name" });
+  await questName.fill("Friday Knight Shift");
+
+  const breadcrumb = page.getByRole("navigation", { name: "Multiplayer creation context" }).getByRole("link", { name: "Multiplayer Side Quests" });
+  await breadcrumb.click();
+  let dialog = page.getByRole("alertdialog", { name: "Discard Multiplayer draft?" });
+  await expect(dialog).toBeVisible();
+  const keepEditing = dialog.getByRole("button", { name: "Keep editing" });
+  const discard = dialog.getByRole("button", { name: "Discard" });
+  await expect(keepEditing).toBeFocused();
+  await page.keyboard.press("Shift+Tab");
+  await expect(discard).toBeFocused();
+  await page.keyboard.press("Tab");
+  await expect(keepEditing).toBeFocused();
+  await page.keyboard.press("Escape");
+  await expect(dialog).toBeHidden();
+  await expect(breadcrumb).toBeFocused();
+  await expect(page).toHaveURL(/\/create-multiplayer-side-quest$/);
+  await expect(questName).toHaveValue("Friday Knight Shift");
+
+  await page.getByRole("navigation", { name: "Desktop shortcuts" }).getByRole("link", { name: "Solo Side Quests" }).click();
+  dialog = page.getByRole("alertdialog", { name: "Discard Multiplayer draft?" });
+  await expect(dialog).toBeVisible();
+  await dialog.getByRole("button", { name: "Keep editing" }).click();
+  await expect(questName).toHaveValue("Friday Knight Shift");
+
+  const desktopMenu = page.locator("details.sqc-desktop-menu");
+  await desktopMenu.locator("summary").click();
+  const supportLink = page.getByRole("navigation", { name: "Desktop main menu" }).getByRole("link", { name: "Help & Support" });
+  await supportLink.click();
+  dialog = page.getByRole("alertdialog", { name: "Discard Multiplayer draft?" });
+  await expect(dialog).toBeVisible();
+  await dialog.getByRole("button", { name: "Keep editing" }).click();
+  await expect(desktopMenu).toHaveAttribute("open", "");
+  await expect(supportLink).toBeFocused();
+  await expect(questName).toHaveValue("Friday Knight Shift");
+
+  await page.getByRole("link", { name: "Side Quest Chess home" }).click();
+  dialog = page.getByRole("alertdialog", { name: "Discard Multiplayer draft?" });
+  await expect(dialog).toBeVisible();
+  await dialog.getByRole("button", { name: "Keep editing" }).click();
+  await expect(questName).toHaveValue("Friday Knight Shift");
+
+  await breadcrumb.click();
+  dialog = page.getByRole("alertdialog", { name: "Discard Multiplayer draft?" });
+  await dialog.getByRole("button", { name: "Discard" }).click();
+  await expect(page).toHaveURL(/\/multiplayer$/);
+
+  await page.goBack();
+  await expect(page).toHaveURL(/\/multiplayer$/);
+  await createLink.click();
+  await expect(page).toHaveURL(/\/create-multiplayer-side-quest$/);
+  questName = page.getByRole("textbox", { name: "Quest name" });
+  await questName.fill("Browser Back Knight Shift");
+
+  const keepDraft = new Promise<{ type: string; message: string }>((resolve) => {
+    page.once("dialog", async (confirmation) => {
+      const observed = { type: confirmation.type(), message: confirmation.message() };
+      await confirmation.dismiss();
+      resolve(observed);
+    });
+  });
+  await page.evaluate(() => window.history.back());
+  await expect(keepDraft).resolves.toEqual({ type: "beforeunload", message: "" });
+  await expect(page).toHaveURL(/\/create-multiplayer-side-quest$/);
+  await expect(questName).toHaveValue("Browser Back Knight Shift");
+
+  page.once("dialog", (confirmation) => confirmation.accept());
+  await page.goBack();
+  await expect(page).toHaveURL(/\/multiplayer$/);
+  expect(mutations).toEqual([]);
+});
+
+test("current-page Multiplayer create link still asks before discarding a dirty draft", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await expectHealthyNavigation(page, "/multiplayer");
+  await page.getByRole("navigation", { name: "Multiplayer quick actions" }).getByRole("link", { name: "Create a Multiplayer Side Quest" }).click();
+  await expect(page).toHaveURL(/\/create-multiplayer-side-quest$/);
+  const questName = page.getByRole("textbox", { name: "Quest name" });
+  await questName.fill("Current-page draft");
+
+  const desktopMenu = page.locator("details.sqc-desktop-menu");
+  await desktopMenu.locator("summary").click();
+  const currentCreateLink = page.getByRole("navigation", { name: "Desktop main menu" }).getByRole("link", { name: "Create Multiplayer Side Quest" });
+  await currentCreateLink.click();
+  const dialog = page.getByRole("alertdialog", { name: "Discard Multiplayer draft?" });
+  await expect(dialog).toBeVisible();
+  await dialog.getByRole("button", { name: "Keep editing" }).click();
+  await expect(desktopMenu).toHaveAttribute("open", "");
+  await expect(currentCreateLink).toBeFocused();
+  await expect(questName).toHaveValue("Current-page draft");
+});
+
+test("unchanged Multiplayer defaults do not create a discard warning", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await expectHealthyNavigation(page, "/multiplayer");
+  await page.getByRole("navigation", { name: "Multiplayer quick actions" }).getByRole("link", { name: "Create a Multiplayer Side Quest" }).click();
+  await expect(page).toHaveURL(/\/create-multiplayer-side-quest$/);
+  await expect(page.locator(".sqc-hydration-gate")).not.toHaveAttribute("disabled", "", { timeout: 10_000 });
+
+  await page.getByRole("group", { name: "Quick duration" }).getByRole("button", { name: "1 week" }).click();
+  await page.getByRole("navigation", { name: "Multiplayer creation context" }).getByRole("link", { name: "Multiplayer Side Quests" }).click();
+  await expect(page).toHaveURL(/\/multiplayer$/);
+  await expect(page.getByRole("alertdialog", { name: "Discard Multiplayer draft?" })).toHaveCount(0);
+});
+
+test("discarding through a link removes Multiplayer draft entries from Back history", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await expectHealthyNavigation(page, "/multiplayer");
+  await page.getByRole("navigation", { name: "Multiplayer quick actions" }).getByRole("link", { name: "Create a Multiplayer Side Quest" }).click();
+  await expect(page).toHaveURL(/\/create-multiplayer-side-quest$/);
+  await page.getByRole("textbox", { name: "Quest name" }).fill("No ghost draft");
+
+  await page.getByRole("navigation", { name: "Desktop shortcuts" }).getByRole("link", { name: "Solo Side Quests" }).click();
+  await page.getByRole("alertdialog", { name: "Discard Multiplayer draft?" }).getByRole("button", { name: "Discard" }).click();
+  await expect(page).toHaveURL(/\/side-quests$/);
+
+  await page.goBack();
+  await expect(page).toHaveURL(/\/multiplayer$/);
+});
+
+test("modified navigation leaves the Multiplayer draft in its original tab", async ({ page, context }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await expectHealthyNavigation(page, "/multiplayer");
+  await page.getByRole("navigation", { name: "Multiplayer quick actions" }).getByRole("link", { name: "Create a Multiplayer Side Quest" }).click();
+  await expect(page).toHaveURL(/\/create-multiplayer-side-quest$/);
+  const questName = page.getByRole("textbox", { name: "Quest name" });
+  await questName.fill("Draft stays in this tab");
+  const home = page.getByRole("link", { name: "Side Quest Chess home" });
+  const modifier = process.platform === "darwin" ? "Meta" : "Control";
+  const [newPage] = await Promise.all([
+    context.waitForEvent("page"),
+    home.click({ modifiers: [modifier] }),
+  ]);
+  await newPage.waitForLoadState("domcontentloaded");
+  await expect(newPage).toHaveURL(/\/$/);
+  await newPage.close();
+  await expect(page).toHaveURL(/\/create-multiplayer-side-quest$/);
+  await expect(questName).toHaveValue("Draft stays in this tab");
+  await expect(page.getByRole("alertdialog", { name: "Discard Multiplayer draft?" })).toHaveCount(0);
+});
+
 test("desktop Trophy Cabinet turns coat previews into decision-ready collection cards without changing mobile", async ({ page }) => {
   await page.setViewportSize({ width: 1179, height: 900 });
   await expectHealthyNavigation(page, "/trophy-cabinet");

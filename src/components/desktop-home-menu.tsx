@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef } from "react";
+import FullDocumentLink from "./full-document-link";
 
 type DesktopMenuItem = {
   id: string;
@@ -67,7 +68,19 @@ export default function DesktopHomeMenu({ items, activeItemId }: { items: readon
         {groups.map((group) => (
           <section key={group.label} className="sqc-desktop-menu-group" aria-label={group.label}>
             <span className="sqc-desktop-menu-group-title">{group.label}</span>
-            {group.items.map((item) => (
+            {group.items.map((item) => item.href.startsWith("/create-multiplayer-side-quest") ? (
+              <FullDocumentLink
+                key={item.id}
+                href={item.href}
+                aria-current={item.id === activeItemId ? "page" : undefined}
+                onClick={() => {
+                  if (detailsRef.current) detailsRef.current.open = false;
+                }}
+              >
+                <span className={`sqc-menu-icon ${item.icon}`} aria-hidden="true" />
+                {item.label}
+              </FullDocumentLink>
+            ) : (
               <Link
                 key={item.id}
                 href={item.href}
