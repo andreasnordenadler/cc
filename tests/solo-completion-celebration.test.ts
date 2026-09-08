@@ -38,6 +38,7 @@ test("a newly passed Solo proof returns and renders the Android v338 completion 
   assert.match(html, /back-rank-goblin-badge\.png/);
   assert.match(html, /quest-complete-red-wax-sqc-v3\.png/);
   assert.match(html, /Close celebration/);
+  assert.match(html, /--sqc-celebration-accent:#f5c86a/);
 });
 
 test("the production Home refresh shows celebration only from a newly completed server-derived result", async () => {
@@ -54,8 +55,8 @@ test("the production Home refresh shows celebration only from a newly completed 
   assert.match(controlSource, /state\.status === "completed"/);
   assert.match(controlSource, /<SoloCompletionCelebration/);
   const celebrationSource = await readFile(new URL("../src/components/solo-completion-celebration.tsx", import.meta.url), "utf8");
-  assert.match(celebrationSource, /event\.key === "Escape"/);
-  assert.match(celebrationSource, /autoFocus/);
+  assert.match(celebrationSource, /<AccessibleModalDialog/);
+  assert.match(celebrationSource, /data-dialog-initial-focus/);
 });
 
 test("completion celebration fills the viewport, layers the Android coat and seal, and respects reduced motion", async () => {

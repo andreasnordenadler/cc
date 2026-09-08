@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect, useState } from "react";
+import { useActionState, useEffect, useRef, useState, type RefObject } from "react";
 import { checkActiveChallengeWithResult } from "@/app/actions";
 import { checkActiveCustomSoloQuestAction, shouldReloadCustomSoloAfterCheck } from "@/lib/mobile-web-active-solo-check";
 import type { SoloCheckActionResult } from "@/lib/solo-check-result";
@@ -9,9 +9,9 @@ import { SoloCheckFeedback } from "./solo-check-feedback";
 
 const initialState: SoloCheckActionResult = { status: "idle", completion: null, message: null, error: null };
 
-function Submit({ pending }: { pending: boolean }) {
+function Submit({ pending, buttonRef }: { pending: boolean; buttonRef: RefObject<HTMLButtonElement | null> }) {
   return (
-    <button className={pending ? "sqc-refresh spinning" : "sqc-refresh"} type="submit" disabled={pending} aria-label="Refresh active Solo Side Quest">
+    <button ref={buttonRef} className={pending ? "sqc-refresh spinning" : "sqc-refresh"} type="submit" disabled={pending} aria-label="Refresh active Solo Side Quest">
       <svg className="sqc-refresh-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
         <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4a8 8 0 1 0 7.73 10h-2.08A6 6 0 1 1 12 6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35Z" />
       </svg>
@@ -23,6 +23,7 @@ export default function ActiveSoloActions({ checkMode = "official" }: { checkMod
   const checkAction = checkMode === "custom" ? checkActiveCustomSoloQuestAction : checkActiveChallengeWithResult;
   const [state, formAction, pending] = useActionState(checkAction, initialState);
   const [dismissedCompletionId, setDismissedCompletionId] = useState<string | null>(null);
+  const checkButtonRef = useRef<HTMLButtonElement>(null);
   const completion = state.status === "completed" && state.completion.challengeId !== dismissedCompletionId
     ? state.completion
     : null;
@@ -35,11 +36,12 @@ export default function ActiveSoloActions({ checkMode = "official" }: { checkMod
 
   return (
     <>
-      <form className="sqc-refresh-form" action={formAction}><Submit pending={pending} /></form>
+      <form className="sqc-refresh-form" action={formAction}><Submit pending={pending} buttonRef={checkButtonRef} /></form>
       <SoloCheckFeedback result={state} />
       {completion ? (
         <SoloCompletionCelebration
           completion={completion}
+          returnFocusRef={checkButtonRef}
           onClose={() => {
             setDismissedCompletionId(completion.challengeId);
             if (checkMode === "custom") window.location.reload();
