@@ -1,7 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { useRef, useState } from "react";
+import AccessibleModalDialog from "@/components/accessible-modal-dialog";
 import GroupQuestRefreshButton from "@/components/group-quest-refresh-button";
 import { getGroupQuestResultMode, rankGroupQuestParticipants } from "@/lib/groupquests";
 
@@ -185,6 +186,8 @@ export default function GroupQuestLeaderboard({
   const tieReviewCopy = getTieReviewCopy(players, quests, resultMode);
   const [selectedScroll, setSelectedScroll] = useState<Player | null>(null);
   const [selectedSealPreview, setSelectedSealPreview] = useState<Player | null>(null);
+  const sealPreviewTriggerRef = useRef<HTMLElement | null>(null);
+  const scrollTriggerRef = useRef<HTMLElement | null>(null);
   const [removeBusyUserId, setRemoveBusyUserId] = useState<string | null>(null);
   const [removeError, setRemoveError] = useState<string | null>(null);
   const selectedSeal = selectedScroll ? rankSealByPlacement[selectedScroll.rank] : null;
@@ -244,7 +247,10 @@ export default function GroupQuestLeaderboard({
             className="groupquest-seal-button podium"
             type="button"
             aria-label={`View large ${podiumSeal.label.toLowerCase()} seal for ${podiumPlayer.name}`}
-            onClick={() => setSelectedSealPreview(podiumPlayer)}
+            onClick={(event) => {
+              sealPreviewTriggerRef.current = event.currentTarget;
+              setSelectedSealPreview(podiumPlayer);
+            }}
           >
             <Image src={podiumSeal.src} alt={podiumSeal.alt} width={72} height={72} />
           </button>
@@ -337,6 +343,7 @@ export default function GroupQuestLeaderboard({
                       onClick={(event) => {
                         event.preventDefault();
                         event.stopPropagation();
+                        sealPreviewTriggerRef.current = event.currentTarget;
                         setSelectedSealPreview(player);
                       }}
                     >
@@ -354,6 +361,7 @@ export default function GroupQuestLeaderboard({
                     onClick={(event) => {
                       event.preventDefault();
                       event.stopPropagation();
+                      scrollTriggerRef.current = event.currentTarget;
                       setSelectedScroll(player);
                     }}
                   >
@@ -422,28 +430,37 @@ export default function GroupQuestLeaderboard({
         ))}
       </div>
       {selectedSealPreview && previewSeal ? (
-        <div className="groupquest-seal-modal" role="dialog" aria-modal="true" aria-label={`${previewSeal.label} placement seal`}>
-          <div className="groupquest-scroll-backdrop" onClick={() => setSelectedSealPreview(null)} />
-          <div className="groupquest-seal-sheet">
-            <button className="groupquest-scroll-close" type="button" onClick={() => setSelectedSealPreview(null)} aria-label="Close seal preview">×</button>
-            <Image src={previewSeal.src} alt={previewSeal.alt} width={320} height={320} priority />
-            <div>
-              <span className="eyebrow">{previewSeal.label} seal</span>
-              <strong>{selectedSealPreview.name}</strong>
-              <small>{selectedSealPreview.proof}</small>
-            </div>
+        <AccessibleModalDialog
+          backdropClassName="groupquest-seal-modal"
+          className="groupquest-seal-sheet"
+          labelledBy="groupquest-seal-preview-title"
+          onDismiss={() => setSelectedSealPreview(null)}
+          returnFocusRef={sealPreviewTriggerRef}
+        >
+          <h2 className="sr-only" id="groupquest-seal-preview-title">{previewSeal.label} placement seal for {selectedSealPreview.name}</h2>
+          <button data-dialog-initial-focus className="groupquest-scroll-close" type="button" onClick={() => setSelectedSealPreview(null)} aria-label="Close seal preview">×</button>
+          <Image src={previewSeal.src} alt={previewSeal.alt} width={320} height={320} priority />
+          <div>
+            <span className="eyebrow">{previewSeal.label} seal</span>
+            <strong>{selectedSealPreview.name}</strong>
+            <small>{selectedSealPreview.proof}</small>
           </div>
-        </div>
+        </AccessibleModalDialog>
       ) : null}
       {selectedScroll && selectedSeal ? (
-        <div className="groupquest-scroll-modal" role="dialog" aria-modal="true" aria-label={`${selectedSeal.label} winner scroll`}>
-          <div className="groupquest-scroll-backdrop" onClick={() => setSelectedScroll(null)} />
-          <div className="groupquest-scroll-sheet">
-            <button className="groupquest-scroll-close" type="button" onClick={() => setSelectedScroll(null)} aria-label="Close scroll">×</button>
-            <div className="groupquest-scroll-artifact-wrap">
-              <svg className="groupquest-scroll-artifact" viewBox="0 0 1024 1536" role="img" aria-labelledby="podium-scroll-title podium-scroll-desc">
-                <title id="podium-scroll-title">{selectedSeal.label} scroll for {selectedScroll.name}</title>
-                <desc id="podium-scroll-desc">A Side Quest Chess victory scroll written on generated parchment template, with placement seal, completed quest Coats of Arms, and the final completion time.</desc>
+        <AccessibleModalDialog
+          backdropClassName="groupquest-scroll-modal"
+          className="groupquest-scroll-sheet"
+          labelledBy="groupquest-scroll-dialog-title"
+          onDismiss={() => setSelectedScroll(null)}
+          returnFocusRef={scrollTriggerRef}
+        >
+          <h2 className="sr-only" id="groupquest-scroll-dialog-title">{selectedSeal.label} winner scroll for {selectedScroll.name}</h2>
+          <button data-dialog-initial-focus className="groupquest-scroll-close" type="button" onClick={() => setSelectedScroll(null)} aria-label="Close scroll">×</button>
+          <div className="groupquest-scroll-artifact-wrap">
+            <svg className="groupquest-scroll-artifact" viewBox="0 0 1024 1536" role="img" aria-labelledby="podium-scroll-title podium-scroll-desc">
+              <title id="podium-scroll-title">{selectedSeal.label} scroll for {selectedScroll.name}</title>
+              <desc id="podium-scroll-desc">A Side Quest Chess victory scroll written on generated parchment template, with placement seal, completed quest Coats of Arms, and the final completion time.</desc>
                 <defs>
                   <filter id="scrollInkShadow" x="-20%" y="-20%" width="140%" height="140%">
                     <feDropShadow dx="0" dy="2" stdDeviation="1.5" floodColor="#7a481d" floodOpacity="0.2" />
@@ -476,13 +493,12 @@ export default function GroupQuestLeaderboard({
                 <text x="512" y="1000" textAnchor="middle" className="scroll-section-title">PLAYERS BESTED ON THE ROAD</text>
                 <text x="512" y="1034" textAnchor="middle" className="scroll-body">Bested on the road: {shortenScrollText(bestedPlayers.join(" · "), 50)}</text>
                 <text x="512" y="1092" textAnchor="middle" className="scroll-footer">Stamped by the verifier. Witnessed by the final leaderboard.</text>
-              </svg>
-              <a className="button primary" href={`#${leaderboardAnchorFor(selectedScroll)}`} onClick={() => setSelectedScroll(null)}>
-                View on leaderboard
-              </a>
-            </div>
+            </svg>
+            <a className="button primary" href={`#${leaderboardAnchorFor(selectedScroll)}`} onClick={() => setSelectedScroll(null)}>
+              View on leaderboard
+            </a>
           </div>
-        </div>
+        </AccessibleModalDialog>
       ) : null}
     </section>
   );
