@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { buildMultiplayerCompletion, type MultiplayerCompletionQuestDetail } from "@/lib/multiplayer-completion-celebration";
 import { SoloCompletionCelebration } from "./solo-completion-celebration";
 
@@ -22,10 +22,12 @@ export default function GroupQuestRefreshButton({
   const [refreshing, setRefreshing] = useState(false);
   const [status, setStatus] = useState<string | null>(null);
   const [completion, setCompletion] = useState<ReturnType<typeof buildMultiplayerCompletion>>(null);
+  const refreshButtonRef = useRef<HTMLButtonElement>(null);
 
   return (
     <>
       <button
+        ref={refreshButtonRef}
         className={className ?? "button secondary groupquest-refresh-button"}
         type="button"
         aria-label="Refresh checks"
@@ -51,6 +53,7 @@ export default function GroupQuestRefreshButton({
             } else if (Array.isArray(payload?.checks)) {
               const passed = payload.checks.filter((check: { status?: string }) => check.status === "passed").length;
               setStatus(`${passed} of ${payload.checks.length} Side Quests verified from your latest public games.`);
+              setRefreshing(false);
               setCompletion(buildMultiplayerCompletion({
                 newlyPassedQuestIds: Array.isArray(payload.newlyPassedQuestIds) ? payload.newlyPassedQuestIds : [],
                 questDetails,
@@ -58,7 +61,7 @@ export default function GroupQuestRefreshButton({
             }
           } finally {
             router.refresh();
-            setTimeout(() => setRefreshing(false), 700);
+            setRefreshing(false);
           }
         }}
       >
@@ -71,6 +74,7 @@ export default function GroupQuestRefreshButton({
           mode="multiplayer"
           extraCompletedCount={completion.extraCompletedCount}
           onClose={() => setCompletion(null)}
+          returnFocusRef={refreshButtonRef}
         />
       ) : null}
     </>

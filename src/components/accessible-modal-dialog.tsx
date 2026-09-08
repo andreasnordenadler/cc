@@ -1,6 +1,6 @@
 "use client";
 
-import { useLayoutEffect, useRef, type ReactNode, type RefObject } from "react";
+import { useLayoutEffect, useRef, type CSSProperties, type ReactNode, type RefObject } from "react";
 import { createPortal } from "react-dom";
 
 const FOCUSABLE_SELECTOR = [
@@ -30,23 +30,29 @@ function getFocusableElements(dialog: HTMLElement) {
 }
 
 type AccessibleModalDialogProps = {
+  backdropClassName?: string;
   children: ReactNode;
   className: string;
   labelledBy: string;
   describedBy?: string;
+  dismissOnBackdrop?: boolean;
   onDismiss: () => void;
   returnFocusRef: RefObject<HTMLElement | null>;
   role?: "dialog" | "alertdialog";
+  style?: CSSProperties;
 };
 
 export default function AccessibleModalDialog({
+  backdropClassName = "quest-switch-dialog-backdrop",
   children,
   className,
   labelledBy,
   describedBy,
+  dismissOnBackdrop = true,
   onDismiss,
   returnFocusRef,
   role = "dialog",
+  style,
 }: AccessibleModalDialogProps) {
   const backdropRef = useRef<HTMLDivElement>(null);
   const dialogRef = useRef<HTMLElement>(null);
@@ -115,28 +121,33 @@ export default function AccessibleModalDialog({
     };
   }, [returnFocusRef]);
 
-  if (typeof document === "undefined") return null;
+  const dialog = (
+    <section
+      aria-describedby={describedBy}
+      aria-labelledby={labelledBy}
+      aria-modal="true"
+      className={className}
+      ref={dialogRef}
+      role={role}
+      style={style}
+      tabIndex={-1}
+    >
+      {children}
+    </section>
+  );
+
+  if (typeof document === "undefined") return dialog;
 
   return createPortal(
     <div
-      className="quest-switch-dialog-backdrop"
+      className={backdropClassName}
       ref={backdropRef}
       role="presentation"
       onClick={(event) => {
-        if (event.target === event.currentTarget) dismissRef.current();
+        if (dismissOnBackdrop && event.target === event.currentTarget) dismissRef.current();
       }}
     >
-      <section
-        aria-describedby={describedBy}
-        aria-labelledby={labelledBy}
-        aria-modal="true"
-        className={className}
-        ref={dialogRef}
-        role={role}
-        tabIndex={-1}
-      >
-        {children}
-      </section>
+      {dialog}
     </div>,
     document.body,
   );

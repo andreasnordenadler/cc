@@ -68,3 +68,46 @@ test("active Solo deactivation uses the shared keyboard-modal boundary and resto
   assert.match(source, /data-dialog-initial-focus/);
   assert.doesNotMatch(source, /<div className="quest-switch-dialog-backdrop"/);
 });
+
+test("completion celebrations use the shared keyboard-modal boundary without losing their full-screen backdrop", async () => {
+  const [primitive, celebration] = await Promise.all([
+    readFile(new URL("../src/components/accessible-modal-dialog.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../src/components/solo-completion-celebration.tsx", import.meta.url), "utf8"),
+  ]);
+
+  assert.match(primitive, /backdropClassName/);
+  assert.match(celebration, /<AccessibleModalDialog/);
+  assert.match(celebration, /backdropClassName="sqc-celebration-backdrop"/);
+  assert.match(celebration, /dismissOnBackdrop=\{false\}/);
+  assert.match(celebration, /data-dialog-initial-focus/);
+  assert.doesNotMatch(celebration, /window\.addEventListener\("keydown"/);
+  assert.doesNotMatch(celebration, /document\.body\.style\.overflow/);
+});
+
+test("Solo refresh completion restores focus to its check button", async () => {
+  const source = await readFile(new URL("../src/components/active-solo-actions.tsx", import.meta.url), "utf8");
+
+  assert.match(source, /useRef<HTMLButtonElement>\(null\)/);
+  assert.match(source, /buttonRef=\{checkButtonRef\}/);
+  assert.match(source, /<button ref=\{buttonRef\}/);
+  assert.match(source, /returnFocusRef=\{checkButtonRef\}/);
+});
+
+test("Multiplayer refresh completion restores focus to its check button", async () => {
+  const source = await readFile(new URL("../src/components/group-quest-refresh-button.tsx", import.meta.url), "utf8");
+
+  assert.match(source, /useRef<HTMLButtonElement>\(null\)/);
+  assert.match(source, /ref=\{refreshButtonRef\}/);
+  assert.match(source, /returnFocusRef=\{refreshButtonRef\}/);
+});
+
+test("Multiplayer completion enables its return-focus target before opening the modal", async () => {
+  const source = await readFile(new URL("../src/components/group-quest-refresh-button.tsx", import.meta.url), "utf8");
+  const enableIndex = source.indexOf("setRefreshing(false)");
+  const openIndex = source.indexOf("setCompletion(buildMultiplayerCompletion");
+
+  assert.ok(enableIndex >= 0, "refresh button should be re-enabled");
+  assert.ok(openIndex >= 0, "completion modal should still open");
+  assert.ok(enableIndex < openIndex, "return-focus target must be enabled before the modal mounts");
+  assert.doesNotMatch(source, /setTimeout\(\(\) => setRefreshing\(false\)/);
+});
