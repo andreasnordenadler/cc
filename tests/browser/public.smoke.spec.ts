@@ -182,7 +182,8 @@ test("desktop Multiplayer creation keeps its live draft action in view without c
     };
   });
   expect(desktopGeometry).toEqual({ position: "fixed", bottom: 24, overflow: 0 });
-  await expect(action.getByRole("button", { name: "Sign in to create Multiplayer Side Quest" })).toBeVisible();
+  const signInAction = action.getByRole("link", { name: "Sign in to create Multiplayer Side Quest" });
+  await expect(signInAction).toHaveAttribute("href", "/sign-in?redirect_url=%2Fcreate-multiplayer-side-quest");
   const form = page.getByRole("form", { name: "Create Multiplayer Side Quest form" });
   const selectedDraft = form.locator(".sqc-create-selected-card");
   await expect(selectedDraft).toBeInViewport();
@@ -280,6 +281,8 @@ test("desktop Multiplayer creation keeps its live draft action in view without c
     overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
   }));
   expect(mobileGeometry).toEqual({ position: "sticky", bottom: "10px", overflow: 0 });
+  await signInAction.click();
+  await expect(page).toHaveURL(/\/sign-in\?redirect_url=%2Fcreate-multiplayer-side-quest$/);
 });
 
 test("desktop Trophy Cabinet turns coat previews into decision-ready collection cards without changing mobile", async ({ page }) => {
