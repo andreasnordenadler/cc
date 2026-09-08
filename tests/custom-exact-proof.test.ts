@@ -3,10 +3,36 @@ import test from "node:test";
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import CustomSideQuestProofControls, { buildCustomProofRequestBody } from "../src/components/custom-side-quest-proof-controls";
+import * as customProofControlsModule from "../src/components/custom-side-quest-proof-controls";
 import { POST, selectPublishedPublicCustomQuest, submitMobileChallengeAttempt, verifySubmittedChallengeAttempt, withMobileQuestRouteTestDependencies } from "../src/app/api/mobile/quest/route";
 import { checkLatestCustomSideQuestForProvider, checkSubmittedCustomSideQuestForProvider, fetchBoundedProviderJson, type CustomSideQuest } from "../src/lib/custom-side-quests";
 import { buildCompletedCustomPublicProofPath, buildCustomPublicProofPath, decodePublicProof } from "../src/lib/proof-share";
 import { getLatestPassedChallengeAttempt } from "../src/lib/user-metadata";
+
+type InspectableElement = React.ReactElement<{
+  children?: React.ReactNode;
+  disabled?: boolean;
+  onClick?: () => void;
+  onDismiss?: () => void;
+  role?: string;
+}>;
+
+function elementText(node: React.ReactNode): string {
+  if (typeof node === "string" || typeof node === "number") return String(node);
+  if (!React.isValidElement(node)) return "";
+  return React.Children.toArray((node as InspectableElement).props.children).map(elementText).join("");
+}
+
+function findElement(node: React.ReactNode, predicate: (element: InspectableElement) => boolean): InspectableElement | null {
+  if (!React.isValidElement(node)) return null;
+  const element = node as InspectableElement;
+  if (predicate(element)) return element;
+  for (const child of React.Children.toArray(element.props.children)) {
+    const match = findElement(child, predicate);
+    if (match) return match;
+  }
+  return null;
+}
 
 const winQuest: CustomSideQuest = {
   id: "custom-win",
@@ -340,6 +366,66 @@ test("completed custom proof controls keep Android's owner reset capability reac
   assert.doesNotMatch(html, />Start this Side Quest<\/button>/);
   const ownerRoute = await import("node:fs/promises").then((fs) => fs.readFile(new URL("../src/app/custom-side-quests/[id]/page.tsx", import.meta.url), "utf8"));
   assert.match(ownerRoute, /<CustomSideQuestProofControls[\s\S]*allowCompletedReset[\s\S]*\/>/);
+});
+
+test("custom owner reset requires confirmation before dispatching the exact reset action", () => {
+  const resetControls = (customProofControlsModule as unknown as Record<string, unknown>).CustomCompletedResetControls;
+  assert.equal(typeof resetControls, "function");
+  const renderResetControls = resetControls as (props: Record<string, unknown>) => React.ReactNode;
+  const actions: string[] = [];
+  let opened = 0;
+  const baseProps = {
+    allowCompletedReset: true,
+    busy: "",
+    error: false,
+    isConfirmingReset: false,
+    message: "",
+    onAction: (action: string) => { actions.push(action); },
+    onDismissReset: () => undefined,
+    onOpenReset: () => { opened += 1; },
+    openResetDialogRef: { current: null },
+    resultHref: "/proof/signed-custom-result",
+  };
+
+  const closed = renderResetControls(baseProps);
+  const opener = findElement(closed, (element) => element.type === "button" && elementText(element) === "Reset completed Side Quest");
+  assert.ok(opener?.props.onClick);
+  opener.props.onClick();
+  assert.equal(opened, 1);
+  assert.deepEqual(actions, []);
+
+  const open = renderResetControls({ ...baseProps, isConfirmingReset: true });
+  const confirmation = findElement(open, (element) => element.type === "button" && elementText(element) === "Reset completion");
+  assert.ok(confirmation?.props.onClick);
+  confirmation.props.onClick();
+  assert.deepEqual(actions, ["reset"]);
+});
+
+test("custom owner reset keeps pending errors inside its non-dismissible alert dialog", () => {
+  const resetControls = (customProofControlsModule as unknown as Record<string, unknown>).CustomCompletedResetControls;
+  assert.equal(typeof resetControls, "function");
+  const renderResetControls = resetControls as (props: Record<string, unknown>) => React.ReactNode;
+  let dismissed = 0;
+  const pending = renderResetControls({
+    allowCompletedReset: true,
+    busy: "reset",
+    error: true,
+    isConfirmingReset: true,
+    message: "Could not reset this proof run.",
+    onAction: () => undefined,
+    onDismissReset: () => { dismissed += 1; },
+    onOpenReset: () => undefined,
+    openResetDialogRef: { current: null },
+    resultHref: null,
+  });
+
+  const dialog = findElement(pending, (element) => element.props.role === "alertdialog");
+  assert.ok(dialog?.props.onDismiss);
+  dialog.props.onDismiss();
+  assert.equal(dismissed, 0);
+  const cancel = findElement(pending, (element) => element.type === "button" && elementText(element) === "Keep completion");
+  assert.equal(cancel?.props.disabled, true);
+  assert.match(elementText(pending), /Could not reset this proof run\./);
 });
 
 test("completed Community proof controls do not inherit the owner reset capability", () => {

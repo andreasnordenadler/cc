@@ -69,6 +69,18 @@ test("active Solo deactivation uses the shared keyboard-modal boundary and resto
   assert.doesNotMatch(source, /<div className="quest-switch-dialog-backdrop"/);
 });
 
+test("custom Solo owner reset uses the shared destructive keyboard-modal boundary", async () => {
+  const source = await readFile(new URL("../src/components/custom-side-quest-proof-controls.tsx", import.meta.url), "utf8");
+
+  assert.match(source, /import \{ useRef, useState, type RefObject \} from "react"/);
+  assert.match(source, /<AccessibleModalDialog/);
+  assert.match(source, /role="alertdialog"/);
+  assert.match(source, /ref=\{openResetDialogRef\}/);
+  assert.match(source, /returnFocusRef=\{openResetDialogRef\}/);
+  assert.match(source, /data-dialog-initial-focus/);
+  assert.doesNotMatch(source, /window\.confirm/);
+});
+
 test("completion celebrations use the shared keyboard-modal boundary without losing their full-screen backdrop", async () => {
   const [primitive, celebration] = await Promise.all([
     readFile(new URL("../src/components/accessible-modal-dialog.tsx", import.meta.url), "utf8"),
