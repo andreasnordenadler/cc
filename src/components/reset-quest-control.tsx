@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { resetCompletedChallenge } from "@/app/actions";
 import ChallengeBadge from "@/components/challenge-badge";
 import type { Challenge } from "@/lib/challenges";
@@ -12,10 +12,11 @@ type ResetQuestControlProps = {
 
 export default function ResetQuestControl({ challenge }: ResetQuestControlProps) {
   const [isConfirming, setIsConfirming] = useState(false);
+  const openResetDialogRef = useRef<HTMLButtonElement>(null);
 
   return (
     <>
-      <button type="button" className="button danger" onClick={() => setIsConfirming(true)}>
+      <button ref={openResetDialogRef} type="button" className="button danger" onClick={() => setIsConfirming(true)}>
         Reset quest
       </button>
 
@@ -25,6 +26,7 @@ export default function ResetQuestControl({ challenge }: ResetQuestControlProps)
           labelledBy="quest-reset-title"
           describedBy="quest-reset-copy"
           onDismiss={() => setIsConfirming(false)}
+          returnFocusRef={openResetDialogRef}
         >
           <span className="eyebrow">Reset completed quest?</span>
           <h2 id="quest-reset-title">Undo this completion?</h2>

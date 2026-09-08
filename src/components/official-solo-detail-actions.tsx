@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useRef, useState } from "react";
 import { useFormStatus } from "react-dom";
 import { checkActiveChallengeWithResult, startChallenge } from "@/app/actions";
 import type { SoloCheckActionResult } from "@/lib/solo-check-result";
@@ -37,6 +37,7 @@ function CheckSubmit() {
 
 export function OfficialSoloStartControl({ challengeId, activeChallengeTitle }: StartControlProps) {
   const [isConfirmingSwitch, setIsConfirmingSwitch] = useState(false);
+  const openSwitchDialogRef = useRef<HTMLButtonElement>(null);
 
   if (!activeChallengeTitle) {
     return (
@@ -49,7 +50,7 @@ export function OfficialSoloStartControl({ challengeId, activeChallengeTitle }: 
 
   return (
     <>
-      <button type="button" className="sqc-primary-action" onClick={() => setIsConfirmingSwitch(true)}>
+      <button ref={openSwitchDialogRef} type="button" className="sqc-primary-action" onClick={() => setIsConfirmingSwitch(true)}>
         Start this Side Quest
       </button>
       {isConfirmingSwitch ? (
@@ -58,6 +59,7 @@ export function OfficialSoloStartControl({ challengeId, activeChallengeTitle }: 
           labelledBy="official-solo-switch-title"
           describedBy="official-solo-switch-copy"
           onDismiss={() => setIsConfirmingSwitch(false)}
+          returnFocusRef={openSwitchDialogRef}
         >
           <span className="eyebrow">Switch active Side Quest?</span>
           <h2 id="official-solo-switch-title">Replace {activeChallengeTitle}?</h2>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useLayoutEffect, useRef, type ReactNode } from "react";
+import { useLayoutEffect, useRef, type ReactNode, type RefObject } from "react";
 import { createPortal } from "react-dom";
 
 const FOCUSABLE_SELECTOR = [
@@ -35,6 +35,7 @@ type AccessibleModalDialogProps = {
   labelledBy: string;
   describedBy?: string;
   onDismiss: () => void;
+  returnFocusRef: RefObject<HTMLElement | null>;
   role?: "dialog" | "alertdialog";
 };
 
@@ -44,6 +45,7 @@ export default function AccessibleModalDialog({
   labelledBy,
   describedBy,
   onDismiss,
+  returnFocusRef,
   role = "dialog",
 }: AccessibleModalDialogProps) {
   const backdropRef = useRef<HTMLDivElement>(null);
@@ -61,7 +63,7 @@ export default function AccessibleModalDialog({
 
     const activeBackdrop = backdrop;
     const activeDialog = dialog;
-    const trigger = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const trigger = returnFocusRef.current;
     const previousOverflow = document.body.style.overflow;
     const background = Array.from(document.body.children)
       .filter((element): element is HTMLElement => element instanceof HTMLElement && element !== activeBackdrop)
@@ -111,7 +113,7 @@ export default function AccessibleModalDialog({
       for (const { element, inert } of background) element.inert = inert;
       if (trigger?.isConnected) trigger.focus();
     };
-  }, []);
+  }, [returnFocusRef]);
 
   if (typeof document === "undefined") return null;
 

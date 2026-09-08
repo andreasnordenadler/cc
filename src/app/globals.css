@@ -506,8 +506,8 @@ p { color: var(--muted); line-height: 1.5; }
 .quest-detail-badge-card .note-card { grid-column: 1 / -1; }
 .quest-detail-badge-card .challenge-badge-art.hero { width: min(210px, 48vw); }
 .quest-detail-badge-card .challenge-badge-art.hero .badge-reference-art { width: min(210px, 48vw); max-height: 210px; }
-.quest-switch-dialog-backdrop { position: fixed; inset: 0; z-index: 80; display: grid; place-items: center; padding: 18px; background: rgba(5,3,7,.72); backdrop-filter: blur(12px); }
-.quest-switch-dialog { width: min(720px, 100%); padding: clamp(20px, 4vw, 30px); border: 1px solid rgba(245,200,106,.3); border-radius: 34px; background: radial-gradient(circle at 50% 0%, rgba(245,200,106,.2), transparent 32%), linear-gradient(135deg, rgba(35,22,32,.98), rgba(16,12,20,.98)); box-shadow: 0 34px 120px rgba(0,0,0,.62); display: grid; gap: 14px; }
+.quest-switch-dialog-backdrop { position: fixed; inset: 0; z-index: 80; display: grid; place-items: center; padding: 18px; overflow-y: auto; background: rgba(5,3,7,.72); backdrop-filter: blur(12px); }
+.quest-switch-dialog { width: min(720px, 100%); max-height: calc(100dvh - 36px); overflow-y: auto; overscroll-behavior: contain; padding: clamp(20px, 4vw, 30px); border: 1px solid rgba(245,200,106,.3); border-radius: 34px; background: radial-gradient(circle at 50% 0%, rgba(245,200,106,.2), transparent 32%), linear-gradient(135deg, rgba(35,22,32,.98), rgba(16,12,20,.98)); box-shadow: 0 34px 120px rgba(0,0,0,.62); display: grid; gap: 14px; }
 .quest-switch-dialog h2 { font-size: clamp(1.7rem, 4vw, 2.8rem); margin-bottom: 0; }
 .quest-switch-dialog p { max-width: 62ch; }
 .quest-switch-crests { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); gap: 14px; align-items: center; margin: 8px 0 2px; }
