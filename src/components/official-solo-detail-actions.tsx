@@ -5,6 +5,7 @@ import { useFormStatus } from "react-dom";
 import { checkActiveChallengeWithResult, startChallenge } from "@/app/actions";
 import type { SoloCheckActionResult } from "@/lib/solo-check-result";
 import { SoloCheckFeedback } from "./solo-check-feedback";
+import AccessibleModalDialog from "./accessible-modal-dialog";
 
 const initialCheckState: SoloCheckActionResult = { status: "idle", completion: null, message: null, error: null };
 
@@ -52,31 +53,27 @@ export function OfficialSoloStartControl({ challengeId, activeChallengeTitle }: 
         Start this Side Quest
       </button>
       {isConfirmingSwitch ? (
-        <div className="quest-switch-dialog-backdrop" role="presentation" onClick={() => setIsConfirmingSwitch(false)}>
-          <section
-            className="quest-switch-dialog"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="official-solo-switch-title"
-            aria-describedby="official-solo-switch-copy"
-            onClick={(event) => event.stopPropagation()}
-          >
-            <span className="eyebrow">Switch active Side Quest?</span>
-            <h2 id="official-solo-switch-title">Replace {activeChallengeTitle}?</h2>
-            <p id="official-solo-switch-copy">
-              Starting this Side Quest changes which rules Side Quest Chess checks after your next public game. Your existing quest stays available.
-            </p>
-            <div className="sqc-action-pair">
-              <button type="button" className="sqc-secondary-action" onClick={() => setIsConfirmingSwitch(false)}>
-                Keep current Side Quest
-              </button>
-              <form action={startChallenge}>
-                <input type="hidden" name="challengeId" value={challengeId} />
-                <StartSubmit switching />
-              </form>
-            </div>
-          </section>
-        </div>
+        <AccessibleModalDialog
+          className="quest-switch-dialog"
+          labelledBy="official-solo-switch-title"
+          describedBy="official-solo-switch-copy"
+          onDismiss={() => setIsConfirmingSwitch(false)}
+        >
+          <span className="eyebrow">Switch active Side Quest?</span>
+          <h2 id="official-solo-switch-title">Replace {activeChallengeTitle}?</h2>
+          <p id="official-solo-switch-copy">
+            Starting this Side Quest changes which rules Side Quest Chess checks after your next public game. Your existing quest stays available.
+          </p>
+          <div className="sqc-action-pair">
+            <button data-dialog-initial-focus type="button" className="sqc-secondary-action" onClick={() => setIsConfirmingSwitch(false)}>
+              Keep current Side Quest
+            </button>
+            <form action={startChallenge}>
+              <input type="hidden" name="challengeId" value={challengeId} />
+              <StartSubmit switching />
+            </form>
+          </div>
+        </AccessibleModalDialog>
       ) : null}
     </>
   );
