@@ -41,6 +41,7 @@ import {
 } from "react-native";
 import { SafeAreaProvider, SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { blockMobileCommunityCreator, buildMobileUrl, getApiBaseUrl, deleteMobileAccount, deleteMobileCustomSideQuest, fetchMobileAccountState, fetchMobileBootstrap, runMobileCommunityLikeAction, runMobileGroupQuestAction, runMobileQuestAction, saveMobileCustomSideQuest, submitMobileSupportMessage, updateMobileChessUsernames } from "./src/api/sqc";
+import { completeMultiplayerCreateTransition, consumeMultiplayerCreateIntent, initialMultiplayerCreateIntent, requestMultiplayerCreateIntent, scheduleMultiplayerCreateOpen } from "./src/multiplayer/createIntent";
 import { findSignedOutPublicMultiplayerQuest, getSignedOutPublicMultiplayerCatalog } from "./src/multiplayer/publicCatalog";
 import { finalizeMobileAccountDeletion } from "./src/account/finalizeMobileAccountDeletion";
 import { createMobileSessionGuard, loadMobileAccount } from "./src/account/loadMobileAccount";
@@ -1507,8 +1508,9 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
   const insets = useSafeAreaInsets();
   const scrollViewRef = useRef<ScrollView>(null);
   const [scrollState, setScrollState] = useState({ y: 0, viewportHeight: 0, contentHeight: 0 });
-  const [pendingMultiplayerCreateOpenToken, setPendingMultiplayerCreateOpenToken] = useState(0);
-  const [pendingMultiplayerCreateQuestId, setPendingMultiplayerCreateQuestId] = useState<string | null>(null);
+  const [multiplayerCreateIntent, setMultiplayerCreateIntent] = useState(initialMultiplayerCreateIntent);
+  const pendingMultiplayerCreateOpenToken = multiplayerCreateIntent.pendingToken;
+  const pendingMultiplayerCreateQuestId = multiplayerCreateIntent.pendingQuestId;
   const [helpOpen, setHelpOpen] = useState(false);
   const [shell, setShell] = useState<MobileShellState>({
     bootstrap: null,
@@ -1654,8 +1656,7 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
 
   function openMultiplayerCreate(questId?: string) {
     scrollViewRef.current?.scrollTo({ y: 0, animated: false });
-    setPendingMultiplayerCreateQuestId(questId ?? null);
-    setPendingMultiplayerCreateOpenToken((current) => current + 1);
+    setMultiplayerCreateIntent((current) => requestMultiplayerCreateIntent(current, questId));
     setShell((current) => ({ ...current, activeTab: "multiplayerSideQuests", pendingSideQuestCatalogIntent: null }));
     setScrollState((current) => ({ ...current, y: 0 }));
     requestAnimationFrame(() => scrollViewRef.current?.scrollTo({ y: 0, animated: false }));
@@ -1754,8 +1755,7 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
               pendingMultiplayerCreateOpenToken={pendingMultiplayerCreateOpenToken}
               pendingMultiplayerCreateQuestId={pendingMultiplayerCreateQuestId}
               onConsumePendingMultiplayerCreate={() => {
-                setPendingMultiplayerCreateOpenToken(0);
-                setPendingMultiplayerCreateQuestId(null);
+                setMultiplayerCreateIntent(consumeMultiplayerCreateIntent);
               }}
               onAccountUpdated={loadAccount}
               onScrollToY={(y, animated = true) => scrollViewRef.current?.scrollTo({ y, animated })}
@@ -6766,7 +6766,7 @@ function ActiveScreen({
     case "sideQuests":
       return <QuestBoardDashboard bootstrap={bootstrap} selectedChallenge={selectedChallenge} pendingSideQuestDetailId={pendingSideQuestDetailId} pendingCompletedDetailId={pendingCompletedDetailId} pendingSideQuestCatalogIntent={pendingSideQuestCatalogIntent} onConsumePendingQuestOpen={onConsumePendingQuestOpen} account={account} authBridge={authBridge} onSelectChallenge={onSelectChallenge} onSelectTab={onSelectTab} onAccountUpdated={onAccountUpdated} onOpenChallengeDetail={onOpenChallengeDetail} onOpenMultiplayerCreate={onOpenMultiplayerCreate} onOpenSupport={onOpenSupport} />;
     case "multiplayerSideQuests":
-      return <MultiplayerSideQuestsScreen key={`multiplayer-${pendingMultiplayerCreateOpenToken || "browse"}`} bootstrap={bootstrap} account={account} authBridge={authBridge} onSelectTab={onSelectTab} pendingCreateOpenToken={pendingMultiplayerCreateOpenToken} pendingCreateQuestId={pendingMultiplayerCreateQuestId} onConsumePendingCreateOpen={onConsumePendingMultiplayerCreate} onAccountUpdated={onAccountUpdated} />;
+      return <MultiplayerSideQuestsScreen bootstrap={bootstrap} account={account} authBridge={authBridge} onSelectTab={onSelectTab} pendingCreateOpenToken={pendingMultiplayerCreateOpenToken} pendingCreateQuestId={pendingMultiplayerCreateQuestId} onConsumePendingCreateOpen={onConsumePendingMultiplayerCreate} onAccountUpdated={onAccountUpdated} />;
     case "officialLeaderboards":
       return <OfficialMultiplayerLeaderboardsScreen bootstrap={bootstrap} account={account} authBridge={authBridge} onSelectTab={onSelectTab} onAccountUpdated={onAccountUpdated} />;
     case "coatOfArms":
@@ -7526,7 +7526,6 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
   useEffect(() => {
     if (!pendingCreateOpenToken) return;
     if (lastHandledPendingCreateTokenRef.current === pendingCreateOpenToken) return;
-    lastHandledPendingCreateTokenRef.current = pendingCreateOpenToken;
     setMultiplayerCatalogTab("community");
     if (pendingCreateQuestId && createQuestChoices.some((choice) => choice.id === pendingCreateQuestId)) {
       setCreateQuestIds((current) => [pendingCreateQuestId, ...current.filter((id) => id !== pendingCreateQuestId)].slice(0, 4));
@@ -7536,8 +7535,15 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
         setCreateName((current) => current.trim() ? current : `Multiplayer: ${selectedQuest.title}`.slice(0, 80));
       }
     }
-    const openTimer = setTimeout(() => setCreateOpen(true), Platform.OS === "android" ? 50 : 0);
-    return () => clearTimeout(openTimer);
+    return scheduleMultiplayerCreateOpen({
+      pendingToken: pendingCreateOpenToken ?? 0,
+      handledToken: lastHandledPendingCreateTokenRef.current,
+      delayMs: Platform.OS === "android" ? 50 : 0,
+      onOpen: (token) => {
+        lastHandledPendingCreateTokenRef.current = token;
+        setCreateOpen(true);
+      },
+    });
   }, [createQuestChoices, pendingCreateOpenToken, pendingCreateQuestId]);
 
   const overviewSteps = [
@@ -7628,18 +7634,22 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
         },
       });
       const createdGroupQuestId = result.groupQuestId ?? "new";
-      setCreateOpen(false);
-      onConsumePendingCreateOpen?.();
-      resetCreateDraft();
-      await Promise.resolve(onAccountUpdated());
-      await waitMs(450);
-      await Promise.resolve(onAccountUpdated());
-      setGroupQuestActionState({ busy: false, questId: createdGroupQuestId, message: result.message, error: null });
-      if (result.groupQuestId) {
-        setJoinedMultiplayerId(result.groupQuestId);
-        setOfficialMultiplayerId(null);
-        setPublicMultiplayerId(null);
-      }
+      await completeMultiplayerCreateTransition({
+        createdGroupQuestId,
+        message: result.message,
+        closeCreate: () => setCreateOpen(false),
+        consumeIntent: () => onConsumePendingCreateOpen?.(),
+        resetDraft: resetCreateDraft,
+        refreshAccount: onAccountUpdated,
+        waitForRefresh: () => waitMs(450),
+        publishSuccess: (questId, message) => setGroupQuestActionState({ busy: false, questId, message, error: null }),
+        openCreatedQuest: (questId) => {
+          if (!result.groupQuestId) return;
+          setJoinedMultiplayerId(questId);
+          setOfficialMultiplayerId(null);
+          setPublicMultiplayerId(null);
+        },
+      });
     } catch (caught) {
       setGroupQuestActionState({ busy: false, questId: "new", message: null, error: caught instanceof Error ? caught.message : "Could not create Multiplayer Side Quest." });
     }
