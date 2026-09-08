@@ -4,6 +4,7 @@ import test from "node:test";
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import CustomSideQuestOwnerControls from "../src/components/custom-side-quest-owner-controls";
+import * as customOwnerControlsComponent from "../src/components/custom-side-quest-owner-controls";
 import * as communitySideQuests from "../src/lib/community-side-quests";
 import * as customOwnerControls from "../src/lib/custom-owner-controls";
 import {
@@ -19,6 +20,31 @@ import {
 
 const root = new URL("../", import.meta.url);
 const source = (path: string) => readFile(new URL(path, root), "utf8");
+
+type InspectableElement = React.ReactElement<{
+  children?: React.ReactNode;
+  disabled?: boolean;
+  onClick?: () => void;
+  onDismiss?: () => void;
+  role?: string;
+}>;
+
+function elementText(node: React.ReactNode): string {
+  if (typeof node === "string" || typeof node === "number") return String(node);
+  if (!React.isValidElement(node)) return "";
+  return React.Children.toArray((node as InspectableElement).props.children).map(elementText).join("");
+}
+
+function findElement(node: React.ReactNode, predicate: (element: InspectableElement) => boolean): InspectableElement | null {
+  if (!React.isValidElement(node)) return null;
+  const element = node as InspectableElement;
+  if (predicate(element)) return element;
+  for (const child of React.Children.toArray(element.props.children)) {
+    const match = findElement(child, predicate);
+    if (match) return match;
+  }
+  return null;
+}
 
 const quest = {
   id: "custom-safe-1",
@@ -162,6 +188,76 @@ test("owner delete control receives active state and exposes Android v339 librar
   assert.match(controls, /getCustomOwnerDeleteConfirmation\(active\)/);
   assert.match(controls, /deleteCustomOwnerQuest\(quest\.id\)/);
   assert.match(route, /<CustomSideQuestOwnerControls[\s\S]*active=\{active\}/);
+});
+
+test("owner delete requires shared keyboard-modal confirmation before dispatching", async () => {
+  const deleteControls = (customOwnerControlsComponent as unknown as Record<string, unknown>).CustomOwnerDeleteControls;
+  assert.equal(typeof deleteControls, "function");
+  const renderDeleteControls = deleteControls as (props: Record<string, unknown>) => React.ReactNode;
+  const actions: string[] = [];
+  let opened = 0;
+  const baseProps = {
+    active: true,
+    busy: "",
+    isConfirmingDelete: false,
+    message: "",
+    messageIsError: true,
+    onDelete: () => { actions.push("delete"); },
+    onDismissDelete: () => undefined,
+    onOpenDelete: () => { opened += 1; },
+    openDeleteDialogRef: { current: null },
+  };
+
+  const closed = renderDeleteControls(baseProps);
+  const opener = findElement(closed, (element) => element.type === "button" && elementText(element) === "Delete from library");
+  assert.ok(opener?.props.onClick);
+  opener.props.onClick();
+  assert.equal(opened, 1);
+  assert.deepEqual(actions, []);
+
+  const open = renderDeleteControls({ ...baseProps, isConfirmingDelete: true });
+  const dialog = findElement(open, (element) => element.props.role === "alertdialog");
+  assert.ok(dialog);
+  assert.match(elementText(dialog), /This will remove it from My Custom Side Quests and clear it as your active Side Quest\./);
+  const confirmation = findElement(open, (element) => element.type === "button" && elementText(element) === "Delete Side Quest");
+  assert.ok(confirmation?.props.onClick);
+  confirmation.props.onClick();
+  assert.deepEqual(actions, ["delete"]);
+
+  const controls = await source("src/components/custom-side-quest-owner-controls.tsx");
+  assert.match(controls, /<AccessibleModalDialog/);
+  assert.match(controls, /ref=\{openDeleteDialogRef\}/);
+  assert.match(controls, /returnFocusRef=\{openDeleteDialogRef\}/);
+  assert.match(controls, /data-dialog-initial-focus/);
+  assert.doesNotMatch(controls, /window\.confirm/);
+});
+
+test("owner delete keeps request failures inside a non-dismissible pending dialog", () => {
+  const deleteControls = (customOwnerControlsComponent as unknown as Record<string, unknown>).CustomOwnerDeleteControls;
+  assert.equal(typeof deleteControls, "function");
+  const renderDeleteControls = deleteControls as (props: Record<string, unknown>) => React.ReactNode;
+  let dismissed = 0;
+  const pending = renderDeleteControls({
+    active: false,
+    busy: "delete",
+    isConfirmingDelete: true,
+    message: "Could not delete this Side Quest right now.",
+    messageIsError: true,
+    onDelete: () => undefined,
+    onDismissDelete: () => { dismissed += 1; },
+    onOpenDelete: () => undefined,
+    openDeleteDialogRef: { current: null },
+  });
+
+  const dialog = findElement(pending, (element) => element.props.role === "alertdialog");
+  assert.ok(dialog?.props.onDismiss);
+  dialog.props.onDismiss();
+  assert.equal(dismissed, 0);
+  const cancel = findElement(pending, (element) => element.type === "button" && elementText(element) === "Keep Side Quest");
+  const confirmation = findElement(pending, (element) => element.type === "button" && elementText(element) === "Deleting…");
+  assert.equal(cancel?.props.disabled, true);
+  assert.equal(confirmation?.props.disabled, true);
+  assert.match(elementText(pending), /Could not delete this Side Quest right now\./);
 });
 
 test("owner delete request targets the exact persisted quest and returns the library destination", async () => {
