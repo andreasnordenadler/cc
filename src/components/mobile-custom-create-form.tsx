@@ -289,7 +289,7 @@ export default function MobileCustomCreateForm({ signedIn, initialQuest = null }
 
       <span className="sqc-card-eyebrow">{initialState ? "Editing saved Side Quest" : "Start from a template"}</span>
       <div className="sqc-option-grid">
-        {templates.map((item) => <button className="sqc-option-card sqc-template-card" key={item.id} onClick={() => applyTemplate(item.id)} type="button"><strong>{item.title}</strong><span>{item.helper}</span></button>)}
+        {templates.map((item) => <button className="sqc-option-card sqc-template-card" disabled={!hydrated} key={item.id} onClick={() => applyTemplate(item.id)} type="button"><strong>{item.title}</strong><span>{item.helper}</span></button>)}
       </div>
 
       <span className="sqc-card-eyebrow">How conditions count</span>
