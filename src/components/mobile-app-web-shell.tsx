@@ -16,7 +16,7 @@ import { getMultiplayerJoinState } from "@/lib/mobile-web-parity-actions";
 import MobileCustomCreateForm from "./mobile-custom-create-form";
 import MobileMultiplayerCreateForm, { type MultiplayerCreateQuest } from "./mobile-multiplayer-create-form";
 import FullDocumentLink from "./full-document-link";
-import { CommunityMultiplayerCatalog, CommunitySoloCatalog, CustomSoloCatalog } from "./catalog-clients";
+import { CommunityMultiplayerCatalogFromUrl, CommunitySoloCatalog, CustomSoloCatalog } from "./catalog-clients";
 import CommunitySoloSocialActions from "./community-solo-social-actions";
 import CommunitySoloShareControls from "./community-solo-share-controls";
 import CustomSideQuestProofControls from "./custom-side-quest-proof-controls";
@@ -36,6 +36,7 @@ import MobileWebHamburgerMenu from "./mobile-web-hamburger-menu";
 import CurrentPageSignInLink from "./current-page-sign-in-link";
 import CommunitySoloDuplicateControl from "./community-solo-duplicate-control";
 import { buildCommunityQuestDetailHref, type CommunityDiscoveryState } from "@/lib/community-discovery-state";
+import { buildCommunityMultiplayerDetailHref, type CommunityMultiplayerDiscoveryState } from "@/lib/multiplayer-discovery-state";
 import type { CustomOwnerSaveInput } from "@/lib/custom-owner-controls";
 import DesktopTrophyCollection from "./desktop-trophy-collection";
 import DesktopSoloDifficultyNav from "./desktop-solo-difficulty-nav";
@@ -1758,6 +1759,7 @@ export function MobileMultiplayerSideQuestsScreen({
   officialRows,
   communityRows,
   communityHost,
+  initialState,
   previousOfficialRows,
   earlierOfficialWeeks,
   catalogStatus = "available",
@@ -1767,6 +1769,7 @@ export function MobileMultiplayerSideQuestsScreen({
   officialRows: MobileWebMultiplayerPreview[];
   communityRows: MobileWebMultiplayerPreview[];
   communityHost?: string | null;
+  initialState?: CommunityMultiplayerDiscoveryState;
   previousOfficialRows?: MobileWebMultiplayerResult[];
   earlierOfficialWeeks?: MobileWebOfficialWeek[];
   catalogStatus?: "available" | "unavailable";
@@ -1815,7 +1818,7 @@ export function MobileMultiplayerSideQuestsScreen({
 
       {selectedTab === "official"
         ? <OfficialMultiplayerPanel signedIn={signedIn} rows={officialRows} previousOfficialRows={previousOfficialRows ?? []} earlierOfficialWeeks={earlierOfficialWeeks ?? []} catalogStatus={catalogStatus} />
-        : <CommunityMultiplayerPanel signedIn={signedIn} rows={communityRows} initialHost={communityHost} catalogStatus={catalogStatus} />}
+        : <CommunityMultiplayerPanel signedIn={signedIn} rows={communityRows} initialHost={communityHost} initialState={initialState} catalogStatus={catalogStatus} />}
     </div>
   );
 }
@@ -1958,7 +1961,7 @@ function getOfficialPodiumSeal(placement: "Gold" | "Silver" | "Bronze") {
   return mobileAsset.bronzeSeal;
 }
 
-function CommunityMultiplayerPanel({ signedIn, rows, initialHost, catalogStatus }: { signedIn: boolean; rows: MobileWebMultiplayerPreview[]; initialHost?: string | null; catalogStatus: "available" | "unavailable" }) {
+function CommunityMultiplayerPanel({ signedIn, rows, initialHost, initialState, catalogStatus }: { signedIn: boolean; rows: MobileWebMultiplayerPreview[]; initialHost?: string | null; initialState?: CommunityMultiplayerDiscoveryState; catalogStatus: "available" | "unavailable" }) {
   return (
     <div className="sqc-multiplayer-community-workspace">
       <section className="sqc-empty-panel standalone">
@@ -1970,7 +1973,7 @@ function CommunityMultiplayerPanel({ signedIn, rows, initialHost, catalogStatus 
         </span>
       </section>
 
-      <CommunityMultiplayerCatalog rows={rows} signedIn={signedIn} initialHost={initialHost} catalogStatus={catalogStatus} />
+      <CommunityMultiplayerCatalogFromUrl rows={rows} signedIn={signedIn} initialHost={initialHost} initialState={initialState} catalogStatus={catalogStatus} />
 
       {signedIn ? (
         <section className="sqc-native-card green" aria-label="Create Multiplayer Side Quest fast action">
@@ -2106,12 +2109,18 @@ export function MobileCreateMultiplayerScreen({ signedIn = false, quests = [], c
 export function MobileMultiplayerDetailScreen({
   quest,
   signedIn,
+  returnHref = "/multiplayer-side-quests?tab=community",
 }: {
   quest: MobileWebMultiplayerPreview;
   signedIn: boolean;
+  returnHref?: string;
 }) {
   const official = quest.sourceBadge === "Official";
-  const joinState = getMultiplayerJoinState({ questId: quest.id, signedIn, status: quest.status });
+  const catalogHref = official ? "/multiplayer" : returnHref;
+  const detailHref = official
+    ? `/groupquests/${encodeURIComponent(quest.id)}`
+    : buildCommunityMultiplayerDetailHref(`/groupquests/${encodeURIComponent(quest.id)}`, returnHref);
+  const joinState = getMultiplayerJoinState({ questId: quest.id, signedIn, status: quest.status, detailHref });
   const participating = joinState.kind === "joined" || (joinState.kind === "hosted" && quest.viewerJoined === true);
   const hostedNeedsJoin = joinState.kind === "hosted" && !participating;
   const viewerFinalRow = quest.leaderboardRows.find((row) => row.viewer);
@@ -2131,7 +2140,7 @@ export function MobileMultiplayerDetailScreen({
   return (
     <div className="sqc-stack sqc-multiplayer-public-detail-screen">
       <nav className="sqc-multiplayer-context-nav" aria-label="Multiplayer context">
-        <Link href={official ? "/multiplayer" : "/multiplayer-side-quests"}>Multiplayer Side Quests</Link>
+        <Link href={catalogHref}>Multiplayer Side Quests</Link>
         <span aria-hidden="true">/</span>
         <span aria-current="page">{quest.title}</span>
       </nav>
@@ -2146,7 +2155,7 @@ export function MobileMultiplayerDetailScreen({
             count={quest.likeSummary.count}
             likedByViewer={quest.likeSummary.likedByViewer}
             signedIn={signedIn}
-            returnTo={`/groupquests/${encodeURIComponent(quest.id)}`}
+            returnTo={detailHref}
             label={quest.title}
           />
         </div>
@@ -2200,6 +2209,7 @@ export function MobileMultiplayerDetailScreen({
             isSignedIn={signedIn}
             buttonClassName="sqc-primary-action"
             buttonLabel={hostedNeedsJoin ? "Join Side Quest" : joinState.label}
+            returnHref={official ? undefined : returnHref}
           />
         ) : participating ? (
           <>

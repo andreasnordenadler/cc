@@ -287,6 +287,110 @@ test("desktop Multiplayer creation keeps its live draft action in view without c
   await expect(page).toHaveURL(/\/sign-in\?redirect_url=%2Fcreate-multiplayer-side-quest$/);
 });
 
+test("Community Multiplayer detail navigation restores the active catalog URL", async ({ page }) => {
+  for (const viewport of [
+    { width: 1440, height: 900 },
+    { width: 390, height: 844 },
+  ]) {
+    await page.setViewportSize(viewport);
+    await expectHealthyNavigation(page, "/multiplayer-side-quests?tab=community");
+
+    const search = page.getByRole("textbox", { name: "Search multiplayer community" });
+    const filters = page.getByLabel("Filter multiplayer community");
+    const sort = page.getByRole("combobox", { name: "Sort multiplayer community" });
+    await filters.getByRole("button", { name: "All", exact: true }).click();
+    const initialRowLink = page.getByRole("region", { name: "Community Multiplayer Side Quests" }).getByRole("link", { name: /^Open / }).first();
+    const initialLabel = await initialRowLink.getAttribute("aria-label");
+    expect(initialLabel).toMatch(/^Open \S+\s+\S+/);
+    const query = initialLabel!.slice("Open ".length).split(/\s+/).slice(0, 2).join(" ");
+    const catalogHref = `/multiplayer-side-quests?${new URLSearchParams({ tab: "community", q: query, filter: "all", sort: "liked" }).toString()}`;
+
+    await search.pressSequentially(query);
+    await expect(search).toHaveValue(query);
+    await sort.selectOption("liked");
+    await expect(page).toHaveURL(catalogHref);
+
+    const rowLink = page.getByRole("region", { name: "Community Multiplayer Side Quests" }).getByRole("link", { name: /^Open / }).first();
+    await expect(rowLink).toHaveAttribute("href", new RegExp(`^/groupquests/.+\\?returnTo=${encodeURIComponent(catalogHref).replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`));
+    await rowLink.click({ position: { x: 16, y: 16 } });
+    await expect(page.locator(".sqc-multiplayer-public-detail-screen")).toBeVisible();
+
+    const detailUrl = new URL(page.url());
+    expect(detailUrl.pathname).toMatch(/^\/groupquests\//);
+    expect(detailUrl.searchParams.get("returnTo")).toBe(catalogHref);
+    const detailHref = `${detailUrl.pathname}${detailUrl.search}`;
+    const contextLink = page.locator('nav[aria-label="Multiplayer context"] a');
+    const closeLink = page.locator('a[aria-label="Close screen"]');
+    await expect(contextLink).toHaveAttribute("href", catalogHref);
+    await expect(closeLink).toHaveAttribute("href", catalogHref);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBe(0);
+
+    await page.goBack();
+    await expect(page).toHaveURL(catalogHref);
+    await expect(search).toHaveValue(query);
+    await expect(filters.getByRole("button", { name: "All", exact: true })).toHaveClass(/active/);
+    await expect(sort).toHaveValue("liked");
+    await page.goForward();
+    await expect(page).toHaveURL(detailHref);
+
+    if (viewport.width >= 1180) {
+      await expect(contextLink).toBeVisible();
+      await contextLink.click();
+      await expect(page).toHaveURL(catalogHref);
+      await expect(search).toHaveValue(query);
+
+      await rowLink.click({ position: { x: 16, y: 16 } });
+      await expect(page).toHaveURL(detailHref);
+      await expect(closeLink).toBeHidden();
+    } else {
+      await expect(contextLink).toBeHidden();
+      await expect(closeLink).toBeVisible();
+      await closeLink.click();
+      await expect(page).toHaveURL(catalogHref);
+      await expect(search).toHaveValue(query);
+    }
+  }
+});
+
+test("Community Multiplayer search preserves spaces during sequential typing and browser history", async ({ page }) => {
+  await expectHealthyNavigation(page, "/multiplayer-side-quests?tab=community");
+  const search = page.getByRole("textbox", { name: "Search multiplayer community" });
+
+  await search.pressSequentially("fork table");
+  await expect(search).toHaveValue("fork table");
+  await expect(page).toHaveURL("/multiplayer-side-quests?tab=community&q=fork+table");
+
+  await search.press("Backspace");
+  await search.pressSequentially("e");
+  await expect(search).toHaveValue("fork table");
+  await expect(page).toHaveURL("/multiplayer-side-quests?tab=community&q=fork+table");
+
+  await page.goto("/multiplayer-side-quests?tab=community&q=knight+fork", { waitUntil: "domcontentloaded" });
+  await expect(search).toHaveValue("knight fork");
+});
+
+test("Official Multiplayer detail ignores Community return context", async ({ page }) => {
+  const communityReturn = "/multiplayer-side-quests?tab=community&q=Andreas&filter=all&sort=liked";
+
+  for (const viewport of [
+    { width: 1440, height: 900 },
+    { width: 390, height: 844 },
+  ]) {
+    await page.setViewportSize(viewport);
+    await expectHealthyNavigation(page, "/multiplayer");
+    const officialHref = await page.getByRole("link", { name: /^Open Official Weekly / }).first().getAttribute("href");
+    expect(officialHref).toMatch(/^\/groupquests\//);
+
+    await expectHealthyNavigation(page, `${officialHref}?returnTo=${encodeURIComponent(communityReturn)}`);
+    await expect(page.locator(".sqc-multiplayer-public-detail-screen")).toBeVisible();
+    await expect(page.locator('nav[aria-label="Multiplayer context"] a')).toHaveAttribute("href", "/multiplayer");
+    await expect(page.locator('a[aria-label="Close screen"]')).toHaveAttribute("href", "/multiplayer");
+    const likeHref = await page.getByRole("link", { name: /^Sign in to like / }).getAttribute("href");
+    expect(likeHref).not.toContain("returnTo");
+    expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBe(0);
+  }
+});
+
 test("desktop Trophy Cabinet turns coat previews into decision-ready collection cards without changing mobile", async ({ page }) => {
   await page.setViewportSize({ width: 1179, height: 900 });
   await expectHealthyNavigation(page, "/trophy-cabinet");

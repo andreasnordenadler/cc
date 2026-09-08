@@ -2112,7 +2112,7 @@ test("Multiplayer detail becomes one desktop tournament workspace without changi
   const wideDesktopMedia = readCssBlock(css, css.indexOf("@media (min-width: 1680px)"));
 
   assert.match(route, /desktopPresentation="multiplayer-detail"/);
-  assert.match(route, /closeHref=\{quest\.sourceBadge === "Community" \? "\/multiplayer-side-quests" : "\/multiplayer"\}/, "mobile close destination stays intact");
+  assert.match(route, /closeHref=\{quest\.sourceBadge === "Community" \? returnHref : "\/multiplayer"\}/, "mobile close destination restores Community discovery state");
   assert.match(shell, /className="sqc-native-card sqc-multiplayer-native-card sqc-multiplayer-primary-action"/);
   assert.match(shell, /className="sqc-native-card sqc-multiplayer-native-card sqc-multiplayer-share-card"/);
   assert.match(shell, /className="sqc-native-card sqc-multiplayer-native-card sqc-multiplayer-quest-list"/);

@@ -1,18 +1,21 @@
 import MobileAppWebShell, { MobileMultiplayerSideQuestsScreen } from "@/components/mobile-app-web-shell";
 import { clerkClient, currentUser } from "@clerk/nextjs/server";
-import { getMobileWebMultiplayerPreviews, getMultiplayerHostFilter } from "@/lib/mobile-web-multiplayer";
+import { getMobileWebMultiplayerPreviews } from "@/lib/mobile-web-multiplayer";
 import { unstable_noStore as noStore } from "next/cache";
 import { getChessComUsername, getLichessUsername, getPreferredRunnerName, type UserMetadataRecord } from "@/lib/user-metadata";
+import { parseCommunityMultiplayerDiscoveryState } from "@/lib/multiplayer-discovery-state";
 
 export { metadata } from "../multiplayer/page";
 
 export default async function MultiplayerSideQuestsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ tab?: string | string[]; host?: string | string[] }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   noStore();
-  const [{ tab, host }, user, client] = await Promise.all([searchParams, currentUser(), clerkClient()]);
+  const [rawSearchParams, user, client] = await Promise.all([searchParams, currentUser(), clerkClient()]);
+  const { tab } = rawSearchParams;
+  const discoveryState = parseCommunityMultiplayerDiscoveryState(rawSearchParams);
   const metadata = user?.publicMetadata ? (user.publicMetadata as UserMetadataRecord) : {};
   const { officialRows, communityRows, previousOfficialRows, earlierOfficialWeeks, catalogStatus } = await getMobileWebMultiplayerPreviews(client, user?.id, undefined, { signedOutUnavailableFallback: true });
   const displayName = user
@@ -38,7 +41,8 @@ export default async function MultiplayerSideQuestsPage({
         signedIn={Boolean(user)}
         officialRows={officialRows}
         communityRows={communityRows}
-        communityHost={getMultiplayerHostFilter(host)}
+        communityHost={discoveryState.host}
+        initialState={discoveryState}
         previousOfficialRows={previousOfficialRows}
         earlierOfficialWeeks={earlierOfficialWeeks}
         catalogStatus={catalogStatus}

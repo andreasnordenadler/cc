@@ -6,14 +6,19 @@ import MobileAppWebShell, {
 } from "@/components/mobile-app-web-shell";
 import { getMobileWebMultiplayerDetail, getMobileWebMultiplayerPreviews } from "@/lib/mobile-web-multiplayer";
 import { getChessComUsername, getLichessUsername, getPreferredRunnerName, type UserMetadataRecord } from "@/lib/user-metadata";
+import { resolveCommunityMultiplayerReturnHref } from "@/lib/multiplayer-discovery-state";
 
 export default async function GroupQuestDetailPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ returnTo?: string | string[] }>;
 }) {
   noStore();
   const { id } = await params;
+  const returnToValue = (await searchParams).returnTo;
+  const returnHref = resolveCommunityMultiplayerReturnHref(Array.isArray(returnToValue) ? returnToValue[0] : returnToValue);
   const [user, client] = await Promise.all([currentUser(), clerkClient()]);
   let quest = await getMobileWebMultiplayerDetail(client, id, user?.id);
   if (!quest) {
@@ -45,7 +50,7 @@ export default async function GroupQuestDetailPage({
       chessComUsername={getChessComUsername(metadata)}
       modalPresentation
       immersivePresentation
-      closeHref={quest.sourceBadge === "Community" ? "/multiplayer-side-quests" : "/multiplayer"}
+      closeHref={quest.sourceBadge === "Community" ? returnHref : "/multiplayer"}
       theme={{
         backgroundTop: "#352021",
         backgroundMid: "#171011",
@@ -56,6 +61,7 @@ export default async function GroupQuestDetailPage({
       <MobileMultiplayerDetailScreen
         quest={quest}
         signedIn={Boolean(user)}
+        returnHref={returnHref}
       />
     </MobileAppWebShell>
   );
