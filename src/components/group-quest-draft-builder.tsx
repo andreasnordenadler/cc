@@ -557,7 +557,7 @@ export default function GroupQuestDraftBuilder({ quests, initialQuestId }: { que
             <div className="groupquests-rule-builder" aria-label="Host game settings">
               <div>
                 <span className="groupquests-rule-title">7 · Host game settings</span>
-                <p>Automatic checks currently enforce the Side Quest objective, public provider, and event window. These extra settings describe the intended Multiplayer Side Quest while verifier coverage expands.</p>
+                <p>Automatic checks enforce the Side Quest objective, selected provider, time control, rated or casual setting, player color, required result, and event window.</p>
               </div>
               <div className="groupquests-rule-grid">
                 {gameRuleGroups.map((group) => (

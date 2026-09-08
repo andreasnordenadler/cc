@@ -103,7 +103,9 @@ export default function MobileMultiplayerCreateForm({ signedIn, quests, stableNo
       <span className="sqc-form-label">Quick duration</span>
       <div className="sqc-filter-row" role="group" aria-label="Quick duration">{[[1,"24h"],[3,"3 days"],[7,"1 week"],[14,"2 weeks"]].map(([days,label]) => <button key={label} onClick={() => duration(Number(days))} type="button">{label}</button>)}</div>
       <small>Dates save as your local time. Start defaults to shortly after creation; no typing needed.</small>
-      <div className="sqc-advanced-settings" hidden={!advancedOpen} id="multiplayer-advanced-settings">{Object.entries(advancedRuleChoices).map(([id, rule]) => {
+      <div className="sqc-advanced-settings" hidden={!advancedOpen} id="multiplayer-advanced-settings">
+        <p>Automatic checks enforce the selected Side Quests, game provider, time control, rated or casual setting, player color, and event window.</p>
+        {Object.entries(advancedRuleChoices).map(([id, rule]) => {
         const value = id === "timeControl" ? timeControl : id === "rated" ? rated : color;
         const select = id === "timeControl" ? setTimeControl : id === "rated" ? setRated : setColor;
         return <div className="sqc-advanced-rule" key={id}><span className="sqc-form-label">{rule.label}</span><div className="sqc-option-grid" role="group" aria-label={rule.label}>{rule.options.map((option) => <button aria-label={`${option.value}: ${option.helper}`} aria-pressed={value === option.value} className={`sqc-option-card${value === option.value ? " selected" : ""}`} key={option.value} onClick={() => select(option.value)} type="button"><span aria-hidden="true" /><div className="sqc-option-card-copy"><strong>{option.title}</strong><small>{option.helper}</small></div></button>)}</div></div>;
