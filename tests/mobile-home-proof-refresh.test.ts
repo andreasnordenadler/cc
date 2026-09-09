@@ -4,6 +4,7 @@ import test from "node:test";
 
 import {
   createMobileHomeProofRefreshCoordinator,
+  toMobileHomeProofRefreshActionState,
   type MobileHomeProofRefreshSnapshot,
 } from "../apps/mobile/src/home/mobileHomeProofRefresh";
 
@@ -16,6 +17,30 @@ function activeSnapshot(overrides: Partial<MobileHomeProofRefreshSnapshot> = {})
     ...overrides,
   };
 }
+
+test("a suppressed Home proof result releases the refresh button", () => {
+  assert.deepEqual(toMobileHomeProofRefreshActionState(null), {
+    busy: false,
+    message: null,
+    error: null,
+  });
+});
+
+test("a successful Home proof result becomes inline success feedback", () => {
+  assert.deepEqual(toMobileHomeProofRefreshActionState({ kind: "success", message: "Proof accepted." }), {
+    busy: false,
+    message: "Proof accepted.",
+    error: null,
+  });
+});
+
+test("a failed Home proof result becomes inline retry guidance", () => {
+  assert.deepEqual(toMobileHomeProofRefreshActionState({ kind: "error", message: "Pull down again to sync." }), {
+    busy: false,
+    message: null,
+    error: "Pull down again to sync.",
+  });
+});
 
 test("a rejected pull-to-refresh proof check resolves with safe retry guidance", async () => {
   const coordinator = createMobileHomeProofRefreshCoordinator();
@@ -251,4 +276,19 @@ test("the active native shell routes home pull-to-refresh through the coordinato
   assert.match(source, /accessibilityRole="alert"/);
   assert.match(source, /accessibilityLiveRegion="polite"/);
   assert.match(source, /Pull down again to sync before retrying/);
+});
+
+test("the Home refresh button shares the retry-safe proof coordinator", async () => {
+  const source = await readFile(new URL("../apps/mobile/App.tsx", import.meta.url), "utf8");
+  const dashboardStart = source.indexOf("function TodayDashboard");
+  const dashboardEnd = source.indexOf("function JoinedMultiplayerQuestModal", dashboardStart);
+  assert.notEqual(dashboardStart, -1);
+  assert.notEqual(dashboardEnd, -1);
+  const dashboardSource = source.slice(dashboardStart, dashboardEnd);
+
+  assert.match(source, /onRefreshActiveProof=\{refreshActiveHomeProof\}/);
+  assert.match(dashboardSource, /await onRefreshActiveProof\(signedIn\.activeQuest\.id\)/);
+  assert.match(dashboardSource, /setActionState\(toMobileHomeProofRefreshActionState\(result\)\)/);
+  assert.doesNotMatch(dashboardSource, /if \(!result\) return/);
+  assert.doesNotMatch(dashboardSource, /runMobileQuestAction/);
 });
