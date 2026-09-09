@@ -44,16 +44,25 @@ test("mobile release dependencies resolve newly disclosed uuid and tar vulnerabi
 });
 
 test("mobile release audit patches available fixes and narrowly accepts only Metro image parser advisories", () => {
+  const packageJson = JSON.parse(readRepoFile("package.json"));
   const workspace = readRepoFile("pnpm-workspace.yaml");
   const lockfile = readRepoFile("pnpm-lock.yaml");
   const releaseScript = readRepoFile("scripts/mobile-release.mjs");
 
-  assert.match(workspace, /^  js-yaml@>=3\.0\.0 <3\.15\.1: "3\.15\.1"$/m);
-  assert.match(workspace, /^  js-yaml@>=4\.0\.0 <4\.3\.1: "4\.3\.1"$/m);
+  assert.equal(packageJson.dependencies.next, "16.3.4");
+  assert.equal(packageJson.devDependencies["eslint-config-next"], "16.3.4");
+  assert.match(workspace, /^  '@xmldom\/xmldom@>=0\.7\.0 <0\.8\.15': "0\.8\.15"$/m);
+  assert.match(workspace, /^  '@xmldom\/xmldom@>=0\.9\.0 <0\.9\.12': "0\.9\.12"$/m);
+  assert.match(workspace, /^  js-yaml@>=3\.0\.0 <3\.15\.2: "3\.15\.2"$/m);
+  assert.match(workspace, /^  js-yaml@>=4\.0\.0 <4\.3\.2: "4\.3\.2"$/m);
   assert.match(workspace, /^  nanoid@<3\.3\.18: "3\.3\.18"$/m);
-  assert.match(lockfile, /^  js-yaml@3\.15\.1:$/m);
-  assert.match(lockfile, /^  js-yaml@4\.3\.1:$/m);
+  assert.match(workspace, /^  sharp@<0\.35\.4: "0\.35\.4"$/m);
+  assert.match(lockfile, /^  '@xmldom\/xmldom@0\.8\.15':$/m);
+  assert.match(lockfile, /^  '@xmldom\/xmldom@0\.9\.12':$/m);
+  assert.match(lockfile, /^  js-yaml@3\.15\.2:$/m);
+  assert.match(lockfile, /^  js-yaml@4\.3\.2:$/m);
   assert.match(lockfile, /^  nanoid@3\.3\.18:$/m);
+  assert.match(lockfile, /^  sharp@0\.35\.4:$/m);
 
   assert.match(releaseScript, /run\("node", \["scripts\/check-production-audit\.mjs"\]\)/);
   assert.doesNotMatch(releaseScript, /pnpm[^\n]+audit/);
@@ -86,7 +95,10 @@ test("Android signing stays fail-closed for direct and umbrella artifact tasks w
   assert.match(source, /if \(!sqcEasBuild && !sqcReleaseSigningConfigured && releaseArtifactTaskRequested\)[\s\S]*Refusing to build a debug-signed release APK/);
 });
 
-test("CI uses a pnpm release whose audit client supports the registry bulk advisory endpoint", () => {
+test("hosted installs use an installable pnpm release whose audit client supports the registry bulk advisory endpoint", () => {
+  const packageJson = JSON.parse(readRepoFile("package.json"));
+  assert.equal(packageJson.packageManager, "pnpm@11.11.0");
+
   for (const workflow of [".github/workflows/ci.yml", ".github/workflows/mobile-release-gate.yml"]) {
     const source = readRepoFile(workflow);
     const pinnedVersions = [...source.matchAll(/version:\s*(\d+\.\d+\.\d+)/g)].map((match) => match[1]);
@@ -94,8 +106,8 @@ test("CI uses a pnpm release whose audit client supports the registry bulk advis
     assert.ok(pinnedVersions.length > 0, `${workflow} must pin pnpm`);
     assert.deepEqual(
       [...new Set(pinnedVersions)],
-      ["11.12.0"],
-      `${workflow} must use pnpm 11.12.0 so the release audit does not call retired npm endpoints`,
+      ["11.11.0"],
+      `${workflow} must use installable pnpm 11 so the release audit does not call retired npm endpoints`,
     );
   }
 });
@@ -210,14 +222,14 @@ test("Android release signing stays fail-closed locally while allowing EAS crede
   assert.doesNotMatch(source, /release \{\s*signingConfig signingConfigs\.debug/);
 });
 
-test("EAS production builds use the SDK 54 builder and pnpm 11 for the next Play code", () => {
+test("EAS production builds use the SDK 54 builder and installable pnpm 11 for the next Play code", () => {
   for (const path of ["eas.json", "apps/mobile/eas.json"]) {
     const config = JSON.parse(readRepoFile(path));
     const production = config.build.production;
 
     assert.equal(production.android.image, "sdk-54", `${path} must not fall back to a legacy Android image`);
     assert.equal(production.node, "22.22.0", `${path} must satisfy pnpm 11's Node.js engine requirement`);
-    assert.equal(production.pnpm, "11.12.0", `${path} must read the pnpm v9 lockfile with the reviewed pnpm release`);
+    assert.equal(production.pnpm, "11.11.0", `${path} must read the pnpm v9 lockfile with an installable reviewed pnpm release`);
     assert.equal(production.autoIncrement, true, `${path} must reserve the next Play version code`);
   }
 

@@ -56,6 +56,7 @@ const officialJoinedQuest: MobileWebMultiplayerPreview = {
 function renderDetail(quest: MobileWebMultiplayerPreview, signedIn = true) {
   const router = {
     back() {},
+    bfcacheId: "test-route",
     forward() {},
     prefetch() {},
     push() {},
@@ -692,7 +693,7 @@ test("Multiplayer leave cancellation names the consequence and performs no reque
 
 test("signed-in private related rows stay in account shelves without populating the public Community catalog", () => {
   const html = renderToStaticMarkup(React.createElement(AppRouterContext.Provider, { value: {
-    back() {}, forward() {}, prefetch() {}, push() {}, refresh() {}, replace() {},
+    back() {}, bfcacheId: "test-route", forward() {}, prefetch() {}, push() {}, refresh() {}, replace() {},
   } }, React.createElement(CommunityMultiplayerCatalog, {
     signedIn: true,
     rows: [{ ...officialJoinedQuest, publiclyListed: false, sourceBadge: "Community", status: "Joined" }],
