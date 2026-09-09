@@ -1,3 +1,5 @@
+import { fetchBoundedProviderJson } from "@/lib/custom-side-quests";
+
 export const CHESS_USERNAME_MAX_LENGTH = 40;
 export const CHESS_USERNAME_PATTERN = /^[a-zA-Z0-9_-]{0,40}$/;
 
@@ -55,15 +57,22 @@ async function validateProviderUsername(username: string, validation: ProviderVa
   }
 
   try {
-    const response = await fetch(validation.endpoint, {
+    let responseStatus: number | undefined;
+    const body = await fetchBoundedProviderJson(validation.endpoint, {
       headers: {
         Accept: "application/json",
         "User-Agent": "sqc-username-validation/0.1 (+https://sidequestchess.com)",
       },
       cache: "no-store",
+    }, {
+      fetcher: async (input, init) => {
+        const response = await fetch(input, init);
+        responseStatus = response.status;
+        return response;
+      },
     });
 
-    if (response.status === 404) {
+    if (responseStatus === 404) {
       return {
         ok: false,
         username: cleaned,
@@ -71,7 +80,7 @@ async function validateProviderUsername(username: string, validation: ProviderVa
       };
     }
 
-    if (!response.ok) {
+    if (responseStatus === undefined || responseStatus < 200 || responseStatus >= 300) {
       return {
         ok: false,
         username: cleaned,
@@ -79,9 +88,12 @@ async function validateProviderUsername(username: string, validation: ProviderVa
       };
     }
 
-    const body = (await response.json()) as Record<string, unknown>;
+    if (!body || typeof body !== "object" || Array.isArray(body)) {
+      throw new Error("Provider username response was invalid.");
+    }
+    const record = body as Record<string, unknown>;
 
-    if (validation.disabledField && body[validation.disabledField] === true) {
+    if (validation.disabledField && record[validation.disabledField] === true) {
       return {
         ok: false,
         username: cleaned,
@@ -89,7 +101,7 @@ async function validateProviderUsername(username: string, validation: ProviderVa
       };
     }
 
-    const canonicalUsername = typeof body.username === "string" ? body.username : cleaned;
+    const canonicalUsername = typeof record.username === "string" ? record.username : cleaned;
 
     return {
       ok: true,

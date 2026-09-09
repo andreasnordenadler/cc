@@ -31,3 +31,26 @@ test("both providers reject overlong identities without any lookup", async (t) =
   }
   assert.equal(fetchMock.mock.callCount(), 0);
 });
+
+test("both providers reject oversized username lookup responses", async (t) => {
+  t.mock.method(globalThis, "fetch", async () => Response.json(
+    { username: "Alice" },
+    {
+      status: 200,
+      headers: {
+        "content-length": "2000001",
+        "content-type": "application/json",
+      },
+    },
+  ));
+
+  const cases = [
+    [validateLichessUsername, "Lichess username check failed for \"Alice\". Try again in a moment."],
+    [validateChessComUsername, "Chess.com username check failed for \"Alice\". Try again in a moment."],
+  ] as const;
+
+  for (const [validate, message] of cases) {
+    const result = await validate("Alice");
+    assert.deepEqual(result, { ok: false, username: "Alice", message });
+  }
+});
