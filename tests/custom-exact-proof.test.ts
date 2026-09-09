@@ -118,6 +118,60 @@ test("provider JSON reads do not fall back to an unbounded bodyless text read", 
   );
 });
 
+test("provider JSON retries one rate-limited response before returning success", async () => {
+  let calls = 0;
+
+  const result = await fetchBoundedProviderJson("https://provider.example/game", {}, {
+    maxBytes: 32,
+    timeoutMs: 500,
+    fetcher: async () => {
+      calls += 1;
+      return calls === 1
+        ? Response.json({ error: "slow down" }, { status: 429 })
+        : Response.json({ gameId: "retry-ok" });
+    },
+  });
+
+  assert.deepEqual(result, { gameId: "retry-ok" });
+  assert.equal(calls, 2);
+});
+
+test("provider 5xx retry backoff stays inside the original response deadline", async () => {
+  let calls = 0;
+
+  await assert.rejects(
+    () => fetchBoundedProviderJson("https://provider.example/game", {}, {
+      maxBytes: 32,
+      timeoutMs: 5,
+      fetcher: async () => {
+        calls += 1;
+        return Response.json({ error: "temporarily unavailable" }, { status: 503 });
+      },
+    }),
+    /timed out/i,
+  );
+
+  assert.equal(calls, 1);
+});
+
+test("provider retries are limited to idempotent reads", async () => {
+  let calls = 0;
+
+  const result = await fetchBoundedProviderJson("https://provider.example/game", { method: "POST" }, {
+    maxBytes: 32,
+    timeoutMs: 500,
+    fetcher: async () => {
+      calls += 1;
+      return calls === 1
+        ? Response.json({ error: "slow down" }, { status: 429 })
+        : Response.json({ duplicated: true });
+    },
+  });
+
+  assert.equal(result, null);
+  assert.equal(calls, 1);
+});
+
 test("latest Lichess proof rejects an oversized provider payload", async (t) => {
   const originalFetch = globalThis.fetch;
   const validGame = JSON.stringify({

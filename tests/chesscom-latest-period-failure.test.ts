@@ -361,7 +361,7 @@ for (const [label, checkLatest] of latestChecks) {
 
     assert.equal(result.status, "pending");
     assert.equal(result.gameId, "chesscom-latest-error");
-    assert.deepEqual(requested, [archiveIndexUrl, latestArchiveUrl]);
+    assert.deepEqual(requested, [archiveIndexUrl, latestArchiveUrl, latestArchiveUrl]);
   });
 }
 
@@ -1471,7 +1471,7 @@ test("submitted Chess.com proof can still find its exact game after a newer arch
   });
 
   assert.equal(result.status, "passed");
-  assert.deepEqual(requested, [archiveIndexUrl, latestArchiveUrl, olderArchiveUrl]);
+  assert.deepEqual(requested, [archiveIndexUrl, latestArchiveUrl, latestArchiveUrl, olderArchiveUrl]);
 });
 
 test("a result-only Chess.com PGN cannot complete the latest finished-game quest", async (t) => {
