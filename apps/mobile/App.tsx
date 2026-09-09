@@ -54,6 +54,7 @@ import { isAppleSignInCancellation, runAppleSignInWithOAuthFallback } from "./sr
 import { completeMobilePasswordReset, prepareMobilePasswordReset, verifyMobilePasswordResetCode as verifyMobilePasswordResetCodeWithClerk } from "./src/auth/mobilePasswordReset";
 import { OFFLINE_MOBILE_BOOTSTRAP } from "./src/data/offlineBootstrap";
 import { shouldStackActiveQuestSummary } from "./src/layout/activeQuestLayout";
+import { createMobileHomeProofRefreshCoordinator, type MobileHomeProofRefreshFeedback, type MobileHomeProofRefreshSnapshot } from "./src/home/mobileHomeProofRefresh";
 import { shouldUseDevTrackerPreview } from "./src/preview/devTrackerPreview";
 import { createMobileCommunityCreatorReportSubmitter } from "./src/reports/communityCreatorReport";
 import { canReportCommunityMultiplayerQuest, createMobileCommunityReportSubmitter } from "./src/reports/communityMultiplayerReport";
@@ -973,6 +974,7 @@ type MobileShellState = {
   activeTab: AppTab;
   loading: boolean;
   refreshing: boolean;
+  refreshFeedback: MobileHomeProofRefreshFeedback | null;
   catalogMode: "live" | "offline";
   catalogNotice: string | null;
 };
@@ -1522,9 +1524,11 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
     activeTab: "home",
     loading: true,
     refreshing: false,
+    refreshFeedback: null,
     catalogMode: "live",
     catalogNotice: null,
   });
+  const [homeProofRefreshCoordinator] = useState(createMobileHomeProofRefreshCoordinator);
 
   const selectedChallenge = useMemo(() => {
     if (!shell.bootstrap) return null;
@@ -1573,6 +1577,31 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
     fallbackAccount: MOBILE_ACCOUNT_FALLBACK,
   }), [authBridge.getSessionToken, authBridge.isLoaded, authBridge.isSignedIn, authBridge.isSessionCurrent]);
 
+  const syncAccountForProofRefresh = useCallback(async (): Promise<MobileHomeProofRefreshSnapshot> => {
+    if (!authBridge.isLoaded || !authBridge.isSignedIn) {
+      throw new Error("The signed-in account is not ready.");
+    }
+    const sessionToken = await authBridge.getSessionToken();
+    if (!sessionToken) throw new Error("The signed-in session is unavailable.");
+    const account = await fetchMobileAccountState(sessionToken);
+    if (authBridge.isSessionCurrent && !authBridge.isSessionCurrent()) {
+      throw new Error("The signed-in session changed during refresh.");
+    }
+    if (!isAuthenticatedAccount(account)) throw new Error("The signed-in account could not be synced.");
+
+    setShell((current) => ({ ...current, account }));
+    return {
+      activeQuestId: account.activeQuest?.id ?? null,
+      activeQuestCompleted: Boolean(account.activeQuest?.completed),
+      latestReceipt: account.latestReceipt ? {
+        id: account.latestReceipt.id,
+        challengeId: account.latestReceipt.challengeId,
+        checkedAt: account.latestReceipt.checkedAt,
+      } : null,
+      feedback: getCheckActionMessage(account.latestReceipt),
+    };
+  }, [authBridge]);
+
   const refreshBoardAndAccount = useCallback(async () => {
     await Promise.all([loadBootstrap({ refresh: true }), loadAccount()]);
   }, [loadAccount, loadBootstrap]);
@@ -1583,12 +1612,21 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
       ? accountForRefresh.activeQuest.id
       : null;
 
-    setShell((current) => ({ ...current, refreshing: true }));
+    setShell((current) => ({ ...current, refreshing: true, refreshFeedback: null }));
     try {
       if (shell.activeTab === "home" && activeQuestId && authBridge.isSignedIn) {
-        const sessionToken = await authBridge.getSessionToken();
-        await runMobileQuestAction({ sessionToken, action: "check", challengeId: activeQuestId });
-        await loadAccount();
+        const refreshFeedback = await homeProofRefreshCoordinator.refresh({
+          challengeId: activeQuestId,
+          syncAccount: syncAccountForProofRefresh,
+          checkProof: async (challengeId) => {
+            const sessionToken = await authBridge.getSessionToken();
+            if (!sessionToken) throw new Error("The signed-in session is unavailable.");
+            await runMobileQuestAction({ sessionToken, action: "check", challengeId });
+          },
+        });
+        if (refreshFeedback) {
+          setShell((current) => current.activeTab === "home" ? { ...current, refreshFeedback } : current);
+        }
         return;
       }
 
@@ -1596,7 +1634,13 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
     } finally {
       setShell((current) => ({ ...current, refreshing: false }));
     }
-  }, [authBridge, loadAccount, refreshBoardAndAccount, shell.account, shell.activeTab, shell.bootstrap]);
+  }, [authBridge, homeProofRefreshCoordinator, refreshBoardAndAccount, shell.account, shell.activeTab, shell.bootstrap, syncAccountForProofRefresh]);
+
+  useEffect(() => {
+    if (shell.activeTab === "home") return;
+    homeProofRefreshCoordinator.leaveHome();
+    setShell((current) => current.refreshFeedback === null ? current : { ...current, refreshFeedback: null });
+  }, [homeProofRefreshCoordinator, shell.activeTab]);
 
   useEffect(() => {
     const bootstrapTimer = setTimeout(() => void loadBootstrap(), 0);
@@ -1649,7 +1693,7 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
 
   function selectTab(activeTab: AppTab) {
     scrollViewRef.current?.scrollTo({ y: 0, animated: false });
-    setShell((current) => ({ ...current, activeTab, pendingSideQuestCatalogIntent: activeTab === "sideQuests" ? current.pendingSideQuestCatalogIntent : null }));
+    setShell((current) => ({ ...current, activeTab, refreshFeedback: activeTab === "home" ? current.refreshFeedback : null, pendingSideQuestCatalogIntent: activeTab === "sideQuests" ? current.pendingSideQuestCatalogIntent : null }));
     setScrollState((current) => ({ ...current, y: 0 }));
     requestAnimationFrame(() => scrollViewRef.current?.scrollTo({ y: 0, animated: false }));
   }
@@ -1730,6 +1774,19 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
           <View style={styles.catalogStateBanner} accessibilityLabel="Offline catalog notice">
             <Text style={styles.catalogStateTitle}>Offline Side Quest board</Text>
             <Text style={styles.catalogStateCopy}>{shell.catalogNotice ? `Showing the saved fallback board because the live board could not refresh: ${shell.catalogNotice}` : "Showing the saved fallback board. Pull to try the live board again."}</Text>
+          </View>
+        ) : null}
+
+        {shell.activeTab === "home" && shell.refreshFeedback ? (
+          <View
+            style={[styles.catalogStateBanner, shell.refreshFeedback.kind === "error" ? styles.proofRefreshErrorBanner : styles.proofRefreshSuccessBanner]}
+            accessibilityRole="alert"
+            accessibilityLiveRegion="polite"
+            accessibilityLabel={`${shell.refreshFeedback.kind === "error" ? "Proof refresh needs another try" : "Proof refreshed"}. ${shell.refreshFeedback.message}`}
+            accessibilityHint={shell.refreshFeedback.kind === "error" ? "Pull down again to sync before retrying." : undefined}
+          >
+            <Text style={styles.catalogStateTitle}>{shell.refreshFeedback.kind === "error" ? "Proof refresh needs another try" : "Proof refreshed"}</Text>
+            <Text style={styles.catalogStateCopy}>{shell.refreshFeedback.message}</Text>
           </View>
         ) : null}
 
@@ -11375,6 +11432,8 @@ const styles = StyleSheet.create({
   miniStatValue: { color: colors.paper, fontSize: 14, fontWeight: "900" },
   loadingCard: { alignItems: "center", gap: 12, padding: 24 },
   catalogStateBanner: { gap: 5, padding: 12, borderRadius: 20, borderWidth: 1, borderColor: "rgba(245,200,106,.28)", backgroundColor: "rgba(245,200,106,.09)" },
+  proofRefreshErrorBanner: { borderColor: "rgba(255,118,118,.5)", backgroundColor: "rgba(132,31,31,.18)" },
+  proofRefreshSuccessBanner: { borderColor: "rgba(96,240,175,.38)", backgroundColor: "rgba(96,240,175,.08)" },
   catalogStateTitle: { color: colors.gold, fontSize: 12, fontWeight: "900", textTransform: "uppercase", letterSpacing: 0.8 },
   catalogStateCopy: { color: colors.muted, fontSize: 13, lineHeight: 18, fontWeight: "700" },
   muted: { color: colors.muted },
