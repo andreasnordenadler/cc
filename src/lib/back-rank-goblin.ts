@@ -1,4 +1,6 @@
 import { Chess } from "chess.js";
+import { classifyChessComArchiveGameEvidence, getChessComArchiveReplayIdentity, normalizeChessComArchiveUrls, selectUniqueLatestChessComEvidence } from "./custom-side-quests";
+import type { ChessComArchiveGameEvidence, ChessComCanonicalReplay } from "./custom-side-quests";
 import { normalizeLichessMoveTokens } from "./lichess-move-normalizer";
 
 export type BackRankSide = "white" | "black";
@@ -10,6 +12,7 @@ export type BackRankGame = {
   winner: BackRankResult;
   moves: string[];
   source: "lichess" | "chess.com";
+  canonicalReplay?: ChessComCanonicalReplay;
   startedGameAt?: string;
   completedGameAt?: string;
 };
@@ -24,6 +27,7 @@ export type BackRankVerdict = {
   finalPositionFen?: string;
   lastMoveUci?: string;
   lastMoveSan?: string;
+  chessComReplayIdentity?: string;
 };
 
 type LichessBackRankGame = {
@@ -53,6 +57,8 @@ type ChessComBackRankGame = {
   white?: ChessComPlayer;
   black?: ChessComPlayer;
 };
+
+type ValidatedChessComBackRankEvidence = Extract<ChessComArchiveGameEvidence<ChessComBackRankGame>, { kind: "known-standard" }>;
 
 function colorName(color: BackRankSide) {
   return color === "white" ? "White" : "Black";
@@ -84,7 +90,7 @@ function chessComResult(game: ChessComBackRankGame): BackRankResult {
 }
 
 function extractSanMoveTokens(pgn: string): string[] {
-  const body = pgn.includes("\n\n") ? pgn.split(/\r?\n\r?\n/).slice(1).join("\n") : pgn;
+  const body = /\r?\n[ \t]*\r?\n/.test(pgn) ? pgn.split(/\r?\n[ \t]*\r?\n/).slice(1).join("\n") : pgn;
 
   return body
     .replace(/\{[^}]*\}/g, " ")
@@ -96,21 +102,6 @@ function extractSanMoveTokens(pgn: string): string[] {
     .map((token) => token.trim())
     .filter(Boolean)
     .filter((token) => !["1-0", "0-1", "1/2-1/2", "*"].includes(token));
-}
-
-function getChessComStartedGameAt(game: ChessComBackRankGame): string | undefined {
-  const pgn = game.pgn ?? "";
-  const date = pgn.match(/\[UTCDate "([^"?]+)"\]/)?.[1] ?? pgn.match(/\[Date "([^"?]+)"\]/)?.[1];
-  const time = pgn.match(/\[UTCTime "([^"?]+)"\]/)?.[1] ?? pgn.match(/\[StartTime "([^"?]+)"\]/)?.[1] ?? "00:00:00";
-
-  if (!date) return undefined;
-
-  const parsed = Date.parse(`${date}T${time}Z`);
-  return Number.isFinite(parsed) ? new Date(parsed).toISOString() : undefined;
-}
-
-function getChessComCompletedGameAt(game: ChessComBackRankGame): string | undefined {
-  return typeof game.end_time === "number" ? new Date(game.end_time * 1000).toISOString() : undefined;
 }
 
 function findKingSquare(chess: Chess, color: BackRankSide): string | null {
@@ -137,6 +128,19 @@ function isRookOrQueenMateMove(piece?: string) {
 }
 
 function replayGame(game: BackRankGame): { chess: Chess; lastMove?: { san: string; lan: string; piece: string; color: string; to: string } } | null {
+  if (game.canonicalReplay) {
+    const lastMove = game.canonicalReplay.moves.at(-1);
+    return {
+      chess: new Chess(game.canonicalReplay.finalPositionFen),
+      lastMove: lastMove ? {
+        san: lastMove.san,
+        lan: lastMove.uci,
+        piece: { king: "k", queen: "q", rook: "r", bishop: "b", knight: "n", pawn: "p" }[lastMove.piece],
+        color: lastMove.color === "white" ? "w" : "b",
+        to: lastMove.to,
+      } : undefined,
+    };
+  }
   const chess = new Chess();
   let lastMove: { san: string; lan: string; piece: string; color: string; to: string } | undefined;
 
@@ -297,7 +301,7 @@ export async function checkLatestLichessBackRankGoblin(username: string): Promis
   }
 }
 
-export function normalizeChessComBackRankGoblinGame(game: ChessComBackRankGame, username: string): BackRankGame | null {
+export function normalizeChessComBackRankGoblinGame(game: ChessComBackRankGame, username: string, evidence?: ValidatedChessComBackRankEvidence): BackRankGame | null {
   const playerColor = getPlayerColor(game.white?.username, game.black?.username, username);
 
   if (!game.url || !playerColor || !game.pgn || game.rules !== "chess") {
@@ -308,10 +312,11 @@ export function normalizeChessComBackRankGoblinGame(game: ChessComBackRankGame, 
     id: game.url,
     playerColor,
     winner: chessComResult(game),
-    moves: extractSanMoveTokens(game.pgn),
+    moves: evidence?.replay.moves.map((move) => move.san) ?? extractSanMoveTokens(game.pgn),
     source: "chess.com",
-    startedGameAt: getChessComStartedGameAt(game),
-    completedGameAt: getChessComCompletedGameAt(game),
+    canonicalReplay: evidence?.replay,
+    startedGameAt: evidence?.startedGameAt,
+    completedGameAt: evidence?.completedGameAt,
   };
 }
 
@@ -341,7 +346,9 @@ export async function checkLatestChessComBackRankGoblin(username: string): Promi
   try {
     const encodedUsername = encodeURIComponent(username.trim().toLowerCase());
     const archiveIndex = await fetchChessComJson<{ archives?: string[] }>(`https://api.chess.com/pub/player/${encodedUsername}/games/archives`);
-    const archiveUrls = archiveIndex?.archives?.slice(-2).reverse() ?? [];
+    const normalizedArchives = normalizeChessComArchiveUrls(archiveIndex?.archives, username);
+    if (!normalizedArchives) throw new Error("Chess.com archive index is malformed.");
+    const archiveUrls = normalizedArchives.slice(-2).reverse();
 
     if (!archiveUrls.length) {
       return {
@@ -352,24 +359,49 @@ export async function checkLatestChessComBackRankGoblin(username: string): Promi
       };
     }
 
-    const games: BackRankGame[] = [];
     for (const archiveUrl of archiveUrls) {
       const archive = await fetchChessComJson<{ games?: ChessComBackRankGame[] }>(archiveUrl);
-      games.push(...(archive?.games ?? []).map((item) => normalizeChessComBackRankGoblinGame(item, username)).filter((item): item is BackRankGame => Boolean(item)));
+      if (!archive || !Array.isArray(archive.games)) {
+        throw new Error("Chess.com latest archive is unavailable.");
+      }
+      const evidence = archive.games.map((game) => classifyChessComArchiveGameEvidence(game, username));
+      if (evidence.some((item) => item.kind === "unknown")) {
+        throw new Error("Chess.com latest archive is malformed.");
+      }
+
+      const latestEvidence = evidence.length
+        ? selectUniqueLatestChessComEvidence(evidence as Array<Exclude<(typeof evidence)[number], { kind: "unknown" }>>)
+        : null;
+      if (evidence.length && !latestEvidence) {
+        throw new Error("Chess.com latest archive is ambiguous.");
+      }
+      const games = latestEvidence?.kind === "known-standard"
+        ? [normalizeChessComBackRankGoblinGame(latestEvidence.game, username, latestEvidence)].filter((item): item is BackRankGame => Boolean(item))
+        : [];
+      if (archive.games.length) {
+        if (games.length) {
+          return {
+            ...evaluateBackRankGoblin(games[0]),
+            chessComReplayIdentity: latestEvidence?.kind === "known-standard"
+              ? getChessComArchiveReplayIdentity(latestEvidence)
+              : undefined,
+          };
+        }
+        return {
+          status: "pending",
+          gameId: "chesscom-no-standard-games",
+          summary: `No recent public standard Chess.com games were found for ${username}.`,
+          evidence: ["The newest Chess.com archive contained no standard game with replayable PGN."],
+        };
+      }
     }
 
-    games.sort((a, b) => Date.parse(b.completedGameAt ?? "0") - Date.parse(a.completedGameAt ?? "0"));
-
-    if (!games.length) {
-      return {
-        status: "pending",
-        gameId: "chesscom-no-standard-games",
-        summary: `No recent public standard Chess.com games were found for ${username}.`,
-        evidence: ["Chess.com returned no standard game with replayable PGN."],
-      };
-    }
-
-    return evaluateBackRankGoblin(games[0]);
+    return {
+      status: "pending",
+      gameId: "chesscom-no-standard-games",
+      summary: `No recent public standard Chess.com games were found for ${username}.`,
+      evidence: ["Chess.com returned no standard game with replayable PGN."],
+    };
   } catch {
     return {
       status: "pending",

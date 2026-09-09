@@ -27,7 +27,7 @@ for (const provider of ["lichess", "chesscom"] as const) {
           if (String(input).endsWith("/archives")) return Response.json({ archives: [archive] });
           assert.equal(String(input), archive);
           return Response.json({ games: [{
-            url: gameId, pgn: `[Event "Replay"]\n\n${sample.moves} 1-0`, end_time: 1788650000,
+            url: gameId, pgn: `[Event "Replay"]\n\n${sample.moves} 1-0`, end_time: 1788650000, rules: "chess",
             white: { username: "alice", result: "win" }, black: { username: "bob", result: "resigned" },
           }] });
         });

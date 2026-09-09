@@ -60,6 +60,7 @@ export type LatestChallengeVerdict = {
   playerColor?: "white" | "black";
   outcome?: LatestChallengeOutcome;
   metadata?: MultiplayerGameMetadata;
+  chessComReplayIdentity?: string;
   failureDiagnostic?: LatestChallengeFailureDiagnostic;
 };
 
@@ -166,6 +167,13 @@ async function enrichVerdictWithLatestBoard(input: {
   const latestFinished = await getLatestFinishedBoardVerdict(provider, username);
 
   if (latestFinished.status !== "passed" || latestFinished.gameId !== verdict.gameId) {
+    return verdict;
+  }
+
+  // A game URL alone does not bind two independent archive reads. Adapters
+  // without a validated replay identity also fail closed at this boundary.
+  if (provider === "chesscom" && (!verdict.chessComReplayIdentity
+    || verdict.chessComReplayIdentity !== latestFinished.chessComReplayIdentity)) {
     return verdict;
   }
 

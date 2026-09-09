@@ -52,7 +52,7 @@ async function checkReplay(t: TestContext, pgn: string | undefined, {
     if (String(input).endsWith("/archives")) return Response.json({ archives: [archive] });
     assert.equal(String(input), archive);
     return Response.json({ games: [{
-      url: gameId, pgn, end_time: endTime,
+      url: gameId, pgn, end_time: endTime, rules: "chess",
       white: { username: "alice", result: whiteResult },
       black: { username: "bob", result: blackResult },
     }] });
@@ -1182,6 +1182,19 @@ for (const entry of ["latest", "submitted"] as const) {
     assert.equal(result.finalPositionFen, undefined);
   });
 
+  test(`lichess ${entry}: may continue after a Chess.com-only bishop-versus-knight draw position`, async (t) => {
+    const moves = `${chessComBishopVsKnightInsufficientMoves} Bd8+`;
+    const result = await checkReplay(t, `${moves} 1-0`, {
+      entry,
+      moves,
+      providerStatus: "resign",
+      winner: "white",
+      questResult: "win",
+    });
+
+    assert.equal(result.status, "passed");
+  });
+
   test(`chesscom ${entry}: two knights versus a lone king is automatic insufficient material`, async (t) => {
     const result = await checkReplay(t, `${chessComTwoKnightsVsKingInsufficientMoves} 1/2-1/2`, {
       provider: "chesscom",
@@ -1773,6 +1786,7 @@ test("chesscom latest: a truly empty newest archive can continue to the older ga
       url: "https://www.chess.com/game/live/123456",
       pgn: "1. e4 e5 1-0",
       end_time: 1786058000,
+      rules: "chess",
       white: { username: "alice", result: "win" },
       black: { username: "bob", result: "resigned" },
     }] });

@@ -78,6 +78,7 @@ function splitPiece(value: BoardPiece) {
 
 function applyUciMove(
   board: Record<string, BoardPiece>,
+  pawnOrigins: Record<string, string>,
   move: string,
   ply: number,
 ): PawnStormMoveEvent | null {
@@ -95,18 +96,24 @@ function applyUciMove(
   }
 
   const movingPiece = splitPiece(moving);
+  const pawnOrigin = pawnOrigins[from] ?? from[0];
   const pawnMove = movingPiece.piece === "pawn"
-    ? { ply, color: movingPiece.color, from, to, pawnFile: from[0] }
+    ? { ply, color: movingPiece.color, from, to, pawnFile: pawnOrigin }
     : null;
 
   if (movingPiece.piece === "pawn" && from[0] !== to[0] && !board[to]) {
-    delete board[`${to[0]}${from[1]}`];
+    const capturedSquare = `${to[0]}${from[1]}`;
+    delete board[capturedSquare];
+    delete pawnOrigins[capturedSquare];
   }
 
   delete board[from];
+  delete pawnOrigins[from];
+  delete pawnOrigins[to];
   board[to] = promotion
     ? `${movingPiece.color}:${promotion === "q" ? "queen" : promotion === "r" ? "rook" : promotion === "b" ? "bishop" : "knight"}`
     : moving;
+  if (movingPiece.piece === "pawn" && !promotion) pawnOrigins[to] = pawnOrigin;
 
   if (movingPiece.piece === "king" && from === "e1" && to === "g1") { board.f1 = board.h1; delete board.h1; }
   if (movingPiece.piece === "king" && from === "e1" && to === "c1") { board.d1 = board.a1; delete board.a1; }
@@ -130,9 +137,14 @@ export function normalizeLichessPawnStormManiacGame(
   }
 
   const board = { ...INITIAL_BOARD };
+  const pawnOrigins = Object.fromEntries(
+    Object.entries(INITIAL_BOARD)
+      .filter(([, piece]) => piece.endsWith(":pawn"))
+      .map(([square]) => [square, square[0]]),
+  );
   const moves = normalizeLichessMoveTokens(game.moves);
   const pawnMoves = moves
-    .map((move, index) => applyUciMove(board, move, index + 1))
+    .map((move, index) => applyUciMove(board, pawnOrigins, move, index + 1))
     .filter((event): event is PawnStormMoveEvent => Boolean(event));
 
   return {
@@ -253,7 +265,9 @@ export function evaluatePawnStormManiac(game: PawnStormGame): PawnStormVerdict {
   const earlyPlayerPawnMoves = game.pawnMoves.filter(
     (move) => move.color === game.playerColor && moveNumberFromPly(move.ply) <= 15,
   );
-  const distinctPawnStarts = Array.from(new Set(earlyPlayerPawnMoves.map((move) => move.from))).sort();
+  const distinctPawnStarts = Array.from(new Set(earlyPlayerPawnMoves.map((move) => move.pawnFile)))
+    .sort()
+    .map((file) => `${file}${game.playerColor === "white" ? "2" : "7"}`);
 
   if (distinctPawnStarts.length < 6) {
     return {

@@ -33,6 +33,7 @@ test("a specific pawn rule evaluates only the selected starting pawn across prov
         url: chessComGameId,
         pgn: `[Event "Pawn identity"]\n\n1. ${chessComMoves} 1-0`,
         end_time: 1788650000,
+        rules: "chess",
         white: { username: "alice", result: "win" },
         black: { username: "bob", result: "resigned" },
       }],

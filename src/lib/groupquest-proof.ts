@@ -158,11 +158,28 @@ export async function checkLatestGroupQuestChallenge(input: CheckLatestGroupQues
   let verdict: LatestChallengeVerdict = customQuest
     ? await checkLatestCustomSideQuestForProvider({ quest: buildCustomQuestForVerifier(customQuest), provider, username })
     : await checkLatestChallengeForProvider({ challengeId, provider, username });
-  if (verdict.status === "passed" && !verdict.metadata) {
+  if (verdict.status !== "pending" && !verdict.metadata) {
     const latestGame = await getLatestFinishedGameVerdict(provider, username);
-    if (latestGame.status === "passed" && latestGame.gameId === verdict.gameId) {
+    const replayIdentityMatches = provider !== "chesscom"
+      || Boolean(verdict.chessComReplayIdentity
+        && verdict.chessComReplayIdentity === latestGame.chessComReplayIdentity);
+    if (latestGame.status === "passed" && latestGame.gameId === verdict.gameId && replayIdentityMatches) {
       verdict = { ...verdict, metadata: latestGame.metadata };
     }
+  }
+
+  if (verdict.status === "passed" && !verdict.metadata) {
+    return {
+      status: "pending",
+      gameId: verdict.gameId,
+      summary: "Provider rule metadata could not be bound to the verified game, so Multiplayer proof was not awarded.",
+      gameTime: resolveVerdictTime(verdict),
+      finalPositionFen: verdict.finalPositionFen,
+      lastMoveUci: verdict.lastMoveUci,
+      lastMoveSan: verdict.lastMoveSan,
+      outcome: verdict.outcome,
+      failureDiagnostic: verdict.failureDiagnostic,
+    };
   }
 
   return buildWindowedResult(
