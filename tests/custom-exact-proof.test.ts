@@ -80,6 +80,156 @@ test("provider JSON reads abort after the timeout", async () => {
   );
 });
 
+test("provider JSON reads stop an in-flight request when the caller aborts", async () => {
+  const caller = new AbortController();
+  let providerSignal: AbortSignal | null = null;
+  const request = fetchBoundedProviderJson("https://provider.example/game", { signal: caller.signal }, {
+    maxBytes: 32,
+    timeoutMs: 100,
+    fetcher: async (_input, init) => new Promise<Response>((_resolve, reject) => {
+      const signal = init?.signal;
+      if (!signal) return reject(new Error("request signal missing"));
+      providerSignal = signal;
+      signal.addEventListener("abort", () => reject(signal.reason), { once: true });
+    }),
+  });
+
+  const cancellation = new Error("caller stopped provider read");
+  caller.abort(cancellation);
+
+  await assert.rejects(request, /caller stopped provider read/i);
+  const observedProviderSignal = providerSignal as AbortSignal | null;
+  assert.equal(observedProviderSignal?.aborted, true);
+  assert.equal(observedProviderSignal?.reason, cancellation);
+});
+
+test("provider JSON reads prefer the caller reason over a fetcher abort error", async () => {
+  const caller = new AbortController();
+  const request = fetchBoundedProviderJson("https://provider.example/game", { signal: caller.signal }, {
+    maxBytes: 32,
+    timeoutMs: 100,
+    fetcher: (_input, init) => new Promise<Response>((_resolve, reject) => {
+      init?.signal?.addEventListener("abort", () => reject(new Error("fetcher abort error")), { once: true });
+    }),
+  });
+
+  caller.abort(new Error("authoritative caller reason"));
+
+  await assert.rejects(request, /authoritative caller reason/i);
+});
+
+test("provider JSON reads handle caller abort before a synchronous fetcher throw", async () => {
+  const caller = new AbortController();
+  const cancellation = new Error("synchronous caller reason");
+
+  await assert.rejects(
+    () => fetchBoundedProviderJson("https://provider.example/game", { signal: caller.signal }, {
+      maxBytes: 32,
+      timeoutMs: 100,
+      fetcher: () => {
+        caller.abort(cancellation);
+        throw new Error("synchronous fetcher failure");
+      },
+    }),
+    /synchronous caller reason/i,
+  );
+  await new Promise<void>((resolve) => setImmediate(resolve));
+});
+
+test("provider JSON reads cancel a fulfilled response when the caller aborts synchronously", async () => {
+  const caller = new AbortController();
+  let cancelled = false;
+  const body = new ReadableStream<Uint8Array>({ cancel() { cancelled = true; } });
+
+  await assert.rejects(
+    () => fetchBoundedProviderJson("https://provider.example/game", { signal: caller.signal }, {
+      maxBytes: 32,
+      timeoutMs: 100,
+      fetcher: () => {
+        caller.abort(new Error("caller stopped fulfilled fetch"));
+        return Promise.resolve(new Response(body));
+      },
+    }),
+    /caller stopped fulfilled fetch/i,
+  );
+  assert.equal(cancelled, true);
+});
+
+test("provider JSON reads cancel a response that arrives after caller cancellation", async () => {
+  const caller = new AbortController();
+  let resolveProvider: (response: Response) => void = () => undefined;
+  const providerResponse = new Promise<Response>((resolve) => { resolveProvider = resolve; });
+  let cancelled = false;
+  const body = new ReadableStream<Uint8Array>({ cancel() { cancelled = true; } });
+  const request = fetchBoundedProviderJson("https://provider.example/game", { signal: caller.signal }, {
+    maxBytes: 32,
+    timeoutMs: 100,
+    fetcher: async () => providerResponse,
+  });
+
+  caller.abort(new Error("caller stopped before provider response"));
+  await assert.rejects(request, /caller stopped before provider response/i);
+  resolveProvider(new Response(body));
+  await new Promise<void>((resolve) => setImmediate(resolve));
+
+  assert.equal(cancelled, true);
+});
+
+test("provider JSON reads do not start after the caller already aborted", async () => {
+  const caller = new AbortController();
+  caller.abort(new Error("caller stopped before provider read"));
+  let calls = 0;
+
+  await assert.rejects(
+    () => fetchBoundedProviderJson("https://provider.example/game", { signal: caller.signal }, {
+      maxBytes: 32,
+      timeoutMs: 100,
+      fetcher: async () => {
+        calls += 1;
+        return Response.json({ unexpected: true });
+      },
+    }),
+    /caller stopped before provider read/i,
+  );
+  assert.equal(calls, 0);
+});
+
+test("provider JSON reads preserve an explicit null caller abort reason", async () => {
+  const caller = new AbortController();
+  caller.abort(null);
+  let rejection: unknown = Symbol("not rejected");
+
+  try {
+    await fetchBoundedProviderJson("https://provider.example/game", { signal: caller.signal }, {
+      maxBytes: 32,
+      timeoutMs: 100,
+      fetcher: async () => Response.json({ unexpected: true }),
+    });
+  } catch (error) {
+    rejection = error;
+  }
+
+  assert.equal(rejection, null);
+});
+
+test("provider JSON reads settle when the fetcher ignores caller abort", async () => {
+  const caller = new AbortController();
+  const request = fetchBoundedProviderJson("https://provider.example/game", { signal: caller.signal }, {
+    maxBytes: 32,
+    timeoutMs: 100,
+    fetcher: async () => new Promise<Response>(() => undefined),
+  });
+  setTimeout(() => caller.abort(new Error("caller stopped ignored fetch")), 0);
+
+  await assert.rejects(
+    () => Promise.race([
+      request,
+      new Promise<never>((_resolve, reject) => setTimeout(() => reject(new Error("caller abort was ignored")), 25)),
+    ]),
+    /caller stopped ignored fetch/i,
+  );
+});
+
 test("provider JSON reads enforce the timeout and cancel an uncooperative streaming body", async () => {
   let cancelled = false;
   const body = new ReadableStream<Uint8Array>({
@@ -99,6 +249,74 @@ test("provider JSON reads enforce the timeout and cancel an uncooperative stream
     /timed out/i,
   );
   assert.equal(cancelled, true);
+});
+
+test("provider JSON reads settle and cancel the body when the caller aborts", async () => {
+  const caller = new AbortController();
+  let cancelled = false;
+  const body = new ReadableStream<Uint8Array>({
+    start(controller) { controller.enqueue(new TextEncoder().encode("{")); },
+    cancel() { cancelled = true; },
+  });
+  const request = fetchBoundedProviderJson("https://provider.example/game", { signal: caller.signal }, {
+    maxBytes: 32,
+    timeoutMs: 100,
+    fetcher: async () => new Response(body, { headers: { "content-type": "application/json" } }),
+  });
+  setTimeout(() => caller.abort(new Error("caller stopped body read")), 0);
+
+  await assert.rejects(
+    () => Promise.race([
+      request,
+      new Promise<never>((_resolve, reject) => setTimeout(() => reject(new Error("caller body abort was ignored")), 25)),
+    ]),
+    /caller stopped body read/i,
+  );
+  assert.equal(cancelled, true);
+});
+
+test("provider JSON reads prefer the caller reason over a stream abort error", async () => {
+  const caller = new AbortController();
+  const body = new ReadableStream<Uint8Array>({
+    start(controller) {
+      controller.enqueue(new TextEncoder().encode("{"));
+      caller.signal.addEventListener("abort", () => controller.error(new Error("stream abort error")), { once: true });
+    },
+  });
+  const request = fetchBoundedProviderJson("https://provider.example/game", { signal: caller.signal }, {
+    maxBytes: 32,
+    timeoutMs: 100,
+    fetcher: async () => new Response(body, { headers: { "content-type": "application/json" } }),
+  });
+  setTimeout(() => caller.abort(new Error("authoritative body caller reason")), 0);
+
+  await assert.rejects(request, /authoritative body caller reason/i);
+});
+
+test("provider JSON reads prefer synchronous caller abort over a fulfilled final body read", async () => {
+  const caller = new AbortController();
+  const reader = {
+    read: () => {
+      caller.abort(new Error("caller stopped fulfilled body read"));
+      return Promise.resolve({ done: true, value: undefined });
+    },
+    cancel: async () => undefined,
+  } as unknown as ReadableStreamDefaultReader<Uint8Array>;
+  const response = {
+    ok: true,
+    status: 200,
+    headers: new Headers(),
+    body: { getReader: () => reader },
+  } as unknown as Response;
+
+  await assert.rejects(
+    () => fetchBoundedProviderJson("https://provider.example/game", { signal: caller.signal }, {
+      maxBytes: 32,
+      timeoutMs: 100,
+      fetcher: async () => response,
+    }),
+    /caller stopped fulfilled body read/i,
+  );
 });
 
 test("provider JSON reads do not fall back to an unbounded bodyless text read", async () => {
@@ -151,6 +369,55 @@ test("provider JSON retries one transient transport failure before returning suc
 
   assert.deepEqual(result, { gameId: "network-retry-ok" });
   assert.equal(calls, 2);
+});
+
+test("provider transport retry backoff stops when the caller aborts", async () => {
+  const caller = new AbortController();
+  let calls = 0;
+  const request = fetchBoundedProviderJson("https://provider.example/game", { signal: caller.signal }, {
+    maxBytes: 32,
+    timeoutMs: 500,
+    fetcher: async () => {
+      calls += 1;
+      if (calls === 1) {
+        setTimeout(() => caller.abort(new Error("caller stopped transport backoff")), 0);
+        throw new TypeError("fetch failed");
+      }
+      return Response.json({ unexpected: true });
+    },
+  });
+
+  await assert.rejects(
+    () => Promise.race([
+      request,
+      new Promise<never>((_resolve, reject) => setTimeout(() => reject(new Error("caller transport abort was ignored")), 25)),
+    ]),
+    /caller stopped transport backoff/i,
+  );
+  assert.equal(calls, 1);
+});
+
+test("provider retry backoff stops when the caller aborts", async () => {
+  const caller = new AbortController();
+  let calls = 0;
+  const request = fetchBoundedProviderJson("https://provider.example/game", { signal: caller.signal }, {
+    maxBytes: 32,
+    timeoutMs: 500,
+    fetcher: async () => {
+      calls += 1;
+      if (calls === 1) setTimeout(() => caller.abort(new Error("caller stopped retry backoff")), 0);
+      return Response.json({ error: "temporarily unavailable" }, { status: 503 });
+    },
+  });
+
+  await assert.rejects(
+    () => Promise.race([
+      request,
+      new Promise<never>((_resolve, reject) => setTimeout(() => reject(new Error("caller retry abort was ignored")), 25)),
+    ]),
+    /caller stopped retry backoff/i,
+  );
+  assert.equal(calls, 1);
 });
 
 test("provider 5xx retry backoff stays inside the original response deadline", async () => {

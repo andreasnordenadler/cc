@@ -167,9 +167,22 @@ export async function fetchBoundedProviderText(input: string | URL, init: Reques
   const maxBytes = options.maxBytes ?? PROVIDER_JSON_MAX_BYTES;
   const method = (init.method ?? "GET").toUpperCase();
   const canRetry = method === "GET" || method === "HEAD";
+  const callerSignal = init.signal;
+  if (callerSignal?.aborted) throw callerSignal.reason;
   const controller = new AbortController();
+  let rejectCallerAbort: (reason: unknown) => void = () => undefined;
+  const callerAbortFailure = new Promise<never>((_resolve, reject) => { rejectCallerAbort = reject; });
+  void callerAbortFailure.catch(() => undefined);
+  const abortFromCaller = () => {
+    const reason = callerSignal?.reason;
+    controller.abort(reason);
+    rejectCallerAbort(reason);
+  };
+  callerSignal?.addEventListener("abort", abortFromCaller, { once: true });
   let timeout: ReturnType<typeof setTimeout> | undefined;
   let retryDelay: ReturnType<typeof setTimeout> | undefined;
+  let pendingResponse: Promise<Response> | undefined;
+  let responseToCancel: Response | undefined;
   let reader: ReadableStreamDefaultReader<Uint8Array> | undefined;
   const timeoutFailure = new Promise<never>((_resolve, reject) => {
     timeout = setTimeout(() => {
@@ -182,15 +195,22 @@ export async function fetchBoundedProviderText(input: string | URL, init: Reques
     for (let attempt = 0; attempt < 2; attempt += 1) {
       let response: Response;
       try {
+        pendingResponse = (options.fetcher ?? fetch)(input, { ...init, signal: controller.signal });
         response = await Promise.race([
-          (options.fetcher ?? fetch)(input, { ...init, signal: controller.signal }),
+          pendingResponse,
           timeoutFailure,
+          callerAbortFailure,
         ]);
+        pendingResponse = undefined;
+        responseToCancel = response;
+        if (callerSignal?.aborted) throw callerSignal.reason;
       } catch (error) {
+        if (callerSignal?.aborted) throw callerSignal.reason;
         if (!canRetry || attempt !== 0 || !(error instanceof TypeError) || controller.signal.aborted) throw error;
         await Promise.race([
           new Promise<void>((resolve) => { retryDelay = setTimeout(resolve, PROVIDER_RETRY_DELAY_MS); }),
           timeoutFailure,
+          callerAbortFailure,
         ]);
         clearTimeout(retryDelay);
         retryDelay = undefined;
@@ -201,6 +221,7 @@ export async function fetchBoundedProviderText(input: string | URL, init: Reques
         await Promise.race([
           new Promise<void>((resolve) => { retryDelay = setTimeout(resolve, PROVIDER_RETRY_DELAY_MS); }),
           timeoutFailure,
+          callerAbortFailure,
         ]);
         clearTimeout(retryDelay);
         retryDelay = undefined;
@@ -212,11 +233,20 @@ export async function fetchBoundedProviderText(input: string | URL, init: Reques
       if (!response.body) return "";
 
       reader = response.body.getReader();
+      responseToCancel = undefined;
       const decoder = new TextDecoder();
       let bytesRead = 0;
       let body = "";
       while (true) {
-        const { done, value } = await Promise.race([reader.read(), timeoutFailure]);
+        let chunk: ReadableStreamReadResult<Uint8Array>;
+        try {
+          chunk = await Promise.race([reader.read(), timeoutFailure, callerAbortFailure]);
+        } catch (error) {
+          if (callerSignal?.aborted) throw callerSignal.reason;
+          throw error;
+        }
+        if (callerSignal?.aborted) throw callerSignal.reason;
+        const { done, value } = chunk;
         if (done) break;
         bytesRead += value.byteLength;
         if (bytesRead > maxBytes) {
@@ -230,8 +260,13 @@ export async function fetchBoundedProviderText(input: string | URL, init: Reques
     }
     return null;
   } finally {
+    callerSignal?.removeEventListener("abort", abortFromCaller);
     clearTimeout(timeout);
     clearTimeout(retryDelay);
+    if (controller.signal.aborted) {
+      void pendingResponse?.then((response) => response.body?.cancel()).catch(() => undefined);
+      void responseToCancel?.body?.cancel().catch(() => undefined);
+    }
     void reader?.cancel().catch(() => undefined);
   }
 }
