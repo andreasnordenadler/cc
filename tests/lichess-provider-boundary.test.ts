@@ -11,6 +11,7 @@ import { checkLatestLichessNoCastleClub } from "../src/lib/no-castle-club";
 import { checkLatestLichessOneBishopToRuleThemAll } from "../src/lib/one-bishop-to-rule-them-all";
 import { checkLatestLichessPawnOnlyPicnic } from "../src/lib/pawn-only-picnic";
 import { checkLatestLichessPawnStormManiac } from "../src/lib/pawn-storm-maniac";
+import { checkLatestLichessQueenNeverHeardOfHer } from "../src/lib/queen-never-heard-of-her";
 import { checkLatestLichessRooklessRampage } from "../src/lib/rookless-rampage";
 import { checkLatestLichessBlunderGambit } from "../src/lib/the-blunder-gambit";
 
@@ -172,6 +173,19 @@ test("No Castle Club rejects an oversized latest Lichess body before evaluating 
   ));
 
   const verdict = await checkLatestLichessNoCastleClub("Alice");
+
+  assert.equal(verdict.status, "pending");
+  assert.equal(verdict.gameId, "lichess-latest-error");
+  assert.match(verdict.summary, /could not complete/i);
+});
+
+test("Queen? Never Heard of Her rejects an oversized latest Lichess body before evaluating the game", async (t) => {
+  t.mock.method(globalThis, "fetch", async () => new Response(
+    `${JSON.stringify({ ...finishedLichessGame(), rated: true, speed: "blitz" })}\n`,
+    { status: 200, headers: oversizedProviderHeaders },
+  ));
+
+  const verdict = await checkLatestLichessQueenNeverHeardOfHer("Alice");
 
   assert.equal(verdict.status, "pending");
   assert.equal(verdict.gameId, "lichess-latest-error");
