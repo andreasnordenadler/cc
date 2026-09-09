@@ -364,7 +364,20 @@ function isOptionalPositiveInteger(value: unknown) {
 export async function checkLatestCustomSideQuestForProvider(input: { quest: Pick<CustomSideQuest, "id" | "title" | "config">; provider: "lichess" | "chesscom"; username: string }): Promise<LatestChallengeVerdict> {
   let game: LatestGame | null;
   try {
-    game = input.provider === "lichess" ? await fetchLatestLichessGame(input.username) : await fetchLatestChessComGame(input.username);
+    if (input.provider === "lichess") {
+      game = await fetchLatestLichessGame(input.username);
+    } else {
+      const lookup = await fetchLatestChessComGame(input.username);
+      if (lookup.kind === "empty") {
+        return {
+          status: "pending",
+          gameId: "chesscom-custom-latest-empty",
+          summary: `The latest public Chess.com archive is empty for ${input.username}.`,
+          evidence: ["Chess.com returned a valid latest archive with no games."],
+        };
+      }
+      game = lookup.kind === "found" ? lookup.game : null;
+    }
   } catch {
     game = null;
   }
@@ -463,25 +476,30 @@ async function fetchSubmittedLichessGame(username: string, gameId: string): Prom
   return { provider: "lichess", gameId: game.id ?? gameId, username, standardStart: (game.variant === undefined || game.variant === "standard") && hasStandardPgnStart(game.pgn ?? game.moves, game.initialFen), pgnMoves, uciMoves, replayComplete: matchesReplayIdentity(replayPgn, "lichess", game.id, white, black) && matchesLichessReplayTermination(replayPgn, game.status) && outcome !== "unknown" && (game.pgn === undefined ? replayPgn !== null && (replayPgn.result === undefined || hasCompleteReplayPgn(replayPgn, outcome, playerColor)) : hasCompleteReplayPgn(replayPgn, outcome, playerColor, providerMoves)) && hasLichessTerminalPosition(replayPgn, game.status, game.winner), playerColor, status: game.status && !["created", "started"].includes(game.status) ? "finished" : "open", outcome, startedGameAt: typeof game.createdAt === "number" ? new Date(game.createdAt).toISOString() : undefined, completedGameAt: typeof (game.lastMoveAt ?? game.createdAt) === "number" ? new Date((game.lastMoveAt ?? game.createdAt) as number).toISOString() : undefined };
 }
 
-async function fetchLatestChessComGame(username: string): Promise<LatestGame | null> {
-  if (!username.trim()) return null;
+type LatestChessComGameLookup =
+  | { kind: "found"; game: LatestGame }
+  | { kind: "empty" }
+  | { kind: "unavailable" };
+
+async function fetchLatestChessComGame(username: string): Promise<LatestChessComGameLookup> {
+  if (!username.trim()) return { kind: "unavailable" };
   const archivePayload = await fetchBoundedProviderJson(`https://api.chess.com/pub/player/${encodeURIComponent(username.trim())}/games/archives`, { headers: { Accept: "application/json", "User-Agent": "cc-verifier/0.1 (+https://sidequestchess.com)" }, cache: "no-store" }) as { archives?: string[] } | null;
-  if (!archivePayload) return null;
+  if (!archivePayload) return { kind: "unavailable" };
   const archives = normalizeChessComArchiveUrls(archivePayload.archives, username);
-  if (!archives) return null;
-  const recentArchives = archives.slice(-3).reverse();
+  if (!archives) return { kind: "unavailable" };
+  const recentArchives = archives.slice(-1);
   for (const archive of recentArchives) {
     const archiveGames = await fetchBoundedProviderJson(archive, { headers: { Accept: "application/json", "User-Agent": "cc-verifier/0.1 (+https://sidequestchess.com)" }, cache: "no-store" }) as { games?: Array<{ url?: string; pgn?: string; rules?: unknown; end_time?: number; white?: { username?: string; result?: string }; black?: { username?: string; result?: string } }> } | null;
-    if (!archiveGames || !Array.isArray(archiveGames.games)) return null;
+    if (!archiveGames || !Array.isArray(archiveGames.games)) return { kind: "unavailable" };
     const gameIds = archiveGames.games.map((game) => game && typeof game === "object" && !Array.isArray(game) && typeof game.url === "string" ? normalizeChessComGameUrl(game.url) : "");
-    if (gameIds.some((id, index) => id && gameIds.indexOf(id) !== index)) return null;
+    if (gameIds.some((id, index) => id && gameIds.indexOf(id) !== index)) return { kind: "unavailable" };
     const evidence = archiveGames.games.map((candidate) => classifyChessComArchiveGameEvidence(candidate, username));
-    if (!evidence.length) continue;
+    if (!evidence.length) return { kind: "empty" };
     const candidates = archiveGames.games
       .map((game, index) => ({ game, index }))
       .filter((entry) => entry.game && typeof entry.game === "object" && !Array.isArray(entry.game) && typeof entry.game.end_time === "number")
       .toSorted((a, b) => (b.game.end_time ?? 0) - (a.game.end_time ?? 0));
-    if (!candidates.length || (candidates[1] && candidates[0].game.end_time === candidates[1].game.end_time)) return null;
+    if (!candidates.length || (candidates[1] && candidates[0].game.end_time === candidates[1].game.end_time)) return { kind: "unavailable" };
     const selected = candidates[0];
     const game = selected.game;
     const gameEvidence = evidence[selected.index];
@@ -489,15 +507,18 @@ async function fetchLatestChessComGame(username: string): Promise<LatestGame | n
     const knownStandard = gameEvidence?.kind === "known-standard" ? gameEvidence : null;
     const normalizedUsername = username.trim().toLowerCase();
     const playerColor = game.white?.username?.toLowerCase() === normalizedUsername ? "white" : game.black?.username?.toLowerCase() === normalizedUsername ? "black" : null;
-    if (!playerColor) return null;
+    if (!playerColor) return { kind: "unavailable" };
     const gameUrl = game.url;
     const gameMode = gameUrl ? getChessComGameMode(gameUrl) : null;
-    if (!gameMode || !gameUrl) return null;
+    if (!gameMode || !gameUrl) return { kind: "unavailable" };
     const outcome = getChessComOutcomeForPlayers(game.white?.result, game.black?.result, playerColor);
     const timeline = classifiedChessComTimelines.get(game);
-    return { provider: "chesscom", gameId: gameUrl, username, standardStart: Boolean(knownStandard), pgnMoves: knownStandard?.sanMoves ?? [], replayComplete: archiveKnown && Boolean(knownStandard), playerColor, status: timeline?.completedGameAt ? "finished" : "open", outcome, startedGameAt: knownStandard?.startedGameAt, completedGameAt: timeline?.completedGameAt, canonicalReplay: archiveKnown ? knownStandard?.replay : undefined, chessComReplayIdentity: archiveKnown && knownStandard ? getChessComArchiveReplayIdentity(knownStandard) : undefined };
+    return {
+      kind: "found",
+      game: { provider: "chesscom", gameId: gameUrl, username, standardStart: Boolean(knownStandard), pgnMoves: knownStandard?.sanMoves ?? [], replayComplete: archiveKnown && Boolean(knownStandard), playerColor, status: timeline?.completedGameAt ? "finished" : "open", outcome, startedGameAt: knownStandard?.startedGameAt, completedGameAt: timeline?.completedGameAt, canonicalReplay: archiveKnown ? knownStandard?.replay : undefined, chessComReplayIdentity: archiveKnown && knownStandard ? getChessComArchiveReplayIdentity(knownStandard) : undefined },
+    };
   }
-  return null;
+  return { kind: "unavailable" };
 }
 
 function parseKnownUnsupportedChessComResult(

@@ -1773,7 +1773,7 @@ for (const entry of ["latest", "submitted"] as const) {
   }
 }
 
-test("chesscom latest: a truly empty newest archive can continue to the older game", async (t) => {
+test("chesscom latest: a truly empty newest archive cannot fall back to the older game", async (t) => {
   const newerArchive = "https://api.chess.com/pub/player/alice/games/2026/09";
   const olderArchive = "https://api.chess.com/pub/player/alice/games/2026/08";
   const requested: string[] = [];
@@ -1799,11 +1799,11 @@ test("chesscom latest: a truly empty newest archive can continue to the older ga
     username: "alice",
   });
 
-  assert.equal(result.status, "passed");
+  assert.equal(result.status, "pending");
+  assert.equal(result.gameId, "chesscom-custom-latest-empty");
   assert.deepEqual(requested, [
     "https://api.chess.com/pub/player/alice/games/archives",
     newerArchive,
-    olderArchive,
   ]);
 });
 

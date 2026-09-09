@@ -345,7 +345,7 @@ export async function checkLatestChessComBackRankGoblin(username: string): Promi
     const archiveIndex = await fetchChessComJson<{ archives?: string[] }>(`https://api.chess.com/pub/player/${encodedUsername}/games/archives`);
     const normalizedArchives = normalizeChessComArchiveUrls(archiveIndex?.archives, username);
     if (!normalizedArchives) throw new Error("Chess.com archive index is malformed.");
-    const archiveUrls = normalizedArchives.slice(-2).reverse();
+    const archiveUrls = normalizedArchives.slice(-1);
 
     if (!archiveUrls.length) {
       return {
