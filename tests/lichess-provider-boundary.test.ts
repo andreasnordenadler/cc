@@ -4,6 +4,7 @@ import test from "node:test";
 import { checkLatestLichessBackRankGoblin } from "../src/lib/back-rank-goblin";
 import { checkLatestLichessBishopFieldTrip } from "../src/lib/bishop-field-trip";
 import { checkLatestLichessEarlyKingWalk } from "../src/lib/early-king-walk";
+import { checkLatestLichessKnightmareMode } from "../src/lib/knightmare-mode";
 import { checkLatestLichessKnightsBeforeCoffee } from "../src/lib/knights-before-coffee";
 import { checkLatestLichessFinishedGame, verifyFinishAnyGameAttempt } from "../src/lib/lichess";
 import { checkLatestLichessOneBishopToRuleThemAll } from "../src/lib/one-bishop-to-rule-them-all";
@@ -130,6 +131,19 @@ test("One Bishop to Rule Them All rejects an oversized latest Lichess body befor
   ));
 
   const verdict = await checkLatestLichessOneBishopToRuleThemAll("Alice");
+
+  assert.equal(verdict.status, "pending");
+  assert.equal(verdict.gameId, "lichess-latest-error");
+  assert.match(verdict.summary, /could not complete/i);
+});
+
+test("Knightmare Mode rejects an oversized latest Lichess body before evaluating the game", async (t) => {
+  t.mock.method(globalThis, "fetch", async () => new Response(
+    `${JSON.stringify({ ...finishedLichessGame(), rated: true, speed: "blitz" })}\n`,
+    { status: 200, headers: oversizedProviderHeaders },
+  ));
+
+  const verdict = await checkLatestLichessKnightmareMode("Alice");
 
   assert.equal(verdict.status, "pending");
   assert.equal(verdict.gameId, "lichess-latest-error");
