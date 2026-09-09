@@ -44,16 +44,25 @@ test("mobile release dependencies resolve newly disclosed uuid and tar vulnerabi
 });
 
 test("mobile release audit patches available fixes and narrowly accepts only Metro image parser advisories", () => {
+  const packageJson = JSON.parse(readRepoFile("package.json"));
   const workspace = readRepoFile("pnpm-workspace.yaml");
   const lockfile = readRepoFile("pnpm-lock.yaml");
   const releaseScript = readRepoFile("scripts/mobile-release.mjs");
 
-  assert.match(workspace, /^  js-yaml@>=3\.0\.0 <3\.15\.1: "3\.15\.1"$/m);
-  assert.match(workspace, /^  js-yaml@>=4\.0\.0 <4\.3\.1: "4\.3\.1"$/m);
+  assert.equal(packageJson.dependencies.next, "16.3.4");
+  assert.equal(packageJson.devDependencies["eslint-config-next"], "16.3.4");
+  assert.match(workspace, /^  '@xmldom\/xmldom@>=0\.7\.0 <0\.8\.15': "0\.8\.15"$/m);
+  assert.match(workspace, /^  '@xmldom\/xmldom@>=0\.9\.0 <0\.9\.12': "0\.9\.12"$/m);
+  assert.match(workspace, /^  js-yaml@>=3\.0\.0 <3\.15\.2: "3\.15\.2"$/m);
+  assert.match(workspace, /^  js-yaml@>=4\.0\.0 <4\.3\.2: "4\.3\.2"$/m);
   assert.match(workspace, /^  nanoid@<3\.3\.18: "3\.3\.18"$/m);
-  assert.match(lockfile, /^  js-yaml@3\.15\.1:$/m);
-  assert.match(lockfile, /^  js-yaml@4\.3\.1:$/m);
+  assert.match(workspace, /^  sharp@<0\.35\.4: "0\.35\.4"$/m);
+  assert.match(lockfile, /^  '@xmldom\/xmldom@0\.8\.15':$/m);
+  assert.match(lockfile, /^  '@xmldom\/xmldom@0\.9\.12':$/m);
+  assert.match(lockfile, /^  js-yaml@3\.15\.2:$/m);
+  assert.match(lockfile, /^  js-yaml@4\.3\.2:$/m);
   assert.match(lockfile, /^  nanoid@3\.3\.18:$/m);
+  assert.match(lockfile, /^  sharp@0\.35\.4:$/m);
 
   assert.match(releaseScript, /run\("node", \["scripts\/check-production-audit\.mjs"\]\)/);
   assert.doesNotMatch(releaseScript, /pnpm[^\n]+audit/);
