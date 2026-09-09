@@ -154,6 +154,7 @@ const MAX_SUBMITTED_CHESSCOM_ARCHIVE_MONTHS = 6;
 const PROVIDER_JSON_MAX_BYTES = 2_000_000;
 const KNOWN_UNSUPPORTED_CHESSCOM_RULES = new Set(["chess960", "bughouse", "kingofthehill", "threecheck", "crazyhouse"]);
 const PROVIDER_FETCH_TIMEOUT_MS = 10_000;
+const PROVIDER_RETRY_DELAY_MS = 100;
 const classifiedChessComTimelines = new WeakMap<object, { startedGameAt?: string; completedGameAt: string }>();
 
 type BoundedProviderJsonOptions = {
@@ -164,8 +165,11 @@ type BoundedProviderJsonOptions = {
 
 export async function fetchBoundedProviderText(input: string | URL, init: RequestInit = {}, options: BoundedProviderJsonOptions = {}): Promise<string | null> {
   const maxBytes = options.maxBytes ?? PROVIDER_JSON_MAX_BYTES;
+  const method = (init.method ?? "GET").toUpperCase();
+  const canRetry = method === "GET" || method === "HEAD";
   const controller = new AbortController();
   let timeout: ReturnType<typeof setTimeout> | undefined;
+  let retryDelay: ReturnType<typeof setTimeout> | undefined;
   let reader: ReadableStreamDefaultReader<Uint8Array> | undefined;
   const timeoutFailure = new Promise<never>((_resolve, reject) => {
     timeout = setTimeout(() => {
@@ -175,33 +179,47 @@ export async function fetchBoundedProviderText(input: string | URL, init: Reques
   });
 
   try {
-    const response = await Promise.race([
-      (options.fetcher ?? fetch)(input, { ...init, signal: controller.signal }),
-      timeoutFailure,
-    ]);
-    if (!response.ok) return null;
-    const declaredBytes = Number(response.headers.get("content-length"));
-    if (Number.isFinite(declaredBytes) && declaredBytes > maxBytes) throw new Error("Provider response is too large.");
-    if (!response.body) return "";
-
-    reader = response.body.getReader();
-    const decoder = new TextDecoder();
-    let bytesRead = 0;
-    let body = "";
-    while (true) {
-      const { done, value } = await Promise.race([reader.read(), timeoutFailure]);
-      if (done) break;
-      bytesRead += value.byteLength;
-      if (bytesRead > maxBytes) {
-        void reader.cancel().catch(() => undefined);
-        throw new Error("Provider response is too large.");
+    for (let attempt = 0; attempt < 2; attempt += 1) {
+      const response = await Promise.race([
+        (options.fetcher ?? fetch)(input, { ...init, signal: controller.signal }),
+        timeoutFailure,
+      ]);
+      if (canRetry && (response.status === 429 || (response.status >= 500 && response.status <= 599)) && attempt === 0) {
+        void response.body?.cancel().catch(() => undefined);
+        await Promise.race([
+          new Promise<void>((resolve) => { retryDelay = setTimeout(resolve, PROVIDER_RETRY_DELAY_MS); }),
+          timeoutFailure,
+        ]);
+        clearTimeout(retryDelay);
+        retryDelay = undefined;
+        continue;
       }
-      body += decoder.decode(value, { stream: true });
+      if (!response.ok) return null;
+      const declaredBytes = Number(response.headers.get("content-length"));
+      if (Number.isFinite(declaredBytes) && declaredBytes > maxBytes) throw new Error("Provider response is too large.");
+      if (!response.body) return "";
+
+      reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let bytesRead = 0;
+      let body = "";
+      while (true) {
+        const { done, value } = await Promise.race([reader.read(), timeoutFailure]);
+        if (done) break;
+        bytesRead += value.byteLength;
+        if (bytesRead > maxBytes) {
+          void reader.cancel().catch(() => undefined);
+          throw new Error("Provider response is too large.");
+        }
+        body += decoder.decode(value, { stream: true });
+      }
+      body += decoder.decode();
+      return body;
     }
-    body += decoder.decode();
-    return body;
+    return null;
   } finally {
     clearTimeout(timeout);
+    clearTimeout(retryDelay);
     void reader?.cancel().catch(() => undefined);
   }
 }

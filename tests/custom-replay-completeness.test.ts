@@ -1388,6 +1388,7 @@ test("chesscom latest: an unavailable newest archive cannot fall back to an olde
   assert.deepEqual(requested, [
     "https://api.chess.com/pub/player/alice/games/archives",
     newerArchive,
+    newerArchive,
   ]);
 });
 
