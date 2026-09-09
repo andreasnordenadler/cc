@@ -1,3 +1,4 @@
+import { fetchBoundedProviderText } from "./custom-side-quests";
 import { normalizeLichessMoveTokens } from "./lichess-move-normalizer";
 export type PawnStormSide = "white" | "black";
 export type PawnStormResult = "white" | "black" | "draw" | "unknown";
@@ -172,7 +173,7 @@ export async function checkLatestLichessPawnStormManiac(username: string): Promi
   }
 
   try {
-    const response = await fetch(
+    const body = await fetchBoundedProviderText(
       `https://lichess.org/api/games/user/${encodeURIComponent(username.trim())}?max=5&moves=true&perfType=bullet,blitz,rapid&opening=false&clocks=false&evals=false`,
       {
         headers: {
@@ -183,16 +184,16 @@ export async function checkLatestLichessPawnStormManiac(username: string): Promi
       },
     );
 
-    if (!response.ok) {
+    if (body === null) {
       return {
         status: "pending",
         gameId: "lichess-latest-unavailable",
         summary: `Lichess latest-game lookup is temporarily unavailable for ${username}.`,
-        evidence: [`Lichess returned HTTP ${response.status}.`],
+        evidence: ["Lichess returned an unavailable response."],
       };
     }
 
-    const games = (await response.text())
+    const games = body
       .split("\n")
       .filter(Boolean)
       .map((line) => JSON.parse(line) as LichessPawnStormGame)
