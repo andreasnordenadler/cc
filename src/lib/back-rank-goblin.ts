@@ -1,5 +1,5 @@
 import { Chess } from "chess.js";
-import { classifyChessComArchiveGameEvidence, getChessComArchiveReplayIdentity, normalizeChessComArchiveUrls, selectUniqueLatestChessComEvidence } from "./custom-side-quests";
+import { classifyChessComArchiveGameEvidence, fetchBoundedProviderJson, getChessComArchiveReplayIdentity, normalizeChessComArchiveUrls, selectUniqueLatestChessComEvidence } from "./custom-side-quests";
 import type { ChessComArchiveGameEvidence, ChessComCanonicalReplay } from "./custom-side-quests";
 import { normalizeLichessMoveTokens } from "./lichess-move-normalizer";
 
@@ -321,16 +321,13 @@ export function normalizeChessComBackRankGoblinGame(game: ChessComBackRankGame, 
 }
 
 async function fetchChessComJson<T>(url: string): Promise<T | null> {
-  const response = await fetch(url, {
+  return fetchBoundedProviderJson(url, {
     headers: {
       Accept: "application/json",
       "User-Agent": "cc-verifier/0.1 (+https://sidequestchess.com)",
     },
     cache: "no-store",
-  });
-
-  if (!response.ok) return null;
-  return response.json() as Promise<T>;
+  }) as Promise<T | null>;
 }
 
 export async function checkLatestChessComBackRankGoblin(username: string): Promise<BackRankVerdict> {

@@ -182,6 +182,52 @@ test("Back Rank Goblin ignores timestamp-like text inside PGN comments", async (
   assert.equal(result.completedGameAt, "2026-09-01T10:00:00.000Z");
 });
 
+test("latest Chess.com proof rejects an oversized authoritative archive response", async (t) => {
+  t.mock.method(globalThis, "fetch", async (input: string | URL | Request) => {
+    const url = String(input);
+    if (url === archiveIndexUrl) return Response.json({ archives: [latestArchiveUrl] });
+    assert.equal(url, latestArchiveUrl);
+    return new Response(JSON.stringify({ games: [{
+      url: "https://www.chess.com/game/live/123459",
+      pgn: "1. e4 e5 1-0",
+      end_time: 1788256800,
+      rules: "chess",
+      white: { username: "alice", result: "win" },
+      black: { username: "bob", result: "resigned" },
+    }] }), {
+      headers: { "content-length": "2000001", "content-type": "application/json" },
+    });
+  });
+
+  const result = await checkLatestChessComFinishedGame("alice");
+
+  assert.equal(result.status, "pending");
+  assert.equal(result.gameId, "chesscom-latest-error");
+});
+
+test("Back Rank Goblin rejects an oversized authoritative Chess.com archive response", async (t) => {
+  t.mock.method(globalThis, "fetch", async (input: string | URL | Request) => {
+    const url = String(input);
+    if (url === archiveIndexUrl) return Response.json({ archives: [latestArchiveUrl] });
+    assert.equal(url, latestArchiveUrl);
+    return new Response(JSON.stringify({ games: [{
+      url: "https://www.chess.com/game/live/123460",
+      pgn: "1. e4 d5 2. exd5 Qxd5 3. Nc3 Qa5 4. Nf3 e5 5. Nxe5 Nf6 6. Bc4 Be7 7. O-O O-O 8. Re1 a6 9. Bb3 Qc5 10. Nc4 Bd6 11. Nxd6 cxd6 12. d3 Nh5 13. h3 Re8 14. Rxe8# 1-0",
+      end_time: 1788256800,
+      rules: "chess",
+      white: { username: "alice", result: "win" },
+      black: { username: "bob", result: "checkmated" },
+    }] }), {
+      headers: { "content-length": "2000001", "content-type": "application/json" },
+    });
+  });
+
+  const result = await checkLatestChessComBackRankGoblin("alice");
+
+  assert.equal(result.status, "pending");
+  assert.equal(result.gameId, "chesscom-latest-error");
+});
+
 const latestChecks = [
   ["Back Rank Goblin", checkLatestChessComBackRankGoblin],
   ["Blunder Gambit", checkLatestChessComBlunderGambit],

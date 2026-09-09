@@ -7,7 +7,7 @@ import { evaluatePawnOnlyPicnic } from "./pawn-only-picnic";
 import type { PawnStormGame, PawnStormMoveEvent } from "./pawn-storm-maniac";
 import type { RooklessGame, RooklessLossEvent } from "./rookless-rampage";
 import type { MultiplayerGameMetadata } from "./multiplayer-proof-rules";
-import { classifyChessComArchiveGameEvidence, getChessComArchiveReplayIdentity, normalizeChessComArchiveUrls, normalizeChessComGameUrl, selectUniqueLatestChessComEvidence } from "./custom-side-quests";
+import { classifyChessComArchiveGameEvidence, fetchBoundedProviderJson, getChessComArchiveReplayIdentity, normalizeChessComArchiveUrls, normalizeChessComGameUrl, selectUniqueLatestChessComEvidence } from "./custom-side-quests";
 import type { ChessComArchiveGameEvidence, ChessComCanonicalReplay } from "./custom-side-quests";
 
 export type ChessComVerificationVerdict = {
@@ -248,38 +248,26 @@ function normalizeChessComUsername(value: string): string {
 }
 
 async function fetchArchiveMonths(chessComUsername: string): Promise<string[] | null> {
-  const response = await fetch(`https://api.chess.com/pub/player/${encodeURIComponent(chessComUsername)}/games/archives`, {
+  const data = await fetchBoundedProviderJson(`https://api.chess.com/pub/player/${encodeURIComponent(chessComUsername)}/games/archives`, {
     headers: {
       Accept: "application/json",
       "User-Agent": "side-quest-chess-verifier/0.1 (+https://sidequestchess.com)",
     },
     cache: "no-store",
-  });
-
-  if (!response.ok) {
-    return null;
-  }
-
-  const data = (await response.json()) as { archives?: string[] };
-  return normalizeChessComArchiveUrls(data.archives, chessComUsername);
+  }) as { archives?: string[] } | null;
+  return normalizeChessComArchiveUrls(data?.archives, chessComUsername);
 }
 
 async function fetchMonthlyArchive(url: string): Promise<ChessComGame[] | null> {
   try {
-    const response = await fetch(url, {
+    const data = await fetchBoundedProviderJson(url, {
       headers: {
         Accept: "application/json",
         "User-Agent": "side-quest-chess-verifier/0.1 (+https://sidequestchess.com)",
       },
       cache: "no-store",
-    });
-
-    if (!response.ok) {
-      return null;
-    }
-
-    const data = (await response.json()) as ChessComMonthlyArchive;
-    return Array.isArray(data.games)
+    }) as ChessComMonthlyArchive | null;
+    return Array.isArray(data?.games)
       ? data.games.map((game) => {
         if (!game || typeof game !== "object" || Array.isArray(game)) return game;
         const providerGame = { ...game };
