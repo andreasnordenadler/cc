@@ -3,6 +3,7 @@ import test from "node:test";
 
 import { checkLatestLichessBackRankGoblin } from "../src/lib/back-rank-goblin";
 import { checkLatestLichessFinishedGame, verifyFinishAnyGameAttempt } from "../src/lib/lichess";
+import { checkLatestLichessPawnStormManiac } from "../src/lib/pawn-storm-maniac";
 import { checkLatestLichessRooklessRampage } from "../src/lib/rookless-rampage";
 
 const oversizedProviderHeaders = {
@@ -46,6 +47,19 @@ test("Rookless Rampage rejects an oversized latest Lichess body before evaluatin
   ));
 
   const verdict = await checkLatestLichessRooklessRampage("Alice");
+
+  assert.equal(verdict.status, "pending");
+  assert.equal(verdict.gameId, "lichess-latest-error");
+  assert.match(verdict.summary, /could not complete/i);
+});
+
+test("Pawn Storm Maniac rejects an oversized latest Lichess body before evaluating the game", async (t) => {
+  t.mock.method(globalThis, "fetch", async () => new Response(
+    `${JSON.stringify({ ...finishedLichessGame(), rated: true, speed: "blitz" })}\n`,
+    { status: 200, headers: oversizedProviderHeaders },
+  ));
+
+  const verdict = await checkLatestLichessPawnStormManiac("Alice");
 
   assert.equal(verdict.status, "pending");
   assert.equal(verdict.gameId, "lichess-latest-error");
