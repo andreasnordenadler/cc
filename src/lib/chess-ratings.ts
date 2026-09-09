@@ -1,4 +1,5 @@
 import { getChessComUsername, getLichessUsername, type UserMetadataRecord } from "@/lib/user-metadata";
+import { fetchBoundedProviderJson } from "@/lib/custom-side-quests";
 
 export type ChessRatingProvider = "lichess" | "chess.com";
 
@@ -150,7 +151,7 @@ function shouldRefreshSnapshot(
 }
 
 async function fetchLichessRatingSnapshot(username: string, now: Date): Promise<ChessRatingSnapshot> {
-  const response = await fetch(`https://lichess.org/api/user/${encodeURIComponent(username)}`, {
+  const body = await fetchBoundedProviderJson(`https://lichess.org/api/user/${encodeURIComponent(username)}`, {
     headers: {
       Accept: "application/json",
       "User-Agent": "sqc-rating-snapshot/0.1 (+https://sidequestchess.com)",
@@ -158,10 +159,9 @@ async function fetchLichessRatingSnapshot(username: string, now: Date): Promise<
     cache: "no-store",
   });
 
-  if (!response.ok) throw new Error("Lichess rating fetch failed.");
-
-  const body = (await response.json()) as Record<string, unknown>;
-  const perfs = body.perfs && typeof body.perfs === "object" ? body.perfs as Record<string, unknown> : {};
+  if (!body || typeof body !== "object" || Array.isArray(body)) throw new Error("Lichess rating fetch failed.");
+  const record = body as Record<string, unknown>;
+  const perfs = record.perfs && typeof record.perfs === "object" ? record.perfs as Record<string, unknown> : {};
   const ratings = LICHESS_PERF_ORDER
     .map((category) => {
       const perf = perfs[category];
@@ -173,14 +173,14 @@ async function fetchLichessRatingSnapshot(username: string, now: Date): Promise<
 
   return {
     provider: "lichess",
-    username: typeof body.username === "string" ? body.username : username,
+    username: typeof record.username === "string" ? record.username : username,
     updatedAt: now.toISOString(),
     ratings,
   };
 }
 
 async function fetchChessComRatingSnapshot(username: string, now: Date): Promise<ChessRatingSnapshot> {
-  const response = await fetch(`https://api.chess.com/pub/player/${encodeURIComponent(username.toLowerCase())}/stats`, {
+  const body = await fetchBoundedProviderJson(`https://api.chess.com/pub/player/${encodeURIComponent(username.toLowerCase())}/stats`, {
     headers: {
       Accept: "application/json",
       "User-Agent": "sqc-rating-snapshot/0.1 (+https://sidequestchess.com)",
@@ -188,17 +188,16 @@ async function fetchChessComRatingSnapshot(username: string, now: Date): Promise
     cache: "no-store",
   });
 
-  if (!response.ok) throw new Error("Chess.com rating fetch failed.");
-
-  const body = (await response.json()) as Record<string, unknown>;
+  if (!body || typeof body !== "object" || Array.isArray(body)) throw new Error("Chess.com rating fetch failed.");
+  const record = body as Record<string, unknown>;
   const ratings = CHESS_COM_STAT_ORDER
     .map(([key, label]) => {
-      const stat = body[key];
+      const stat = record[key];
       if (!stat || typeof stat !== "object") return null;
       const last = (stat as Record<string, unknown>).last;
       if (!last || typeof last !== "object") return null;
-      const record = last as Record<string, unknown>;
-      return buildRatingEntry(key, label, record.rating);
+      const ratingRecord = last as Record<string, unknown>;
+      return buildRatingEntry(key, label, ratingRecord.rating);
     })
     .filter((entry): entry is ChessRatingEntry => Boolean(entry));
 
