@@ -5,6 +5,7 @@ type LichessPlayer = {
 };
 
 import { buildProofPositionFromUciMoves, type ProofPosition } from "@/lib/chess-proof";
+import { fetchBoundedProviderJson, fetchBoundedProviderText } from "@/lib/custom-side-quests";
 import { normalizeLichessMoveTokens } from "@/lib/lichess-move-normalizer";
 import type { MultiplayerGameMetadata } from "@/lib/multiplayer-proof-rules";
 
@@ -39,19 +40,13 @@ export type LichessVerificationVerdict = {
 const OPEN_GAME_STATUSES = new Set(["created", "started"]);
 
 async function fetchLichessGame(gameId: string): Promise<LichessGame | null> {
-  const response = await fetch(`https://lichess.org/game/export/${gameId}?json=1`, {
+  return await fetchBoundedProviderJson(`https://lichess.org/game/export/${gameId}?json=1`, {
     headers: {
       Accept: "application/json",
       "User-Agent": "cc-verifier/0.1 (+https://cc-andreas-nordenadlers-projects.vercel.app)",
     },
     cache: "no-store",
-  });
-
-  if (!response.ok) {
-    return null;
-  }
-
-  return (await response.json()) as LichessGame;
+  }) as LichessGame | null;
 }
 
 function getPlayerNames(game: LichessGame) {
@@ -225,7 +220,7 @@ export async function checkLatestLichessFinishedGame(username: string): Promise<
   }
 
   try {
-    const response = await fetch(
+    const body = await fetchBoundedProviderText(
       `https://lichess.org/api/games/user/${encodeURIComponent(username.trim())}?max=1&moves=true&opening=false&clocks=false&evals=false`,
       {
         headers: {
@@ -236,16 +231,16 @@ export async function checkLatestLichessFinishedGame(username: string): Promise<
       },
     );
 
-    if (!response.ok) {
+    if (body === null) {
       return {
         status: "pending",
         gameId: "lichess-latest-unavailable",
         summary: `Lichess latest-game lookup is temporarily unavailable for ${username}.`,
-        evidence: [`Lichess returned HTTP ${response.status}.`],
+        evidence: ["Lichess returned an unavailable response."],
       };
     }
 
-    const [line] = (await response.text()).split("\n").filter(Boolean);
+    const [line] = body.split("\n").filter(Boolean);
 
     if (!line) {
       return {

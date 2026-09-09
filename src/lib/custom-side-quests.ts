@@ -162,7 +162,7 @@ type BoundedProviderJsonOptions = {
   fetcher?: typeof fetch;
 };
 
-async function fetchBoundedProviderText(input: string | URL, init: RequestInit = {}, options: BoundedProviderJsonOptions = {}): Promise<string | null> {
+export async function fetchBoundedProviderText(input: string | URL, init: RequestInit = {}, options: BoundedProviderJsonOptions = {}): Promise<string | null> {
   const maxBytes = options.maxBytes ?? PROVIDER_JSON_MAX_BYTES;
   const controller = new AbortController();
   let timeout: ReturnType<typeof setTimeout> | undefined;
