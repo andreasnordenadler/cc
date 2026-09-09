@@ -245,6 +245,91 @@ const latestChecks = [
 ] as const;
 
 for (const [label, checkLatest] of latestChecks) {
+  test(`${label} treats an empty newest Chess.com archive as authoritative`, async (t) => {
+    const requested: string[] = [];
+    t.mock.method(globalThis, "fetch", async (input: string | URL | Request) => {
+      const url = String(input);
+      requested.push(url);
+      if (url === archiveIndexUrl) return Response.json({ archives: [olderArchiveUrl, latestArchiveUrl] });
+      if (url === latestArchiveUrl) return Response.json({ games: [] });
+      if (url === olderArchiveUrl) return Response.json({ games: [{
+        url: "https://www.chess.com/game/live/111111",
+        pgn: "[Result \"1-0\"]\n\n1. e4 e5 1-0",
+        end_time: 1788170400,
+        rules: "chess",
+        white: { username: "alice", result: "win" },
+        black: { username: "bob", result: "resigned" },
+      }] });
+      throw new Error(`Unexpected request: ${url}`);
+    });
+
+    const result = await checkLatest("alice");
+
+    assert.equal(result.status, "pending");
+    assert.notEqual(result.gameId, "chesscom-latest-error");
+    assert.deepEqual(requested, [archiveIndexUrl, latestArchiveUrl]);
+  });
+}
+
+test("custom latest verifier treats an empty newest Chess.com archive as authoritative", async (t) => {
+  const requested: string[] = [];
+  t.mock.method(globalThis, "fetch", async (input: string | URL | Request) => {
+    const url = String(input);
+    requested.push(url);
+    if (url === archiveIndexUrl) return Response.json({ archives: [olderArchiveUrl, latestArchiveUrl] });
+    if (url === latestArchiveUrl) return Response.json({ games: [] });
+    if (url === olderArchiveUrl) return Response.json({ games: [{
+      url: "https://www.chess.com/game/live/111111",
+      pgn: "[Result \"1-0\"]\n\n1. e4 e5 1-0",
+      end_time: 1788170400,
+      rules: "chess",
+      white: { username: "alice", result: "win" },
+      black: { username: "bob", result: "resigned" },
+    }] });
+    throw new Error(`Unexpected request: ${url}`);
+  });
+
+  const result = await checkLatestCustomSideQuestForProvider({
+    provider: "chesscom",
+    username: "alice",
+    quest: {
+      id: "win-one",
+      title: "Win one",
+      config: JSON.stringify({ version: 1, logic: "all", blocks: [{ type: "gameResult", result: "win" }] }),
+    },
+  });
+
+  assert.equal(result.status, "pending");
+  assert.equal(result.gameId, "chesscom-custom-latest-empty");
+  assert.match(result.summary, /latest public Chess\.com archive is empty/);
+  assert.deepEqual(requested, [archiveIndexUrl, latestArchiveUrl]);
+});
+
+test("custom latest verifier does not call a missing Chess.com archive an empty month", async (t) => {
+  const requested: string[] = [];
+  t.mock.method(globalThis, "fetch", async (input: string | URL | Request) => {
+    const url = String(input);
+    requested.push(url);
+    assert.equal(url, archiveIndexUrl);
+    return Response.json({ archives: [] });
+  });
+
+  const result = await checkLatestCustomSideQuestForProvider({
+    provider: "chesscom",
+    username: "alice",
+    quest: {
+      id: "win-one",
+      title: "Win one",
+      config: JSON.stringify({ version: 1, logic: "all", blocks: [{ type: "gameResult", result: "win" }] }),
+    },
+  });
+
+  assert.equal(result.status, "pending");
+  assert.equal(result.gameId, "chesscom-custom-latest-unavailable");
+  assert.deepEqual(requested, [archiveIndexUrl]);
+});
+
+for (const [label, checkLatest] of latestChecks) {
   test(`${label} keeps latest Chess.com history unknown when the newest archive is unavailable`, async (t) => {
     const requested: string[] = [];
     t.mock.method(globalThis, "fetch", async (input: string | URL | Request) => {
@@ -940,7 +1025,7 @@ test("a nonempty authoritative Chess.com archive cannot fall through to an older
   assert.equal(result.gameId, "chesscom-latest-error");
 });
 
-test("a known-empty newest Chess.com archive permits an older known game", async (t) => {
+test("a known-empty newest Chess.com archive prevents an older known game from becoming latest", async (t) => {
   const requested: string[] = [];
   t.mock.method(globalThis, "fetch", async (input: string | URL | Request) => {
     const url = String(input);
@@ -961,9 +1046,9 @@ test("a known-empty newest Chess.com archive permits an older known game", async
 
   const result = await checkLatestChessComFinishedGame("alice");
 
-  assert.equal(result.status, "passed");
-  assert.equal(result.gameId, "https://www.chess.com/game/live/111111");
-  assert.deepEqual(requested, [archiveIndexUrl, latestArchiveUrl, olderArchiveUrl]);
+  assert.equal(result.status, "pending");
+  assert.equal(result.gameId, "chesscom-no-recent-games");
+  assert.deepEqual(requested, [archiveIndexUrl, latestArchiveUrl]);
 });
 
 test("Back Rank Goblin stops after evaluating a valid newest archive", async (t) => {

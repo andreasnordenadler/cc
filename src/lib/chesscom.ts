@@ -746,7 +746,7 @@ export async function checkLatestChessComBlunderGambit(username: string): Promis
       };
     }
 
-    const recentArchives = archives.slice(-3).reverse();
+    const recentArchives = archives.slice(-1);
 
     for (const archiveUrl of recentArchives) {
       const games = await fetchKnownLatestMonthlyArchive(archiveUrl, username);
@@ -999,7 +999,7 @@ export async function checkLatestChessComNoCastleClub(username: string): Promise
       };
     }
 
-    const recentArchives = archives.slice(-3).reverse();
+    const recentArchives = archives.slice(-1);
 
     for (const archiveUrl of recentArchives) {
       const games = await fetchKnownLatestMonthlyArchive(archiveUrl, username);
@@ -1079,7 +1079,7 @@ export async function checkLatestChessComQueenNeverHeardOfHer(username: string):
       };
     }
 
-    const recentArchives = archives.slice(-3).reverse();
+    const recentArchives = archives.slice(-1);
 
     for (const archiveUrl of recentArchives) {
       const games = await fetchKnownLatestMonthlyArchive(archiveUrl, username);
@@ -1256,7 +1256,7 @@ export async function checkLatestChessComKnightsBeforeCoffee(username: string): 
       };
     }
 
-    const recentArchives = archives.slice(-3).reverse();
+    const recentArchives = archives.slice(-1);
 
     for (const archiveUrl of recentArchives) {
       const games = await fetchKnownLatestMonthlyArchive(archiveUrl, username);
@@ -1336,7 +1336,7 @@ export async function checkLatestChessComPawnOnlyPicnic(username: string): Promi
       };
     }
 
-    const recentArchives = archives.slice(-3).reverse();
+    const recentArchives = archives.slice(-1);
 
     for (const archiveUrl of recentArchives) {
       const games = await fetchKnownLatestMonthlyArchive(archiveUrl, username);
@@ -1471,7 +1471,7 @@ export async function checkLatestChessComEarlyKingWalk(username: string): Promis
       };
     }
 
-    const recentArchives = archives.slice(-3).reverse();
+    const recentArchives = archives.slice(-1);
 
     for (const archiveUrl of recentArchives) {
       const games = await fetchKnownLatestMonthlyArchive(archiveUrl, username);
@@ -1630,7 +1630,7 @@ export async function checkLatestChessComOneBishopToRuleThemAll(username: string
       };
     }
 
-    const recentArchives = archives.slice(-3).reverse();
+    const recentArchives = archives.slice(-1);
 
     for (const archiveUrl of recentArchives) {
       const games = await fetchKnownLatestMonthlyArchive(archiveUrl, username);
@@ -1689,7 +1689,7 @@ export async function checkLatestChessComRooklessRampage(username: string): Prom
       };
     }
 
-    const recentArchives = archives.slice(-3).reverse();
+    const recentArchives = archives.slice(-1);
 
     for (const archiveUrl of recentArchives) {
       const games = await fetchKnownLatestMonthlyArchive(archiveUrl, username);
@@ -1818,7 +1818,7 @@ export async function checkLatestChessComKnightmareMode(username: string): Promi
       };
     }
 
-    const recentArchives = archives.slice(-3).reverse();
+    const recentArchives = archives.slice(-1);
 
     for (const archiveUrl of recentArchives) {
       const games = await fetchKnownLatestMonthlyArchive(archiveUrl, username);
@@ -1951,7 +1951,7 @@ export async function checkLatestChessComPawnStormManiac(username: string): Prom
       };
     }
 
-    const recentArchives = archives.slice(-3).reverse();
+    const recentArchives = archives.slice(-1);
 
     for (const archiveUrl of recentArchives) {
       const games = await fetchKnownLatestMonthlyArchive(archiveUrl, username);
@@ -2089,7 +2089,7 @@ export async function checkLatestChessComBishopFieldTrip(username: string): Prom
       };
     }
 
-    const recentArchives = archives.slice(-3).reverse();
+    const recentArchives = archives.slice(-1);
 
     for (const archiveUrl of recentArchives) {
       const games = await fetchKnownLatestMonthlyArchive(archiveUrl, username);
@@ -2303,7 +2303,7 @@ export async function checkLatestChessComFinishedGame(username: string): Promise
       };
     }
 
-    for (const archiveUrl of archives.slice(-3).reverse()) {
+    for (const archiveUrl of archives.slice(-1)) {
       const games = await fetchKnownLatestMonthlyArchive(archiveUrl, username);
 
       if (!games?.length) {
