@@ -14,6 +14,19 @@ export type MobileHomeProofRefreshFeedback = {
   message: string;
 };
 
+export type MobileHomeProofRefreshActionState = {
+  busy: boolean;
+  message: string | null;
+  error: string | null;
+};
+
+export function toMobileHomeProofRefreshActionState(feedback: MobileHomeProofRefreshFeedback | null): MobileHomeProofRefreshActionState {
+  if (!feedback) return { busy: false, message: null, error: null };
+  return feedback.kind === "success"
+    ? { busy: false, message: feedback.message, error: null }
+    : { busy: false, message: null, error: feedback.message };
+}
+
 type RefreshDependencies = {
   challengeId: string;
   syncAccount: () => Promise<MobileHomeProofRefreshSnapshot>;

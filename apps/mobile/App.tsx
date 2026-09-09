@@ -54,7 +54,7 @@ import { isAppleSignInCancellation, runAppleSignInWithOAuthFallback } from "./sr
 import { completeMobilePasswordReset, prepareMobilePasswordReset, verifyMobilePasswordResetCode as verifyMobilePasswordResetCodeWithClerk } from "./src/auth/mobilePasswordReset";
 import { OFFLINE_MOBILE_BOOTSTRAP } from "./src/data/offlineBootstrap";
 import { shouldStackActiveQuestSummary } from "./src/layout/activeQuestLayout";
-import { createMobileHomeProofRefreshCoordinator, type MobileHomeProofRefreshFeedback, type MobileHomeProofRefreshSnapshot } from "./src/home/mobileHomeProofRefresh";
+import { createMobileHomeProofRefreshCoordinator, toMobileHomeProofRefreshActionState, type MobileHomeProofRefreshFeedback, type MobileHomeProofRefreshSnapshot } from "./src/home/mobileHomeProofRefresh";
 import { shouldUseDevTrackerPreview } from "./src/preview/devTrackerPreview";
 import { createMobileCommunityCreatorReportSubmitter } from "./src/reports/communityCreatorReport";
 import { canReportCommunityMultiplayerQuest, createMobileCommunityReportSubmitter } from "./src/reports/communityMultiplayerReport";
@@ -1602,6 +1602,16 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
     };
   }, [authBridge]);
 
+  const refreshActiveHomeProof = useCallback((challengeId: string) => homeProofRefreshCoordinator.refresh({
+    challengeId,
+    syncAccount: syncAccountForProofRefresh,
+    checkProof: async (currentChallengeId) => {
+      const sessionToken = await authBridge.getSessionToken();
+      if (!sessionToken) throw new Error("The signed-in session is unavailable.");
+      await runMobileQuestAction({ sessionToken, action: "check", challengeId: currentChallengeId });
+    },
+  }), [authBridge, homeProofRefreshCoordinator, syncAccountForProofRefresh]);
+
   const refreshBoardAndAccount = useCallback(async () => {
     await Promise.all([loadBootstrap({ refresh: true }), loadAccount()]);
   }, [loadAccount, loadBootstrap]);
@@ -1615,15 +1625,7 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
     setShell((current) => ({ ...current, refreshing: true, refreshFeedback: null }));
     try {
       if (shell.activeTab === "home" && activeQuestId && authBridge.isSignedIn) {
-        const refreshFeedback = await homeProofRefreshCoordinator.refresh({
-          challengeId: activeQuestId,
-          syncAccount: syncAccountForProofRefresh,
-          checkProof: async (challengeId) => {
-            const sessionToken = await authBridge.getSessionToken();
-            if (!sessionToken) throw new Error("The signed-in session is unavailable.");
-            await runMobileQuestAction({ sessionToken, action: "check", challengeId });
-          },
-        });
+        const refreshFeedback = await refreshActiveHomeProof(activeQuestId);
         if (refreshFeedback) {
           setShell((current) => current.activeTab === "home" ? { ...current, refreshFeedback } : current);
         }
@@ -1634,7 +1636,7 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
     } finally {
       setShell((current) => ({ ...current, refreshing: false }));
     }
-  }, [authBridge, homeProofRefreshCoordinator, refreshBoardAndAccount, shell.account, shell.activeTab, shell.bootstrap, syncAccountForProofRefresh]);
+  }, [authBridge.isSignedIn, refreshActiveHomeProof, refreshBoardAndAccount, shell.account, shell.activeTab, shell.bootstrap]);
 
   useEffect(() => {
     if (shell.activeTab === "home") return;
@@ -1814,6 +1816,7 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
               onConsumePendingMultiplayerCreate={() => {
                 setMultiplayerCreateIntent(consumeMultiplayerCreateIntent);
               }}
+              onRefreshActiveProof={refreshActiveHomeProof}
               onAccountUpdated={loadAccount}
               onScrollToY={(y, animated = true) => scrollViewRef.current?.scrollTo({ y, animated })}
             />
@@ -1992,6 +1995,7 @@ function TodayDashboard({
   onOpenMultiplayerCreate,
   onOpenSupport,
   onSelectChallenge,
+  onRefreshActiveProof,
   onAccountUpdated,
 }: {
   bootstrap: MobileBootstrap;
@@ -2001,6 +2005,7 @@ function TodayDashboard({
   onOpenMultiplayerCreate: () => void;
   onOpenSupport: () => void;
   onSelectChallenge: (challengeId: string, nextTab?: AppTab) => void;
+  onRefreshActiveProof: (challengeId: string) => Promise<MobileHomeProofRefreshFeedback | null>;
   onAccountUpdated: AccountUpdatedCallback;
 }) {
   const signedIn = isAuthenticatedAccount(account) ? account : null;
@@ -2137,7 +2142,6 @@ function TodayDashboard({
 
   async function runActiveCheck() {
     if (!signedIn?.activeQuest?.id || signedIn.activeQuest.completed) return;
-    const previousCompletedIds = getCompletedQuestIdSet(signedIn);
     if (!authBridge.isSignedIn) {
       onAccountUpdated();
       setActionState({ busy: false, message: "Updated account state.", error: null });
@@ -2146,13 +2150,8 @@ function TodayDashboard({
 
     setActionState({ busy: true, message: null, error: null });
     try {
-      const sessionToken = await authBridge.getSessionToken();
-      const result = await runMobileQuestAction({ sessionToken, action: "check", challengeId: signedIn.activeQuest.id });
-      const nextAccount = await Promise.resolve(onAccountUpdated());
-      const coercedAccount = coerceAccountResponse(nextAccount);
-      const refreshedReceipt = isAuthenticatedAccount(coercedAccount) ? coercedAccount.latestReceipt : null;
-      setActionState({ busy: false, message: getCheckActionMessage(refreshedReceipt) || result.message, error: null });
-      showNewCompletionCelebration(previousCompletedIds, coercedAccount, "solo");
+      const result = await onRefreshActiveProof(signedIn.activeQuest.id);
+      setActionState(toMobileHomeProofRefreshActionState(result));
     } catch (caught) {
       setActionState({ busy: false, message: null, error: caught instanceof Error ? caught.message : "Could not check this Side Quest." });
     }
@@ -6792,6 +6791,7 @@ function ActiveScreen({
   pendingMultiplayerCreateOpenToken,
   pendingMultiplayerCreateQuestId,
   onConsumePendingMultiplayerCreate,
+  onRefreshActiveProof,
   onAccountUpdated,
   onScrollToY,
 }: {
@@ -6814,12 +6814,13 @@ function ActiveScreen({
   pendingMultiplayerCreateOpenToken: number;
   pendingMultiplayerCreateQuestId: string | null;
   onConsumePendingMultiplayerCreate: () => void;
+  onRefreshActiveProof: (challengeId: string) => Promise<MobileHomeProofRefreshFeedback | null>;
   onAccountUpdated: AccountUpdatedCallback;
   onScrollToY: (y: number, animated?: boolean) => void;
 }) {
   switch (activeTab) {
     case "home":
-      return <TodayDashboard bootstrap={bootstrap} account={account} authBridge={authBridge} onSelectTab={onSelectTab} onOpenMultiplayerCreate={onOpenMultiplayerCreate} onOpenSupport={onOpenSupport} onSelectChallenge={onSelectChallenge} onAccountUpdated={onAccountUpdated} />;
+      return <TodayDashboard bootstrap={bootstrap} account={account} authBridge={authBridge} onSelectTab={onSelectTab} onOpenMultiplayerCreate={onOpenMultiplayerCreate} onOpenSupport={onOpenSupport} onSelectChallenge={onSelectChallenge} onRefreshActiveProof={onRefreshActiveProof} onAccountUpdated={onAccountUpdated} />;
     case "sideQuests":
       return <QuestBoardDashboard bootstrap={bootstrap} selectedChallenge={selectedChallenge} pendingSideQuestDetailId={pendingSideQuestDetailId} pendingCompletedDetailId={pendingCompletedDetailId} pendingSideQuestCatalogIntent={pendingSideQuestCatalogIntent} onConsumePendingQuestOpen={onConsumePendingQuestOpen} account={account} authBridge={authBridge} onSelectChallenge={onSelectChallenge} onSelectTab={onSelectTab} onAccountUpdated={onAccountUpdated} onOpenChallengeDetail={onOpenChallengeDetail} onOpenMultiplayerCreate={onOpenMultiplayerCreate} onOpenSupport={onOpenSupport} />;
     case "multiplayerSideQuests":
