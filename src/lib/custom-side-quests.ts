@@ -180,10 +180,22 @@ export async function fetchBoundedProviderText(input: string | URL, init: Reques
 
   try {
     for (let attempt = 0; attempt < 2; attempt += 1) {
-      const response = await Promise.race([
-        (options.fetcher ?? fetch)(input, { ...init, signal: controller.signal }),
-        timeoutFailure,
-      ]);
+      let response: Response;
+      try {
+        response = await Promise.race([
+          (options.fetcher ?? fetch)(input, { ...init, signal: controller.signal }),
+          timeoutFailure,
+        ]);
+      } catch (error) {
+        if (!canRetry || attempt !== 0 || !(error instanceof TypeError) || controller.signal.aborted) throw error;
+        await Promise.race([
+          new Promise<void>((resolve) => { retryDelay = setTimeout(resolve, PROVIDER_RETRY_DELAY_MS); }),
+          timeoutFailure,
+        ]);
+        clearTimeout(retryDelay);
+        retryDelay = undefined;
+        continue;
+      }
       if (canRetry && (response.status === 429 || (response.status >= 500 && response.status <= 599)) && attempt === 0) {
         void response.body?.cancel().catch(() => undefined);
         await Promise.race([

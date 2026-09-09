@@ -136,6 +136,23 @@ test("provider JSON retries one rate-limited response before returning success",
   assert.equal(calls, 2);
 });
 
+test("provider JSON retries one transient transport failure before returning success", async () => {
+  let calls = 0;
+
+  const result = await fetchBoundedProviderJson("https://provider.example/game", {}, {
+    maxBytes: 32,
+    timeoutMs: 500,
+    fetcher: async () => {
+      calls += 1;
+      if (calls === 1) throw new TypeError("fetch failed");
+      return Response.json({ gameId: "network-retry-ok" });
+    },
+  });
+
+  assert.deepEqual(result, { gameId: "network-retry-ok" });
+  assert.equal(calls, 2);
+});
+
 test("provider 5xx retry backoff stays inside the original response deadline", async () => {
   let calls = 0;
 
