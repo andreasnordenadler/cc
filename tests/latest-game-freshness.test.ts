@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import test, { type TestContext } from "node:test";
+import { classifyChessComArchiveGameEvidence } from "../src/lib/custom-side-quests";
 import { checkLatestChallengeForProvider, getLatestFinishedGameVerdict, type SupportedLatestChallengeProvider } from "../src/lib/challenge-latest-verifiers";
 
 // Only the provider transport is replaced: all parsing, verdicts, metadata and
@@ -42,6 +43,41 @@ function providerFixture(t: TestContext, provider: SupportedLatestChallengeProvi
     expectedId: () => provider === "lichess" ? state.id : `https://www.chess.com/game/live/${state.id}`,
   };
 }
+
+test("chesscom enrichment binds the exact validated replay, not just the game ID", async (t) => {
+  const game = {
+    url: "https://www.chess.com/game/live/100003",
+    pgn: "1. d4 d5 2. Bf4 Nf6 3. e3 e6 4. Bd3 c5 1-0",
+    end_time: Date.parse("2026-09-05T10:05:00Z") / 1000,
+    rated: true, time_class: "blitz", time_control: "180", rules: "chess",
+    white: { username: "enrich-player", result: "win" },
+    black: { username: "opponent", result: "resigned" },
+  };
+  const differentReplay = { ...game, pgn: "1. e4 e5 2. Nf3 Nc6 1-0" };
+  assert.equal(classifyChessComArchiveGameEvidence(game, "enrich-player").kind, "known-standard");
+  assert.equal(classifyChessComArchiveGameEvidence(differentReplay, "enrich-player").kind, "known-standard");
+  let archiveReads = 0;
+  let replacement = differentReplay;
+  t.mock.method(globalThis, "fetch", async (input: string | URL | Request) => {
+    const archive = "https://api.chess.com/pub/player/enrich-player/games/2026/09";
+    if (String(input).endsWith("/games/archives")) return Response.json({ archives: [archive] });
+    assert.equal(String(input), archive);
+    return Response.json({ games: [++archiveReads % 2 === 1 ? game : replacement] });
+  });
+  const check = () => checkLatestChallengeForProvider({ provider: "chesscom", username: "enrich-player", challengeId: "bishop-field-trip" });
+  const mismatched = await check();
+  assert.equal(mismatched.status, "passed", "the original bishop replay passes");
+  assert.equal(mismatched.finalPositionFen, undefined, "a second valid replay cannot supply the board");
+  assert.equal(mismatched.lastMoveUci, undefined);
+  assert.equal(mismatched.metadata, undefined, "same ID cannot authorize enrichment metadata");
+  replacement = { ...game, pgn: game.pgn.replace("d4", "d4 {same validated replay}") };
+  const matched = await check();
+  assert.equal(matched.status, "passed");
+  assert.ok(matched.finalPositionFen, "equivalent validated replay still enriches");
+  assert.equal(matched.lastMoveUci, "c7c5");
+  assert.equal(matched.metadata?.gameId, game.url);
+  assert.equal(archiveReads, 4);
+});
 
 for (const provider of ["lichess", "chesscom"] as const) {
   test(`${provider} latest-game metadata advances from A to B in the same worker`, async (t) => {

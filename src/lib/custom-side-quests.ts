@@ -75,12 +75,86 @@ type LatestGame = {
   outcome: "win" | "draw" | "lose" | "unknown";
   startedGameAt?: string;
   completedGameAt?: string;
+  canonicalReplay?: ChessComCanonicalReplay;
+  chessComReplayIdentity?: string;
 };
+
+export type ChessComArchiveEvidenceGame = {
+  url?: string;
+  pgn?: string;
+  rules?: unknown;
+  end_time?: number;
+  time_class?: unknown;
+  time_control?: unknown;
+  rated?: unknown;
+  white?: { username?: string; result?: string };
+  black?: { username?: string; result?: string };
+};
+
+export type ChessComCanonicalMove = {
+  ply: number;
+  color: "white" | "black";
+  piece: "king" | "queen" | "rook" | "bishop" | "knight" | "pawn";
+  origin: string;
+  from: string;
+  to: string;
+  san: string;
+  uci: string;
+  fenBefore: string;
+  fenAfter: string;
+  capturedPiece?: "king" | "queen" | "rook" | "bishop" | "knight" | "pawn";
+  capturedColor?: "white" | "black";
+  capturedOrigin?: string;
+  promotion?: "queen" | "rook" | "bishop" | "knight";
+};
+
+export type ChessComCanonicalReplay = {
+  moves: ChessComCanonicalMove[];
+  finalPositionFen: string;
+};
+
+export type ChessComArchiveGameEvidence<T extends ChessComArchiveEvidenceGame = ChessComArchiveEvidenceGame> =
+  | { kind: "known-standard"; game: T; sanMoves: string[]; canonicalUci: string[]; replay: ChessComCanonicalReplay; startedGameAt?: string; completedGameAt: string }
+  | { kind: "known-unsupported"; game: T; startedGameAt?: string; completedGameAt: string }
+  | { kind: "unknown" };
+
+export function getChessComArchiveReplayIdentity<T extends ChessComArchiveEvidenceGame>(
+  evidence: ChessComArchiveGameEvidence<T>,
+): string | undefined {
+  if (evidence.kind !== "known-standard") return undefined;
+  const game = evidence.game;
+  return JSON.stringify({
+    gameUrl: typeof game.url === "string" ? normalizeChessComGameUrl(game.url) : null,
+    moves: evidence.canonicalUci,
+    white: typeof game.white?.username === "string" ? game.white.username.trim().toLowerCase() : null,
+    black: typeof game.black?.username === "string" ? game.black.username.trim().toLowerCase() : null,
+    whiteResult: typeof game.white?.result === "string" ? game.white.result.trim().toLowerCase() : null,
+    blackResult: typeof game.black?.result === "string" ? game.black.result.trim().toLowerCase() : null,
+    startedGameAt: evidence.startedGameAt ?? null,
+    completedGameAt: evidence.completedGameAt,
+    rules: typeof game.rules === "string" ? game.rules : null,
+    timeClass: typeof game.time_class === "string" ? game.time_class : null,
+    timeControl: typeof game.time_control === "string" ? game.time_control : null,
+    rated: typeof game.rated === "boolean" ? game.rated : null,
+  });
+}
+
+export function selectUniqueLatestChessComEvidence<T extends ChessComArchiveEvidenceGame>(
+  evidence: Array<Exclude<ChessComArchiveGameEvidence<T>, { kind: "unknown" }>>,
+): Exclude<ChessComArchiveGameEvidence<T>, { kind: "unknown" }> | null {
+  const gameIds = evidence.map((item) => typeof item.game.url === "string" ? normalizeChessComGameUrl(item.game.url) : "");
+  if (gameIds.some((id, index) => !id || gameIds.indexOf(id) !== index)) return null;
+  const ordered = evidence.toSorted((a, b) => (b.game.end_time ?? 0) - (a.game.end_time ?? 0));
+  if (!ordered.length || (ordered[1] && ordered[0].game.end_time === ordered[1].game.end_time)) return null;
+  return ordered[0];
+}
 
 const PIECE_TYPE: Record<string, string> = { king: "k", queen: "q", rook: "r", bishop: "b", knight: "n", pawn: "p" };
 const MAX_SUBMITTED_CHESSCOM_ARCHIVE_MONTHS = 6;
 const PROVIDER_JSON_MAX_BYTES = 2_000_000;
+const KNOWN_UNSUPPORTED_CHESSCOM_RULES = new Set(["chess960", "bughouse", "kingofthehill", "threecheck", "crazyhouse"]);
 const PROVIDER_FETCH_TIMEOUT_MS = 10_000;
+const classifiedChessComTimelines = new WeakMap<object, { startedGameAt?: string; completedGameAt: string }>();
 
 type BoundedProviderJsonOptions = {
   maxBytes?: number;
@@ -338,6 +412,7 @@ function evaluateCustomSideQuestGame(quest: Pick<CustomSideQuest, "id" | "title"
     completedGameAt: game.completedGameAt,
     playerColor: game.playerColor,
     outcome: game.outcome,
+    chessComReplayIdentity: game.chessComReplayIdentity,
     finalPositionFen: proofSnapshot?.fenAtBreak ?? final?.fen,
     lastMoveUci: proofSnapshot?.uci ?? final?.uci,
     lastMoveSan: proofSnapshot?.san ?? final?.san,
@@ -392,16 +467,26 @@ async function fetchLatestChessComGame(username: string): Promise<LatestGame | n
   if (!username.trim()) return null;
   const archivePayload = await fetchBoundedProviderJson(`https://api.chess.com/pub/player/${encodeURIComponent(username.trim())}/games/archives`, { headers: { Accept: "application/json", "User-Agent": "cc-verifier/0.1 (+https://sidequestchess.com)" }, cache: "no-store" }) as { archives?: string[] } | null;
   if (!archivePayload) return null;
-  const archives = archivePayload.archives ?? [];
+  const archives = normalizeChessComArchiveUrls(archivePayload.archives, username);
+  if (!archives) return null;
   const recentArchives = archives.slice(-3).reverse();
-  if (!recentArchives.every((value) => isAuthenticatedChessComArchiveUrl(value, username))) return null;
   for (const archive of recentArchives) {
     const archiveGames = await fetchBoundedProviderJson(archive, { headers: { Accept: "application/json", "User-Agent": "cc-verifier/0.1 (+https://sidequestchess.com)" }, cache: "no-store" }) as { games?: Array<{ url?: string; pgn?: string; rules?: unknown; end_time?: number; white?: { username?: string; result?: string }; black?: { username?: string; result?: string } }> } | null;
     if (!archiveGames || !Array.isArray(archiveGames.games)) return null;
-    const games = archiveGames.games;
-    if (!games.length) continue;
-    const game = games.at(-1);
-    if (!game) return null;
+    const gameIds = archiveGames.games.map((game) => game && typeof game === "object" && !Array.isArray(game) && typeof game.url === "string" ? normalizeChessComGameUrl(game.url) : "");
+    if (gameIds.some((id, index) => id && gameIds.indexOf(id) !== index)) return null;
+    const evidence = archiveGames.games.map((candidate) => classifyChessComArchiveGameEvidence(candidate, username));
+    if (!evidence.length) continue;
+    const candidates = archiveGames.games
+      .map((game, index) => ({ game, index }))
+      .filter((entry) => entry.game && typeof entry.game === "object" && !Array.isArray(entry.game) && typeof entry.game.end_time === "number")
+      .toSorted((a, b) => (b.game.end_time ?? 0) - (a.game.end_time ?? 0));
+    if (!candidates.length || (candidates[1] && candidates[0].game.end_time === candidates[1].game.end_time)) return null;
+    const selected = candidates[0];
+    const game = selected.game;
+    const gameEvidence = evidence[selected.index];
+    const archiveKnown = evidence.every((candidate) => candidate.kind !== "unknown");
+    const knownStandard = gameEvidence?.kind === "known-standard" ? gameEvidence : null;
     const normalizedUsername = username.trim().toLowerCase();
     const playerColor = game.white?.username?.toLowerCase() === normalizedUsername ? "white" : game.black?.username?.toLowerCase() === normalizedUsername ? "black" : null;
     if (!playerColor) return null;
@@ -409,11 +494,116 @@ async function fetchLatestChessComGame(username: string): Promise<LatestGame | n
     const gameMode = gameUrl ? getChessComGameMode(gameUrl) : null;
     if (!gameMode || !gameUrl) return null;
     const outcome = getChessComOutcomeForPlayers(game.white?.result, game.black?.result, playerColor);
-    const replayPgn = parseReplayPgn(game.pgn ?? "", gameMode === "daily");
-    const completedGameAt = getChessComCompletedGameAt(game.end_time);
-    return { provider: "chesscom", gameId: gameUrl, username, standardStart: (game.rules === undefined || game.rules === "chess") && hasStandardPgnStart(game.pgn), pgnMoves: replayPgn?.moves ?? [], replayComplete: matchesReplayIdentity(replayPgn, "chesscom", gameUrl, game.white?.username, game.black?.username) && matchesChessComReplayTermination(replayPgn, game.white?.result, game.black?.result, game.white?.username, game.black?.username) && hasCompleteReplayPgn(replayPgn, outcome, playerColor) && hasChessComTerminalPosition(replayPgn, game.white?.result, game.black?.result, gameMode), playerColor, status: completedGameAt ? "finished" : "open", outcome, startedGameAt: getChessComStartedGameAt(game.pgn), completedGameAt };
+    const timeline = classifiedChessComTimelines.get(game);
+    return { provider: "chesscom", gameId: gameUrl, username, standardStart: Boolean(knownStandard), pgnMoves: knownStandard?.sanMoves ?? [], replayComplete: archiveKnown && Boolean(knownStandard), playerColor, status: timeline?.completedGameAt ? "finished" : "open", outcome, startedGameAt: knownStandard?.startedGameAt, completedGameAt: timeline?.completedGameAt, canonicalReplay: archiveKnown ? knownStandard?.replay : undefined, chessComReplayIdentity: archiveKnown && knownStandard ? getChessComArchiveReplayIdentity(knownStandard) : undefined };
   }
   return null;
+}
+
+function parseKnownUnsupportedChessComResult(
+  pgn: string,
+  rules: string,
+  outcome: LatestGame["outcome"],
+  playerColor: "white" | "black",
+  gameUrl: string,
+  whiteUsername: string | undefined,
+  blackUsername: string | undefined,
+  whiteResult: string | undefined,
+  blackResult: string | undefined,
+): boolean {
+  const sections = extractPgnSections(pgn);
+  if (!sections) return false;
+  const body = stripPgnAnnotations(sections.movetext);
+  if (body === null || body.includes("[") || body.includes("]")) return false;
+  const mainline = parsePgnMainlineTokens(body);
+  const result = mainline?.result;
+  if (!result || !/^(?:1-0|0-1|1\/2-1\/2)$/.test(result)) return false;
+  if (!mainline.moves.length
+    || !mainline.moves.every((token) => /^(?:[a-h][1-8][a-h][1-8][qrbn]?|[KQRBNP]@[a-h][1-8]|(?:[KQRBN][a-h]?[1-8]?x?|[a-h]x)?[a-h][1-8](?:=[QRBN])?|O-O(?:-O)?|0-0(?:-0)?)[+#]?[!?]*$/i.test(token))
+    || sections.resultTags.length > 1
+    || sections.resultTags.some((tag) => tag !== result)) return false;
+  const tags = new Map(sections.tags);
+  const variant = tags.get("Variant");
+  if (variant !== undefined && variant.toLowerCase().replace(/[^a-z0-9]/g, "") !== rules) return false;
+  const plyCount = tags.get("PlyCount");
+  if (plyCount !== undefined && (!/^(?:0|[1-9]\d*)$/.test(plyCount) || Number(plyCount) !== mainline.moves.length)) return false;
+  const replay = { moves: [], canonicalUci: [], result, tags };
+  return matchesReplayIdentity(replay, "chesscom", gameUrl, whiteUsername, blackUsername)
+    && matchesChessComReplayTermination(replay, whiteResult, blackResult, whiteUsername, blackUsername, false)
+    && hasCompleteReplayPgn(replay, outcome, playerColor);
+}
+
+export function classifyChessComArchiveGameEvidence<T extends ChessComArchiveEvidenceGame>(game: T, username: string): ChessComArchiveGameEvidence<T> {
+  const unknown: ChessComArchiveGameEvidence<T> = { kind: "unknown" };
+  const normalizedUsername = username.trim().toLowerCase();
+  const whiteUsername = typeof game?.white?.username === "string" ? game.white.username.trim().toLowerCase() : undefined;
+  const blackUsername = typeof game?.black?.username === "string" ? game.black.username.trim().toLowerCase() : undefined;
+  const playerColor = whiteUsername === normalizedUsername ? "white" : blackUsername === normalizedUsername ? "black" : null;
+  const gameUrl = typeof game?.url === "string" ? game.url.trim() : "";
+  const gameMode = getChessComGameMode(gameUrl);
+  const outcome = playerColor ? getChessComOutcomeForPlayers(game.white?.result, game.black?.result, playerColor) : "unknown";
+  const completedGameAt = getChessComCompletedGameAt(game?.end_time);
+  const sections = typeof game?.pgn === "string" ? extractPgnSections(game.pgn) : null;
+  const timeline = completedGameAt
+    ? sections
+      ? getChessComEvidenceTimeline(new Map(sections.tags), completedGameAt)
+      : { completedGameAt }
+    : null;
+  if (timeline && game && typeof game === "object") classifiedChessComTimelines.set(game, timeline);
+  const structurallyKnown = Boolean(
+    game
+    && typeof game === "object"
+    && !Array.isArray(game)
+    && gameUrl
+    && gameMode
+    && playerColor
+    && whiteUsername
+    && blackUsername
+    && whiteUsername !== blackUsername
+    && outcome !== "unknown"
+    && timeline
+    && typeof game.pgn === "string"
+    && game.pgn.trim()
+    && typeof game.rules === "string"
+    && game.rules.trim(),
+  );
+  if (!structurallyKnown || !gameMode || !playerColor || typeof game.pgn !== "string") return unknown;
+
+  if (game.rules !== undefined && game.rules !== "chess") {
+    if (typeof game.rules !== "string" || !KNOWN_UNSUPPORTED_CHESSCOM_RULES.has(game.rules)) return unknown;
+    return parseKnownUnsupportedChessComResult(
+      game.pgn,
+      game.rules,
+      outcome,
+      playerColor,
+      gameUrl,
+      game.white?.username,
+      game.black?.username,
+      game.white?.result,
+      game.black?.result,
+    )
+      ? { kind: "known-unsupported", game, ...timeline! }
+      : unknown;
+  }
+
+  const replayPgn = parseReplayPgn(game.pgn, gameMode === "daily", true);
+  const replay = replayPgn?.analysis?.replay ?? null;
+  const sanMoves = replay?.moves.map((move) => move.san) ?? null;
+  if (!replayPgn
+    || !sanMoves
+    || !replay
+    || replayPgn.canonicalUci.length === 0
+    || !hasStandardPgnStart(game.pgn)
+    || !matchesReplayIdentity(replayPgn, "chesscom", gameUrl, game.white?.username, game.black?.username)
+    || !matchesChessComReplayTermination(replayPgn, game.white?.result, game.black?.result, game.white?.username, game.black?.username)
+    || !hasCompleteReplayPgn(replayPgn, outcome, playerColor)
+    || !hasChessComTerminalPosition(replayPgn, game.white?.result, game.black?.result, gameMode)) return unknown;
+
+  return { kind: "known-standard", game, sanMoves, canonicalUci: replayPgn.canonicalUci, replay, ...timeline! };
+}
+
+export function isCompleteChessComArchiveGameEvidence(game: ChessComArchiveEvidenceGame, username: string): boolean {
+  return classifyChessComArchiveGameEvidence(game, username).kind !== "unknown";
 }
 
 async function fetchSubmittedChessComGame(username: string, gameUrl: string, activatedAfter?: string): Promise<LatestGame | null> {
@@ -429,35 +619,65 @@ async function fetchSubmittedChessComGame(username: string, gameUrl: string, act
     .filter((archive) => !activationMonth || getArchiveMonthKey(archive) >= activationMonth)
     .slice(-MAX_SUBMITTED_CHESSCOM_ARCHIVE_MONTHS)
     .reverse();
+  const matches: Array<{ url?: string; pgn?: string; rules?: unknown; end_time?: number; time_class?: unknown; time_control?: unknown; rated?: unknown; white?: { username?: string; result?: string }; black?: { username?: string; result?: string } }> = [];
   for (const archive of eligibleArchives) {
-    const archiveGames = await fetchBoundedProviderJson(archive, { headers, cache: "no-store" }) as { games?: Array<{ url?: string; pgn?: string; rules?: unknown; end_time?: number; white?: { username?: string; result?: string }; black?: { username?: string; result?: string } }> } | null;
-    if (!archiveGames) continue;
-    const games = archiveGames.games ?? [];
-    const game = games.find((item) => item.url && normalizeChessComGameUrl(item.url) === normalizedTarget);
-    if (!game) continue;
-    const normalizedUsername = username.trim().toLowerCase();
-    const playerColor = game.white?.username?.toLowerCase() === normalizedUsername ? "white" : game.black?.username?.toLowerCase() === normalizedUsername ? "black" : null;
-    if (!playerColor) return null;
-    const gameMode = getChessComGameMode(game.url ?? gameUrl);
-    if (!gameMode) return null;
-    const outcome = getChessComOutcomeForPlayers(game.white?.result, game.black?.result, playerColor);
-    const replayPgn = parseReplayPgn(game.pgn ?? "", gameMode === "daily");
-    const completedGameAt = getChessComCompletedGameAt(game.end_time);
-    return { provider: "chesscom", gameId: game.url ?? gameUrl, username, standardStart: (game.rules === undefined || game.rules === "chess") && hasStandardPgnStart(game.pgn), pgnMoves: replayPgn?.moves ?? [], replayComplete: matchesReplayIdentity(replayPgn, "chesscom", game.url ?? gameUrl, game.white?.username, game.black?.username) && matchesChessComReplayTermination(replayPgn, game.white?.result, game.black?.result, game.white?.username, game.black?.username) && hasCompleteReplayPgn(replayPgn, outcome, playerColor) && hasChessComTerminalPosition(replayPgn, game.white?.result, game.black?.result, gameMode), playerColor, status: completedGameAt ? "finished" : "open", outcome, startedGameAt: getChessComStartedGameAt(game.pgn), completedGameAt };
+    let archiveGames: { games?: typeof matches } | null;
+    try {
+      archiveGames = await fetchBoundedProviderJson(archive, { headers, cache: "no-store" }) as typeof archiveGames;
+    } catch {
+      continue;
+    }
+    if (!archiveGames || !Array.isArray(archiveGames.games)) continue;
+    matches.push(...archiveGames.games.filter((item) => item && typeof item === "object" && typeof item.url === "string" && normalizeChessComGameUrl(item.url) === normalizedTarget));
+    if (matches.length > 1) return null;
   }
-  return null;
+  const game = matches[0];
+  if (!game) return null;
+  const normalizedUsername = username.trim().toLowerCase();
+  const playerColor = game.white?.username?.toLowerCase() === normalizedUsername ? "white" : game.black?.username?.toLowerCase() === normalizedUsername ? "black" : null;
+  if (!playerColor) return null;
+  const evidence = classifyChessComArchiveGameEvidence(game, username);
+  const knownStandard = evidence.kind === "known-standard" ? evidence : null;
+  const gameMode = getChessComGameMode(game.url ?? gameUrl);
+  if (!gameMode) return null;
+  const outcome = getChessComOutcomeForPlayers(game.white?.result, game.black?.result, playerColor);
+  const timeline = classifiedChessComTimelines.get(game);
+  return { provider: "chesscom", gameId: game.url ?? gameUrl, username, standardStart: Boolean(knownStandard), pgnMoves: knownStandard?.sanMoves ?? [], replayComplete: Boolean(knownStandard), playerColor, status: timeline?.completedGameAt ? "finished" : "open", outcome, startedGameAt: knownStandard?.startedGameAt, completedGameAt: timeline?.completedGameAt, canonicalReplay: knownStandard?.replay, chessComReplayIdentity: knownStandard ? getChessComArchiveReplayIdentity(knownStandard) : undefined };
+}
+
+type AuthenticatedChessComArchiveUrl = {
+  url: string;
+  monthKey: string;
+};
+
+function serializeAuthenticatedChessComArchiveUrl(username: string, year: string, month: string): string | null {
+  const canonicalUsername = username.trim().toLowerCase();
+  if (!/^[a-z0-9_-]+$/.test(canonicalUsername)
+    || !/^\d{4}$/.test(year)
+    || !/^(?:0[1-9]|1[0-2])$/.test(month)) return null;
+  return `https://api.chess.com/pub/player/${canonicalUsername}/games/${year}/${month}`;
+}
+
+function parseAuthenticatedChessComArchiveUrl(value: unknown, username: string): AuthenticatedChessComArchiveUrl | null {
+  if (typeof value !== "string") return null;
+  const match = value.match(/^https:\/\/api\.chess\.com\/pub\/player\/([a-z0-9_-]+)\/games\/(\d{4})\/(0[1-9]|1[0-2])$/);
+  if (!match) return null;
+  const canonical = serializeAuthenticatedChessComArchiveUrl(username, match[2], match[3]);
+  if (!canonical || value !== canonical || match[1] !== username.trim().toLowerCase()) return null;
+  return { url: canonical, monthKey: `${match[2]}-${match[3]}` };
 }
 
 function isAuthenticatedChessComArchiveUrl(value: unknown, username: string): value is string {
-  if (typeof value !== "string") return false;
-  try {
-    const url = new URL(value);
-    if (url.protocol !== "https:" || url.hostname !== "api.chess.com" || url.port || url.search || url.hash) return false;
-    const match = url.pathname.match(/^\/pub\/player\/([^/]+)\/games\/(\d{4})\/(0[1-9]|1[0-2])$/);
-    return Boolean(match && decodeURIComponent(match[1]).toLowerCase() === username.trim().toLowerCase());
-  } catch {
-    return false;
-  }
+  return parseAuthenticatedChessComArchiveUrl(value, username) !== null;
+}
+
+export function normalizeChessComArchiveUrls(value: unknown, username: string): string[] | null {
+  if (!Array.isArray(value)) return null;
+  const archives = value.map((archive) => parseAuthenticatedChessComArchiveUrl(archive, username));
+  if (archives.some((archive) => archive === null)) return null;
+  const authenticated = archives as AuthenticatedChessComArchiveUrl[];
+  if (new Set(authenticated.map((archive) => archive.monthKey)).size !== authenticated.length) return null;
+  return authenticated.toSorted((a, b) => a.monthKey.localeCompare(b.monthKey)).map((archive) => archive.url);
 }
 
 function getUtcMonthKey(value?: string): string | null {
@@ -473,7 +693,7 @@ function getArchiveMonthKey(archive: string): string {
   return match ? `${match[1]}-${match[2]}` : "";
 }
 
-function normalizeChessComGameUrl(value: string) {
+export function normalizeChessComGameUrl(value: string) {
   return value.trim().toLowerCase().replace(/^http:/, "https:").replace("https://chess.com/", "https://www.chess.com/").replace(/[?#].*$/, "").replace(/\/$/, "");
 }
 
@@ -510,8 +730,10 @@ function getChessComOutcomeForPlayers(whiteResult: string | undefined, blackResu
 function hasStandardPgnStart(pgn?: string, initialFen?: unknown): boolean {
   const standardFen = new Chess().fen();
   if (initialFen !== undefined && initialFen !== standardFen) return false;
+  const sections = extractPgnSections(pgn ?? "");
+  if (!sections) return false;
   const tags = new Map<string, string>();
-  for (const [name, value] of extractPgnSections(pgn ?? "").tags) {
+  for (const [name, value] of sections.tags) {
     if (!new Set(["FEN", "Variant", "SetUp"]).has(name)) continue;
     if (tags.has(name)) return false;
     tags.set(name, value);
@@ -525,23 +747,26 @@ function hasStandardPgnStart(pgn?: string, initialFen?: unknown): boolean {
   return fen === undefined || fen === standardFen;
 }
 
-function extractPgnSections(pgn: string): { movetext: string; resultTags: string[]; tags: Array<[string, string]> } {
+function extractPgnSections(pgn: string): { movetext: string; resultTags: string[]; tags: Array<[string, string]> } | null {
   const normalized = pgn.replace(/\r\n/g, "\n");
   const separator = /\n[ \t]*\n/.exec(normalized);
   const headerless = { movetext: normalized, resultTags: [], tags: [] as Array<[string, string]> };
-  if (!separator) return headerless;
+  // Only a leading tag starts the header section; bracketed clock annotations
+  // inside movetext comments must reach annotation stripping first.
+  if (!/^\s*\[/.test(normalized)) return headerless;
+  if (!separator) return null;
   const header = normalized.slice(0, separator.index);
-  const tagPattern = /\[\s*([A-Za-z][A-Za-z0-9_]*)\s+"((?:\\.|[^"\\])*)"\s*\]/g;
+  const tagPattern = /\[\s*([A-Za-z][A-Za-z0-9_]*)\s+"((?:\\["\\]|[^"\\\u0000-\u001F\u007F])*)"\s*\]/g;
   const tags: RegExpExecArray[] = [];
   let cursor = 0;
   for (const tag of header.matchAll(tagPattern)) {
-    if (header.slice(cursor, tag.index).trim()) return headerless;
+    if (header.slice(cursor, tag.index).trim()) return null;
     tags.push(tag);
     cursor = (tag.index ?? 0) + tag[0].length;
   }
-  if (!tags.length || header.slice(cursor).trim()) return headerless;
+  if (!tags.length || header.slice(cursor).trim()) return null;
   const pairs = tags.map((tag): [string, string] => [tag[1], tag[2]]);
-  if (new Set(pairs.map(([name]) => name)).size !== pairs.length) return headerless;
+  if (new Set(pairs.map(([name]) => name)).size !== pairs.length) return null;
   return {
     movetext: normalized.slice(separator.index + separator[0].length),
     resultTags: pairs.filter(([name]) => name === "Result").map(([, value]) => value),
@@ -582,7 +807,35 @@ function stripPgnAnnotations(body: string): string | null {
   return inBraceComment || variationDepth !== 0 ? null : movetext;
 }
 
-type ParsedReplayPgn = { moves: string[]; canonicalUci: string[]; result?: string; tags: Map<string, string> };
+function parsePgnMainlineTokens(body: string): { moves: string[]; result?: string } | null {
+  const moves: string[] = [];
+  let result: string | undefined;
+  const tokens = body.replace(/(\$\d+)/g, " $1 ").split(/\s+/).filter(Boolean);
+  for (const rawToken of tokens) {
+    if (result !== undefined) return null;
+    const token = rawToken.replace(/^\d+\.{1,3}/, "");
+    if (!token || /^\$\d+$/.test(token)) continue;
+    if (/^(1-0|0-1|1\/2-1\/2|\*)$/.test(token)) result = token;
+    else moves.push(token);
+  }
+  return { moves, result };
+}
+
+type CanonicalReplayAnalysis = {
+  canonicalUci: string[];
+  replay: ChessComCanonicalReplay;
+  finalPosition: Chess;
+  finalRepetitionCount: number;
+  halfmoveClock: number;
+};
+
+type ParsedReplayPgn = {
+  moves: string[];
+  canonicalUci: string[];
+  result?: string;
+  tags: Map<string, string>;
+  analysis?: CanonicalReplayAnalysis;
+};
 
 function replayPositionKey(chess: Chess): string {
   return chess.fen().split(" ").slice(0, 4).join(" ");
@@ -592,25 +845,37 @@ function replayHalfmoveClock(chess: Chess): number {
   return Number(chess.fen().split(" ")[4]);
 }
 
-function canonicalReplayMoves(tokens: string[], uci = false, allowHalfmoveContinuation = false): string[] | null {
+function analyzeCanonicalReplayMoves(tokens: string[], uci = false, allowHalfmoveContinuation = false, applyChessComInsufficientMaterial = false): CanonicalReplayAnalysis | null {
   // chess.js's permissive parser can ignore suffixes; admit only whole SAN/UCI tokens.
   const moveToken = /^(?:[a-h][1-8][a-h][1-8][qrbn]?|(?:[KQRBN][a-h]?[1-8]?x?|[a-h]x)?[a-h][1-8](?:=[QRBN])?|O-O(?:-O)?|0-0(?:-0)?)[+#]?[!?]*$/;
   if (!tokens.every((token) => moveToken.test(token))) return null;
   const chess = new Chess();
   const repetitions = new Map([[replayPositionKey(chess), 1]]);
+  const origins = new Map<string, string>(
+    chess.board().flat().filter((piece) => piece !== null).map((piece) => [piece.square, piece.square]),
+  );
+  const pieceNames = {
+    k: "king",
+    q: "queen",
+    r: "rook",
+    b: "bishop",
+    n: "knight",
+    p: "pawn",
+  } as const;
+  const moves: ChessComCanonicalMove[] = [];
   try {
-    return tokens.map((token) => {
-      if (chess.isCheckmate() || chess.isStalemate() || chess.isInsufficientMaterial()) {
+    for (const [index, token] of tokens.entries()) {
+      if (chess.isCheckmate() || chess.isStalemate() || chess.isInsufficientMaterial() || (applyChessComInsufficientMaterial && hasChessComAutomaticInsufficientMaterial(chess))) {
         throw new Error("Replay continues after automatic game termination.");
       }
       if ((repetitions.get(replayPositionKey(chess)) ?? 0) >= 5 || (!allowHalfmoveContinuation && replayHalfmoveClock(chess) >= 100)) {
         throw new Error("Replay continues after an automatic draw.");
       }
-      let move;
       const semanticToken = token.replace(/[!?]+$/, "");
       const coordinateToken = semanticToken.replace(/[+#]$/, "");
       const coordinate = uci || /^[a-h][1-8][a-h][1-8][qrbn]?$/i.test(coordinateToken);
       const declaredSanPromotion = coordinate ? undefined : semanticToken.match(/=([QRBN])(?=[+#]?$)/)?.[1].toLowerCase();
+      let move;
       if (coordinate) {
         if (/[+#]$/.test(semanticToken)) throw new Error("UCI evidence cannot include SAN check semantics.");
         const from = coordinateToken.slice(0, 2).toLowerCase();
@@ -630,37 +895,79 @@ function canonicalReplayMoves(tokens: string[], uci = false, allowHalfmoveContin
         }
       }
       if (move.san === "--") throw new Error("Null moves are not valid replay evidence.");
+
+      const origin = origins.get(move.from) ?? move.from;
+      const capturedSquare = move.flags.includes("e") ? `${move.to[0]}${move.from[1]}` : move.to;
+      const capturedOrigin = move.captured ? origins.get(capturedSquare) : undefined;
+      origins.delete(move.from);
+      if (move.captured) origins.delete(capturedSquare);
+      origins.set(move.to, origin);
+      const rookMove = move.flags.includes("k")
+        ? [move.color === "w" ? "h1" : "h8", move.color === "w" ? "f1" : "f8"]
+        : move.flags.includes("q")
+          ? [move.color === "w" ? "a1" : "a8", move.color === "w" ? "d1" : "d8"]
+          : null;
+      if (rookMove) {
+        const [rookFrom, rookTo] = rookMove;
+        const rookOrigin = origins.get(rookFrom) ?? rookFrom;
+        origins.delete(rookFrom);
+        origins.set(rookTo, rookOrigin);
+      }
+
+      moves.push({
+        ply: index + 1,
+        color: move.color === "w" ? "white" : "black",
+        piece: pieceNames[move.piece],
+        origin,
+        from: move.from,
+        to: move.to,
+        san: move.san,
+        uci: move.lan,
+        fenBefore: move.before,
+        fenAfter: move.after,
+        ...(move.captured ? {
+          capturedPiece: pieceNames[move.captured],
+          capturedColor: move.color === "w" ? "black" as const : "white" as const,
+          ...(capturedOrigin ? { capturedOrigin } : {}),
+        } : {}),
+        ...(move.promotion ? { promotion: pieceNames[move.promotion] as ChessComCanonicalMove["promotion"] } : {}),
+      });
       const position = replayPositionKey(chess);
       repetitions.set(position, (repetitions.get(position) ?? 0) + 1);
-      return `${move.from}${move.to}${move.promotion ?? ""}`;
-    });
+    }
+    const canonicalUci = moves.map((move) => move.uci);
+    return {
+      canonicalUci,
+      replay: { moves, finalPositionFen: chess.fen() },
+      finalPosition: chess,
+      finalRepetitionCount: repetitions.get(replayPositionKey(chess)) ?? 0,
+      halfmoveClock: replayHalfmoveClock(chess),
+    };
   } catch {
     return null;
   }
 }
 
-function parseReplayPgn(pgn: string, allowHalfmoveContinuation = false): ParsedReplayPgn | null {
-  const { movetext, resultTags, tags } = extractPgnSections(pgn);
+function canonicalReplayMoves(tokens: string[], uci = false, allowHalfmoveContinuation = false): string[] | null {
+  return analyzeCanonicalReplayMoves(tokens, uci, allowHalfmoveContinuation)?.canonicalUci ?? null;
+}
+
+function parseReplayPgn(pgn: string, allowHalfmoveContinuation = false, applyChessComInsufficientMaterial = false): ParsedReplayPgn | null {
+  const sections = extractPgnSections(pgn);
+  if (!sections) return null;
+  const { movetext, resultTags, tags } = sections;
   const body = stripPgnAnnotations(movetext);
   if (body === null) return null;
-  const moves: string[] = [];
-  let result: string | undefined;
-  const tokens = body.replace(/(\$\d+)/g, " $1 ").split(/\s+/).filter(Boolean);
-  for (const rawToken of tokens) {
-    // Comments and variations are gone; no mainline token may follow termination.
-    if (result !== undefined) return null;
-    const token = rawToken.replace(/^\d+\.{1,3}/, "");
-    if (!token || /^\$\d+$/.test(token)) continue;
-    if (/^(1-0|0-1|1\/2-1\/2|\*)$/.test(token)) result = token;
-    else moves.push(token);
-  }
-  const canonicalUci = canonicalReplayMoves(moves, false, allowHalfmoveContinuation);
-  if (!canonicalUci || resultTags.length > 1) return null;
+  const mainline = parsePgnMainlineTokens(body);
+  if (!mainline) return null;
+  const { moves, result } = mainline;
+  const analysis = analyzeCanonicalReplayMoves(moves, false, allowHalfmoveContinuation, applyChessComInsufficientMaterial);
+  if (!analysis || resultTags.length > 1) return null;
   if (resultTags.some((tag) => tag !== result)) return null;
   const tagMap = new Map(tags);
   const plyCount = tagMap.get("PlyCount");
-  if (plyCount !== undefined && (!/^(?:0|[1-9]\d*)$/.test(plyCount) || Number(plyCount) !== canonicalUci.length)) return null;
-  return { moves, canonicalUci, result, tags: tagMap };
+  if (plyCount !== undefined && (!/^(?:0|[1-9]\d*)$/.test(plyCount) || Number(plyCount) !== analysis.canonicalUci.length)) return null;
+  return { moves, canonicalUci: analysis.canonicalUci, result, tags: tagMap, analysis };
 }
 
 function matchesReplayIdentity(replay: ParsedReplayPgn | null, provider: LatestGame["provider"], gameId: string, white: string | undefined, black: string | undefined): boolean {
@@ -694,18 +1001,18 @@ function matchesLichessReplayTermination(replay: ParsedReplayPgn | null, status:
   return false;
 }
 
-function matchesChessComReplayTermination(replay: ParsedReplayPgn | null, whiteResult: string | undefined, blackResult: string | undefined, whiteUsername: string | undefined, blackUsername: string | undefined): boolean {
+function matchesChessComReplayTermination(replay: ParsedReplayPgn | null, whiteResult: string | undefined, blackResult: string | undefined, whiteUsername: string | undefined, blackUsername: string | undefined, verifyCheckmatePosition = true): boolean {
   const termination = replay?.tags.get("Termination")?.toLowerCase();
   if (termination === undefined) return true;
   const results = [whiteResult, blackResult];
   const winner = whiteResult === "win" ? whiteUsername : blackResult === "win" ? blackUsername : undefined;
   const winnerPrefix = winner?.toLowerCase();
   if (winnerPrefix && termination === `${winnerPrefix} won by checkmate`) {
-    return replayCanonicalPosition(replay)?.isCheckmate() === true && results.includes("checkmated");
+    return (!verifyCheckmatePosition || replay?.analysis?.finalPosition.isCheckmate() === true) && results.includes("checkmated");
   }
   if (winnerPrefix && termination === `${winnerPrefix} won by resignation`) return results.includes("resigned");
   if (winnerPrefix && termination === `${winnerPrefix} won on time`) return results.includes("timeout");
-  if (winnerPrefix && termination === `${winnerPrefix} won by abandonment`) return results.includes("abandoned");
+  if (winnerPrefix && (termination === `${winnerPrefix} won by abandonment` || termination === `${winnerPrefix} won - game abandoned`)) return results.includes("abandoned");
   if (termination === "game drawn by timeout vs insufficient material") return results.every((result) => result === "timevsinsufficient");
   if (termination === "game drawn by repetition") return results.every((result) => result === "repetition");
   if (termination === "game drawn by stalemate") return results.every((result) => result === "stalemate");
@@ -784,19 +1091,6 @@ function hasChessComAutomaticInsufficientMaterial(chess: Chess): boolean {
     || (black.length === 2 && black.every((piece) => piece.type === "n") && white.length === 0);
 }
 
-function replayContinuesAfterChessComAutomaticInsufficient(replay: ParsedReplayPgn): boolean {
-  const chess = new Chess();
-  for (const token of replay.canonicalUci) {
-    if (hasChessComAutomaticInsufficientMaterial(chess)) return true;
-    chess.move({
-      from: token.slice(0, 2),
-      to: token.slice(2, 4),
-      promotion: token[4],
-    });
-  }
-  return false;
-}
-
 function hasChessComTimeoutMatingMaterial(chess: Chess, color: "w" | "b"): boolean {
   const pieces = chess.board().flat().filter((piece) => piece?.color === color && piece.type !== "k");
   return pieces.some((piece) => piece?.type === "p" || piece?.type === "r" || piece?.type === "q")
@@ -828,9 +1122,9 @@ function hasLichessTerminalPosition(replay: ParsedReplayPgn | null, status: stri
 }
 
 function hasChessComTerminalPosition(replay: ParsedReplayPgn | null, whiteResult: string | undefined, blackResult: string | undefined, gameMode: "live" | "daily" = "live"): boolean {
-  const chess = replayCanonicalPosition(replay);
-  if (!chess) return false;
-  if (replay && replayContinuesAfterChessComAutomaticInsufficient(replay)) return false;
+  const analysis = replay?.analysis;
+  if (!analysis) return false;
+  const chess = analysis.finalPosition;
   if (chess.isCheckmate()) {
     return chess.turn() === "w"
       ? whiteResult === "checkmated" && blackResult === "win"
@@ -840,8 +1134,11 @@ function hasChessComTerminalPosition(replay: ParsedReplayPgn | null, whiteResult
   if (chess.isInsufficientMaterial() || hasChessComAutomaticInsufficientMaterial(chess)) return whiteResult === "insufficient" && blackResult === "insufficient";
 
   const results = [whiteResult, blackResult];
-  const automaticDraw = getAutomaticReplayDraw(replay);
-  if (automaticDraw?.fivefold || (gameMode === "live" && automaticDraw?.halfmove)) {
+  const automaticDraw = {
+    fivefold: analysis.finalRepetitionCount >= 5,
+    halfmove: analysis.halfmoveClock >= 100,
+  };
+  if (automaticDraw.fivefold || (gameMode === "live" && automaticDraw.halfmove)) {
     return (automaticDraw.fivefold && results.every((result) => result === "repetition"))
       || (automaticDraw.halfmove && results.every((result) => result === "50move"));
   }
@@ -873,12 +1170,24 @@ function hasCompleteReplayPgn(replay: ParsedReplayPgn | null, outcome: LatestGam
     && providerMoves.every((move, index) => move === replay.canonicalUci[index]);
 }
 
-function getChessComStartedGameAt(pgn?: string) {
-  const date = pgn?.match(/\[UTCDate "([^"?]+)"\]/)?.[1] ?? pgn?.match(/\[Date "([^"?]+)"\]/)?.[1];
-  const time = pgn?.match(/\[UTCTime "([^"?]+)"\]/)?.[1] ?? pgn?.match(/\[StartTime "([^"?]+)"\]/)?.[1] ?? "00:00:00";
-  if (!date) return undefined;
-  const parsed = Date.parse(`${date}T${time}Z`);
-  return Number.isFinite(parsed) ? new Date(parsed).toISOString() : undefined;
+function getChessComEvidenceTimeline(tags: Map<string, string>, completedGameAt: string): { startedGameAt?: string; completedGameAt: string } | null {
+  const date = tags.get("UTCDate") ?? tags.get("Date");
+  const declaredTime = tags.get("UTCTime") ?? tags.get("StartTime");
+  // Alternate start declarations cannot silently override each other. Completion
+  // tags describe the provider's end instant (which may be on a later date).
+  if (tags.has("Date") && tags.get("Date") !== date) return null;
+  if (tags.has("StartTime") && tags.get("StartTime") !== declaredTime) return null;
+  if (tags.has("EndDate") && tags.get("EndDate") !== completedGameAt.slice(0, 10).replace(/-/g, ".")) return null;
+  if (tags.has("EndTime") && tags.get("EndTime") !== completedGameAt.slice(11, 19)) return null;
+  if (date === undefined) return declaredTime === undefined ? { completedGameAt } : null;
+  const time = declaredTime ?? "00:00:00";
+  if (!/^\d{4}\.\d{2}\.\d{2}$/.test(date) || !/^\d{2}:\d{2}:\d{2}$/.test(time)) return null;
+  const expected = `${date.replace(/\./g, "-")}T${time}.000Z`;
+  const parsed = Date.parse(expected);
+  if (!Number.isFinite(parsed)) return null;
+  const startedGameAt = new Date(parsed).toISOString();
+  if (startedGameAt !== expected || startedGameAt > completedGameAt) return null;
+  return { startedGameAt, completedGameAt };
 }
 
 function getChessComCompletedGameAt(value: unknown): string | undefined {
@@ -892,9 +1201,17 @@ function getChessComCompletedGameAt(value: unknown): string | undefined {
 type Snapshot = { ply: number; moveNumber: number; fen: string; san?: string; uci?: string; before: Map<string, { type: string; color: "w" | "b"; origin: string; moved: boolean }>; after: Map<string, { type: string; color: "w" | "b"; origin: string; moved: boolean }> };
 function replayGame(game: LatestGame) {
   if (!game.standardStart) return { snapshots: [] };
-  const chess = new Chess();
   let pieces = initialPieces();
   const snapshots: Snapshot[] = [];
+  if (game.canonicalReplay) {
+    for (const move of game.canonicalReplay.moves) {
+      const before = clonePieces(pieces);
+      pieces = applyCanonicalMovePieces(pieces, move);
+      snapshots.push({ ply: move.ply, moveNumber: Math.ceil(move.ply / 2), fen: move.fenAfter, san: move.san, uci: move.uci, before, after: clonePieces(pieces) });
+    }
+    return { snapshots };
+  }
+  const chess = new Chess();
   const moves = game.uciMoves?.length ? game.uciMoves : game.pgnMoves;
   for (const token of moves) {
     const before = clonePieces(pieces);
@@ -914,6 +1231,28 @@ function replayGame(game: LatestGame) {
 }
 function initialPieces() { const map = new Map<string, { type: string; color: "w" | "b"; origin: string; moved: boolean }>(); for (const color of ["white", "black"] as const) for (const [piece, entries] of Object.entries(HOME_SQUARES[color])) for (const sq of Object.values(entries)) map.set(sq, { type: PIECE_TYPE[piece], color: color === "white" ? "w" : "b", origin: sq, moved: false }); return map; }
 function clonePieces(input: Map<string, { type: string; color: "w" | "b"; origin: string; moved: boolean }>) { return new Map([...input.entries()].map(([k, v]) => [k, { ...v }])); }
+function applyCanonicalMovePieces(input: Map<string, { type: string; color: "w" | "b"; origin: string; moved: boolean }>, move: ChessComCanonicalMove) {
+  const next = clonePieces(input);
+  const moving = next.get(move.from) ?? { type: PIECE_TYPE[move.piece], color: move.color === "white" ? "w" as const : "b" as const, origin: move.origin, moved: false };
+  const enPassantSquare = move.piece === "pawn" && move.capturedPiece === "pawn" && move.from[0] !== move.to[0] && !next.has(move.to)
+    ? `${move.to[0]}${move.from[1]}`
+    : null;
+  next.delete(move.from);
+  next.delete(enPassantSquare ?? move.to);
+  next.set(move.to, { ...moving, type: move.promotion ? PIECE_TYPE[move.promotion] : moving.type, moved: true });
+  const castleRook = move.piece === "king" && move.from === "e1" && move.to === "g1" ? ["h1", "f1"]
+    : move.piece === "king" && move.from === "e1" && move.to === "c1" ? ["a1", "d1"]
+      : move.piece === "king" && move.from === "e8" && move.to === "g8" ? ["h8", "f8"]
+        : move.piece === "king" && move.from === "e8" && move.to === "c8" ? ["a8", "d8"]
+          : null;
+  if (castleRook) {
+    const [from, to] = castleRook;
+    const rook = next.get(from);
+    next.delete(from);
+    if (rook) next.set(to, { ...rook, moved: true });
+  }
+  return next;
+}
 function applyMovePieces(input: Map<string, { type: string; color: "w" | "b"; origin: string; moved: boolean }>, move: { from: string; to: string; flags: string; color: "w" | "b"; piece: string; promotion?: string }) { const next = clonePieces(input); const moving = next.get(move.from) ?? { type: move.piece, color: move.color, origin: move.from, moved: false }; next.delete(move.from); if (move.flags.includes("e")) next.delete(`${move.to[0]}${move.from[1]}`); next.set(move.to, { ...moving, type: move.promotion ?? moving.type, moved: true }); if (move.flags.includes("k")) { const r = move.color === "w" ? "1" : "8"; const rook = next.get(`h${r}`); if (rook) { next.delete(`h${r}`); next.set(`f${r}`, { ...rook, moved: true }); } } if (move.flags.includes("q")) { const r = move.color === "w" ? "1" : "8"; const rook = next.get(`a${r}`); if (rook) { next.delete(`a${r}`); next.set(`d${r}`, { ...rook, moved: true }); } } return next; }
 
 type EvalResult = { passed: boolean; label: string; explanation: string; ply?: number; moveNumber?: number; san?: string; uci?: string; fenAtBreak?: string };

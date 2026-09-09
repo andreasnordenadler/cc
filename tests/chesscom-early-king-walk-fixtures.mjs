@@ -23,33 +23,35 @@ const observedAnd72NorLatestGame = {
 };
 
 const syntheticEarlyKingWalkWin = {
-  url: "https://www.chess.com/game/live/synthetic-early-king-walk-win",
+  url: "https://www.chess.com/game/live/100214634860",
   end_time: 1706476100,
   time_class: "blitz",
   rules: "chess",
   white: { result: "win", username: "and72nor" },
-  black: { result: "checkmated", username: "exampleOpponent" },
+  black: { result: "resigned", username: "exampleOpponent" },
   pgn: `[Event "Live Chess"]
 [Site "Chess.com"]
 [White "and72nor"]
 [Black "exampleOpponent"]
 [Result "1-0"]
+[Termination "and72nor won by resignation"]
 
 1. e4 e5 2. Ke2 Nc6 3. Nf3 Nf6 4. d3 Be7 5. Be3 O-O 6. Nc3 d6 7. Qd2 1-0`,
 };
 
 const syntheticCastleIsNotWalk = {
-  url: "https://www.chess.com/game/live/synthetic-castle-is-not-walk",
+  url: "https://www.chess.com/game/live/100214634861",
   end_time: 1706476100,
   time_class: "rapid",
   rules: "chess",
   white: { result: "win", username: "and72nor" },
-  black: { result: "checkmated", username: "exampleOpponent" },
+  black: { result: "resigned", username: "exampleOpponent" },
   pgn: `[Event "Live Chess"]
 [Site "Chess.com"]
 [White "and72nor"]
 [Black "exampleOpponent"]
 [Result "1-0"]
+[Termination "and72nor won by resignation"]
 
 1. e4 e5 2. Nf3 Nc6 3. Bc4 Be7 4. O-O Nf6 5. d3 O-O 6. Nc3 d6 7. Be3 Be6 8. Qd2 1-0`,
 };

@@ -25,17 +25,18 @@ const observedAnd72NorLatestGame = {
 };
 
 const syntheticAnd72NorNoCastleWin = {
-  url: "https://www.chess.com/game/live/synthetic-no-castle-win",
+  url: "https://www.chess.com/game/live/100214634862",
   end_time: 1706476100,
   time_class: "blitz",
   rules: "chess",
   white: { result: "win", username: "and72nor" },
-  black: { result: "checkmated", username: "exampleOpponent" },
+  black: { result: "resigned", username: "exampleOpponent" },
   pgn: `[Event "Live Chess"]
 [Site "Chess.com"]
 [White "and72nor"]
 [Black "exampleOpponent"]
 [Result "1-0"]
+[Termination "and72nor won by resignation"]
 
 1. e4 e5 2. Nf3 Nc6 3. Bc4 Bc5 4. d3 Nf6 5. c3 d6 6. h3 h6 7. Nbd2 a6 8. Bb3 Ba7 9. Nf1 Be6 10. Bxe6 fxe6 11. Be3 Bxe3 12. Nxe3 O-O 13. Qb3 Qc8 14. Qc2 Kh8 15. g4 1-0`,
 };

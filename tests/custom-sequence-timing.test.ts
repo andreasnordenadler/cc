@@ -36,6 +36,7 @@ function installFinishedGame(t: test.TestContext, provider: Provider, lichessMov
       url: chessComGameId,
       pgn: `[Event "Timing"]\n\n1. e4 e5 2. Nf3 Nc6 3. Bb5 a6 4. Ba4 Nf6 5. O-O Be7 1-0`,
       end_time: 1788650000,
+      rules: "chess",
       white: { username: "alice", result: "win" },
       black: { username: "bob", result: "resigned" },
     }] });

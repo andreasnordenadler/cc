@@ -202,6 +202,7 @@ test("submitted Chess.com custom proof skips pre-activation archives and finds t
       url: "https://www.chess.com/game/live/123456",
       pgn: "[UTCDate \"2026.07.18\"]\n[UTCTime \"10:00:00\"]\n\n1. e4 e5 2. Qh5 Nc6 3. Bc4 Nf6 4. Qxf7# 1-0",
       end_time: 1784369400,
+      rules: "chess",
       white: { username: "Alice", result: "win" },
       black: { username: "Bob", result: "checkmated" },
     }] });
@@ -221,6 +222,7 @@ test("submitted Chess.com custom proof skips pre-activation archives and finds t
   assert.deepEqual(requested, [
     "https://api.chess.com/pub/player/alice/games/archives",
     "https://api.chess.com/pub/player/alice/games/2026/07",
+    "https://api.chess.com/pub/player/alice/games/2026/06",
   ]);
 });
 

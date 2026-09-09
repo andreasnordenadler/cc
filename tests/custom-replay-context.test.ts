@@ -29,7 +29,7 @@ for (const provider of ["lichess", "chesscom"] as const) {
           players: { white: { user: { name: "alice" } }, black: { user: { name: "bob" } } } });
         if (String(input).endsWith("/archives")) return Response.json({ archives: [archive] });
         assert.equal(String(input), archive);
-        return Response.json({ games: [{ ...sample.metadata, url: gameId, pgn, end_time: 1788650000,
+        return Response.json({ games: [{ rules: "chess", ...sample.metadata, url: gameId, pgn, end_time: 1788650000,
           white: { username: "alice", result: "win" }, black: { username: "bob", result: "resigned" } }] });
       });
       const input = { provider, username: "alice", gameId, quest: { id: "custom-context", title: "Context", config: JSON.stringify({ version: 2, logic: "any", blocks: [
