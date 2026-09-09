@@ -6,6 +6,7 @@ import { checkLatestLichessBishopFieldTrip } from "../src/lib/bishop-field-trip"
 import { checkLatestLichessEarlyKingWalk } from "../src/lib/early-king-walk";
 import { checkLatestLichessKnightsBeforeCoffee } from "../src/lib/knights-before-coffee";
 import { checkLatestLichessFinishedGame, verifyFinishAnyGameAttempt } from "../src/lib/lichess";
+import { checkLatestLichessPawnOnlyPicnic } from "../src/lib/pawn-only-picnic";
 import { checkLatestLichessPawnStormManiac } from "../src/lib/pawn-storm-maniac";
 import { checkLatestLichessRooklessRampage } from "../src/lib/rookless-rampage";
 
@@ -102,6 +103,19 @@ test("Early King Walk rejects an oversized latest Lichess body before evaluating
   ));
 
   const verdict = await checkLatestLichessEarlyKingWalk("Alice");
+
+  assert.equal(verdict.status, "pending");
+  assert.equal(verdict.gameId, "lichess-latest-error");
+  assert.match(verdict.summary, /could not complete/i);
+});
+
+test("Pawn-Only Picnic rejects an oversized latest Lichess body before evaluating the game", async (t) => {
+  t.mock.method(globalThis, "fetch", async () => new Response(
+    `${JSON.stringify({ ...finishedLichessGame(), rated: true, speed: "blitz" })}\n`,
+    { status: 200, headers: oversizedProviderHeaders },
+  ));
+
+  const verdict = await checkLatestLichessPawnOnlyPicnic("Alice");
 
   assert.equal(verdict.status, "pending");
   assert.equal(verdict.gameId, "lichess-latest-error");
