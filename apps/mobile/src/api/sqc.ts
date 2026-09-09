@@ -51,23 +51,37 @@ export async function fetchMobileResponseWithTimeout(
 ) {
   const controller = new AbortController();
   const deadline = Date.now() + timeoutMs;
-  const timeout = setTimeout(() => controller.abort(), timeoutMs);
+  let timeout: ReturnType<typeof setTimeout> | undefined;
+  const timedOut = new Promise<never>((_resolve, reject) => {
+    timeout = setTimeout(() => {
+      controller.abort();
+      reject(mobileRequestTimeoutError());
+    }, timeoutMs);
+  });
 
   try {
-    const response = await fetcher(url, {
-      ...init,
-      signal: controller.signal,
-    });
+    const response = await Promise.race([
+      fetcher(url, {
+        ...init,
+        signal: controller.signal,
+      }),
+      timedOut,
+    ]);
+    if (Date.now() >= deadline) {
+      controller.abort();
+      cancelMobileResponseBody(response);
+      throw mobileRequestTimeoutError();
+    }
     mobileResponseDeadlines.set(response, { controller, deadline });
     return response;
   } catch (caught) {
-    if (controller.signal.aborted || caught instanceof Error && caught.name === "AbortError") {
+    if (Date.now() >= deadline || controller.signal.aborted || caught instanceof Error && caught.name === "AbortError") {
       throw mobileRequestTimeoutError();
     }
 
     throw caught;
   } finally {
-    clearTimeout(timeout);
+    if (timeout) clearTimeout(timeout);
   }
 }
 
@@ -409,9 +423,8 @@ export async function runMobileCommunityLikeAction({
 
 export async function readMobileJson<T>(response: Response, label: string): Promise<T> {
   const responseDeadline = mobileResponseDeadlines.get(response);
-  const remainingMs = responseDeadline
-    ? responseDeadline.deadline - Date.now()
-    : DEFAULT_REQUEST_TIMEOUT_MS;
+  const deadline = responseDeadline?.deadline ?? Date.now() + DEFAULT_REQUEST_TIMEOUT_MS;
+  const remainingMs = deadline - Date.now();
 
   if (remainingMs <= 0) {
     responseDeadline?.controller.abort();
@@ -440,9 +453,17 @@ export async function readMobileJson<T>(response: Response, label: string): Prom
   };
 
   try {
-    return await Promise.race([read(), timedOut]);
+    const result = await Promise.race([read(), timedOut]);
+    if (Date.now() >= deadline) {
+      responseDeadline?.controller.abort();
+      cancelMobileResponseBody(response);
+      throw mobileRequestTimeoutError();
+    }
+    return result;
   } catch (caught) {
-    if (responseDeadline?.controller.signal.aborted || caught instanceof Error && caught.name === "AbortError") {
+    if (Date.now() >= deadline || responseDeadline?.controller.signal.aborted || caught instanceof Error && caught.name === "AbortError") {
+      responseDeadline?.controller.abort();
+      cancelMobileResponseBody(response);
       throw mobileRequestTimeoutError();
     }
     throw caught;

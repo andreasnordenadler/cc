@@ -4,7 +4,7 @@ Run commands from the repository root unless a command says otherwise.
 
 ## Toolchain
 
-Baseline CI uses Node.js 22 and pnpm 11.12.0. The committed `pnpm-lock.yaml` is authoritative for dependency resolution.
+Baseline CI uses Node.js 22 and pnpm 11.11.0. The committed `pnpm-lock.yaml` is authoritative for dependency resolution.
 
 ## Local setup
 

@@ -95,9 +95,9 @@ test("Android signing stays fail-closed for direct and umbrella artifact tasks w
   assert.match(source, /if \(!sqcEasBuild && !sqcReleaseSigningConfigured && releaseArtifactTaskRequested\)[\s\S]*Refusing to build a debug-signed release APK/);
 });
 
-test("hosted installs use the pnpm release whose audit client supports the registry bulk advisory endpoint", () => {
+test("hosted installs use an installable pnpm release whose audit client supports the registry bulk advisory endpoint", () => {
   const packageJson = JSON.parse(readRepoFile("package.json"));
-  assert.equal(packageJson.packageManager, "pnpm@11.12.0");
+  assert.equal(packageJson.packageManager, "pnpm@11.11.0");
 
   for (const workflow of [".github/workflows/ci.yml", ".github/workflows/mobile-release-gate.yml"]) {
     const source = readRepoFile(workflow);
@@ -106,8 +106,8 @@ test("hosted installs use the pnpm release whose audit client supports the regis
     assert.ok(pinnedVersions.length > 0, `${workflow} must pin pnpm`);
     assert.deepEqual(
       [...new Set(pinnedVersions)],
-      ["11.12.0"],
-      `${workflow} must use pnpm 11.12.0 so the release audit does not call retired npm endpoints`,
+      ["11.11.0"],
+      `${workflow} must use installable pnpm 11 so the release audit does not call retired npm endpoints`,
     );
   }
 });
@@ -222,14 +222,14 @@ test("Android release signing stays fail-closed locally while allowing EAS crede
   assert.doesNotMatch(source, /release \{\s*signingConfig signingConfigs\.debug/);
 });
 
-test("EAS production builds use the SDK 54 builder and pnpm 11 for the next Play code", () => {
+test("EAS production builds use the SDK 54 builder and installable pnpm 11 for the next Play code", () => {
   for (const path of ["eas.json", "apps/mobile/eas.json"]) {
     const config = JSON.parse(readRepoFile(path));
     const production = config.build.production;
 
     assert.equal(production.android.image, "sdk-54", `${path} must not fall back to a legacy Android image`);
     assert.equal(production.node, "22.22.0", `${path} must satisfy pnpm 11's Node.js engine requirement`);
-    assert.equal(production.pnpm, "11.12.0", `${path} must read the pnpm v9 lockfile with the reviewed pnpm release`);
+    assert.equal(production.pnpm, "11.11.0", `${path} must read the pnpm v9 lockfile with an installable reviewed pnpm release`);
     assert.equal(production.autoIncrement, true, `${path} must reserve the next Play version code`);
   }
 
