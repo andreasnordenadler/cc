@@ -8966,18 +8966,18 @@ function SelectedQuestDetailCard({
               </Pressable>
             ) : activeQuest ? (
               <>
-                <Pressable accessibilityRole="button" accessibilityLabel="Check latest game" style={styles.primaryButton} disabled={actionState.busy} onPress={() => void runAction("check")}>
+                <Pressable accessibilityRole="button" accessibilityLabel="Check latest game" accessibilityState={{ disabled: actionState.busy }} style={styles.primaryButton} disabled={actionState.busy} onPress={() => void runAction("check")}>
                   <Text style={styles.primaryButtonText}>{actionState.busy ? "Checking..." : "Check latest game"}</Text>
                 </Pressable>
-                <Pressable accessibilityRole="button" accessibilityLabel="Submit specific game proof" style={styles.secondaryButton} disabled={actionState.busy} onPress={() => void runAction("submit")}>
+                <Pressable accessibilityRole="button" accessibilityLabel="Submit specific game proof" accessibilityState={{ disabled: actionState.busy }} style={styles.secondaryButton} disabled={actionState.busy} onPress={() => void runAction("submit")}>
                   <Text style={styles.secondaryButtonText}>Submit game/link</Text>
                 </Pressable>
-                <Pressable accessibilityRole="button" accessibilityLabel="Deactivate quest" style={styles.secondaryButton} disabled={actionState.busy} onPress={() => confirmLifecycleAction("deactivate")}>
+                <Pressable accessibilityRole="button" accessibilityLabel="Deactivate quest" accessibilityState={{ disabled: actionState.busy }} style={styles.secondaryButton} disabled={actionState.busy} onPress={() => confirmLifecycleAction("deactivate")}>
                   <Text style={styles.secondaryButtonText}>Deactivate quest</Text>
                 </Pressable>
               </>
             ) : (
-              <Pressable accessibilityRole="button" accessibilityLabel="Start this Side Quest" style={styles.primaryButton} disabled={actionState.busy} onPress={() => void runAction("start")}>
+              <Pressable accessibilityRole="button" accessibilityLabel="Start this Side Quest" accessibilityState={{ disabled: actionState.busy }} style={styles.primaryButton} disabled={actionState.busy} onPress={() => void runAction("start")}>
                 <Text style={styles.primaryButtonText}>{actionState.busy ? "Starting..." : "Start this Side Quest"}</Text>
               </Pressable>
             )}
@@ -9256,17 +9256,17 @@ function CustomSideQuestDetailModal({
               </View>
               <View style={styles.buttonRow}>
                 {onCheck ? (
-                  <Pressable accessibilityRole="button" accessibilityLabel="Check latest game for custom Side Quest" style={styles.primaryButton} disabled={Boolean(proofBusy)} onPress={() => void handleProofAction("check")}>
+                  <Pressable accessibilityRole="button" accessibilityLabel="Check latest game for custom Side Quest" accessibilityState={{ disabled: Boolean(proofBusy) }} style={styles.primaryButton} disabled={Boolean(proofBusy)} onPress={() => void handleProofAction("check")}>
                     <Text style={styles.primaryButtonText}>{proofBusy === "check" ? "Checking..." : "Check latest game"}</Text>
                   </Pressable>
                 ) : null}
                 {onCheck ? (
-                  <Pressable accessibilityRole="button" accessibilityLabel="Submit specific game proof for custom Side Quest" style={styles.secondaryButton} disabled={Boolean(proofBusy)} onPress={() => void handleProofAction("submit")}>
+                  <Pressable accessibilityRole="button" accessibilityLabel="Submit specific game proof for custom Side Quest" accessibilityState={{ disabled: Boolean(proofBusy) }} style={styles.secondaryButton} disabled={Boolean(proofBusy)} onPress={() => void handleProofAction("submit")}>
                     <Text style={styles.secondaryButtonText}>{proofBusy === "submit" ? "Checking..." : "Submit game/link"}</Text>
                   </Pressable>
                 ) : null}
                 {onReset ? (
-                  <Pressable accessibilityRole="button" accessibilityLabel="Deactivate custom Side Quest" style={styles.secondaryButton} disabled={Boolean(proofBusy)} onPress={confirmProofReset}>
+                  <Pressable accessibilityRole="button" accessibilityLabel="Deactivate custom Side Quest" accessibilityState={{ disabled: Boolean(proofBusy) }} style={styles.secondaryButton} disabled={Boolean(proofBusy)} onPress={confirmProofReset}>
                     <Text style={styles.secondaryButtonText}>{proofBusy === "reset" ? "Deactivating..." : "Deactivate quest"}</Text>
                   </Pressable>
                 ) : null}
@@ -9286,7 +9286,7 @@ function CustomSideQuestDetailModal({
               <Text style={compactStyles.detailPrimaryButtonText}>Sign in</Text>
             </Pressable>
           ) : (
-            <Pressable accessibilityRole="button" accessibilityLabel="Pick custom Side Quest" style={[compactStyles.detailPrimaryButton, (busy || !canStart) ? compactStyles.disabledAction : null]} disabled={busy || !canStart} onPress={() => void handleStart()}>
+            <Pressable accessibilityRole="button" accessibilityLabel="Pick custom Side Quest" accessibilityState={{ disabled: busy || !canStart }} style={[compactStyles.detailPrimaryButton, (busy || !canStart) ? compactStyles.disabledAction : null]} disabled={busy || !canStart} onPress={() => void handleStart()}>
               <Text style={compactStyles.detailPrimaryButtonText}>{busy ? "Picking..." : !canStart ? "Publish to play" : "Pick this Side Quest"}</Text>
             </Pressable>
           )}
