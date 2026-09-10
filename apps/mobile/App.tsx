@@ -3049,9 +3049,9 @@ function JoinedMultiplayerQuestModal({
                 </View>
               ) : null}
               <Text style={styles.inputLabel}>Quest name</Text>
-              <TextInput value={adminName} placeholder="Name this Multiplayer Side Quest" placeholderTextColor="rgba(255,247,232,.42)" style={styles.textInput} onChangeText={setAdminName} />
+              <TextInput accessibilityLabel="Quest name" value={adminName} placeholder="Name this Multiplayer Side Quest" placeholderTextColor="rgba(255,247,232,.42)" style={styles.textInput} onChangeText={setAdminName} />
               <Text style={styles.inputLabel}>Intro text</Text>
-              <TextInput value={adminInviteCopy} multiline placeholder="Explain what players are joining..." placeholderTextColor="rgba(255,247,232,.42)" style={[styles.textInput, styles.textAreaInput]} onChangeText={setAdminInviteCopy} />
+              <TextInput accessibilityLabel="Intro text" value={adminInviteCopy} multiline placeholder="Explain what players are joining..." placeholderTextColor="rgba(255,247,232,.42)" style={[styles.textInput, styles.textAreaInput]} onChangeText={setAdminInviteCopy} />
               <Text style={styles.microcopy}>Shown to players before they join.</Text>
               <Text style={styles.inputLabel}>Visibility</Text>
               <View style={compactStyles.multiplayerOptionGrid}>

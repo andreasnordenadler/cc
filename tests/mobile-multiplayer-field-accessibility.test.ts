@@ -14,3 +14,15 @@ test("native Multiplayer join and create fields expose explicit screen-reader la
   assert.match(screen, /<TextInput\s+accessibilityLabel="Quest name"[^>]*?value=\{createName\}[^>]*?>/);
   assert.match(screen, /<TextInput\s+accessibilityLabel="Intro text"[^>]*?value=\{createInviteCopy\}[^>]*?>/);
 });
+
+test("native Multiplayer owner settings fields expose explicit screen-reader labels", async () => {
+  const source = await readFile(new URL("../apps/mobile/App.tsx", import.meta.url), "utf8");
+  const detailStart = source.indexOf("function JoinedMultiplayerQuestModal");
+  const detailEnd = source.indexOf("function AppRow", detailStart);
+  const detail = source.slice(detailStart, detailEnd);
+
+  assert.notEqual(detailStart, -1);
+  assert.notEqual(detailEnd, -1);
+  assert.match(detail, /<TextInput\s+accessibilityLabel="Quest name"[^>]*?value=\{adminName\}[^>]*?>/);
+  assert.match(detail, /<TextInput\s+accessibilityLabel="Intro text"[^>]*?value=\{adminInviteCopy\}[^>]*?>/);
+});
