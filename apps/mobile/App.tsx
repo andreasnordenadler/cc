@@ -6237,6 +6237,7 @@ function AccountTrackerDashboard({ bootstrap, account, authBridge, onSelectTab, 
               <Pressable
                 accessibilityRole="button"
                 accessibilityLabel="Permanently delete account"
+                accessibilityState={{ disabled: deleteConfirmation !== "DELETE MY ACCOUNT" || deletingAccount }}
                 disabled={deleteConfirmation !== "DELETE MY ACCOUNT" || deletingAccount}
                 style={[compactStyles.logoutButton, (deleteConfirmation !== "DELETE MY ACCOUNT" || deletingAccount) && { opacity: 0.45 }]}
                 onPress={() => void handleDeleteAccount()}
@@ -6390,6 +6391,7 @@ function AccountTrackerDashboard({ bootstrap, account, authBridge, onSelectTab, 
             <Pressable
               accessibilityRole="button"
               accessibilityLabel="Permanently delete account"
+              accessibilityState={{ disabled: deleteConfirmation !== "DELETE MY ACCOUNT" || deletingAccount }}
               disabled={deleteConfirmation !== "DELETE MY ACCOUNT" || deletingAccount}
               style={[compactStyles.logoutButton, (deleteConfirmation !== "DELETE MY ACCOUNT" || deletingAccount) && { opacity: 0.45 }]}
               onPress={() => void handleDeleteAccount()}
