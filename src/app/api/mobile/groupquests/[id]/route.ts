@@ -6,7 +6,7 @@ import { getChallengeById } from "@/lib/challenges";
 import { findPublicCommunityCustomSideQuestById } from "@/lib/community-side-quests";
 import { getCustomSideQuests, parseCustomRuleConfig, type CustomSideQuest } from "@/lib/custom-side-quests";
 import { checkLatestGroupQuestChallenge } from "@/lib/groupquest-proof";
-import { createGroupQuestRefreshRouteHandler } from "@/lib/groupquest-refresh-route-handler";
+import { createGroupQuestRefreshRouteHandler, isGroupQuestRefreshConflictError } from "@/lib/groupquest-refresh-route-handler";
 import {
   buildMultiplayerCompletionAccountPatch,
   buildPendingGroupQuestCompletions,
@@ -27,6 +27,7 @@ import {
   removeOfficialGroupQuestParticipation,
   updateParticipantProgress,
   upsertHostGroupQuest,
+  upsertHostGroupQuestParticipantProgress,
   upsertOfficialGroupQuestParticipation,
   type ServerGroupQuest,
 } from "@/lib/groupquests";
@@ -389,7 +390,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
         );
         return;
       }
-      saveError = await saveMobileGroupQuest(client, found.userId, refreshedQuest, userId);
+      saveError = await saveMobileHostQuestProgressSafely(client, found.userId, refreshedQuest, userId);
       if (!saveError) {
         const latestParticipantUser = await client.users.getUser(userId);
         await client.users.updateUserMetadata(userId, {
@@ -589,6 +590,33 @@ async function saveHostQuestSafely(
     await saveHostQuest(client, hostUserId, groupQuest);
     return null;
   } catch (error) {
+    console.error("mobile_groupquest_save_failed", error);
+    return "Could not save Multiplayer Side Quest settings. I compacted the Side Quest data; try again once more.";
+  }
+}
+
+async function saveMobileHostQuestProgressSafely(
+  client: Awaited<ReturnType<typeof clerkClient>>,
+  hostUserId: string,
+  groupQuest: ServerGroupQuest,
+  participantUserId: string,
+) {
+  try {
+    const host = await client.users.getUser(hostUserId);
+    await client.users.updateUserMetadata(hostUserId, {
+      privateMetadata: {
+        ...(host.privateMetadata ?? {}),
+        sqcAnalytics: compactAnalyticsStore(getAnalyticsStore(host.privateMetadata)),
+        sqcGroupQuests: upsertHostGroupQuestParticipantProgress(
+          host.privateMetadata,
+          groupQuest,
+          participantUserId,
+        ),
+      },
+    });
+    return null;
+  } catch (error) {
+    if (isGroupQuestRefreshConflictError(error)) throw error;
     console.error("mobile_groupquest_save_failed", error);
     return "Could not save Multiplayer Side Quest settings. I compacted the Side Quest data; try again once more.";
   }

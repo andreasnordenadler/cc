@@ -691,6 +691,33 @@ export function upsertHostGroupQuest(metadata: unknown, groupQuest: ServerGroupQ
   return ordered.slice(0, MAX_HOST_QUESTS).map(compactGroupQuestForStorage);
 }
 
+export function upsertHostGroupQuestParticipantProgress(
+  metadata: unknown,
+  refreshedQuest: ServerGroupQuest,
+  participantUserId: string,
+) {
+  const currentQuest = getStoredGroupQuests(metadata).find((quest) => quest.id === refreshedQuest.id);
+  if (!currentQuest) throw new Error("groupquest_progress_target_missing");
+  const currentParticipant = currentQuest.participants.find((participant) => participant.userId === participantUserId);
+  if (!currentParticipant) throw new Error("groupquest_progress_participant_missing");
+  const refreshedParticipant = refreshedQuest.participants.find((participant) => participant.userId === participantUserId);
+  if (!refreshedParticipant) throw new Error("groupquest_progress_participant_missing");
+  if (
+    currentParticipant.joinedAt !== refreshedParticipant.joinedAt
+    || currentParticipant.provider !== refreshedParticipant.provider
+    || currentParticipant.username !== refreshedParticipant.username
+  ) throw new Error("groupquest_progress_participant_changed");
+  const mergedQuest = updateParticipantProgress(currentQuest, participantUserId, {
+    completedQuestIds: refreshedParticipant.completedQuestIds,
+    questFinishedAt: refreshedParticipant.questFinishedAt,
+    score: refreshedParticipant.score,
+    pendingCompletions: refreshedParticipant.pendingCompletions,
+    lastProofSummary: refreshedParticipant.lastProofSummary,
+    lastProofAt: refreshedParticipant.lastProofAt,
+  });
+  return upsertHostGroupQuest(metadata, mergedQuest);
+}
+
 export function acknowledgeHostGroupQuestCompletions(
   metadata: unknown,
   groupQuestId: string,
