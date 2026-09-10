@@ -3,6 +3,7 @@ import { AsyncLocalStorage } from "node:async_hooks";
 import { compactAnalyticsStore, getAnalyticsStore } from "@/lib/analytics";
 import { getChallengeById } from "@/lib/challenges";
 import { checkLatestGroupQuestChallenge } from "@/lib/groupquest-proof";
+import { runSerializedHostGroupQuestMutation } from "@/lib/groupquest-host-mutation-serialization";
 import { createGroupQuestRefreshRouteHandler } from "@/lib/groupquest-refresh-route-handler";
 import {
   buildMultiplayerCompletionAccountPatch,
@@ -92,13 +93,15 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       }
       const storageUserId = found.userId;
       const saveProgress = async (quest: typeof refreshedQuest) => {
-        const storageUser = await client.users.getUser(storageUserId);
-        await client.users.updateUserMetadata(storageUserId, {
-          privateMetadata: {
-            ...(storageUser.privateMetadata ?? {}),
-            sqcAnalytics: compactAnalyticsStore(getAnalyticsStore(storageUser.privateMetadata)),
-            sqcGroupQuests: upsertHostGroupQuestParticipantProgress(storageUser.privateMetadata, quest, userId),
-          },
+        await runSerializedHostGroupQuestMutation(storageUserId, async () => {
+          const storageUser = await client.users.getUser(storageUserId);
+          await client.users.updateUserMetadata(storageUserId, {
+            privateMetadata: {
+              ...(storageUser.privateMetadata ?? {}),
+              sqcAnalytics: compactAnalyticsStore(getAnalyticsStore(storageUser.privateMetadata)),
+              sqcGroupQuests: upsertHostGroupQuestParticipantProgress(storageUser.privateMetadata, quest, userId),
+            },
+          });
         });
       };
 
@@ -107,18 +110,20 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       await client.users.updateUserMetadata(userId, {
         publicMetadata: buildMultiplayerCompletionAccountPatch(participantUser.publicMetadata, pendingCompletions),
       });
-      const latestStorageUser = await client.users.getUser(storageUserId);
-      await client.users.updateUserMetadata(storageUserId, {
-        privateMetadata: {
-          ...(latestStorageUser.privateMetadata ?? {}),
-          sqcAnalytics: compactAnalyticsStore(getAnalyticsStore(latestStorageUser.privateMetadata)),
-          sqcGroupQuests: acknowledgeHostGroupQuestCompletions(
-            latestStorageUser.privateMetadata,
-            refreshedQuest.id,
-            userId,
-            pendingCompletions.map((receipt) => receipt.id),
-          ),
-        },
+      await runSerializedHostGroupQuestMutation(storageUserId, async () => {
+        const latestStorageUser = await client.users.getUser(storageUserId);
+        await client.users.updateUserMetadata(storageUserId, {
+          privateMetadata: {
+            ...(latestStorageUser.privateMetadata ?? {}),
+            sqcAnalytics: compactAnalyticsStore(getAnalyticsStore(latestStorageUser.privateMetadata)),
+            sqcGroupQuests: acknowledgeHostGroupQuestCompletions(
+              latestStorageUser.privateMetadata,
+              refreshedQuest.id,
+              userId,
+              pendingCompletions.map((receipt) => receipt.id),
+            ),
+          },
+        });
       });
     },
   });

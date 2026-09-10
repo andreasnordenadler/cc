@@ -1870,9 +1870,10 @@ test("exported hosted update routes cannot remove a lineup challenge with an out
         : mobileRoute.withMobileRefreshRouteTestDependencies({ authenticate: async () => "host", getClient: async () => state.client, findQuest, check: async () => mismatch } as never,
           () => mobileRoute.POST(req, { params: Promise.resolve({ id: "gq" }) }));
     };
-    // Web propagates the storage guard as a server error; mobile uses its existing save error response.
-    if (variant === "web") await assert.rejects(update(["knights-before-coffee"]), /groupquest_pending_completion_lineup/);
-    else assert.equal((await update(["knights-before-coffee"])).status, 500);
+    const conflictResponse = await update(["knights-before-coffee"]);
+    assert.equal(conflictResponse.status, 409, variant);
+    const conflictBody = await conflictResponse.json();
+    assert.equal(variant === "web" ? conflictBody.error : conflictBody.code, "groupquest_pending_completion_lineup", variant);
     assert.equal(state.writes.length, 0, variant);
     assert.deepEqual(state.user("host").privateMetadata, before);
     assert.equal((await update(["knights-before-coffee", "finish-any-game"])).status, 200, "retaining pending challenges is allowed");
