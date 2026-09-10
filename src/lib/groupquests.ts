@@ -691,6 +691,23 @@ export function upsertHostGroupQuest(metadata: unknown, groupQuest: ServerGroupQ
   return ordered.slice(0, MAX_HOST_QUESTS).map(compactGroupQuestForStorage);
 }
 
+export function acknowledgeHostGroupQuestCompletions(
+  metadata: unknown,
+  groupQuestId: string,
+  participantUserId: string,
+  receiptIds: readonly string[],
+) {
+  const quest = getStoredGroupQuests(metadata).find((entry) => entry.id === groupQuestId);
+  if (!quest) throw new Error("groupquest_acknowledgement_target_missing");
+  const participant = quest.participants.find((entry) => entry.userId === participantUserId);
+  if (!participant) throw new Error("groupquest_acknowledgement_participant_missing");
+  const acknowledgedIds = new Set(receiptIds);
+  const acknowledgedQuest = updateParticipantProgress(quest, participantUserId, {
+    pendingCompletions: (participant.pendingCompletions ?? []).filter((receipt) => !acknowledgedIds.has(receipt.id)),
+  });
+  return upsertHostGroupQuest(metadata, acknowledgedQuest);
+}
+
 export function upsertParticipantGroupQuest(metadata: unknown, groupQuest: ServerGroupQuest, participantUserId: string) {
   const participantOnlyQuest = {
     ...groupQuest,

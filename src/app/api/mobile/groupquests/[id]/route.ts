@@ -14,6 +14,7 @@ import {
 import { validateMultiplayerProofConfiguration, validateMultiplayerProofUpdate } from "@/lib/multiplayer-proof-rules";
 import {
   OFFICIAL_GROUP_QUEST_METADATA_KEY,
+  acknowledgeHostGroupQuestCompletions,
   buildGroupQuest,
   buildParticipant,
   findGroupQuestById,
@@ -397,11 +398,12 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
             pendingCompletions,
           ),
         });
-        saveError = await saveMobileGroupQuest(
+        saveError = await acknowledgeMobileHostQuestSafely(
           client,
           found.userId,
-          updateParticipantProgress(refreshedQuest, userId, { pendingCompletions: [] }),
+          refreshedQuest.id,
           userId,
+          pendingCompletions.map((receipt) => receipt.id),
         );
       }
     },
@@ -588,6 +590,34 @@ async function saveHostQuestSafely(
     return null;
   } catch (error) {
     console.error("mobile_groupquest_save_failed", error);
+    return "Could not save Multiplayer Side Quest settings. I compacted the Side Quest data; try again once more.";
+  }
+}
+
+async function acknowledgeMobileHostQuestSafely(
+  client: Awaited<ReturnType<typeof clerkClient>>,
+  hostUserId: string,
+  groupQuestId: string,
+  participantUserId: string,
+  receiptIds: readonly string[],
+) {
+  try {
+    const host = await client.users.getUser(hostUserId);
+    await client.users.updateUserMetadata(hostUserId, {
+      privateMetadata: {
+        ...(host.privateMetadata ?? {}),
+        sqcAnalytics: compactAnalyticsStore(getAnalyticsStore(host.privateMetadata)),
+        sqcGroupQuests: acknowledgeHostGroupQuestCompletions(
+          host.privateMetadata,
+          groupQuestId,
+          participantUserId,
+          receiptIds,
+        ),
+      },
+    });
+    return null;
+  } catch (error) {
+    console.error("mobile_groupquest_acknowledgement_failed", error);
     return "Could not save Multiplayer Side Quest settings. I compacted the Side Quest data; try again once more.";
   }
 }

@@ -118,19 +118,42 @@ function request(groupQuestId = "gq") {
 }
 
 function fakeClient(writes: Array<{ userId: string; metadata: Record<string, unknown> }>) {
+  const users = new Map<string, {
+    id: string;
+    firstName: string;
+    username: string;
+    publicMetadata: Record<string, unknown>;
+    privateMetadata: Record<string, unknown>;
+  }>();
+  const user = (userId: string) => {
+    const existing = users.get(userId);
+    if (existing) return existing;
+    const created = {
+      id: userId,
+      firstName: "Current",
+      username: "current",
+      publicMetadata: {
+        challengeProgress: { completedChallengeIds: ["old"] },
+        challengeAttempts: [],
+      },
+      privateMetadata: {},
+    };
+    users.set(userId, created);
+    return created;
+  };
   return {
     users: {
-      getUser: async (userId: string) => ({
-        id: userId,
-        firstName: "Current",
-        username: "current",
-        publicMetadata: {
-          challengeProgress: { completedChallengeIds: ["old"] },
-          challengeAttempts: [],
-        },
-        privateMetadata: {},
-      }),
-      updateUserMetadata: async (userId: string, metadata: Record<string, unknown>) => { writes.push({ userId, metadata }); },
+      getUser: async (userId: string) => structuredClone(user(userId)),
+      updateUserMetadata: async (userId: string, metadata: Record<string, unknown>) => {
+        writes.push({ userId, metadata: structuredClone(metadata) });
+        const current = user(userId);
+        if (metadata.publicMetadata && typeof metadata.publicMetadata === "object") {
+          current.publicMetadata = deepMerge(current.publicMetadata, metadata.publicMetadata as Record<string, unknown>);
+        }
+        if (metadata.privateMetadata && typeof metadata.privateMetadata === "object") {
+          current.privateMetadata = deepMerge(current.privateMetadata, metadata.privateMetadata as Record<string, unknown>);
+        }
+      },
     },
   };
 }
@@ -194,6 +217,71 @@ function statefulHostedClient(failFirstAccountWrite = true) {
           if (metadata.publicMetadata && typeof metadata.publicMetadata === "object") {
             user.publicMetadata = deepMerge(user.publicMetadata, metadata.publicMetadata as Record<string, unknown>);
           }
+          if (metadata.privateMetadata && typeof metadata.privateMetadata === "object") {
+            user.privateMetadata = deepMerge(user.privateMetadata, metadata.privateMetadata as Record<string, unknown>);
+          }
+        },
+      },
+    },
+  };
+}
+
+function concurrentHostedClient() {
+  const quest = {
+    ...structuredClone(baseQuest),
+    questIds: ["new"],
+    participants: [
+      { userId: "alpha", provider: "chesscom" as const, username: "AlphaChess", leaderboardName: "Alpha", joinedAt: "2026-07-01T00:00:00.000Z", completedQuestIds: [], questFinishedAt: {}, score: 0 },
+      { userId: "beta", provider: "chesscom" as const, username: "BetaChess", leaderboardName: "Beta", joinedAt: "2026-07-01T00:00:00.000Z", completedQuestIds: [], questFinishedAt: {}, score: 0 },
+    ],
+  };
+  const users = new Map<string, {
+    id: string;
+    firstName: string;
+    username: string;
+    publicMetadata: Record<string, unknown>;
+    privateMetadata: Record<string, unknown>;
+  }>([
+    ["host", { id: "host", firstName: "Host", username: "host", publicMetadata: {}, privateMetadata: { sqcGroupQuests: [quest] } }],
+    ["alpha", { id: "alpha", firstName: "Alpha", username: "alpha", publicMetadata: { challengeProgress: { completedChallengeIds: [] }, challengeAttempts: [] }, privateMetadata: {} }],
+    ["beta", { id: "beta", firstName: "Beta", username: "beta", publicMetadata: { challengeProgress: { completedChallengeIds: [] }, challengeAttempts: [] }, privateMetadata: {} }],
+  ]);
+  let releaseAlphaAccountWrite!: () => void;
+  const alphaAccountWriteGate = new Promise<void>((resolve) => { releaseAlphaAccountWrite = resolve; });
+  let signalAlphaAccountWrite!: () => void;
+  const alphaAtAccountWrite = new Promise<void>((resolve) => { signalAlphaAccountWrite = resolve; });
+  let pauseAlphaAccountWrite = true;
+  let failBetaAccountWrite = true;
+
+  return {
+    alphaAtAccountWrite,
+    releaseAlphaAccountWrite,
+    expireQuest() {
+      const host = users.get("host")!;
+      const quests = host.privateMetadata.sqcGroupQuests as Array<Record<string, unknown>>;
+      quests[0].endAt = "2026-07-04T00:00:00.000Z";
+    },
+    user(userId: string) {
+      return structuredClone(users.get(userId)!);
+    },
+    client: {
+      users: {
+        getUser: async (userId: string) => structuredClone(users.get(userId)!),
+        updateUserMetadata: async (userId: string, metadata: Record<string, unknown>) => {
+          const publicMetadata = metadata.publicMetadata && typeof metadata.publicMetadata === "object"
+            ? metadata.publicMetadata as Record<string, unknown>
+            : null;
+          if (userId === "alpha" && publicMetadata && "challengeProgress" in publicMetadata && pauseAlphaAccountWrite) {
+            pauseAlphaAccountWrite = false;
+            signalAlphaAccountWrite();
+            await alphaAccountWriteGate;
+          }
+          if (userId === "beta" && publicMetadata && "challengeProgress" in publicMetadata && failBetaAccountWrite) {
+            failBetaAccountWrite = false;
+            throw new Error("injected beta account completion failure");
+          }
+          const user = users.get(userId)!;
+          if (publicMetadata) user.publicMetadata = deepMerge(user.publicMetadata, publicMetadata);
           if (metadata.privateMetadata && typeof metadata.privateMetadata === "object") {
             user.privateMetadata = deepMerge(user.privateMetadata, metadata.privateMetadata as Record<string, unknown>);
           }
@@ -659,6 +747,62 @@ test(`${variant} hosted completion reconciles the original receipt after account
   assert.equal(noop.status, 400, "finished quests close again after their pending receipt is acknowledged");
   assert.equal(state.writes.length, writesBeforeNoop, "a reconciled retry must not write another receipt or group snapshot");
   assert.equal((state.user("current").publicMetadata.challengeAttempts as unknown[]).length, 1);
+});
+
+test(`${variant} hosted acknowledgement preserves another participant's concurrent recovery receipt`, async () => {
+  const state = concurrentHostedClient();
+  const loadQuest = () => getStoredGroupQuests(state.user("host").privateMetadata)[0];
+  const acceptedProof = (userId: "alpha" | "beta") => ({
+    status: "passed" as const,
+    gameId: `${userId}-original-game`,
+    summary: `${userId} original proof passed`,
+    gameTime: "2026-07-03T04:05:06.000Z",
+  });
+  const run = (userId: "alpha" | "beta", check: () => ReturnType<typeof acceptedProof>) => {
+    const dependencies = {
+      authenticate: async () => userId,
+      getClient: async () => state.client,
+      findQuest: async () => ({ userId: "host", groupQuest: loadQuest() }),
+      check: async () => check(),
+    };
+    const context = { params: Promise.resolve({ id: "gq" }) };
+    return variant === "web"
+      ? webRoute.withWebRefreshRouteTestDependencies(dependencies as never, () => webRoute.POST(request(), context))
+      : mobileRoute.withMobileRefreshRouteTestDependencies(dependencies as never, () => mobileRoute.POST(request(), context));
+  };
+
+  const alphaRefresh = run("alpha", () => acceptedProof("alpha"));
+  await state.alphaAtAccountWrite;
+  await assert.rejects(run("beta", () => acceptedProof("beta")), /injected beta account completion failure/);
+  const betaBeforeAlphaAcknowledgement = loadQuest().participants.find((entry) => entry.userId === "beta")!;
+  const betaReceipt = structuredClone(betaBeforeAlphaAcknowledgement.pendingCompletions?.[0]);
+  assert.equal(betaReceipt?.gameId, "beta-original-game");
+  assert.deepEqual(betaBeforeAlphaAcknowledgement.completedQuestIds, ["new"]);
+
+  state.releaseAlphaAccountWrite();
+  assert.equal((await alphaRefresh).status, 200);
+  const afterAlphaAcknowledgement = loadQuest();
+  const alpha = afterAlphaAcknowledgement.participants.find((entry) => entry.userId === "alpha")!;
+  const beta = afterAlphaAcknowledgement.participants.find((entry) => entry.userId === "beta")!;
+  assert.deepEqual(alpha.pendingCompletions ?? [], []);
+  assert.deepEqual(beta.pendingCompletions, [betaReceipt]);
+  assert.deepEqual(beta.completedQuestIds, ["new"]);
+  assert.equal(beta.questFinishedAt?.new, "2026-07-03T04:05:06.000Z");
+  assert.equal(beta.score, 50);
+
+  state.expireQuest();
+  let retryChecks = 0;
+  const retry = await run("beta", () => {
+    retryChecks += 1;
+    throw new Error("durable receipt reconciliation must not request fresh proof");
+  });
+  assert.equal(retry.status, 200);
+  assert.equal(retryChecks, 0);
+  const attempts = state.user("beta").publicMetadata.challengeAttempts as Array<{ id: string; gameId: string }>;
+  assert.equal(attempts.length, 1);
+  assert.equal(attempts[0].id, betaReceipt?.id);
+  assert.equal(attempts[0].gameId, "beta-original-game");
+  assert.deepEqual(loadQuest().participants.find((entry) => entry.userId === "beta")!.pendingCompletions ?? [], []);
 });
 
 test(`${variant} hosted loader rejects a stored receipt for a different participant provider without writing`, async () => {

@@ -9,6 +9,7 @@ import {
   buildPendingGroupQuestCompletions,
 } from "@/lib/groupquest-completion-reconciliation";
 import {
+  acknowledgeHostGroupQuestCompletions,
   findGroupQuestById,
   isBuiltInOfficialGroupQuestHost,
   isGroupQuestFinished,
@@ -106,7 +107,19 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       await client.users.updateUserMetadata(userId, {
         publicMetadata: buildMultiplayerCompletionAccountPatch(participantUser.publicMetadata, pendingCompletions),
       });
-      await saveProgress(updateParticipantProgress(refreshedQuest, userId, { pendingCompletions: [] }));
+      const latestStorageUser = await client.users.getUser(storageUserId);
+      await client.users.updateUserMetadata(storageUserId, {
+        privateMetadata: {
+          ...(latestStorageUser.privateMetadata ?? {}),
+          sqcAnalytics: compactAnalyticsStore(getAnalyticsStore(latestStorageUser.privateMetadata)),
+          sqcGroupQuests: acknowledgeHostGroupQuestCompletions(
+            latestStorageUser.privateMetadata,
+            refreshedQuest.id,
+            userId,
+            pendingCompletions.map((receipt) => receipt.id),
+          ),
+        },
+      });
     },
   });
   return handler(request, id);
