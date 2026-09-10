@@ -3759,6 +3759,7 @@ function buildMobileSupportDiagnostics(signedIn: MobileAccountState | null) {
 }
 
 function HelpSupportModal({ visible, onClose, signedIn, authBridge, initialMessage = "" }: { visible: boolean; onClose: () => void; signedIn: MobileAccountState | null; authBridge: MobileAuthBridge; initialMessage?: string }) {
+  const closeButtonRef = useRef<View>(null);
   const [supportMessage, setSupportMessage] = useState(initialMessage);
   const [includeDiagnostics, setIncludeDiagnostics] = useState(false);
   const [localSupportMessages, setLocalSupportMessages] = useState<MobileSupportMessage[]>([]);
@@ -3768,6 +3769,11 @@ function HelpSupportModal({ visible, onClose, signedIn, authBridge, initialMessa
   const canComposeSupportMessage = canComposeMobileSupportMessage({ isSignedIn: authBridge.isSignedIn, hasSessionTokenGetter: typeof authBridge.getSessionToken === "function" });
   const supportThread = [...(signedIn?.supportMessages ?? []), ...localSupportMessages]
     .sort((a, b) => Date.parse(a.at) - Date.parse(b.at));
+
+  function focusCloseButton() {
+    const nodeHandle = findNodeHandle(closeButtonRef.current);
+    if (nodeHandle !== null) AccessibilityInfo.setAccessibilityFocus(nodeHandle);
+  }
 
   async function copySupportDetails() {
     await Clipboard.setStringAsync(buildMobileSupportDiagnostics(signedIn));
@@ -3828,11 +3834,11 @@ function HelpSupportModal({ visible, onClose, signedIn, authBridge, initialMessa
   }
 
   return (
-    <Modal visible={visible} animationType="slide" presentationStyle="fullScreen" onRequestClose={onClose}>
-      <SafeAreaView style={compactStyles.detailScreen}>
+    <Modal visible={visible} animationType="slide" presentationStyle="fullScreen" onShow={focusCloseButton} onRequestClose={onClose}>
+      <SafeAreaView style={compactStyles.detailScreen} accessibilityViewIsModal onAccessibilityEscape={onClose}>
         <LinearGradient colors={["#352021", "#171011", colors.bg]} style={StyleSheet.absoluteFill} />
         <View style={compactStyles.detailTopBar}>
-          <Pressable accessibilityRole="button" accessibilityLabel="Close Help and Support" style={compactStyles.detailCloseButton} onPress={onClose}>
+          <Pressable ref={closeButtonRef} accessibilityRole="button" accessibilityLabel="Close Help and Support" style={compactStyles.detailCloseButton} onPress={onClose}>
             <MaterialCommunityIcons name="close" size={23} color={colors.paper} />
           </Pressable>
         </View>
