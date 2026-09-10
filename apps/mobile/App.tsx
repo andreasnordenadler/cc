@@ -3871,6 +3871,7 @@ function HelpSupportModal({ visible, onClose, signedIn, authBridge, initialMessa
             <View style={styles.inputStack}>
               <Text style={styles.inputLabel}>Message</Text>
               <TextInput
+                accessibilityLabel="Support message"
                 value={supportMessage}
                 multiline
                 maxLength={MOBILE_SUPPORT_NOTE_MAX_LENGTH}
