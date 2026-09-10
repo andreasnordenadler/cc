@@ -261,6 +261,11 @@ function concurrentHostedClient() {
       const quests = host.privateMetadata.sqcGroupQuests as Array<Record<string, unknown>>;
       quests[0].endAt = "2026-07-04T00:00:00.000Z";
     },
+    removeParticipant(userId: "alpha" | "beta") {
+      const host = users.get("host")!;
+      const quests = host.privateMetadata.sqcGroupQuests as Array<{ participants: Array<{ userId: string }> }>;
+      quests[0].participants = quests[0].participants.filter((participant) => participant.userId !== userId);
+    },
     user(userId: string) {
       return structuredClone(users.get(userId)!);
     },
@@ -609,6 +614,8 @@ for (const variant of ["web", "mobile"] as const) {
   test(`${variant} exported POST persists and creates attempts only for the unique newly passed quest`, async () => {
     const writes: Array<{ userId: string; metadata: Record<string, unknown> }> = [];
     const client = fakeClient(writes);
+    await client.users.updateUserMetadata("host", { privateMetadata: { sqcGroupQuests: [structuredClone(baseQuest)] } });
+    writes.length = 0;
     const dependencies = {
       authenticate: async () => "current",
       getClient: async () => client,
@@ -803,6 +810,98 @@ test(`${variant} hosted acknowledgement preserves another participant's concurre
   assert.equal(attempts[0].id, betaReceipt?.id);
   assert.equal(attempts[0].gameId, "beta-original-game");
   assert.deepEqual(loadQuest().participants.find((entry) => entry.userId === "beta")!.pendingCompletions ?? [], []);
+});
+
+test(`${variant} hosted initial persistence preserves another participant's concurrent recovery receipt`, async () => {
+  const state = concurrentHostedClient();
+  state.releaseAlphaAccountWrite();
+  const loadQuest = () => getStoredGroupQuests(state.user("host").privateMetadata)[0];
+  const acceptedProof = (userId: "alpha" | "beta") => ({
+    status: "passed" as const,
+    gameId: `${userId}-original-game`,
+    summary: `${userId} original proof passed`,
+    gameTime: "2026-07-03T04:05:06.000Z",
+  });
+  let signalAlphaProof!: () => void;
+  const alphaAtProof = new Promise<void>((resolve) => { signalAlphaProof = resolve; });
+  let releaseAlphaProof!: () => void;
+  const alphaProofGate = new Promise<void>((resolve) => { releaseAlphaProof = resolve; });
+  const run = (userId: "alpha" | "beta") => {
+    const dependencies = {
+      authenticate: async () => userId,
+      getClient: async () => state.client,
+      findQuest: async () => ({ userId: "host", groupQuest: loadQuest() }),
+      check: async () => {
+        if (userId === "alpha") {
+          signalAlphaProof();
+          await alphaProofGate;
+        }
+        return acceptedProof(userId);
+      },
+    };
+    const context = { params: Promise.resolve({ id: "gq" }) };
+    return variant === "web"
+      ? webRoute.withWebRefreshRouteTestDependencies(dependencies as never, () => webRoute.POST(request(), context))
+      : mobileRoute.withMobileRefreshRouteTestDependencies(dependencies as never, () => mobileRoute.POST(request(), context));
+  };
+
+  const alphaRefresh = run("alpha");
+  await alphaAtProof;
+  await assert.rejects(run("beta"), /injected beta account completion failure/);
+  const betaBeforeAlphaSave = structuredClone(loadQuest().participants.find((entry) => entry.userId === "beta")!);
+  assert.equal(betaBeforeAlphaSave.pendingCompletions?.[0]?.gameId, "beta-original-game");
+  assert.deepEqual(betaBeforeAlphaSave.completedQuestIds, ["new"]);
+  assert.equal(betaBeforeAlphaSave.score, 50);
+
+  releaseAlphaProof();
+  assert.equal((await alphaRefresh).status, 200);
+  const betaAfterAlphaSave = loadQuest().participants.find((entry) => entry.userId === "beta")!;
+  assert.deepEqual(betaAfterAlphaSave.pendingCompletions, betaBeforeAlphaSave.pendingCompletions);
+  assert.deepEqual(betaAfterAlphaSave.completedQuestIds, betaBeforeAlphaSave.completedQuestIds);
+  assert.deepEqual(betaAfterAlphaSave.questFinishedAt, betaBeforeAlphaSave.questFinishedAt);
+  assert.equal(betaAfterAlphaSave.score, betaBeforeAlphaSave.score);
+});
+
+test(`${variant} hosted initial persistence refuses to reward a concurrently removed participant`, async () => {
+  const state = concurrentHostedClient();
+  state.releaseAlphaAccountWrite();
+  const loadQuest = () => getStoredGroupQuests(state.user("host").privateMetadata)[0];
+  let signalAlphaProof!: () => void;
+  const alphaAtProof = new Promise<void>((resolve) => { signalAlphaProof = resolve; });
+  let releaseAlphaProof!: () => void;
+  const alphaProofGate = new Promise<void>((resolve) => { releaseAlphaProof = resolve; });
+  const dependencies = {
+    authenticate: async () => "alpha",
+    getClient: async () => state.client,
+    findQuest: async () => ({ userId: "host", groupQuest: loadQuest() }),
+    check: async () => {
+      signalAlphaProof();
+      await alphaProofGate;
+      return {
+        status: "passed" as const,
+        gameId: "alpha-original-game",
+        summary: "alpha original proof passed",
+        gameTime: "2026-07-03T04:05:06.000Z",
+      };
+    },
+  };
+  const context = { params: Promise.resolve({ id: "gq" }) };
+  const refresh = variant === "web"
+    ? webRoute.withWebRefreshRouteTestDependencies(dependencies as never, () => webRoute.POST(request(), context))
+    : mobileRoute.withMobileRefreshRouteTestDependencies(dependencies as never, () => mobileRoute.POST(request(), context));
+
+  await alphaAtProof;
+  state.removeParticipant("alpha");
+  releaseAlphaProof();
+  if (variant === "web") {
+    await assert.rejects(refresh, /groupquest_progress_participant_missing/);
+  } else {
+    assert.equal((await refresh).status, 500);
+  }
+  assert.equal(loadQuest().participants.some((participant) => participant.userId === "alpha"), false);
+  const account = state.user("alpha").publicMetadata;
+  assert.deepEqual((account.challengeProgress as { completedChallengeIds: string[] }).completedChallengeIds, []);
+  assert.deepEqual(account.challengeAttempts, []);
 });
 
 test(`${variant} hosted loader rejects a stored receipt for a different participant provider without writing`, async () => {

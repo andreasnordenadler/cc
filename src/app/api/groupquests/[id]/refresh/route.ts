@@ -15,7 +15,7 @@ import {
   isGroupQuestFinished,
   persistOfficialGroupQuestCompletions,
   updateParticipantProgress,
-  upsertHostGroupQuest,
+  upsertHostGroupQuestParticipantProgress,
 } from "@/lib/groupquests";
 
 
@@ -97,7 +97,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
           privateMetadata: {
             ...(storageUser.privateMetadata ?? {}),
             sqcAnalytics: compactAnalyticsStore(getAnalyticsStore(storageUser.privateMetadata)),
-            sqcGroupQuests: upsertHostGroupQuest(storageUser.privateMetadata, quest),
+            sqcGroupQuests: upsertHostGroupQuestParticipantProgress(storageUser.privateMetadata, quest, userId),
           },
         });
       };
