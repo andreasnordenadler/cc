@@ -5347,7 +5347,7 @@ function QuestBoardDashboard({
         <Image source={SQC_GENERIC_COAT_GLOW_ASSET} style={compactStyles.sideQuestListEmblemGlow} resizeMode="contain" />
         <Image source={SQC_COAT_OF_ARMS_ASSET} style={compactStyles.sideQuestListEmblem} resizeMode="contain" />
       </View>
-      <View style={compactStyles.sideQuestBrandTabs}>
+      <View style={compactStyles.sideQuestBrandTabs} accessibilityRole="tablist" accessibilityLabel="Solo Side Quest catalogs">
         <Pressable
           accessibilityRole="tab"
           accessibilityState={{ selected: sideQuestCatalogTab === "official" }}
@@ -5362,6 +5362,9 @@ function QuestBoardDashboard({
           <Text style={[compactStyles.sideQuestBrandTabText, sideQuestCatalogTab === "official" && compactStyles.sideQuestBrandTabOfficialTextActive]} numberOfLines={2}>Official Side Quests</Text>
         </Pressable>
         <Pressable
+          accessible={false}
+          accessibilityElementsHidden
+          importantForAccessibility="no-hide-descendants"
           accessibilityRole="button"
           accessibilityLabel={sideQuestCatalogTab === "official" ? "Switch to Community Side Quests" : "Switch to Official Side Quests"}
           hitSlop={10}
@@ -6799,7 +6802,7 @@ function BottomNav({ activeTab, account, bottomInset, onSelectTab }: { activeTab
   const authenticated = isAuthenticatedAccount(account);
 
   return (
-    <View style={[styles.bottomNavBar, { paddingBottom: Math.max(bottomInset, 0) }]}>
+    <View style={[styles.bottomNavBar, { paddingBottom: Math.max(bottomInset, 0) }]} accessibilityRole="tablist" accessibilityLabel="Primary app navigation">
       {TABS.map((tab) => (
         <Pressable
           key={tab.id}
@@ -7916,7 +7919,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
         <Image source={SQC_GENERIC_COAT_GLOW_ASSET} style={compactStyles.sideQuestListEmblemGlow} resizeMode="contain" />
         <Image source={SQC_MULTIPLAYER_SEAL_ASSET} style={compactStyles.sideQuestListEmblem} resizeMode="contain" />
       </View>
-      <View style={compactStyles.sideQuestBrandTabs}>
+      <View style={compactStyles.sideQuestBrandTabs} accessibilityRole="tablist" accessibilityLabel="Multiplayer Side Quest catalogs">
         <Pressable
           accessibilityRole="tab"
           accessibilityState={{ selected: multiplayerCatalogTab === "official" }}
@@ -7931,6 +7934,9 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
           <Text style={[compactStyles.sideQuestBrandTabText, multiplayerCatalogTab === "official" && compactStyles.sideQuestBrandTabOfficialTextActive]} numberOfLines={2}>Official Side Quests</Text>
         </Pressable>
         <Pressable
+          accessible={false}
+          accessibilityElementsHidden
+          importantForAccessibility="no-hide-descendants"
           accessibilityRole="button"
           accessibilityLabel={multiplayerCatalogTab === "official" ? "Switch to Community Multiplayer Side Quests" : "Switch to Official Multiplayer Side Quests"}
           hitSlop={10}
@@ -8391,7 +8397,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
                   <Text style={[compactStyles.createFilterChipText, createShowSelectedOnly ? compactStyles.createFilterChipTextActive : null]}>Selected ({createQuestIds.length})</Text>
                 </Pressable>
               </View>
-              <View style={compactStyles.sideQuestBrandTabs}>
+              <View style={compactStyles.sideQuestBrandTabs} accessibilityRole="tablist" accessibilityLabel="Multiplayer creator Side Quest sources">
                 <Pressable
                   accessibilityRole="tab"
                   accessibilityState={{ selected: createQuestSourceTab === "official" }}
@@ -8406,6 +8412,9 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
                   <Text style={[compactStyles.sideQuestBrandTabText, createQuestSourceTab === "official" && compactStyles.sideQuestBrandTabOfficialTextActive]} numberOfLines={2}>Official ({officialCreateQuestChoiceCount})</Text>
                 </Pressable>
                 <Pressable
+                  accessible={false}
+                  accessibilityElementsHidden
+                  importantForAccessibility="no-hide-descendants"
                   accessibilityRole="button"
                   accessibilityLabel={createQuestSourceTab === "official" ? "Switch to Community Side Quests" : "Switch to Official Side Quests"}
                   hitSlop={10}
