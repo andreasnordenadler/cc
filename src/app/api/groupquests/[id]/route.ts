@@ -1,46 +1,94 @@
 import { auth, clerkClient } from "@clerk/nextjs/server";
+import { AsyncLocalStorage } from "node:async_hooks";
 import { NextResponse } from "next/server";
 import { compactAnalyticsStore, getAnalyticsStore, isAdminAnalyticsViewer } from "@/lib/analytics";
 import { getChallengeById } from "@/lib/challenges";
 import { findPublicCommunityCustomSideQuestById } from "@/lib/community-side-quests";
 import { getGroupQuestDetailHref, isCanonicalGroupQuestOwner } from "@/lib/groupquest-edit-access";
+import { runSerializedHostGroupQuestMutation } from "@/lib/groupquest-host-mutation-serialization";
 import { getCustomSideQuests, parseCustomRuleConfig, type CustomSideQuest } from "@/lib/custom-side-quests";
-import { findGroupQuestById, isGroupQuestFinished, upsertHostGroupQuest, type ServerGroupQuest } from "@/lib/groupquests";
+import { findGroupQuestById, getStoredGroupQuests, isGroupQuestFinished, upsertHostGroupQuest, type ServerGroupQuest } from "@/lib/groupquests";
 import { validateMultiplayerProofUpdate } from "@/lib/multiplayer-proof-rules";
 
+type WebUpdateRouteDependencies = {
+  authenticate: () => Promise<string | null>;
+  getClient: () => ReturnType<typeof clerkClient>;
+  findQuest: typeof findGroupQuestById;
+};
+
+const testDependencies = new AsyncLocalStorage<WebUpdateRouteDependencies>();
+
+export function withWebUpdateRouteTestDependencies<Result>(dependencies: WebUpdateRouteDependencies, callback: () => Result): Result {
+  if (process.env.NODE_ENV !== "test") throw new Error("Update route dependency overrides are test-only.");
+  return testDependencies.run(dependencies, callback);
+}
+
+function createWebUpdateRouteDependencies(): WebUpdateRouteDependencies {
+  return {
+    authenticate: async () => (await auth()).userId,
+    getClient: clerkClient,
+    findQuest: findGroupQuestById,
+  };
+}
+
 export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
-  const { userId } = await auth();
+  const dependencies = process.env.NODE_ENV === "test"
+    ? testDependencies.getStore() ?? createWebUpdateRouteDependencies()
+    : createWebUpdateRouteDependencies();
+  const userId = await dependencies.authenticate();
   if (!userId) return NextResponse.json({ ok: false, error: "sign_in_required" }, { status: 401 });
 
   const { id } = await params;
   const payload = await request.json().catch(() => null);
   if (!payload || typeof payload !== "object") return NextResponse.json({ ok: false, error: "invalid_payload" }, { status: 400 });
-  const client = await clerkClient();
-  const record = await findGroupQuestById(client, id);
+  const client = await dependencies.getClient();
+  const record = await dependencies.findQuest(client, id);
   if (!record) return NextResponse.json({ ok: false, error: "not_found" }, { status: 404 });
   if (!isCanonicalGroupQuestOwner(userId, { hostUserId: record.groupQuest.hostUserId, storageUserId: record.userId })) {
     return NextResponse.json({ ok: false, error: "forbidden" }, { status: 403 });
   }
   if (isGroupQuestFinished(record.groupQuest)) return NextResponse.json({ ok: false, error: "finished" }, { status: 400 });
-  const proofConfiguration = validateMultiplayerProofUpdate(payload as Record<string, unknown>, record.groupQuest);
-  if (!proofConfiguration.ok) return NextResponse.json({ ok: false, error: proofConfiguration.code }, { status: 400 });
-  const normalizedPayload: Record<string, unknown> = { ...(payload as Record<string, unknown>), ...proofConfiguration };
+  const initialProofConfiguration = validateMultiplayerProofUpdate(payload as Record<string, unknown>, record.groupQuest);
+  if (!initialProofConfiguration.ok) return NextResponse.json({ ok: false, error: initialProofConfiguration.code }, { status: 400 });
+  const rawPayload = payload as Record<string, unknown>;
 
-  const host = await client.users.getUser(record.userId);
   const signedInUser = await client.users.getUser(userId);
-  const questSelection = await buildGroupQuestSelection(client, normalizedPayload.questIds, signedInUser.privateMetadata, record.groupQuest);
-  if (questSelection.error) {
-    return NextResponse.json({ ok: false, error: questSelection.error }, { status: 400 });
-  }
   const canSetOfficial = isAdminAnalyticsViewer(signedInUser);
-  const updatedQuest = patchGroupQuest(record.groupQuest, normalizedPayload, canSetOfficial, questSelection);
-  await client.users.updateUserMetadata(record.userId, {
-    privateMetadata: {
-      ...(host.privateMetadata ?? {}),
-      sqcAnalytics: compactAnalyticsStore(getAnalyticsStore(host.privateMetadata)),
-      sqcGroupQuests: upsertHostGroupQuest(host.privateMetadata, updatedQuest),
-    },
+  const updateResult = await runSerializedHostGroupQuestMutation(record.userId, async () => {
+    const host = await client.users.getUser(record.userId);
+    const currentQuest = getStoredGroupQuests(host.privateMetadata).find((quest) => quest.id === id);
+    if (!currentQuest) return { ok: false as const, error: "groupquest_update_target_missing", status: 409 };
+    if (!isCanonicalGroupQuestOwner(userId, { hostUserId: currentQuest.hostUserId, storageUserId: record.userId })) {
+      return { ok: false as const, error: "groupquest_update_owner_changed", status: 409 };
+    }
+    if (isGroupQuestFinished(currentQuest)) return { ok: false as const, error: "finished", status: 409 };
+    const proofConfiguration = validateMultiplayerProofUpdate(rawPayload, currentQuest);
+    if (!proofConfiguration.ok) return { ok: false as const, error: proofConfiguration.code, status: 409 };
+    const normalizedPayload: Record<string, unknown> = { ...rawPayload, ...proofConfiguration };
+    const questSelection = await buildGroupQuestSelection(client, normalizedPayload.questIds, signedInUser.privateMetadata, currentQuest);
+    if (questSelection.error) return { ok: false as const, error: questSelection.error, status: 400 };
+    const groupQuest = patchGroupQuest(currentQuest, normalizedPayload, canSetOfficial, questSelection);
+    await client.users.updateUserMetadata(record.userId, {
+      privateMetadata: {
+        ...(host.privateMetadata ?? {}),
+        sqcAnalytics: compactAnalyticsStore(getAnalyticsStore(host.privateMetadata)),
+        sqcGroupQuests: upsertHostGroupQuest(host.privateMetadata, groupQuest),
+      },
+    });
+    return { ok: true as const, groupQuest };
+  }).catch((error: unknown) => {
+    if (error instanceof Error && (
+      error.message === "groupquest_pending_completion_lineup"
+      || error.message === "groupquest_pending_completion_history"
+    )) {
+      return { ok: false as const, error: error.message, status: 409 };
+    }
+    throw error;
   });
+  if (!updateResult.ok) {
+    return NextResponse.json({ ok: false, error: updateResult.error }, { status: updateResult.status });
+  }
+  const updatedQuest = updateResult.groupQuest;
 
   return NextResponse.json({
     ok: true,

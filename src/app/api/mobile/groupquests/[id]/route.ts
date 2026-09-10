@@ -6,6 +6,7 @@ import { getChallengeById } from "@/lib/challenges";
 import { findPublicCommunityCustomSideQuestById } from "@/lib/community-side-quests";
 import { getCustomSideQuests, parseCustomRuleConfig, type CustomSideQuest } from "@/lib/custom-side-quests";
 import { checkLatestGroupQuestChallenge } from "@/lib/groupquest-proof";
+import { isCanonicalGroupQuestOwner } from "@/lib/groupquest-edit-access";
 import { runSerializedHostGroupQuestMutation } from "@/lib/groupquest-host-mutation-serialization";
 import { createGroupQuestRefreshRouteHandler, isGroupQuestRefreshConflictError } from "@/lib/groupquest-refresh-route-handler";
 import {
@@ -20,6 +21,7 @@ import {
   buildParticipant,
   findGroupQuestById,
   findGroupQuestByInviteKey,
+  getStoredGroupQuests,
   isBuiltInOfficialGroupQuestHost,
   isGroupQuestFinished,
   persistOfficialGroupQuestCompletions,
@@ -194,35 +196,64 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   }
 
   if (action === "update") {
-    if (found.groupQuest.hostUserId !== userId) {
+    if (!isCanonicalGroupQuestOwner(userId, { hostUserId: found.groupQuest.hostUserId, storageUserId: found.userId })) {
       return NextResponse.json(
         { apiVersion: 1, authenticated: true, ok: false, message: "Only the owner can change Multiplayer Side Quest settings." },
         { status: 403 },
       );
     }
-    const proofConfiguration = validateMultiplayerProofUpdate(payload ?? {}, found.groupQuest);
-    if (!proofConfiguration.ok) return NextResponse.json(
-      { apiVersion: 1, authenticated: true, ok: false, code: proofConfiguration.code, message: "Choose valid Multiplayer proof rules and dates." },
+    const initialProofConfiguration = validateMultiplayerProofUpdate(payload ?? {}, found.groupQuest);
+    if (!initialProofConfiguration.ok) return NextResponse.json(
+      { apiVersion: 1, authenticated: true, ok: false, code: initialProofConfiguration.code, message: "Choose valid Multiplayer proof rules and dates." },
       { status: 400 },
     );
-    normalizedPayload = { ...(payload ?? {}), ...proofConfiguration };
 
-    const questSelection = await buildGroupQuestSelection(client, payload?.questIds, user.privateMetadata, found.groupQuest);
-    if (questSelection.error) {
+    const saved = await saveHostQuestUpdateSafely(client, found.userId, found.groupQuest.id, async (currentQuest) => {
+      if (!isCanonicalGroupQuestOwner(userId, { hostUserId: currentQuest.hostUserId, storageUserId: found.userId })) {
+        return {
+          ok: false as const,
+          status: 409 as const,
+          code: "groupquest_update_conflict",
+          message: "The Multiplayer Side Quest owner changed before the settings could be saved.",
+        };
+      }
+      if (isGroupQuestFinished(currentQuest)) {
+        return {
+          ok: false as const,
+          status: 409 as const,
+          code: "groupquest_update_conflict",
+          message: "This Multiplayer Side Quest ended before the settings change could be saved.",
+        };
+      }
+      const currentProofConfiguration = validateMultiplayerProofUpdate(payload ?? {}, currentQuest);
+      if (!currentProofConfiguration.ok) {
+        return {
+          ok: false as const,
+          status: 409 as const,
+          code: currentProofConfiguration.code,
+          message: "The Multiplayer Side Quest changed before these proof settings could be saved.",
+        };
+      }
+      const currentPayload = { ...(payload ?? {}), ...currentProofConfiguration };
+      const questSelection = await buildGroupQuestSelection(client, payload?.questIds, user.privateMetadata, currentQuest);
+      if (questSelection.error) {
+        return { ok: false as const, status: 400 as const, message: questSelection.error };
+      }
+      return { ok: true as const, groupQuest: patchMobileGroupQuest(currentQuest, currentPayload, questSelection) };
+    });
+    if (!saved.ok) {
       return NextResponse.json(
-        { apiVersion: 1, authenticated: true, ok: false, message: questSelection.error },
-        { status: 400 },
+        {
+          apiVersion: 1,
+          authenticated: true,
+          ok: false,
+          ...(saved.code ? { code: saved.code } : {}),
+          message: saved.message,
+        },
+        { status: saved.status },
       );
     }
-
-    const updatedQuest = patchMobileGroupQuest(found.groupQuest, normalizedPayload ?? {}, questSelection);
-    const saveError = await saveHostQuestSafely(client, found.userId, updatedQuest);
-    if (saveError) {
-      return NextResponse.json(
-        { apiVersion: 1, authenticated: true, ok: false, message: saveError },
-        { status: 500 },
-      );
-    }
+    const updatedQuest = saved.groupQuest;
 
     return NextResponse.json({
       apiVersion: 1,
@@ -617,6 +648,56 @@ async function saveHostQuestSafely(
   }
 }
 
+type MobileHostQuestUpdateResult =
+  | { ok: true; groupQuest: ServerGroupQuest }
+  | { ok: false; status: 400 | 409 | 500; code?: string; message: string };
+
+async function saveHostQuestUpdateSafely(
+  client: Awaited<ReturnType<typeof clerkClient>>,
+  hostUserId: string,
+  groupQuestId: string,
+  update: (currentQuest: ServerGroupQuest) => MobileHostQuestUpdateResult | Promise<MobileHostQuestUpdateResult>,
+): Promise<MobileHostQuestUpdateResult> {
+  try {
+    return await runSerializedHostGroupQuestMutation(hostUserId, async () => {
+      const host = await client.users.getUser(hostUserId);
+      const currentQuest = getStoredGroupQuests(host.privateMetadata).find((quest) => quest.id === groupQuestId);
+      if (!currentQuest) {
+        return {
+          ok: false,
+          status: 409,
+          code: "groupquest_update_target_missing",
+          message: "This Multiplayer Side Quest no longer exists, so the settings were not saved.",
+        };
+      }
+      const result = await update(currentQuest);
+      if (!result.ok) return result;
+      await client.users.updateUserMetadata(hostUserId, {
+        privateMetadata: {
+          ...(host.privateMetadata ?? {}),
+          sqcAnalytics: compactAnalyticsStore(getAnalyticsStore(host.privateMetadata)),
+          sqcGroupQuests: upsertHostGroupQuest(host.privateMetadata, result.groupQuest),
+        },
+      });
+      return result;
+    });
+  } catch (error) {
+    if (error instanceof Error && (
+      error.message === "groupquest_pending_completion_lineup"
+      || error.message === "groupquest_pending_completion_history"
+    )) {
+      return {
+        ok: false,
+        status: 409,
+        code: error.message,
+        message: "Reconcile pending Multiplayer proof receipts before changing this Side Quest lineup.",
+      };
+    }
+    console.error("mobile_groupquest_save_failed", error);
+    return { ok: false, status: 500, message: "Could not save Multiplayer Side Quest settings right now. Please try again." };
+  }
+}
+
 async function saveMobileHostQuestProgressSafely(
   client: Awaited<ReturnType<typeof clerkClient>>,
   hostUserId: string,
@@ -624,17 +705,19 @@ async function saveMobileHostQuestProgressSafely(
   participantUserId: string,
 ) {
   try {
-    const host = await client.users.getUser(hostUserId);
-    await client.users.updateUserMetadata(hostUserId, {
-      privateMetadata: {
-        ...(host.privateMetadata ?? {}),
-        sqcAnalytics: compactAnalyticsStore(getAnalyticsStore(host.privateMetadata)),
-        sqcGroupQuests: upsertHostGroupQuestParticipantProgress(
-          host.privateMetadata,
-          groupQuest,
-          participantUserId,
-        ),
-      },
+    await runSerializedHostGroupQuestMutation(hostUserId, async () => {
+      const host = await client.users.getUser(hostUserId);
+      await client.users.updateUserMetadata(hostUserId, {
+        privateMetadata: {
+          ...(host.privateMetadata ?? {}),
+          sqcAnalytics: compactAnalyticsStore(getAnalyticsStore(host.privateMetadata)),
+          sqcGroupQuests: upsertHostGroupQuestParticipantProgress(
+            host.privateMetadata,
+            groupQuest,
+            participantUserId,
+          ),
+        },
+      });
     });
     return null;
   } catch (error) {
@@ -652,18 +735,20 @@ async function acknowledgeMobileHostQuestSafely(
   receiptIds: readonly string[],
 ) {
   try {
-    const host = await client.users.getUser(hostUserId);
-    await client.users.updateUserMetadata(hostUserId, {
-      privateMetadata: {
-        ...(host.privateMetadata ?? {}),
-        sqcAnalytics: compactAnalyticsStore(getAnalyticsStore(host.privateMetadata)),
-        sqcGroupQuests: acknowledgeHostGroupQuestCompletions(
-          host.privateMetadata,
-          groupQuestId,
-          participantUserId,
-          receiptIds,
-        ),
-      },
+    await runSerializedHostGroupQuestMutation(hostUserId, async () => {
+      const host = await client.users.getUser(hostUserId);
+      await client.users.updateUserMetadata(hostUserId, {
+        privateMetadata: {
+          ...(host.privateMetadata ?? {}),
+          sqcAnalytics: compactAnalyticsStore(getAnalyticsStore(host.privateMetadata)),
+          sqcGroupQuests: acknowledgeHostGroupQuestCompletions(
+            host.privateMetadata,
+            groupQuestId,
+            participantUserId,
+            receiptIds,
+          ),
+        },
+      });
     });
     return null;
   } catch (error) {
