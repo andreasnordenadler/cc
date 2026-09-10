@@ -589,6 +589,145 @@ for (const variant of ["web", "mobile"] as const) {
     assert.equal(providerReads, 1, "inconsistent replay evidence must not trigger a second metadata lookup");
   });
 
+  test(`${variant} exported refresh persists a valid custom checkmate receipt and account reward`, async (t) => {
+    const writes: Array<{ userId: string; metadata: Record<string, unknown> }> = [];
+    const client = fakeClient(writes);
+    const challengeId = "custom-valid-checkmate";
+    const quest = structuredClone(baseQuest);
+    quest.questIds = [challengeId];
+    quest.customQuestSnapshots = [{
+      id: challengeId,
+      title: "The Honest Mate",
+      summary: "Win the game.",
+      config: JSON.stringify({
+        version: 2,
+        logic: "all",
+        blocks: [{ type: "gameResult", result: "win" }],
+      }),
+      reward: 100,
+    }];
+    quest.participants = [{
+      userId: "current",
+      provider: "lichess",
+      username: "CurrentLichess",
+      leaderboardName: "Current",
+      joinedAt: "2026-07-01T00:00:00.000Z",
+      completedQuestIds: [],
+      questFinishedAt: {},
+      score: 0,
+    }];
+    await client.users.updateUserMetadata("host", { privateMetadata: { sqcGroupQuests: [quest] } });
+    writes.length = 0;
+
+    let providerReads = 0;
+    t.mock.method(globalThis, "fetch", async () => {
+      providerReads += 1;
+      return new Response(`${JSON.stringify({
+        id: "Replay03",
+        status: "mate",
+        winner: "black",
+        variant: "standard",
+        speed: "blitz",
+        rated: true,
+        clock: { initial: 180, increment: 0 },
+        createdAt: Date.parse("2026-07-02T09:55:00.000Z"),
+        lastMoveAt: Date.parse("2026-07-02T10:00:00.000Z"),
+        moves: "f2f3 e7e5 g2g4 d8h4",
+        players: {
+          white: { user: { name: "Opponent" } },
+          black: { user: { name: "CurrentLichess" } },
+        },
+      })}\n`, { status: 200 });
+    });
+    const dependencies = {
+      authenticate: async () => "current",
+      getClient: async () => client,
+      findQuest: async () => ({ userId: "host", groupQuest: quest }),
+      check: checkLatestGroupQuestChallenge,
+    };
+
+    const response = await (variant === "web"
+      ? webRoute.withWebRefreshRouteTestDependencies(dependencies as never, () => webRoute.POST(request(), { params: Promise.resolve({ id: "gq" }) }))
+      : mobileRoute.withMobileRefreshRouteTestDependencies(dependencies as never, () => mobileRoute.POST(request(), { params: Promise.resolve({ id: "gq" }) })));
+    const body = await response.json();
+
+    assert.equal(response.status, 200);
+    assert.equal(providerReads, 2, "custom proof and matching latest-game metadata must bind to the same replay");
+    assert.deepEqual(body.completedQuestIds, [challengeId]);
+    assert.deepEqual(body.newlyPassedQuestIds, [challengeId]);
+    assert.equal(body.score, 100);
+    assert.deepEqual(body.checks, [{
+      questId: challengeId,
+      status: "passed",
+      summary: "Verified Replay03. The Honest Mate is complete. Condition 1: passed. Game result was win.",
+      gameId: "Replay03",
+      gameUrl: "https://lichess.org/Replay03",
+      gameTime: "2026-07-02T10:00:00.000Z",
+      outcome: "win",
+      mismatchReasons: [],
+      finalPositionFen: "rnb1kbnr/pppp1ppp/8/4p3/6Pq/5P2/PPPPP2P/RNBQKBNR w KQkq - 1 3",
+      lastMoveUci: "d8h4",
+      lastMoveSan: "Qh4#",
+    }]);
+    assert.equal(writes.length, 3, "receipt persistence, account projection, then acknowledgement are required");
+    assert.equal(writes[0].userId, "host");
+    assert.equal(writes[1].userId, "current");
+    assert.equal(writes[2].userId, "host");
+
+    const firstQuest = ((writes[0].metadata.privateMetadata as {
+      sqcGroupQuests: Array<{ participants: Array<Record<string, unknown>> }>;
+    }).sqcGroupQuests[0]);
+    const persistedParticipant = firstQuest.participants.find((entry) => entry.userId === "current")!;
+    const receipt = (persistedParticipant.pendingCompletions as Array<Record<string, unknown>>)[0];
+    assert.deepEqual(persistedParticipant.completedQuestIds, [challengeId]);
+    assert.deepEqual(persistedParticipant.questFinishedAt, { [challengeId]: "2026-07-02T10:00:00.000Z" });
+    assert.equal(persistedParticipant.score, 100);
+    assert.equal(new Date(String(receipt.checkedAt)).toISOString(), receipt.checkedAt);
+    assert.equal(receipt.id, `gq:${challengeId}:multiplayer:lichess:Replay03:${receipt.checkedAt}`);
+    assert.deepEqual(receipt, {
+      id: receipt.id,
+      challengeId,
+      gameId: "Replay03",
+      provider: "lichess",
+      summary: body.checks[0].summary,
+      checkedAt: receipt.checkedAt,
+      completedGameAt: "2026-07-02T10:00:00.000Z",
+      finalPositionFen: body.checks[0].finalPositionFen,
+      lastMoveUci: "d8h4",
+      lastMoveSan: "Qh4#",
+    });
+
+    const accountPatch = writes[1].metadata.publicMetadata as {
+      challengeProgress: Record<string, unknown>;
+      challengeAttempts: Array<Record<string, unknown>>;
+    };
+    assert.deepEqual(accountPatch.challengeProgress, {
+      completedChallengeIds: ["old", challengeId],
+      totalCompletedChallenges: 2,
+      totalRewardPoints: 100,
+    });
+    assert.deepEqual(accountPatch.challengeAttempts, [{
+      id: receipt.id,
+      challengeId,
+      gameId: "Replay03",
+      provider: "lichess",
+      status: "passed",
+      summary: `Multiplayer proof verified: ${body.checks[0].summary}`,
+      checkedAt: receipt.checkedAt,
+      completedGameAt: "2026-07-02T10:00:00.000Z",
+      finalPositionFen: body.checks[0].finalPositionFen,
+      lastMoveUci: "d8h4",
+      lastMoveSan: "Qh4#",
+    }]);
+    const acknowledgedQuest = ((writes[2].metadata.privateMetadata as {
+      sqcGroupQuests: Array<{ participants: Array<Record<string, unknown>> }>;
+    }).sqcGroupQuests[0]);
+    const acknowledgedParticipant = acknowledgedQuest.participants.find((entry) => entry.userId === "current")!;
+    assert.deepEqual(acknowledgedParticipant.pendingCompletions ?? [], []);
+    assert.deepEqual(acknowledgedParticipant.completedQuestIds, [challengeId]);
+    assert.equal(acknowledgedParticipant.score, 100);
+  });
+
   test(`${variant} exported POST ignores attacker participant selection and performs no writes for mismatches/already-completed proofs`, async () => {
     const checked: Array<{ questId: string; provider: string; username: string }> = [];
     const writes: Array<{ userId: string; metadata: Record<string, unknown> }> = [];
