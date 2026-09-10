@@ -55,6 +55,7 @@ import { completeMobilePasswordReset, prepareMobilePasswordReset, verifyMobilePa
 import { OFFLINE_MOBILE_BOOTSTRAP } from "./src/data/offlineBootstrap";
 import { shouldStackActiveQuestSummary } from "./src/layout/activeQuestLayout";
 import { createMobileHomeProofRefreshCoordinator, toMobileHomeProofRefreshActionState, type MobileHomeProofRefreshFeedback, type MobileHomeProofRefreshSnapshot } from "./src/home/mobileHomeProofRefresh";
+import { describeMobileBoard, describeMobileBoardSquare } from "./src/proof/mobileBoardAccessibility";
 import { shouldUseDevTrackerPreview } from "./src/preview/devTrackerPreview";
 import { createMobileCommunityCreatorReportSubmitter } from "./src/reports/communityCreatorReport";
 import { canReportCommunityMultiplayerQuest, createMobileCommunityReportSubmitter } from "./src/reports/communityMultiplayerReport";
@@ -425,24 +426,30 @@ function FailureDiagnosticBoard({ receipt }: { receipt: MobileAccountState["late
   const boardContext = board
     ? `${orientation === "black" ? "Shown from Black’s side" : "Shown from White’s side"} · highlighted squares show the breaker move`
     : "Board position unavailable · reason shown below";
+  const boardAccessibilityLabel = board ? describeMobileBoard({
+    purpose: "Rule-break position",
+    orientation,
+    highlightedMove: uci,
+    squares: board,
+  }) : "Rule-break chess board unavailable.";
 
   return (
     <View style={compactStyles.failureBoardPanel}>
       <View style={compactStyles.failureBoardHeader}>
-        <Text style={compactStyles.failureBoardKicker}>Side Quest Chess referee board</Text>
+        <Text accessible accessibilityRole="text" accessibilityLabel={boardAccessibilityLabel} style={compactStyles.failureBoardKicker}>Side Quest Chess referee board</Text>
         <Text style={compactStyles.failureBoardMove}>{boardTitle}</Text>
         <Text style={compactStyles.failureBoardSubhead}>{boardContext}</Text>
       </View>
       {board ? (
         <View style={compactStyles.failureBoardFrame}>
           <View style={compactStyles.failureBoardInnerFrame}>
-            <View style={compactStyles.failureBoard}>
+            <View accessible={false} style={compactStyles.failureBoard}>
               {board.map((square, index) => (
-                <View key={square.square} style={[compactStyles.failureBoardSquare, (Math.floor(index / 8) + index) % 2 === 0 ? compactStyles.failureBoardSquareLight : compactStyles.failureBoardSquareDark, square.highlight ? compactStyles.failureBoardSquareHighlight : null]}>
-                  {square.rankLabel ? <Text style={compactStyles.failureBoardRankLabel}>{square.rankLabel}</Text> : null}
-                  {square.fileLabel ? <Text style={compactStyles.failureBoardFileLabel}>{square.fileLabel}</Text> : null}
+                <View accessible accessibilityRole="text" accessibilityLabel={describeMobileBoardSquare(square)} key={square.square} style={[compactStyles.failureBoardSquare, (Math.floor(index / 8) + index) % 2 === 0 ? compactStyles.failureBoardSquareLight : compactStyles.failureBoardSquareDark, square.highlight ? compactStyles.failureBoardSquareHighlight : null]}>
+                  {square.rankLabel ? <Text accessible={false} style={compactStyles.failureBoardRankLabel}>{square.rankLabel}</Text> : null}
+                  {square.fileLabel ? <Text accessible={false} style={compactStyles.failureBoardFileLabel}>{square.fileLabel}</Text> : null}
                   {square.highlight ? <View style={compactStyles.failureBoardHighlightRing} /> : null}
-                  <Text style={[compactStyles.failureBoardPiece, square.piece && square.piece === square.piece.toUpperCase() ? compactStyles.failureBoardPieceWhite : compactStyles.failureBoardPieceBlack]}>{square.piece ? MOBILE_CHESS_PIECES[square.piece] : ""}</Text>
+                  <Text accessible={false} style={[compactStyles.failureBoardPiece, square.piece && square.piece === square.piece.toUpperCase() ? compactStyles.failureBoardPieceWhite : compactStyles.failureBoardPieceBlack]}>{square.piece ? MOBILE_CHESS_PIECES[square.piece] : ""}</Text>
                 </View>
               ))}
             </View>
@@ -488,23 +495,29 @@ function VictoryProofBoard({ proof }: { proof: VictoryProofBoardInput | null | u
 
   const moveText = proof?.lastMoveSan ?? proof?.lastMoveUci ?? null;
   const sourceText = [proof?.provider, proof?.gameId].filter(Boolean).join(" · ");
+  const boardAccessibilityLabel = describeMobileBoard({
+    purpose: "Final verified position",
+    orientation,
+    highlightedMove: proof?.lastMoveUci,
+    squares: board,
+  });
 
   return (
     <View style={compactStyles.failureBoardPanel}>
       <View style={compactStyles.failureBoardHeader}>
-        <Text style={compactStyles.failureBoardKicker}>Side Quest Chess proof board</Text>
+        <Text accessible accessibilityRole="text" accessibilityLabel={boardAccessibilityLabel} style={compactStyles.failureBoardKicker}>Side Quest Chess proof board</Text>
         <Text style={compactStyles.failureBoardMove}>{moveText ? `Final position · ${moveText}` : "Verified final position"}</Text>
         <Text style={compactStyles.failureBoardSubhead}>{sourceText || "This is the verified board attached to the completed quest."}</Text>
       </View>
       <View style={compactStyles.failureBoardFrame}>
         <View style={compactStyles.failureBoardInnerFrame}>
-          <View style={compactStyles.failureBoard}>
+          <View accessible={false} style={compactStyles.failureBoard}>
             {board.map((square, index) => (
-              <View key={square.square} style={[compactStyles.failureBoardSquare, (Math.floor(index / 8) + index) % 2 === 0 ? compactStyles.failureBoardSquareLight : compactStyles.failureBoardSquareDark, square.highlight ? compactStyles.failureBoardSquareHighlight : null]}>
-                {square.rankLabel ? <Text style={compactStyles.failureBoardRankLabel}>{square.rankLabel}</Text> : null}
-                {square.fileLabel ? <Text style={compactStyles.failureBoardFileLabel}>{square.fileLabel}</Text> : null}
+              <View accessible accessibilityRole="text" accessibilityLabel={describeMobileBoardSquare(square)} key={square.square} style={[compactStyles.failureBoardSquare, (Math.floor(index / 8) + index) % 2 === 0 ? compactStyles.failureBoardSquareLight : compactStyles.failureBoardSquareDark, square.highlight ? compactStyles.failureBoardSquareHighlight : null]}>
+                {square.rankLabel ? <Text accessible={false} style={compactStyles.failureBoardRankLabel}>{square.rankLabel}</Text> : null}
+                {square.fileLabel ? <Text accessible={false} style={compactStyles.failureBoardFileLabel}>{square.fileLabel}</Text> : null}
                 {square.highlight ? <View style={compactStyles.failureBoardHighlightRing} /> : null}
-                <Text style={[compactStyles.failureBoardPiece, square.piece && square.piece === square.piece.toUpperCase() ? compactStyles.failureBoardPieceWhite : compactStyles.failureBoardPieceBlack]}>{square.piece ? MOBILE_CHESS_PIECES[square.piece] : ""}</Text>
+                <Text accessible={false} style={[compactStyles.failureBoardPiece, square.piece && square.piece === square.piece.toUpperCase() ? compactStyles.failureBoardPieceWhite : compactStyles.failureBoardPieceBlack]}>{square.piece ? MOBILE_CHESS_PIECES[square.piece] : ""}</Text>
               </View>
             ))}
           </View>
