@@ -29,6 +29,11 @@ export type GroupQuestParticipant = {
   lastProofAt?: string;
 };
 
+export type GroupQuestMembershipExpectation = Pick<
+  GroupQuestParticipant,
+  "joinedAt" | "provider" | "username"
+> | null;
+
 export type ServerGroupQuest = {
   id: string;
   hostUserId: string;
@@ -716,6 +721,24 @@ export function upsertHostGroupQuestParticipantProgress(
     lastProofAt: refreshedParticipant.lastProofAt,
   });
   return upsertHostGroupQuest(metadata, mergedQuest);
+}
+
+export function upsertHostGroupQuestParticipantJoin(
+  metadata: unknown,
+  groupQuestId: string,
+  participant: GroupQuestParticipant,
+  expectedMembership: GroupQuestMembershipExpectation,
+) {
+  const currentQuest = getStoredGroupQuests(metadata).find((quest) => quest.id === groupQuestId);
+  if (!currentQuest) throw new Error("groupquest_join_target_missing");
+  const currentParticipant = currentQuest.participants.find((entry) => entry.userId === participant.userId);
+  if (expectedMembership && (
+    !currentParticipant
+    || currentParticipant.joinedAt !== expectedMembership.joinedAt
+    || currentParticipant.provider !== expectedMembership.provider
+    || currentParticipant.username !== expectedMembership.username
+  )) throw new Error("groupquest_membership_changed");
+  return upsertHostGroupQuest(metadata, joinGroupQuest(currentQuest, participant));
 }
 
 export function acknowledgeHostGroupQuestCompletions(

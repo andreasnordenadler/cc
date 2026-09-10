@@ -23,11 +23,25 @@ function participantQuest(official: boolean): ServerGroupQuest {
   return quest;
 }
 
-function fakeClient() {
+function webJoinInput(groupQuest: ServerGroupQuest) {
+  return {
+    authenticatedUserId: "joiner",
+    hostUserId: groupQuest.hostUserId,
+    groupQuest,
+    participant: groupQuest.participants[0],
+    expectedMembership: null,
+  };
+}
+
+function fakeClient(hostQuest?: ServerGroupQuest) {
   const writes: Array<{ userId: string; metadata: Record<string, unknown> }> = [];
   const users = new Map([
     ["joiner", { id: "joiner", publicMetadata: { theme: "dark" }, privateMetadata: { keepPrivate: true } }],
-    ["community-host", { id: "community-host", publicMetadata: { keepPublic: true }, privateMetadata: { hostSecret: "keep" } }],
+    ["community-host", {
+      id: "community-host",
+      publicMetadata: { keepPublic: true },
+      privateMetadata: { hostSecret: "keep", ...(hostQuest ? { sqcGroupQuests: [structuredClone(hostQuest)] } : {}) },
+    }],
   ]);
   return {
     writes,
@@ -73,7 +87,7 @@ for (const variant of ["web", "mobile"] as const) {
     const { client, writes } = fakeClient();
     const quest = participantQuest(true);
     if (variant === "web") {
-      await saveWebJoinedQuest(client as never, { authenticatedUserId: "joiner", hostUserId: "official-sqc", joinedQuest: quest });
+      await saveWebJoinedQuest(client as never, webJoinInput(quest));
     } else {
       assert.equal(await saveMobileGroupQuest(client as never, "official-sqc", quest, "joiner"), null);
     }
@@ -90,10 +104,10 @@ for (const variant of ["web", "mobile"] as const) {
   });
 
   test(`${variant} community join remains in host private metadata`, async () => {
-    const { client, writes } = fakeClient();
     const quest = participantQuest(false);
+    const { client, writes } = fakeClient(quest);
     if (variant === "web") {
-      await saveWebJoinedQuest(client as never, { authenticatedUserId: "joiner", hostUserId: "community-host", joinedQuest: quest });
+      await saveWebJoinedQuest(client as never, webJoinInput(quest));
     } else {
       assert.equal(await saveMobileGroupQuest(client as never, "community-host", quest, "joiner"), null);
     }
@@ -121,7 +135,7 @@ for (const variant of ["web", "mobile"] as const) {
     assert.equal(Boolean((await listPublicGroupQuests(client as never)).find(({ id }) => id === quest.id)?.participants.some(({ userId }) => userId === "joiner")), false);
     assert.equal((await listUserRelatedGroupQuests(client as never, "joiner")).some(({ id }) => id === quest.id), false);
 
-    if (variant === "web") await saveWebJoinedQuest(client as never, { authenticatedUserId: "joiner", hostUserId: "official-sqc", joinedQuest: quest });
+    if (variant === "web") await saveWebJoinedQuest(client as never, webJoinInput(quest));
     else assert.equal(await saveMobileGroupQuest(client as never, "official-sqc", quest, "joiner"), null);
     const stored = (user.publicMetadata[OFFICIAL_GROUP_QUEST_METADATA_KEY] as Record<string, Record<string, unknown>>)[quest.id];
     assert.equal(stored.active, true, "rejoin replaces the tombstone state");
@@ -136,8 +150,8 @@ test("overlapping official quest patches preserve both participations and unrela
   const { client, user } = statefulClient({ unrelated: { concurrent: "kept" } }, {});
 
   await Promise.all([
-    saveWebJoinedQuest(client as never, { authenticatedUserId: "joiner", hostUserId: "official-sqc", joinedQuest: first }),
-    saveWebJoinedQuest(client as never, { authenticatedUserId: "joiner", hostUserId: "official-sqc", joinedQuest: second }),
+    saveWebJoinedQuest(client as never, webJoinInput(first)),
+    saveWebJoinedQuest(client as never, webJoinInput(second)),
   ]);
 
   assert.equal((user.publicMetadata.unrelated as Record<string, unknown>).concurrent, "kept");

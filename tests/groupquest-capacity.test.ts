@@ -58,9 +58,9 @@ test("web exported join dependencies remain isolated across overlapping requests
     getAuthenticatedUserId: async () => { if (blocked) { started(); await waiting; } return id; },
     findQuestById: async (questId) => ({ userId: "host", groupQuest: { ...quest(0), id: questId } }),
     getUser: async (userId) => ({ id: userId, firstName: userId, publicMetadata: { lichessUsername: userId } }),
-    saveJoinedQuest: async ({ authenticatedUserId, joinedQuest }) => {
-      assert.equal(joinedQuest.id, id);
-      assert.equal(joinedQuest.participants[0].userId, id);
+    saveJoinedQuest: async ({ authenticatedUserId, groupQuest, participant: joinedParticipant }) => {
+      assert.equal(groupQuest.id, id);
+      assert.equal(joinedParticipant.userId, id);
       saved.push(authenticatedUserId);
     },
   }, () => webRoute.POST(new Request("https://sqc.test/join", { method: "POST", body: "{}" }), { params: Promise.resolve({ id }) }));
@@ -129,7 +129,7 @@ test("mobile join rejects a historical profile-truncated login email before pers
         publicMetadata: { lichessUsername: "PublicPlayer", runnerDisplayName: emailPrefix },
         privateMetadata: {},
       }
-    : { id, publicMetadata: {}, privateMetadata: {} };
+    : { id, publicMetadata: {}, privateMetadata: { sqcGroupQuests: [quest(0)] } };
   const response = await mobileRoute.withMobileRefreshRouteTestDependencies({
     authenticate: async () => "new-player",
     getClient: async () => ({ users: {
@@ -162,7 +162,7 @@ test("mobile join rejects an email-shaped Clerk first name before persistence", 
         publicMetadata: { lichessUsername: "PublicPlayer" },
         privateMetadata: {},
       }
-    : { id, publicMetadata: {}, privateMetadata: {} };
+    : { id, publicMetadata: {}, privateMetadata: { sqcGroupQuests: [quest(0)] } };
   const response = await mobileRoute.withMobileRefreshRouteTestDependencies({
     authenticate: async () => "new-player",
     getClient: async () => ({ users: {
