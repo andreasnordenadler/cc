@@ -456,6 +456,23 @@ test("provider retries are limited to idempotent reads", async () => {
   assert.equal(calls, 1);
 });
 
+test("provider JSON reads cancel a final non-success response body", async () => {
+  let cancelled = false;
+  const body = new ReadableStream<Uint8Array>({
+    start(controller) { controller.enqueue(new TextEncoder().encode("provider failure")); },
+    cancel() { cancelled = true; },
+  });
+
+  const result = await fetchBoundedProviderJson("https://provider.example/game", {}, {
+    maxBytes: 32,
+    timeoutMs: 100,
+    fetcher: async () => new Response(body, { status: 404 }),
+  });
+
+  assert.equal(result, null);
+  assert.equal(cancelled, true);
+});
+
 test("latest Lichess proof rejects an oversized provider payload", async (t) => {
   const originalFetch = globalThis.fetch;
   const validGame = JSON.stringify({
