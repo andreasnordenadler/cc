@@ -59,6 +59,7 @@ import {
   buildPendingGroupQuestCompletions,
   normalizePendingGroupQuestCompletions,
 } from "../src/lib/groupquest-completion-reconciliation";
+import { checkLatestGroupQuestChallenge } from "../src/lib/groupquest-proof";
 
 function setNodeEnv(value: string | undefined) {
   Object.defineProperty(process.env, "NODE_ENV", { value, writable: true, configurable: true, enumerable: true });
@@ -337,6 +338,75 @@ for (const variant of ["web", "mobile"] as const) {
 }
 
 for (const variant of ["web", "mobile"] as const) {
+  test(`${variant} exported refresh keeps an invalid custom replay pending without persistence`, async (t) => {
+    const writes: Array<{ userId: string; metadata: Record<string, unknown> }> = [];
+    const client = fakeClient(writes);
+    const quest = structuredClone(baseQuest);
+    quest.questIds = ["invalid-replay"];
+    quest.customQuestSnapshots = [{
+      id: "invalid-replay",
+      title: "The Vanishing Queen",
+      summary: "Finish without your queen.",
+      config: JSON.stringify({
+        version: 2,
+        logic: "any",
+        blocks: [
+          { type: "pieceState", piece: "queen", owner: "my", condition: "moved", negate: true },
+          { type: "gameResult", result: "win" },
+        ],
+      }),
+      reward: 50,
+    }];
+    quest.participants = [{
+      userId: "current",
+      provider: "lichess",
+      username: "CurrentLichess",
+      leaderboardName: "Current",
+      joinedAt: "2026-07-01T00:00:00.000Z",
+      completedQuestIds: [],
+      questFinishedAt: {},
+      score: 0,
+    }];
+    let providerReads = 0;
+    t.mock.method(globalThis, "fetch", async () => {
+      providerReads += 1;
+      return new Response(`${JSON.stringify({
+        id: "Replay01",
+        status: "resign",
+        winner: "white",
+        variant: "standard",
+        moves: "",
+        players: {
+          white: { user: { name: "CurrentLichess" } },
+          black: { user: { name: "Opponent" } },
+        },
+      })}\n`, { status: 200 });
+    });
+    const dependencies = {
+      authenticate: async () => "current",
+      getClient: async () => client,
+      findQuest: async () => ({ userId: "host", groupQuest: quest }),
+      check: checkLatestGroupQuestChallenge,
+    };
+
+    const response = await (variant === "web"
+      ? webRoute.withWebRefreshRouteTestDependencies(dependencies as never, () => webRoute.POST(request(), { params: Promise.resolve({ id: "gq" }) }))
+      : mobileRoute.withMobileRefreshRouteTestDependencies(dependencies as never, () => mobileRoute.POST(request(), { params: Promise.resolve({ id: "gq" }) })));
+    const body = await response.json();
+
+    assert.equal(response.status, 200);
+    assert.equal(providerReads, 1, "invalid replay evidence must not trigger a second metadata lookup");
+    assert.deepEqual(body.completedQuestIds, []);
+    assert.deepEqual(body.newlyPassedQuestIds, []);
+    assert.equal(body.score, 0);
+    assert.deepEqual(body.checks.map((check: { questId: string; status: string; gameId: string }) => ({
+      questId: check.questId,
+      status: check.status,
+      gameId: check.gameId,
+    })), [{ questId: "invalid-replay", status: "pending", gameId: "Replay01" }]);
+    assert.equal(writes.length, 0, "invalid replay evidence must not write group progress, receipts, or account rewards");
+  });
+
   test(`${variant} exported POST ignores attacker participant selection and performs no writes for mismatches/already-completed proofs`, async () => {
     const checked: Array<{ questId: string; provider: string; username: string }> = [];
     const writes: Array<{ userId: string; metadata: Record<string, unknown> }> = [];
