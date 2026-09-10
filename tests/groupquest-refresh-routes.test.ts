@@ -407,6 +407,77 @@ for (const variant of ["web", "mobile"] as const) {
     assert.equal(writes.length, 0, "invalid replay evidence must not write group progress, receipts, or account rewards");
   });
 
+  test(`${variant} exported refresh rejects a nonterminal replay claiming checkmate without persistence`, async (t) => {
+    const writes: Array<{ userId: string; metadata: Record<string, unknown> }> = [];
+    const client = fakeClient(writes);
+    const quest = structuredClone(baseQuest);
+    quest.questIds = ["inconsistent-replay"];
+    quest.customQuestSnapshots = [{
+      id: "inconsistent-replay",
+      title: "The False Mate",
+      summary: "Win the game.",
+      config: JSON.stringify({
+        version: 2,
+        logic: "all",
+        blocks: [{ type: "gameResult", result: "win" }],
+      }),
+      reward: 50,
+    }];
+    quest.participants = [{
+      userId: "current",
+      provider: "lichess",
+      username: "CurrentLichess",
+      leaderboardName: "Current",
+      joinedAt: "2026-07-01T00:00:00.000Z",
+      completedQuestIds: [],
+      questFinishedAt: {},
+      score: 0,
+    }];
+    let providerReads = 0;
+    t.mock.method(globalThis, "fetch", async () => {
+      providerReads += 1;
+      return new Response(`${JSON.stringify({
+        id: "Replay02",
+        status: "mate",
+        winner: "white",
+        variant: "standard",
+        speed: "blitz",
+        rated: true,
+        clock: { initial: 180, increment: 0 },
+        createdAt: Date.parse("2026-07-02T09:55:00.000Z"),
+        lastMoveAt: Date.parse("2026-07-02T10:00:00.000Z"),
+        moves: "e2e4 e7e5 g1f3",
+        players: {
+          white: { user: { name: "CurrentLichess" } },
+          black: { user: { name: "Opponent" } },
+        },
+      })}\n`, { status: 200 });
+    });
+    const dependencies = {
+      authenticate: async () => "current",
+      getClient: async () => client,
+      findQuest: async () => ({ userId: "host", groupQuest: quest }),
+      check: checkLatestGroupQuestChallenge,
+    };
+
+    const response = await (variant === "web"
+      ? webRoute.withWebRefreshRouteTestDependencies(dependencies as never, () => webRoute.POST(request(), { params: Promise.resolve({ id: "gq" }) }))
+      : mobileRoute.withMobileRefreshRouteTestDependencies(dependencies as never, () => mobileRoute.POST(request(), { params: Promise.resolve({ id: "gq" }) })));
+    const body = await response.json();
+
+    assert.equal(response.status, 200);
+    assert.deepEqual(body.completedQuestIds, []);
+    assert.deepEqual(body.newlyPassedQuestIds, []);
+    assert.equal(body.score, 0);
+    assert.deepEqual(body.checks.map((check: { questId: string; status: string; gameId: string }) => ({
+      questId: check.questId,
+      status: check.status,
+      gameId: check.gameId,
+    })), [{ questId: "inconsistent-replay", status: "pending", gameId: "Replay02" }]);
+    assert.equal(writes.length, 0, "inconsistent terminal claims must not write group progress, receipts, or account rewards");
+    assert.equal(providerReads, 1, "inconsistent replay evidence must not trigger a second metadata lookup");
+  });
+
   test(`${variant} exported POST ignores attacker participant selection and performs no writes for mismatches/already-completed proofs`, async () => {
     const checked: Array<{ questId: string; provider: string; username: string }> = [];
     const writes: Array<{ userId: string; metadata: Record<string, unknown> }> = [];
