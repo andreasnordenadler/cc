@@ -97,17 +97,21 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
 }
 
 function patchGroupQuest(current: ServerGroupQuest, payload: Record<string, unknown>, canSetOfficial: boolean, questSelection: Awaited<ReturnType<typeof buildGroupQuestSelection>>): ServerGroupQuest {
-  const providerMode = normalizeProviderMode(payload.providerMode);
+  const hasInviteMode = Object.hasOwn(payload, "inviteMode");
+  const hasProviderMode = Object.hasOwn(payload, "providerMode");
+  const providerMode = hasProviderMode ? normalizeProviderMode(payload.providerMode) : current.providerMode;
   return {
     ...current,
     name: cleanText(payload.name, 64) ?? current.name,
     inviteCopy: cleanText(payload.inviteCopy, 280) ?? current.inviteCopy,
-    inviteMode: payload.inviteMode === "private-key" ? "private-key" : payload.inviteMode === "unlisted-link" ? "unlisted-link" : "public",
+    inviteMode: hasInviteMode
+      ? payload.inviteMode === "private-key" ? "private-key" : payload.inviteMode === "unlisted-link" ? "unlisted-link" : "public"
+      : current.inviteMode,
     inviteKey: cleanText(payload.inviteKey, 40) ?? current.inviteKey,
     questIds: questSelection.questIds ?? current.questIds,
     customQuestSnapshots: questSelection.customQuestSnapshots ?? current.customQuestSnapshots,
     providerMode,
-    providerLabel: cleanText(payload.providerLabel, 80) ?? providerLabelFor(providerMode),
+    providerLabel: cleanText(payload.providerLabel, 80) ?? (hasProviderMode ? providerLabelFor(providerMode) : current.providerLabel),
     official: canSetOfficial && typeof payload.official === "boolean" ? payload.official : current.official,
     officialLabel: canSetOfficial ? cleanText(payload.officialLabel, 80) ?? current.officialLabel : current.officialLabel,
     startAt: normalizeDateTimeValue(payload.startAt) ?? current.startAt,

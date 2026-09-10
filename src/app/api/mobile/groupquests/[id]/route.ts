@@ -472,8 +472,10 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
 
 
 function patchMobileGroupQuest(current: ServerGroupQuest, payload: Record<string, unknown>, questSelection: GroupQuestSelection): ServerGroupQuest {
-  const providerMode = normalizeProviderMode(payload.providerMode);
-  const inviteMode = normalizeInviteMode(payload.inviteMode);
+  const hasInviteMode = Object.hasOwn(payload, "inviteMode");
+  const hasProviderMode = Object.hasOwn(payload, "providerMode");
+  const providerMode = hasProviderMode ? normalizeProviderMode(payload.providerMode) : current.providerMode;
+  const inviteMode = hasInviteMode ? normalizeInviteMode(payload.inviteMode) : current.inviteMode;
   return {
     ...current,
     name: cleanText(payload.name, 64) ?? current.name,
@@ -483,7 +485,7 @@ function patchMobileGroupQuest(current: ServerGroupQuest, payload: Record<string
     questIds: questSelection.questIds ?? current.questIds,
     customQuestSnapshots: questSelection.customQuestSnapshots ?? current.customQuestSnapshots,
     providerMode,
-    providerLabel: providerLabelFor(providerMode),
+    providerLabel: hasProviderMode ? providerLabelFor(providerMode) : current.providerLabel,
     startAt: normalizeDateTimeValue(payload.startAt) ?? current.startAt,
     endAt: normalizeDateTimeValue(payload.endAt) ?? (typeof payload.durationDays === "number" ? defaultEndAt(payload.durationDays) : current.endAt),
     rules: normalizeRules(payload.rules, current.rules),
