@@ -1784,7 +1784,14 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
         onContentSizeChange={handleContentSizeChange}
       >
         {shell.loading ? (
-          <View style={styles.loadingCard}>
+          <View
+            accessible
+            accessibilityRole="progressbar"
+            accessibilityLabel="Loading the live quest board"
+            accessibilityLiveRegion="polite"
+            accessibilityState={{ busy: true }}
+            style={styles.loadingCard}
+          >
             <ActivityIndicator color="#f5c86a" />
             <Text style={styles.muted}>Loading the live quest board...</Text>
           </View>
