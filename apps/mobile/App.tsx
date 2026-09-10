@@ -52,6 +52,7 @@ import { isFacebookSignInEnabled } from "./src/auth/isFacebookSignInEnabled";
 import { completeSocialSignIn, socialSignInErrorMessage } from "./src/auth/completeSocialSignIn";
 import { isAppleSignInCancellation, runAppleSignInWithOAuthFallback } from "./src/auth/runAppleSignInWithOAuthFallback";
 import { completeMobilePasswordReset, prepareMobilePasswordReset, verifyMobilePasswordResetCode as verifyMobilePasswordResetCodeWithClerk } from "./src/auth/mobilePasswordReset";
+import { getAppRowInteraction } from "./src/accessibility/appRowInteraction";
 import { OFFLINE_MOBILE_BOOTSTRAP } from "./src/data/offlineBootstrap";
 import { shouldStackActiveQuestSummary } from "./src/layout/activeQuestLayout";
 import { createMobileHomeProofRefreshCoordinator, toMobileHomeProofRefreshActionState, type MobileHomeProofRefreshFeedback, type MobileHomeProofRefreshSnapshot } from "./src/home/mobileHomeProofRefresh";
@@ -2912,7 +2913,7 @@ function JoinedMultiplayerQuestModal({
                   {leaderboardRows.length ? leaderboardRows.map((row) => (
                     <MultiplayerLeaderboardRow key={`${row.rank}-${row.name}`} row={row} />
                   )) : (
-                    <AppRow title="No leaderboard rows yet" meta="Join this Multiplayer Side Quest or refresh proof to pull live player standings from Side Quest Chess." status="Live data" imageSource={SQC_MULTIPLAYER_SEAL_ASSET} onPress={() => undefined} />
+                    <AppRow title="No leaderboard rows yet" meta="Join this Multiplayer Side Quest or refresh proof to pull live player standings from Side Quest Chess." status="Live data" imageSource={SQC_MULTIPLAYER_SEAL_ASSET} />
                   )}
                 </View>
               </View>
@@ -2959,7 +2960,7 @@ function JoinedMultiplayerQuestModal({
                   {leaderboardRows.length ? leaderboardRows.map((row) => (
                     <MultiplayerLeaderboardRow key={`${row.rank}-${row.name}`} row={row} compact />
                   )) : (
-                    <AppRow title="No leaderboard rows yet" meta="Side Quest Chess will show real joined players here after this Multiplayer Side Quest has live participant data." status="Live data" imageSource={SQC_MULTIPLAYER_SEAL_ASSET} onPress={() => undefined} />
+                    <AppRow title="No leaderboard rows yet" meta="Side Quest Chess will show real joined players here after this Multiplayer Side Quest has live participant data." status="Live data" imageSource={SQC_MULTIPLAYER_SEAL_ASSET} />
                   )}
                 </View>
               </View>
@@ -4073,12 +4074,13 @@ function AppRow({
   blurImage?: boolean;
   dimImage?: boolean;
   overlaySeal?: boolean;
-  onPress: () => void;
+  onPress?: () => void;
 }) {
   const visibleStatus = status && !["Open", "Proof", "-"].includes(status) ? status : null;
   const statusTone = visibleStatus ? getBrowseStatusTone(visibleStatus) : null;
-  return (
-    <Pressable accessibilityRole="button" style={compactStyles.appRow} onPress={onPress}>
+  const interaction = getAppRowInteraction(onPress);
+  const content = (
+    <>
       {imageSource ? (
         <View style={compactStyles.rowCoatFrame}>
           {variant === "seal" ? <Image source={SQC_GENERIC_COAT_GLOW_ASSET} style={compactStyles.rowSealGlow} resizeMode="contain" /> : null}
@@ -4114,7 +4116,15 @@ function AppRow({
         statusTone === "danger" && compactStyles.appRowStatusDanger,
         statusTone === "absurd" && compactStyles.appRowStatusAbsurd,
       ]} numberOfLines={1}>{visibleStatus}</Text> : null}
+    </>
+  );
+
+  return interaction.interactive ? (
+    <Pressable accessibilityRole={interaction.accessibilityRole} style={compactStyles.appRow} onPress={interaction.onPress}>
+      {content}
     </Pressable>
+  ) : (
+    <View style={compactStyles.appRow}>{content}</View>
   );
 }
 
