@@ -8244,7 +8244,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
         <Text style={styles.sideQuestModeCopy}>Paste an invite code from the host to join a private Multiplayer Side Quest.</Text>
         <View style={styles.inputStack}>
           <Text style={styles.inputLabel}>Invite code</Text>
-          <TextInput autoCapitalize="none" autoCorrect={false} value={inviteKey} placeholder="e.g. nocastle-ab12cd" placeholderTextColor="rgba(255,247,232,.42)" style={styles.textInput} onChangeText={setInviteKey} />
+          <TextInput accessibilityLabel="Invite code" autoCapitalize="none" autoCorrect={false} value={inviteKey} placeholder="e.g. nocastle-ab12cd" placeholderTextColor="rgba(255,247,232,.42)" style={styles.textInput} onChangeText={setInviteKey} />
         </View>
         <Pressable accessibilityRole="button" style={styles.secondaryButtonWide} accessibilityLabel="Join private Multiplayer Side Quest" disabled={groupQuestActionState.busy && groupQuestActionState.questId === "invite"} onPress={() => void joinByInviteKey()}>
           <Text style={styles.secondaryButtonText}>{groupQuestActionState.busy && groupQuestActionState.questId === "invite" ? "Joining..." : "Join with code"}</Text>
@@ -8271,10 +8271,10 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
             </View>
             <View style={compactStyles.multiplayerNativeCard}>
               <Text style={styles.inputLabel}>Quest name</Text>
-              <TextInput value={createName} placeholder="Name this Multiplayer Side Quest" placeholderTextColor="rgba(255,247,232,.42)" style={styles.textInput} onChangeText={setCreateName} />
+              <TextInput accessibilityLabel="Quest name" value={createName} placeholder="Name this Multiplayer Side Quest" placeholderTextColor="rgba(255,247,232,.42)" style={styles.textInput} onChangeText={setCreateName} />
               <Text style={styles.microcopy}>Required. Make it clear enough that players know what they are joining.</Text>
               <Text style={styles.inputLabel}>Intro text</Text>
-              <TextInput value={createInviteCopy} multiline placeholder="Explain what players are joining..." placeholderTextColor="rgba(255,247,232,.42)" style={[styles.textInput, styles.textAreaInput]} onChangeText={setCreateInviteCopy} />
+              <TextInput accessibilityLabel="Intro text" value={createInviteCopy} multiline placeholder="Explain what players are joining..." placeholderTextColor="rgba(255,247,232,.42)" style={[styles.textInput, styles.textAreaInput]} onChangeText={setCreateInviteCopy} />
               <Text style={styles.microcopy}>Shown to players before they join.</Text>
               <Text style={styles.inputLabel}>Access</Text>
               <View style={compactStyles.multiplayerOptionGrid}>
