@@ -8336,7 +8336,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
                   </View>
                 </View>
               )) : null}
-              <Pressable accessibilityRole="button" accessibilityLabel="Toggle advanced Multiplayer game settings" style={compactStyles.detailQuietButton} onPress={() => setCreateAdvancedOpen((current) => !current)}>
+              <Pressable accessibilityRole="button" accessibilityLabel="Toggle advanced Multiplayer game settings" accessibilityState={{ expanded: createAdvancedOpen }} style={compactStyles.detailQuietButton} onPress={() => setCreateAdvancedOpen((current) => !current)}>
                 <Text style={compactStyles.detailQuietButtonText}>{createAdvancedOpen ? "Hide advanced settings" : "Advanced: time, rated, color"}</Text>
               </Pressable>
             </View>
@@ -8489,7 +8489,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
         </SafeAreaView>
       </Modal>
 
-      <Pressable accessibilityRole="button" accessibilityLabel="Toggle Multiplayer Side Quest explainer" style={styles.groupquestsRulesCard} onPress={() => setMultiplayerLearningOpen((current) => !current)}>
+      <Pressable accessibilityRole="button" accessibilityLabel="Toggle Multiplayer Side Quest explainer" accessibilityState={{ expanded: multiplayerLearningOpen }} style={styles.groupquestsRulesCard} onPress={() => setMultiplayerLearningOpen((current) => !current)}>
         <Text style={styles.eyebrow}>Learn</Text>
         <Text style={styles.sectionTitle}>{multiplayerLearningOpen ? "Hide Multiplayer explainer" : "What Multiplayer Side Quests are"}</Text>
         <Text style={styles.sectionBody}>Tap to {multiplayerLearningOpen ? "collapse" : "expand"} the educational overview.</Text>
