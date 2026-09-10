@@ -10,11 +10,13 @@ import * as Application from "expo-application";
 import * as AppleAuthentication from "expo-apple-authentication";
 import { LinearGradient } from "expo-linear-gradient";
 import {
+  AccessibilityInfo,
   ActivityIndicator,
   Alert,
   Animated,
   BackHandler,
   Easing,
+  findNodeHandle,
   Image,
   Linking,
   Modal,
@@ -1867,9 +1869,39 @@ function FixedScreenCloseButton({ label, onPress, top }: { label: string; onPres
 
 function GlobalHamburgerMenu({ activeTab, account, onSelectTab, onOpenMultiplayerCreate, onOpenCustomSideQuests, onOpenCustomSideQuestCreate, onOpenSupport }: { activeTab: AppTab; account: MobileAccountResponse | null; onSelectTab: (tab: AppTab) => void; onOpenMultiplayerCreate: () => void; onOpenCustomSideQuests: () => void; onOpenCustomSideQuestCreate?: () => void; onOpenSupport: () => void }) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const menuTriggerRef = useRef<View>(null);
+  const firstMenuItemRef = useRef<View>(null);
+  const restoreMenuTriggerFocusRef = useRef(false);
+  const restoreMenuTriggerFrameRef = useRef<ReturnType<typeof requestAnimationFrame> | null>(null);
   const insets = useSafeAreaInsets();
   const authenticated = isAuthenticatedAccount(account);
   const menuTop = Math.max(insets.top + 10, 56);
+
+  function focusFirstMenuItem() {
+    const nodeHandle = findNodeHandle(firstMenuItemRef.current);
+    if (nodeHandle !== null) AccessibilityInfo.setAccessibilityFocus(nodeHandle);
+  }
+
+  function restoreMenuTriggerFocus() {
+    if (!restoreMenuTriggerFocusRef.current) return;
+    restoreMenuTriggerFocusRef.current = false;
+    const nodeHandle = findNodeHandle(menuTriggerRef.current);
+    if (nodeHandle !== null) AccessibilityInfo.setAccessibilityFocus(nodeHandle);
+  }
+
+  function dismissMenu() {
+    restoreMenuTriggerFocusRef.current = true;
+    setMenuOpen(false);
+    if (Platform.OS !== "ios") {
+      restoreMenuTriggerFrameRef.current = requestAnimationFrame(restoreMenuTriggerFocus);
+    }
+  }
+
+  useEffect(() => () => {
+    if (restoreMenuTriggerFrameRef.current !== null) {
+      cancelAnimationFrame(restoreMenuTriggerFrameRef.current);
+    }
+  }, []);
 
   function openMenuTab(tab: AppTab) {
     setMenuOpen(false);
@@ -1898,16 +1930,16 @@ function GlobalHamburgerMenu({ activeTab, account, onSelectTab, onOpenMultiplaye
 
   return (
     <View pointerEvents="box-none" style={[compactStyles.globalMenuLayer, { top: menuTop }]}>
-      <Pressable accessibilityRole="button" accessibilityLabel={menuOpen ? "Close main menu" : "Open main menu"} style={[compactStyles.homeMenuButton, compactStyles.globalMenuButton, menuOpen && compactStyles.homeMenuButtonActive]} onPress={() => setMenuOpen((current) => !current)}>
+      <Pressable ref={menuTriggerRef} accessibilityRole="button" accessibilityLabel={menuOpen ? "Close main menu" : "Open main menu"} style={[compactStyles.homeMenuButton, compactStyles.globalMenuButton, menuOpen && compactStyles.homeMenuButtonActive]} onPress={() => setMenuOpen(true)}>
         <MaterialCommunityIcons name="menu" size={22} color={colors.paper} />
       </Pressable>
-      <Modal visible={menuOpen} transparent animationType="fade" onRequestClose={() => setMenuOpen(false)}>
-        <View style={[compactStyles.homeMenuOverlay, compactStyles.globalMenuOverlay, { paddingTop: menuTop + 52 }]}>
-          <Pressable style={compactStyles.homeMenuBackdrop} accessibilityRole="button" accessibilityLabel="Close main menu" onPress={() => setMenuOpen(false)} />
+      <Modal visible={menuOpen} transparent animationType="fade" onShow={focusFirstMenuItem} onDismiss={restoreMenuTriggerFocus} onRequestClose={dismissMenu}>
+        <View style={[compactStyles.homeMenuOverlay, compactStyles.globalMenuOverlay, { paddingTop: menuTop + 52 }]} accessibilityViewIsModal onAccessibilityEscape={dismissMenu}>
+          <Pressable style={compactStyles.homeMenuBackdrop} accessibilityRole="button" accessibilityLabel="Close main menu" onPress={dismissMenu} />
           <View style={compactStyles.homeMenuPanel} accessibilityLabel="Main menu">
             <View style={compactStyles.homeMenuItems}>
-              {menuItems.map((item) => (
-                <Pressable key={item.id} accessibilityRole="button" accessibilityState={item.selected ? { selected: true } : undefined} accessibilityLabel={item.label} style={[compactStyles.homeMenuItem, item.selected && compactStyles.homeMenuItemActive]} onPress={item.action}>
+              {menuItems.map((item, index) => (
+                <Pressable ref={index === 0 ? firstMenuItemRef : undefined} key={item.id} accessibilityRole="button" accessibilityState={item.selected ? { selected: true } : undefined} accessibilityLabel={item.label} onAccessibilityEscape={dismissMenu} style={[compactStyles.homeMenuItem, item.selected && compactStyles.homeMenuItemActive]} onPress={item.action}>
                   <MaterialCommunityIcons name={item.icon} size={17} color={colors.gold} />
                   <Text style={compactStyles.homeMenuItemText} numberOfLines={1}>{item.label}</Text>
                 </Pressable>
