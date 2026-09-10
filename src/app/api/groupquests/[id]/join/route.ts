@@ -5,8 +5,11 @@ import {
   OFFICIAL_GROUP_QUEST_METADATA_KEY,
   findGroupQuestById,
   isBuiltInOfficialGroupQuestHost,
-  upsertHostGroupQuest,
+  joinGroupQuest,
+  upsertHostGroupQuestParticipantJoin,
   upsertOfficialGroupQuestParticipation,
+  type GroupQuestMembershipExpectation,
+  type GroupQuestParticipant,
 } from "@/lib/groupquests";
 import { handleGroupQuestJoinRequest, type GroupQuestJoinDependencies } from "@/lib/groupquest-join-route";
 import type { ServerGroupQuest } from "@/lib/groupquests";
@@ -21,17 +24,20 @@ type MetadataClient = {
 export async function saveWebJoinedQuest(client: MetadataClient, input: {
   authenticatedUserId: string;
   hostUserId: string;
-  joinedQuest: ServerGroupQuest;
+  groupQuest: ServerGroupQuest;
+  participant: GroupQuestParticipant;
+  expectedMembership: GroupQuestMembershipExpectation;
 }) {
   const storeOnParticipant = isBuiltInOfficialGroupQuestHost(input.hostUserId);
   const storageUserId = storeOnParticipant ? input.authenticatedUserId : input.hostUserId;
   const storageUser = await client.users.getUser(storageUserId);
   if (storeOnParticipant) {
+    const joinedQuest = joinGroupQuest(input.groupQuest, input.participant);
     const publicMetadata = storageUser.publicMetadata && typeof storageUser.publicMetadata === "object"
       ? storageUser.publicMetadata as Record<string, unknown>
       : {};
-    const participationPatch = upsertOfficialGroupQuestParticipation(publicMetadata, input.joinedQuest, input.authenticatedUserId);
-    if (!(input.joinedQuest.id in participationPatch)) {
+    const participationPatch = upsertOfficialGroupQuestParticipation(publicMetadata, joinedQuest, input.authenticatedUserId);
+    if (!(input.groupQuest.id in participationPatch)) {
       throw new Error("official_participation_metadata_capacity");
     }
     await client.users.updateUserMetadata(storageUserId, {
@@ -45,7 +51,12 @@ export async function saveWebJoinedQuest(client: MetadataClient, input: {
     privateMetadata: {
       ...(storageUser.privateMetadata && typeof storageUser.privateMetadata === "object" ? storageUser.privateMetadata : {}),
       sqcAnalytics: compactAnalyticsStore(getAnalyticsStore(storageUser.privateMetadata)),
-      sqcGroupQuests: upsertHostGroupQuest(storageUser.privateMetadata, input.joinedQuest),
+      sqcGroupQuests: upsertHostGroupQuestParticipantJoin(
+        storageUser.privateMetadata,
+        input.groupQuest.id,
+        input.participant,
+        input.expectedMembership,
+      ),
     },
   });
 }

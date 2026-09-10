@@ -2,6 +2,8 @@ import {
   buildParticipant,
   isGroupQuestFinished,
   joinGroupQuest,
+  type GroupQuestMembershipExpectation,
+  type GroupQuestParticipant,
   type GroupQuestHostRecord,
   type ServerGroupQuest,
 } from "@/lib/groupquests";
@@ -24,7 +26,9 @@ export type GroupQuestJoinDependencies = {
   saveJoinedQuest: (input: {
     authenticatedUserId: string;
     hostUserId: string;
-    joinedQuest: ServerGroupQuest;
+    groupQuest: ServerGroupQuest;
+    participant: GroupQuestParticipant;
+    expectedMembership: GroupQuestMembershipExpectation;
   }) => Promise<void>;
 };
 
@@ -74,15 +78,29 @@ export async function handleGroupQuestJoinRequest(
   });
   if (!participant) return Response.json({ ok: false, error: "missing_participant" }, { status: 400 });
 
+  const snapshottedParticipant = found.groupQuest.participants.find((entry) => entry.userId === userId);
+  const expectedMembership: GroupQuestMembershipExpectation = snapshottedParticipant ? {
+    joinedAt: snapshottedParticipant.joinedAt,
+    provider: snapshottedParticipant.provider,
+    username: snapshottedParticipant.username,
+  } : null;
+
   try {
+    joinGroupQuest(found.groupQuest, participant);
     await dependencies.saveJoinedQuest({
       authenticatedUserId: userId,
       hostUserId: found.userId,
-      joinedQuest: joinGroupQuest(found.groupQuest, participant),
+      groupQuest: found.groupQuest,
+      participant,
+      expectedMembership,
     });
   } catch (error) {
-    if (error instanceof Error && error.message === "groupquest_full") {
-      return Response.json({ ok: false, error: "groupquest_full" }, { status: 409 });
+    if (error instanceof Error && (
+      error.message === "groupquest_full"
+      || error.message === "groupquest_membership_changed"
+      || error.message === "groupquest_join_target_missing"
+    )) {
+      return Response.json({ ok: false, error: error.message }, { status: 409 });
     }
     return Response.json({ ok: false, error: "join_unavailable" }, { status: 503 });
   }

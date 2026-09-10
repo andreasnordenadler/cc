@@ -65,7 +65,7 @@ test("join route ignores supplied identity and mutates the exact route quest", a
         lookedUp.push(id);
         return { userId: "host-1", groupQuest: quest({ id }) };
       },
-      saveJoinedQuest: async ({ joinedQuest }) => { saved = joinedQuest; },
+      saveJoinedQuest: async ({ groupQuest, participant }) => { saved = { ...groupQuest, participants: [participant] }; },
     }),
   );
   assert.equal(response.status, 200);
@@ -81,7 +81,7 @@ test("provider-restricted join derives the matching username from authenticated 
   let saved: ServerGroupQuest | undefined;
   const response = await handleGroupQuestJoinRequest(post(JSON.stringify({ username: "spoofed" })), "chess-only", joinDeps({
     findQuestById: async () => ({ userId: "host-1", groupQuest: quest({ id: "chess-only", providerMode: "chesscom" }) }),
-    saveJoinedQuest: async ({ joinedQuest }) => { saved = joinedQuest; },
+    saveJoinedQuest: async ({ groupQuest, participant }) => { saved = { ...groupQuest, participants: [participant] }; },
   }));
   assert.equal(response.status, 200);
   assert.equal(saved?.participants[0]?.provider, "chesscom");
@@ -97,7 +97,7 @@ test("email-only accounts join with a neutral public leaderboard name", async ()
       primaryEmailAddress: { emailAddress: loginEmail },
       publicMetadata: { lichessUsername: "public-chess-name" },
     }),
-    saveJoinedQuest: async ({ joinedQuest }) => { saved = joinedQuest; },
+    saveJoinedQuest: async ({ groupQuest, participant }) => { saved = { ...groupQuest, participants: [participant] }; },
   }));
 
   assert.equal(response.status, 200);
@@ -113,7 +113,7 @@ test("join route replaces an objectionable Clerk display name before persistence
       firstName: "f.u.c.k",
       publicMetadata: { lichessUsername: "public-chess-name" },
     }),
-    saveJoinedQuest: async ({ joinedQuest }) => { saved = joinedQuest; },
+    saveJoinedQuest: async ({ groupQuest, participant }) => { saved = { ...groupQuest, participants: [participant] }; },
   }));
 
   assert.equal(response.status, 200);

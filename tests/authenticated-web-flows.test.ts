@@ -235,8 +235,8 @@ test("exact join handler ignores spoofed identity and saves only the route quest
   assert.equal(response.status, 200);
   assert.deepEqual(lookups, ["exact-id"]);
   assert.equal(saved?.authenticatedUserId, "joiner-1");
-  assert.equal(saved?.joinedQuest.participants[0]?.username, "AmazingGrace");
-  assert.equal(saved?.joinedQuest.participants[0]?.leaderboardName, "Grace Hopper");
+  assert.equal(saved?.participant.username, "AmazingGrace");
+  assert.equal(saved?.participant.leaderboardName, "Grace Hopper");
 });
 
 test("exact join handler performs no write for bad invite key and safely handles save failure", async () => {
