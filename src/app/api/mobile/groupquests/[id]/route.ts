@@ -6,6 +6,7 @@ import { getChallengeById } from "@/lib/challenges";
 import { findPublicCommunityCustomSideQuestById } from "@/lib/community-side-quests";
 import { getCustomSideQuests, parseCustomRuleConfig, type CustomSideQuest } from "@/lib/custom-side-quests";
 import { checkLatestGroupQuestChallenge } from "@/lib/groupquest-proof";
+import { runSerializedHostGroupQuestMutation } from "@/lib/groupquest-host-mutation-serialization";
 import { createGroupQuestRefreshRouteHandler, isGroupQuestRefreshConflictError } from "@/lib/groupquest-refresh-route-handler";
 import {
   buildMultiplayerCompletionAccountPatch,
@@ -686,19 +687,22 @@ export async function saveMobileGroupQuest(
 ) {
   if (!isBuiltInOfficialGroupQuestHost(hostUserId)) {
     if (options.joinParticipant) {
+      const joinParticipant = options.joinParticipant;
       try {
-        const host = await client.users.getUser(hostUserId);
-        await client.users.updateUserMetadata(hostUserId, {
-          privateMetadata: {
-            ...(host.privateMetadata ?? {}),
-            sqcAnalytics: compactAnalyticsStore(getAnalyticsStore(host.privateMetadata)),
-            sqcGroupQuests: upsertHostGroupQuestParticipantJoin(
-              host.privateMetadata,
-              groupQuest.id,
-              options.joinParticipant.participant,
-              options.joinParticipant.expectedMembership,
-            ),
-          },
+        await runSerializedHostGroupQuestMutation(hostUserId, async () => {
+          const host = await client.users.getUser(hostUserId);
+          await client.users.updateUserMetadata(hostUserId, {
+            privateMetadata: {
+              ...(host.privateMetadata ?? {}),
+              sqcAnalytics: compactAnalyticsStore(getAnalyticsStore(host.privateMetadata)),
+              sqcGroupQuests: upsertHostGroupQuestParticipantJoin(
+                host.privateMetadata,
+                groupQuest.id,
+                joinParticipant.participant,
+                joinParticipant.expectedMembership,
+              ),
+            },
+          });
         });
         return null;
       } catch (error) {
