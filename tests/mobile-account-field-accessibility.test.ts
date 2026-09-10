@@ -15,3 +15,15 @@ test("native profile and chess username fields expose explicit screen-reader lab
   assert.match(editor, /<TextInput\s+accessibilityLabel="Lichess username"[^>]*?ref=\{lichessInputRef\}[^>]*?>/);
   assert.match(editor, /<TextInput\s+accessibilityLabel="Chess\.com username"[^>]*?ref=\{chessComInputRef\}[^>]*?>/);
 });
+
+test("native profile editor announces save feedback", async () => {
+  const source = await readFile(new URL("../apps/mobile/App.tsx", import.meta.url), "utf8");
+  const editorStart = source.indexOf("function ChessUsernameEditor");
+  const editorEnd = source.indexOf("function PasswordAuthPanel", editorStart);
+  const editor = source.slice(editorStart, editorEnd);
+
+  assert.notEqual(editorStart, -1);
+  assert.notEqual(editorEnd, -1);
+  assert.match(editor, /\{message \? <Text accessibilityRole="alert" accessibilityLiveRegion="polite" style=\{styles\.successCopy\}>\{message\}<\/Text> : null\}/);
+  assert.match(editor, /\{error \? <Text accessibilityRole="alert" accessibilityLiveRegion="polite" style=\{styles\.errorCopy\}>\{error\}<\/Text> : null\}/);
+});
