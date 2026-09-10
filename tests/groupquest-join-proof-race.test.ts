@@ -974,6 +974,63 @@ test("mobile delayed provider edit reports a conflict for a newly incompatible p
   assert.equal(state.loadQuest().participants.some(({ userId }) => userId === "joiner-two"), true);
 });
 
+test("web partial settings edit preserves omitted invite and provider modes", async () => {
+  const state = raceClient({
+    ...structuredClone(baseQuest),
+    inviteMode: "private-key",
+    inviteKey: "KEEP-ME",
+    providerMode: "lichess",
+    providerLabel: "Lichess only",
+  });
+  const context = { params: Promise.resolve({ id: baseQuest.id }) };
+
+  const response = await webUpdateRoute.withWebUpdateRouteTestDependencies({
+    authenticate: async () => "host",
+    getClient: async () => state.client,
+    findQuest: async () => ({ userId: "host", groupQuest: structuredClone(state.loadQuest()) }),
+  } as never, () => webUpdateRoute.PATCH(new Request(`https://sqc.test/api/groupquests/${baseQuest.id}`, {
+    method: "PATCH",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ name: "Renamed private table" }),
+  }), context));
+
+  assert.equal(response.status, 200);
+  assert.equal(state.loadQuest().name, "Renamed private table");
+  assert.equal(state.loadQuest().inviteMode, "private-key");
+  assert.equal(state.loadQuest().inviteKey, "keep-me");
+  assert.equal(state.loadQuest().providerMode, "lichess");
+  assert.equal(state.loadQuest().providerLabel, "Lichess only");
+});
+
+test("mobile partial settings edit preserves omitted invite and provider modes", async () => {
+  const state = raceClient({
+    ...structuredClone(baseQuest),
+    inviteMode: "private-key",
+    inviteKey: "KEEP-ME",
+    providerMode: "lichess",
+    providerLabel: "Lichess only",
+  });
+  const context = { params: Promise.resolve({ id: baseQuest.id }) };
+
+  const response = await mobileRoute.withMobileRefreshRouteTestDependencies({
+    authenticate: async () => "host",
+    getClient: async () => state.client,
+    findQuest: async () => ({ userId: "host", groupQuest: structuredClone(state.loadQuest()) }),
+    check: async () => { throw new Error("not a proof request"); },
+  } as never, () => mobileRoute.POST(new Request(`https://sqc.test/api/mobile/groupquests/${baseQuest.id}`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ action: "update", name: "Renamed private mobile table" }),
+  }), context));
+
+  assert.equal(response.status, 200);
+  assert.equal(state.loadQuest().name, "Renamed private mobile table");
+  assert.equal(state.loadQuest().inviteMode, "private-key");
+  assert.equal(state.loadQuest().inviteKey, "keep-me");
+  assert.equal(state.loadQuest().providerMode, "lichess");
+  assert.equal(state.loadQuest().providerLabel, "Lichess only");
+});
+
 test("web name-only edit preserves dates changed after the edit snapshot", async () => {
   const state = raceClient();
   let signalEditSnapshot!: () => void;
