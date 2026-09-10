@@ -53,6 +53,7 @@ import { completeSocialSignIn, socialSignInErrorMessage } from "./src/auth/compl
 import { isAppleSignInCancellation, runAppleSignInWithOAuthFallback } from "./src/auth/runAppleSignInWithOAuthFallback";
 import { completeMobilePasswordReset, prepareMobilePasswordReset, verifyMobilePasswordResetCode as verifyMobilePasswordResetCodeWithClerk } from "./src/auth/mobilePasswordReset";
 import { getAppRowInteraction } from "./src/accessibility/appRowInteraction";
+import { getPasswordAuthFieldSemantics } from "./src/accessibility/passwordAuthFieldSemantics";
 import { OFFLINE_MOBILE_BOOTSTRAP } from "./src/data/offlineBootstrap";
 import { shouldStackActiveQuestSummary } from "./src/layout/activeQuestLayout";
 import { createMobileHomeProofRefreshCoordinator, toMobileHomeProofRefreshActionState, type MobileHomeProofRefreshFeedback, type MobileHomeProofRefreshSnapshot } from "./src/home/mobileHomeProofRefresh";
@@ -10125,6 +10126,7 @@ function PasswordAuthPanel({ authBridge, onAccountUpdated }: { authBridge: Mobil
     : mode === "reset"
       ? !waitingForResetCode ? "Send reset code" : resetCodeVerified ? "Reset password" : "Verify reset code"
       : waitingForVerification ? "Verify and create account" : "Create password account";
+  const passwordAuthFieldSemantics = getPasswordAuthFieldSemantics(mode);
 
   function resetVerificationState() {
     setPendingVerificationIdentifier(null);
@@ -10254,18 +10256,18 @@ function PasswordAuthPanel({ authBridge, onAccountUpdated }: { authBridge: Mobil
       </View>
       <View style={styles.inputStack}>
         <Text style={styles.inputLabel}>{mode === "reset" ? "Account email address" : "Email or username"}</Text>
-        <TextInput value={identifier} placeholder="you@example.com" placeholderTextColor="rgba(255,247,232,.42)" autoCapitalize="none" autoCorrect={false} editable={!waitingForVerification && !waitingForResetCode} keyboardType="email-address" style={styles.textInput} onChangeText={(value) => { setIdentifier(value); resetVerificationState(); }} />
+        <TextInput {...passwordAuthFieldSemantics.identifier} value={identifier} placeholder="you@example.com" placeholderTextColor="rgba(255,247,232,.42)" autoCapitalize="none" autoCorrect={false} editable={!waitingForVerification && !waitingForResetCode} keyboardType="email-address" style={styles.textInput} onChangeText={(value) => { setIdentifier(value); resetVerificationState(); }} />
       </View>
       {mode !== "reset" || resetCodeVerified ? (
         <View style={styles.inputStack}>
           <Text style={styles.inputLabel}>{mode === "reset" ? "New password" : "Password"}</Text>
-          <TextInput value={password} placeholder="At least 8 characters" placeholderTextColor="rgba(255,247,232,.42)" autoCapitalize="none" autoCorrect={false} editable={!waitingForVerification} secureTextEntry style={styles.textInput} onChangeText={(value) => { setPassword(value); if (mode !== "reset") resetVerificationState(); }} />
+          <TextInput {...passwordAuthFieldSemantics.password} value={password} placeholder="At least 8 characters" placeholderTextColor="rgba(255,247,232,.42)" autoCapitalize="none" autoCorrect={false} editable={!waitingForVerification} secureTextEntry style={styles.textInput} onChangeText={(value) => { setPassword(value); if (mode !== "reset") resetVerificationState(); }} />
         </View>
       ) : null}
       {waitingForVerification || (waitingForResetCode && !resetCodeVerified) ? (
         <View style={styles.inputStack}>
           <Text style={styles.inputLabel}>Verification code</Text>
-          <TextInput value={verificationCode} placeholder="6-digit email code" placeholderTextColor="rgba(255,247,232,.42)" autoCapitalize="none" autoCorrect={false} keyboardType="number-pad" style={styles.textInput} onChangeText={setVerificationCode} />
+          <TextInput {...passwordAuthFieldSemantics.verificationCode} value={verificationCode} placeholder="6-digit email code" placeholderTextColor="rgba(255,247,232,.42)" autoCapitalize="none" autoCorrect={false} keyboardType="number-pad" style={styles.textInput} onChangeText={setVerificationCode} />
         </View>
       ) : null}
       <Pressable accessibilityRole="button" accessibilityLabel={submitLabel} accessibilityState={{ disabled: busy || (mode === "reset" ? !passwordResetAvailable : !passwordAuthAvailable) }} style={[styles.secondaryButtonWide, (busy || (mode === "reset" ? !passwordResetAvailable : !passwordAuthAvailable)) && compactStyles.disabledAction]} disabled={busy || (mode === "reset" ? !passwordResetAvailable : !passwordAuthAvailable)} onPress={() => void submitPasswordAuth()}>
