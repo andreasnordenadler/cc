@@ -8953,7 +8953,7 @@ function SelectedQuestDetailCard({
           {activeQuest ? (
             <View style={styles.inputStack}>
               <Text style={styles.inputLabel}>Specific proof game</Text>
-              <TextInput value={proofGameReference} placeholder="Lichess game ID or Chess.com URL" placeholderTextColor="rgba(255,247,232,.42)" autoCapitalize="none" autoCorrect={false} style={styles.textInput} onChangeText={setProofGameReference} />
+              <TextInput accessibilityLabel="Specific proof game" value={proofGameReference} placeholder="Lichess game ID or Chess.com URL" placeholderTextColor="rgba(255,247,232,.42)" autoCapitalize="none" autoCorrect={false} style={styles.textInput} onChangeText={setProofGameReference} />
               <Text style={styles.microcopy}>Optional: paste a finished public game to check that exact proof instead of only the latest game.</Text>
             </View>
           ) : null}
@@ -9249,7 +9249,7 @@ function CustomSideQuestDetailModal({
               <Text style={styles.proofActionBody}>Play a new eligible public game after picking this custom Side Quest, then check your latest game for proof.</Text>
               <View style={styles.inputStack}>
                 <Text style={styles.inputLabel}>Specific proof game</Text>
-                <TextInput value={proofGameReference} placeholder="Lichess game ID or Chess.com URL" placeholderTextColor="rgba(255,247,232,.42)" autoCapitalize="none" autoCorrect={false} style={styles.textInput} onChangeText={setProofGameReference} />
+                <TextInput accessibilityLabel="Specific proof game" value={proofGameReference} placeholder="Lichess game ID or Chess.com URL" placeholderTextColor="rgba(255,247,232,.42)" autoCapitalize="none" autoCorrect={false} style={styles.textInput} onChangeText={setProofGameReference} />
                 <Text style={styles.microcopy}>Optional: paste a finished public game to check this exact custom Side Quest proof.</Text>
               </View>
               <View style={styles.buttonRow}>
