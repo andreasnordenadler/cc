@@ -38,3 +38,20 @@ test("native Solo Side Quest actions expose their disabled state", async () => {
     );
   }
 });
+
+test("every disabled native button exposes its exact interaction state", async () => {
+  const source = await readFile(new URL("../apps/mobile/App.tsx", import.meta.url), "utf8");
+  const disabledButtons = [...source.matchAll(/<Pressable\b[\s\S]*?>/g)]
+    .map((match) => match[0])
+    .filter((button) => /\bdisabled=\{/.test(button));
+
+  assert.ok(disabledButtons.length > 0, "Expected disabled native buttons");
+  for (const button of disabledButtons) {
+    const label = button.match(/accessibilityLabel=(?:"([^"]+)"|\{([^}]+)\})/)?.slice(1).find(Boolean) ?? "unlabelled button";
+    const interactionState = button.match(/\bdisabled=\{([^{}]+)\}/)?.[1]?.trim();
+    const announcedState = button.match(/accessibilityState=\{\{[^}]*\bdisabled:\s*([^,}]+)[^}]*\}\}/)?.[1]?.trim();
+
+    assert.ok(interactionState, `${label} must have a readable disabled interaction guard`);
+    assert.equal(announcedState, interactionState, `${label} must announce its exact disabled interaction guard`);
+  }
+});
