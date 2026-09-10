@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { completeAppleSignIn } from "../apps/mobile/src/auth/completeAppleSignIn";
 import { isAppleSignInCancellation, runAppleSignInWithOAuthFallback } from "../apps/mobile/src/auth/runAppleSignInWithOAuthFallback";
 
 test("Apple authorization_invalid falls back to browser OAuth and activates the returned session", async () => {
@@ -41,17 +42,17 @@ test("Apple authorization_invalid falls back to browser OAuth and activates the 
   assert.deepEqual(events, ["native", "oauth", "active:session_review", "complete-oauth"]);
 });
 
-test("Apple cancellation remains silent and never starts OAuth fallback", async () => {
+test("Apple native cancellation without a created session stays silent", async () => {
   let oauthStarted = false;
 
   const result = await runAppleSignInWithOAuthFallback({
     startNative: async () => ({ createdSessionId: null }),
-    completeNative: async () => "canceled",
+    completeNative: completeAppleSignIn,
     startOAuth: async () => {
       oauthStarted = true;
       return {};
     },
-    completeOAuth: async () => "canceled",
+    completeOAuth: async () => "complete",
   });
 
   assert.equal(result, "canceled");
