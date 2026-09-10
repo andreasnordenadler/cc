@@ -216,7 +216,7 @@ export async function fetchBoundedProviderText(input: string | URL, init: Reques
         retryDelay = undefined;
         continue;
       }
-      if (canRetry && (response.status === 429 || (response.status >= 500 && response.status <= 599)) && attempt === 0) {
+      if (canRetry && (response.status === 408 || response.status === 429 || (response.status >= 500 && response.status <= 599)) && attempt === 0) {
         void response.body?.cancel().catch(() => undefined);
         await Promise.race([
           new Promise<void>((resolve) => { retryDelay = setTimeout(resolve, PROVIDER_RETRY_DELAY_MS); }),

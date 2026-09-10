@@ -360,6 +360,24 @@ test("provider JSON retries one rate-limited response before returning success",
   assert.equal(calls, 2);
 });
 
+test("provider JSON retries one request-timeout response before returning success", async () => {
+  let calls = 0;
+
+  const result = await fetchBoundedProviderJson("https://provider.example/game", {}, {
+    maxBytes: 64,
+    timeoutMs: 500,
+    fetcher: async () => {
+      calls += 1;
+      return calls === 1
+        ? Response.json({ error: "request timed out" }, { status: 408 })
+        : Response.json({ gameId: "request-timeout-retry-ok" });
+    },
+  });
+
+  assert.deepEqual(result, { gameId: "request-timeout-retry-ok" });
+  assert.equal(calls, 2);
+});
+
 test("provider JSON retries one transient transport failure before returning success", async () => {
   let calls = 0;
 
