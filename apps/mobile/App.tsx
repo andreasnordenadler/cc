@@ -3845,7 +3845,7 @@ function HelpSupportModal({ visible, onClose, signedIn, authBridge, initialMessa
           </View>
 
           <View style={compactStyles.multiplayerNativeCard}>
-            <Pressable accessibilityRole="button" accessibilityLabel={diagnosticsOpen ? "Hide app diagnostics" : "Show app diagnostics"} style={compactStyles.diagnosticsDisclosure} onPress={() => setDiagnosticsOpen((current) => !current)}>
+            <Pressable accessibilityRole="button" accessibilityLabel={diagnosticsOpen ? "Hide app diagnostics" : "Show app diagnostics"} accessibilityState={{ expanded: diagnosticsOpen }} style={compactStyles.diagnosticsDisclosure} onPress={() => setDiagnosticsOpen((current) => !current)}>
               <View>
                 <Text style={compactStyles.multiplayerCardEyebrow}>App diagnostics</Text>
                 <Text style={compactStyles.detailPanelCopy}>Only needed if support asks for your build details.</Text>
