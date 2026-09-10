@@ -10056,6 +10056,7 @@ function ChessUsernameEditor({
       <View style={styles.inputStack}>
         <Text style={styles.inputLabel}>Display name</Text>
         <TextInput
+          accessibilityLabel="Display name"
           value={runnerDisplayName}
           placeholder="e.g. Alex"
           placeholderTextColor="rgba(255,247,232,.42)"
@@ -10065,6 +10066,7 @@ function ChessUsernameEditor({
         />
         <Text style={styles.inputLabel}>Brag line</Text>
         <TextInput
+          accessibilityLabel="Brag line"
           multiline
           value={runnerBio}
           placeholder="Trying to win while doing deeply unreasonable things."
@@ -10075,6 +10077,7 @@ function ChessUsernameEditor({
         />
         <Text style={styles.inputLabel}>Lichess username</Text>
         <TextInput
+          accessibilityLabel="Lichess username"
           ref={lichessInputRef}
           autoCapitalize="none"
           autoCorrect={false}
@@ -10086,6 +10089,7 @@ function ChessUsernameEditor({
         />
         <Text style={styles.inputLabel}>Chess.com username</Text>
         <TextInput
+          accessibilityLabel="Chess.com username"
           ref={chessComInputRef}
           autoCapitalize="none"
           autoCorrect={false}
