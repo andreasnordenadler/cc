@@ -2305,7 +2305,7 @@ function TodayDashboard({
 
       <Pressable accessibilityRole={signedIn.activeQuest ? "button" : undefined} accessibilityLabel={signedIn.activeQuest ? "Open active Solo Side Quest" : undefined} style={compactStyles.activeSoloSection} onPress={signedIn.activeQuest ? () => setCurrentDetailOpen(true) : undefined}>
         <View style={compactStyles.activeSoloRefreshRow}>
-          <Pressable accessibilityRole="button" accessibilityLabel="Refresh active Solo Side Quest" style={[compactStyles.headerIconButton, actionState.busy && compactStyles.disabledAction]} disabled={actionState.busy} onPress={(event) => { stopCardPress(event); void runActiveCheck(); }}>
+          <Pressable accessibilityRole="button" accessibilityLabel="Refresh active Solo Side Quest" accessibilityState={{ disabled: actionState.busy }} style={[compactStyles.headerIconButton, actionState.busy && compactStyles.disabledAction]} disabled={actionState.busy} onPress={(event) => { stopCardPress(event); void runActiveCheck(); }}>
             <SpinningRefreshIcon spinning={actionState.busy} />
           </Pressable>
         </View>
@@ -2863,11 +2863,11 @@ function JoinedMultiplayerQuestModal({
             <Text style={compactStyles.multiplayerCardTitle}>{joinClosed ? "Final standings are frozen." : mode === "joined" ? "Refresh proof after your next eligible game." : "Join this Multiplayer Side Quest before playing your proof game."}</Text>
             <Text style={styles.microcopy}>{joinClosed ? "The event window has ended, so Side Quest Chess keeps the leaderboard as the final proof record." : mode === "joined" ? "Side Quest Chess checks only fresh public games inside this Multiplayer window." : "You can inspect the quests and rules below before joining."}</Text>
             {mode === "joined" && !joinClosed ? (
-              <Pressable accessibilityRole="button" accessibilityLabel="Refresh Multiplayer Side Quest proof" style={[compactStyles.detailPrimaryButton, busy ? compactStyles.disabledAction : null]} disabled={busy} onPress={() => onRefresh?.()}>
+              <Pressable accessibilityRole="button" accessibilityLabel="Refresh Multiplayer Side Quest proof" accessibilityState={{ disabled: busy }} style={[compactStyles.detailPrimaryButton, busy ? compactStyles.disabledAction : null]} disabled={busy} onPress={() => onRefresh?.()}>
                 <Text style={compactStyles.detailPrimaryButtonText}>{busy ? "Checking..." : "Check my latest game"}</Text>
               </Pressable>
             ) : joinClosed ? null : (
-              <Pressable accessibilityRole="button" accessibilityLabel="Join Multiplayer Side Quest" style={[compactStyles.detailPrimaryButton, busy ? compactStyles.disabledAction : null]} disabled={busy} onPress={() => onJoin?.()}>
+              <Pressable accessibilityRole="button" accessibilityLabel="Join Multiplayer Side Quest" accessibilityState={{ disabled: busy }} style={[compactStyles.detailPrimaryButton, busy ? compactStyles.disabledAction : null]} disabled={busy} onPress={() => onJoin?.()}>
                 <Text style={compactStyles.detailPrimaryButtonText}>{busy ? "Joining..." : "Join Side Quest"}</Text>
               </Pressable>
             )}
@@ -3104,7 +3104,7 @@ function JoinedMultiplayerQuestModal({
                   />
                 ))}
               </View>
-              <Pressable accessibilityRole="button" accessibilityLabel="Save Multiplayer Side Quest settings" style={[compactStyles.detailPrimaryButton, busy ? compactStyles.disabledAction : null]} disabled={busy} onPress={saveAdminSettings}>
+              <Pressable accessibilityRole="button" accessibilityLabel="Save Multiplayer Side Quest settings" accessibilityState={{ disabled: busy }} style={[compactStyles.detailPrimaryButton, busy ? compactStyles.disabledAction : null]} disabled={busy} onPress={saveAdminSettings}>
                 <Text style={compactStyles.detailPrimaryButtonText}>{busy ? "Saving..." : "Save settings"}</Text>
               </Pressable>
               <View style={compactStyles.multiplayerListStack}>
@@ -3113,7 +3113,7 @@ function JoinedMultiplayerQuestModal({
                   <View key={`${row.rank}-${row.name}-admin`} style={compactStyles.multiplayerRuleRow}>
                     <Text style={compactStyles.multiplayerRuleValue}>{row.rank} · {row.name} · {row.verified}</Text>
                     {row.removable ? (
-                      <Pressable accessibilityRole="button" accessibilityLabel={`Remove ${row.name}`} style={compactStyles.detailQuietButton} disabled={busy} onPress={() => removeParticipant(row)}>
+                      <Pressable accessibilityRole="button" accessibilityLabel={`Remove ${row.name}`} accessibilityState={{ disabled: busy }} style={compactStyles.detailQuietButton} disabled={busy} onPress={() => removeParticipant(row)}>
                         <Text style={compactStyles.detailQuietButtonText}>Remove player</Text>
                       </Pressable>
                     ) : <Text style={styles.microcopy}>Owner / you</Text>}
@@ -3132,7 +3132,7 @@ function JoinedMultiplayerQuestModal({
                   <MaterialCommunityIcons name="arrow-down" size={14} color="rgba(199,189,169,.72)" />
                   <Text style={compactStyles.pullRefreshHintText}>Pull down to refresh</Text>
                 </View>
-                <Pressable accessibilityRole="button" accessibilityLabel="Leave Multiplayer Side Quest" style={[compactStyles.detailQuietButton, busy ? compactStyles.disabledAction : null]} disabled={busy} onPress={() => onLeave?.()}>
+                <Pressable accessibilityRole="button" accessibilityLabel="Leave Multiplayer Side Quest" accessibilityState={{ disabled: busy }} style={[compactStyles.detailQuietButton, busy ? compactStyles.disabledAction : null]} disabled={busy} onPress={() => onLeave?.()}>
                   <Text style={compactStyles.detailQuietButtonText}>Leave Side Quest</Text>
                 </Pressable>
               </>
@@ -3145,7 +3145,7 @@ function JoinedMultiplayerQuestModal({
                 <Text style={compactStyles.detailQuietButtonText}>Ended — no longer open to join</Text>
               </View>
             ) : (
-              <Pressable accessibilityRole="button" accessibilityLabel="Join Multiplayer Side Quest" style={[compactStyles.detailPrimaryButton, busy ? compactStyles.disabledAction : null]} disabled={busy} onPress={() => onJoin?.()}>
+              <Pressable accessibilityRole="button" accessibilityLabel="Join Multiplayer Side Quest" accessibilityState={{ disabled: busy }} style={[compactStyles.detailPrimaryButton, busy ? compactStyles.disabledAction : null]} disabled={busy} onPress={() => onJoin?.()}>
                 <Text style={compactStyles.detailPrimaryButtonText}>{busy ? "Joining..." : "Join Side Quest"}</Text>
               </Pressable>
             )}
@@ -3396,7 +3396,7 @@ function CurrentSideQuestDetailModal({
             </View>
           ) : (
             <View style={compactStyles.detailActionStack}>
-              <Pressable accessibilityRole="button" accessibilityLabel="Check my latest game" style={[compactStyles.detailPrimaryButton, actionState.busy && compactStyles.detailPrimaryButtonDisabled]} disabled={actionState.busy} onPress={() => void onRunCheck()}>
+              <Pressable accessibilityRole="button" accessibilityLabel="Check my latest game" accessibilityState={{ disabled: actionState.busy }} style={[compactStyles.detailPrimaryButton, actionState.busy && compactStyles.detailPrimaryButtonDisabled]} disabled={actionState.busy} onPress={() => void onRunCheck()}>
                 <Text style={compactStyles.detailPrimaryButtonText}>{actionState.busy ? "Checking…" : "Check my latest game"}</Text>
               </Pressable>
               <View style={compactStyles.detailInlineRefresh}>
@@ -3932,7 +3932,7 @@ function HelpSupportModal({ visible, onClose, signedIn, authBridge, initialMessa
             </Pressable>
             {submitState.message ? <Text style={compactStyles.inlineSuccess}>{submitState.message}</Text> : null}
             {submitState.error ? <Text style={compactStyles.inlineError}>{submitState.error}</Text> : null}
-            <Pressable accessibilityRole="button" accessibilityLabel="Send support message" style={[compactStyles.detailPrimaryButton, submitState.busy ? compactStyles.disabledAction : null]} disabled={submitState.busy} onPress={() => void submitSupport()}>
+            <Pressable accessibilityRole="button" accessibilityLabel="Send support message" accessibilityState={{ disabled: submitState.busy }} style={[compactStyles.detailPrimaryButton, submitState.busy ? compactStyles.disabledAction : null]} disabled={submitState.busy} onPress={() => void submitSupport()}>
               <Text style={compactStyles.detailPrimaryButtonText}>{submitState.busy ? "Sending..." : "Send support message"}</Text>
             </Pressable>
             </>) : (<>
@@ -8237,7 +8237,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
         <Text style={styles.eyebrow}>Create</Text>
         <Text style={styles.sideQuestModeTitle}>Create a Community Multiplayer Side Quest.</Text>
         <Text style={styles.sideQuestModeCopy}>Pick up to four Side Quests, set the time window, then share the table with players.</Text>
-        <Pressable accessibilityRole="button" style={styles.centeredPrimaryButton} accessibilityLabel="Create Multiplayer Side Quest" disabled={!authBridge.isSignedIn} onPress={() => { setMultiplayerCatalogTab("community"); setCreateOpen(true); }}>
+        <Pressable accessibilityRole="button" style={styles.centeredPrimaryButton} accessibilityLabel="Create Multiplayer Side Quest" accessibilityState={{ disabled: !authBridge.isSignedIn }} disabled={!authBridge.isSignedIn} onPress={() => { setMultiplayerCatalogTab("community"); setCreateOpen(true); }}>
           <Text style={styles.primaryButtonText}>Create Multiplayer Side Quest</Text>
         </Pressable>
       </View>}
@@ -8250,7 +8250,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
           <Text style={styles.inputLabel}>Invite code</Text>
           <TextInput accessibilityLabel="Invite code" autoCapitalize="none" autoCorrect={false} value={inviteKey} placeholder="e.g. nocastle-ab12cd" placeholderTextColor="rgba(255,247,232,.42)" style={styles.textInput} onChangeText={setInviteKey} />
         </View>
-        <Pressable accessibilityRole="button" style={styles.secondaryButtonWide} accessibilityLabel="Join private Multiplayer Side Quest" disabled={groupQuestActionState.busy && groupQuestActionState.questId === "invite"} onPress={() => void joinByInviteKey()}>
+        <Pressable accessibilityRole="button" style={styles.secondaryButtonWide} accessibilityLabel="Join private Multiplayer Side Quest" accessibilityState={{ disabled: groupQuestActionState.busy && groupQuestActionState.questId === "invite" }} disabled={groupQuestActionState.busy && groupQuestActionState.questId === "invite"} onPress={() => void joinByInviteKey()}>
           <Text style={styles.secondaryButtonText}>{groupQuestActionState.busy && groupQuestActionState.questId === "invite" ? "Joining..." : "Join with code"}</Text>
         </Pressable>
         {groupQuestActionState.questId === "invite" && groupQuestActionState.error ? <Text style={styles.errorCopy}>{groupQuestActionState.error}</Text> : null}
@@ -8484,7 +8484,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
               <Text style={compactStyles.createFooterTitle}>{createQuestIds.length ? `${createQuestIds.length}/${MULTIPLAYER_CREATE_MAX_QUESTS} selected` : "Choose at least one Side Quest"}</Text>
               <Text style={compactStyles.createFooterMeta} numberOfLines={1}>{createName.trim() || "Name the Multiplayer Side Quest before creating."}</Text>
             </View>
-            <Pressable accessibilityRole="button" accessibilityLabel="Create Multiplayer Side Quest now" style={[compactStyles.createFooterButton, groupQuestActionState.busy && groupQuestActionState.questId === "new" ? compactStyles.disabledAction : null]} disabled={groupQuestActionState.busy && groupQuestActionState.questId === "new"} onPress={() => void createGroupQuest()}>
+            <Pressable accessibilityRole="button" accessibilityLabel="Create Multiplayer Side Quest now" accessibilityState={{ disabled: groupQuestActionState.busy && groupQuestActionState.questId === "new" }} style={[compactStyles.createFooterButton, groupQuestActionState.busy && groupQuestActionState.questId === "new" ? compactStyles.disabledAction : null]} disabled={groupQuestActionState.busy && groupQuestActionState.questId === "new"} onPress={() => void createGroupQuest()}>
               <Text style={compactStyles.createFooterButtonText}>{groupQuestActionState.busy && groupQuestActionState.questId === "new" ? "Creating..." : "Create"}</Text>
             </Pressable>
           </View>
@@ -9320,27 +9320,27 @@ function CustomSideQuestDetailModal({
             </Pressable>
           ) : null}
           {onDuplicate ? (
-            <Pressable accessibilityRole="button" accessibilityLabel="Duplicate custom Side Quest" style={compactStyles.detailSecondaryButton} disabled={Boolean(manageBusy)} onPress={() => void handleDuplicate()}>
+            <Pressable accessibilityRole="button" accessibilityLabel="Duplicate custom Side Quest" accessibilityState={{ disabled: Boolean(manageBusy) }} style={compactStyles.detailSecondaryButton} disabled={Boolean(manageBusy)} onPress={() => void handleDuplicate()}>
               <Text style={compactStyles.detailSecondaryButtonText}>{manageBusy === "duplicate" ? "Duplicating..." : "Duplicate"}</Text>
             </Pressable>
           ) : null}
           {onSaveState && lifecycle !== "published" ? (
-            <Pressable accessibilityRole="button" accessibilityLabel="Publish custom Side Quest" style={compactStyles.detailSecondaryButton} disabled={Boolean(manageBusy)} onPress={() => void handleSaveState({ lifecycle: "published", visibility: quest.visibility ?? "private" })}>
+            <Pressable accessibilityRole="button" accessibilityLabel="Publish custom Side Quest" accessibilityState={{ disabled: Boolean(manageBusy) }} style={compactStyles.detailSecondaryButton} disabled={Boolean(manageBusy)} onPress={() => void handleSaveState({ lifecycle: "published", visibility: quest.visibility ?? "private" })}>
               <Text style={compactStyles.detailSecondaryButtonText}>{manageBusy === "state" ? "Saving..." : "Publish"}</Text>
             </Pressable>
           ) : null}
           {onSaveState && lifecycle === "published" ? (
-            <Pressable accessibilityRole="button" accessibilityLabel="Toggle custom Side Quest visibility" style={compactStyles.detailSecondaryButton} disabled={Boolean(manageBusy)} onPress={() => void handleSaveState({ lifecycle: "published", visibility: quest.visibility === "public" ? "private" : "public" })}>
+            <Pressable accessibilityRole="button" accessibilityLabel="Toggle custom Side Quest visibility" accessibilityState={{ disabled: Boolean(manageBusy) }} style={compactStyles.detailSecondaryButton} disabled={Boolean(manageBusy)} onPress={() => void handleSaveState({ lifecycle: "published", visibility: quest.visibility === "public" ? "private" : "public" })}>
               <Text style={compactStyles.detailSecondaryButtonText}>{manageBusy === "state" ? "Saving..." : quest.visibility === "public" ? "Make private again" : "Make public / shareable"}</Text>
             </Pressable>
           ) : null}
           {onSaveState && lifecycle !== "archived" ? (
-            <Pressable accessibilityRole="button" accessibilityLabel="Archive custom Side Quest" style={compactStyles.detailQuietButton} disabled={Boolean(manageBusy)} onPress={() => void handleSaveState({ lifecycle: "archived", visibility: quest.visibility ?? "private" })}>
+            <Pressable accessibilityRole="button" accessibilityLabel="Archive custom Side Quest" accessibilityState={{ disabled: Boolean(manageBusy) }} style={compactStyles.detailQuietButton} disabled={Boolean(manageBusy)} onPress={() => void handleSaveState({ lifecycle: "archived", visibility: quest.visibility ?? "private" })}>
               <Text style={compactStyles.detailQuietButtonText}>{manageBusy === "state" ? "Saving..." : "Archive"}</Text>
             </Pressable>
           ) : null}
           {onDelete ? (
-            <Pressable accessibilityRole="button" accessibilityLabel="Delete custom Side Quest" style={compactStyles.detailQuietButton} disabled={Boolean(manageBusy)} onPress={confirmDelete}>
+            <Pressable accessibilityRole="button" accessibilityLabel="Delete custom Side Quest" accessibilityState={{ disabled: Boolean(manageBusy) }} style={compactStyles.detailQuietButton} disabled={Boolean(manageBusy)} onPress={confirmDelete}>
               <Text style={compactStyles.detailQuietButtonText}>{manageBusy === "delete" ? "Deleting..." : "Delete from library"}</Text>
             </Pressable>
           ) : null}
@@ -9483,7 +9483,7 @@ function CompletedQuestProofCard({
       ) : null}
       {shareStatus ? <Text style={compactStyles.inlineSuccess}>{shareStatus}</Text> : null}
 
-      <Pressable accessibilityRole="button" accessibilityLabel="Reset Side Quest" style={compactStyles.detailQuietButton} disabled={actionState.busy} onPress={confirmReset}>
+      <Pressable accessibilityRole="button" accessibilityLabel="Reset Side Quest" accessibilityState={{ disabled: actionState.busy }} style={compactStyles.detailQuietButton} disabled={actionState.busy} onPress={confirmReset}>
         <Text style={compactStyles.detailQuietButtonText}>{actionState.busy ? "Resetting..." : "Reset Side Quest"}</Text>
       </Pressable>
       {actionState.message ? <Text style={compactStyles.inlineSuccess}>{actionState.message}</Text> : null}
@@ -10150,7 +10150,7 @@ function ChessUsernameEditor({
           onChangeText={setChessComUsername}
         />
       </View>
-      <Pressable accessibilityRole="button" accessibilityLabel="Save chess usernames" testID="mobile-save-chess-usernames" style={styles.primaryButton} disabled={saving || !authBridge.isSignedIn} onPress={() => void saveUsernames()}>
+      <Pressable accessibilityRole="button" accessibilityLabel="Save chess usernames" accessibilityState={{ disabled: saving || !authBridge.isSignedIn }} testID="mobile-save-chess-usernames" style={styles.primaryButton} disabled={saving || !authBridge.isSignedIn} onPress={() => void saveUsernames()}>
         <Text style={styles.primaryButtonText}>{saving ? "Saving..." : "Save usernames"}</Text>
       </Pressable>
       {!authBridge.isSignedIn ? <Text style={styles.microcopy}>Sign in first to enable native account edits.</Text> : null}
