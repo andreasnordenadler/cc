@@ -6225,6 +6225,7 @@ function AccountTrackerDashboard({ bootstrap, account, authBridge, onSelectTab, 
             <View style={styles.inputStack}>
               <Text style={styles.inputLabel}>Type DELETE MY ACCOUNT to confirm</Text>
               <TextInput
+                accessibilityLabel="Account deletion confirmation"
                 value={deleteConfirmation}
                 autoCapitalize="characters"
                 autoCorrect={false}
@@ -6377,6 +6378,7 @@ function AccountTrackerDashboard({ bootstrap, account, authBridge, onSelectTab, 
           <View style={styles.inputStack}>
             <Text style={styles.inputLabel}>Type DELETE MY ACCOUNT to confirm</Text>
             <TextInput
+              accessibilityLabel="Account deletion confirmation"
               value={deleteConfirmation}
               autoCapitalize="characters"
               autoCorrect={false}
