@@ -1,6 +1,7 @@
 import { auth, clerkClient } from "@clerk/nextjs/server";
 import { AsyncLocalStorage } from "node:async_hooks";
 import { compactAnalyticsStore, getAnalyticsStore } from "@/lib/analytics";
+import { runSerializedHostGroupQuestMutation } from "@/lib/groupquest-host-mutation-serialization";
 import {
   OFFICIAL_GROUP_QUEST_METADATA_KEY,
   findGroupQuestById,
@@ -30,8 +31,8 @@ export async function saveWebJoinedQuest(client: MetadataClient, input: {
 }) {
   const storeOnParticipant = isBuiltInOfficialGroupQuestHost(input.hostUserId);
   const storageUserId = storeOnParticipant ? input.authenticatedUserId : input.hostUserId;
-  const storageUser = await client.users.getUser(storageUserId);
   if (storeOnParticipant) {
+    const storageUser = await client.users.getUser(storageUserId);
     const joinedQuest = joinGroupQuest(input.groupQuest, input.participant);
     const publicMetadata = storageUser.publicMetadata && typeof storageUser.publicMetadata === "object"
       ? storageUser.publicMetadata as Record<string, unknown>
@@ -47,17 +48,20 @@ export async function saveWebJoinedQuest(client: MetadataClient, input: {
     });
     return;
   }
-  await client.users.updateUserMetadata(storageUserId, {
-    privateMetadata: {
-      ...(storageUser.privateMetadata && typeof storageUser.privateMetadata === "object" ? storageUser.privateMetadata : {}),
-      sqcAnalytics: compactAnalyticsStore(getAnalyticsStore(storageUser.privateMetadata)),
-      sqcGroupQuests: upsertHostGroupQuestParticipantJoin(
-        storageUser.privateMetadata,
-        input.groupQuest.id,
-        input.participant,
-        input.expectedMembership,
-      ),
-    },
+  await runSerializedHostGroupQuestMutation(storageUserId, async () => {
+    const storageUser = await client.users.getUser(storageUserId);
+    await client.users.updateUserMetadata(storageUserId, {
+      privateMetadata: {
+        ...(storageUser.privateMetadata && typeof storageUser.privateMetadata === "object" ? storageUser.privateMetadata : {}),
+        sqcAnalytics: compactAnalyticsStore(getAnalyticsStore(storageUser.privateMetadata)),
+        sqcGroupQuests: upsertHostGroupQuestParticipantJoin(
+          storageUser.privateMetadata,
+          input.groupQuest.id,
+          input.participant,
+          input.expectedMembership,
+        ),
+      },
+    });
   });
 }
 

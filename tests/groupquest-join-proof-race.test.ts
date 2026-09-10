@@ -82,6 +82,13 @@ function raceClient(initialQuest: ServerGroupQuest = baseQuest) {
       publicMetadata: { lichessUsername: "NewJoiner" },
       privateMetadata: {},
     }],
+    ["joiner-two", {
+      id: "joiner-two",
+      firstName: "Second",
+      username: "joiner-two",
+      publicMetadata: { lichessUsername: "SecondJoiner" },
+      privateMetadata: {},
+    }],
   ]);
 
   const client = {
@@ -104,6 +111,51 @@ function raceClient(initialQuest: ServerGroupQuest = baseQuest) {
     loadQuest: () => getStoredGroupQuests(users.get("host")!.privateMetadata)[0],
   };
 }
+
+test("concurrent web and mobile joins preserve both new hosted memberships", async () => {
+  const emptyQuest = { ...structuredClone(baseQuest), participants: [] };
+  const state = raceClient(emptyQuest);
+  const readUser = state.client.users.getUser;
+  let hostReads = 0;
+  state.client.users.getUser = async (userId: string) => {
+    const snapshot = await readUser(userId);
+    if (userId === "host" && ++hostReads === 1) {
+      await new Promise<void>((resolve) => setImmediate(resolve));
+    }
+    return snapshot;
+  };
+  const context = { params: Promise.resolve({ id: baseQuest.id }) };
+  const findQuest = async () => ({ userId: "host", groupQuest: structuredClone(state.loadQuest()) });
+
+  const webJoin = webJoinRoute.withWebJoinRouteTestDependencies({
+    getAuthenticatedUserId: async () => "joiner",
+    findQuestById: findQuest,
+    getUser: state.client.users.getUser,
+    saveJoinedQuest: (input) => webJoinRoute.saveWebJoinedQuest(state.client as never, input),
+  }, () => webJoinRoute.POST(new Request(`https://sqc.test/api/groupquests/${baseQuest.id}/join`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: "{}",
+  }), context));
+  const mobileJoin = mobileRoute.withMobileRefreshRouteTestDependencies({
+    authenticate: async () => "joiner-two",
+    getClient: async () => state.client,
+    findQuest,
+    check: async () => { throw new Error("not a proof request"); },
+  } as never, () => mobileRoute.POST(new Request(`https://sqc.test/api/mobile/groupquests/${baseQuest.id}`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ action: "join" }),
+  }), context));
+
+  const [webResponse, mobileResponse] = await Promise.all([webJoin, mobileJoin]);
+  assert.equal(webResponse.status, 200);
+  assert.equal(mobileResponse.status, 200);
+  assert.deepEqual(
+    state.loadQuest().participants.map(({ userId }) => userId).sort(),
+    ["joiner", "joiner-two"],
+  );
+});
 
 test("web join preserves proof completed after the join snapshot", async () => {
   const state = raceClient();
