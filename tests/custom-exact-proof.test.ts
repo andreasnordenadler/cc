@@ -54,15 +54,21 @@ function validConfigWithUtf8Bytes(byteLength: number) {
   return config;
 }
 
-test("provider JSON reads reject a response beyond the byte limit", async () => {
-  const response = new Response(JSON.stringify({ payload: "x".repeat(64) }), {
-    headers: { "content-type": "application/json" },
+test("provider JSON reads cancel a declared-oversized response body", async () => {
+  let cancelled = false;
+  const body = new ReadableStream<Uint8Array>({
+    start(controller) { controller.enqueue(new TextEncoder().encode(JSON.stringify({ payload: "x".repeat(64) }))); },
+    cancel() { cancelled = true; },
+  });
+  const response = new Response(body, {
+    headers: { "content-length": "96", "content-type": "application/json" },
   });
 
   await assert.rejects(
     () => fetchBoundedProviderJson("https://provider.example/game", {}, { maxBytes: 32, timeoutMs: 100, fetcher: async () => response }),
     /response is too large/i,
   );
+  assert.equal(cancelled, true);
 });
 
 test("provider JSON reads abort after the timeout", async () => {

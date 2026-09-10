@@ -233,7 +233,11 @@ export async function fetchBoundedProviderText(input: string | URL, init: Reques
         return null;
       }
       const declaredBytes = Number(response.headers.get("content-length"));
-      if (Number.isFinite(declaredBytes) && declaredBytes > maxBytes) throw new Error("Provider response is too large.");
+      if (Number.isFinite(declaredBytes) && declaredBytes > maxBytes) {
+        void response.body?.cancel().catch(() => undefined);
+        responseToCancel = undefined;
+        throw new Error("Provider response is too large.");
+      }
       if (!response.body) return "";
 
       reader = response.body.getReader();
