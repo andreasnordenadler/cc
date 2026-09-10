@@ -5701,7 +5701,7 @@ function QuestBoardDashboard({
                 ))}
               </View>
               <Text style={styles.inputLabel}>Side Quest name</Text>
-              <TextInput value={customQuestName} placeholder="Name this custom Side Quest" placeholderTextColor="rgba(255,247,232,.42)" style={styles.textInput} onChangeText={setCustomQuestName} />
+              <TextInput accessibilityLabel="Side Quest name" value={customQuestName} placeholder="Name this custom Side Quest" placeholderTextColor="rgba(255,247,232,.42)" style={styles.textInput} onChangeText={setCustomQuestName} />
               <Text style={styles.microcopy}>Saved Side Quests appear in My Custom Side Quests and can be used as Solo Side Quests or Multiplayer Side Quests.</Text>
               <View style={compactStyles.customCoatPreviewRow}>
                 <Image source={{ uri: absoluteAssetUrl(getSingleCustomQuestBadgePath(customBadgePreviewUrl)) }} style={compactStyles.customCoatPreviewImage} resizeMode="contain" />
@@ -5851,21 +5851,21 @@ function QuestBoardDashboard({
                   {customRuleCondition === "on square" ? (
                     <View>
                       <Text style={compactStyles.multiplayerRuleLabel}>Square</Text>
-                      <TextInput value={customRuleTargetSquare} placeholder="e4" placeholderTextColor="rgba(255,247,232,.42)" autoCapitalize="none" maxLength={2} style={styles.textInput} onChangeText={setCustomRuleTargetSquare} />
+                      <TextInput accessibilityLabel="Square" value={customRuleTargetSquare} placeholder="e4" placeholderTextColor="rgba(255,247,232,.42)" autoCapitalize="none" maxLength={2} style={styles.textInput} onChangeText={setCustomRuleTargetSquare} />
                       <Text style={styles.microcopy}>Use algebraic board squares like e4, h8, or a1.</Text>
                     </View>
                   ) : null}
                   {customRuleCondition === "move sequence" ? (
                     <View>
                       <Text style={compactStyles.multiplayerRuleLabel}>Move sequence</Text>
-                      <TextInput value={customRuleMoveSequence} placeholder="e4 e5 Nf3 Nc6" placeholderTextColor="rgba(255,247,232,.42)" autoCapitalize="none" multiline style={[styles.textInput, styles.textAreaInput]} onChangeText={(value) => setCustomRuleMoveSequence(normalizeCustomMoveSequence(value))} />
+                      <TextInput accessibilityLabel="Move sequence" value={customRuleMoveSequence} placeholder="e4 e5 Nf3 Nc6" placeholderTextColor="rgba(255,247,232,.42)" autoCapitalize="none" multiline style={[styles.textInput, styles.textAreaInput]} onChangeText={(value) => setCustomRuleMoveSequence(normalizeCustomMoveSequence(value))} />
                       <Text style={styles.microcopy}>Enter algebraic moves in order, for example e4 e5 Nf3 Nc6. Timing decides when the sequence must be complete or appear.</Text>
                     </View>
                   ) : null}
                   {customRuleCondition === "opening sequence" ? (
                     <View>
                       <Text style={compactStyles.multiplayerRuleLabel}>Opening sequence</Text>
-                      <TextInput value={customRuleOpeningSequence} placeholder="1.e4 e5 2.f4" placeholderTextColor="rgba(255,247,232,.42)" autoCapitalize="none" multiline style={[styles.textInput, styles.textAreaInput]} onChangeText={(value) => setCustomRuleOpeningSequence(value.slice(0, 260))} onEndEditing={() => setCustomRuleOpeningSequence((current) => normalizeCustomOpeningSequence(current) || "1.e4 e5 2.f4")} />
+                      <TextInput accessibilityLabel="Opening sequence" value={customRuleOpeningSequence} placeholder="1.e4 e5 2.f4" placeholderTextColor="rgba(255,247,232,.42)" autoCapitalize="none" multiline style={[styles.textInput, styles.textAreaInput]} onChangeText={(value) => setCustomRuleOpeningSequence(value.slice(0, 260))} onEndEditing={() => setCustomRuleOpeningSequence((current) => normalizeCustomOpeningSequence(current) || "1.e4 e5 2.f4")} />
                       <Text style={styles.microcopy}>Paste opening notation with move numbers. Side Quest Chess cleans it into: {getCustomOpeningPreview(customRuleOpeningSequence)}</Text>
                     </View>
                   ) : null}
@@ -5905,7 +5905,7 @@ function QuestBoardDashboard({
                               {needsMoveNumber ? (
                                 <View style={compactStyles.customTimingNestedInput}>
                                   <Text style={compactStyles.customPieceSubchoiceLabel}>Move number</Text>
-                                  <TextInput value={customRuleMoveNumber} placeholder="15" placeholderTextColor="rgba(255,247,232,.42)" keyboardType="number-pad" inputMode="numeric" maxLength={3} style={styles.textInput} onChangeText={(value) => setCustomRuleMoveNumber(formatCustomMoveNumberInput(value))} onEndEditing={() => setCustomRuleMoveNumber((current) => current || "1")} />
+                                  <TextInput accessibilityLabel="Move number" value={customRuleMoveNumber} placeholder="15" placeholderTextColor="rgba(255,247,232,.42)" keyboardType="number-pad" inputMode="numeric" maxLength={3} style={styles.textInput} onChangeText={(value) => setCustomRuleMoveNumber(formatCustomMoveNumberInput(value))} onEndEditing={() => setCustomRuleMoveNumber((current) => current || "1")} />
                                 </View>
                               ) : null}
                             </View>
@@ -7279,7 +7279,7 @@ function SideQuestsScreen({
                 ))}
               </View>
               <Text style={styles.inputLabel}>Side Quest name</Text>
-              <TextInput value={customQuestName} placeholder="Name this custom Side Quest" placeholderTextColor="rgba(255,247,232,.42)" style={styles.textInput} onChangeText={setCustomQuestName} />
+              <TextInput accessibilityLabel="Side Quest name" value={customQuestName} placeholder="Name this custom Side Quest" placeholderTextColor="rgba(255,247,232,.42)" style={styles.textInput} onChangeText={setCustomQuestName} />
               <Text style={styles.microcopy}>Saved Side Quests appear in My Custom Side Quests and can be used as Solo Side Quests or Multiplayer Side Quests.</Text>
               <View style={compactStyles.customCoatPreviewRow}>
                 <Image source={{ uri: absoluteAssetUrl(getSingleCustomQuestBadgePath(customBadgePreviewUrl)) }} style={compactStyles.customCoatPreviewImage} resizeMode="contain" />
@@ -7429,21 +7429,21 @@ function SideQuestsScreen({
                   {customRuleCondition === "on square" ? (
                     <View>
                       <Text style={compactStyles.multiplayerRuleLabel}>Square</Text>
-                      <TextInput value={customRuleTargetSquare} placeholder="e4" placeholderTextColor="rgba(255,247,232,.42)" autoCapitalize="none" maxLength={2} style={styles.textInput} onChangeText={setCustomRuleTargetSquare} />
+                      <TextInput accessibilityLabel="Square" value={customRuleTargetSquare} placeholder="e4" placeholderTextColor="rgba(255,247,232,.42)" autoCapitalize="none" maxLength={2} style={styles.textInput} onChangeText={setCustomRuleTargetSquare} />
                       <Text style={styles.microcopy}>Use algebraic board squares like e4, h8, or a1.</Text>
                     </View>
                   ) : null}
                   {customRuleCondition === "move sequence" ? (
                     <View>
                       <Text style={compactStyles.multiplayerRuleLabel}>Move sequence</Text>
-                      <TextInput value={customRuleMoveSequence} placeholder="e4 e5 Nf3 Nc6" placeholderTextColor="rgba(255,247,232,.42)" autoCapitalize="none" multiline style={[styles.textInput, styles.textAreaInput]} onChangeText={(value) => setCustomRuleMoveSequence(normalizeCustomMoveSequence(value))} />
+                      <TextInput accessibilityLabel="Move sequence" value={customRuleMoveSequence} placeholder="e4 e5 Nf3 Nc6" placeholderTextColor="rgba(255,247,232,.42)" autoCapitalize="none" multiline style={[styles.textInput, styles.textAreaInput]} onChangeText={(value) => setCustomRuleMoveSequence(normalizeCustomMoveSequence(value))} />
                       <Text style={styles.microcopy}>Enter algebraic moves in order, for example e4 e5 Nf3 Nc6. Timing decides when the sequence must be complete or appear.</Text>
                     </View>
                   ) : null}
                   {customRuleCondition === "opening sequence" ? (
                     <View>
                       <Text style={compactStyles.multiplayerRuleLabel}>Opening sequence</Text>
-                      <TextInput value={customRuleOpeningSequence} placeholder="1.e4 e5 2.f4" placeholderTextColor="rgba(255,247,232,.42)" autoCapitalize="none" multiline style={[styles.textInput, styles.textAreaInput]} onChangeText={(value) => setCustomRuleOpeningSequence(value.slice(0, 260))} onEndEditing={() => setCustomRuleOpeningSequence((current) => normalizeCustomOpeningSequence(current) || "1.e4 e5 2.f4")} />
+                      <TextInput accessibilityLabel="Opening sequence" value={customRuleOpeningSequence} placeholder="1.e4 e5 2.f4" placeholderTextColor="rgba(255,247,232,.42)" autoCapitalize="none" multiline style={[styles.textInput, styles.textAreaInput]} onChangeText={(value) => setCustomRuleOpeningSequence(value.slice(0, 260))} onEndEditing={() => setCustomRuleOpeningSequence((current) => normalizeCustomOpeningSequence(current) || "1.e4 e5 2.f4")} />
                       <Text style={styles.microcopy}>Paste opening notation with move numbers. Side Quest Chess cleans it into: {getCustomOpeningPreview(customRuleOpeningSequence)}</Text>
                     </View>
                   ) : null}
@@ -7483,7 +7483,7 @@ function SideQuestsScreen({
                               {needsMoveNumber ? (
                                 <View style={compactStyles.customTimingNestedInput}>
                                   <Text style={compactStyles.customPieceSubchoiceLabel}>Move number</Text>
-                                  <TextInput value={customRuleMoveNumber} placeholder="15" placeholderTextColor="rgba(255,247,232,.42)" keyboardType="number-pad" inputMode="numeric" maxLength={3} style={styles.textInput} onChangeText={(value) => setCustomRuleMoveNumber(formatCustomMoveNumberInput(value))} onEndEditing={() => setCustomRuleMoveNumber((current) => current || "1")} />
+                                  <TextInput accessibilityLabel="Move number" value={customRuleMoveNumber} placeholder="15" placeholderTextColor="rgba(255,247,232,.42)" keyboardType="number-pad" inputMode="numeric" maxLength={3} style={styles.textInput} onChangeText={(value) => setCustomRuleMoveNumber(formatCustomMoveNumberInput(value))} onEndEditing={() => setCustomRuleMoveNumber((current) => current || "1")} />
                                 </View>
                               ) : null}
                             </View>
