@@ -252,8 +252,10 @@ function concurrentHostedClient() {
   const alphaAtAccountWrite = new Promise<void>((resolve) => { signalAlphaAccountWrite = resolve; });
   let pauseAlphaAccountWrite = true;
   let failBetaAccountWrite = true;
+  const writes: Array<{ userId: string; metadata: Record<string, unknown> }> = [];
 
   return {
+    writes,
     alphaAtAccountWrite,
     releaseAlphaAccountWrite,
     expireQuest() {
@@ -266,6 +268,21 @@ function concurrentHostedClient() {
       const quests = host.privateMetadata.sqcGroupQuests as Array<{ participants: Array<{ userId: string }> }>;
       quests[0].participants = quests[0].participants.filter((participant) => participant.userId !== userId);
     },
+    rejoinParticipantWithLichess(userId: "alpha" | "beta") {
+      const host = users.get("host")!;
+      const quests = host.privateMetadata.sqcGroupQuests as groupquests.ServerGroupQuest[];
+      const currentParticipant = quests[0].participants.find((participant) => participant.userId === userId);
+      assert.ok(currentParticipant);
+      const replacement = groupquests.buildParticipant({
+        userId,
+        provider: "lichess",
+        username: `${userId}Lichess`,
+        leaderboardName: userId,
+      });
+      assert.ok(replacement);
+      replacement.joinedAt = currentParticipant.joinedAt;
+      quests[0] = groupquests.joinGroupQuest(quests[0], replacement);
+    },
     user(userId: string) {
       return structuredClone(users.get(userId)!);
     },
@@ -273,6 +290,7 @@ function concurrentHostedClient() {
       users: {
         getUser: async (userId: string) => structuredClone(users.get(userId)!),
         updateUserMetadata: async (userId: string, metadata: Record<string, unknown>) => {
+          writes.push({ userId, metadata: structuredClone(metadata) });
           const publicMetadata = metadata.publicMetadata && typeof metadata.publicMetadata === "object"
             ? metadata.publicMetadata as Record<string, unknown>
             : null;
@@ -893,12 +911,57 @@ test(`${variant} hosted initial persistence refuses to reward a concurrently rem
   await alphaAtProof;
   state.removeParticipant("alpha");
   releaseAlphaProof();
-  if (variant === "web") {
-    await assert.rejects(refresh, /groupquest_progress_participant_missing/);
-  } else {
-    assert.equal((await refresh).status, 500);
-  }
+  const response = await refresh;
+  const body = await response.json();
+  assert.equal(response.status, 409);
+  assert.equal(body.code, "groupquest_refresh_conflict");
   assert.equal(loadQuest().participants.some((participant) => participant.userId === "alpha"), false);
+  const account = state.user("alpha").publicMetadata;
+  assert.deepEqual((account.challengeProgress as { completedChallengeIds: string[] }).completedChallengeIds, []);
+  assert.deepEqual(account.challengeAttempts, []);
+});
+
+test(`${variant} hosted refresh rejects proof from a replaced provider membership`, async () => {
+  const state = concurrentHostedClient();
+  state.releaseAlphaAccountWrite();
+  const loadQuest = () => getStoredGroupQuests(state.user("host").privateMetadata)[0];
+  let signalAlphaProof!: () => void;
+  const alphaAtProof = new Promise<void>((resolve) => { signalAlphaProof = resolve; });
+  let releaseAlphaProof!: () => void;
+  const alphaProofGate = new Promise<void>((resolve) => { releaseAlphaProof = resolve; });
+  const dependencies = {
+    authenticate: async () => "alpha",
+    getClient: async () => state.client,
+    findQuest: async () => ({ userId: "host", groupQuest: loadQuest() }),
+    check: async () => {
+      signalAlphaProof();
+      await alphaProofGate;
+      return {
+        status: "passed" as const,
+        gameId: "alpha-stale-chesscom-game",
+        summary: "alpha stale Chess.com proof passed",
+        gameTime: "2026-07-03T04:05:06.000Z",
+      };
+    },
+  };
+  const context = { params: Promise.resolve({ id: "gq" }) };
+  const refresh = variant === "web"
+    ? webRoute.withWebRefreshRouteTestDependencies(dependencies as never, () => webRoute.POST(request(), context))
+    : mobileRoute.withMobileRefreshRouteTestDependencies(dependencies as never, () => mobileRoute.POST(request(), context));
+
+  await alphaAtProof;
+  state.rejoinParticipantWithLichess("alpha");
+  releaseAlphaProof();
+
+  const response = await refresh;
+  const body = await response.json();
+  assert.equal(response.status, 409);
+  assert.equal(body.code, "groupquest_refresh_conflict");
+  assert.equal(state.writes.length, 0);
+  const participant = loadQuest().participants.find((entry) => entry.userId === "alpha")!;
+  assert.equal(participant.provider, "lichess");
+  assert.deepEqual(participant.completedQuestIds, []);
+  assert.deepEqual(participant.pendingCompletions ?? [], []);
   const account = state.user("alpha").publicMetadata;
   assert.deepEqual((account.challengeProgress as { completedChallengeIds: string[] }).completedChallengeIds, []);
   assert.deepEqual(account.challengeAttempts, []);

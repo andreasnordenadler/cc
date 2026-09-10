@@ -21,6 +21,16 @@ type RefreshQuest = {
 
 type RefreshCheck = { questId: string; result: GroupQuestCheckResult };
 
+const GROUPQUEST_REFRESH_CONFLICT_ERRORS = new Set([
+  "groupquest_progress_target_missing",
+  "groupquest_progress_participant_missing",
+  "groupquest_progress_participant_changed",
+]);
+
+export function isGroupQuestRefreshConflictError(error: unknown) {
+  return error instanceof Error && GROUPQUEST_REFRESH_CONFLICT_ERRORS.has(error.message);
+}
+
 export function createGroupQuestRefreshRouteHandler(dependencies: {
   mode: "web" | "mobile";
   authenticate: (request: Request) => Promise<string | null>;
@@ -56,27 +66,40 @@ export function createGroupQuestRefreshRouteHandler(dependencies: {
           questId,
           result: await dependencies.check({ questId, quest, participant }),
         })));
-    const progress = await applyGroupQuestProofResults({
-      participant,
-      mutateWhenUnchanged: Boolean(participant.pendingCompletions?.length),
-      checks: checks.map((entry) => ({ ...entry, reward: dependencies.reward(entry.questId) })),
-      mutate: async (nextProgress, { newlyPassedQuestIds }) => dependencies.persist({
-        userId,
-        progress: nextProgress,
-        newlyPassedQuestIds,
-        checks,
-      }),
-    });
-    const body = {
-      ok: true,
-      ...(dependencies.mode === "mobile" ? { apiVersion: 1, authenticated: true, action: "refresh", groupQuestId: quest.id } : {}),
-      completedQuestIds: progress.completedQuestIds,
-      newlyPassedQuestIds: progress.newlyPassedQuestIds,
-      score: progress.score,
-      checks: buildGroupQuestRefreshChecks(checks),
-      ...(dependencies.mode === "mobile" ? { message: `${progress.completedQuestIds.length} of ${uniqueQuestIds.length} Multiplayer Side Quest checks verified.` } : {}),
-    };
-    return json(body, 200);
+    try {
+      const progress = await applyGroupQuestProofResults({
+        participant,
+        mutateWhenUnchanged: Boolean(participant.pendingCompletions?.length),
+        checks: checks.map((entry) => ({ ...entry, reward: dependencies.reward(entry.questId) })),
+        mutate: async (nextProgress, { newlyPassedQuestIds }) => dependencies.persist({
+          userId,
+          progress: nextProgress,
+          newlyPassedQuestIds,
+          checks,
+        }),
+      });
+      const body = {
+        ok: true,
+        ...(dependencies.mode === "mobile" ? { apiVersion: 1, authenticated: true, action: "refresh", groupQuestId: quest.id } : {}),
+        completedQuestIds: progress.completedQuestIds,
+        newlyPassedQuestIds: progress.newlyPassedQuestIds,
+        score: progress.score,
+        checks: buildGroupQuestRefreshChecks(checks),
+        ...(dependencies.mode === "mobile" ? { message: `${progress.completedQuestIds.length} of ${uniqueQuestIds.length} Multiplayer Side Quest checks verified.` } : {}),
+      };
+      return json(body, 200);
+    } catch (error) {
+      if (!isGroupQuestRefreshConflictError(error)) throw error;
+      return json(dependencies.mode === "mobile"
+        ? {
+            apiVersion: 1,
+            authenticated: true,
+            ok: false,
+            code: "groupquest_refresh_conflict",
+            message: "Your table membership changed while proof was checked. Reopen this Multiplayer Side Quest and try again.",
+          }
+        : { ok: false, code: "groupquest_refresh_conflict", error: "refresh_conflict" }, 409);
+    }
   };
 }
 

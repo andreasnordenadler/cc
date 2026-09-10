@@ -6,7 +6,7 @@ import { getChallengeById } from "@/lib/challenges";
 import { findPublicCommunityCustomSideQuestById } from "@/lib/community-side-quests";
 import { getCustomSideQuests, parseCustomRuleConfig, type CustomSideQuest } from "@/lib/custom-side-quests";
 import { checkLatestGroupQuestChallenge } from "@/lib/groupquest-proof";
-import { createGroupQuestRefreshRouteHandler } from "@/lib/groupquest-refresh-route-handler";
+import { createGroupQuestRefreshRouteHandler, isGroupQuestRefreshConflictError } from "@/lib/groupquest-refresh-route-handler";
 import {
   buildMultiplayerCompletionAccountPatch,
   buildPendingGroupQuestCompletions,
@@ -616,6 +616,7 @@ async function saveMobileHostQuestProgressSafely(
     });
     return null;
   } catch (error) {
+    if (isGroupQuestRefreshConflictError(error)) throw error;
     console.error("mobile_groupquest_save_failed", error);
     return "Could not save Multiplayer Side Quest settings. I compacted the Side Quest data; try again once more.";
   }
