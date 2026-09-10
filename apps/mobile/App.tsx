@@ -55,6 +55,7 @@ import { completeSocialSignIn, socialSignInErrorMessage } from "./src/auth/compl
 import { isAppleSignInCancellation, runAppleSignInWithOAuthFallback } from "./src/auth/runAppleSignInWithOAuthFallback";
 import { completeMobilePasswordReset, prepareMobilePasswordReset, verifyMobilePasswordResetCode as verifyMobilePasswordResetCodeWithClerk } from "./src/auth/mobilePasswordReset";
 import { getAppRowInteraction } from "./src/accessibility/appRowInteraction";
+import { getMobileActionFeedbackAnnouncement } from "./src/accessibility/actionFeedbackAnnouncement";
 import { getPasswordAuthFieldSemantics } from "./src/accessibility/passwordAuthFieldSemantics";
 import { OFFLINE_MOBILE_BOOTSTRAP } from "./src/data/offlineBootstrap";
 import { shouldStackActiveQuestSummary } from "./src/layout/activeQuestLayout";
@@ -10039,6 +10040,28 @@ function CompletedQuestShelf({ account }: { account: MobileAccountState }) {
   );
 }
 
+function useAccessibleActionFeedback() {
+  const [message, setMessageState] = useState<string | null>(null);
+  const [error, setErrorState] = useState<string | null>(null);
+  const announce = useCallback((feedback: string | null) => {
+    if (!feedback) return;
+    const announcement = getMobileActionFeedbackAnnouncement(Platform.OS, feedback);
+    if (announcement) {
+      AccessibilityInfo.announceForAccessibilityWithOptions(announcement.message, announcement.options);
+    }
+  }, []);
+  const setMessage = useCallback((feedback: string | null) => {
+    setMessageState(feedback);
+    announce(feedback);
+  }, [announce]);
+  const setError = useCallback((feedback: string | null) => {
+    setErrorState(feedback);
+    announce(feedback);
+  }, [announce]);
+
+  return { message, error, setMessage, setError };
+}
+
 function ChessUsernameEditor({
   account,
   authBridge,
@@ -10057,8 +10080,7 @@ function ChessUsernameEditor({
   const [lichessUsername, setLichessUsername] = useState(account.chessAccounts.lichessUsername ?? "");
   const [chessComUsername, setChessComUsername] = useState(account.chessAccounts.chessComUsername ?? "");
   const [saving, setSaving] = useState(false);
-  const [message, setMessage] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const { message, error, setMessage, setError } = useAccessibleActionFeedback();
   const lichessInputRef = useRef<TextInput>(null);
   const chessComInputRef = useRef<TextInput>(null);
 
@@ -10154,8 +10176,8 @@ function ChessUsernameEditor({
         <Text style={styles.primaryButtonText}>{saving ? "Saving..." : "Save usernames"}</Text>
       </Pressable>
       {!authBridge.isSignedIn ? <Text style={styles.microcopy}>Sign in first to enable native account edits.</Text> : null}
-      {message ? <Text style={styles.successCopy}>{message}</Text> : null}
-      {error ? <Text style={styles.errorCopy}>{error}</Text> : null}
+      {message ? <Text accessibilityRole="alert" accessibilityLiveRegion="polite" style={styles.successCopy}>{message}</Text> : null}
+      {error ? <Text accessibilityRole="alert" accessibilityLiveRegion="polite" style={styles.errorCopy}>{error}</Text> : null}
     </View>
   );
 }
@@ -10169,8 +10191,7 @@ function PasswordAuthPanel({ authBridge, onAccountUpdated }: { authBridge: Mobil
   const [pendingResetIdentifier, setPendingResetIdentifier] = useState<string | null>(null);
   const [resetCodeVerified, setResetCodeVerified] = useState(false);
   const [busy, setBusy] = useState(false);
-  const [message, setMessage] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const { message, error, setMessage, setError } = useAccessibleActionFeedback();
   const passwordAuthAvailable = Boolean(authBridge.startPasswordSignIn && authBridge.startPasswordSignUp);
   const passwordResetAvailable = Boolean(authBridge.startPasswordReset && authBridge.verifyPasswordResetCode && authBridge.completePasswordReset);
   const waitingForVerification = mode === "sign-up" && Boolean(pendingVerificationIdentifier);
@@ -10333,8 +10354,8 @@ function PasswordAuthPanel({ authBridge, onAccountUpdated }: { authBridge: Mobil
         </Pressable>
       ) : null}
       <Text style={styles.microcopy}>{mode === "sign-in" ? "Use this if your Side Quest Chess account has a password." : mode === "reset" ? !waitingForResetCode ? "We’ll email a one-time code to the account address." : resetCodeVerified ? "Choose a new password. Other authenticated sessions will be signed out." : "Enter the one-time code from the account email." : waitingForVerification ? "Clerk needs this email check before Side Quest Chess can sync the new account." : "Use email for the smoothest setup; username depends on the Clerk auth settings."}</Text>
-      {message ? <Text style={styles.successCopy}>{message}</Text> : null}
-      {error ? <Text style={styles.errorCopy}>{error}</Text> : null}
+      {message ? <Text accessibilityRole="alert" accessibilityLiveRegion="polite" style={styles.successCopy}>{message}</Text> : null}
+      {error ? <Text accessibilityRole="alert" accessibilityLiveRegion="polite" style={styles.errorCopy}>{error}</Text> : null}
     </View>
   );
 }

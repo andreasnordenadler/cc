@@ -65,3 +65,15 @@ test("native password authentication inputs consume the shared semantics", async
   assert.match(panel, /<TextInput \{\.\.\.passwordAuthFieldSemantics\.password\} value=\{password\}/);
   assert.match(panel, /<TextInput \{\.\.\.passwordAuthFieldSemantics\.verificationCode\} value=\{verificationCode\}/);
 });
+
+test("native password authentication announces dynamic feedback", async () => {
+  const source = await readFile(new URL("../apps/mobile/App.tsx", import.meta.url), "utf8");
+  const panelStart = source.indexOf("function PasswordAuthPanel");
+  const panelEnd = source.indexOf("function MobileAccountStatesCard", panelStart);
+  const panel = source.slice(panelStart, panelEnd);
+
+  assert.notEqual(panelStart, -1);
+  assert.notEqual(panelEnd, -1);
+  assert.match(panel, /\{message \? <Text accessibilityRole="alert" accessibilityLiveRegion="polite" style=\{styles\.successCopy\}>\{message\}<\/Text> : null\}/);
+  assert.match(panel, /\{error \? <Text accessibilityRole="alert" accessibilityLiveRegion="polite" style=\{styles\.errorCopy\}>\{error\}<\/Text> : null\}/);
+});
