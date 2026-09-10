@@ -5463,6 +5463,7 @@ function QuestBoardDashboard({
                   <View style={compactStyles.communitySearchBox}>
                     <MaterialCommunityIcons name="magnify" size={18} color="rgba(255,247,232,.52)" />
                     <TextInput
+                      accessibilityLabel="Search Community Solo Side Quests"
                       value={communitySearch}
                       placeholder={communityCreatorFilter ? "Search this creator shelf" : "Search by name or rule"}
                       placeholderTextColor="rgba(255,247,232,.42)"
@@ -5546,6 +5547,7 @@ function QuestBoardDashboard({
               <View style={compactStyles.communitySearchBox}>
                 <MaterialCommunityIcons name="magnify" size={18} color="rgba(255,247,232,.52)" />
                 <TextInput
+                  accessibilityLabel="Search My Custom Side Quests"
                   value={communitySearch}
                   placeholder="Search my custom Side Quests"
                   placeholderTextColor="rgba(255,247,232,.42)"
@@ -8185,6 +8187,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
           <View style={compactStyles.communitySearchBox}>
             <MaterialCommunityIcons name="magnify" size={18} color="rgba(255,247,232,.52)" />
             <TextInput
+              accessibilityLabel="Search Community Multiplayer Side Quests"
               value={multiplayerCommunitySearch}
               placeholder={multiplayerHostFilter ? "Search this host shelf" : "Search multiplayer community"}
               placeholderTextColor="rgba(255,247,232,.42)"
@@ -8375,6 +8378,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
               <View style={compactStyles.createSearchShell}>
                 <MaterialCommunityIcons name="magnify" size={18} color="rgba(255,247,232,.58)" />
                 <TextInput
+                  accessibilityLabel="Search Side Quests to add"
                   value={createQuestSearch}
                   placeholder="Search Side Quests"
                   placeholderTextColor="rgba(255,247,232,.42)"
