@@ -5924,15 +5924,17 @@ function QuestBoardDashboard({
               <Text style={compactStyles.multiplayerCardTitle}>What must happen?</Text>
               <Text style={styles.microcopy}>Add one or more conditions. Side Quest Chess checks them against your next public game. Public means the game is visible on your connected chess account.</Text>
               <Text style={compactStyles.multiplayerRuleLabel}>If you add several conditions, how should they count?</Text>
-              <View style={compactStyles.multiplayerOptionGrid}>
+              <View style={compactStyles.multiplayerOptionGrid} accessibilityRole="radiogroup" accessibilityLabel="How custom Side Quest conditions count">
                 {CUSTOM_RULE_LOGICS.map((logic) => {
                   const selected = customRuleLogic === logic;
+                  const title = logic === "all" ? "Complete every condition" : "Complete any one condition";
+                  const helper = logic === "all" ? "All selected conditions must happen. You can change this later." : "One selected condition is enough. You can change this later.";
                   return (
-                    <Pressable key={logic} accessibilityRole="button" accessibilityState={{ selected }} style={[compactStyles.multiplayerOptionCard, selected ? compactStyles.multiplayerOptionCardSelected : null]} onPress={() => setCustomRuleLogic(logic)}>
+                    <Pressable key={logic} accessibilityRole="radio" accessibilityLabel={`How custom Side Quest conditions count: ${title}. ${helper}`} accessibilityState={{ checked: selected }} style={[compactStyles.multiplayerOptionCard, selected ? compactStyles.multiplayerOptionCardSelected : null]} onPress={() => setCustomRuleLogic(logic)}>
                       <View style={[compactStyles.multiplayerOptionDot, selected ? compactStyles.multiplayerOptionDotSelected : null]} />
                       <View style={compactStyles.multiplayerOptionCopy}>
-                        <Text style={selected ? compactStyles.multiplayerOptionTitleSelected : compactStyles.multiplayerOptionTitle}>{logic === "all" ? "Complete every condition" : "Complete any one condition"}</Text>
-                        <Text style={compactStyles.multiplayerOptionHelper}>{logic === "all" ? "All selected conditions must happen. You can change this later." : "One selected condition is enough. You can change this later."}</Text>
+                        <Text style={selected ? compactStyles.multiplayerOptionTitleSelected : compactStyles.multiplayerOptionTitle}>{title}</Text>
+                        <Text style={compactStyles.multiplayerOptionHelper}>{helper}</Text>
                       </View>
                     </Pressable>
                   );
@@ -7512,15 +7514,17 @@ function SideQuestsScreen({
               <Text style={compactStyles.multiplayerCardTitle}>What must happen?</Text>
               <Text style={styles.microcopy}>Add one or more conditions. Side Quest Chess checks them against your next public game. Public means the game is visible on your connected chess account.</Text>
               <Text style={compactStyles.multiplayerRuleLabel}>If you add several conditions, how should they count?</Text>
-              <View style={compactStyles.multiplayerOptionGrid}>
+              <View style={compactStyles.multiplayerOptionGrid} accessibilityRole="radiogroup" accessibilityLabel="How custom Side Quest conditions count">
                 {CUSTOM_RULE_LOGICS.map((logic) => {
                   const selected = customRuleLogic === logic;
+                  const title = logic === "all" ? "Complete every condition" : "Complete any one condition";
+                  const helper = logic === "all" ? "All selected conditions must happen. You can change this later." : "One selected condition is enough. You can change this later.";
                   return (
-                    <Pressable key={logic} accessibilityRole="button" accessibilityState={{ selected }} style={[compactStyles.multiplayerOptionCard, selected ? compactStyles.multiplayerOptionCardSelected : null]} onPress={() => setCustomRuleLogic(logic)}>
+                    <Pressable key={logic} accessibilityRole="radio" accessibilityLabel={`How custom Side Quest conditions count: ${title}. ${helper}`} accessibilityState={{ checked: selected }} style={[compactStyles.multiplayerOptionCard, selected ? compactStyles.multiplayerOptionCardSelected : null]} onPress={() => setCustomRuleLogic(logic)}>
                       <View style={[compactStyles.multiplayerOptionDot, selected ? compactStyles.multiplayerOptionDotSelected : null]} />
                       <View style={compactStyles.multiplayerOptionCopy}>
-                        <Text style={selected ? compactStyles.multiplayerOptionTitleSelected : compactStyles.multiplayerOptionTitle}>{logic === "all" ? "Complete every condition" : "Complete any one condition"}</Text>
-                        <Text style={compactStyles.multiplayerOptionHelper}>{logic === "all" ? "All selected conditions must happen. You can change this later." : "One selected condition is enough. You can change this later."}</Text>
+                        <Text style={selected ? compactStyles.multiplayerOptionTitleSelected : compactStyles.multiplayerOptionTitle}>{title}</Text>
+                        <Text style={compactStyles.multiplayerOptionHelper}>{helper}</Text>
                       </View>
                     </Pressable>
                   );
