@@ -5971,13 +5971,13 @@ function QuestBoardDashboard({
                         </View>
                       </View>
                       <View style={compactStyles.conditionCompactActions}>
-                        <Pressable accessibilityRole="button" accessibilityLabel="Edit saved condition" style={compactStyles.conditionCompactAction} onPress={() => editCustomRequirement(requirement)}>
+                        <Pressable accessibilityRole="button" accessibilityLabel={`Edit ${getCustomConditionLabel(index)}`} style={compactStyles.conditionCompactAction} onPress={() => editCustomRequirement(requirement)}>
                           <Text style={compactStyles.conditionCompactActionText}>Edit</Text>
                         </Pressable>
-                        <Pressable accessibilityRole="button" accessibilityLabel="Duplicate saved condition" style={compactStyles.conditionCompactAction} onPress={() => duplicateCustomRequirement(requirement)}>
+                        <Pressable accessibilityRole="button" accessibilityLabel={`Duplicate ${getCustomConditionLabel(index)}`} style={compactStyles.conditionCompactAction} onPress={() => duplicateCustomRequirement(requirement)}>
                           <Text style={compactStyles.conditionCompactActionText}>Duplicate</Text>
                         </Pressable>
-                        <Pressable accessibilityRole="button" accessibilityLabel="Delete saved condition" style={compactStyles.conditionCompactAction} onPress={() => removeCustomRequirement(requirement.id)}>
+                        <Pressable accessibilityRole="button" accessibilityLabel={`Delete ${getCustomConditionLabel(index)}`} style={compactStyles.conditionCompactAction} onPress={() => removeCustomRequirement(requirement.id)}>
                           <Text style={compactStyles.conditionCompactActionText}>Delete</Text>
                         </Pressable>
                       </View>
@@ -7563,13 +7563,13 @@ function SideQuestsScreen({
                         </View>
                       </View>
                       <View style={compactStyles.conditionCompactActions}>
-                        <Pressable accessibilityRole="button" accessibilityLabel="Edit saved condition" style={compactStyles.conditionCompactAction} onPress={() => editCustomRequirement(requirement)}>
+                        <Pressable accessibilityRole="button" accessibilityLabel={`Edit ${getCustomConditionLabel(index)}`} style={compactStyles.conditionCompactAction} onPress={() => editCustomRequirement(requirement)}>
                           <Text style={compactStyles.conditionCompactActionText}>Edit</Text>
                         </Pressable>
-                        <Pressable accessibilityRole="button" accessibilityLabel="Duplicate saved condition" style={compactStyles.conditionCompactAction} onPress={() => duplicateCustomRequirement(requirement)}>
+                        <Pressable accessibilityRole="button" accessibilityLabel={`Duplicate ${getCustomConditionLabel(index)}`} style={compactStyles.conditionCompactAction} onPress={() => duplicateCustomRequirement(requirement)}>
                           <Text style={compactStyles.conditionCompactActionText}>Duplicate</Text>
                         </Pressable>
-                        <Pressable accessibilityRole="button" accessibilityLabel="Delete saved condition" style={compactStyles.conditionCompactAction} onPress={() => removeCustomRequirement(requirement.id)}>
+                        <Pressable accessibilityRole="button" accessibilityLabel={`Delete ${getCustomConditionLabel(index)}`} style={compactStyles.conditionCompactAction} onPress={() => removeCustomRequirement(requirement.id)}>
                           <Text style={compactStyles.conditionCompactActionText}>Delete</Text>
                         </Pressable>
                       </View>
