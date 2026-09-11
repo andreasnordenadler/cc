@@ -3304,8 +3304,14 @@ function CurrentSideQuestDetailModal({
   onOpenSupport: () => void;
 }) {
   const [coatExpanded, setCoatExpanded] = useState(false);
+  const closeButtonRef = useRef<View>(null);
   const activeQuest = signedIn.activeQuest;
   if (!activeQuest) return null;
+
+  function focusCloseButton() {
+    const nodeHandle = findNodeHandle(closeButtonRef.current);
+    if (nodeHandle !== null) AccessibilityInfo.setAccessibilityFocus(nodeHandle);
+  }
 
   const completed = activeQuest.completed || latestCheckPassed;
   const latestCheckFailed = isFailedReceipt(latestReceipt);
@@ -3314,11 +3320,11 @@ function CurrentSideQuestDetailModal({
   const conditionTitleForIndex = challenge?.category === "Custom" ? getCustomConditionLabel : (index: number) => `Condition ${index + 1}`;
 
   return (
-    <Modal visible={visible} animationType="slide" presentationStyle="fullScreen" onRequestClose={onClose}>
-      <SafeAreaView style={compactStyles.detailScreen}>
+    <Modal visible={visible} animationType="slide" presentationStyle="fullScreen" onShow={focusCloseButton} onRequestClose={onClose}>
+      <SafeAreaView style={compactStyles.detailScreen} accessibilityViewIsModal onAccessibilityEscape={onClose}>
         <GradientBackdrop challenge={challenge} />
         <View style={compactStyles.detailTopBar}>
-          <Pressable accessibilityRole="button" accessibilityLabel="Close Current Active Side Quest" style={compactStyles.detailCloseButton} onPress={onClose}>
+          <Pressable ref={closeButtonRef} accessibilityRole="button" accessibilityLabel="Close Current Active Side Quest" style={compactStyles.detailCloseButton} onPress={onClose}>
             <MaterialCommunityIcons name="close" size={23} color={colors.paper} />
           </Pressable>
         </View>
