@@ -36,23 +36,32 @@ test("native Solo catalog announces one checked choice in a labeled radio group"
   assert.doesNotMatch(choiceGroup, /accessibilityRole="tab(?:list)?"|accessibilityState=\{\{ selected:/);
 });
 
-test("native Multiplayer catalog exposes its choices as one labeled tab list", async () => {
+test("native Multiplayer catalog announces one checked choice in a labeled radio group", async () => {
   const source = await readComponentSource("function MultiplayerSideQuestsScreen", "function CustomSideQuestDetailModal");
-  const tabGroupStart = source.indexOf("<View style={compactStyles.sideQuestBrandTabs}");
-  assert.notEqual(tabGroupStart, -1);
-  const tabGroup = source.slice(
-    tabGroupStart,
-    source.indexOf("<JoinedMultiplayerQuestModal", tabGroupStart),
+  const choiceGroupStart = source.indexOf("<View style={compactStyles.sideQuestBrandTabs}");
+  assert.notEqual(choiceGroupStart, -1);
+  const choiceGroup = source.slice(
+    choiceGroupStart,
+    source.indexOf("<JoinedMultiplayerQuestModal", choiceGroupStart),
   );
 
   assert.match(
-    tabGroup,
-    /<View style=\{compactStyles\.sideQuestBrandTabs\} accessibilityRole="tablist" accessibilityLabel="Multiplayer Side Quest catalogs">/,
+    choiceGroup,
+    /<View style=\{compactStyles\.sideQuestBrandTabs\} accessibilityRole="radiogroup" accessibilityLabel="Multiplayer Side Quest catalogs">/,
   );
   assert.match(
-    tabGroup,
+    choiceGroup,
+    /accessibilityRole="radio"\s+accessibilityState=\{\{ checked: multiplayerCatalogTab === "official" \}\}\s+accessibilityLabel="Show Official Multiplayer Side Quests"/,
+  );
+  assert.match(
+    choiceGroup,
+    /accessibilityRole="radio"\s+accessibilityState=\{\{ checked: multiplayerCatalogTab === "community" \}\}\s+accessibilityLabel="Show Community Multiplayer Side Quests"/,
+  );
+  assert.match(
+    choiceGroup,
     /<Pressable\s+accessible=\{false\}\s+accessibilityElementsHidden\s+importantForAccessibility="no-hide-descendants"[\s\S]*?accessibilityRole="button"/,
   );
+  assert.doesNotMatch(choiceGroup, /accessibilityRole="tab(?:list)?"|accessibilityState=\{\{ selected:/);
 });
 
 test("native Multiplayer creator source picker exposes one labeled tab list", async () => {

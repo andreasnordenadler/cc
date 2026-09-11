@@ -8176,10 +8176,10 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
         <Image source={SQC_GENERIC_COAT_GLOW_ASSET} style={compactStyles.sideQuestListEmblemGlow} resizeMode="contain" />
         <Image source={SQC_MULTIPLAYER_SEAL_ASSET} style={compactStyles.sideQuestListEmblem} resizeMode="contain" />
       </View>
-      <View style={compactStyles.sideQuestBrandTabs} accessibilityRole="tablist" accessibilityLabel="Multiplayer Side Quest catalogs">
+      <View style={compactStyles.sideQuestBrandTabs} accessibilityRole="radiogroup" accessibilityLabel="Multiplayer Side Quest catalogs">
         <Pressable
-          accessibilityRole="tab"
-          accessibilityState={{ selected: multiplayerCatalogTab === "official" }}
+          accessibilityRole="radio"
+          accessibilityState={{ checked: multiplayerCatalogTab === "official" }}
           accessibilityLabel="Show Official Multiplayer Side Quests"
           style={[
             compactStyles.sideQuestBrandTab,
@@ -8203,8 +8203,8 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
           <MaterialCommunityIcons name="swap-horizontal-bold" size={19} color="rgba(255,247,232,.82)" />
         </Pressable>
         <Pressable
-          accessibilityRole="tab"
-          accessibilityState={{ selected: multiplayerCatalogTab === "community" }}
+          accessibilityRole="radio"
+          accessibilityState={{ checked: multiplayerCatalogTab === "community" }}
           accessibilityLabel="Show Community Multiplayer Side Quests"
           style={[
             compactStyles.sideQuestBrandTab,
