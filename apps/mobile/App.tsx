@@ -5772,12 +5772,16 @@ function QuestBoardDashboard({
                   </Pressable>
                 ) : null}
               </View>
-              <ScrollView horizontal keyboardShouldPersistTaps="handled" showsHorizontalScrollIndicator={false} contentContainerStyle={compactStyles.communityChipRow}>
-                {(["all", "published", "drafts", "public", "archived"] as CustomLibraryFilter[]).map((filter) => (
-                  <Pressable key={filter} accessibilityRole="button" accessibilityState={{ selected: customLibraryFilter === filter }} style={[compactStyles.communityChip, customLibraryFilter === filter && compactStyles.communityChipActive]} onPress={() => setCustomLibraryFilter(filter)}>
-                    <Text style={[compactStyles.communityChipText, customLibraryFilter === filter && compactStyles.communityChipTextActive]}>{filter === "all" ? "All" : filter === "drafts" ? "Drafts" : filter === "public" ? "Public" : filter === "archived" ? "Archived" : "Published"}</Text>
-                  </Pressable>
-                ))}
+              <ScrollView horizontal keyboardShouldPersistTaps="handled" showsHorizontalScrollIndicator={false} contentContainerStyle={compactStyles.communityChipRow} accessibilityRole="radiogroup" accessibilityLabel="My Custom Side Quest filters">
+                {(["all", "published", "drafts", "public", "archived"] as CustomLibraryFilter[]).map((filter) => {
+                  const selected = customLibraryFilter === filter;
+                  const label = filter === "all" ? "All" : filter === "drafts" ? "Drafts" : filter === "public" ? "Public" : filter === "archived" ? "Archived" : "Published";
+                  return (
+                    <Pressable key={filter} accessibilityRole="radio" accessibilityLabel={`My Custom Side Quest filter: ${label}`} accessibilityState={{ checked: selected }} style={[compactStyles.communityChip, selected && compactStyles.communityChipActive]} onPress={() => setCustomLibraryFilter(filter)}>
+                      <Text style={[compactStyles.communityChipText, selected && compactStyles.communityChipTextActive]}>{label}</Text>
+                    </Pressable>
+                  );
+                })}
               </ScrollView>
               {filteredCustomDrafts.length ? (
                 <View style={compactStyles.sideQuestCatalogRows}>
