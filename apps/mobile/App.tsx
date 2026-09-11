@@ -5987,12 +5987,12 @@ function QuestBoardDashboard({
                   <Text style={compactStyles.multiplayerCardTitle}>{customEditingRequirementId ? "Edit condition" : "New condition"}</Text>
                   <Text style={styles.microcopy}>You can tap Save Condition, or publish/save the Side Quest directly and Side Quest Chess will include this open condition if it is valid.</Text>
                   <Text style={compactStyles.multiplayerRuleLabel}>Condition type</Text>
-                  <View style={compactStyles.multiplayerOptionGrid}>
+                  <View style={compactStyles.multiplayerOptionGrid} accessibilityRole="radiogroup" accessibilityLabel="Condition type">
                     {CUSTOM_RULE_CONDITIONS.map((condition) => {
                       const selected = customRuleCondition === condition;
                       const copy = getCustomConditionTypeCopy(condition);
                       return (
-                        <Pressable key={condition} accessibilityRole="button" accessibilityState={{ selected }} style={[compactStyles.multiplayerOptionCard, selected ? compactStyles.multiplayerOptionCardSelected : null]} onPress={() => { setCustomRuleCondition(condition); if (condition === "on square") setCustomRuleTiming("at move"); if (condition === "game result") setCustomRuleResult("win"); }}>
+                        <Pressable key={condition} accessibilityRole="radio" accessibilityLabel={`Condition type: ${copy.title}. ${copy.helper}`} accessibilityState={{ checked: selected }} style={[compactStyles.multiplayerOptionCard, selected ? compactStyles.multiplayerOptionCardSelected : null]} onPress={() => { setCustomRuleCondition(condition); if (condition === "on square") setCustomRuleTiming("at move"); if (condition === "game result") setCustomRuleResult("win"); }}>
                           <View style={[compactStyles.multiplayerOptionDot, selected ? compactStyles.multiplayerOptionDotSelected : null]} />
                           <View style={compactStyles.multiplayerOptionCopy}>
                             <Text style={selected ? compactStyles.multiplayerOptionTitleSelected : compactStyles.multiplayerOptionTitle}>{copy.title}</Text>
@@ -7577,12 +7577,12 @@ function SideQuestsScreen({
                   <Text style={compactStyles.multiplayerCardTitle}>{customEditingRequirementId ? "Edit condition" : "New condition"}</Text>
                   <Text style={styles.microcopy}>You can tap Save Condition, or publish/save the Side Quest directly and Side Quest Chess will include this open condition if it is valid.</Text>
                   <Text style={compactStyles.multiplayerRuleLabel}>Condition type</Text>
-                  <View style={compactStyles.multiplayerOptionGrid}>
+                  <View style={compactStyles.multiplayerOptionGrid} accessibilityRole="radiogroup" accessibilityLabel="Condition type">
                     {CUSTOM_RULE_CONDITIONS.map((condition) => {
                       const selected = customRuleCondition === condition;
                       const copy = getCustomConditionTypeCopy(condition);
                       return (
-                        <Pressable key={condition} accessibilityRole="button" accessibilityState={{ selected }} style={[compactStyles.multiplayerOptionCard, selected ? compactStyles.multiplayerOptionCardSelected : null]} onPress={() => { setCustomRuleCondition(condition); if (condition === "on square") setCustomRuleTiming("at move"); if (condition === "game result") setCustomRuleResult("win"); }}>
+                        <Pressable key={condition} accessibilityRole="radio" accessibilityLabel={`Condition type: ${copy.title}. ${copy.helper}`} accessibilityState={{ checked: selected }} style={[compactStyles.multiplayerOptionCard, selected ? compactStyles.multiplayerOptionCardSelected : null]} onPress={() => { setCustomRuleCondition(condition); if (condition === "on square") setCustomRuleTiming("at move"); if (condition === "game result") setCustomRuleResult("win"); }}>
                           <View style={[compactStyles.multiplayerOptionDot, selected ? compactStyles.multiplayerOptionDotSelected : null]} />
                           <View style={compactStyles.multiplayerOptionCopy}>
                             <Text style={selected ? compactStyles.multiplayerOptionTitleSelected : compactStyles.multiplayerOptionTitle}>{copy.title}</Text>
