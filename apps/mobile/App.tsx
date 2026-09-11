@@ -3334,11 +3334,21 @@ function CurrentSideQuestDetailModal({
 }) {
   const [coatExpanded, setCoatExpanded] = useState(false);
   const closeButtonRef = useRef<View>(null);
+  const activeCoatLightboxCloseRef = useRef<View>(null);
   const activeQuest = signedIn.activeQuest;
   if (!activeQuest) return null;
 
   function focusCloseButton() {
     const nodeHandle = findNodeHandle(closeButtonRef.current);
+    if (nodeHandle !== null) AccessibilityInfo.setAccessibilityFocus(nodeHandle);
+  }
+
+  function closeActiveCoatLightbox() {
+    setCoatExpanded(false);
+  }
+
+  function focusActiveCoatLightboxCloseTarget() {
+    const nodeHandle = findNodeHandle(activeCoatLightboxCloseRef.current);
     if (nodeHandle !== null) AccessibilityInfo.setAccessibilityFocus(nodeHandle);
   }
 
@@ -3462,8 +3472,8 @@ function CurrentSideQuestDetailModal({
           </Pressable>
 
         </ScrollHintedScrollView>
-        <Modal visible={coatExpanded} transparent animationType="fade" onRequestClose={() => setCoatExpanded(false)}>
-          <Pressable accessibilityRole="button" accessibilityLabel="Close enlarged Coat of Arms" style={compactStyles.coatLightbox} onPress={() => setCoatExpanded(false)}>
+        <Modal visible={coatExpanded} transparent animationType="fade" onShow={focusActiveCoatLightboxCloseTarget} onRequestClose={closeActiveCoatLightbox}>
+          <Pressable ref={activeCoatLightboxCloseRef} accessibilityRole="button" accessibilityViewIsModal accessibilityLabel="Close enlarged Coat of Arms" onAccessibilityEscape={closeActiveCoatLightbox} style={compactStyles.coatLightbox} onPress={closeActiveCoatLightbox}>
             <View style={compactStyles.coatLightboxCard}>
               {challenge ? <Image source={getChallengeCoatGlowSource(challenge.id)} style={[compactStyles.coatLightboxGlow, { tintColor: getSafeBadgeColors(challenge).glow }]} resizeMode="contain" /> : null}
               <Image source={activeCoatSource} style={compactStyles.coatLightboxImage} resizeMode="contain" />
