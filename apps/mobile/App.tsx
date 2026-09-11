@@ -7692,6 +7692,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
   const [createShowSelectedOnly, setCreateShowSelectedOnly] = useState(false);
   const [createQuestSelectionError, setCreateQuestSelectionError] = useState<string | null>(null);
   const lastHandledPendingCreateTokenRef = useRef(0);
+  const createBuilderCloseButtonRef = useRef<View>(null);
   const multiplayerCustomQuestCatalog = useMemo(() => {
     const byId = new Map<string, MobileCustomSideQuest>();
     for (const quest of [...(signedInAccount?.customSideQuests ?? []), ...(signedInAccount?.communitySideQuests ?? [])]) {
@@ -7907,6 +7908,13 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
       },
     ]);
   }
+
+  const createBuilderModalAccessibility = createModalAccessibilityController({
+    dismiss: closeCreateBuilder,
+    getInitialFocusTarget: () => createBuilderCloseButtonRef.current,
+    findNodeHandle,
+    setAccessibilityFocus: AccessibilityInfo.setAccessibilityFocus,
+  });
 
   function toggleCreateQuestId(questId: string) {
     if (createQuestIds.includes(questId)) {
@@ -8339,11 +8347,11 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
         {groupQuestActionState.questId === "invite" && groupQuestActionState.message ? <Text style={styles.successCopy}>{groupQuestActionState.message}</Text> : null}
       </View>}
 
-      <Modal visible={createOpen} animationType="slide" presentationStyle="fullScreen" onRequestClose={closeCreateBuilder}>
-        <SafeAreaView style={compactStyles.detailScreen}>
+      <Modal visible={createOpen} animationType="slide" presentationStyle="fullScreen" onShow={createBuilderModalAccessibility.focusInitial} onRequestClose={createBuilderModalAccessibility.dismiss}>
+        <SafeAreaView style={compactStyles.detailScreen} accessibilityViewIsModal onAccessibilityEscape={createBuilderModalAccessibility.dismiss}>
           <LinearGradient colors={["#352021", "#171011", colors.bg]} style={StyleSheet.absoluteFill} />
           <View style={compactStyles.detailTopBar}>
-            <Pressable accessibilityRole="button" accessibilityLabel="Close create Multiplayer Side Quest" style={compactStyles.detailCloseButton} onPress={closeCreateBuilder}>
+            <Pressable ref={createBuilderCloseButtonRef} accessibilityRole="button" accessibilityLabel="Close create Multiplayer Side Quest" style={compactStyles.detailCloseButton} onPress={createBuilderModalAccessibility.dismiss}>
               <MaterialCommunityIcons name="close" size={23} color={colors.paper} />
             </Pressable>
           </View>
