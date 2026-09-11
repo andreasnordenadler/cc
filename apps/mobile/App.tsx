@@ -2101,6 +2101,7 @@ function TodayDashboard({
   const [showAllTrophyCabinet, setShowAllTrophyCabinet] = useState(false);
   const visibleActiveMultiplayer = showAllActiveMultiplayer ? activeMultiplayer : activeMultiplayer.slice(0, 5);
   const [completedProofId, setCompletedProofId] = useState<string | null>(null);
+  const completedProofCloseButtonRef = useRef<View>(null);
   const [celebrationUnlock, setCelebrationUnlock] = useState<CompletionCelebrationUnlock | null>(null);
   const celebratedCompletionIds = useRef<Set<string>>(new Set());
   const previousCompletedIdsRef = useRef<Set<string> | null>(null);
@@ -2130,6 +2131,15 @@ function TodayDashboard({
       return;
     }
     showNativeOnlyNotice("This result is saved. Open it from the completed Side Quest card once account sync finishes.");
+  }
+
+  function closeCompletedProof() {
+    setCompletedProofId(null);
+  }
+
+  function focusCompletedProofCloseButton() {
+    const nodeHandle = findNodeHandle(completedProofCloseButtonRef.current);
+    if (nodeHandle !== null) AccessibilityInfo.setAccessibilityFocus(nodeHandle);
   }
 
   async function toggleActiveSoloLike() {
@@ -2557,11 +2567,11 @@ function TodayDashboard({
         <Text style={compactStyles.pullRefreshHintText}>Pull down to refresh</Text>
       </View>
 
-      <Modal visible={Boolean(completedProofRecord && completedProofChallenge)} animationType="slide" presentationStyle="fullScreen" onRequestClose={() => setCompletedProofId(null)}>
-        <SafeAreaView style={compactStyles.detailScreen}>
+      <Modal visible={Boolean(completedProofRecord && completedProofChallenge)} animationType="slide" presentationStyle="fullScreen" onShow={focusCompletedProofCloseButton} onRequestClose={closeCompletedProof}>
+        <SafeAreaView style={compactStyles.detailScreen} accessibilityViewIsModal onAccessibilityEscape={closeCompletedProof}>
           <GradientBackdrop challenge={completedProofChallenge} />
           <View style={compactStyles.detailTopBar}>
-            <Pressable accessibilityRole="button" accessibilityLabel="Close completed Side Quest proof" style={compactStyles.detailCloseButton} onPress={() => setCompletedProofId(null)}>
+            <Pressable ref={completedProofCloseButtonRef} accessibilityRole="button" accessibilityLabel="Close completed Side Quest proof" style={compactStyles.detailCloseButton} onPress={closeCompletedProof}>
               <MaterialCommunityIcons name="close" size={23} color={colors.paper} />
             </Pressable>
           </View>
