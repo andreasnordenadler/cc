@@ -3115,12 +3115,12 @@ function JoinedMultiplayerQuestModal({
               <TextInput accessibilityLabel="Intro text" value={adminInviteCopy} multiline placeholder="Explain what players are joining..." placeholderTextColor="rgba(255,247,232,.42)" style={[styles.textInput, styles.textAreaInput]} onChangeText={setAdminInviteCopy} />
               <Text style={styles.microcopy}>Shown to players before they join.</Text>
               <Text style={styles.inputLabel}>Visibility</Text>
-              <View style={compactStyles.multiplayerOptionGrid}>
+              <View style={compactStyles.multiplayerOptionGrid} accessibilityRole="radiogroup" accessibilityLabel="Multiplayer visibility">
                 {(["public", "unlisted-link", "private-key"] as const).map((modeOption) => {
                   const selected = adminInviteMode === modeOption;
                   const copy = getInviteModeOptionCopy(modeOption);
                   return (
-                    <Pressable key={modeOption} accessibilityRole="button" accessibilityState={{ selected }} style={[compactStyles.multiplayerOptionCard, selected ? compactStyles.multiplayerOptionCardSelected : null]} onPress={() => setAdminInviteMode(modeOption)}>
+                    <Pressable key={modeOption} accessibilityRole="radio" accessibilityLabel={`Multiplayer visibility: ${copy.title}. ${copy.helper}`} accessibilityState={{ checked: selected }} style={[compactStyles.multiplayerOptionCard, selected ? compactStyles.multiplayerOptionCardSelected : null]} onPress={() => setAdminInviteMode(modeOption)}>
                       <View style={[compactStyles.multiplayerOptionDot, selected ? compactStyles.multiplayerOptionDotSelected : null]} />
                       <View style={compactStyles.multiplayerOptionCopy}>
                         <Text style={selected ? compactStyles.multiplayerOptionTitleSelected : compactStyles.multiplayerOptionTitle}>{copy.title}</Text>
@@ -3131,13 +3131,13 @@ function JoinedMultiplayerQuestModal({
                 })}
               </View>
               <Text style={styles.inputLabel}>Games allowed</Text>
-              <View style={compactStyles.multiplayerOptionGrid}>
+              <View style={compactStyles.multiplayerOptionGrid} accessibilityRole="radiogroup" accessibilityLabel="Allowed chess providers">
                 {MULTIPLAYER_PROVIDER_MODES.map((modeOption) => {
                   const selected = adminProviderMode === modeOption.id;
                   const title = modeOption.id === "both" ? "Lichess or Chess.com" : modeOption.id === "lichess" ? "Lichess" : "Chess.com";
                   const helper = modeOption.id === "both" ? "Players can use Lichess or Chess.com" : modeOption.id === "lichess" ? "Only public Lichess games" : "Only public Chess.com games";
                   return (
-                    <Pressable key={modeOption.id} accessibilityRole="button" accessibilityState={{ selected }} style={[compactStyles.multiplayerOptionCard, selected ? compactStyles.multiplayerOptionCardSelected : null]} onPress={() => setAdminProviderMode(modeOption.id)}>
+                    <Pressable key={modeOption.id} accessibilityRole="radio" accessibilityLabel={`Allowed chess providers: ${title}. ${helper}`} accessibilityState={{ checked: selected }} style={[compactStyles.multiplayerOptionCard, selected ? compactStyles.multiplayerOptionCardSelected : null]} onPress={() => setAdminProviderMode(modeOption.id)}>
                       <View style={[compactStyles.multiplayerOptionDot, selected ? compactStyles.multiplayerOptionDotSelected : null]} />
                       <View style={compactStyles.multiplayerOptionCopy}>
                         <Text style={selected ? compactStyles.multiplayerOptionTitleSelected : compactStyles.multiplayerOptionTitle}>{title}</Text>
