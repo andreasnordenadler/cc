@@ -4867,6 +4867,7 @@ function QuestBoardDashboard({
   onOpenSupport: () => void;
 }) {
   const [detailChallengeId, setDetailChallengeId] = useState<string | null>(null);
+  const selectedQuestCloseButtonRef = useRef<View>(null);
   const [completedDetailId, setCompletedDetailId] = useState<string | null>(null);
   const signedIn = isAuthenticatedAccount(account) ? account : null;
   const completedIds = new Set(signedIn?.progress.completedChallengeIds ?? []);
@@ -5015,6 +5016,15 @@ function QuestBoardDashboard({
   const customRuleConfig = buildCustomPieceRuleConfig({ logic: customRuleLogic, requirements: customRuleRequirements });
   const customBadgePreviewUrl = getCustomCoatPreviewUrl(customRuleRequirements, customQuestName);
   const canPublishCustomQuest = customRequirements.length > 0 || customConditionEditorOpen;
+
+  function closeSelectedQuestDetail() {
+    setDetailChallengeId(null);
+  }
+
+  function focusSelectedQuestCloseButton() {
+    const nodeHandle = findNodeHandle(selectedQuestCloseButtonRef.current);
+    if (nodeHandle !== null) AccessibilityInfo.setAccessibilityFocus(nodeHandle);
+  }
 
   function openCustomEditor(quest?: CustomLibraryQuest | null) {
     setCustomConditionEditorOpen(false);
@@ -6013,11 +6023,11 @@ function QuestBoardDashboard({
         </SafeAreaView>
       </Modal>
 
-      <Modal visible={Boolean(detailChallenge)} animationType="slide" presentationStyle="fullScreen" onRequestClose={() => setDetailChallengeId(null)}>
-        <SafeAreaView style={compactStyles.detailScreen}>
+      <Modal visible={Boolean(detailChallenge)} animationType="slide" presentationStyle="fullScreen" onShow={focusSelectedQuestCloseButton} onRequestClose={closeSelectedQuestDetail}>
+        <SafeAreaView style={compactStyles.detailScreen} accessibilityViewIsModal onAccessibilityEscape={closeSelectedQuestDetail}>
           <GradientBackdrop challenge={detailChallenge} />
           <View style={compactStyles.detailTopBar}>
-            <Pressable accessibilityRole="button" accessibilityLabel="Close Side Quest details" style={compactStyles.detailCloseButton} onPress={() => setDetailChallengeId(null)}>
+            <Pressable ref={selectedQuestCloseButtonRef} accessibilityRole="button" accessibilityLabel="Close Side Quest details" style={compactStyles.detailCloseButton} onPress={closeSelectedQuestDetail}>
               <MaterialCommunityIcons name="close" size={23} color={colors.paper} />
             </Pressable>
           </View>
