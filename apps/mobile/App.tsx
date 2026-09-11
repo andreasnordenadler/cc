@@ -8663,10 +8663,10 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
                   <Text style={[compactStyles.createFilterChipText, createShowSelectedOnly ? compactStyles.createFilterChipTextActive : null]}>Selected ({createQuestIds.length})</Text>
                 </Pressable>
               </View>
-              <View style={compactStyles.sideQuestBrandTabs} accessibilityRole="tablist" accessibilityLabel="Multiplayer creator Side Quest sources">
+              <View style={compactStyles.sideQuestBrandTabs} accessibilityRole="radiogroup" accessibilityLabel="Multiplayer creator Side Quest sources">
                 <Pressable
-                  accessibilityRole="tab"
-                  accessibilityState={{ selected: createQuestSourceTab === "official" }}
+                  accessibilityRole="radio"
+                  accessibilityState={{ checked: createQuestSourceTab === "official" }}
                   accessibilityLabel="Choose from Official Side Quests"
                   style={[
                     compactStyles.sideQuestBrandTab,
@@ -8690,8 +8690,8 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
                   <MaterialCommunityIcons name="swap-horizontal-bold" size={19} color="rgba(255,247,232,.82)" />
                 </Pressable>
                 <Pressable
-                  accessibilityRole="tab"
-                  accessibilityState={{ selected: createQuestSourceTab === "community" }}
+                  accessibilityRole="radio"
+                  accessibilityState={{ checked: createQuestSourceTab === "community" }}
                   accessibilityLabel="Choose from Community Side Quests"
                   style={[
                     compactStyles.sideQuestBrandTab,

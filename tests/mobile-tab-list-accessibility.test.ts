@@ -64,25 +64,34 @@ test("native Multiplayer catalog announces one checked choice in a labeled radio
   assert.doesNotMatch(choiceGroup, /accessibilityRole="tab(?:list)?"|accessibilityState=\{\{ selected:/);
 });
 
-test("native Multiplayer creator source picker exposes one labeled tab list", async () => {
+test("native Multiplayer creator source picker announces one checked choice in a labeled radio group", async () => {
   const source = await readComponentSource("function MultiplayerSideQuestsScreen", "function CustomSideQuestDetailModal");
   const creatorStart = source.indexOf("<Text style={compactStyles.multiplayerCardEyebrow}>Add from catalog</Text>");
   assert.notEqual(creatorStart, -1);
-  const tabGroupStart = source.indexOf("<View style={compactStyles.sideQuestBrandTabs}", creatorStart);
-  assert.notEqual(tabGroupStart, -1);
-  const tabGroup = source.slice(
-    tabGroupStart,
-    source.indexOf("{visibleCreateQuestChoices.length", tabGroupStart),
+  const choiceGroupStart = source.indexOf("<View style={compactStyles.sideQuestBrandTabs}", creatorStart);
+  assert.notEqual(choiceGroupStart, -1);
+  const choiceGroup = source.slice(
+    choiceGroupStart,
+    source.indexOf("{visibleCreateQuestChoices.length", choiceGroupStart),
   );
 
   assert.match(
-    tabGroup,
-    /<View style=\{compactStyles\.sideQuestBrandTabs\} accessibilityRole="tablist" accessibilityLabel="Multiplayer creator Side Quest sources">/,
+    choiceGroup,
+    /<View style=\{compactStyles\.sideQuestBrandTabs\} accessibilityRole="radiogroup" accessibilityLabel="Multiplayer creator Side Quest sources">/,
   );
   assert.match(
-    tabGroup,
+    choiceGroup,
+    /accessibilityRole="radio"\s+accessibilityState=\{\{ checked: createQuestSourceTab === "official" \}\}\s+accessibilityLabel="Choose from Official Side Quests"/,
+  );
+  assert.match(
+    choiceGroup,
+    /accessibilityRole="radio"\s+accessibilityState=\{\{ checked: createQuestSourceTab === "community" \}\}\s+accessibilityLabel="Choose from Community Side Quests"/,
+  );
+  assert.match(
+    choiceGroup,
     /<Pressable\s+accessible=\{false\}\s+accessibilityElementsHidden\s+importantForAccessibility="no-hide-descendants"[\s\S]*?accessibilityRole="button"/,
   );
+  assert.doesNotMatch(choiceGroup, /accessibilityRole="tab(?:list)?"|accessibilityState=\{\{ selected:/);
 });
 
 test("native bottom navigation exposes its tabs as one labeled tab list", async () => {
