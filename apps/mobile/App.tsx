@@ -59,7 +59,7 @@ import { getMobileActionFeedbackAnnouncement } from "./src/accessibility/actionF
 import { createDateTimePickerModalSessionController, handleNativeDateTimePickerChange } from "./src/accessibility/dateTimePickerModalSession";
 import { createModalAccessibilityController } from "./src/accessibility/modalAccessibility";
 import { getPasswordAuthFieldSemantics } from "./src/accessibility/passwordAuthFieldSemantics";
-import { createReducedMotionPreferenceController, shouldAnimateRefreshIcon } from "./src/accessibility/reducedMotionPreference";
+import { createLiveProgrammaticScrollPreference, createReducedMotionPreferenceController, shouldAnimateRefreshIcon } from "./src/accessibility/reducedMotionPreference";
 import { OFFLINE_MOBILE_BOOTSTRAP } from "./src/data/offlineBootstrap";
 import { shouldStackActiveQuestSummary } from "./src/layout/activeQuestLayout";
 import { createMobileHomeProofRefreshCoordinator, toMobileHomeProofRefreshActionState, type MobileHomeProofRefreshFeedback, type MobileHomeProofRefreshSnapshot } from "./src/home/mobileHomeProofRefresh";
@@ -1530,6 +1530,7 @@ const signedOutAuthBridge: MobileAuthBridge = {
 function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
   const insets = useSafeAreaInsets();
   const scrollViewRef = useRef<ScrollView>(null);
+  const [programmaticScrollPreference] = useState(() => createLiveProgrammaticScrollPreference(true));
   const [scrollState, setScrollState] = useState({ y: 0, viewportHeight: 0, contentHeight: 0 });
   const [multiplayerCreateIntent, setMultiplayerCreateIntent] = useState(initialMultiplayerCreateIntent);
   const pendingMultiplayerCreateOpenToken = multiplayerCreateIntent.pendingToken;
@@ -1550,6 +1551,15 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
     catalogNotice: null,
   });
   const [homeProofRefreshCoordinator] = useState(createMobileHomeProofRefreshCoordinator);
+
+  useEffect(() => createReducedMotionPreferenceController({
+    getInitialValue: () => AccessibilityInfo.isReduceMotionEnabled(),
+    subscribe: (onChange) => {
+      const subscription = AccessibilityInfo.addEventListener("reduceMotionChanged", onChange);
+      return () => subscription.remove();
+    },
+    onChange: programmaticScrollPreference.setReduceMotionEnabled,
+  }).start(), [programmaticScrollPreference]);
 
   const selectedChallenge = useMemo(() => {
     if (!shell.bootstrap) return null;
@@ -1846,7 +1856,7 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
               }}
               onRefreshActiveProof={refreshActiveHomeProof}
               onAccountUpdated={loadAccount}
-              onScrollToY={(y, animated = true) => scrollViewRef.current?.scrollTo({ y, animated })}
+              onScrollToY={(y, animated = true) => scrollViewRef.current?.scrollTo({ y, animated: programmaticScrollPreference.shouldAnimate(animated) })}
             />
           </>
         ) : null}
