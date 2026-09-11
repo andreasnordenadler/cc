@@ -6101,13 +6101,13 @@ function QuestBoardDashboard({
                   {customRuleCondition !== "opening sequence" && customRuleCondition !== "game result" ? (
                     <View>
                       <Text style={compactStyles.multiplayerRuleLabel}>Timing</Text>
-                      <View style={compactStyles.multiplayerOptionGrid}>
+                      <View style={compactStyles.multiplayerOptionGrid} accessibilityRole="radiogroup" accessibilityLabel="Timing">
                         {CUSTOM_RULE_TIMINGS.map((timing) => {
                           const selected = customRuleTiming === timing;
                           const needsMoveNumber = selected && (timing === "by move" || timing === "at move");
                           return (
                             <View key={timing} style={[compactStyles.multiplayerOptionCard, compactStyles.customTimingChoiceCard, selected ? compactStyles.multiplayerOptionCardSelected : null]}>
-                              <Pressable accessibilityRole="button" accessibilityState={{ selected }} style={compactStyles.customTimingChoiceHeader} onPress={() => setCustomRuleTiming(timing)}>
+                              <Pressable accessibilityRole="radio" accessibilityLabel={`Timing: ${titleCaseRuleValue(timing)}`} accessibilityState={{ checked: selected }} style={compactStyles.customTimingChoiceHeader} onPress={() => setCustomRuleTiming(timing)}>
                                 <View style={[compactStyles.multiplayerOptionDot, selected ? compactStyles.multiplayerOptionDotSelected : null]} />
                                 <View style={compactStyles.multiplayerOptionCopy}>
                                   <Text style={selected ? compactStyles.multiplayerOptionTitleSelected : compactStyles.multiplayerOptionTitle}>{titleCaseRuleValue(timing)}</Text>
@@ -7691,13 +7691,13 @@ function SideQuestsScreen({
                   {customRuleCondition !== "opening sequence" && customRuleCondition !== "game result" ? (
                     <View>
                       <Text style={compactStyles.multiplayerRuleLabel}>Timing</Text>
-                      <View style={compactStyles.multiplayerOptionGrid}>
+                      <View style={compactStyles.multiplayerOptionGrid} accessibilityRole="radiogroup" accessibilityLabel="Timing">
                         {CUSTOM_RULE_TIMINGS.map((timing) => {
                           const selected = customRuleTiming === timing;
                           const needsMoveNumber = selected && (timing === "by move" || timing === "at move");
                           return (
                             <View key={timing} style={[compactStyles.multiplayerOptionCard, compactStyles.customTimingChoiceCard, selected ? compactStyles.multiplayerOptionCardSelected : null]}>
-                              <Pressable accessibilityRole="button" accessibilityState={{ selected }} style={compactStyles.customTimingChoiceHeader} onPress={() => setCustomRuleTiming(timing)}>
+                              <Pressable accessibilityRole="radio" accessibilityLabel={`Timing: ${titleCaseRuleValue(timing)}`} accessibilityState={{ checked: selected }} style={compactStyles.customTimingChoiceHeader} onPress={() => setCustomRuleTiming(timing)}>
                                 <View style={[compactStyles.multiplayerOptionDot, selected ? compactStyles.multiplayerOptionDotSelected : null]} />
                                 <View style={compactStyles.multiplayerOptionCopy}>
                                   <Text style={selected ? compactStyles.multiplayerOptionTitleSelected : compactStyles.multiplayerOptionTitle}>{titleCaseRuleValue(timing)}</Text>
