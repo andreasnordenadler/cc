@@ -42,3 +42,22 @@ test("native custom Side Quest piece types expose labeled radio groups", async (
     );
   }
 });
+
+test("native custom Side Quest piece identities expose labeled radio groups", async () => {
+  const blocks = await readPieceChoices();
+
+  for (const block of blocks) {
+    assert.match(
+      block,
+      /<View style=\{compactStyles\.multiplayerOptionGrid\} accessibilityRole="radiogroup" accessibilityLabel=\{`Which \$\{piece\}`\}>/,
+    );
+    assert.match(
+      block,
+      /<Pressable key=\{choice\.id\} accessibilityRole="radio" accessibilityLabel=\{`Which \$\{piece\}: \$\{choice\.label\}\. \$\{choice\.helper\}`\} accessibilityState=\{\{ checked: choiceSelected \}\}/,
+    );
+    assert.doesNotMatch(
+      block,
+      /<Pressable key=\{choice\.id\} accessibilityRole="button" accessibilityState=\{\{ selected: choiceSelected \}\}/,
+    );
+  }
+});

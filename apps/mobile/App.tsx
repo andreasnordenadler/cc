@@ -6021,11 +6021,11 @@ function QuestBoardDashboard({
                           {selected && identityChoices.length ? (
                             <View style={compactStyles.customPieceSubchoicePanel}>
                               <Text style={compactStyles.customPieceSubchoiceLabel}>Which {piece}</Text>
-                              <View style={compactStyles.multiplayerOptionGrid}>
+                              <View style={compactStyles.multiplayerOptionGrid} accessibilityRole="radiogroup" accessibilityLabel={`Which ${piece}`}>
                                 {identityChoices.map((choice) => {
                                   const choiceSelected = isCustomPieceIdentityChoiceSelected(piece, customRuleIdentity, customRuleQuantifier, choice);
                                   return (
-                                    <Pressable key={choice.id} accessibilityRole="button" accessibilityState={{ selected: choiceSelected }} style={[compactStyles.multiplayerOptionCard, choiceSelected ? compactStyles.multiplayerOptionCardSelected : null]} onPress={() => { setCustomRuleIdentity(choice.identity); setCustomRuleCount((current) => normalizeCustomRuleCount(piece, current)); if (choice.quantifier) setCustomRuleQuantifier(choice.quantifier); else if (choice.id === "any") setCustomRuleQuantifier("any one"); }}>
+                                    <Pressable key={choice.id} accessibilityRole="radio" accessibilityLabel={`Which ${piece}: ${choice.label}. ${choice.helper}`} accessibilityState={{ checked: choiceSelected }} style={[compactStyles.multiplayerOptionCard, choiceSelected ? compactStyles.multiplayerOptionCardSelected : null]} onPress={() => { setCustomRuleIdentity(choice.identity); setCustomRuleCount((current) => normalizeCustomRuleCount(piece, current)); if (choice.quantifier) setCustomRuleQuantifier(choice.quantifier); else if (choice.id === "any") setCustomRuleQuantifier("any one"); }}>
                                       <View style={[compactStyles.multiplayerOptionDot, choiceSelected ? compactStyles.multiplayerOptionDotSelected : null]} />
                                       <View style={compactStyles.multiplayerOptionCopy}>
                                         <Text style={choiceSelected ? compactStyles.multiplayerOptionTitleSelected : compactStyles.multiplayerOptionTitle}>{choice.label}</Text>
@@ -7611,11 +7611,11 @@ function SideQuestsScreen({
                           {selected && identityChoices.length ? (
                             <View style={compactStyles.customPieceSubchoicePanel}>
                               <Text style={compactStyles.customPieceSubchoiceLabel}>Which {piece}</Text>
-                              <View style={compactStyles.multiplayerOptionGrid}>
+                              <View style={compactStyles.multiplayerOptionGrid} accessibilityRole="radiogroup" accessibilityLabel={`Which ${piece}`}>
                                 {identityChoices.map((choice) => {
                                   const choiceSelected = isCustomPieceIdentityChoiceSelected(piece, customRuleIdentity, customRuleQuantifier, choice);
                                   return (
-                                    <Pressable key={choice.id} accessibilityRole="button" accessibilityState={{ selected: choiceSelected }} style={[compactStyles.multiplayerOptionCard, choiceSelected ? compactStyles.multiplayerOptionCardSelected : null]} onPress={() => { setCustomRuleIdentity(choice.identity); setCustomRuleCount((current) => normalizeCustomRuleCount(piece, current)); if (choice.quantifier) setCustomRuleQuantifier(choice.quantifier); else if (choice.id === "any") setCustomRuleQuantifier("any one"); }}>
+                                    <Pressable key={choice.id} accessibilityRole="radio" accessibilityLabel={`Which ${piece}: ${choice.label}. ${choice.helper}`} accessibilityState={{ checked: choiceSelected }} style={[compactStyles.multiplayerOptionCard, choiceSelected ? compactStyles.multiplayerOptionCardSelected : null]} onPress={() => { setCustomRuleIdentity(choice.identity); setCustomRuleCount((current) => normalizeCustomRuleCount(piece, current)); if (choice.quantifier) setCustomRuleQuantifier(choice.quantifier); else if (choice.id === "any") setCustomRuleQuantifier("any one"); }}>
                                       <View style={[compactStyles.multiplayerOptionDot, choiceSelected ? compactStyles.multiplayerOptionDotSelected : null]} />
                                       <View style={compactStyles.multiplayerOptionCopy}>
                                         <Text style={choiceSelected ? compactStyles.multiplayerOptionTitleSelected : compactStyles.multiplayerOptionTitle}>{choice.label}</Text>
