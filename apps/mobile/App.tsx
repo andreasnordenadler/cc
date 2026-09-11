@@ -3514,10 +3514,17 @@ function CompletionCelebrationOverlay({
   challenge: MobileChallenge | null;
   onClose: () => void;
 }) {
+  const celebrationCloseButtonRef = useRef<View>(null);
+
   useEffect(() => {
     if (!unlock) return;
     Vibration.vibrate([0, 35, 170, 95]);
   }, [unlock]);
+
+  function focusCelebrationCloseButton() {
+    const nodeHandle = findNodeHandle(celebrationCloseButtonRef.current);
+    if (nodeHandle !== null) AccessibilityInfo.setAccessibilityFocus(nodeHandle);
+  }
 
   if (!unlock) return null;
 
@@ -3527,8 +3534,8 @@ function CompletionCelebrationOverlay({
   const subline = unlock.mode === "multiplayer" ? "Solo Side Quest completion recorded too." : "Coat of Arms unlocked.";
 
   return (
-    <Modal visible transparent animationType="fade" onRequestClose={onClose}>
-      <View style={compactStyles.celebrationBackdrop}>
+    <Modal visible transparent animationType="fade" onShow={focusCelebrationCloseButton} onRequestClose={onClose}>
+      <View style={compactStyles.celebrationBackdrop} accessibilityViewIsModal onAccessibilityEscape={onClose}>
         <View style={[compactStyles.celebrationGlow, { backgroundColor: colorWithAlpha(unlock.accentColor, 0.18) }]} />
         <View style={compactStyles.celebrationCard} accessibilityLabel={`${headline}. ${unlock.challengeTitle}. ${subline}`}>
           <Text style={compactStyles.celebrationKicker}>{unlock.mode === "multiplayer" ? "Multiplayer proof accepted" : "Proof accepted"}</Text>
@@ -3548,7 +3555,7 @@ function CompletionCelebrationOverlay({
           {unlock.extraCompletedCount ? <Text style={compactStyles.celebrationMeta}>+{unlock.extraCompletedCount} more Side Quest{unlock.extraCompletedCount === 1 ? "" : "s"} completed in this refresh.</Text> : null}
 
 
-          <Pressable accessibilityRole="button" accessibilityLabel="Close celebration" style={compactStyles.celebrationCloseButton} onPress={onClose}>
+          <Pressable ref={celebrationCloseButtonRef} accessibilityRole="button" accessibilityLabel="Close celebration" style={compactStyles.celebrationCloseButton} onPress={onClose}>
             <MaterialCommunityIcons name="close" size={21} color={colors.paper} />
           </Pressable>
         </View>
