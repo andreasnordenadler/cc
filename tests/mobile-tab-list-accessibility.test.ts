@@ -12,23 +12,28 @@ async function readComponentSource(startMarker: string, endMarker: string) {
   return source.slice(start, end);
 }
 
-test("native Solo catalog exposes its choices as one labeled tab list", async () => {
+test("native Solo catalog announces one checked choice in a labeled radio group", async () => {
   const source = await readComponentSource("function QuestBoardDashboard", "function HomeScreen");
-  const tabGroupStart = source.indexOf("<View style={compactStyles.sideQuestBrandTabs}");
-  assert.notEqual(tabGroupStart, -1);
-  const tabGroup = source.slice(
-    tabGroupStart,
-    source.indexOf("{sideQuestCatalogTab === \"community\"", tabGroupStart),
+  const choiceGroupStart = source.indexOf("<View style={compactStyles.sideQuestBrandTabs}");
+  assert.notEqual(choiceGroupStart, -1);
+  const choiceGroup = source.slice(
+    choiceGroupStart,
+    source.indexOf("{sideQuestCatalogTab === \"community\"", choiceGroupStart),
   );
 
   assert.match(
-    tabGroup,
-    /<View style=\{compactStyles\.sideQuestBrandTabs\} accessibilityRole="tablist" accessibilityLabel="Solo Side Quest catalogs">/,
+    choiceGroup,
+    /<View style=\{compactStyles\.sideQuestBrandTabs\} accessibilityRole="radiogroup" accessibilityLabel="Solo Side Quest catalogs">/,
   );
   assert.match(
-    tabGroup,
-    /<Pressable\s+accessible=\{false\}\s+accessibilityElementsHidden\s+importantForAccessibility="no-hide-descendants"[\s\S]*?accessibilityRole="button"/,
+    choiceGroup,
+    /accessibilityRole="radio"\s+accessibilityState=\{\{ checked: sideQuestCatalogTab === "official" \}\}\s+accessibilityLabel="Show Official Side Quests"/,
   );
+  assert.match(
+    choiceGroup,
+    /accessibilityRole="radio"\s+accessibilityState=\{\{ checked: sideQuestCatalogTab === "community" \}\}\s+accessibilityLabel="Show Community Side Quests"/,
+  );
+  assert.doesNotMatch(choiceGroup, /accessibilityRole="tab(?:list)?"|accessibilityState=\{\{ selected:/);
 });
 
 test("native Multiplayer catalog exposes its choices as one labeled tab list", async () => {

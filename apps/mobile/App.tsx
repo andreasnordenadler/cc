@@ -5557,10 +5557,10 @@ function QuestBoardDashboard({
         <Image source={SQC_GENERIC_COAT_GLOW_ASSET} style={compactStyles.sideQuestListEmblemGlow} resizeMode="contain" />
         <Image source={SQC_COAT_OF_ARMS_ASSET} style={compactStyles.sideQuestListEmblem} resizeMode="contain" />
       </View>
-      <View style={compactStyles.sideQuestBrandTabs} accessibilityRole="tablist" accessibilityLabel="Solo Side Quest catalogs">
+      <View style={compactStyles.sideQuestBrandTabs} accessibilityRole="radiogroup" accessibilityLabel="Solo Side Quest catalogs">
         <Pressable
-          accessibilityRole="tab"
-          accessibilityState={{ selected: sideQuestCatalogTab === "official" }}
+          accessibilityRole="radio"
+          accessibilityState={{ checked: sideQuestCatalogTab === "official" }}
           accessibilityLabel="Show Official Side Quests"
           style={[
             compactStyles.sideQuestBrandTab,
@@ -5584,8 +5584,8 @@ function QuestBoardDashboard({
           <MaterialCommunityIcons name="swap-horizontal-bold" size={19} color="rgba(255,247,232,.82)" />
         </Pressable>
         <Pressable
-          accessibilityRole="tab"
-          accessibilityState={{ selected: sideQuestCatalogTab === "community" }}
+          accessibilityRole="radio"
+          accessibilityState={{ checked: sideQuestCatalogTab === "community" }}
           accessibilityLabel="Show Community Side Quests"
           style={[
             compactStyles.sideQuestBrandTab,
