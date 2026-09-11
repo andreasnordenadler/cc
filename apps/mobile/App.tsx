@@ -56,6 +56,7 @@ import { isAppleSignInCancellation, runAppleSignInWithOAuthFallback } from "./sr
 import { completeMobilePasswordReset, prepareMobilePasswordReset, verifyMobilePasswordResetCode as verifyMobilePasswordResetCodeWithClerk } from "./src/auth/mobilePasswordReset";
 import { getAppRowInteraction } from "./src/accessibility/appRowInteraction";
 import { getMobileActionFeedbackAnnouncement } from "./src/accessibility/actionFeedbackAnnouncement";
+import { getCustomConditionMutationFeedback, getNextCustomConditionFeedbackRevision } from "./src/accessibility/customConditionMutationFeedback";
 import { createDateTimePickerModalSessionController, handleNativeDateTimePickerChange } from "./src/accessibility/dateTimePickerModalSession";
 import { createModalAccessibilityController } from "./src/accessibility/modalAccessibility";
 import { getPasswordAuthFieldSemantics } from "./src/accessibility/passwordAuthFieldSemantics";
@@ -5103,6 +5104,8 @@ function QuestBoardDashboard({
   const customRequirementIdCounter = useRef(0);
   const [customEditingRequirementId, setCustomEditingRequirementId] = useState<string | null>(null);
   const customConditionStateRef = useRef<CustomConditionState<CustomRuleRequirement>>({ conditions: [], editorOpen: false, editingId: null });
+  const { message: customConditionFeedback, setMessage: setCustomConditionFeedback } = useAccessibleActionFeedback();
+  const [customConditionFeedbackRevision, setCustomConditionFeedbackRevision] = useState(0);
   const [customDrafts, setCustomDrafts] = useState<CustomLibraryQuest[]>([]);
   const serverCustomDrafts: CustomLibraryQuest[] = isAuthenticatedAccount(account) ? (account.customSideQuests ?? []).map((quest) => ({ id: quest.id, name: quest.title, summary: quest.summary, config: quest.config, visibility: quest.visibility ?? "private", lifecycle: quest.lifecycle ?? "published", createdAt: quest.createdAt, updatedAt: quest.updatedAt, creatorName: quest.creatorName, ownedByYou: quest.ownedByYou, badgeImageUrl: quest.badgeImageUrl ?? null, stats: quest.stats, likeSummary: quest.likeSummary })) : [];
   const bootstrapCommunityQuests: CustomLibraryQuest[] = (bootstrap.communitySideQuests ?? []).map((quest) => ({ id: quest.id, name: quest.title, summary: quest.summary, config: quest.config, visibility: quest.visibility ?? "public", lifecycle: quest.lifecycle ?? "published", createdAt: quest.createdAt, updatedAt: quest.updatedAt, creatorName: quest.creatorName, ownedByYou: false, badgeImageUrl: quest.badgeImageUrl ?? null, stats: quest.stats, likeSummary: quest.likeSummary }));
@@ -5194,6 +5197,7 @@ function QuestBoardDashboard({
   }
 
   function openCustomEditor(quest?: CustomLibraryQuest | null) {
+    setCustomConditionFeedback(null);
     let nextRequirements: CustomRuleRequirement[] = [];
     if (quest) {
       const parsedRules = parseCustomRuleRequirements(quest.config);
@@ -5348,20 +5352,30 @@ function QuestBoardDashboard({
   }
 
   function duplicateCustomRequirement(requirement: CustomRuleRequirement) {
+    const currentState = customConditionStateRef.current;
+    const duplicatedIndex = currentState.conditions.findIndex((candidate) => candidate.id === requirement.id);
+    if (duplicatedIndex < 0) return;
     const duplicate = { ...requirement, id: `draft-condition-${customRequirementIdCounter.current + 1}` };
     const transition = transitionCustomConditionState(customConditionStateRef.current, { type: "duplicate", condition: duplicate });
     if (!transition.accepted) return;
     customRequirementIdCounter.current += 1;
     applyCustomConditionState(transition.state);
+    setCustomConditionFeedback(getCustomConditionMutationFeedback("duplicated", duplicatedIndex, transition.state.conditions.length));
+    setCustomConditionFeedbackRevision(getNextCustomConditionFeedbackRevision);
   }
 
   function removeCustomRequirement(requirementId: string) {
     const currentState = customConditionStateRef.current;
+    const removedIndex = currentState.conditions.findIndex((requirement) => requirement.id === requirementId);
+    if (removedIndex < 0) return;
+    const nextConditions = currentState.conditions.filter((requirement) => requirement.id !== requirementId);
     applyCustomConditionState({
-      conditions: currentState.conditions.filter((requirement) => requirement.id !== requirementId),
+      conditions: nextConditions,
       editorOpen: currentState.editingId === requirementId ? false : currentState.editorOpen,
       editingId: currentState.editingId === requirementId ? null : currentState.editingId,
     });
+    setCustomConditionFeedback(getCustomConditionMutationFeedback("deleted", removedIndex, nextConditions.length));
+    setCustomConditionFeedbackRevision(getNextCustomConditionFeedbackRevision);
   }
 
   async function saveCustomDraft(lifecycle: "draft" | "published" = "published") {
@@ -5974,6 +5988,7 @@ function QuestBoardDashboard({
                   </Pressable>
                 ) : null}
               </View>
+              {customConditionFeedback ? <Text key={customConditionFeedbackRevision} accessibilityRole="alert" accessibilityLiveRegion="polite" style={styles.microcopy}>{customConditionFeedback}</Text> : null}
               {customRequirements.length ? (
                 <View style={compactStyles.appRows}>
                   {customRequirements.map((requirement, index) => (
@@ -7189,6 +7204,8 @@ function SideQuestsScreen({
   const customRequirementIdCounter = useRef(0);
   const [customEditingRequirementId, setCustomEditingRequirementId] = useState<string | null>(null);
   const customConditionStateRef = useRef<CustomConditionState<CustomRuleRequirement>>({ conditions: [], editorOpen: false, editingId: null });
+  const { message: customConditionFeedback, setMessage: setCustomConditionFeedback } = useAccessibleActionFeedback();
+  const [customConditionFeedbackRevision, setCustomConditionFeedbackRevision] = useState(0);
   const [customDrafts, setCustomDrafts] = useState<CustomLibraryQuest[]>([]);
   const serverCustomDrafts: CustomLibraryQuest[] = isAuthenticatedAccount(account) ? (account.customSideQuests ?? []).map((quest) => ({ id: quest.id, name: quest.title, summary: quest.summary, config: quest.config, visibility: quest.visibility ?? "private", lifecycle: quest.lifecycle ?? "published", badgeImageUrl: quest.badgeImageUrl ?? null, stats: quest.stats })) : [];
   const visibleCustomDrafts = serverCustomDrafts.length ? serverCustomDrafts : customDrafts;
@@ -7223,6 +7240,11 @@ function SideQuestsScreen({
     setCustomRequirements([...next.conditions]);
     setCustomConditionEditorOpen(next.editorOpen);
     setCustomEditingRequirementId(next.editingId);
+  }
+
+  function openCustomBuilder() {
+    setCustomConditionFeedback(null);
+    setCustomCreateOpen(true);
   }
 
   function loadCustomRequirement(requirement: CustomRuleRequirement) {
@@ -7314,20 +7336,30 @@ function SideQuestsScreen({
   }
 
   function duplicateCustomRequirement(requirement: CustomRuleRequirement) {
+    const currentState = customConditionStateRef.current;
+    const duplicatedIndex = currentState.conditions.findIndex((candidate) => candidate.id === requirement.id);
+    if (duplicatedIndex < 0) return;
     const duplicate = { ...requirement, id: `draft-condition-${customRequirementIdCounter.current + 1}` };
     const transition = transitionCustomConditionState(customConditionStateRef.current, { type: "duplicate", condition: duplicate });
     if (!transition.accepted) return;
     customRequirementIdCounter.current += 1;
     applyCustomConditionState(transition.state);
+    setCustomConditionFeedback(getCustomConditionMutationFeedback("duplicated", duplicatedIndex, transition.state.conditions.length));
+    setCustomConditionFeedbackRevision(getNextCustomConditionFeedbackRevision);
   }
 
   function removeCustomRequirement(requirementId: string) {
     const currentState = customConditionStateRef.current;
+    const removedIndex = currentState.conditions.findIndex((requirement) => requirement.id === requirementId);
+    if (removedIndex < 0) return;
+    const nextConditions = currentState.conditions.filter((requirement) => requirement.id !== requirementId);
     applyCustomConditionState({
-      conditions: currentState.conditions.filter((requirement) => requirement.id !== requirementId),
+      conditions: nextConditions,
       editorOpen: currentState.editingId === requirementId ? false : currentState.editorOpen,
       editingId: currentState.editingId === requirementId ? null : currentState.editingId,
     });
+    setCustomConditionFeedback(getCustomConditionMutationFeedback("deleted", removedIndex, nextConditions.length));
+    setCustomConditionFeedbackRevision(getNextCustomConditionFeedbackRevision);
   }
 
   async function saveCustomDraft(lifecycle: "draft" | "published" = "published") {
@@ -7400,7 +7432,7 @@ function SideQuestsScreen({
           <Text style={styles.soloBrowseStat}>{activeQuestId ? "1 active" : "none active"}</Text>
         </View>
         <View style={styles.homeHeroActions}>
-          <Pressable accessibilityRole="button" accessibilityLabel="Create custom Side Quest" style={styles.primaryButtonWide} onPress={() => setCustomCreateOpen(true)}>
+          <Pressable accessibilityRole="button" accessibilityLabel="Create custom Side Quest" style={styles.primaryButtonWide} onPress={openCustomBuilder}>
             <Text style={styles.primaryButtonText}>Build a Side Quest</Text>
           </Pressable>
           <Pressable accessibilityRole="button" accessibilityLabel="Browse community Side Quests" style={styles.secondaryButtonWide} onPress={() => undefined}>
@@ -7416,7 +7448,7 @@ function SideQuestsScreen({
         <View style={compactStyles.appRows}>
           {visibleCustomDrafts.length ? visibleCustomDrafts.map((draft) => (
             <AppRow key={draft.id} title={draft.name} meta={`${getCustomLibraryMeta(draft)} · ${getCustomStatsLine(draft.stats)}`} status={getCustomLifecycleStatus(draft, activeQuestId, Boolean(signedInAccount?.completedQuests.some((quest) => quest.id === draft.id)))} imageSource={getCustomQuestImageSource(draft.badgeImageUrl)} variant="seal" onPress={() => setCustomDetailId(draft.id)} />
-          )) : <AppRow title="No custom Side Quests yet" meta="Create your own chess challenge and give it a Coat of Arms." status="Create" imageSource={getCustomQuestImageSource(null)} variant="seal" onPress={() => setCustomCreateOpen(true)} />}
+          )) : <AppRow title="No custom Side Quests yet" meta="Create your own chess challenge and give it a Coat of Arms." status="Create" imageSource={getCustomQuestImageSource(null)} variant="seal" onPress={openCustomBuilder} />}
         </View>
       </View>
 
@@ -7579,6 +7611,7 @@ function SideQuestsScreen({
                   </Pressable>
                 ) : null}
               </View>
+              {customConditionFeedback ? <Text key={customConditionFeedbackRevision} accessibilityRole="alert" accessibilityLiveRegion="polite" style={styles.microcopy}>{customConditionFeedback}</Text> : null}
               {customRequirements.length ? (
                 <View style={compactStyles.appRows}>
                   {customRequirements.map((requirement, index) => (
