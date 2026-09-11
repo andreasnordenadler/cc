@@ -56,7 +56,7 @@ import { isAppleSignInCancellation, runAppleSignInWithOAuthFallback } from "./sr
 import { completeMobilePasswordReset, prepareMobilePasswordReset, verifyMobilePasswordResetCode as verifyMobilePasswordResetCodeWithClerk } from "./src/auth/mobilePasswordReset";
 import { getAppRowInteraction } from "./src/accessibility/appRowInteraction";
 import { getMobileActionFeedbackAnnouncement } from "./src/accessibility/actionFeedbackAnnouncement";
-import { getCustomConditionMutationFeedback, getNextCustomConditionFeedbackRevision } from "./src/accessibility/customConditionMutationFeedback";
+import { getCustomConditionMutationFeedback, getCustomConditionSaveFeedback, getNextCustomConditionFeedbackRevision } from "./src/accessibility/customConditionMutationFeedback";
 import { createDateTimePickerModalSessionController, handleNativeDateTimePickerChange } from "./src/accessibility/dateTimePickerModalSession";
 import { createModalAccessibilityController } from "./src/accessibility/modalAccessibility";
 import { getPasswordAuthFieldSemantics } from "./src/accessibility/passwordAuthFieldSemantics";
@@ -5318,6 +5318,7 @@ function QuestBoardDashboard({
   }
 
   function saveCustomRequirement() {
+    const currentState = customConditionStateRef.current;
     const validationError = getCustomRequirementValidation(currentCustomRequirement);
     if (validationError) {
       Alert.alert("Condition needs one fix", validationError);
@@ -5326,7 +5327,11 @@ function QuestBoardDashboard({
 
     const nextRequirements = getCustomRequirementsIncludingOpenCondition(false);
     if (!nextRequirements) return false;
+    const savedConditionFeedback = getCustomConditionSaveFeedback(currentState, nextRequirements);
+    if (!savedConditionFeedback) return false;
     applyCustomConditionState({ conditions: nextRequirements, editorOpen: false, editingId: null });
+    setCustomConditionFeedback(savedConditionFeedback);
+    setCustomConditionFeedbackRevision(getNextCustomConditionFeedbackRevision);
     return true;
   }
 
@@ -7302,6 +7307,7 @@ function SideQuestsScreen({
   }
 
   function saveCustomRequirement() {
+    const currentState = customConditionStateRef.current;
     const validationError = getCustomRequirementValidation(currentCustomRequirement);
     if (validationError) {
       Alert.alert("Condition needs one fix", validationError);
@@ -7310,7 +7316,11 @@ function SideQuestsScreen({
 
     const nextRequirements = getCustomRequirementsIncludingOpenCondition(false);
     if (!nextRequirements) return false;
+    const savedConditionFeedback = getCustomConditionSaveFeedback(currentState, nextRequirements);
+    if (!savedConditionFeedback) return false;
     applyCustomConditionState({ conditions: nextRequirements, editorOpen: false, editingId: null });
+    setCustomConditionFeedback(savedConditionFeedback);
+    setCustomConditionFeedbackRevision(getNextCustomConditionFeedbackRevision);
     return true;
   }
 

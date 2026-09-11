@@ -3,7 +3,7 @@ export function getNextCustomConditionFeedbackRevision(current: number): number 
 }
 
 export function getCustomConditionMutationFeedback(
-  action: "deleted" | "duplicated",
+  action: "added" | "updated" | "deleted" | "duplicated",
   index: number,
   savedCount: number,
 ): string {
@@ -13,4 +13,19 @@ export function getCustomConditionMutationFeedback(
     : `${savedCount} condition${savedCount === 1 ? "" : "s"} saved.`;
 
   return `${conditionLabel} ${action}. ${savedCopy}`;
+}
+
+export function getCustomConditionSaveFeedback(
+  state: { editorOpen: boolean; editingId: string | null },
+  savedConditions: readonly { id: string }[],
+): string | null {
+  if (!state.editorOpen) return null;
+
+  const action = state.editingId ? "updated" : "added";
+  const index = state.editingId
+    ? savedConditions.findIndex((condition) => condition.id === state.editingId)
+    : 0;
+  if (index < 0 || index >= savedConditions.length) return null;
+
+  return getCustomConditionMutationFeedback(action, index, savedConditions.length);
 }
