@@ -6164,15 +6164,17 @@ function QuestBoardDashboard({
                 <Text style={compactStyles.multiplayerRuleValue}>{customRuleSummary}</Text>
               </View>
               <Text style={compactStyles.multiplayerRuleLabel}>Publish visibility</Text>
-              <View style={compactStyles.multiplayerOptionGrid}>
+              <View style={compactStyles.multiplayerOptionGrid} accessibilityRole="radiogroup" accessibilityLabel="Publish visibility">
                 {(["private", "public"] as const).map((visibility) => {
                   const selected = customPublishVisibility === visibility;
+                  const title = visibility === "public" ? "Public Community" : "Private Library";
+                  const helper = visibility === "public" ? "Appears in Community Discover and can be picked by other players." : "Only you can pick it or use it in hosted Multiplayer Side Quests.";
                   return (
-                    <Pressable key={visibility} accessibilityRole="button" accessibilityState={{ selected }} style={[compactStyles.multiplayerOptionCard, selected ? compactStyles.multiplayerOptionCardSelected : null]} onPress={() => setCustomPublishVisibility(visibility)}>
+                    <Pressable key={visibility} accessibilityRole="radio" accessibilityLabel={`Publish visibility: ${title}. ${helper}`} accessibilityState={{ checked: selected }} style={[compactStyles.multiplayerOptionCard, selected ? compactStyles.multiplayerOptionCardSelected : null]} onPress={() => setCustomPublishVisibility(visibility)}>
                       <View style={[compactStyles.multiplayerOptionDot, selected ? compactStyles.multiplayerOptionDotSelected : null]} />
                       <View style={compactStyles.multiplayerOptionCopy}>
-                        <Text style={selected ? compactStyles.multiplayerOptionTitleSelected : compactStyles.multiplayerOptionTitle}>{visibility === "public" ? "Public Community" : "Private Library"}</Text>
-                        <Text style={compactStyles.multiplayerOptionHelper}>{visibility === "public" ? "Appears in Community Discover and can be picked by other players." : "Only you can pick it or use it in hosted Multiplayer Side Quests."}</Text>
+                        <Text style={selected ? compactStyles.multiplayerOptionTitleSelected : compactStyles.multiplayerOptionTitle}>{title}</Text>
+                        <Text style={compactStyles.multiplayerOptionHelper}>{helper}</Text>
                       </View>
                     </Pressable>
                   );
