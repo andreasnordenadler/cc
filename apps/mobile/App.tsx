@@ -6129,15 +6129,15 @@ function QuestBoardDashboard({
                     <Text style={styles.microcopy}>{customRuleCondition === "game result" ? "Game result is checked at the end, so no timing is needed." : "Opening sequence is always checked from move 1, so no timing is needed."}</Text>
                   )}
                   <Text style={compactStyles.multiplayerRuleLabel}>Pass when this condition is</Text>
-                  <View style={compactStyles.multiplayerOptionGrid}>
-                    <Pressable accessibilityRole="button" accessibilityState={{ selected: !customRuleNegated }} style={[compactStyles.multiplayerOptionCard, !customRuleNegated ? compactStyles.multiplayerOptionCardSelected : null]} onPress={() => setCustomRuleNegated(false)}>
+                  <View style={compactStyles.multiplayerOptionGrid} accessibilityRole="radiogroup" accessibilityLabel="Pass condition">
+                    <Pressable accessibilityRole="radio" accessibilityLabel="Pass condition: True. Use for my rook must be on e4." accessibilityState={{ checked: !customRuleNegated }} style={[compactStyles.multiplayerOptionCard, !customRuleNegated ? compactStyles.multiplayerOptionCardSelected : null]} onPress={() => setCustomRuleNegated(false)}>
                       <View style={[compactStyles.multiplayerOptionDot, !customRuleNegated ? compactStyles.multiplayerOptionDotSelected : null]} />
                       <View style={compactStyles.multiplayerOptionCopy}>
                         <Text style={!customRuleNegated ? compactStyles.multiplayerOptionTitleSelected : compactStyles.multiplayerOptionTitle}>True</Text>
                         <Text style={compactStyles.multiplayerOptionHelper}>Use for “my rook must be on e4”.</Text>
                       </View>
                     </Pressable>
-                    <Pressable accessibilityRole="button" accessibilityState={{ selected: customRuleNegated }} style={[compactStyles.multiplayerOptionCard, customRuleNegated ? compactStyles.multiplayerOptionCardSelected : null]} onPress={() => setCustomRuleNegated(true)}>
+                    <Pressable accessibilityRole="radio" accessibilityLabel="Pass condition: False, must not happen. Use for my rook must not be on e4." accessibilityState={{ checked: customRuleNegated }} style={[compactStyles.multiplayerOptionCard, customRuleNegated ? compactStyles.multiplayerOptionCardSelected : null]} onPress={() => setCustomRuleNegated(true)}>
                       <View style={[compactStyles.multiplayerOptionDot, customRuleNegated ? compactStyles.multiplayerOptionDotSelected : null]} />
                       <View style={compactStyles.multiplayerOptionCopy}>
                         <Text style={customRuleNegated ? compactStyles.multiplayerOptionTitleSelected : compactStyles.multiplayerOptionTitle}>False / must not happen</Text>
@@ -7719,15 +7719,15 @@ function SideQuestsScreen({
                     <Text style={styles.microcopy}>{customRuleCondition === "game result" ? "Game result is checked at the end, so no timing is needed." : "Opening sequence is always checked from move 1, so no timing is needed."}</Text>
                   )}
                   <Text style={compactStyles.multiplayerRuleLabel}>Pass when this condition is</Text>
-                  <View style={compactStyles.multiplayerOptionGrid}>
-                    <Pressable accessibilityRole="button" accessibilityState={{ selected: !customRuleNegated }} style={[compactStyles.multiplayerOptionCard, !customRuleNegated ? compactStyles.multiplayerOptionCardSelected : null]} onPress={() => setCustomRuleNegated(false)}>
+                  <View style={compactStyles.multiplayerOptionGrid} accessibilityRole="radiogroup" accessibilityLabel="Pass condition">
+                    <Pressable accessibilityRole="radio" accessibilityLabel="Pass condition: True. Use for my rook must be on e4." accessibilityState={{ checked: !customRuleNegated }} style={[compactStyles.multiplayerOptionCard, !customRuleNegated ? compactStyles.multiplayerOptionCardSelected : null]} onPress={() => setCustomRuleNegated(false)}>
                       <View style={[compactStyles.multiplayerOptionDot, !customRuleNegated ? compactStyles.multiplayerOptionDotSelected : null]} />
                       <View style={compactStyles.multiplayerOptionCopy}>
                         <Text style={!customRuleNegated ? compactStyles.multiplayerOptionTitleSelected : compactStyles.multiplayerOptionTitle}>True</Text>
                         <Text style={compactStyles.multiplayerOptionHelper}>Use for “my rook must be on e4”.</Text>
                       </View>
                     </Pressable>
-                    <Pressable accessibilityRole="button" accessibilityState={{ selected: customRuleNegated }} style={[compactStyles.multiplayerOptionCard, customRuleNegated ? compactStyles.multiplayerOptionCardSelected : null]} onPress={() => setCustomRuleNegated(true)}>
+                    <Pressable accessibilityRole="radio" accessibilityLabel="Pass condition: False, must not happen. Use for my rook must not be on e4." accessibilityState={{ checked: customRuleNegated }} style={[compactStyles.multiplayerOptionCard, customRuleNegated ? compactStyles.multiplayerOptionCardSelected : null]} onPress={() => setCustomRuleNegated(true)}>
                       <View style={[compactStyles.multiplayerOptionDot, customRuleNegated ? compactStyles.multiplayerOptionDotSelected : null]} />
                       <View style={compactStyles.multiplayerOptionCopy}>
                         <Text style={customRuleNegated ? compactStyles.multiplayerOptionTitleSelected : compactStyles.multiplayerOptionTitle}>False / must not happen</Text>
