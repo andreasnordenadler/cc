@@ -61,6 +61,7 @@ import { createModalAccessibilityController } from "./src/accessibility/modalAcc
 import { getPasswordAuthFieldSemantics } from "./src/accessibility/passwordAuthFieldSemantics";
 import { createLiveProgrammaticScrollPreference, createReducedMotionPreferenceController, shouldAnimateRefreshIcon } from "./src/accessibility/reducedMotionPreference";
 import { OFFLINE_MOBILE_BOOTSTRAP } from "./src/data/offlineBootstrap";
+import { MAX_CUSTOM_CONDITIONS, getCustomConditionSlotCount, transitionCustomConditionState, type CustomConditionState } from "./src/custom/customConditionCapacity";
 import { shouldStackActiveQuestSummary } from "./src/layout/activeQuestLayout";
 import { createMobileHomeProofRefreshCoordinator, toMobileHomeProofRefreshActionState, type MobileHomeProofRefreshFeedback, type MobileHomeProofRefreshSnapshot } from "./src/home/mobileHomeProofRefresh";
 import { describeMobileBoard, describeMobileBoardSquare } from "./src/proof/mobileBoardAccessibility";
@@ -5101,6 +5102,7 @@ function QuestBoardDashboard({
   const [customRequirements, setCustomRequirements] = useState<CustomRuleRequirement[]>([]);
   const customRequirementIdCounter = useRef(0);
   const [customEditingRequirementId, setCustomEditingRequirementId] = useState<string | null>(null);
+  const customConditionStateRef = useRef<CustomConditionState<CustomRuleRequirement>>({ conditions: [], editorOpen: false, editingId: null });
   const [customDrafts, setCustomDrafts] = useState<CustomLibraryQuest[]>([]);
   const serverCustomDrafts: CustomLibraryQuest[] = isAuthenticatedAccount(account) ? (account.customSideQuests ?? []).map((quest) => ({ id: quest.id, name: quest.title, summary: quest.summary, config: quest.config, visibility: quest.visibility ?? "private", lifecycle: quest.lifecycle ?? "published", createdAt: quest.createdAt, updatedAt: quest.updatedAt, creatorName: quest.creatorName, ownedByYou: quest.ownedByYou, badgeImageUrl: quest.badgeImageUrl ?? null, stats: quest.stats, likeSummary: quest.likeSummary })) : [];
   const bootstrapCommunityQuests: CustomLibraryQuest[] = (bootstrap.communitySideQuests ?? []).map((quest) => ({ id: quest.id, name: quest.title, summary: quest.summary, config: quest.config, visibility: quest.visibility ?? "public", lifecycle: quest.lifecycle ?? "published", createdAt: quest.createdAt, updatedAt: quest.updatedAt, creatorName: quest.creatorName, ownedByYou: false, badgeImageUrl: quest.badgeImageUrl ?? null, stats: quest.stats, likeSummary: quest.likeSummary }));
@@ -5164,6 +5166,14 @@ function QuestBoardDashboard({
   const customRuleConfig = buildCustomPieceRuleConfig({ logic: customRuleLogic, requirements: customRuleRequirements });
   const customBadgePreviewUrl = getCustomCoatPreviewUrl(customRuleRequirements, customQuestName);
   const canPublishCustomQuest = customRequirements.length > 0 || customConditionEditorOpen;
+  const customConditionSlotCount = getCustomConditionSlotCount(customRequirements.length, customConditionEditorOpen, customEditingRequirementId);
+
+  function applyCustomConditionState(next: CustomConditionState<CustomRuleRequirement>) {
+    customConditionStateRef.current = next;
+    setCustomRequirements([...next.conditions]);
+    setCustomConditionEditorOpen(next.editorOpen);
+    setCustomEditingRequirementId(next.editingId);
+  }
 
   function closeSelectedQuestDetail() {
     setDetailChallengeId(null);
@@ -5184,22 +5194,25 @@ function QuestBoardDashboard({
   }
 
   function openCustomEditor(quest?: CustomLibraryQuest | null) {
-    setCustomConditionEditorOpen(false);
-    setCustomEditingRequirementId(null);
+    let nextRequirements: CustomRuleRequirement[] = [];
     if (quest) {
       const parsedRules = parseCustomRuleRequirements(quest.config);
       setCustomEditingQuestId(quest.id);
       setCustomQuestName(quest.name);
       setCustomPublishVisibility(quest.visibility ?? "private");
       setCustomRuleLogic(parsedRules?.logic ?? "all");
-      setCustomRequirements(parsedRules?.requirements ?? []);
+      nextRequirements = parsedRules?.requirements ?? [];
     } else {
       setCustomEditingQuestId(null);
       setCustomQuestName("My custom Side Quest");
       setCustomPublishVisibility("private");
       setCustomRuleLogic("all");
-      setCustomRequirements([]);
     }
+    const nextConditionState = { conditions: nextRequirements, editorOpen: false, editingId: null };
+    customConditionStateRef.current = nextConditionState;
+    setCustomRequirements(nextRequirements);
+    setCustomConditionEditorOpen(false);
+    setCustomEditingRequirementId(null);
     setCustomCreateOpen(true);
   }
 
@@ -5220,8 +5233,8 @@ function QuestBoardDashboard({
   }
 
   function openNewCustomRequirement() {
-    setCustomEditingRequirementId(null);
-    setCustomConditionEditorOpen(true);
+    const transition = transitionCustomConditionState(customConditionStateRef.current, { type: "open-new" });
+    if (transition.accepted) applyCustomConditionState(transition.state);
   }
 
   function applyCustomQuestTemplate(template: (typeof CUSTOM_QUEST_TEMPLATES)[number]) {
@@ -5232,8 +5245,7 @@ function QuestBoardDashboard({
     setCustomRulePiece(template.piece);
     setCustomRuleOwner("my");
     setCustomRuleNegated(false);
-    setCustomRequirements([{ id: `template-condition-${customRequirementIdCounter.current}`, piece: template.piece, owner: "my", condition: template.condition, timing: "by move", moveNumber: 15, quantifier: "any one", count: 1, identity: "original", targetSquare: "e4", moveSequence: "e4 e5 Nf3", openingSequence: "1.e4 e5 2.f4", result: template.result, negated: false }]);
-    setCustomConditionEditorOpen(false);
+    applyCustomConditionState({ conditions: [{ id: `template-condition-${customRequirementIdCounter.current}`, piece: template.piece, owner: "my", condition: template.condition, timing: "by move", moveNumber: 15, quantifier: "any one", count: 1, identity: "original", targetSquare: "e4", moveSequence: "e4 e5 Nf3", openingSequence: "1.e4 e5 2.f4", result: template.result, negated: false }], editorOpen: false, editingId: null });
   }
 
   function hasUnsavedCustomBuilderWork() {
@@ -5243,7 +5255,7 @@ function QuestBoardDashboard({
   function dismissCustomBuilder() {
     setCustomCreateOpen(false);
     setCustomEditingQuestId(null);
-    setCustomConditionEditorOpen(false);
+    applyCustomConditionState({ ...customConditionStateRef.current, editorOpen: false, editingId: null });
   }
 
   function closeCustomBuilder() {
@@ -5298,8 +5310,7 @@ function QuestBoardDashboard({
 
   function editCustomRequirement(requirement: CustomRuleRequirement) {
     loadCustomRequirement(requirement);
-    setCustomEditingRequirementId(requirement.id);
-    setCustomConditionEditorOpen(true);
+    applyCustomConditionState({ ...customConditionStateRef.current, editorOpen: true, editingId: requirement.id });
   }
 
   function saveCustomRequirement() {
@@ -5309,15 +5320,16 @@ function QuestBoardDashboard({
       return false;
     }
 
-    setCustomRequirements(getCustomRequirementsIncludingOpenCondition(false) ?? customRequirements);
-    setCustomEditingRequirementId(null);
-    setCustomConditionEditorOpen(false);
+    const nextRequirements = getCustomRequirementsIncludingOpenCondition(false);
+    if (!nextRequirements) return false;
+    applyCustomConditionState({ conditions: nextRequirements, editorOpen: false, editingId: null });
     return true;
   }
 
   function getCustomRequirementsIncludingOpenCondition(allowInvalidDraft: boolean) {
-    if (!customConditionEditorOpen) {
-      return customRequirements;
+    const currentState = customConditionStateRef.current;
+    if (!currentState.editorOpen) {
+      return [...currentState.conditions];
     }
 
     const validationError = getCustomRequirementValidation(currentCustomRequirement);
@@ -5326,25 +5338,30 @@ function QuestBoardDashboard({
       return null;
     }
 
-    if (customEditingRequirementId) {
-      return customRequirements.map((requirement) => requirement.id === customEditingRequirementId ? { id: requirement.id, ...currentCustomRequirement } : requirement);
+    const transition = transitionCustomConditionState(customConditionStateRef.current, { type: "save", condition: { id: currentState.editingId ?? `draft-condition-${customRequirementIdCounter.current + 1}`, ...currentCustomRequirement } });
+    if (!transition.accepted) {
+      Alert.alert("Condition limit reached", "Delete one saved condition before adding another.");
+      return null;
     }
-
-    customRequirementIdCounter.current += 1;
-    return [{ id: `draft-condition-${customRequirementIdCounter.current}`, ...currentCustomRequirement }, ...customRequirements].slice(0, 6);
+    if (!currentState.editingId) customRequirementIdCounter.current += 1;
+    return [...transition.state.conditions];
   }
 
   function duplicateCustomRequirement(requirement: CustomRuleRequirement) {
+    const duplicate = { ...requirement, id: `draft-condition-${customRequirementIdCounter.current + 1}` };
+    const transition = transitionCustomConditionState(customConditionStateRef.current, { type: "duplicate", condition: duplicate });
+    if (!transition.accepted) return;
     customRequirementIdCounter.current += 1;
-    setCustomRequirements((current) => [{ ...requirement, id: `draft-condition-${customRequirementIdCounter.current}` }, ...current].slice(0, 6));
+    applyCustomConditionState(transition.state);
   }
 
   function removeCustomRequirement(requirementId: string) {
-    setCustomRequirements((current) => current.filter((requirement) => requirement.id !== requirementId));
-    if (customEditingRequirementId === requirementId) {
-      setCustomEditingRequirementId(null);
-      setCustomConditionEditorOpen(false);
-    }
+    const currentState = customConditionStateRef.current;
+    applyCustomConditionState({
+      conditions: currentState.conditions.filter((requirement) => requirement.id !== requirementId),
+      editorOpen: currentState.editingId === requirementId ? false : currentState.editorOpen,
+      editingId: currentState.editingId === requirementId ? null : currentState.editingId,
+    });
   }
 
   async function saveCustomDraft(lifecycle: "draft" | "published" = "published") {
@@ -5950,7 +5967,7 @@ function QuestBoardDashboard({
               </View>
               <View style={compactStyles.multiplayerRuleRow}>
                 <Text style={compactStyles.multiplayerRuleLabel}>Your conditions</Text>
-                <Text style={compactStyles.multiplayerRuleValue}>{customRequirements.length ? `${customRequirements.length} saved. They can happen in any order.` : "No conditions yet. Add the first thing players must do."}</Text>
+                <Text style={compactStyles.multiplayerRuleValue}>{customRequirements.length ? `${customRequirements.length} saved. They can happen in any order.${customConditionSlotCount >= MAX_CUSTOM_CONDITIONS ? " Maximum of six conditions reached." : ""}` : "No conditions yet. Add the first thing players must do."}</Text>
                 {!customRequirements.length && !customConditionEditorOpen ? (
                   <Pressable accessibilityRole="button" accessibilityLabel="Add first custom Side Quest condition" style={compactStyles.detailPrimaryButton} onPress={openNewCustomRequirement}>
                     <Text style={compactStyles.detailPrimaryButtonText}>Add Condition</Text>
@@ -5974,7 +5991,7 @@ function QuestBoardDashboard({
                         <Pressable accessibilityRole="button" accessibilityLabel={`Edit ${getCustomConditionLabel(index)}`} style={compactStyles.conditionCompactAction} onPress={() => editCustomRequirement(requirement)}>
                           <Text style={compactStyles.conditionCompactActionText}>Edit</Text>
                         </Pressable>
-                        <Pressable accessibilityRole="button" accessibilityLabel={`Duplicate ${getCustomConditionLabel(index)}`} style={compactStyles.conditionCompactAction} onPress={() => duplicateCustomRequirement(requirement)}>
+                        <Pressable accessibilityRole="button" accessibilityLabel={`Duplicate ${getCustomConditionLabel(index)}`} accessibilityState={{ disabled: customConditionSlotCount >= MAX_CUSTOM_CONDITIONS }} disabled={customConditionSlotCount >= MAX_CUSTOM_CONDITIONS} style={[compactStyles.conditionCompactAction, customConditionSlotCount >= MAX_CUSTOM_CONDITIONS && compactStyles.disabledAction]} onPress={() => duplicateCustomRequirement(requirement)}>
                           <Text style={compactStyles.conditionCompactActionText}>Duplicate</Text>
                         </Pressable>
                         <Pressable accessibilityRole="button" accessibilityLabel={`Delete ${getCustomConditionLabel(index)}`} style={compactStyles.conditionCompactAction} onPress={() => removeCustomRequirement(requirement.id)}>
@@ -5985,7 +6002,7 @@ function QuestBoardDashboard({
                   ))}
                 </View>
               ) : null}
-              {!customConditionEditorOpen && customRequirements.length ? (
+              {!customConditionEditorOpen && customRequirements.length && customRequirements.length < MAX_CUSTOM_CONDITIONS ? (
                 <Pressable accessibilityRole="button" accessibilityLabel="Add custom Side Quest condition" style={compactStyles.detailSecondaryButton} onPress={openNewCustomRequirement}>
                   <Text style={compactStyles.detailSecondaryButtonText}>Add Another Condition</Text>
                 </Pressable>
@@ -6161,7 +6178,7 @@ function QuestBoardDashboard({
                     <Pressable accessibilityRole="button" accessibilityLabel="Save current condition" style={compactStyles.detailSecondaryButton} onPress={saveCustomRequirement}>
                       <Text style={compactStyles.detailSecondaryButtonText}>{customEditingRequirementId ? "Update Condition" : "Save Condition"}</Text>
                     </Pressable>
-                    <Pressable accessibilityRole="button" accessibilityLabel="Cancel condition editing" style={compactStyles.detailQuietButton} onPress={() => { setCustomEditingRequirementId(null); setCustomConditionEditorOpen(false); }}>
+                    <Pressable accessibilityRole="button" accessibilityLabel="Cancel condition editing" style={compactStyles.detailQuietButton} onPress={() => applyCustomConditionState({ ...customConditionStateRef.current, editorOpen: false, editingId: null })}>
                       <Text style={compactStyles.detailQuietButtonText}>Cancel</Text>
                     </Pressable>
                   </View>
@@ -7171,6 +7188,7 @@ function SideQuestsScreen({
   const [customRequirements, setCustomRequirements] = useState<CustomRuleRequirement[]>([]);
   const customRequirementIdCounter = useRef(0);
   const [customEditingRequirementId, setCustomEditingRequirementId] = useState<string | null>(null);
+  const customConditionStateRef = useRef<CustomConditionState<CustomRuleRequirement>>({ conditions: [], editorOpen: false, editingId: null });
   const [customDrafts, setCustomDrafts] = useState<CustomLibraryQuest[]>([]);
   const serverCustomDrafts: CustomLibraryQuest[] = isAuthenticatedAccount(account) ? (account.customSideQuests ?? []).map((quest) => ({ id: quest.id, name: quest.title, summary: quest.summary, config: quest.config, visibility: quest.visibility ?? "private", lifecycle: quest.lifecycle ?? "published", badgeImageUrl: quest.badgeImageUrl ?? null, stats: quest.stats })) : [];
   const visibleCustomDrafts = serverCustomDrafts.length ? serverCustomDrafts : customDrafts;
@@ -7198,6 +7216,14 @@ function SideQuestsScreen({
   const customRuleConfig = buildCustomPieceRuleConfig({ logic: customRuleLogic, requirements: customRuleRequirements });
   const customBadgePreviewUrl = getCustomCoatPreviewUrl(customRuleRequirements, customQuestName);
   const canPublishCustomQuest = customRequirements.length > 0 || customConditionEditorOpen;
+  const customConditionSlotCount = getCustomConditionSlotCount(customRequirements.length, customConditionEditorOpen, customEditingRequirementId);
+
+  function applyCustomConditionState(next: CustomConditionState<CustomRuleRequirement>) {
+    customConditionStateRef.current = next;
+    setCustomRequirements([...next.conditions]);
+    setCustomConditionEditorOpen(next.editorOpen);
+    setCustomEditingRequirementId(next.editingId);
+  }
 
   function loadCustomRequirement(requirement: CustomRuleRequirement) {
     setCustomRulePiece(requirement.piece);
@@ -7216,8 +7242,8 @@ function SideQuestsScreen({
   }
 
   function openNewCustomRequirement() {
-    setCustomEditingRequirementId(null);
-    setCustomConditionEditorOpen(true);
+    const transition = transitionCustomConditionState(customConditionStateRef.current, { type: "open-new" });
+    if (transition.accepted) applyCustomConditionState(transition.state);
   }
 
   function applyCustomQuestTemplate(template: (typeof CUSTOM_QUEST_TEMPLATES)[number]) {
@@ -7228,8 +7254,7 @@ function SideQuestsScreen({
     setCustomRulePiece(template.piece);
     setCustomRuleOwner("my");
     setCustomRuleNegated(false);
-    setCustomRequirements([{ id: `template-condition-${customRequirementIdCounter.current}`, piece: template.piece, owner: "my", condition: template.condition, timing: "by move", moveNumber: 15, quantifier: "any one", count: 1, identity: "original", targetSquare: "e4", moveSequence: "e4 e5 Nf3", openingSequence: "1.e4 e5 2.f4", result: template.result, negated: false }]);
-    setCustomConditionEditorOpen(false);
+    applyCustomConditionState({ conditions: [{ id: `template-condition-${customRequirementIdCounter.current}`, piece: template.piece, owner: "my", condition: template.condition, timing: "by move", moveNumber: 15, quantifier: "any one", count: 1, identity: "original", targetSquare: "e4", moveSequence: "e4 e5 Nf3", openingSequence: "1.e4 e5 2.f4", result: template.result, negated: false }], editorOpen: false, editingId: null });
   }
 
   function closeCustomBuilder() {
@@ -7251,8 +7276,7 @@ function SideQuestsScreen({
 
   function editCustomRequirement(requirement: CustomRuleRequirement) {
     loadCustomRequirement(requirement);
-    setCustomEditingRequirementId(requirement.id);
-    setCustomConditionEditorOpen(true);
+    applyCustomConditionState({ ...customConditionStateRef.current, editorOpen: true, editingId: requirement.id });
   }
 
   function saveCustomRequirement() {
@@ -7262,15 +7286,16 @@ function SideQuestsScreen({
       return false;
     }
 
-    setCustomRequirements(getCustomRequirementsIncludingOpenCondition(false) ?? customRequirements);
-    setCustomEditingRequirementId(null);
-    setCustomConditionEditorOpen(false);
+    const nextRequirements = getCustomRequirementsIncludingOpenCondition(false);
+    if (!nextRequirements) return false;
+    applyCustomConditionState({ conditions: nextRequirements, editorOpen: false, editingId: null });
     return true;
   }
 
   function getCustomRequirementsIncludingOpenCondition(allowInvalidDraft: boolean) {
-    if (!customConditionEditorOpen) {
-      return customRequirements;
+    const currentState = customConditionStateRef.current;
+    if (!currentState.editorOpen) {
+      return [...currentState.conditions];
     }
 
     const validationError = getCustomRequirementValidation(currentCustomRequirement);
@@ -7279,25 +7304,30 @@ function SideQuestsScreen({
       return null;
     }
 
-    if (customEditingRequirementId) {
-      return customRequirements.map((requirement) => requirement.id === customEditingRequirementId ? { id: requirement.id, ...currentCustomRequirement } : requirement);
+    const transition = transitionCustomConditionState(customConditionStateRef.current, { type: "save", condition: { id: currentState.editingId ?? `draft-condition-${customRequirementIdCounter.current + 1}`, ...currentCustomRequirement } });
+    if (!transition.accepted) {
+      Alert.alert("Condition limit reached", "Delete one saved condition before adding another.");
+      return null;
     }
-
-    customRequirementIdCounter.current += 1;
-    return [{ id: `draft-condition-${customRequirementIdCounter.current}`, ...currentCustomRequirement }, ...customRequirements].slice(0, 6);
+    if (!currentState.editingId) customRequirementIdCounter.current += 1;
+    return [...transition.state.conditions];
   }
 
   function duplicateCustomRequirement(requirement: CustomRuleRequirement) {
+    const duplicate = { ...requirement, id: `draft-condition-${customRequirementIdCounter.current + 1}` };
+    const transition = transitionCustomConditionState(customConditionStateRef.current, { type: "duplicate", condition: duplicate });
+    if (!transition.accepted) return;
     customRequirementIdCounter.current += 1;
-    setCustomRequirements((current) => [{ ...requirement, id: `draft-condition-${customRequirementIdCounter.current}` }, ...current].slice(0, 6));
+    applyCustomConditionState(transition.state);
   }
 
   function removeCustomRequirement(requirementId: string) {
-    setCustomRequirements((current) => current.filter((requirement) => requirement.id !== requirementId));
-    if (customEditingRequirementId === requirementId) {
-      setCustomEditingRequirementId(null);
-      setCustomConditionEditorOpen(false);
-    }
+    const currentState = customConditionStateRef.current;
+    applyCustomConditionState({
+      conditions: currentState.conditions.filter((requirement) => requirement.id !== requirementId),
+      editorOpen: currentState.editingId === requirementId ? false : currentState.editorOpen,
+      editingId: currentState.editingId === requirementId ? null : currentState.editingId,
+    });
   }
 
   async function saveCustomDraft(lifecycle: "draft" | "published" = "published") {
@@ -7542,7 +7572,7 @@ function SideQuestsScreen({
               </View>
               <View style={compactStyles.multiplayerRuleRow}>
                 <Text style={compactStyles.multiplayerRuleLabel}>Your conditions</Text>
-                <Text style={compactStyles.multiplayerRuleValue}>{customRequirements.length ? `${customRequirements.length} saved. They can happen in any order.` : "No conditions yet. Add the first thing players must do."}</Text>
+                <Text style={compactStyles.multiplayerRuleValue}>{customRequirements.length ? `${customRequirements.length} saved. They can happen in any order.${customConditionSlotCount >= MAX_CUSTOM_CONDITIONS ? " Maximum of six conditions reached." : ""}` : "No conditions yet. Add the first thing players must do."}</Text>
                 {!customRequirements.length && !customConditionEditorOpen ? (
                   <Pressable accessibilityRole="button" accessibilityLabel="Add first custom Side Quest condition" style={compactStyles.detailPrimaryButton} onPress={openNewCustomRequirement}>
                     <Text style={compactStyles.detailPrimaryButtonText}>Add Condition</Text>
@@ -7566,7 +7596,7 @@ function SideQuestsScreen({
                         <Pressable accessibilityRole="button" accessibilityLabel={`Edit ${getCustomConditionLabel(index)}`} style={compactStyles.conditionCompactAction} onPress={() => editCustomRequirement(requirement)}>
                           <Text style={compactStyles.conditionCompactActionText}>Edit</Text>
                         </Pressable>
-                        <Pressable accessibilityRole="button" accessibilityLabel={`Duplicate ${getCustomConditionLabel(index)}`} style={compactStyles.conditionCompactAction} onPress={() => duplicateCustomRequirement(requirement)}>
+                        <Pressable accessibilityRole="button" accessibilityLabel={`Duplicate ${getCustomConditionLabel(index)}`} accessibilityState={{ disabled: customConditionSlotCount >= MAX_CUSTOM_CONDITIONS }} disabled={customConditionSlotCount >= MAX_CUSTOM_CONDITIONS} style={[compactStyles.conditionCompactAction, customConditionSlotCount >= MAX_CUSTOM_CONDITIONS && compactStyles.disabledAction]} onPress={() => duplicateCustomRequirement(requirement)}>
                           <Text style={compactStyles.conditionCompactActionText}>Duplicate</Text>
                         </Pressable>
                         <Pressable accessibilityRole="button" accessibilityLabel={`Delete ${getCustomConditionLabel(index)}`} style={compactStyles.conditionCompactAction} onPress={() => removeCustomRequirement(requirement.id)}>
@@ -7577,7 +7607,7 @@ function SideQuestsScreen({
                   ))}
                 </View>
               ) : null}
-              {!customConditionEditorOpen && customRequirements.length ? (
+              {!customConditionEditorOpen && customRequirements.length && customRequirements.length < MAX_CUSTOM_CONDITIONS ? (
                 <Pressable accessibilityRole="button" accessibilityLabel="Add custom Side Quest condition" style={compactStyles.detailSecondaryButton} onPress={openNewCustomRequirement}>
                   <Text style={compactStyles.detailSecondaryButtonText}>Add Another Condition</Text>
                 </Pressable>
@@ -7753,7 +7783,7 @@ function SideQuestsScreen({
                     <Pressable accessibilityRole="button" accessibilityLabel="Save current condition" style={compactStyles.detailSecondaryButton} onPress={saveCustomRequirement}>
                       <Text style={compactStyles.detailSecondaryButtonText}>{customEditingRequirementId ? "Update Condition" : "Save Condition"}</Text>
                     </Pressable>
-                    <Pressable accessibilityRole="button" accessibilityLabel="Cancel condition editing" style={compactStyles.detailQuietButton} onPress={() => { setCustomEditingRequirementId(null); setCustomConditionEditorOpen(false); }}>
+                    <Pressable accessibilityRole="button" accessibilityLabel="Cancel condition editing" style={compactStyles.detailQuietButton} onPress={() => applyCustomConditionState({ ...customConditionStateRef.current, editorOpen: false, editingId: null })}>
                       <Text style={compactStyles.detailQuietButtonText}>Cancel</Text>
                     </Pressable>
                   </View>
