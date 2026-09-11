@@ -59,6 +59,7 @@ import { getMobileActionFeedbackAnnouncement } from "./src/accessibility/actionF
 import { createDateTimePickerModalSessionController, handleNativeDateTimePickerChange } from "./src/accessibility/dateTimePickerModalSession";
 import { createModalAccessibilityController } from "./src/accessibility/modalAccessibility";
 import { getPasswordAuthFieldSemantics } from "./src/accessibility/passwordAuthFieldSemantics";
+import { createReducedMotionPreferenceController, shouldAnimateRefreshIcon } from "./src/accessibility/reducedMotionPreference";
 import { OFFLINE_MOBILE_BOOTSTRAP } from "./src/data/offlineBootstrap";
 import { shouldStackActiveQuestSummary } from "./src/layout/activeQuestLayout";
 import { createMobileHomeProofRefreshCoordinator, toMobileHomeProofRefreshActionState, type MobileHomeProofRefreshFeedback, type MobileHomeProofRefreshSnapshot } from "./src/home/mobileHomeProofRefresh";
@@ -2009,9 +2010,21 @@ function ScrollHintedScrollView({ children, onScroll, onLayout, onContentSizeCha
 
 function SpinningRefreshIcon({ spinning, size = 17, color = colors.gold }: { spinning: boolean; size?: number; color?: string }) {
   const [rotation] = useState(() => new Animated.Value(0));
+  const [reduceMotionEnabled, setReduceMotionEnabled] = useState(true);
+
+  useEffect(() => createReducedMotionPreferenceController({
+    getInitialValue: () => AccessibilityInfo.isReduceMotionEnabled(),
+    subscribe: (onChange) => {
+      const subscription = AccessibilityInfo.addEventListener("reduceMotionChanged", onChange);
+      return () => subscription.remove();
+    },
+    onChange: setReduceMotionEnabled,
+  }).start(), []);
+
+  const animate = shouldAnimateRefreshIcon(spinning, reduceMotionEnabled);
 
   useEffect(() => {
-    if (!spinning) {
+    if (!animate) {
       rotation.stopAnimation();
       rotation.setValue(0);
       return;
@@ -2030,7 +2043,7 @@ function SpinningRefreshIcon({ spinning, size = 17, color = colors.gold }: { spi
       loop.stop();
       rotation.setValue(0);
     };
-  }, [rotation, spinning]);
+  }, [animate, rotation]);
 
   const rotate = rotation.interpolate({
     inputRange: [0, 1],
