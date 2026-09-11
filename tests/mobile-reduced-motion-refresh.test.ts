@@ -91,7 +91,7 @@ test("the native refresh icon follows live reduced-motion changes", async () => 
   assert.ok(end > start);
   assert.match(
     source,
-    /import \{ createReducedMotionPreferenceController, shouldAnimateRefreshIcon \} from "\.\/src\/accessibility\/reducedMotionPreference";/,
+    /import \{ createLiveProgrammaticScrollPreference, createReducedMotionPreferenceController, shouldAnimateRefreshIcon \} from "\.\/src\/accessibility\/reducedMotionPreference";/,
   );
   assert.match(component, /const \[reduceMotionEnabled, setReduceMotionEnabled\] = useState\(true\)/);
   assert.match(component, /getInitialValue: \(\) => AccessibilityInfo\.isReduceMotionEnabled\(\)/);

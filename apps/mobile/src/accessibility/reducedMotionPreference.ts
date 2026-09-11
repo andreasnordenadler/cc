@@ -11,6 +11,28 @@ export function shouldAnimateRefreshIcon(
   return spinning && !reduceMotionEnabled;
 }
 
+export function shouldAnimateProgrammaticScroll(
+  requested: boolean,
+  reduceMotionEnabled: boolean,
+) {
+  return requested && !reduceMotionEnabled;
+}
+
+export function createLiveProgrammaticScrollPreference(
+  initialReduceMotionEnabled: boolean,
+) {
+  let reduceMotionEnabled = initialReduceMotionEnabled;
+
+  return {
+    setReduceMotionEnabled(enabled: boolean) {
+      reduceMotionEnabled = enabled;
+    },
+    shouldAnimate(requested: boolean) {
+      return shouldAnimateProgrammaticScroll(requested, reduceMotionEnabled);
+    },
+  };
+}
+
 export function createReducedMotionPreferenceController(
   dependencies: ReducedMotionPreferenceDependencies,
 ) {
