@@ -5689,12 +5689,16 @@ function QuestBoardDashboard({
                     ) : null}
                   </View>
                   <View style={compactStyles.communityControlsRow}>
-                    <ScrollView horizontal keyboardShouldPersistTaps="handled" showsHorizontalScrollIndicator={false} contentContainerStyle={compactStyles.communityChipRow}>
-                      {(["all", "popular", "new", "completed"] as CommunityBrowseFilter[]).map((filter) => (
-                        <Pressable key={filter} accessibilityRole="button" accessibilityState={{ selected: communityFilter === filter }} style={[compactStyles.communityChip, communityFilter === filter && compactStyles.communityChipActive]} onPress={() => setCommunityFilter(filter)}>
-                          <Text style={[compactStyles.communityChipText, communityFilter === filter && compactStyles.communityChipTextActive]}>{filter === "all" ? "All" : filter === "popular" ? "Popular" : filter === "new" ? "New" : "Completed"}</Text>
-                        </Pressable>
-                      ))}
+                    <ScrollView horizontal keyboardShouldPersistTaps="handled" showsHorizontalScrollIndicator={false} contentContainerStyle={compactStyles.communityChipRow} accessibilityRole="radiogroup" accessibilityLabel="Community Side Quest filters">
+                      {(["all", "popular", "new", "completed"] as CommunityBrowseFilter[]).map((filter) => {
+                        const selected = communityFilter === filter;
+                        const label = filter === "all" ? "All" : filter === "popular" ? "Popular" : filter === "new" ? "New" : "Completed";
+                        return (
+                          <Pressable key={filter} accessibilityRole="radio" accessibilityLabel={`Community Side Quest filter: ${label}`} accessibilityState={{ checked: selected }} style={[compactStyles.communityChip, selected && compactStyles.communityChipActive]} onPress={() => setCommunityFilter(filter)}>
+                            <Text style={[compactStyles.communityChipText, selected && compactStyles.communityChipTextActive]}>{label}</Text>
+                          </Pressable>
+                        );
+                      })}
                     </ScrollView>
                     <Pressable accessibilityRole="button" accessibilityLabel="Change community sort" style={compactStyles.communitySortCompact} onPress={() => setCommunitySort(communitySort === "popular" ? "liked" : communitySort === "liked" ? "newest" : communitySort === "newest" ? "az" : "popular")}>
                       <Text style={compactStyles.communitySortCompactText}>{communitySort === "popular" ? "Sort: Top" : communitySort === "liked" ? "Sort: Liked" : communitySort === "newest" ? "Sort: New" : "Sort: A–Z"}</Text>
