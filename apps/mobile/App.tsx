@@ -9145,6 +9145,7 @@ function CustomSideQuestDetailModal({
   const [manageBusy, setManageBusy] = useState<"duplicate" | "delete" | "state" | null>(null);
   const [likeBusy, setLikeBusy] = useState(false);
   const [shareStatus, setShareStatus] = useState<string | null>(null);
+  const closeButtonRef = useRef<View>(null);
   if (!quest) return null;
   const badgeSource = getCustomQuestImageSource(quest.badgeImageUrl);
   const lifecycle = quest.lifecycle ?? "published";
@@ -9152,6 +9153,11 @@ function CustomSideQuestDetailModal({
   const statusLabel = getCustomLifecycleStatus(quest, active ? quest.id : null, completed);
   const ruleDetails = getCustomRuleDetailLines(quest.config, quest.summary);
   const canManageQuest = Boolean(onEdit || onSaveState || onDelete);
+
+  function focusCloseButton() {
+    const nodeHandle = findNodeHandle(closeButtonRef.current);
+    if (nodeHandle !== null) AccessibilityInfo.setAccessibilityFocus(nodeHandle);
+  }
 
   async function handleStart() {
     if (!quest || busy || active || completed || !canStart) return;
@@ -9265,11 +9271,11 @@ function CustomSideQuestDetailModal({
   }
 
   return (
-    <Modal visible={visible} animationType="slide" presentationStyle="fullScreen" onRequestClose={onClose}>
-      <SafeAreaView style={compactStyles.detailScreen}>
+    <Modal visible={visible} animationType="slide" presentationStyle="fullScreen" onShow={focusCloseButton} onRequestClose={onClose}>
+      <SafeAreaView style={compactStyles.detailScreen} accessibilityViewIsModal onAccessibilityEscape={onClose}>
         <LinearGradient colors={["#352021", "#171011", colors.bg]} style={StyleSheet.absoluteFill} />
         <View style={compactStyles.detailTopBar}>
-          <Pressable accessibilityRole="button" accessibilityLabel="Close custom Side Quest detail" style={compactStyles.detailCloseButton} onPress={onClose}>
+          <Pressable ref={closeButtonRef} accessibilityRole="button" accessibilityLabel="Close custom Side Quest detail" style={compactStyles.detailCloseButton} onPress={onClose}>
             <MaterialCommunityIcons name="close" size={23} color={colors.paper} />
           </Pressable>
         </View>
