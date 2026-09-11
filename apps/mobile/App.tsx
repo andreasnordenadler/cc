@@ -2645,6 +2645,7 @@ function JoinedMultiplayerQuestModal({
   const [adminQuestIds, setAdminQuestIds] = useState<string[]>(quest?.questIds ?? []);
   const [likeBusy, setLikeBusy] = useState(false);
   const syncedQuestIdRef = useRef<string | null>(null);
+  const closeButtonRef = useRef<View>(null);
 
   useEffect(() => {
     if (!quest) {
@@ -2674,6 +2675,11 @@ function JoinedMultiplayerQuestModal({
     setProofMode(false);
     setSelectedRuleQuestTitle(null);
     onClose();
+  }
+
+  function focusCloseButton() {
+    const nodeHandle = findNodeHandle(closeButtonRef.current);
+    if (nodeHandle !== null) AccessibilityInfo.setAccessibilityFocus(nodeHandle);
   }
 
   const metaParts = quest.copy.split(" · ");
@@ -2776,11 +2782,11 @@ function JoinedMultiplayerQuestModal({
   }
 
   return (
-    <Modal visible={visible} animationType="slide" presentationStyle="fullScreen" onRequestClose={closeModal}>
-      <SafeAreaView style={compactStyles.detailScreen}>
+    <Modal visible={visible} animationType="slide" presentationStyle="fullScreen" onShow={focusCloseButton} onRequestClose={closeModal}>
+      <SafeAreaView style={compactStyles.detailScreen} accessibilityViewIsModal onAccessibilityEscape={closeModal}>
         <LinearGradient colors={["#352021", "#171011", colors.bg]} style={StyleSheet.absoluteFill} />
         <View style={compactStyles.detailTopBar}>
-          <Pressable accessibilityRole="button" accessibilityLabel="Close joined Multiplayer Side Quest" style={compactStyles.detailCloseButton} onPress={closeModal}>
+          <Pressable ref={closeButtonRef} accessibilityRole="button" accessibilityLabel="Close joined Multiplayer Side Quest" style={compactStyles.detailCloseButton} onPress={closeModal}>
             <MaterialCommunityIcons name="close" size={23} color={colors.paper} />
           </Pressable>
         </View>
