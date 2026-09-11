@@ -10594,11 +10594,11 @@ function PasswordAuthPanel({ authBridge, onAccountUpdated }: { authBridge: Mobil
 
   return (
     <View style={styles.passwordAuthPanel} accessibilityLabel="Username and password sign in">
-      <View style={styles.passwordAuthModeRow}>
-        <Pressable accessibilityRole="button" accessibilityState={{ selected: mode === "sign-in" }} style={[styles.passwordAuthModeButton, mode === "sign-in" && styles.passwordAuthModeButtonActive]} onPress={() => { setMode("sign-in"); resetVerificationState(); setPassword(""); setMessage(null); setError(null); }}>
-          <Text style={[styles.passwordAuthModeText, mode === "sign-in" && styles.passwordAuthModeTextActive]}>Sign in</Text>
+      <View style={styles.passwordAuthModeRow} accessibilityRole="radiogroup" accessibilityLabel="Password account mode">
+        <Pressable accessibilityRole="radio" accessibilityLabel="Password account mode: Sign in" accessibilityState={{ checked: mode === "sign-in" || mode === "reset" }} style={[styles.passwordAuthModeButton, (mode === "sign-in" || mode === "reset") && styles.passwordAuthModeButtonActive]} onPress={() => { setMode("sign-in"); resetVerificationState(); setPassword(""); setMessage(null); setError(null); }}>
+          <Text style={[styles.passwordAuthModeText, (mode === "sign-in" || mode === "reset") && styles.passwordAuthModeTextActive]}>Sign in</Text>
         </Pressable>
-        <Pressable accessibilityRole="button" accessibilityState={{ selected: mode === "sign-up" }} style={[styles.passwordAuthModeButton, mode === "sign-up" && styles.passwordAuthModeButtonActive]} onPress={() => { setMode("sign-up"); resetVerificationState(); setPassword(""); setMessage(null); setError(null); }}>
+        <Pressable accessibilityRole="radio" accessibilityLabel="Password account mode: Create account" accessibilityState={{ checked: mode === "sign-up" }} style={[styles.passwordAuthModeButton, mode === "sign-up" && styles.passwordAuthModeButtonActive]} onPress={() => { setMode("sign-up"); resetVerificationState(); setPassword(""); setMessage(null); setError(null); }}>
           <Text style={[styles.passwordAuthModeText, mode === "sign-up" && styles.passwordAuthModeTextActive]}>Create</Text>
         </Pressable>
       </View>
