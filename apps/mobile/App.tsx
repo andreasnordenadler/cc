@@ -4001,10 +4001,23 @@ function HelpSupportModal({ visible, onClose, signedIn, authBridge, initialMessa
 }
 
 function CommunityMultiplayerReportModal({ visible, quest, authBridge, onClose, onBlocked }: { visible: boolean; quest: MobileGroupQuestSummary | null; authBridge: MobileAuthBridge; onClose: () => void; onBlocked: () => void | Promise<unknown> }) {
+  const closeButtonRef = useRef<View>(null);
   const [reason, setReason] = useState("");
   const [submitState, setSubmitState] = useState<{ busy: boolean; message: string | null; error: string | null }>({ busy: false, message: null, error: null });
   const submitReportRequest = useRef(createMobileCommunityReportSubmitter()).current;
   const submitCreatorReportRequest = useRef(createMobileCommunityCreatorReportSubmitter()).current;
+  const reportModalAccessibility = createModalAccessibilityController({
+    dismiss: onClose,
+    canDismiss: () => !submitState.busy,
+    getInitialFocusTarget: () => null,
+    findNodeHandle,
+    setAccessibilityFocus: AccessibilityInfo.setAccessibilityFocus,
+  });
+
+  function focusCloseButton() {
+    const nodeHandle = findNodeHandle(closeButtonRef.current);
+    if (nodeHandle !== null) AccessibilityInfo.setAccessibilityFocus(nodeHandle);
+  }
 
   async function submitReport() {
     if (!quest || submitState.busy) return;
@@ -4070,11 +4083,11 @@ function CommunityMultiplayerReportModal({ visible, quest, authBridge, onClose, 
   }
 
   return (
-    <Modal visible={visible} animationType="slide" presentationStyle="fullScreen" onRequestClose={() => { if (!submitState.busy) onClose(); }}>
-      <SafeAreaView style={compactStyles.detailScreen}>
+    <Modal visible={visible} animationType="slide" presentationStyle="fullScreen" onShow={focusCloseButton} onRequestClose={reportModalAccessibility.dismiss}>
+      <SafeAreaView style={compactStyles.detailScreen} accessibilityViewIsModal onAccessibilityEscape={reportModalAccessibility.dismiss}>
         <LinearGradient colors={["#352021", "#171011", colors.bg]} style={StyleSheet.absoluteFill} />
         <View style={compactStyles.detailTopBar}>
-          <Pressable accessibilityRole="button" accessibilityLabel="Close Community Multiplayer report" accessibilityState={{ disabled: submitState.busy }} disabled={submitState.busy} style={[compactStyles.detailCloseButton, submitState.busy ? compactStyles.disabledAction : null]} onPress={onClose}>
+          <Pressable ref={closeButtonRef} accessibilityRole="button" accessibilityLabel="Close Community Multiplayer report" accessibilityState={{ disabled: submitState.busy }} disabled={submitState.busy} style={[compactStyles.detailCloseButton, submitState.busy ? compactStyles.disabledAction : null]} onPress={reportModalAccessibility.dismiss}>
             <MaterialCommunityIcons name="close" size={23} color={colors.paper} />
           </Pressable>
         </View>

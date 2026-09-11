@@ -21,6 +21,23 @@ test("modal accessibility controller delegates dismissal to its owner", () => {
   assert.equal(dismissCalls, 1);
 });
 
+test("modal accessibility controller blocks dismissal while its owner is busy", () => {
+  let dismissCalls = 0;
+  const controller = createModalAccessibilityController({
+    dismiss: () => {
+      dismissCalls += 1;
+    },
+    canDismiss: () => false,
+    getInitialFocusTarget: () => null,
+    findNodeHandle: () => null,
+    setAccessibilityFocus: () => {},
+  });
+
+  controller.dismiss();
+
+  assert.equal(dismissCalls, 0);
+});
+
 test("modal accessibility controller ignores a missing initial focus handle", () => {
   const resolvedTargets: Array<object | null> = [];
   const focusedHandles: number[] = [];
