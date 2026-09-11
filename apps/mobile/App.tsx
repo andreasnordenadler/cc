@@ -4896,6 +4896,7 @@ function QuestBoardDashboard({
   const selectedQuestCloseButtonRef = useRef<View>(null);
   const [completedDetailId, setCompletedDetailId] = useState<string | null>(null);
   const completedQuestCloseButtonRef = useRef<View>(null);
+  const customBuilderCloseButtonRef = useRef<View>(null);
   const signedIn = isAuthenticatedAccount(account) ? account : null;
   const completedIds = new Set(signedIn?.progress.completedChallengeIds ?? []);
   const activeId = signedIn?.activeQuest && !signedIn.activeQuest.completed ? signedIn.activeQuest.id : null;
@@ -5136,6 +5137,13 @@ function QuestBoardDashboard({
       { text: "Discard", style: "destructive", onPress: dismissCustomBuilder },
     ]);
   }
+
+  const customBuilderModalAccessibility = createModalAccessibilityController({
+    dismiss: closeCustomBuilder,
+    getInitialFocusTarget: () => customBuilderCloseButtonRef.current,
+    findNodeHandle,
+    setAccessibilityFocus: AccessibilityInfo.setAccessibilityFocus,
+  });
 
   function leaveCustomBuilder(next: () => void) {
     const runNext = () => {
@@ -5744,8 +5752,8 @@ function QuestBoardDashboard({
 
       <HelpSupportModal key={communityReportMessage || "community-report"} visible={communityReportOpen} onClose={() => setCommunityReportOpen(false)} signedIn={signedIn} authBridge={authBridge} initialMessage={communityReportMessage} />
 
-      <Modal visible={customCreateOpen} animationType="slide" presentationStyle="fullScreen" onRequestClose={closeCustomBuilder}>
-        <SafeAreaView style={compactStyles.detailScreen}>
+      <Modal visible={customCreateOpen} animationType="slide" presentationStyle="fullScreen" onShow={customBuilderModalAccessibility.focusInitial} onRequestClose={customBuilderModalAccessibility.dismiss}>
+        <SafeAreaView style={compactStyles.detailScreen} accessibilityViewIsModal onAccessibilityEscape={customBuilderModalAccessibility.dismiss}>
           <LinearGradient colors={["#352021", "#171011", colors.bg]} style={StyleSheet.absoluteFill} />
           {signedIn ? (
             <GlobalHamburgerMenu
@@ -5759,7 +5767,7 @@ function QuestBoardDashboard({
             />
           ) : null}
           <View style={compactStyles.detailTopBar}>
-            <Pressable accessibilityRole="button" accessibilityLabel="Close custom Side Quest builder" style={compactStyles.detailCloseButton} onPress={closeCustomBuilder}>
+            <Pressable ref={customBuilderCloseButtonRef} accessibilityRole="button" accessibilityLabel="Close custom Side Quest builder" style={compactStyles.detailCloseButton} onPress={customBuilderModalAccessibility.dismiss}>
               <MaterialCommunityIcons name="close" size={23} color={colors.paper} />
             </Pressable>
           </View>
