@@ -6045,11 +6045,11 @@ function QuestBoardDashboard({
                     <Text style={styles.microcopy}>A specific starting piece is selected, so quantity is fixed to that one piece.</Text>
                   ) : null}
                   <Text style={compactStyles.multiplayerRuleLabel}>Whose piece</Text>
-                  <View style={compactStyles.multiplayerOptionGrid}>
+                  <View style={compactStyles.multiplayerOptionGrid} accessibilityRole="radiogroup" accessibilityLabel="Whose piece">
                     {CUSTOM_RULE_OWNERS.map((owner) => {
                       const selected = customRuleOwner === owner;
                       return (
-                        <Pressable key={owner} accessibilityRole="button" accessibilityState={{ selected }} style={[compactStyles.multiplayerOptionCard, selected ? compactStyles.multiplayerOptionCardSelected : null]} onPress={() => setCustomRuleOwner(owner)}>
+                        <Pressable key={owner} accessibilityRole="radio" accessibilityLabel={`Whose piece: ${owner === "my" ? "Mine" : "Opponent's"}`} accessibilityState={{ checked: selected }} style={[compactStyles.multiplayerOptionCard, selected ? compactStyles.multiplayerOptionCardSelected : null]} onPress={() => setCustomRuleOwner(owner)}>
                           <View style={[compactStyles.multiplayerOptionDot, selected ? compactStyles.multiplayerOptionDotSelected : null]} />
                           <Text style={selected ? compactStyles.multiplayerOptionTitleSelected : compactStyles.multiplayerOptionTitle}>{owner === "my" ? "Mine" : "Opponent's"}</Text>
                         </Pressable>
@@ -7635,11 +7635,11 @@ function SideQuestsScreen({
                     <Text style={styles.microcopy}>A specific starting piece is selected, so quantity is fixed to that one piece.</Text>
                   ) : null}
                   <Text style={compactStyles.multiplayerRuleLabel}>Whose piece</Text>
-                  <View style={compactStyles.multiplayerOptionGrid}>
+                  <View style={compactStyles.multiplayerOptionGrid} accessibilityRole="radiogroup" accessibilityLabel="Whose piece">
                     {CUSTOM_RULE_OWNERS.map((owner) => {
                       const selected = customRuleOwner === owner;
                       return (
-                        <Pressable key={owner} accessibilityRole="button" accessibilityState={{ selected }} style={[compactStyles.multiplayerOptionCard, selected ? compactStyles.multiplayerOptionCardSelected : null]} onPress={() => setCustomRuleOwner(owner)}>
+                        <Pressable key={owner} accessibilityRole="radio" accessibilityLabel={`Whose piece: ${owner === "my" ? "Mine" : "Opponent's"}`} accessibilityState={{ checked: selected }} style={[compactStyles.multiplayerOptionCard, selected ? compactStyles.multiplayerOptionCardSelected : null]} onPress={() => setCustomRuleOwner(owner)}>
                           <View style={[compactStyles.multiplayerOptionDot, selected ? compactStyles.multiplayerOptionDotSelected : null]} />
                           <Text style={selected ? compactStyles.multiplayerOptionTitleSelected : compactStyles.multiplayerOptionTitle}>{owner === "my" ? "Mine" : "Opponent's"}</Text>
                         </Pressable>
