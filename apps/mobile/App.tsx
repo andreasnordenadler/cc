@@ -56,6 +56,7 @@ import { isAppleSignInCancellation, runAppleSignInWithOAuthFallback } from "./sr
 import { completeMobilePasswordReset, prepareMobilePasswordReset, verifyMobilePasswordResetCode as verifyMobilePasswordResetCodeWithClerk } from "./src/auth/mobilePasswordReset";
 import { getAppRowInteraction } from "./src/accessibility/appRowInteraction";
 import { getMobileActionFeedbackAnnouncement } from "./src/accessibility/actionFeedbackAnnouncement";
+import { createDateTimePickerModalSessionController, handleNativeDateTimePickerChange } from "./src/accessibility/dateTimePickerModalSession";
 import { createModalAccessibilityController } from "./src/accessibility/modalAccessibility";
 import { getPasswordAuthFieldSemantics } from "./src/accessibility/passwordAuthFieldSemantics";
 import { OFFLINE_MOBILE_BOOTSTRAP } from "./src/data/offlineBootstrap";
@@ -4722,12 +4723,69 @@ function GroupQuestDateTimeControl({
   helper?: string;
 }) {
   const [pickerTarget, setPickerTarget] = useState<NativeDateTimePickerTarget>(null);
+  const [pickerModalVisible, setPickerModalVisible] = useState(false);
+  const [pickerModalSessionId, setPickerModalSessionId] = useState<number | null>(null);
+  const dateButtonRef = useRef<View>(null);
+  const timeButtonRef = useRef<View>(null);
+  const pickerDoneButtonRef = useRef<View>(null);
+  const [pickerModalSession] = useState(() =>
+    createDateTimePickerModalSessionController<Exclude<NativeDateTimePickerTarget, null>, View | null>({
+      show: (target, sessionId) => {
+        setPickerTarget(target);
+        setPickerModalSessionId(sessionId);
+        setPickerModalVisible(true);
+      },
+      hide: () => setPickerModalVisible(false),
+      clear: () => {
+        setPickerTarget(null);
+        setPickerModalSessionId(null);
+      },
+      focus: (trigger) => {
+        const nodeHandle = findNodeHandle(trigger);
+        if (nodeHandle !== null) AccessibilityInfo.setAccessibilityFocus(nodeHandle);
+      },
+    }),
+  );
 
-  const handleNativePickerChange = (event: DateTimePickerEvent, selected?: Date) => {
-    if (Platform.OS === "android") setPickerTarget(null);
-    if (event.type === "dismissed" || !selected || !pickerTarget) return;
-    onChange(applyNativeDateTimeSelection(value, selected, pickerTarget.mode));
-    if (Platform.OS !== "android") setPickerTarget(null);
+  function openNativePicker(target: Exclude<NativeDateTimePickerTarget, null>, trigger: View | null) {
+    if (Platform.OS === "ios") {
+      pickerModalSession.open(target, trigger);
+      return;
+    }
+    setPickerTarget(target);
+  }
+
+  function focusNativePickerDoneButton() {
+    const nodeHandle = findNodeHandle(pickerDoneButtonRef.current);
+    if (nodeHandle !== null) AccessibilityInfo.setAccessibilityFocus(nodeHandle);
+  }
+
+  function restoreNativePickerTriggerFocus(sessionId: number) {
+    pickerModalSession.completeDismissal(sessionId);
+  }
+
+  function closeNativePicker(sessionId: number) {
+    pickerModalSession.requestClose(sessionId);
+  }
+
+  const handleNativePickerChange = (sessionId: number | null, event: DateTimePickerEvent, selected?: Date) => {
+    handleNativeDateTimePickerChange({
+      platform: Platform.OS,
+      eventType: event.type,
+      selected,
+      targetMode: pickerTarget?.mode ?? null,
+      value,
+      applySelection: applyNativeDateTimeSelection,
+      onChange,
+      closeIos: () => {
+        if (sessionId !== null) closeNativePicker(sessionId);
+      },
+      clearNonIos: () => {
+        setPickerModalVisible(false);
+        setPickerTarget(null);
+      },
+      isIosSessionOpen: () => sessionId !== null && pickerModalSession.isOpen(sessionId),
+    });
   };
 
   return (
@@ -4735,11 +4793,11 @@ function GroupQuestDateTimeControl({
       <Text style={styles.inputLabel}>{label}</Text>
       <View style={styles.dateTimePanel}>
         <View style={styles.dateTimeNativeGrid}>
-          <Pressable accessibilityRole="button" accessibilityLabel={`Choose ${label} date`} style={styles.dateTimeNativeButton} onPress={() => setPickerTarget({ label, mode: "date" })}>
+          <Pressable ref={dateButtonRef} accessibilityRole="button" accessibilityLabel={`Choose ${label} date`} style={styles.dateTimeNativeButton} onPress={() => openNativePicker({ label, mode: "date" }, dateButtonRef.current)}>
             <Text style={styles.dateTimeNativeKicker}>Date</Text>
             <Text style={styles.dateTimeNativeValue}>{formatGroupQuestControlDate(value)}</Text>
           </Pressable>
-          <Pressable accessibilityRole="button" accessibilityLabel={`Choose ${label} time`} style={styles.dateTimeNativeButton} onPress={() => setPickerTarget({ label, mode: "time" })}>
+          <Pressable ref={timeButtonRef} accessibilityRole="button" accessibilityLabel={`Choose ${label} time`} style={styles.dateTimeNativeButton} onPress={() => openNativePicker({ label, mode: "time" }, timeButtonRef.current)}>
             <Text style={styles.dateTimeNativeKicker}>Time</Text>
             <Text style={styles.dateTimeNativeValue}>{formatGroupQuestControlTime(value)}</Text>
           </Pressable>
@@ -4747,14 +4805,36 @@ function GroupQuestDateTimeControl({
         <Text style={styles.dateTimeNativeHint}>{helper ?? "Tap date or time to choose a value."}</Text>
       </View>
       {pickerTarget ? (
-        <DateTimePicker
-          value={value}
-          mode={pickerTarget.mode}
-          display={Platform.OS === "ios" ? "spinner" : "default"}
-          locale="en-US"
-          is24Hour={false}
-          onChange={handleNativePickerChange}
-        />
+        Platform.OS === "ios" ? (
+          pickerModalSessionId !== null ? (
+            <Modal key={pickerModalSessionId} visible={pickerModalVisible} transparent animationType="fade" onShow={focusNativePickerDoneButton} onDismiss={() => restoreNativePickerTriggerFocus(pickerModalSessionId)} onRequestClose={() => closeNativePicker(pickerModalSessionId)}>
+              <View style={styles.dateTimePickerBackdrop} accessibilityViewIsModal onAccessibilityEscape={() => closeNativePicker(pickerModalSessionId)}>
+                <View style={styles.dateTimePickerSurface} accessibilityViewIsModal={Platform.OS === "ios"} onAccessibilityEscape={() => closeNativePicker(pickerModalSessionId)}>
+                  <DateTimePicker
+                    value={value}
+                    mode={pickerTarget.mode}
+                    display="spinner"
+                    locale="en-US"
+                    is24Hour={false}
+                    onChange={(event, selected) => handleNativePickerChange(pickerModalSessionId, event, selected)}
+                  />
+                  <Pressable ref={pickerDoneButtonRef} accessibilityRole="button" accessibilityLabel={`Done choosing ${pickerTarget.label} ${pickerTarget.mode}`} style={styles.dateTimePickerDoneButton} onPress={() => closeNativePicker(pickerModalSessionId)}>
+                    <Text style={styles.dateTimePickerDoneText}>Done</Text>
+                  </Pressable>
+                </View>
+              </View>
+            </Modal>
+          ) : null
+        ) : (
+          <DateTimePicker
+            value={value}
+            mode={pickerTarget.mode}
+            display="default"
+            locale="en-US"
+            is24Hour={false}
+            onChange={(event, selected) => handleNativePickerChange(null, event, selected)}
+          />
+        )
       ) : null}
     </View>
   );
@@ -11909,6 +11989,10 @@ const styles = StyleSheet.create({
   dateTimeNativeKicker: { color: colors.gold, fontSize: 10, fontWeight: "900", textTransform: "uppercase", letterSpacing: 0.8 },
   dateTimeNativeValue: { color: colors.paper, fontSize: 16, fontWeight: "900", letterSpacing: -0.2 },
   dateTimeNativeHint: { color: colors.muted, fontSize: 12, lineHeight: 16, fontWeight: "700" },
+  dateTimePickerBackdrop: { flex: 1, alignItems: "center", justifyContent: "center", padding: 18, backgroundColor: "rgba(3,2,4,.88)" },
+  dateTimePickerSurface: { width: "100%", maxWidth: 430, gap: 8, padding: 14, borderRadius: 24, borderWidth: 1, borderColor: "rgba(245,200,106,.3)", backgroundColor: "#171119" },
+  dateTimePickerDoneButton: { alignSelf: "flex-end", minHeight: 44, minWidth: 76, alignItems: "center", justifyContent: "center", paddingHorizontal: 16, borderRadius: 22, backgroundColor: colors.gold },
+  dateTimePickerDoneText: { color: "#17120c", fontSize: 13, fontWeight: "900" },
   durationChipRow: { flexDirection: "row", flexWrap: "wrap", gap: 6, padding: 9, borderRadius: 16, borderWidth: 1, borderColor: "rgba(245,200,106,.22)", backgroundColor: "rgba(245,200,106,.075)" },
   dateTimeChip: { alignItems: "center", justifyContent: "center", minHeight: 34, paddingHorizontal: 11, paddingVertical: 7, borderRadius: 999, borderWidth: 1, borderColor: "rgba(255,247,232,.16)", backgroundColor: "rgba(255,247,232,.08)" },
   dateTimeChipText: { color: colors.paper, fontSize: 12, fontWeight: "900" },
