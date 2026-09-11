@@ -7017,6 +7017,7 @@ function SideQuestsScreen({
   const completedCount = completedIds.size;
   const questHubGroups = bootstrap.discovery?.questHubGroups ?? [];
   const [customCreateOpen, setCustomCreateOpen] = useState(false);
+  const customBuilderCloseButtonRef = useRef<View>(null);
   const [customDetailId, setCustomDetailId] = useState<string | null>(null);
   const [sideQuestCatalogTab, setSideQuestCatalogTab] = useState<"official" | "community">("official");
   const [customConditionEditorOpen, setCustomConditionEditorOpen] = useState(false);
@@ -7109,6 +7110,11 @@ function SideQuestsScreen({
       { text: "Keep editing", style: "cancel" },
       { text: "Discard", style: "destructive", onPress: () => setCustomCreateOpen(false) },
     ]);
+  }
+
+  function focusCustomBuilderCloseButton() {
+    const nodeHandle = findNodeHandle(customBuilderCloseButtonRef.current);
+    if (nodeHandle !== null) AccessibilityInfo.setAccessibilityFocus(nodeHandle);
   }
 
   function editCustomRequirement(requirement: CustomRuleRequirement) {
@@ -7345,11 +7351,11 @@ function SideQuestsScreen({
         }}
       />
 
-      <Modal visible={customCreateOpen} animationType="slide" presentationStyle="fullScreen" onRequestClose={closeCustomBuilder}>
-        <SafeAreaView style={compactStyles.detailScreen}>
+      <Modal visible={customCreateOpen} animationType="slide" presentationStyle="fullScreen" onShow={focusCustomBuilderCloseButton} onRequestClose={closeCustomBuilder}>
+        <SafeAreaView style={compactStyles.detailScreen} accessibilityViewIsModal onAccessibilityEscape={closeCustomBuilder}>
           <LinearGradient colors={["#352021", "#171011", colors.bg]} style={StyleSheet.absoluteFill} />
           <View style={compactStyles.detailTopBar}>
-            <Pressable accessibilityRole="button" accessibilityLabel="Close custom Side Quest builder" style={compactStyles.detailCloseButton} onPress={closeCustomBuilder}>
+            <Pressable ref={customBuilderCloseButtonRef} accessibilityRole="button" accessibilityLabel="Close custom Side Quest builder" style={compactStyles.detailCloseButton} onPress={closeCustomBuilder}>
               <MaterialCommunityIcons name="close" size={23} color={colors.paper} />
             </Pressable>
           </View>
