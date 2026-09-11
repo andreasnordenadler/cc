@@ -8458,12 +8458,16 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
             ) : null}
           </View>
           <View style={compactStyles.communityControlsStack}>
-            <ScrollView horizontal keyboardShouldPersistTaps="handled" showsHorizontalScrollIndicator={false} contentContainerStyle={compactStyles.communityChipRow}>
-              {(isSignedOutBrowse ? (["open", "all"] as MultiplayerCommunityFilter[]) : (["open", "all", "joined", "hosted", "finished"] as MultiplayerCommunityFilter[])).map((filter) => (
-                <Pressable key={filter} accessibilityRole="button" accessibilityState={{ selected: multiplayerCommunityFilter === filter }} style={[compactStyles.communityChip, multiplayerCommunityFilter === filter && compactStyles.communityChipActive]} onPress={() => setMultiplayerCommunityFilter(filter)}>
-                  <Text style={[compactStyles.communityChipText, multiplayerCommunityFilter === filter && compactStyles.communityChipTextActive]}>{filter === "all" ? "All" : filter === "open" ? "Open" : filter === "joined" ? "Joined" : filter === "hosted" ? "Hosted" : "Finished"}</Text>
-                </Pressable>
-              ))}
+            <ScrollView horizontal keyboardShouldPersistTaps="handled" showsHorizontalScrollIndicator={false} contentContainerStyle={compactStyles.communityChipRow} accessibilityRole="radiogroup" accessibilityLabel="Community Multiplayer Side Quest filters">
+              {(isSignedOutBrowse ? (["open", "all"] as MultiplayerCommunityFilter[]) : (["open", "all", "joined", "hosted", "finished"] as MultiplayerCommunityFilter[])).map((filter) => {
+                const selected = multiplayerCommunityFilter === filter;
+                const label = filter === "all" ? "All" : filter === "open" ? "Open" : filter === "joined" ? "Joined" : filter === "hosted" ? "Hosted" : "Finished";
+                return (
+                  <Pressable key={filter} accessibilityRole="radio" accessibilityLabel={`Community Multiplayer Side Quest filter: ${label}`} accessibilityState={{ checked: selected }} style={[compactStyles.communityChip, selected && compactStyles.communityChipActive]} onPress={() => setMultiplayerCommunityFilter(filter)}>
+                    <Text style={[compactStyles.communityChipText, selected && compactStyles.communityChipTextActive]}>{label}</Text>
+                  </Pressable>
+                );
+              })}
             </ScrollView>
             <Pressable accessibilityRole="button" accessibilityLabel="Change multiplayer community sort" style={compactStyles.communitySortCompact} onPress={() => setMultiplayerCommunitySort(multiplayerCommunitySort === "closing" ? "liked" : multiplayerCommunitySort === "liked" ? "newest" : multiplayerCommunitySort === "newest" ? "players" : "closing")}>
               <Text style={compactStyles.communitySortCompactText}>{multiplayerCommunitySort === "closing" ? "Sort: Closing" : multiplayerCommunitySort === "liked" ? "Sort: Liked" : multiplayerCommunitySort === "newest" ? "Sort: New" : "Sort: Players"}</Text>
