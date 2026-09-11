@@ -6084,11 +6084,11 @@ function QuestBoardDashboard({
                   {customRuleCondition === "game result" ? (
                     <View>
                       <Text style={compactStyles.multiplayerRuleLabel}>Result</Text>
-                      <View style={compactStyles.multiplayerOptionGrid}>
+                      <View style={compactStyles.multiplayerOptionGrid} accessibilityRole="radiogroup" accessibilityLabel="Game result">
                         {CUSTOM_RULE_RESULTS.map((result) => {
                           const selected = customRuleResult === result;
                           return (
-                            <Pressable key={result} accessibilityRole="button" accessibilityState={{ selected }} style={[compactStyles.multiplayerOptionCard, selected ? compactStyles.multiplayerOptionCardSelected : null]} onPress={() => setCustomRuleResult(result)}>
+                            <Pressable key={result} accessibilityRole="radio" accessibilityLabel={`Game result: ${titleCaseRuleValue(result)}`} accessibilityState={{ checked: selected }} style={[compactStyles.multiplayerOptionCard, selected ? compactStyles.multiplayerOptionCardSelected : null]} onPress={() => setCustomRuleResult(result)}>
                               <View style={[compactStyles.multiplayerOptionDot, selected ? compactStyles.multiplayerOptionDotSelected : null]} />
                               <Text style={selected ? compactStyles.multiplayerOptionTitleSelected : compactStyles.multiplayerOptionTitle}>{titleCaseRuleValue(result)}</Text>
                             </Pressable>
@@ -7674,11 +7674,11 @@ function SideQuestsScreen({
                   {customRuleCondition === "game result" ? (
                     <View>
                       <Text style={compactStyles.multiplayerRuleLabel}>Result</Text>
-                      <View style={compactStyles.multiplayerOptionGrid}>
+                      <View style={compactStyles.multiplayerOptionGrid} accessibilityRole="radiogroup" accessibilityLabel="Game result">
                         {CUSTOM_RULE_RESULTS.map((result) => {
                           const selected = customRuleResult === result;
                           return (
-                            <Pressable key={result} accessibilityRole="button" accessibilityState={{ selected }} style={[compactStyles.multiplayerOptionCard, selected ? compactStyles.multiplayerOptionCardSelected : null]} onPress={() => setCustomRuleResult(result)}>
+                            <Pressable key={result} accessibilityRole="radio" accessibilityLabel={`Game result: ${titleCaseRuleValue(result)}`} accessibilityState={{ checked: selected }} style={[compactStyles.multiplayerOptionCard, selected ? compactStyles.multiplayerOptionCardSelected : null]} onPress={() => setCustomRuleResult(result)}>
                               <View style={[compactStyles.multiplayerOptionDot, selected ? compactStyles.multiplayerOptionDotSelected : null]} />
                               <Text style={selected ? compactStyles.multiplayerOptionTitleSelected : compactStyles.multiplayerOptionTitle}>{titleCaseRuleValue(result)}</Text>
                             </Pressable>
