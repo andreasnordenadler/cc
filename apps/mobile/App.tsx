@@ -8655,11 +8655,11 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
                   </Pressable>
                 ) : null}
               </View>
-              <View style={compactStyles.createFilterRow}>
-                <Pressable accessibilityRole="button" accessibilityState={{ selected: !createShowSelectedOnly }} style={[compactStyles.createFilterChip, !createShowSelectedOnly ? compactStyles.createFilterChipActive : null]} onPress={() => setCreateShowSelectedOnly(false)}>
+              <View style={compactStyles.createFilterRow} accessibilityRole="radiogroup" accessibilityLabel="Multiplayer creator catalog view">
+                <Pressable accessibilityRole="radio" accessibilityLabel="Multiplayer creator catalog view: Browse" accessibilityState={{ checked: !createShowSelectedOnly }} style={[compactStyles.createFilterChip, !createShowSelectedOnly ? compactStyles.createFilterChipActive : null]} onPress={() => setCreateShowSelectedOnly(false)}>
                   <Text style={[compactStyles.createFilterChipText, !createShowSelectedOnly ? compactStyles.createFilterChipTextActive : null]}>Browse</Text>
                 </Pressable>
-                <Pressable accessibilityRole="button" accessibilityState={{ selected: createShowSelectedOnly }} style={[compactStyles.createFilterChip, createShowSelectedOnly ? compactStyles.createFilterChipActive : null]} onPress={() => setCreateShowSelectedOnly(true)}>
+                <Pressable accessibilityRole="radio" accessibilityLabel={`Multiplayer creator catalog view: Selected (${createQuestIds.length})`} accessibilityState={{ checked: createShowSelectedOnly }} style={[compactStyles.createFilterChip, createShowSelectedOnly ? compactStyles.createFilterChipActive : null]} onPress={() => setCreateShowSelectedOnly(true)}>
                   <Text style={[compactStyles.createFilterChipText, createShowSelectedOnly ? compactStyles.createFilterChipTextActive : null]}>Selected ({createQuestIds.length})</Text>
                 </Pressable>
               </View>
