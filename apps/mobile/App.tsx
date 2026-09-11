@@ -8660,10 +8660,20 @@ function OfficialMultiplayerLeaderboardsScreen({ bootstrap, account, authBridge,
   const officialWeeks = signedInAccount?.officialGroupQuestWeeks ?? [];
   const [selectedQuestId, setSelectedQuestId] = useState<string | null>(null);
   const [selectedWeekId, setSelectedWeekId] = useState<string | null>(null);
+  const selectedWeekArchiveCloseButtonRef = useRef<View>(null);
   const [groupQuestActionState, setGroupQuestActionState] = useState<{ busy: boolean; questId: string | null; message: string | null; error: string | null }>({ busy: false, questId: null, message: null, error: null });
   const allOfficialQuests = [...currentOfficialGroupQuests, ...previousOfficialGroupQuests, ...officialWeeks.flatMap((week) => week.quests)];
   const selectedQuest = selectedQuestId ? allOfficialQuests.find((quest) => quest.id === selectedQuestId) ?? null : null;
   const selectedWeek = selectedWeekId ? officialWeeks.find((week) => week.id === selectedWeekId) ?? null : null;
+
+  function closeSelectedWeekArchive() {
+    setSelectedWeekId(null);
+  }
+
+  function focusSelectedWeekArchiveCloseButton() {
+    const nodeHandle = findNodeHandle(selectedWeekArchiveCloseButtonRef.current);
+    if (nodeHandle !== null) AccessibilityInfo.setAccessibilityFocus(nodeHandle);
+  }
 
   async function runGroupQuestAction(groupQuestId: string, action: "join" | "leave" | "refresh" | "update" | "remove-participant", payload?: Record<string, unknown>) {
     if (!authBridge.isSignedIn) {
@@ -8772,11 +8782,11 @@ function OfficialMultiplayerLeaderboardsScreen({ bootstrap, account, authBridge,
         onRemoveParticipant={(participantUserId) => selectedQuest ? void runGroupQuestAction(selectedQuest.id, "remove-participant", { participantUserId }) : undefined}
       />
 
-      <Modal visible={Boolean(selectedWeek)} animationType="slide" presentationStyle="fullScreen" onRequestClose={() => setSelectedWeekId(null)}>
-        <SafeAreaView style={compactStyles.detailScreen}>
+      <Modal visible={Boolean(selectedWeek)} animationType="slide" presentationStyle="fullScreen" onShow={focusSelectedWeekArchiveCloseButton} onRequestClose={closeSelectedWeekArchive}>
+        <SafeAreaView style={compactStyles.detailScreen} accessibilityViewIsModal onAccessibilityEscape={closeSelectedWeekArchive}>
           <LinearGradient colors={["#352021", "#171011", colors.bg]} style={StyleSheet.absoluteFill} />
           <View style={compactStyles.detailTopBar}>
-            <Pressable accessibilityRole="button" accessibilityLabel="Close official weekly results" style={compactStyles.detailCloseButton} onPress={() => setSelectedWeekId(null)}>
+            <Pressable ref={selectedWeekArchiveCloseButtonRef} accessibilityRole="button" accessibilityLabel="Close official weekly results" style={compactStyles.detailCloseButton} onPress={closeSelectedWeekArchive}>
               <MaterialCommunityIcons name="close" size={23} color={colors.paper} />
             </Pressable>
           </View>
