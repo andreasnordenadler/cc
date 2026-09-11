@@ -6005,13 +6005,13 @@ function QuestBoardDashboard({
                   {customConditionUsesPiece(customRuleCondition) ? (
                     <View>
                       <Text style={compactStyles.multiplayerRuleLabel}>Piece</Text>
-                      <View style={compactStyles.multiplayerOptionGrid}>
+                      <View style={compactStyles.multiplayerOptionGrid} accessibilityRole="radiogroup" accessibilityLabel="Piece">
                     {CUSTOM_RULE_PIECES.map((piece) => {
                       const selected = customRulePiece === piece;
                       const identityChoices = getCustomPieceIdentityChoices(piece);
                       return (
                         <View key={piece} style={selected ? compactStyles.customPieceChoiceGroupSelected : compactStyles.customPieceChoiceGroup}>
-                          <Pressable accessibilityRole="button" accessibilityState={{ selected }} style={[compactStyles.multiplayerOptionCard, selected ? compactStyles.multiplayerOptionCardSelected : null]} onPress={() => { setCustomRulePiece(piece); setCustomRuleCount((current) => normalizeCustomRuleCount(piece, current)); setCustomRuleIdentity((current) => normalizeCustomPieceIdentity(piece, current)); if (getCustomPieceMaxCount(piece) === 1) setCustomRuleQuantifier("any one"); }}>
+                          <Pressable accessibilityRole="radio" accessibilityLabel={`Piece: ${titleCaseRuleValue(piece)}${piece === "king" || piece === "queen" ? ". Only one exists, so there is no which one choice." : ""}`} accessibilityState={{ checked: selected }} style={[compactStyles.multiplayerOptionCard, selected ? compactStyles.multiplayerOptionCardSelected : null]} onPress={() => { setCustomRulePiece(piece); setCustomRuleCount((current) => normalizeCustomRuleCount(piece, current)); setCustomRuleIdentity((current) => normalizeCustomPieceIdentity(piece, current)); if (getCustomPieceMaxCount(piece) === 1) setCustomRuleQuantifier("any one"); }}>
                             <View style={[compactStyles.multiplayerOptionDot, selected ? compactStyles.multiplayerOptionDotSelected : null]} />
                             <View style={compactStyles.multiplayerOptionCopy}>
                               <Text style={selected ? compactStyles.multiplayerOptionTitleSelected : compactStyles.multiplayerOptionTitle}>{titleCaseRuleValue(piece)}</Text>
@@ -7595,13 +7595,13 @@ function SideQuestsScreen({
                   {customConditionUsesPiece(customRuleCondition) ? (
                     <View>
                       <Text style={compactStyles.multiplayerRuleLabel}>Piece</Text>
-                      <View style={compactStyles.multiplayerOptionGrid}>
+                      <View style={compactStyles.multiplayerOptionGrid} accessibilityRole="radiogroup" accessibilityLabel="Piece">
                     {CUSTOM_RULE_PIECES.map((piece) => {
                       const selected = customRulePiece === piece;
                       const identityChoices = getCustomPieceIdentityChoices(piece);
                       return (
                         <View key={piece} style={selected ? compactStyles.customPieceChoiceGroupSelected : compactStyles.customPieceChoiceGroup}>
-                          <Pressable accessibilityRole="button" accessibilityState={{ selected }} style={[compactStyles.multiplayerOptionCard, selected ? compactStyles.multiplayerOptionCardSelected : null]} onPress={() => { setCustomRulePiece(piece); setCustomRuleCount((current) => normalizeCustomRuleCount(piece, current)); setCustomRuleIdentity((current) => normalizeCustomPieceIdentity(piece, current)); if (getCustomPieceMaxCount(piece) === 1) setCustomRuleQuantifier("any one"); }}>
+                          <Pressable accessibilityRole="radio" accessibilityLabel={`Piece: ${titleCaseRuleValue(piece)}${piece === "king" || piece === "queen" ? ". Only one exists, so there is no which one choice." : ""}`} accessibilityState={{ checked: selected }} style={[compactStyles.multiplayerOptionCard, selected ? compactStyles.multiplayerOptionCardSelected : null]} onPress={() => { setCustomRulePiece(piece); setCustomRuleCount((current) => normalizeCustomRuleCount(piece, current)); setCustomRuleIdentity((current) => normalizeCustomPieceIdentity(piece, current)); if (getCustomPieceMaxCount(piece) === 1) setCustomRuleQuantifier("any one"); }}>
                             <View style={[compactStyles.multiplayerOptionDot, selected ? compactStyles.multiplayerOptionDotSelected : null]} />
                             <View style={compactStyles.multiplayerOptionCopy}>
                               <Text style={selected ? compactStyles.multiplayerOptionTitleSelected : compactStyles.multiplayerOptionTitle}>{titleCaseRuleValue(piece)}</Text>
