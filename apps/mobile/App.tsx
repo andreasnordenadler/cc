@@ -56,6 +56,7 @@ import { isAppleSignInCancellation, runAppleSignInWithOAuthFallback } from "./sr
 import { completeMobilePasswordReset, prepareMobilePasswordReset, verifyMobilePasswordResetCode as verifyMobilePasswordResetCodeWithClerk } from "./src/auth/mobilePasswordReset";
 import { getAppRowInteraction } from "./src/accessibility/appRowInteraction";
 import { getMobileActionFeedbackAnnouncement } from "./src/accessibility/actionFeedbackAnnouncement";
+import { createModalAccessibilityController } from "./src/accessibility/modalAccessibility";
 import { getPasswordAuthFieldSemantics } from "./src/accessibility/passwordAuthFieldSemantics";
 import { OFFLINE_MOBILE_BOOTSTRAP } from "./src/data/offlineBootstrap";
 import { shouldStackActiveQuestSummary } from "./src/layout/activeQuestLayout";
@@ -2656,6 +2657,7 @@ function JoinedMultiplayerQuestModal({
   const [likeBusy, setLikeBusy] = useState(false);
   const syncedQuestIdRef = useRef<string | null>(null);
   const closeButtonRef = useRef<View>(null);
+  const selectedRuleQuestCloseButtonRef = useRef<View>(null);
 
   useEffect(() => {
     if (!quest) {
@@ -2687,10 +2689,21 @@ function JoinedMultiplayerQuestModal({
     onClose();
   }
 
+  function closeSelectedRuleQuest() {
+    setSelectedRuleQuestTitle(null);
+  }
+
   function focusCloseButton() {
     const nodeHandle = findNodeHandle(closeButtonRef.current);
     if (nodeHandle !== null) AccessibilityInfo.setAccessibilityFocus(nodeHandle);
   }
+
+  const selectedRuleQuestAccessibility = createModalAccessibilityController({
+    dismiss: closeSelectedRuleQuest,
+    getInitialFocusTarget: () => selectedRuleQuestCloseButtonRef.current,
+    findNodeHandle,
+    setAccessibilityFocus: AccessibilityInfo.setAccessibilityFocus,
+  });
 
   const metaParts = quest.copy.split(" · ");
   const joinClosed = quest.status === "Finished" || quest.timeLeftLabel === "Final" || metaParts.includes("Final");
@@ -3175,11 +3188,11 @@ function JoinedMultiplayerQuestModal({
             )}
           </View>
         </ScrollHintedScrollView>
-        <Modal visible={Boolean(selectedRuleQuest)} animationType="slide" presentationStyle="fullScreen" onRequestClose={() => setSelectedRuleQuestTitle(null)}>
-          <SafeAreaView style={compactStyles.detailScreen}>
+        <Modal visible={Boolean(selectedRuleQuest)} animationType="slide" presentationStyle="fullScreen" onShow={selectedRuleQuestAccessibility.focusInitial} onRequestClose={selectedRuleQuestAccessibility.dismiss}>
+          <SafeAreaView style={compactStyles.detailScreen} accessibilityViewIsModal onAccessibilityEscape={selectedRuleQuestAccessibility.dismiss}>
             <LinearGradient colors={["#352021", "#171011", colors.bg]} style={StyleSheet.absoluteFill} />
             <View style={compactStyles.detailTopBar}>
-              <Pressable accessibilityRole="button" accessibilityLabel="Close multiplayer quest rules" style={compactStyles.detailCloseButton} onPress={() => setSelectedRuleQuestTitle(null)}>
+              <Pressable ref={selectedRuleQuestCloseButtonRef} accessibilityRole="button" accessibilityLabel="Close multiplayer quest rules" style={compactStyles.detailCloseButton} onPress={selectedRuleQuestAccessibility.dismiss}>
                 <MaterialCommunityIcons name="close" size={23} color={colors.paper} />
               </Pressable>
             </View>
