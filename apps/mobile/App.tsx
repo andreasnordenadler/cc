@@ -7672,7 +7672,20 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
     ? (officialMultiplayerId ? allOfficialGroupQuests.find((quest) => quest.id === officialMultiplayerId) ?? null : null)
     : findSignedOutPublicMultiplayerQuest(officialPublicGroupQuests, officialMultiplayerId);
   const [officialWeekId, setOfficialWeekId] = useState<string | null>(null);
+  const officialWeekCloseButtonRef = useRef<View>(null);
   const officialWeek = officialWeekId ? officialGroupQuestWeeks.find((week) => week.id === officialWeekId) ?? null : null;
+
+  function closeOfficialWeek() {
+    setOfficialWeekId(null);
+  }
+
+  const officialWeekModalAccessibility = createModalAccessibilityController({
+    dismiss: closeOfficialWeek,
+    getInitialFocusTarget: () => officialWeekCloseButtonRef.current,
+    findNodeHandle,
+    setAccessibilityFocus: AccessibilityInfo.setAccessibilityFocus,
+  });
+
   const [publicMultiplayerId, setPublicMultiplayerId] = useState<string | null>(null);
   const publicMultiplayerQuest = signedInAccount
     ? (publicMultiplayerId ? [...publicUserGroupQuests, ...closedPublicUserGroupQuests].find((quest) => quest.id === publicMultiplayerId) ?? null : null)
@@ -8112,11 +8125,11 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
         onToggleLike={toggleCommunityMultiplayerLike}
       />
 
-      <Modal visible={Boolean(officialWeek)} animationType="slide" presentationStyle="fullScreen" onRequestClose={() => setOfficialWeekId(null)}>
-        <SafeAreaView style={compactStyles.detailScreen}>
+      <Modal visible={Boolean(officialWeek)} animationType="slide" presentationStyle="fullScreen" onShow={officialWeekModalAccessibility.focusInitial} onRequestClose={closeOfficialWeek}>
+        <SafeAreaView style={compactStyles.detailScreen} accessibilityViewIsModal onAccessibilityEscape={closeOfficialWeek}>
           <LinearGradient colors={["#173f43", "#121b20", colors.bg]} style={StyleSheet.absoluteFill} />
           <View style={compactStyles.detailTopBar}>
-            <Pressable accessibilityRole="button" accessibilityLabel="Close earlier official results" style={compactStyles.detailCloseButton} onPress={() => setOfficialWeekId(null)}>
+            <Pressable ref={officialWeekCloseButtonRef} accessibilityRole="button" accessibilityLabel="Close earlier official results" style={compactStyles.detailCloseButton} onPress={closeOfficialWeek}>
               <MaterialCommunityIcons name="close" size={23} color={colors.paper} />
             </Pressable>
           </View>
