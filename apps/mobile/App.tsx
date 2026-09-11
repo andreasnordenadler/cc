@@ -8518,12 +8518,12 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
               <TextInput accessibilityLabel="Intro text" value={createInviteCopy} multiline placeholder="Explain what players are joining..." placeholderTextColor="rgba(255,247,232,.42)" style={[styles.textInput, styles.textAreaInput]} onChangeText={setCreateInviteCopy} />
               <Text style={styles.microcopy}>Shown to players before they join.</Text>
               <Text style={styles.inputLabel}>Access</Text>
-              <View style={compactStyles.multiplayerOptionGrid}>
+              <View style={compactStyles.multiplayerOptionGrid} accessibilityRole="radiogroup" accessibilityLabel="Multiplayer access">
                 {(["public", "unlisted-link", "private-key"] as const).map((mode) => {
                   const selected = createInviteMode === mode;
                   const copy = getInviteModeOptionCopy(mode);
                   return (
-                    <Pressable key={mode} accessibilityRole="button" accessibilityState={{ selected }} style={[compactStyles.multiplayerOptionCard, selected ? compactStyles.multiplayerOptionCardSelected : null]} onPress={() => setCreateInviteMode(mode)}>
+                    <Pressable key={mode} accessibilityRole="radio" accessibilityLabel={`Multiplayer access: ${copy.title}. ${copy.helper}`} accessibilityState={{ checked: selected }} style={[compactStyles.multiplayerOptionCard, selected ? compactStyles.multiplayerOptionCardSelected : null]} onPress={() => setCreateInviteMode(mode)}>
                       <View style={[compactStyles.multiplayerOptionDot, selected ? compactStyles.multiplayerOptionDotSelected : null]} />
                       <View style={compactStyles.multiplayerOptionCopy}>
                         <Text style={selected ? compactStyles.multiplayerOptionTitleSelected : compactStyles.multiplayerOptionTitle}>{copy.title}</Text>
@@ -8534,13 +8534,13 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
                 })}
               </View>
               <Text style={styles.inputLabel}>Games allowed</Text>
-              <View style={compactStyles.multiplayerOptionGrid}>
+              <View style={compactStyles.multiplayerOptionGrid} accessibilityRole="radiogroup" accessibilityLabel="Allowed chess providers">
                 {MULTIPLAYER_PROVIDER_MODES.map((mode) => {
                   const selected = createProviderMode === mode.id;
                   const title = mode.id === "both" ? "Lichess or Chess.com" : mode.id === "lichess" ? "Lichess" : "Chess.com";
                   const helper = mode.id === "both" ? "Players can use Lichess or Chess.com" : mode.id === "lichess" ? "Only public Lichess games" : "Only public Chess.com games";
                   return (
-                    <Pressable key={mode.id} accessibilityRole="button" accessibilityState={{ selected }} style={[compactStyles.multiplayerOptionCard, selected ? compactStyles.multiplayerOptionCardSelected : null]} onPress={() => setCreateProviderMode(mode.id)}>
+                    <Pressable key={mode.id} accessibilityRole="radio" accessibilityLabel={`Allowed chess providers: ${title}. ${helper}`} accessibilityState={{ checked: selected }} style={[compactStyles.multiplayerOptionCard, selected ? compactStyles.multiplayerOptionCardSelected : null]} onPress={() => setCreateProviderMode(mode.id)}>
                       <View style={[compactStyles.multiplayerOptionDot, selected ? compactStyles.multiplayerOptionDotSelected : null]} />
                       <View style={compactStyles.multiplayerOptionCopy}>
                         <Text style={selected ? compactStyles.multiplayerOptionTitleSelected : compactStyles.multiplayerOptionTitle}>{title}</Text>
@@ -8555,26 +8555,29 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
               <Text style={styles.inputLabel}>Quick duration</Text>
               <GroupQuestDurationChips startAt={createStartAt} onChangeEndAt={setCreateEndAt} />
               <Text style={styles.microcopy}>Dates save as your local time. Start defaults to shortly after creation; no typing needed.</Text>
-              {createAdvancedOpen ? Object.entries(MULTIPLAYER_RULE_OPTIONS).map(([ruleId, options]) => (
-                <View key={ruleId} style={compactStyles.multiplayerListStack}>
-                  <Text style={compactStyles.multiplayerRuleLabel}>{ruleId === "timeControl" ? "Time control" : ruleId === "rated" ? "Rated setting" : "Player color"}</Text>
-                  <View style={compactStyles.multiplayerOptionGrid}>
-                    {options.map((option) => {
-                      const selected = createRules[ruleId] === option;
-                      const copy = getMultiplayerRuleOptionCopy(ruleId, option);
-                      return (
-                        <Pressable key={option} accessibilityRole="button" accessibilityState={{ selected }} style={[compactStyles.multiplayerOptionCard, selected ? compactStyles.multiplayerOptionCardSelected : null]} onPress={() => setCreateRules((current) => ({ ...current, [ruleId]: option }))}>
-                          <View style={[compactStyles.multiplayerOptionDot, selected ? compactStyles.multiplayerOptionDotSelected : null]} />
-                          <View style={compactStyles.multiplayerOptionCopy}>
-                            <Text style={selected ? compactStyles.multiplayerOptionTitleSelected : compactStyles.multiplayerOptionTitle}>{copy.title}</Text>
-                            <Text style={compactStyles.multiplayerOptionHelper}>{copy.helper}</Text>
-                          </View>
-                        </Pressable>
-                      );
-                    })}
+              {createAdvancedOpen ? Object.entries(MULTIPLAYER_RULE_OPTIONS).map(([ruleId, options]) => {
+                const groupLabel = ruleId === "timeControl" ? "Multiplayer time control" : ruleId === "rated" ? "Multiplayer rated setting" : "Multiplayer player color";
+                return (
+                  <View key={ruleId} style={compactStyles.multiplayerListStack}>
+                    <Text style={compactStyles.multiplayerRuleLabel}>{ruleId === "timeControl" ? "Time control" : ruleId === "rated" ? "Rated setting" : "Player color"}</Text>
+                    <View style={compactStyles.multiplayerOptionGrid} accessibilityRole="radiogroup" accessibilityLabel={groupLabel}>
+                      {options.map((option) => {
+                        const selected = createRules[ruleId] === option;
+                        const copy = getMultiplayerRuleOptionCopy(ruleId, option);
+                        return (
+                          <Pressable key={option} accessibilityRole="radio" accessibilityLabel={`${groupLabel}: ${copy.title}. ${copy.helper}`} accessibilityState={{ checked: selected }} style={[compactStyles.multiplayerOptionCard, selected ? compactStyles.multiplayerOptionCardSelected : null]} onPress={() => setCreateRules((current) => ({ ...current, [ruleId]: option }))}>
+                            <View style={[compactStyles.multiplayerOptionDot, selected ? compactStyles.multiplayerOptionDotSelected : null]} />
+                            <View style={compactStyles.multiplayerOptionCopy}>
+                              <Text style={selected ? compactStyles.multiplayerOptionTitleSelected : compactStyles.multiplayerOptionTitle}>{copy.title}</Text>
+                              <Text style={compactStyles.multiplayerOptionHelper}>{copy.helper}</Text>
+                            </View>
+                          </Pressable>
+                        );
+                      })}
+                    </View>
                   </View>
-                </View>
-              )) : null}
+                );
+              }) : null}
               <Pressable accessibilityRole="button" accessibilityLabel="Toggle advanced Multiplayer game settings" accessibilityState={{ expanded: createAdvancedOpen }} style={compactStyles.detailQuietButton} onPress={() => setCreateAdvancedOpen((current) => !current)}>
                 <Text style={compactStyles.detailQuietButtonText}>{createAdvancedOpen ? "Hide advanced settings" : "Advanced: time, rated, color"}</Text>
               </Pressable>
