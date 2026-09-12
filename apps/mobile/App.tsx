@@ -8454,7 +8454,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
       ) : (
         <>
       <View style={compactStyles.communityEmptyPanel}>
-        <Text style={compactStyles.communityEmptyTitle}>Community Multiplayer Side Quests</Text>
+        <Text accessibilityRole="header" style={compactStyles.communityEmptyTitle}>Community Multiplayer Side Quests</Text>
         <Text style={compactStyles.communityEmptyCopy}>{isSignedOutBrowse ? "Browse public Multiplayer Side Quests from the Side Quest Chess community. Sign in when you want to join one." : "These are Multiplayer Side Quests created, joined, hosted, or finished by the Side Quest Chess community."}</Text>
       </View>
 
