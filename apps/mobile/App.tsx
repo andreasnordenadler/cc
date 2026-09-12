@@ -5636,7 +5636,7 @@ function QuestBoardDashboard({
 
       {sideQuestCatalogTab === "community" ? (
         <View style={compactStyles.communityEmptyPanel}>
-          <Text style={compactStyles.communityEmptyTitle}>Community Side Quests</Text>
+          <Text accessibilityRole="header" style={compactStyles.communityEmptyTitle}>Community Side Quests</Text>
           <Text style={compactStyles.communityEmptyCopy}>These are Side Quests created by the Side Quest Chess community.</Text>
         </View>
       ) : null}
