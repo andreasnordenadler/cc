@@ -10344,7 +10344,8 @@ function AccountNextActionsCard({ account }: { account: MobileAccountState }) {
 
 function QuestProgressStrip({ completed, total }: { completed: number; total: number }) {
   const safeTotal = Math.max(total, 1);
-  const percent = Math.min(100, Math.round((completed / safeTotal) * 100));
+  const safeCompleted = Math.max(0, Math.min(completed, safeTotal));
+  const percent = Math.round((safeCompleted / safeTotal) * 100);
 
   return (
     <View style={styles.progressCard}>
@@ -10352,7 +10353,18 @@ function QuestProgressStrip({ completed, total }: { completed: number; total: nu
         <Text style={styles.progressTitle}>Side Quest log progress</Text>
         <Text style={styles.progressPercent}>{percent}%</Text>
       </View>
-      <View style={styles.progressTrack}>
+      <View
+        accessible
+        accessibilityRole="progressbar"
+        accessibilityLabel="Side Quest log progress"
+        accessibilityValue={{
+          min: 0,
+          max: safeTotal,
+          now: safeCompleted,
+          text: `${completed} of ${total} Coats of Arms earned`,
+        }}
+        style={styles.progressTrack}
+      >
         <View style={[styles.progressFill, { width: `${percent}%` }]} />
       </View>
       <Text style={styles.microcopy}>{completed} of {total} Coats of Arms earned on this account.</Text>
