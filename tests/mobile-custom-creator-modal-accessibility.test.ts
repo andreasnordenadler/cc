@@ -59,3 +59,21 @@ test("native Custom Solo creator modal moves screen-reader focus to its close bu
     /<Pressable\s+ref=\{customBuilderCloseButtonRef\}\s+accessibilityRole="button"\s+accessibilityLabel="Close custom Side Quest builder"/,
   );
 });
+
+test("native Custom Solo creator title exposes a screen-reader heading on the rendered Side Quests route", async () => {
+  const source = await readFile(new URL("../apps/mobile/App.tsx", import.meta.url), "utf8");
+  const screen = await readCustomCreatorModalSource();
+  const activeScreenStart = source.indexOf("function ActiveScreen(");
+  const activeScreenEnd = source.indexOf("function SideQuestsScreen(", activeScreenStart);
+
+  assert.notEqual(activeScreenStart, -1, "Expected ActiveScreen");
+  assert.notEqual(activeScreenEnd, -1, "Expected the next component after ActiveScreen");
+  assert.match(
+    source.slice(activeScreenStart, activeScreenEnd),
+    /case "sideQuests":\s+return <QuestBoardDashboard\b/,
+  );
+  assert.match(
+    screen,
+    /<Text accessibilityRole="header" style=\{compactStyles\.detailTitle\}>\{customEditingQuestId \? "Edit your Side Quest\." : "Build your Side Quest\."\}<\/Text>/,
+  );
+});
