@@ -8914,7 +8914,7 @@ function OfficialMultiplayerLeaderboardsScreen({ bootstrap, account, authBridge,
     return (
       <View style={styles.screenStack}>
         <View style={styles.groupquestsHero}>
-          <Text style={styles.groupquestsHeroTitle}>Official Leaderboards.</Text>
+          <Text accessibilityRole="header" style={styles.groupquestsHeroTitle}>Official Leaderboards.</Text>
           <Text style={styles.groupquestsHeroCopy}>Sign in to see active official weekly leaderboards, final results, and the official archive.</Text>
         </View>
       </View>
@@ -8924,7 +8924,7 @@ function OfficialMultiplayerLeaderboardsScreen({ bootstrap, account, authBridge,
   return (
     <View style={styles.screenStack}>
       <View style={styles.groupquestsHero}>
-        <Text style={styles.groupquestsHeroTitle}>Official Leaderboards.</Text>
+        <Text accessibilityRole="header" style={styles.groupquestsHeroTitle}>Official Leaderboards.</Text>
         <Text style={styles.groupquestsHeroCopy}>Three official Multiplayer Side Quests run every week — easy, medium, and hard. Track the live race, then review final weekly results.</Text>
       </View>
 
