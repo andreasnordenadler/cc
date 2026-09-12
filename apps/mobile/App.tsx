@@ -2450,7 +2450,7 @@ function TodayDashboard({
           <View style={compactStyles.activeSoloPill}>
             <Text style={compactStyles.activeSoloPillText}>Active Multiplayer Side Quests</Text>
           </View>
-          <Text style={compactStyles.currentQuestHeroTitle} numberOfLines={2}>{activeMultiplayer.length ? `${activeMultiplayer.length} active Multiplayer Side Quest${activeMultiplayer.length === 1 ? "" : "s"}` : "No active Multiplayer Side Quests"}</Text>
+          <Text accessibilityRole="header" style={compactStyles.currentQuestHeroTitle} numberOfLines={2}>{activeMultiplayer.length ? `${activeMultiplayer.length} active Multiplayer Side Quest${activeMultiplayer.length === 1 ? "" : "s"}` : "No active Multiplayer Side Quests"}</Text>
         </Pressable>
 
         <View style={compactStyles.activeMultiplayerList}>
