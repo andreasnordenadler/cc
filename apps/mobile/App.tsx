@@ -5939,7 +5939,7 @@ function QuestBoardDashboard({
             <View style={compactStyles.multiplayerDetailHero}>
               <Image source={getCustomQuestImageSource(null)} style={compactStyles.multiplayerDetailSeal} resizeMode="contain" />
               <Text style={compactStyles.multiplayerDetailKicker}>Custom Side Quest</Text>
-              <Text style={compactStyles.detailTitle}>{customEditingQuestId ? "Edit your Side Quest." : "Build your Side Quest."}</Text>
+              <Text accessibilityRole="header" style={compactStyles.detailTitle}>{customEditingQuestId ? "Edit your Side Quest." : "Build your Side Quest."}</Text>
               <Text style={compactStyles.detailGoal}>{customEditingQuestId ? "Update the name, rules, and publish state without rebuilding from scratch." : "Choose what should happen in a real game. Side Quest Chess will check it after you play."}</Text>
             </View>
             <View style={compactStyles.multiplayerNativeCard}>
