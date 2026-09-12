@@ -3927,7 +3927,7 @@ function HelpSupportModal({ visible, onClose, signedIn, authBridge, initialMessa
               <Image source={SQC_COAT_OF_ARMS_ASSET} style={compactStyles.multiplayerRuleQuestCoat} resizeMode="contain" />
             </View>
             <Text style={compactStyles.multiplayerDetailKicker}>Help & Support</Text>
-            <Text style={compactStyles.detailTitle}>How can we help?</Text>
+            <Text accessibilityRole="header" style={compactStyles.detailTitle}>How can we help?</Text>
             <Text style={compactStyles.detailGoal}>New to Side Quest Chess? Start here for Side Quests, proof, chess usernames, and Multiplayer.</Text>
           </View>
 
@@ -4137,7 +4137,7 @@ function CommunityMultiplayerReportModal({ visible, quest, authBridge, onClose, 
         <ScrollHintedScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={[compactStyles.detailContent, compactStyles.detailContentWithBottomSafe]} showsVerticalScrollIndicator={false}>
           <View style={compactStyles.multiplayerDetailHero}>
             <Text style={compactStyles.multiplayerDetailKicker}>Community safety</Text>
-            <Text style={compactStyles.detailTitle}>Report this Side Quest</Text>
+            <Text accessibilityRole="header" style={compactStyles.detailTitle}>Report this Side Quest</Text>
             <Text style={compactStyles.detailGoal}>{quest ? cleanMultiplayerTitle(quest.title) : "Community Multiplayer Side Quest"}</Text>
           </View>
           <View style={compactStyles.multiplayerNativeCard}>
