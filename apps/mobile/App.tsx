@@ -2366,7 +2366,7 @@ function TodayDashboard({
               <View style={compactStyles.activeSoloPill}>
                 <Text style={compactStyles.activeSoloPillText}>Active Solo Side Quest</Text>
               </View>
-              <Text style={compactStyles.currentQuestHeroTitle} numberOfLines={2}>{signedIn.activeQuest.title}</Text>
+              <Text accessibilityRole="header" style={compactStyles.currentQuestHeroTitle} numberOfLines={2}>{signedIn.activeQuest.title}</Text>
             </View>
             {actionState.message && !latestCheckFailed ? <Text style={compactStyles.inlineSuccess}>{actionState.message}</Text> : null}
             {actionState.error ? <Text style={compactStyles.inlineError}>{actionState.error}</Text> : null}
