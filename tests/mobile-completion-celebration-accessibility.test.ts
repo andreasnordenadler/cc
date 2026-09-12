@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
+import ts from "typescript";
 
 async function readCompletionCelebrationOverlaySource() {
   const source = await readFile(new URL("../apps/mobile/App.tsx", import.meta.url), "utf8");
@@ -63,4 +64,51 @@ test("native completion celebration moves screen-reader focus to its close butto
     modal,
     /<Pressable\s+ref=\{celebrationCloseButtonRef\}\s+accessibilityRole="button"\s+accessibilityLabel="Close celebration"/,
   );
+});
+
+test("native completion celebration headline exposes a screen-reader heading", async () => {
+  const { modal } = await readCompletionCelebrationOverlaySource();
+  const sourceFile = ts.createSourceFile(
+    "CompletionCelebrationOverlay.tsx",
+    modal,
+    ts.ScriptTarget.Latest,
+    true,
+    ts.ScriptKind.TSX,
+  );
+  const matchingHeadlines: ts.JsxElement[] = [];
+
+  const inspect = (node: ts.Node) => {
+    if (ts.isJsxElement(node) && node.openingElement.tagName.getText(sourceFile) === "Text") {
+      const childExpression = node.children.find(ts.isJsxExpression)?.expression;
+      const style = node.openingElement.attributes.properties.find(
+        (property): property is ts.JsxAttribute => ts.isJsxAttribute(property)
+          && property.name.getText(sourceFile) === "style",
+      );
+      const styleExpression = style?.initializer
+        && ts.isJsxExpression(style.initializer)
+        && style.initializer.expression;
+      const isHeadline = childExpression
+        && ts.isIdentifier(childExpression)
+        && childExpression.text === "headline";
+      const isHeadlineStyle = styleExpression
+        && ts.isPropertyAccessExpression(styleExpression)
+        && ts.isIdentifier(styleExpression.expression)
+        && styleExpression.expression.text === "compactStyles"
+        && styleExpression.name.text === "celebrationHeadline";
+
+      if (isHeadline && isHeadlineStyle) matchingHeadlines.push(node);
+    }
+    ts.forEachChild(node, inspect);
+  };
+
+  inspect(sourceFile);
+
+  assert.equal(matchingHeadlines.length, 1, "Expected exactly one rendered celebration headline");
+  const role = matchingHeadlines[0]?.openingElement.attributes.properties.find(
+    (property): property is ts.JsxAttribute => ts.isJsxAttribute(property)
+      && property.name.getText(sourceFile) === "accessibilityRole",
+  );
+
+  assert.ok(role?.initializer && ts.isStringLiteral(role.initializer));
+  assert.equal(role.initializer.text, "header");
 });

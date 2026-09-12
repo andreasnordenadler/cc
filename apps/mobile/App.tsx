@@ -3565,7 +3565,7 @@ function CompletionCelebrationOverlay({
         <View style={[compactStyles.celebrationGlow, { backgroundColor: colorWithAlpha(unlock.accentColor, 0.18) }]} />
         <View style={compactStyles.celebrationCard} accessibilityLabel={`${headline}. ${unlock.challengeTitle}. ${subline}`}>
           <Text style={compactStyles.celebrationKicker}>{unlock.mode === "multiplayer" ? "Multiplayer proof accepted" : "Proof accepted"}</Text>
-          <Text style={compactStyles.celebrationHeadline}>{headline}</Text>
+          <Text accessibilityRole="header" style={compactStyles.celebrationHeadline}>{headline}</Text>
           <Text style={compactStyles.celebrationSubline}>{subline}</Text>
 
           <View style={compactStyles.celebrationCoatFrame}>
