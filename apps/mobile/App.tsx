@@ -2388,7 +2388,7 @@ function TodayDashboard({
                 <Image source={SQC_COAT_OF_ARMS_ASSET} style={compactStyles.emptyQuestCoat} resizeMode="contain" />
               </View>
               <View style={compactStyles.currentQuestText}>
-                <Text style={compactStyles.currentQuestTitle}>Choose a Solo Side Quest</Text>
+                <Text accessibilityRole="header" style={compactStyles.currentQuestTitle}>Choose a Solo Side Quest</Text>
                 <Text style={compactStyles.currentQuestMeta}>Choose a Side Quest, play on Lichess or Chess.com, then come back for automatic proof.</Text>
               </View>
             </View>
