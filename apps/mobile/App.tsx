@@ -6329,7 +6329,7 @@ function CoatBoardDashboard({ bootstrap, account, onOpenChallengeDetail, onOpenC
         <Image source={SQC_COAT_OF_ARMS_ASSET} style={compactStyles.coatBoardHeroEmblem} resizeMode="contain" />
       </View>
       <View style={compactStyles.multiplayerNativeCard} accessibilityLabel="Trophy Cabinet summary">
-        <Text style={compactStyles.multiplayerCardEyebrow}>Trophy Cabinet</Text>
+        <Text accessibilityRole="header" style={compactStyles.multiplayerCardEyebrow}>Trophy Cabinet</Text>
         <Text style={compactStyles.multiplayerCardTitle}>{unlockedSummary}</Text>
         <Text style={styles.microcopy}>This is your unified Side Quest Chess reward shelf. Official Solo Coats of Arms and Official Multiplayer podiums are highlighted first; community and custom rewards still belong here.</Text>
       </View>
