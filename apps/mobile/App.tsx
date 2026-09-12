@@ -2297,7 +2297,7 @@ function TodayDashboard({
     return (
       <View style={compactStyles.freshShell}>
         <View style={[compactStyles.freshHeader, compactStyles.freshHeaderCentered]}>
-          <Text style={[compactStyles.freshTitle, compactStyles.centerText]}>Side Quest Chess</Text>
+          <Text accessibilityRole="header" style={[compactStyles.freshTitle, compactStyles.centerText]}>Side Quest Chess</Text>
         </View>
         <View style={compactStyles.freshGuestCoatWrap}>
           <Image source={SQC_GENERIC_COAT_GLOW_ASSET} style={compactStyles.freshGuestCoatGlow} resizeMode="contain" />
