@@ -4,7 +4,7 @@ import test from "node:test";
 
 test("native custom Side Quest library filters expose one labeled radio group", async () => {
   const source = await readFile(new URL("../apps/mobile/App.tsx", import.meta.url), "utf8");
-  const start = source.indexOf("<Text style={compactStyles.freshSectionTitle}>My Custom Side Quests</Text>");
+  const start = source.indexOf('<Text accessibilityRole="header" style={compactStyles.freshSectionTitle}>My Custom Side Quests</Text>');
   const end = source.indexOf("{filteredCustomDrafts.length ? (", start);
 
   assert.ok(start >= 0, "Expected the native custom Side Quest library");

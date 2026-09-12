@@ -3736,7 +3736,7 @@ function AppSection({ title, action, onAction, children }: { title: string; acti
   return (
     <View style={compactStyles.appSection}>
       <View style={compactStyles.panelHeaderRow}>
-        <Text style={compactStyles.freshSectionTitle}>{title}</Text>
+        <Text accessibilityRole="header" style={compactStyles.freshSectionTitle}>{title}</Text>
         {action && onAction ? (
           <Pressable accessibilityRole="button" onPress={onAction}>
             <Text style={compactStyles.sectionAction}>{action}</Text>
@@ -5644,7 +5644,7 @@ function QuestBoardDashboard({
       {sideQuestCatalogTab === "official" ? (
         <View style={compactStyles.appSection}>
           <View style={compactStyles.panelHeaderRow}>
-            <Text style={compactStyles.freshSectionTitle}>Official Side Quests</Text>
+            <Text accessibilityRole="header" style={compactStyles.freshSectionTitle}>Official Side Quests</Text>
             <Text style={compactStyles.sectionAction}>{sortedQuests.length} official</Text>
           </View>
           <View style={compactStyles.sideQuestCatalogRows}>
@@ -5692,7 +5692,7 @@ function QuestBoardDashboard({
           {communityView === "discover" ? (
             <View style={compactStyles.appSection}>
               <View style={compactStyles.panelHeaderRow}>
-                <Text style={compactStyles.freshSectionTitle}>Community Side Quests</Text>
+                <Text accessibilityRole="header" style={compactStyles.freshSectionTitle}>Community Side Quests</Text>
                 <Text style={compactStyles.sectionAction}>{publicCommunityQuests.length ? `${communityBrowseQuests.length}/${publicCommunityQuests.length}` : "0 public"}</Text>
               </View>
               {publicCommunityQuests.length || communitySearch || communityCreatorFilter ? (
@@ -5770,7 +5770,7 @@ function QuestBoardDashboard({
           ) : (
             <View style={compactStyles.appSection}>
               <View style={compactStyles.panelHeaderRow}>
-                <Text style={compactStyles.freshSectionTitle}>My Custom Side Quests</Text>
+                <Text accessibilityRole="header" style={compactStyles.freshSectionTitle}>My Custom Side Quests</Text>
                 <Pressable accessibilityRole="button" accessibilityLabel="Create custom Side Quest" onPress={() => openCustomEditor()}>
                   <Text style={compactStyles.sectionAction}>+ Create</Text>
                 </Pressable>
@@ -8395,7 +8395,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
         <>
           <View style={compactStyles.appSection} accessibilityLabel="Official Multiplayer Side Quests">
             <View style={compactStyles.panelHeaderRow}>
-              <Text style={compactStyles.freshSectionTitle}>Official Multiplayer Side Quests</Text>
+              <Text accessibilityRole="header" style={compactStyles.freshSectionTitle}>Official Multiplayer Side Quests</Text>
               <Text style={compactStyles.sectionAction}>{officialPublicGroupQuests.length} official</Text>
             </View>
             {officialPublicGroupQuests.length ? (
