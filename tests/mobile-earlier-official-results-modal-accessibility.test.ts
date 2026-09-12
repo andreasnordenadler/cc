@@ -69,3 +69,12 @@ test("native earlier official results modal moves screen-reader focus to its clo
     /<Pressable\s+ref=\{officialWeekCloseButtonRef\}\s+accessibilityRole="button"\s+accessibilityLabel="Close earlier official results"/,
   );
 });
+
+test("native earlier official results title exposes a screen-reader heading", async () => {
+  const { modal } = await readEarlierOfficialResultsModalSource();
+
+  assert.match(
+    modal,
+    /<Text accessibilityRole="header" style=\{compactStyles\.detailTitle\}>\{officialWeek\?\.label\}<\/Text>/,
+  );
+});
