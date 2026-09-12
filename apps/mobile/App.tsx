@@ -6467,7 +6467,7 @@ function AccountTrackerDashboard({ bootstrap, account, authBridge, onSelectTab, 
       <View style={compactStyles.stack}>
         <View style={compactStyles.heroPanel}>
           <View style={compactStyles.topLine}>
-            <Text style={compactStyles.kicker}>My Account</Text>
+            <Text accessibilityRole="header" style={compactStyles.kicker}>My Account</Text>
           </View>
           <Text style={compactStyles.heroTitle}>Account details are unavailable.</Text>
           <Text style={compactStyles.heroCopy}>You are still signed in. Retry loading your account details, or use the account controls below.</Text>
@@ -6524,7 +6524,7 @@ function AccountTrackerDashboard({ bootstrap, account, authBridge, onSelectTab, 
       <View style={compactStyles.stack}>
         <View style={compactStyles.heroPanel}>
           <View style={compactStyles.topLine}>
-            <Text style={compactStyles.kicker}>My Account</Text>
+            <Text accessibilityRole="header" style={compactStyles.kicker}>My Account</Text>
           </View>
           <Text style={compactStyles.heroTitle}>Sign in to sync your board.</Text>
           <Text style={compactStyles.heroCopy}>Sign in to save Side Quest progress, latest proof, Coat of Arms unlocks, and connected chess usernames.</Text>
@@ -6599,7 +6599,7 @@ function AccountTrackerDashboard({ bootstrap, account, authBridge, onSelectTab, 
     <View style={compactStyles.stack}>
       <View style={compactStyles.heroPanel}>
         <View style={compactStyles.topLine}>
-          <Text style={compactStyles.kicker}>My Account</Text>
+          <Text accessibilityRole="header" style={compactStyles.kicker}>My Account</Text>
         </View>
         <View style={compactStyles.accountIdentityCard}>
           <View style={compactStyles.accountIdentityAvatar}>
