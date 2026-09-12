@@ -55,3 +55,18 @@ test("native completed Side Quest proof modal moves screen-reader focus to its c
     /<Pressable\s+ref=\{completedProofCloseButtonRef\}\s+accessibilityRole="button"\s+accessibilityLabel="Close completed Side Quest proof"/,
   );
 });
+
+test("native completed Side Quest proof title exposes a screen-reader heading on the rendered modal", async () => {
+  const source = await readFile(new URL("../apps/mobile/App.tsx", import.meta.url), "utf8");
+  const modal = await readCompletedProofModalSource();
+  const cardStart = source.indexOf("function CompletedQuestProofCard(");
+  const cardEnd = source.indexOf("function buildCompletedProofDetailLines(", cardStart);
+
+  assert.match(modal, /<CompletedQuestProofCard\s/);
+  assert.notEqual(cardStart, -1);
+  assert.notEqual(cardEnd, -1);
+  assert.match(
+    source.slice(cardStart, cardEnd),
+    /<Text accessibilityRole="header" style=\{compactStyles\.detailTitle\}>\{challenge\.title\}<\/Text>/,
+  );
+});

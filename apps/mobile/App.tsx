@@ -9778,7 +9778,7 @@ function CompletedQuestProofCard({
           <Image source={SQC_COMPLETED_RED_SEAL_ASSET} style={compactStyles.completedProofSeal} resizeMode="contain" />
         </View>
         <Text style={compactStyles.completedProofKicker}>Side Quest completed</Text>
-        <Text style={compactStyles.detailTitle}>{challenge.title}</Text>
+        <Text accessibilityRole="header" style={compactStyles.detailTitle}>{challenge.title}</Text>
         <View style={styles.questDetailMetaRow}>
           <MobileRatingPill value={challenge.reward} />
           <Text style={[styles.difficultyBadgeMobile, styles[`difficulty${challenge.difficulty}` as keyof typeof styles]]}>{challenge.difficulty}</Text>
