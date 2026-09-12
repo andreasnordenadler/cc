@@ -60,3 +60,28 @@ test("native selected Side Quest modal moves screen-reader focus to its close bu
     /<Pressable\s+ref=\{selectedQuestCloseButtonRef\}\s+accessibilityRole="button"\s+accessibilityLabel="Close Side Quest details"/,
   );
 });
+
+test("native selected Side Quest title exposes a screen-reader heading on the rendered modal", async () => {
+  const source = await readFile(new URL("../apps/mobile/App.tsx", import.meta.url), "utf8");
+  const activeScreenStart = source.indexOf("function ActiveScreen(");
+  const activeScreenEnd = source.indexOf("function SideQuestsScreen(", activeScreenStart);
+  const dashboardStart = source.indexOf("function QuestBoardDashboard(");
+  const dashboardEnd = source.indexOf("function CoatBoardDashboard(", dashboardStart);
+  const cardStart = source.indexOf("function SelectedQuestDetailCard(");
+  const cardEnd = source.indexOf("function CustomSideQuestDetailModal(", cardStart);
+  const titleStart = source.indexOf("function MobileInlineLikeTitle(");
+  const titleEnd = source.indexOf("function getCustomQuestPopularity(", titleStart);
+
+  assert.notEqual(activeScreenStart, -1);
+  assert.notEqual(activeScreenEnd, -1);
+  assert.notEqual(dashboardStart, -1);
+  assert.notEqual(dashboardEnd, -1);
+  assert.notEqual(cardStart, -1);
+  assert.notEqual(cardEnd, -1);
+  assert.notEqual(titleStart, -1);
+  assert.notEqual(titleEnd, -1);
+  assert.match(source.slice(activeScreenStart, activeScreenEnd), /case "sideQuests":\s+return <QuestBoardDashboard\b/);
+  assert.match(source.slice(dashboardStart, dashboardEnd), /<SelectedQuestDetailCard challenge=\{detailChallenge\}\s+account=/);
+  assert.match(source.slice(cardStart, cardEnd), /<MobileInlineLikeTitle title=\{challenge\.title\}\s+textStyle=/);
+  assert.match(source.slice(titleStart, titleEnd), /<Text accessibilityRole="header" style=\{textStyle\}>/);
+});

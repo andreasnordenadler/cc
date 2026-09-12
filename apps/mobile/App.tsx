@@ -4535,7 +4535,7 @@ function MobileInlineLikeTitle({
   const likeLineHeight = Math.max(13, iconSize + 2);
 
   return (
-    <Text style={textStyle}>
+    <Text accessibilityRole="header" style={textStyle}>
       {title}
       <Text
         accessibilityRole="button"
