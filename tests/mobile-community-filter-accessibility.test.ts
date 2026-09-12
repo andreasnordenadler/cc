@@ -4,7 +4,7 @@ import test from "node:test";
 
 test("native Community Side Quest filters expose one labeled radio group", async () => {
   const source = await readFile(new URL("../apps/mobile/App.tsx", import.meta.url), "utf8");
-  const start = source.indexOf("<Text style={compactStyles.freshSectionTitle}>Community Side Quests</Text>");
+  const start = source.indexOf('<Text accessibilityRole="header" style={compactStyles.freshSectionTitle}>Community Side Quests</Text>');
   const end = source.indexOf("<Pressable accessibilityRole=\"button\" accessibilityLabel=\"Change community sort\"", start);
 
   assert.ok(start >= 0, "Expected the native Community Side Quest catalog");
