@@ -6943,7 +6943,7 @@ function HomeScreen({
 
       <View style={styles.whereBeginCard}>
         <Text style={styles.eyebrow}>Where to begin</Text>
-      <Text style={styles.sectionTitle}>How heroic are you feeling today?</Text>
+      <Text accessibilityRole="header" style={styles.sectionTitle}>How heroic are you feeling today?</Text>
         <Text style={styles.sectionBody}>Pick a starting quest based on your current tolerance for terrible chess decisions.</Text>
         <View style={styles.heroismChoiceList}>
           {heroismChoices.map(({ label, copy, cta, challenge }) => (
