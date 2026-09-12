@@ -8470,7 +8470,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
           </View>
         ) : (
           <View style={styles.multiplayerLobbyEmptyCard}>
-            <Text style={styles.sideQuestModeTitle}>No active Multiplayer Side Quests yet.</Text>
+            <Text accessibilityRole="header" style={styles.sideQuestModeTitle}>No active Multiplayer Side Quests yet.</Text>
             <Text style={styles.sideQuestModeCopy}>Join an open Multiplayer Side Quest, paste an invite code, or create your own.</Text>
           </View>
         )}
