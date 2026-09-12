@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
+import ts from "typescript";
 
 async function readOfficialWeekArchiveModalSource() {
   const source = await readFile(new URL("../apps/mobile/App.tsx", import.meta.url), "utf8");
@@ -70,4 +71,53 @@ test("native official week archive modal moves screen-reader focus to its close 
     modal,
     /<Pressable\s+ref=\{selectedWeekArchiveCloseButtonRef\}\s+accessibilityRole="button"\s+accessibilityLabel="Close official weekly results"/,
   );
+});
+
+test("native official week archive title exposes a screen-reader heading", async () => {
+  const { modal } = await readOfficialWeekArchiveModalSource();
+  const sourceFile = ts.createSourceFile(
+    "OfficialWeekArchiveModal.tsx",
+    modal,
+    ts.ScriptTarget.Latest,
+    true,
+    ts.ScriptKind.TSX,
+  );
+  const matchingTitles: ts.JsxElement[] = [];
+
+  const inspect = (node: ts.Node) => {
+    if (ts.isJsxElement(node) && node.openingElement.tagName.getText(sourceFile) === "Text") {
+      const childExpression = node.children.find(ts.isJsxExpression)?.expression;
+      const style = node.openingElement.attributes.properties.find(
+        (property): property is ts.JsxAttribute => ts.isJsxAttribute(property)
+          && property.name.getText(sourceFile) === "style",
+      );
+      const styleExpression = style?.initializer
+        && ts.isJsxExpression(style.initializer)
+        && style.initializer.expression;
+      const isWeekTitle = childExpression
+        && ts.isPropertyAccessExpression(childExpression)
+        && ts.isIdentifier(childExpression.expression)
+        && childExpression.expression.text === "selectedWeek"
+        && childExpression.name.text === "label";
+      const isDetailTitleStyle = styleExpression
+        && ts.isPropertyAccessExpression(styleExpression)
+        && ts.isIdentifier(styleExpression.expression)
+        && styleExpression.expression.text === "compactStyles"
+        && styleExpression.name.text === "detailTitle";
+
+      if (isWeekTitle && isDetailTitleStyle) matchingTitles.push(node);
+    }
+    ts.forEachChild(node, inspect);
+  };
+
+  inspect(sourceFile);
+
+  assert.equal(matchingTitles.length, 1, "Expected exactly one rendered official week archive title");
+  const role = matchingTitles[0]?.openingElement.attributes.properties.find(
+    (property): property is ts.JsxAttribute => ts.isJsxAttribute(property)
+      && property.name.getText(sourceFile) === "accessibilityRole",
+  );
+
+  assert.ok(role?.initializer && ts.isStringLiteral(role.initializer));
+  assert.equal(role.initializer.text, "header");
 });

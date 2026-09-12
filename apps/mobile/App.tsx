@@ -9009,7 +9009,7 @@ function OfficialMultiplayerLeaderboardsScreen({ bootstrap, account, authBridge,
               <Image source={SQC_GENERIC_COAT_GLOW_ASSET} style={compactStyles.multiplayerDetailSealGlow} resizeMode="contain" />
               <Image source={SQC_MULTIPLAYER_SEAL_ASSET} style={compactStyles.multiplayerDetailSeal} resizeMode="contain" />
               <Text style={compactStyles.multiplayerDetailKicker}>Official weekly archive</Text>
-              <Text style={compactStyles.detailTitle}>{selectedWeek?.label}</Text>
+              <Text accessibilityRole="header" style={compactStyles.detailTitle}>{selectedWeek?.label}</Text>
               <Text style={compactStyles.detailGoal}>{selectedWeek?.rangeLabel}</Text>
             </View>
             <View style={compactStyles.appRows}>
