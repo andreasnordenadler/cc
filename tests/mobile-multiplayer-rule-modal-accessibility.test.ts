@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
+import ts from "typescript";
 
 async function readMultiplayerRuleQuestModalSource() {
   const source = await readFile(new URL("../apps/mobile/App.tsx", import.meta.url), "utf8");
@@ -72,4 +73,53 @@ test("native Multiplayer Side Quest rules modal moves screen-reader focus to its
     modal,
     /<Pressable\s+ref=\{selectedRuleQuestCloseButtonRef\}\s+accessibilityRole="button"\s+accessibilityLabel="Close multiplayer quest rules"/,
   );
+});
+
+test("native Multiplayer Side Quest rules title exposes a screen-reader heading", async () => {
+  const { modal } = await readMultiplayerRuleQuestModalSource();
+  const sourceFile = ts.createSourceFile(
+    "MultiplayerRuleQuestModal.tsx",
+    modal,
+    ts.ScriptTarget.Latest,
+    true,
+    ts.ScriptKind.TSX,
+  );
+  const matchingTitles: ts.JsxElement[] = [];
+
+  const inspect = (node: ts.Node) => {
+    if (ts.isJsxElement(node) && node.openingElement.tagName.getText(sourceFile) === "Text") {
+      const childExpression = node.children.find(ts.isJsxExpression)?.expression;
+      const style = node.openingElement.attributes.properties.find(
+        (property): property is ts.JsxAttribute => ts.isJsxAttribute(property)
+          && property.name.getText(sourceFile) === "style",
+      );
+      const styleExpression = style?.initializer
+        && ts.isJsxExpression(style.initializer)
+        && style.initializer.expression;
+      const isRuleTitle = childExpression
+        && ts.isPropertyAccessExpression(childExpression)
+        && ts.isIdentifier(childExpression.expression)
+        && childExpression.expression.text === "selectedRuleQuest"
+        && childExpression.name.text === "title";
+      const isDetailTitleStyle = styleExpression
+        && ts.isPropertyAccessExpression(styleExpression)
+        && ts.isIdentifier(styleExpression.expression)
+        && styleExpression.expression.text === "compactStyles"
+        && styleExpression.name.text === "detailTitle";
+
+      if (isRuleTitle && isDetailTitleStyle) matchingTitles.push(node);
+    }
+    ts.forEachChild(node, inspect);
+  };
+
+  inspect(sourceFile);
+
+  assert.equal(matchingTitles.length, 1, "Expected exactly one rendered Multiplayer rules title");
+  const role = matchingTitles[0]?.openingElement.attributes.properties.find(
+    (property): property is ts.JsxAttribute => ts.isJsxAttribute(property)
+      && property.name.getText(sourceFile) === "accessibilityRole",
+  );
+
+  assert.ok(role?.initializer && ts.isStringLiteral(role.initializer));
+  assert.equal(role.initializer.text, "header");
 });

@@ -3231,7 +3231,7 @@ function JoinedMultiplayerQuestModal({
                       <Image source={selectedRuleQuest.imageSource} style={compactStyles.multiplayerRuleQuestCoat} resizeMode="contain" />
                     </View>
                     <Text style={compactStyles.multiplayerDetailKicker}>Multiplayer Side Quest rules</Text>
-                    <Text style={compactStyles.detailTitle}>{selectedRuleQuest.title}</Text>
+                    <Text accessibilityRole="header" style={compactStyles.detailTitle}>{selectedRuleQuest.title}</Text>
                     <Text style={compactStyles.detailGoal}>{selectedRuleQuest.meta}</Text>
                     <Text style={compactStyles.detailLatestCheck}>{selectedRuleQuest.status.toUpperCase()}</Text>
                   </View>
