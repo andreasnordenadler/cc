@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
+import ts from "typescript";
 
 async function readMultiplayerCreateModalSource() {
   const source = await readFile(new URL("../apps/mobile/App.tsx", import.meta.url), "utf8");
@@ -58,4 +59,55 @@ test("native Multiplayer creator modal moves screen-reader focus to its close bu
     screen,
     /<Pressable\s+ref=\{createBuilderCloseButtonRef\}\s+accessibilityRole="button"\s+accessibilityLabel="Close create Multiplayer Side Quest"/,
   );
+});
+
+test("native Multiplayer creator title exposes a screen-reader heading", async () => {
+  const screen = await readMultiplayerCreateModalSource();
+  const sourceFile = ts.createSourceFile(
+    "MultiplayerSideQuestsScreen.tsx",
+    screen,
+    ts.ScriptTarget.Latest,
+    true,
+    ts.ScriptKind.TSX,
+  );
+  const matchingTitles: ts.JsxElement[] = [];
+
+  const inspect = (node: ts.Node) => {
+    if (ts.isJsxElement(node) && node.openingElement.tagName.getText(sourceFile) === "Text") {
+      const visibleText = node.children
+        .filter(ts.isJsxText)
+        .map((child) => child.text)
+        .join("")
+        .replace(/\s+/g, " ")
+        .trim();
+      const style = node.openingElement.attributes.properties.find(
+        (property): property is ts.JsxAttribute => ts.isJsxAttribute(property)
+          && property.name.getText(sourceFile) === "style",
+      );
+      const styleExpression = style?.initializer
+        && ts.isJsxExpression(style.initializer)
+        && style.initializer.expression;
+      const isDetailTitleStyle = styleExpression
+        && ts.isPropertyAccessExpression(styleExpression)
+        && ts.isIdentifier(styleExpression.expression)
+        && styleExpression.expression.text === "compactStyles"
+        && styleExpression.name.text === "detailTitle";
+      if (visibleText === "Start a shared Multiplayer Side Quest."
+          && isDetailTitleStyle) {
+        matchingTitles.push(node);
+      }
+    }
+    ts.forEachChild(node, inspect);
+  };
+
+  inspect(sourceFile);
+
+  assert.equal(matchingTitles.length, 1, "Expected exactly one rendered Multiplayer creator modal title");
+  const role = matchingTitles[0]?.openingElement.attributes.properties.find(
+    (property): property is ts.JsxAttribute => ts.isJsxAttribute(property)
+      && property.name.getText(sourceFile) === "accessibilityRole",
+  );
+
+  assert.ok(role?.initializer && ts.isStringLiteral(role.initializer));
+  assert.equal(role.initializer.text, "header");
 });

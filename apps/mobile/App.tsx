@@ -8598,7 +8598,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
               <Image source={SQC_GENERIC_COAT_GLOW_ASSET} style={compactStyles.multiplayerDetailSealGlow} resizeMode="contain" />
               <Image source={SQC_MULTIPLAYER_SEAL_ASSET} style={compactStyles.multiplayerDetailSeal} resizeMode="contain" />
               <Text style={compactStyles.multiplayerDetailKicker}>Create Multiplayer Side Quest</Text>
-              <Text style={compactStyles.detailTitle}>Start a shared Multiplayer Side Quest.</Text>
+              <Text accessibilityRole="header" style={compactStyles.detailTitle}>Start a shared Multiplayer Side Quest.</Text>
               <Text style={compactStyles.detailGoal}>Choose the rules, create the Multiplayer Side Quest, then share the invite with players.</Text>
             </View>
             <View style={compactStyles.multiplayerNativeCard}>
