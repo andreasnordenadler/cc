@@ -8932,7 +8932,7 @@ function OfficialMultiplayerLeaderboardsScreen({ bootstrap, account, authBridge,
 
       <View style={styles.groupquestsActiveCard} accessibilityLabel="Current official Multiplayer Side Quest leaderboards">
         <Text style={styles.eyebrow}>Current week</Text>
-        <Text style={styles.sectionTitle}>Active official leaderboards.</Text>
+        <Text accessibilityRole="header" style={styles.sectionTitle}>Active official leaderboards.</Text>
         {currentOfficialGroupQuests.length ? currentOfficialGroupQuests.map((quest) => (
           <Pressable key={quest.id} accessibilityRole="button" accessibilityLabel={`Open current official leaderboard ${cleanMultiplayerTitle(quest.title)}`} style={styles.groupquestsActiveRow} onPress={() => setSelectedQuestId(quest.id)}>
             <View style={styles.activeMultiplayerSealFrame}>
@@ -8949,7 +8949,7 @@ function OfficialMultiplayerLeaderboardsScreen({ bootstrap, account, authBridge,
 
       <View style={styles.groupquestsActiveCard} accessibilityLabel="Previous official Multiplayer Side Quest results">
         <Text style={styles.eyebrow}>Previous week</Text>
-        <Text style={styles.sectionTitle}>Latest final results.</Text>
+        <Text accessibilityRole="header" style={styles.sectionTitle}>Latest final results.</Text>
         {previousOfficialGroupQuests.length ? previousOfficialGroupQuests.map((quest) => (
           <Pressable key={quest.id} accessibilityRole="button" accessibilityLabel={`Open previous official result ${cleanMultiplayerTitle(quest.title)}`} style={styles.groupquestsActiveRow} onPress={() => setSelectedQuestId(quest.id)}>
             <View style={styles.activeMultiplayerSealFrame}>
@@ -8966,7 +8966,7 @@ function OfficialMultiplayerLeaderboardsScreen({ bootstrap, account, authBridge,
 
       <View style={styles.groupquestsActiveCard} accessibilityLabel="Official Multiplayer Side Quest weekly archive">
         <Text style={styles.eyebrow}>Archive</Text>
-        <Text style={styles.sectionTitle}>Browse older official weeks.</Text>
+        <Text accessibilityRole="header" style={styles.sectionTitle}>Browse older official weeks.</Text>
         {officialWeeks.length ? officialWeeks.map((week) => (
           <Pressable key={week.id} accessibilityRole="button" accessibilityLabel={`Open official results for ${week.label}`} style={styles.groupquestsActiveRow} onPress={() => setSelectedWeekId(week.id)}>
             <View style={styles.activeMultiplayerSealFrame}>

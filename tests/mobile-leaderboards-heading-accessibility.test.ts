@@ -19,4 +19,12 @@ test("native Official Leaderboards titles expose screen-reader headings in both 
   for (const title of titles) {
     assert.match(title, /accessibilityRole="header"/);
   }
+
+  for (const title of ["Active official leaderboards.", "Latest final results.", "Browse older official weeks."]) {
+    assert.match(
+      leaderboardsScreen,
+      new RegExp(`<Text accessibilityRole="header" style=\\{styles\\.sectionTitle\\}>${title.replace(/[.?]/g, "\\$&")}<\\/Text>`),
+      `${title} must be exposed as a screen-reader heading`,
+    );
+  }
 });
