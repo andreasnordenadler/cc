@@ -6974,7 +6974,7 @@ function HomeScreen({
       {isSignedIn ? (
         <View style={styles.homeStatusCard}>
           <Text style={styles.eyebrow}>Active Solo Side Quest</Text>
-          <Text style={styles.sectionTitle}>{signedInAccount?.activeQuest ? signedInAccount.activeQuest.title : "No active Solo Side Quest yet."}</Text>
+          <Text accessibilityRole="header" style={styles.sectionTitle}>{signedInAccount?.activeQuest ? signedInAccount.activeQuest.title : "No active Solo Side Quest yet."}</Text>
           <Text style={styles.sectionBody}>{signedInAccount?.activeQuest ? "Open the active Side Quest page for rules, badge details, and the next weird chess Side Quest." : "Choose one Solo Side Quest first so My Side Quests knows which weird rule to judge after your next public game."}</Text>
           <View style={styles.scoreboardRow}>
             <BigScore label="Completed" value={`${signedInAccount?.progress.totalCompletedChallenges ?? 0}`} />
