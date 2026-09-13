@@ -6965,7 +6965,7 @@ function HomeScreen({
       {!isSignedIn ? (
         <View style={styles.multiplayerCalloutCard}>
           <Text style={styles.eyebrow}>Multiplayer Side Quests</Text>
-          <Text style={styles.sectionTitle}>Same nonsense, now with witnesses.</Text>
+          <Text accessibilityRole="header" style={styles.sectionTitle}>Same nonsense, now with witnesses.</Text>
           <Text style={styles.sectionBody}>Join public Multiplayer Side Quests, inspect the rules before committing, or sign in when you want to create one and invite friends.</Text>
           <Pressable accessibilityRole="button" accessibilityLabel="Join Multiplayer Side Quests" testID="home-join-multiplayer-callout" style={styles.secondaryButtonWide} onPress={() => onSelectTab("multiplayerSideQuests")}>
             <Text style={styles.secondaryButtonText}>Join Multiplayer Side Quests</Text>
