@@ -8832,7 +8832,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
       {multiplayerLearningOpen ? <>
       <View style={styles.groupquestsStoryCard} accessibilityLabel="What Multiplayer Side Quests are">
         <View style={styles.groupquestsStoryCopy}>
-          <Text style={styles.sectionTitle}>A tiny chess tournament for bad ideas.</Text>
+          <Text accessibilityRole="header" style={styles.sectionTitle}>A tiny chess tournament for bad ideas.</Text>
           <Text style={styles.sectionBody}>One player creates the Multiplayer Side Quest, everyone agrees on rules, then Side Quest Chess checks fresh public games for each player.</Text>
         </View>
         <View style={styles.groupquestsProcessGraphic}>
@@ -8842,7 +8842,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
 
       <View style={styles.groupquestsHowCard} accessibilityLabel="How Multiplayer Side Quests work">
         <View style={styles.sectionHeadMobile}>
-          <Text style={styles.sectionTitle}>Create. Invite. Play. Prove.</Text>
+          <Text accessibilityRole="header" style={styles.sectionTitle}>Create. Invite. Play. Prove.</Text>
         </View>
         <View style={styles.groupquestsHowGrid}>
           {overviewSteps.map((step, index) => (
@@ -8857,7 +8857,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
 
       <View style={styles.groupquestsRulesCard} accessibilityLabel="Multiplayer Side Quest completion rules">
         <Text style={styles.eyebrow}>Proof rule</Text>
-        <Text style={styles.sectionTitle}>Personal proof and multiplayer proof are different ledgers.</Text>
+        <Text accessibilityRole="header" style={styles.sectionTitle}>Personal proof and multiplayer proof are different ledgers.</Text>
         <Text style={styles.sectionBody}>Finishing a Side Quest alone still counts for your account. Finishing it inside a Multiplayer Side Quest requires fresh Multiplayer Side Quest-valid proof: joined participant, eligible window, matching game rules, verified table progress, and multiplayer celebration.</Text>
       </View>
       </> : null}
