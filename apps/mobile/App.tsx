@@ -6341,7 +6341,7 @@ function CoatBoardDashboard({ bootstrap, account, onOpenChallengeDetail, onOpenC
       ) : null}
 
       <View style={compactStyles.multiplayerNativeCard} accessibilityLabel="Official Multiplayer Side Quest trophies">
-        <Text style={compactStyles.multiplayerCardEyebrow}>Official Multiplayer trophies</Text>
+        <Text accessibilityRole="header" style={compactStyles.multiplayerCardEyebrow}>Official Multiplayer trophies</Text>
         <Text style={compactStyles.multiplayerCardTitle}>{officialMultiplayerTrophies.length} Official Multiplayer Side Quest podium{officialMultiplayerTrophies.length === 1 ? "" : "s"}.</Text>
         {officialMultiplayerTrophies.length ? (
           <View style={compactStyles.appRows}>
