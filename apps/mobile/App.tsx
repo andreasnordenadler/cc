@@ -473,7 +473,7 @@ function FailureDiagnosticBoard({ receipt }: { receipt: MobileAccountState["late
         <View style={compactStyles.failureBoardUnavailable}>
           <MaterialCommunityIcons name="checkerboard" size={30} color="rgba(245,200,106,.88)" />
           <View style={compactStyles.failureBoardUnavailableCopyBlock}>
-            <Text style={compactStyles.failureBoardUnavailableTitle}>Board position unavailable</Text>
+            <Text accessibilityRole="header" style={compactStyles.failureBoardUnavailableTitle}>Board position unavailable</Text>
             <Text style={compactStyles.failureBoardUnavailableCopy}>Side Quest Chess still checked the latest game and kept the reason below. Try refreshing after the provider finishes publishing the full game record.</Text>
           </View>
         </View>
