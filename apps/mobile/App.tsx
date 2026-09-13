@@ -8431,7 +8431,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
 
           {isSignedOutBrowse ? null : <View style={styles.groupquestsActiveCard} accessibilityLabel="Browse earlier official Multiplayer Side Quest results">
             <Text style={styles.eyebrow}>Earlier official weeks</Text>
-            <Text style={styles.sectionTitle}>Browse weekly results.</Text>
+            <Text accessibilityRole="header" style={styles.sectionTitle}>Browse weekly results.</Text>
             <Text style={styles.sectionBody}>Finished official Multiplayer Side Quest sets are grouped by week so we can keep running this weekly.</Text>
             {earlierOfficialWeeks.length ? (
               <View style={compactStyles.appRows}>
