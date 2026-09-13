@@ -2304,7 +2304,7 @@ function TodayDashboard({
           <Image source={SQC_COAT_OF_ARMS_ASSET} style={compactStyles.freshGuestCoat} resizeMode="contain" />
         </View>
         <View style={compactStyles.freshPanelCentered}>
-          <Text style={[compactStyles.freshSectionTitle, compactStyles.centerText]}>Sign in to continue.</Text>
+          <Text accessibilityRole="header" style={[compactStyles.freshSectionTitle, compactStyles.centerText]}>Sign in to continue.</Text>
           <Text style={[compactStyles.freshBody, compactStyles.centerText]}>Chess, but with stupidly hard side quests — solo or multiplayer. Browse the live boards first; sign in when you want Side Quest Chess to save progress, verify proof, or join a table.</Text>
           <View style={compactStyles.guestBrowseActions}>
             <Pressable accessibilityRole="button" accessibilityLabel="Browse Solo Side Quests" style={compactStyles.secondaryAction} onPress={() => onSelectTab("sideQuests")}>
