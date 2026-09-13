@@ -2342,10 +2342,12 @@ function TodayDashboard({
       </View>
 
       {!hasChessAccount ? (
-        <Pressable accessibilityRole="button" style={compactStyles.blockerPanel} onPress={() => onSelectTab("account")}>
-          <Text style={compactStyles.blockerTitle}>Connect a chess username</Text>
-          <Text style={compactStyles.blockerCopy}>Side Quest Chess needs Lichess or Chess.com before it can check real games.</Text>
-        </Pressable>
+        <View style={compactStyles.blockerPanel}>
+          <Text accessibilityRole="header" style={compactStyles.blockerTitle}>Connect a chess username</Text>
+          <Pressable accessibilityRole="button" accessibilityLabel="Open account settings to connect a chess username" onPress={() => onSelectTab("account")}>
+            <Text style={compactStyles.blockerCopy}>Side Quest Chess needs Lichess or Chess.com before it can check real games.</Text>
+          </Pressable>
+        </View>
       ) : null}
 
       <Pressable accessibilityRole={signedIn.activeQuest ? "button" : undefined} accessibilityLabel={signedIn.activeQuest ? "Open active Solo Side Quest" : undefined} style={compactStyles.activeSoloSection} onPress={signedIn.activeQuest ? () => setCurrentDetailOpen(true) : undefined}>
