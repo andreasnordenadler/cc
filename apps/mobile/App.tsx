@@ -8416,7 +8416,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
 
           {isSignedOutBrowse ? null : <View style={styles.groupquestsActiveCard} accessibilityLabel="Latest finished official Multiplayer Side Quest results">
             <Text style={styles.eyebrow}>Latest finished official set</Text>
-            <Text style={styles.sectionTitle}>Gold, silver, bronze.</Text>
+            <Text accessibilityRole="header" style={styles.sectionTitle}>Gold, silver, bronze.</Text>
             <Text style={styles.sectionBody}>The latest completed official weekly set appears here after the leaderboard closes.</Text>
             {previousOfficialGroupQuests.length ? (
               <View style={compactStyles.officialResultsStack}>
