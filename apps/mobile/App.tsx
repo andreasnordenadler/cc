@@ -1814,7 +1814,7 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
 
         {shell.catalogMode === "offline" ? (
           <View style={styles.catalogStateBanner} accessibilityLabel="Offline catalog notice">
-            <Text style={styles.catalogStateTitle}>Offline Side Quest board</Text>
+            <Text accessibilityRole="header" style={styles.catalogStateTitle}>Offline Side Quest board</Text>
             <Text style={styles.catalogStateCopy}>{shell.catalogNotice ? `Showing the saved fallback board because the live board could not refresh: ${shell.catalogNotice}` : "Showing the saved fallback board. Pull to try the live board again."}</Text>
           </View>
         ) : null}
