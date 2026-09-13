@@ -8805,7 +8805,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
                 </>
               ) : (
                 <View style={compactStyles.communityEmptyPanel}>
-                  <Text style={compactStyles.communityEmptyTitle}>{createQuestSearch || createShowSelectedOnly ? "No matching Side Quests" : createQuestSourceTab === "official" ? "No official Side Quests" : "No community-created Side Quests"}</Text>
+                  <Text accessibilityRole="header" style={compactStyles.communityEmptyTitle}>{createQuestSearch || createShowSelectedOnly ? "No matching Side Quests" : createQuestSourceTab === "official" ? "No official Side Quests" : "No community-created Side Quests"}</Text>
                   <Text style={compactStyles.communityEmptyCopy}>{createQuestSearch || createShowSelectedOnly ? "Adjust search, switch source, or turn off Selected to browse the catalog." : createQuestSourceTab === "official" ? "Official Side Quests will appear here when the catalog loads." : "Public community-created Side Quests and your published custom Side Quests will appear here."}</Text>
                 </View>
               )}
