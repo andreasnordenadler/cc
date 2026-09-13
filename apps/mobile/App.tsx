@@ -7467,7 +7467,7 @@ function SideQuestsScreen({
       <SelectedQuestDetailCard challenge={selectedChallenge} account={account} authBridge={authBridge} onSelectTab={onSelectTab} onAccountUpdated={onAccountUpdated} />
 
       <View style={styles.soloDeckHeader}>
-        <Text style={styles.sectionTitle}>Solo Side Quest deck</Text>
+        <Text accessibilityRole="header" style={styles.sectionTitle}>Solo Side Quest deck</Text>
         <Text style={styles.sectionBody}>Tap a Coat of Arms to review the rule, then start the Side Quest you want Side Quest Chess to judge next.</Text>
       </View>
 
