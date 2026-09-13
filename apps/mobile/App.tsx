@@ -6916,7 +6916,7 @@ function HomeScreen({
     <View style={styles.screenStack}>
       <View style={styles.homeHeroCard}>
         <CardGradientGlows />
-        <Text style={styles.homeHeroTitle}>Chess, but with stupidly hard side quests.</Text>
+        <Text accessibilityRole="header" style={styles.homeHeroTitle}>Chess, but with stupidly hard side quests.</Text>
         <Text style={styles.homeHeroBody}>
           {isSignedIn
             ? "Pick a Solo Side Quest or join a Multiplayer Side Quest, play a real Lichess or Chess.com game, then come back for automatic proof."
