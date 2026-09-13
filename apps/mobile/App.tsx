@@ -8502,7 +8502,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
 
       <View style={styles.groupquestsActiveCard} accessibilityLabel="Community Multiplayer Side Quests">
         <Text style={styles.eyebrow}>Available to join · community</Text>
-        <Text style={styles.sectionTitle}>Community Multiplayer Side Quests.</Text>
+        <Text accessibilityRole="header" style={styles.sectionTitle}>Community Multiplayer Side Quests.</Text>
         <Text style={styles.sectionBody}>{isSignedOutBrowse ? "Public player-hosted Multiplayer Side Quests you can inspect before signing in." : "Public player-hosted Multiplayer Side Quests appear after your active and recently finished tables."}</Text>
         <View style={compactStyles.communityBrowsePanel}>
           {multiplayerHostFilter ? (
