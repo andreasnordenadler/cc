@@ -8485,7 +8485,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
 
       {isSignedOutBrowse ? null : <View style={styles.groupquestsActiveCard} accessibilityLabel="Finished Multiplayer Side Quests">
         <Text style={styles.eyebrow}>Recently finished · {historyGroupQuests.length}</Text>
-        <Text style={styles.sectionTitle}>Recently finished Multiplayer Side Quests.</Text>
+        <Text accessibilityRole="header" style={styles.sectionTitle}>Recently finished Multiplayer Side Quests.</Text>
         {visibleHistoryGroupQuests.length ? (
           <View style={compactStyles.appRows}>
             {visibleHistoryGroupQuests.map((quest) => (
