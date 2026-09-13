@@ -6480,7 +6480,7 @@ function AccountTrackerDashboard({ bootstrap, account, authBridge, onSelectTab, 
         <AccountHelpSupportSection onOpenHelp={() => setHelpOpen(true)} />
         <HelpSupportModal visible={helpOpen} onClose={() => setHelpOpen(false)} signedIn={null} authBridge={authBridge} />
         <View style={compactStyles.heroPanel}>
-          <Text style={compactStyles.kicker}>Danger zone</Text>
+          <Text accessibilityRole="header" style={compactStyles.kicker}>Danger zone</Text>
           <Text style={compactStyles.heroCopy}>You can still delete your account while account details are unavailable.</Text>
           {showDeleteAccount ? (
             <View style={styles.inputStack}>
@@ -6634,7 +6634,7 @@ function AccountTrackerDashboard({ bootstrap, account, authBridge, onSelectTab, 
       <AccountHelpSupportSection onOpenHelp={() => setHelpOpen(true)} />
       <HelpSupportModal visible={helpOpen} onClose={() => setHelpOpen(false)} signedIn={accountState} authBridge={authBridge} />
       <View style={compactStyles.heroPanel}>
-        <Text style={compactStyles.kicker}>Danger zone</Text>
+        <Text accessibilityRole="header" style={compactStyles.kicker}>Danger zone</Text>
         <Text style={compactStyles.heroCopy}>Permanently delete your Side Quest Chess account, Clerk sign-in, account profile, and saved progress. Previously shared public proof links are not revoked, and public game records remain at Lichess or Chess.com. This cannot be undone.</Text>
         {showDeleteAccount ? (
           <View style={styles.inputStack}>
