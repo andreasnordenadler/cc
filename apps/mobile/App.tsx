@@ -7055,7 +7055,7 @@ function AppRitualCard({ compact = false }: { compact?: boolean }) {
   return (
     <View style={styles.appRitualCard}>
       <Text style={styles.eyebrow}>WHAT HAPPENS AFTER SIGN-IN</Text>
-      <Text style={styles.sectionTitle}>A tiny ritual, not another chess dashboard.</Text>
+      <Text accessibilityRole="header" style={styles.sectionTitle}>A tiny ritual, not another chess dashboard.</Text>
       {!compact ? <Text style={styles.sectionBody}>The whole Side Quest Chess loop now stays inside this app.</Text> : null}
       <View style={styles.appRitualSteps}>
         <FlowStep done title="Choose solo or multiplayer" body="Start one Side Quest for yourself, or join a Multiplayer Side Quest when the bad idea deserves witnesses." />
