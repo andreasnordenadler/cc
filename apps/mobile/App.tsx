@@ -8462,7 +8462,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
 
       {isSignedOutBrowse ? null : <View style={styles.groupquestsActiveCard} accessibilityLabel="Your Multiplayer Side Quests">
         <Text style={styles.eyebrow}>Active · joined and hosted</Text>
-        <Text style={styles.sectionTitle}>Your active Multiplayer Side Quests.</Text>
+        <Text accessibilityRole="header" style={styles.sectionTitle}>Your active Multiplayer Side Quests.</Text>
         <Text style={styles.sectionBody}>Joined and hosted Multiplayer Side Quests come first so your current tables are easy to resume.</Text>
         {visibleMineGroupQuests.length ? (
           <View style={compactStyles.appRows}>
