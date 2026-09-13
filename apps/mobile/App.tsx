@@ -8408,7 +8408,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
               </View>
             ) : (
               <View style={compactStyles.communityEmptyPanel}>
-                <Text style={compactStyles.communityEmptyTitle}>Official Multiplayer Side Quests</Text>
+                <Text accessibilityRole="header" style={compactStyles.communityEmptyTitle}>Official Multiplayer Side Quests</Text>
                 <Text style={compactStyles.communityEmptyCopy}>{isSignedOutBrowse && publicMultiplayerCatalog.status === "unavailable" ? "Public Multiplayer Side Quests could not be loaded. Check your connection and try again." : "No official Multiplayer Side Quests are open right now."}</Text>
               </View>
             )}
