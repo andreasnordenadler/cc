@@ -5701,7 +5701,7 @@ function QuestBoardDashboard({
                 <View style={compactStyles.communityBrowsePanel}>
                   {communityCreatorFilter ? (
                     <View style={compactStyles.communityEmptyPanel}>
-                      <Text style={compactStyles.communityEmptyTitle}>Creator shelf: {communityCreatorFilter}</Text>
+                      <Text accessibilityRole="header" style={compactStyles.communityEmptyTitle}>Creator shelf: {communityCreatorFilter}</Text>
                       <Text style={compactStyles.communityEmptyCopy}>Showing public Community Side Quests from this creator.</Text>
                       <Pressable accessibilityRole="button" accessibilityLabel="Show all Community Side Quest creators" style={compactStyles.secondaryAction} onPress={() => setCommunityCreatorFilter(null)}>
                         <Text style={compactStyles.secondaryActionText}>Show all creators</Text>
