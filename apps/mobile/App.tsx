@@ -7430,7 +7430,7 @@ function SideQuestsScreen({
         <View style={styles.soloBrowseHeroRow}>
           <View style={styles.soloBrowseHeroCopy}>
             <Text style={styles.eyebrow}>Solo Side Quests</Text>
-            <Text style={styles.soloBrowseHeroTitle}>Choose your next Side Quest</Text>
+            <Text accessibilityRole="header" style={styles.soloBrowseHeroTitle}>Choose your next Side Quest</Text>
             <Text style={styles.soloBrowseHeroText}>Pick one Side Quest, play on Lichess or Chess.com, then come back for automatic proof.</Text>
           </View>
           <View style={styles.soloBrowseHeroCoatWrap}>
