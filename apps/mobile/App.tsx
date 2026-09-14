@@ -10166,7 +10166,7 @@ function AccountShell({
       </View>
 
       <View style={styles.questLogCollectionCard}>
-        <Text style={styles.sectionTitle}>{signedInAccount.completedQuests.length ? "A deeply unnecessary trophy cabinet." : "No completed side quests yet."}</Text>
+        <Text accessibilityRole="header" style={styles.sectionTitle}>{signedInAccount.completedQuests.length ? "A deeply unnecessary trophy cabinet." : "No completed side quests yet."}</Text>
         <Text style={styles.sectionBody}>{signedInAccount.completedQuests.length ? "Officially impressive. Socially complicated. Please admire responsibly." : "No tiny heraldic paperwork yet. The shame is currently very organized."}</Text>
         <View style={styles.scoreboardRow}>
           <BigScore label="Completed" value={`${signedInAccount.progress.totalCompletedChallenges}`} />
