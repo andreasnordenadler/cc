@@ -6365,7 +6365,7 @@ function CoatBoardDashboard({ bootstrap, account, onOpenChallengeDetail, onOpenC
 
       {completedQuests.length ? (
         <View style={compactStyles.multiplayerNativeCard} accessibilityLabel="Unlocked Solo Side Quest rewards">
-          <Text style={compactStyles.multiplayerCardEyebrow}>Unlocked Solo Side Quest rewards</Text>
+          <Text accessibilityRole="header" style={compactStyles.multiplayerCardEyebrow}>Unlocked Solo Side Quest rewards</Text>
           <Text style={compactStyles.multiplayerCardTitle}>Official and Custom Solo Side Quest Coats of Arms</Text>
           <View style={compactStyles.appRows}>
             {completedQuests.map((quest) => {
@@ -6392,7 +6392,7 @@ function CoatBoardDashboard({ bootstrap, account, onOpenChallengeDetail, onOpenC
 
       {communityMultiplayerTrophies.length ? (
         <View style={compactStyles.multiplayerNativeCard} accessibilityLabel="Community Multiplayer Side Quest trophies">
-          <Text style={compactStyles.multiplayerCardEyebrow}>Community Multiplayer trophies</Text>
+          <Text accessibilityRole="header" style={compactStyles.multiplayerCardEyebrow}>Community Multiplayer trophies</Text>
           <Text style={compactStyles.multiplayerCardTitle}>Community Multiplayer podiums.</Text>
           <View style={compactStyles.appRows}>
             {communityMultiplayerTrophies.map((trophy) => (
@@ -6413,7 +6413,7 @@ function CoatBoardDashboard({ bootstrap, account, onOpenChallengeDetail, onOpenC
       ) : null}
 
       <View style={compactStyles.multiplayerNativeCard} accessibilityLabel="Official Solo Side Quest collection">
-        <Text style={compactStyles.multiplayerCardEyebrow}>Official Solo Side Quest collection</Text>
+        <Text accessibilityRole="header" style={compactStyles.multiplayerCardEyebrow}>Official Solo Side Quest collection</Text>
         <Text style={compactStyles.multiplayerCardTitle}>{officialCompleted.length} of {bootstrap.challenges.length} official Side Quest Coats of Arms unlocked.</Text>
         <Text style={styles.microcopy}>Locked official Coats of Arms are previews. Custom Solo Side Quest and community Multiplayer rewards appear above when earned.</Text>
       </View>
