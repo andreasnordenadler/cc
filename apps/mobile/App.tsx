@@ -7455,7 +7455,7 @@ function SideQuestsScreen({
 
       <View style={compactStyles.multiplayerNativeCard}>
         <Text style={compactStyles.multiplayerCardEyebrow}>Side Quest Library</Text>
-        <Text style={compactStyles.multiplayerCardTitle}>Your custom Side Quest library.</Text>
+        <Text accessibilityRole="header" style={compactStyles.multiplayerCardTitle}>Your custom Side Quest library.</Text>
         <Text style={styles.sectionBody}>Create your own chess challenges, then use them as Solo Side Quests or Multiplayer Side Quests.</Text>
         <View style={compactStyles.appRows}>
           {visibleCustomDrafts.length ? visibleCustomDrafts.map((draft) => (
