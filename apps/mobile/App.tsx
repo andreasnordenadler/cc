@@ -8507,7 +8507,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
         <View style={compactStyles.communityBrowsePanel}>
           {multiplayerHostFilter ? (
             <View style={compactStyles.communityEmptyPanel}>
-              <Text style={compactStyles.communityEmptyTitle}>Host shelf: {multiplayerHostFilter}</Text>
+              <Text accessibilityRole="header" style={compactStyles.communityEmptyTitle}>Host shelf: {multiplayerHostFilter}</Text>
               <Text style={compactStyles.communityEmptyCopy}>Showing public Community Multiplayer Side Quests from this host.</Text>
               <Pressable accessibilityRole="button" accessibilityLabel="Show all Multiplayer hosts" style={compactStyles.secondaryAction} onPress={() => setMultiplayerHostFilter(null)}>
                 <Text style={compactStyles.secondaryActionText}>Show all hosts</Text>
