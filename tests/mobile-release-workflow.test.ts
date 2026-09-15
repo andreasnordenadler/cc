@@ -112,6 +112,18 @@ test("hosted installs use an installable pnpm release whose audit client support
   }
 });
 
+test("mobile release workflow installs only supported Android SDK packages", () => {
+  const source = readRepoFile(".github/workflows/mobile-release-gate.yml");
+  const androidSetupPackageLines = [...source.matchAll(
+    /uses: android-actions\/setup-android@v3\n\s+with:\n\s+packages:\s*([^\n]+)/g,
+  )].map((match) => match[1]?.trim());
+
+  assert.match(source, /uses: actions\/setup-java@v5/);
+  assert.doesNotMatch(source, /uses: actions\/setup-java@v4/);
+  assert.deepEqual(androidSetupPackageLines, ["platform-tools", "platform-tools"]);
+  assert.doesNotMatch(source, /packages: tools platform-tools/);
+});
+
 test("pull-request release gate validates iOS and Android native generation without credentials", () => {
   const source = readRepoFile(".github/workflows/mobile-release-gate.yml");
   const releaseScript = readRepoFile("scripts/mobile-release.mjs");
