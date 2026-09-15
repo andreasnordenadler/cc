@@ -53,6 +53,7 @@ test("signed-out mobile catalog exposes populated real public quest records with
   assert.equal(catalog.status, "available");
   assert.deepEqual(catalog.officialGroupQuests.map((quest) => quest.id), ["official-real-quest"]);
   assert.deepEqual(catalog.communityGroupQuests.map((quest) => quest.id), ["community-real-quest"]);
+  assert.equal(catalog.communityGroupQuests[0]?.hostName, "Side Quest Chess");
   const official = catalog.officialGroupQuests[0];
   assert.equal(official.playersLabel, "1 player");
   assert.equal(official.timeLeftLabel, "22h left");
