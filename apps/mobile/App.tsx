@@ -1,6 +1,6 @@
 /* eslint-disable jsx-a11y/alt-text, @typescript-eslint/no-unused-vars, @typescript-eslint/no-require-imports */
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { ClerkProvider, useAuth, useClerk, useSignInWithApple, useSSO, useSignIn, useSignUp, useUser } from "@clerk/clerk-expo";
+import { ClerkProvider, useAuth, useClerk, useSSO, useSignIn, useSignUp, useUser } from "@clerk/clerk-expo";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import DateTimePicker, { type DateTimePickerEvent } from "@react-native-community/datetimepicker";
 import * as AuthSession from "expo-auth-session";
@@ -8,6 +8,7 @@ import * as WebBrowser from "expo-web-browser";
 import * as Clipboard from "expo-clipboard";
 import * as Application from "expo-application";
 import * as AppleAuthentication from "expo-apple-authentication";
+import * as Crypto from "expo-crypto";
 import { LinearGradient } from "expo-linear-gradient";
 import {
   AccessibilityInfo,
@@ -50,6 +51,7 @@ import { createMobileSessionGuard, loadMobileAccount } from "./src/account/loadM
 import { clerkPublishableKey, clerkTokenCache, isClerkMobileAuthConfigured } from "./src/auth/clerk";
 import { shouldExposeAppleSignIn } from "./src/auth/appleSignInReadiness";
 import { completeAppleSignIn } from "./src/auth/completeAppleSignIn";
+import { startNativeAppleSignIn } from "./src/auth/startNativeAppleSignIn";
 import { isFacebookSignInEnabled } from "./src/auth/isFacebookSignInEnabled";
 import { completeSocialSignIn, socialSignInErrorMessage } from "./src/auth/completeSocialSignIn";
 import { isAppleSignInCancellation, runAppleSignInWithOAuthFallback } from "./src/auth/runAppleSignInWithOAuthFallback";
@@ -1334,7 +1336,6 @@ function ClerkMobileShell() {
   const { getToken, isLoaded, isSignedIn, sessionId } = useAuth();
   const { signOut } = useClerk();
   const { startSSOFlow } = useSSO();
-  const { startAppleAuthenticationFlow } = useSignInWithApple();
   const { signIn, setActive: setSignInActive, isLoaded: signInLoaded } = useSignIn();
   const { signUp, setActive: setSignUpActive, isLoaded: signUpLoaded } = useSignUp();
   const { user } = useUser();
@@ -1386,7 +1387,18 @@ function ClerkMobileShell() {
         throw new Error("Sign-in is still loading. Try again in a moment.");
       }
       await runAppleSignInWithOAuthFallback({
-        startNative: () => startAppleAuthenticationFlow(),
+        startNative: () => startNativeAppleSignIn({
+          requestCredential: () => AppleAuthentication.signInAsync({
+            requestedScopes: [
+              AppleAuthentication.AppleAuthenticationScope.FULL_NAME,
+              AppleAuthentication.AppleAuthenticationScope.EMAIL,
+            ],
+            nonce: Crypto.randomUUID(),
+          }),
+          createSignIn: (params) => signIn.create(params),
+          createSignUp: (params) => signUp.create(params),
+          setActive: setSignInActive ?? setSignUpActive,
+        }),
         completeNative: completeAppleSignIn,
         startOAuth: () => startSSOFlow({
           strategy: "oauth_apple",
@@ -1398,7 +1410,7 @@ function ClerkMobileShell() {
       if (isAppleSignInCancellation(caught)) return;
       Alert.alert("Sign-in error", socialSignInErrorMessage(caught));
     }
-  }, [signInLoaded, signUpLoaded, startAppleAuthenticationFlow, startSSOFlow]);
+  }, [setSignInActive, setSignUpActive, signIn, signInLoaded, signUp, signUpLoaded, startSSOFlow]);
 
   const startPasswordSignIn = useCallback(async ({ identifier, password }: { identifier: string; password: string }) => {
     if (!signInLoaded) throw new Error("Sign-in is still loading. Try again in a moment.");
