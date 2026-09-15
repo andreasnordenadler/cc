@@ -33,6 +33,7 @@ export type MobilePublicMultiplayerQuest = {
   playersLabel: string;
   timeLeftLabel: string;
   official: boolean;
+  hostName: string;
   joinState: "Join";
   inviteMode: "public";
   inviteCopy: string;
@@ -108,6 +109,7 @@ function toMobilePublicMultiplayerQuest(quest: PublicMultiplayerQuestSource, bas
     playersLabel,
     timeLeftLabel,
     official,
+    hostName: quest.hostName,
     joinState: "Join",
     inviteMode: "public",
     inviteCopy: quest.inviteCopy,
