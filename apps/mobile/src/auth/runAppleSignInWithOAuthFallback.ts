@@ -1,4 +1,4 @@
-type AppleSignInCompletionState = "complete" | "canceled";
+type AppleSignInCompletionState = "complete" | "canceled" | "fallback";
 
 type AppleSignInWithOAuthFallbackParams<TNativeResult, TOAuthResult> = {
   startNative: () => Promise<TNativeResult>;
@@ -57,5 +57,10 @@ export async function runAppleSignInWithOAuthFallback<TNativeResult, TOAuthResul
   }
 
   const nativeCompletion = await completeNative(nativeResult);
-  return nativeCompletion === "complete" ? "native" : "canceled";
+  if (nativeCompletion === "complete") return "native";
+  if (nativeCompletion === "canceled") return "canceled";
+
+  const oauthResult = await startOAuth();
+  const oauthCompletion = await completeOAuth(oauthResult);
+  return oauthCompletion === "complete" ? "oauth" : "canceled";
 }

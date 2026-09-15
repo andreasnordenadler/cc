@@ -53,8 +53,9 @@ test("iOS wires native Sign in with Apple through capability and Clerk readiness
   assert.equal(config.ios.usesAppleSignIn, true);
   assert.ok(config.plugins.includes("expo-apple-authentication"));
   assert.equal(mobilePackage.dependencies["expo-apple-authentication"], "~8.0.8");
-  assert.match(appSource, /useSignInWithApple/);
-  assert.match(appSource, /startAppleAuthenticationFlow\(\)/);
+  assert.doesNotMatch(appSource, /useSignInWithApple/);
+  assert.match(appSource, /startNativeAppleSignIn\(\{/);
+  assert.match(appSource, /AppleAuthentication\.signInAsync\(\{/);
   assert.match(appSource, /isAppleSignInCancellation/);
   assert.match(appSource, /AppleAuthentication\.isAvailableAsync\(\)/);
   assert.match(appSource, /shouldExposeAppleSignIn\(\{/);
@@ -72,11 +73,13 @@ test("the replacement iOS candidate advances beyond rejected build 1", () => {
   assert.equal(config.ios.buildNumber, "2");
 });
 
-test("Apple sign-in treats Clerk's canceled return shape as a non-error", async () => {
-  assert.equal(
-    await completeAppleSignIn({ createdSessionId: null, setActive: async () => undefined }),
-    "canceled",
-  );
+test("Apple sign-in rejects malformed native completion values", async () => {
+  for (const createdSessionId of [undefined, "", 42]) {
+    await assert.rejects(
+      completeAppleSignIn({ createdSessionId, setActive: async () => undefined }),
+      /invalid session result/i,
+    );
+  }
 });
 
 test("Apple sign-in reports an activatable session that cannot be activated", async () => {
