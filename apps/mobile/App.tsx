@@ -8691,7 +8691,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
               <Text style={compactStyles.multiplayerCardEyebrow}>Included Side Quests</Text>
               <View style={compactStyles.createSelectionHeader}>
                 <View style={compactStyles.createSelectionHeaderCopy}>
-                  <Text style={compactStyles.multiplayerCardTitle}>Your Multiplayer draft</Text>
+                  <Text accessibilityRole="header" style={compactStyles.multiplayerCardTitle}>Your Multiplayer draft</Text>
                   <Text style={compactStyles.createSelectionMeta}>{createQuestIds.length}/{MULTIPLAYER_CREATE_MAX_QUESTS} Side Quests selected</Text>
                 </View>
                 {createQuestIds.length ? (
