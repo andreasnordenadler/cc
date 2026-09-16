@@ -28,6 +28,16 @@ export type BackRankVerdict = {
   lastMoveUci?: string;
   lastMoveSan?: string;
   chessComReplayIdentity?: string;
+  failureDiagnostic?: {
+    label?: string;
+    explanation?: string;
+    moveNumber?: number;
+    ply?: number;
+    san?: string;
+    uci?: string;
+    fenAtBreak?: string;
+    playerColor?: BackRankSide;
+  };
 };
 
 type LichessBackRankGame = {
@@ -222,6 +232,16 @@ export function evaluateBackRankGoblin(game: BackRankGame): BackRankVerdict {
     finalPositionFen: chess.fen(),
     lastMoveUci: lastMove?.lan,
     lastMoveSan: lastMove?.san,
+    failureDiagnostic: {
+      label: "Latest checked position",
+      explanation: "Latest game did not satisfy Back Rank Goblin yet. Win with a rook or queen checkmate on the enemy king's back rank.",
+      moveNumber: game.canonicalReplay ? Math.ceil((game.canonicalReplay.moves.at(-1)?.ply ?? 0) / 2) : Math.ceil(game.moves.length / 2),
+      ply: game.canonicalReplay ? (game.canonicalReplay.moves.at(-1)?.ply ?? 0) : game.moves.length,
+      san: lastMove?.san,
+      uci: lastMove?.lan,
+      fenAtBreak: chess.fen(),
+      playerColor: game.playerColor,
+    },
   };
 }
 
