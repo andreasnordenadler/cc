@@ -71,6 +71,17 @@ export type KnightsBeforeCoffeeVerdict = {
 
 const ALLOWED_TIME_CLASSES = new Set<KnightsBeforeCoffeeTimeClass>(["bullet", "blitz", "rapid", "unknown"]);
 
+function finalPositionDiagnostic(game: KnightsBeforeCoffeeGame, explanation: string) {
+  return {
+    label: "Latest checked position",
+    explanation,
+    fenAtBreak: game.finalPositionFen,
+    san: game.lastMoveSan,
+    uci: game.lastMoveUci,
+    playerColor: game.playerColor,
+  };
+}
+
 function colorName(color: KnightsBeforeCoffeeSide) {
   return color === "white" ? "White" : "Black";
 }
@@ -231,6 +242,7 @@ export function evaluateKnightsBeforeCoffee(game: KnightsBeforeCoffeeGame): Knig
       finalPositionFen: game.finalPositionFen,
       lastMoveUci: game.lastMoveUci,
       lastMoveSan: game.lastMoveSan,
+      failureDiagnostic: finalPositionDiagnostic(game, "Variants are wonderful chaos, but Knights Before Coffee only counts standard chess games."),
     };
   }
 
@@ -243,6 +255,7 @@ export function evaluateKnightsBeforeCoffee(game: KnightsBeforeCoffeeGame): Knig
       finalPositionFen: game.finalPositionFen,
       lastMoveUci: game.lastMoveUci,
       lastMoveSan: game.lastMoveSan,
+      failureDiagnostic: finalPositionDiagnostic(game, "This game was outside the v1 bullet/blitz/rapid eligibility window."),
     };
   }
 
@@ -255,6 +268,7 @@ export function evaluateKnightsBeforeCoffee(game: KnightsBeforeCoffeeGame): Knig
       finalPositionFen: game.finalPositionFen,
       lastMoveUci: game.lastMoveUci,
       lastMoveSan: game.lastMoveSan,
+      failureDiagnostic: finalPositionDiagnostic(game, "Knights Before Coffee only counts if the horse-first player wins."),
     };
   }
 
@@ -267,6 +281,7 @@ export function evaluateKnightsBeforeCoffee(game: KnightsBeforeCoffeeGame): Knig
       finalPositionFen: game.finalPositionFen,
       lastMoveUci: game.lastMoveUci,
       lastMoveSan: game.lastMoveSan,
+      failureDiagnostic: finalPositionDiagnostic(game, "The game ended before four player moves could prove the horse-first ritual."),
     };
   }
 
