@@ -67,10 +67,10 @@ test("iOS wires native Sign in with Apple through capability and Clerk readiness
   assert.equal(appleButtons.length, 2, "both signed-out account surfaces must expose the ready native Apple button on iOS");
 });
 
-test("the replacement iOS candidate advances beyond rejected build 1", () => {
+test("the App Review recovery candidate advances beyond TestFlight build 2", () => {
   const config = JSON.parse(readRepoFile("apps/mobile/app.json")).expo;
   assert.equal(config.version, "0.1.349");
-  assert.equal(config.ios.buildNumber, "2");
+  assert.equal(config.ios.buildNumber, "3");
 });
 
 test("Apple sign-in rejects malformed native completion values", async () => {
