@@ -26,12 +26,12 @@ test("build 3 approval packet binds the exact signed IPA and keeps every irrever
   assert.match(packet, /archive itself carries the Apple Development signature/);
   assert.match(packet, /exported IPA carries the Apple Distribution signature/);
   assert.match(packet, /get-task-allow=false/);
-  assert.match(packet, /Do not upload, select, submit, or release/);
+  assert.match(packet, /Do not select, submit, or release/);
 });
 
-test("build 3 approval packet preserves the archive receipt's not-uploaded state", () => {
-  assert.match(packet, /EXPORTED AND INSPECTED — NOT UPLOADED/);
+test("build 3 approval packet distinguishes the local upload-success log from unverified App Store Connect state", () => {
+  assert.match(packet, /local xcodebuild upload log records “Upload succeeded”/);
   assert.match(packet, /not independently confirmed in App Store Connect/);
-  assert.doesNotMatch(packet, /local upload record/);
-  assert.doesNotMatch(packet, /Uploaded to Apple/);
+  assert.match(packet, /does not authorize selection, submission, metadata changes, or release/);
+  assert.doesNotMatch(packet, /Because build 3 is \*\*not uploaded\*\*/);
 });
