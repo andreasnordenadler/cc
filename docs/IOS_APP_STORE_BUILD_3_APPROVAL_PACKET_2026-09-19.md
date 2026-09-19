@@ -1,7 +1,7 @@
 # Side Quest Chess — App Store approval packet: 0.1.349 (3)
 
 **Prepared:** 2026-09-19
-**Status:** local archive evidence contains an upload-success record for build 3, but its App Store Connect processing state is not independently confirmed because the available Safari session is logged out. This packet authorizes no further Apple mutation.
+**Status:** **EXPORTED AND INSPECTED — NOT UPLOADED.** The local archive/export receipt verifies the exact IPA but is not an Apple upload, processing, TestFlight, or App Store Connect receipt. The available Safari session is logged out, so read-only App Store Connect inventory is not yet available. This packet authorizes no Apple mutation.
 
 ## Exact candidate identity
 
@@ -23,9 +23,9 @@ Local IPA inspection verified `CFBundleDisplayName=Side Quest Chess`, `CFBundleS
 ## Candidate verification completed
 
 - The frozen candidate source commit `82a5fc62b24e107143f84107a87da3f264516dee` matched `origin/main` when the archive/export was created. Reconciled `origin/main` is now `f2d28e6603268b42b38e939368fc504e70430f41`; this packet does not claim that later source is byte-identical to build 3. `app.json` in the frozen source declares version `0.1.349`, build `3`, bundle `com.sidequestchess.app`, iPhone+iPad support, Apple Sign In, and exempt-encryption declaration.
-- The retained Xcode archive `Info.plist` and `upload.log` record a successful `xcodebuild -exportArchive` upload of build 3 at 2026-09-19 14:19 UTC: `Uploaded to Apple` / `Upload succeeded`. This is a local upload record, not an App Store Connect inventory receipt; the build’s processing, compliance, rejection, selection, metadata, and release state are **not independently confirmed in App Store Connect**. No further upload, retry, selection, metadata update, submission, or release is authorized.
-- Fresh targeted iOS/auth/release contracts: **31 passing**. They cover generated-project identity, Apple sign-in availability/completion/recovery, encryption declaration, EAS toolchain, release provenance, review packet, and release workflow controls.
-- Fresh full suite: **2,293 passing; 1 unrelated base-branch regression**. The sole failure is `tests/public-facing-copy.test.ts`, which treats internal `/admin/analytics` text added on current `origin/main` as public copy because it uses the internal acronym “SQC”; this documentation-only lane did not change that source. Root lint completed with **0 errors and 9 existing warnings**; mobile TypeScript and the production web build passed.
+- The retained Xcode archive and export receipt record `ARCHIVE SUCCEEDED` and `EXPORT SUCCEEDED` at 2026-09-19 14:19 UTC. They explicitly record **EXPORTED AND INSPECTED — NOT UPLOADED**. The build’s Apple processing, compliance, rejection, selection, metadata, TestFlight, and release states are **not independently confirmed in App Store Connect**. No upload, selection, metadata update, submission, or release is authorized.
+- Fresh targeted iOS/auth/release contracts: **30 passing**. They cover generated-project identity, Apple sign-in availability/completion/recovery, encryption declaration, EAS toolchain, release provenance, review packet, and release workflow controls.
+- Fresh frozen-candidate gates (2026-09-19): full suite **2,271 passing**; root lint and production web build passed; mobile TypeScript and Expo Doctor (**18/18**) passed. The isolated candidate checkout was clean before and after these gates.
 - Mobile TypeScript check: **passed**.
 - Build-3 IPA inspection: **passed** for the identity and signing facts above.
 - Owner-attended evidence: Apple Sign In, session persistence, Google Sign In, and reviewer-password login were successfully exercised. This is owner-attended integration evidence, not an App Store Connect or TestFlight receipt.
@@ -34,8 +34,7 @@ Local IPA inspection verified `CFBundleDisplayName=Side Quest Chess`, `CFBundleS
 
 ### Current local limitations
 
-- `expo-doctor` reports 17/18 checks: the lone warning correctly detects the disposable generated `apps/mobile/ios/` tree and notes that prebuild-managed fields would not sync if that tree were adopted. It has not been adopted as source.
-- A root `pnpm exec expo config` call is not a project command and failed because Expo is installed under `apps/mobile`; use `pnpm --dir apps/mobile run doctor` / the mobile workspace commands instead.
+- The authoritative documentation checkout has a disposable untracked generated `apps/mobile/ios/` tree. It is not release source. The isolated frozen candidate regenerated and then removed its own iOS tree; Expo Doctor passed 18/18 there.
 - App Store Connect read-only inspection is blocked by the logged-out Safari session: `https://appstoreconnect.apple.com/login?targetUrl=%2Fapps&authResult=FAILED`.
 
 ## Reproducible archive/export and upload plan
@@ -45,7 +44,7 @@ The retained IPA is already the sole build-3 candidate. **Do not rebuild it thro
 1. Use a clean detached checkout at the frozen candidate commit `82a5fc62b24e107143f84107a87da3f264516dee`; verify `apps/mobile/app.json` declares `0.1.349 (3)` / `com.sidequestchess.app`. Do not substitute current `origin/main`, which has advanced since archive creation.
 2. Verify only the retained IPA at the path above: SHA-256 `8000e9f2edd067a2d7d206f292b5ea7695db3c19f53c8e190bcf618a9ba544f7`, 58,700,458 bytes, bundle/version/build, device families `1,2`, Team ID `326A3FZB2Q`, Apple Sign In, `get-task-allow=false`, and exempt-encryption state.
 3. Preserve and re-read the local archive/export provenance receipt that binds this IPA to the frozen source; the IPA itself does not contain the Git commit.
-4. **Do not upload or retry upload** unless a later read-only inventory proves that no matching Apple build exists and Andreas gives a new scoped authorization. First read back Apple’s processing/compliance state and immutable build ID. Do not select, assign, submit, answer review, or release without further explicit approval.
+4. First obtain a read-only App Store Connect inventory. Because build 3 is **not uploaded**, any upload requires Andreas’s separate scoped authorization naming this IPA SHA-256. After any authorized upload, read back Apple processing/compliance state and immutable build ID. Do not select, assign, submit, answer review, or release without further explicit approval.
 
 ## Exact public listing copy (English U.S.)
 
@@ -119,7 +118,7 @@ Do not add unverified claims about moderation, blocking, deletion completeness, 
 
 ## Approval boundary and immediate owner action
 
-**Do not upload or retry upload, select, submit, or release** build 3; do not mutate App Store Connect metadata, privacy, age, territories, pricing, review notes, users, roles, credentials, or release settings.
+**Do not upload, select, submit, or release** build 3; do not mutate App Store Connect metadata, privacy, age, territories, pricing, review notes, users, roles, credentials, or release settings.
 
 The only immediate blocking action is interactive Apple sign-in/MFA by the authorized owner on the already-open Safari login page. Once authenticated, the permitted next action is read-only inventory of the app record, build 3 processing/rejection/compliance status and immutable build ID, bundle/SKU duplicates, listing metadata, privacy, age rating, reviewer access, screenshots, territories, and release setting. Reconcile that receipt into this packet before requesting a scoped explicit approval.
 
