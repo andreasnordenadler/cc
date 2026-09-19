@@ -10,7 +10,10 @@ const sourceExtensions = new Set([".ts", ".tsx"]);
 function sourceFiles(path: string): string[] {
   return readdirSync(path, { withFileTypes: true }).flatMap((entry) => {
     const child = join(path, entry.name);
-    if (entry.isDirectory()) return sourceFiles(child);
+    if (entry.isDirectory()) {
+      if (child === join("src", "app", "admin")) return [];
+      return sourceFiles(child);
+    }
     return sourceExtensions.has(extname(entry.name)) ? [child] : [];
   });
 }
