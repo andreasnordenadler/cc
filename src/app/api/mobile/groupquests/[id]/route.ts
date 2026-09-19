@@ -13,6 +13,7 @@ import {
   buildMultiplayerCompletionAccountPatch,
   buildPendingGroupQuestCompletions,
 } from "@/lib/groupquest-completion-reconciliation";
+import { getMultiplayerQuestStartCutoff } from "@/lib/quest-game-start-cutoff";
 import { validateMultiplayerProofConfiguration, validateMultiplayerProofUpdate } from "@/lib/multiplayer-proof-rules";
 import {
   OFFICIAL_GROUP_QUEST_METADATA_KEY,
@@ -417,7 +418,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
         challengeId: questId,
         provider: participant.provider,
         username: participant.username,
-        startAt: quest.startAt,
+        startAt: getMultiplayerQuestStartCutoff(quest, participant),
         endAt: quest.endAt,
         rules: quest.rules,
         customQuest: found.groupQuest.customQuestSnapshots?.find((snapshot) => snapshot.id === questId) ?? null,

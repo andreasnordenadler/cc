@@ -10,6 +10,8 @@ test("exact-game submission accepts only the authenticated account's active Solo
   assert.doesNotThrow(() => assertActiveSoloSubmissionTarget({ id: "finish-any-game", startedAt: "2026-07-17T00:00:00.000Z" }, "finish-any-game"));
   assert.throws(() => assertActiveSoloSubmissionTarget(null, "finish-any-game"), /Start this Side Quest before submitting a specific game\./);
   assert.throws(() => assertActiveSoloSubmissionTarget({ id: "another-quest" }, "finish-any-game"), /Start this Side Quest before submitting a specific game\./);
+  assert.throws(() => assertActiveSoloSubmissionTarget({ id: "finish-any-game" }, "finish-any-game"), /Restart this Side Quest/);
+  assert.throws(() => assertActiveSoloSubmissionTarget({ id: "finish-any-game", startedAt: "not-a-date" }, "finish-any-game"), /Restart this Side Quest/);
 });
 
 test("production exact-game action rejects a non-active target before provider checks or persistence", async () => {

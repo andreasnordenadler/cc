@@ -8,5 +8,9 @@ export function assertActiveSoloSubmissionTarget(activeChallenge: ActiveSoloSubm
     throw new Error("Start this Side Quest before submitting a specific game.");
   }
 
+  if (!activeChallenge.startedAt || !Number.isFinite(Date.parse(activeChallenge.startedAt))) {
+    throw new Error("Restart this Side Quest before checking proof because its persisted start time is missing or invalid.");
+  }
+
   return activeChallenge;
 }

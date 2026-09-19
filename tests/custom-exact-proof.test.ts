@@ -1297,6 +1297,24 @@ test("production custom submit rejects proof started before server activation wi
   assert.equal(persistenceCalls, 0);
 });
 
+test("production custom submit does not substitute game completion time for a missing start time", async () => {
+  let persistenceCalls = 0;
+  const activeChallenge = { id: "custom-win", status: "accepted", startedAt: "2026-07-18T09:00:00.000Z", customQuestSnapshot: winQuest };
+  await assert.rejects(() => submitMobileChallengeAttempt(
+    "user-1",
+    { lichessUsername: "alice", activeChallenge },
+    {},
+    "custom-win",
+    "Exact123",
+    {
+      now: () => "2026-07-18T11:00:00.000Z",
+      verifySubmitted: async () => ({ status: "passed", gameId: "Exact123", summary: "passed", completedGameAt: "2026-07-18T10:00:00.000Z" }),
+      persistPublicMetadata: async () => { persistenceCalls += 1; },
+    },
+  ), /authoritative game-start time/i);
+  assert.equal(persistenceCalls, 0);
+});
+
 test("production submit treats every pending exact-game result as rejection with zero persistence", async () => {
   const activeChallenge = { id: "custom-win", status: "accepted", startedAt: "2026-07-18T09:00:00.000Z", customQuestSnapshot: winQuest };
   for (const summary of [

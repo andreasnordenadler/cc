@@ -35,6 +35,57 @@ test("Lichess matching selected rules preserves successful proof semantics", asy
   assert.equal(result.gameUrl, "https://lichess.org/li-match");
 });
 
+test("Multiplayer rejects a game started before join even when it finishes afterward", async (t) => {
+  t.mock.method(globalThis, "fetch", async () => new Response(`${JSON.stringify({
+    id: "li-started-before-join",
+    status: "mate",
+    winner: "white",
+    speed: "blitz",
+    rated: true,
+    variant: "standard",
+    createdAt: Date.parse("2026-07-02T09:55:00.000Z"),
+    lastMoveAt: Date.parse("2026-07-02T10:05:00.000Z"),
+    players: { white: { user: { name: "RuleAlice" } }, black: { user: { name: "Bob" } } },
+    moves: "e2e4 e7e5",
+  })}\n`, { status: 200 }));
+
+  const result = await checkLatestGroupQuestChallenge({
+    challengeId: "finish-any-game",
+    provider: "lichess",
+    username: "RuleAlice",
+    startAt: "2026-07-02T10:00:00.000Z",
+    endAt: "2026-07-02T11:00:00.000Z",
+  });
+
+  assert.equal(result.status, "pending");
+  assert.match(result.summary, /started before/i);
+});
+
+test("Multiplayer fails closed when the provider omits the authoritative game start", async (t) => {
+  t.mock.method(globalThis, "fetch", async () => new Response(`${JSON.stringify({
+    id: "li-missing-start",
+    status: "mate",
+    winner: "white",
+    speed: "blitz",
+    rated: true,
+    variant: "standard",
+    lastMoveAt: Date.parse("2026-07-02T10:05:00.000Z"),
+    players: { white: { user: { name: "RuleAlice" } }, black: { user: { name: "Bob" } } },
+    moves: "e2e4 e7e5",
+  })}\n`, { status: 200 }));
+
+  const result = await checkLatestGroupQuestChallenge({
+    challengeId: "finish-any-game",
+    provider: "lichess",
+    username: "RuleAlice",
+    startAt: "2026-07-02T10:00:00.000Z",
+    endAt: "2026-07-02T11:00:00.000Z",
+  });
+
+  assert.equal(result.status, "pending");
+  assert.match(result.summary, /authoritative game-start time/i);
+});
+
 test("Chess.com mismatching selected rules returns machine-readable reasons", async (t) => {
   t.mock.method(globalThis, "fetch", async (url: string | URL | Request) => String(url).endsWith("/archives")
     ? jsonResponse({ archives: ["https://api.chess.com/pub/player/rulecarol/games/2026/07"] })
@@ -118,7 +169,7 @@ test("failed custom Multiplayer attempts stay definitive across providers", asyn
     rated: true,
     white: { username: "RuleAlice", result: "win" },
     black: { username: "Bob", result: "checkmated" },
-    pgn: "[Result \"1-0\"]\n\n1. e4 e5 2. Bc4 Nc6 3. Qh5 Nf6 4. Qxf7# 1-0",
+    pgn: "[UTCDate \"2026.07.02\"]\n[UTCTime \"09:55:00\"]\n[Result \"1-0\"]\n\n1. e4 e5 2. Bc4 Nc6 3. Qh5 Nf6 4. Qxf7# 1-0",
   };
   const lichessGame = {
     id: "liFail01",
@@ -174,7 +225,7 @@ test("Back Rank Goblin preserves Win-required Chess.com Multiplayer proof", asyn
     rated: true,
     white: { username: "RuleAlice", result: "win" },
     black: { username: "Bob", result: "checkmated" },
-    pgn: "[Result \"1-0\"]\n\n1. e4 d5 2. exd5 Qxd5 3. Nc3 Qa5 4. Nf3 e5 5. Nxe5 Nf6 6. Bc4 Be7 7. O-O O-O 8. Re1 a6 9. Bb3 Qc5 10. Nc4 Bd6 11. Nxd6 cxd6 12. d3 Nh5 13. h3 Re8 14. Rxe8# 1-0",
+    pgn: "[UTCDate \"2026.07.02\"]\n[UTCTime \"09:55:00\"]\n[Result \"1-0\"]\n\n1. e4 d5 2. exd5 Qxd5 3. Nc3 Qa5 4. Nf3 e5 5. Nxe5 Nf6 6. Bc4 Be7 7. O-O O-O 8. Re1 a6 9. Bb3 Qc5 10. Nc4 Bd6 11. Nxd6 cxd6 12. d3 Nh5 13. h3 Re8 14. Rxe8# 1-0",
   };
   let archiveReads = 0;
   t.mock.method(globalThis, "fetch", async (url: string | URL | Request) => String(url).endsWith("/archives")

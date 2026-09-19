@@ -2,6 +2,7 @@ import { getChallengeById } from "@/lib/challenges";
 import { checkLatestChallengeForProvider, getLatestFinishedGameVerdict, type LatestChallengeOutcome, type LatestChallengeVerdict } from "@/lib/challenge-latest-verifiers";
 import { checkLatestCustomSideQuestForProvider, type CustomSideQuest } from "@/lib/custom-side-quests";
 import { evaluateMultiplayerProofRules, type MultiplayerGameMetadata, type MultiplayerProofMismatchReason } from "@/lib/multiplayer-proof-rules";
+import { evaluateQuestGameStartEligibility } from "@/lib/quest-game-start-cutoff";
 
 export type GroupQuestCheckResult = {
   status: "passed" | "failed" | "pending";
@@ -44,9 +45,23 @@ function buildWindowedResult(
 ): GroupQuestCheckResult {
   const title = getChallengeById(challengeId)?.title ?? challengeId;
   const gameTime = resolveVerdictTime(verdict);
-  const startTs = startAt ? Date.parse(startAt) : NaN;
   const endTs = endAt ? Date.parse(endAt) : NaN;
   const gameTs = gameTime ? Date.parse(gameTime) : NaN;
+
+  if (verdict.status !== "pending") {
+    const eligibility = evaluateQuestGameStartEligibility({
+      gameStartedAt: verdict.startedGameAt,
+      gameCompletedAt: verdict.completedGameAt,
+      questStartedAt: startAt,
+    });
+    if (eligibility.status !== "eligible") {
+      return {
+        status: "pending",
+        gameId: `${challengeId}-${eligibility.status}`,
+        summary: eligibility.message,
+      };
+    }
+  }
 
   const ruleDecision = verdict.status !== "pending" && verdict.metadata
     ? evaluateMultiplayerProofRules({ expectedProvider, rules, startAt, endAt, game: verdict.metadata })
@@ -65,16 +80,6 @@ function buildWindowedResult(
       outcome: verdict.outcome,
       failureDiagnostic: verdict.failureDiagnostic,
     };
-  }
-
-  if (verdict.status !== "pending" && Number.isFinite(startTs)) {
-    if (!Number.isFinite(gameTs) || gameTs <= startTs) {
-      return {
-        status: "pending",
-        gameId: `${challengeId}-before-window`,
-        summary: `No new eligible games were found since this ${title} Multiplayer Side Quest started. Play a fresh public game after the start time, then refresh checks again.`,
-      };
-    }
   }
 
   if (verdict.status !== "pending" && Number.isFinite(endTs) && Number.isFinite(gameTs) && gameTs > endTs) {
