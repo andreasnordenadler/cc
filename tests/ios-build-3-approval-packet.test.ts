@@ -15,7 +15,7 @@ test("build 3 approval packet binds the exact signed IPA and keeps every irrever
   assert.match(packet, /8000e9f2edd067a2d7d206f292b5ea7695db3c19f53c8e190bcf618a9ba544f7/);
   assert.match(packet, /0\.1\.349 \(3\)/);
   assert.match(packet, /Manual release/);
-  assert.match(packet, /30 passing/);
+  assert.match(packet, /45 passing/);
   assert.match(packet, /2,271 passing/);
   assert.match(packet, /18\/18/);
   assert.doesNotMatch(packet, /local upload record/);
