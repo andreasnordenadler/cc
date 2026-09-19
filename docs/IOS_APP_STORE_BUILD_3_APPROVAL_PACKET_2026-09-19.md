@@ -23,7 +23,7 @@ Local IPA inspection verified `CFBundleDisplayName=Side Quest Chess`, `CFBundleS
 ## Candidate verification completed
 
 - Exact source is aligned with `origin/main`; `app.json` declares version `0.1.349`, build `3`, bundle `com.sidequestchess.app`, iPhone+iPad support, Apple Sign In, and exempt-encryption declaration.
-- Fresh targeted iOS/auth/release contracts: **48 passing**. They cover generated-project identity, Apple sign-in availability/completion/recovery, encryption declaration, EAS toolchain, release provenance, review packet, and release workflow controls.
+- Fresh targeted iOS/auth/release contracts: **53 passing**. They cover generated-project identity, Apple sign-in availability/completion/recovery, encryption declaration, EAS toolchain, release provenance, review packet, and release workflow controls.
 - Fresh full suite: **2,272 passing**. Root lint completed with **0 errors and 9 existing warnings**; mobile TypeScript and the production web build passed.
 - Mobile TypeScript check: **passed**.
 - Build-3 IPA inspection: **passed** for the identity and signing facts above.
