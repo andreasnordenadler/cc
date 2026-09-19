@@ -17,7 +17,8 @@ test("build 3 approval packet binds the exact signed IPA and keeps every irrever
   assert.match(packet, /Manual release/);
   assert.match(packet, /45 passing/);
   assert.match(packet, /2,271 passing/);
-  assert.match(packet, /18\/18/);
+  assert.match(packet, /Expo Doctor reported \*\*17\/18\*\*/);
+  assert.match(packet, /tracked native project folders alongside `app\.json` native configuration/);
   assert.doesNotMatch(packet, /local upload record/);
   assert.doesNotMatch(packet, /Uploaded to Apple/);
   assert.match(packet, /autoIncrement: true/);
