@@ -8,8 +8,8 @@
 | Item | Verified value |
 | --- | --- |
 | Product | Side Quest Chess |
-| Source commit / `origin/main` | `82a5fc62b24e107143f84107a87da3f264516dee` |
-| Source branch | `chore/ios-app-review-build-3-20260917` |
+| Frozen candidate source commit | `82a5fc62b24e107143f84107a87da3f264516dee` |
+| Frozen source branch at archive creation | `chore/ios-app-review-build-3-20260917` |
 | Version / build | `0.1.349 (3)` |
 | Bundle ID | `com.sidequestchess.app` |
 | Device family | iPhone and iPad (`1,2`) |
@@ -18,11 +18,11 @@
 | IPA size | 58,700,458 bytes |
 | Build-2 separation | Retained build 2 is **not** this candidate and must never be relabelled or submitted as build 3. |
 
-Local IPA inspection verified `CFBundleDisplayName=Side Quest Chess`, `CFBundleShortVersionString=0.1.349`, `CFBundleVersion=3`, production bundle ID, `sidequestchess` and `com.sidequestchess.app` URL schemes, iOS 15.1 minimum, iPhone/iPad support, Apple Sign In entitlement, `get-task-allow=false`, and `ITSAppUsesNonExemptEncryption=false`. The archive is arm64 and was signed on 2026-09-19 by the existing Apple Distribution identity for Team ID `326A3FZB2Q`. That is artifact evidence—not authorization to use, renew, change, or upload with that identity.
+Local IPA inspection verified `CFBundleDisplayName=Side Quest Chess`, `CFBundleShortVersionString=0.1.349`, `CFBundleVersion=3`, production bundle ID, `sidequestchess` and `com.sidequestchess.app` URL schemes, iOS 15.1 minimum, iPhone/iPad support, Apple Sign In entitlement, `get-task-allow=false`, and `ITSAppUsesNonExemptEncryption=false`. The retained Xcode archive itself carries the Apple Development signature (and `get-task-allow=true`) for Team ID `326A3FZB2Q`; the exported IPA carries the Apple Distribution signature (and `get-task-allow=false`) for that same Team ID. The archive is provenance evidence and the IPA is the sole submission candidate. Neither fact authorizes use, renewal, change, or upload of any signing identity.
 
 ## Candidate verification completed
 
-- Exact source is aligned with `origin/main`; `app.json` declares version `0.1.349`, build `3`, bundle `com.sidequestchess.app`, iPhone+iPad support, Apple Sign In, and exempt-encryption declaration.
+- The frozen candidate source commit `82a5fc62b24e107143f84107a87da3f264516dee` matched `origin/main` when the archive/export was created. `origin/main` has since advanced to `869252c0ca9930293b0b442e9819718d96e5cf4e`; this packet does not claim that later source is byte-identical to build 3. `app.json` in the frozen source declares version `0.1.349`, build `3`, bundle `com.sidequestchess.app`, iPhone+iPad support, Apple Sign In, and exempt-encryption declaration.
 - Fresh targeted iOS/auth/release contracts: **53 passing**. They cover generated-project identity, Apple sign-in availability/completion/recovery, encryption declaration, EAS toolchain, release provenance, review packet, and release workflow controls.
 - Fresh full suite: **2,272 passing**. Root lint completed with **0 errors and 9 existing warnings**; mobile TypeScript and the production web build passed.
 - Mobile TypeScript check: **passed**.
@@ -41,7 +41,7 @@ Local IPA inspection verified `CFBundleDisplayName=Side Quest Chess`, `CFBundleS
 
 The retained IPA is already the sole build-3 candidate. **Do not rebuild it through the current EAS `production` profile:** `autoIncrement: true` may create build 4. Before any separately approved external action:
 
-1. Use a clean detached checkout at `82a5fc62b24e107143f84107a87da3f264516dee`; verify it still equals `origin/main` and that `apps/mobile/app.json` declares `0.1.349 (3)` / `com.sidequestchess.app`.
+1. Use a clean detached checkout at the frozen candidate commit `82a5fc62b24e107143f84107a87da3f264516dee`; verify `apps/mobile/app.json` declares `0.1.349 (3)` / `com.sidequestchess.app`. Do not substitute current `origin/main`, which has advanced since archive creation.
 2. Verify only the retained IPA at the path above: SHA-256 `8000e9f2edd067a2d7d206f292b5ea7695db3c19f53c8e190bcf618a9ba544f7`, 58,700,458 bytes, bundle/version/build, device families `1,2`, Team ID `326A3FZB2Q`, Apple Sign In, `get-task-allow=false`, and exempt-encryption state.
 3. Preserve and re-read the local archive/export provenance receipt that binds this IPA to the frozen source; the IPA itself does not contain the Git commit.
 4. Only after a separately scoped written approval, upload **only** that hash. Then read back Apple’s processing/compliance state and immutable build ID. Do not select, assign, submit, answer review, or release without further explicit approval.
