@@ -1,6 +1,7 @@
 import { clerkClient } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import { getAnalyticsStore, type SQCAnalyticsEventType } from "@/lib/analytics";
+import { getChallengeAttempts, getChallengeProgress, type UserMetadataRecord } from "@/lib/user-metadata";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -46,11 +47,25 @@ export async function GET(request: Request) {
   let activeTrackedUsersInWindow = 0;
   let usersEverStartingQuest = 0;
   let usersEverCompletingQuest = 0;
+  let usersWithSavedQuestCompletions = 0;
+  let savedQuestCompletionReceipts = 0;
   let accountsWithChessProvider = 0;
 
   for (const user of users) {
-    const publicMetadata = user.publicMetadata as Record<string, unknown>;
+    const publicMetadata = user.publicMetadata as UserMetadataRecord;
     if (hasText(publicMetadata.lichessUsername) || hasText(publicMetadata.chessComUsername)) accountsWithChessProvider += 1;
+    const savedCompletionIds = new Set(getChallengeProgress(publicMetadata).completedChallengeIds);
+    for (const attempt of getChallengeAttempts(publicMetadata)) {
+      if (attempt.status !== "passed") continue;
+      const challengeId = typeof attempt.challengeId === "string"
+        ? attempt.challengeId
+        : typeof attempt.id === "string"
+          ? attempt.id.split(":")[0]
+          : undefined;
+      if (challengeId) savedCompletionIds.add(challengeId);
+    }
+    if (savedCompletionIds.size > 0) usersWithSavedQuestCompletions += 1;
+    savedQuestCompletionReceipts += savedCompletionIds.size;
 
     const store = getAnalyticsStore(user.privateMetadata);
     const hasAnalytics = Boolean(store.firstSeenAt || store.lastSeenAt || store.totalEvents || store.recentEvents?.length);
@@ -102,6 +117,8 @@ export async function GET(request: Request) {
       ...cumulative,
       usersEverStartingQuest,
       usersEverCompletingQuest,
+      usersWithSavedQuestCompletions,
+      savedQuestCompletionReceipts,
       topQuests: topQuestsCumulative,
     },
     lowerBoundInWindowFromRetainedEvents: retainedWindowEvents,

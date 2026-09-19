@@ -14,6 +14,9 @@ test("analytics summary returns aggregate data without user identities", () => {
   assert.match(source, /totalAccounts/);
   assert.match(source, /activeTrackedUsersInWindow/);
   assert.match(source, /questStarts/);
+  assert.match(source, /savedQuestCompletionReceipts/);
+  assert.match(source, /getChallengeProgress/);
+  assert.match(source, /getChallengeAttempts/);
   assert.match(source, /lowerBoundInWindowFromRetainedEvents/);
   assert.doesNotMatch(source, /primaryEmailAddress|emailAddress|firstName|lastName|username:/);
 });
