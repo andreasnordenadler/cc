@@ -24,5 +24,12 @@ test("build 3 approval packet binds the exact signed IPA and keeps every irrever
   assert.match(packet, /archive itself carries the Apple Development signature/);
   assert.match(packet, /exported IPA carries the Apple Distribution signature/);
   assert.match(packet, /get-task-allow=false/);
-  assert.match(packet, /Do not upload, select, submit, or release/);
+  assert.match(packet, /Do not upload or retry upload, select, submit, or release/);
+});
+
+test("build 3 approval packet distinguishes the local upload-success record from unverified App Store Connect inventory", () => {
+  assert.match(packet, /local upload record/);
+  assert.match(packet, /Uploaded to Apple/);
+  assert.match(packet, /not independently confirmed in App Store Connect/);
+  assert.doesNotMatch(packet, /State: READY FOR ANDREAS'S SCOPED APPROVAL; NOT UPLOADED/);
 });

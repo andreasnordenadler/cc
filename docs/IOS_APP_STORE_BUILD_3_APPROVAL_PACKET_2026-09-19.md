@@ -1,7 +1,7 @@
 # Side Quest Chess — App Store approval packet: 0.1.349 (3)
 
 **Prepared:** 2026-09-19
-**Status:** ready for Andreas's scoped submission decision only after the App Store Connect read-only inventory is completed. This packet authorizes no Apple mutation.
+**Status:** local archive evidence contains an upload-success record for build 3, but its App Store Connect processing state is not independently confirmed because the available Safari session is logged out. This packet authorizes no further Apple mutation.
 
 ## Exact candidate identity
 
@@ -22,7 +22,8 @@ Local IPA inspection verified `CFBundleDisplayName=Side Quest Chess`, `CFBundleS
 
 ## Candidate verification completed
 
-- The frozen candidate source commit `82a5fc62b24e107143f84107a87da3f264516dee` matched `origin/main` when the archive/export was created. `origin/main` has since advanced to `869252c0ca9930293b0b442e9819718d96e5cf4e`; this packet does not claim that later source is byte-identical to build 3. `app.json` in the frozen source declares version `0.1.349`, build `3`, bundle `com.sidequestchess.app`, iPhone+iPad support, Apple Sign In, and exempt-encryption declaration.
+- The frozen candidate source commit `82a5fc62b24e107143f84107a87da3f264516dee` matched `origin/main` when the archive/export was created. `origin/main` is now `332a75624634bd4715ea7002b4db134e7afcef4b`; this packet does not claim that later source is byte-identical to build 3. `app.json` in the frozen source declares version `0.1.349`, build `3`, bundle `com.sidequestchess.app`, iPhone+iPad support, Apple Sign In, and exempt-encryption declaration.
+- The retained Xcode archive `Info.plist` and `upload.log` record a successful `xcodebuild -exportArchive` upload of build 3 at 2026-09-19 14:19 UTC: `Uploaded to Apple` / `Upload succeeded`. This is a local upload record, not an App Store Connect inventory receipt; the build’s processing, compliance, rejection, selection, metadata, and release state are **not independently confirmed in App Store Connect**. No further upload, retry, selection, metadata update, submission, or release is authorized.
 - Fresh targeted iOS/auth/release contracts: **53 passing**. They cover generated-project identity, Apple sign-in availability/completion/recovery, encryption declaration, EAS toolchain, release provenance, review packet, and release workflow controls.
 - Fresh full suite: **2,272 passing**. Root lint completed with **0 errors and 9 existing warnings**; mobile TypeScript and the production web build passed.
 - Mobile TypeScript check: **passed**.
@@ -44,7 +45,7 @@ The retained IPA is already the sole build-3 candidate. **Do not rebuild it thro
 1. Use a clean detached checkout at the frozen candidate commit `82a5fc62b24e107143f84107a87da3f264516dee`; verify `apps/mobile/app.json` declares `0.1.349 (3)` / `com.sidequestchess.app`. Do not substitute current `origin/main`, which has advanced since archive creation.
 2. Verify only the retained IPA at the path above: SHA-256 `8000e9f2edd067a2d7d206f292b5ea7695db3c19f53c8e190bcf618a9ba544f7`, 58,700,458 bytes, bundle/version/build, device families `1,2`, Team ID `326A3FZB2Q`, Apple Sign In, `get-task-allow=false`, and exempt-encryption state.
 3. Preserve and re-read the local archive/export provenance receipt that binds this IPA to the frozen source; the IPA itself does not contain the Git commit.
-4. Only after a separately scoped written approval, upload **only** that hash. Then read back Apple’s processing/compliance state and immutable build ID. Do not select, assign, submit, answer review, or release without further explicit approval.
+4. **Do not upload or retry upload** unless a later read-only inventory proves that no matching Apple build exists and Andreas gives a new scoped authorization. First read back Apple’s processing/compliance state and immutable build ID. Do not select, assign, submit, answer review, or release without further explicit approval.
 
 ## Exact public listing copy (English U.S.)
 
@@ -118,8 +119,8 @@ Do not add unverified claims about moderation, blocking, deletion completeness, 
 
 ## Approval boundary and immediate owner action
 
-**Do not upload, select, submit, or release** build 3; do not mutate App Store Connect metadata, privacy, age, territories, pricing, review notes, users, roles, credentials, or release settings.
+**Do not upload or retry upload, select, submit, or release** build 3; do not mutate App Store Connect metadata, privacy, age, territories, pricing, review notes, users, roles, credentials, or release settings.
 
-The only immediate blocking action is interactive Apple sign-in/MFA by the authorized owner on the already-open Safari login page. Once authenticated, the permitted next action is read-only inventory of the app record, bundle/SKU duplicates, highest existing build, build processing/rejection status, listing metadata, privacy, age rating, reviewer access, screenshots, territories, and release setting. Reconcile that receipt into this packet before requesting a scoped explicit approval.
+The only immediate blocking action is interactive Apple sign-in/MFA by the authorized owner on the already-open Safari login page. Once authenticated, the permitted next action is read-only inventory of the app record, build 3 processing/rejection/compliance status and immutable build ID, bundle/SKU duplicates, listing metadata, privacy, age rating, reviewer access, screenshots, territories, and release setting. Reconcile that receipt into this packet before requesting a scoped explicit approval.
 
-Requested future approval wording, only after the read-only inventory is reconciled: **“I approve upload/selection/submission of Side Quest Chess 0.1.349 (3), IPA SHA-256 `8000e9f2…ba544f7`, with the exact listing copy, graphics, review response, privacy/rights answers, territories, and Manual release setting presented in the final packet.”**
+Requested future approval wording, only after the read-only inventory is reconciled: **“I approve selection/submission of the confirmed Side Quest Chess 0.1.349 (3) build, IPA SHA-256 `8000e9f2…ba544f7`, with the exact listing copy, graphics, review response, privacy/rights answers, territories, and Manual release setting presented in the final packet.”**
