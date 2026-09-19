@@ -112,6 +112,7 @@ import {
   checkLatestLichessBackRankGoblin,
 } from "@/lib/back-rank-goblin";
 import { assertActiveSoloSubmissionTarget } from "@/lib/official-solo-exact-game";
+import { evaluateQuestGameStartEligibility } from "@/lib/quest-game-start-cutoff";
 import { buildSoloCheckResult, runSoloCheckAction, type SoloCheckActionResult } from "@/lib/solo-check-result";
 import {
   buildChallengeProgressRecord,
@@ -233,23 +234,18 @@ function buildLatestGameCheckPayload(
   challengeTitle: string,
   activatedAfter?: string,
 ) {
-  const verdictGameTime = verdict.startedGameAt ?? verdict.completedGameAt;
+  const eligibility = evaluateQuestGameStartEligibility({
+    gameStartedAt: verdict.startedGameAt,
+    gameCompletedAt: verdict.completedGameAt,
+    questStartedAt: activatedAfter,
+  });
 
-  if (activatedAfter && verdictGameTime && !isAfterActivation(verdictGameTime, activatedAfter)) {
+  if (verdict.status !== "pending" && eligibility.status !== "eligible") {
     return {
       status: "pending" as const,
-      gameId: `${challengeTitle.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-no-new-game-after-start`,
-      summary: `No new eligible games were found since this ${challengeTitle} run was started. Play a new public game after starting the quest, then check again.`,
-      evidence: ["Older games are ignored for the active quest run."],
-    };
-  }
-
-  if (activatedAfter && verdict.status !== "pending" && !verdictGameTime) {
-    return {
-      status: "pending" as const,
-      gameId: `${challengeTitle.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-new-game-time-unconfirmed`,
-      summary: `Side Quest Chess could not confirm a new eligible game since this ${challengeTitle} run was started. Play a fresh public game after starting the quest, then check again.`,
-      evidence: ["The provider result did not include a usable game timestamp."],
+      gameId: `${challengeTitle.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-${eligibility.status}`,
+      summary: eligibility.message,
+      evidence: ["Only games with a confirmed start after the persisted quest start are eligible."],
     };
   }
 
@@ -259,15 +255,6 @@ function buildLatestGameCheckPayload(
     summary: `${verdict.summary} ${verdict.evidence?.join(" ") ?? ""}`.trim(),
     ...pickProofReceiptFields(verdict),
   };
-}
-
-function isAfterActivation(gameTime?: string, activatedAfter?: string) {
-  if (!gameTime || !activatedAfter) return false;
-
-  const gameTimestamp = Date.parse(gameTime);
-  const activatedAt = Date.parse(activatedAfter);
-
-  return Number.isFinite(gameTimestamp) && Number.isFinite(activatedAt) && gameTimestamp > activatedAt;
 }
 
 async function buildLatestGameChecks(challengeId: string, attemptCount: number, lichessUsername: string, chessComUsername: string, activatedAfter?: string) {
@@ -992,13 +979,17 @@ export async function submitChallengeAttempt(formData: FormData) {
                                 ? `Submitted ${gameId} for ${lichessUsername || chessComUsername}. Automated verification is not active for this quest yet.`
                                 : `Submitted ${gameId}. Add your chess username in account settings for cleaner review context.`,
                             };
-  const activatedAfter = existingActiveChallenge?.startedAt ?? now;
-  const verificationGameTime = verification.startedGameAt ?? verification.completedGameAt;
-  const checkedVerification = verification.status === "passed" && !isAfterActivation(verificationGameTime, activatedAfter)
+  const activatedAfter = existingActiveChallenge!.startedAt!;
+  const eligibility = evaluateQuestGameStartEligibility({
+    gameStartedAt: verification.startedGameAt,
+    gameCompletedAt: verification.completedGameAt,
+    questStartedAt: activatedAfter,
+  });
+  const checkedVerification = verification.status === "passed" && eligibility.status !== "eligible"
     ? {
         ...verification,
         status: "pending" as const,
-        summary: `No new eligible games were found since this ${challenge.title} run was started. Play a new public game after starting the quest, then check again.`,
+        summary: eligibility.message,
       }
     : verification;
   const completedChallengeIds =
@@ -1055,6 +1046,7 @@ async function runActiveChallengeCheck() {
   if (!challenge) {
     throw new Error("Unknown active quest.");
   }
+  assertActiveSoloSubmissionTarget(activeChallenge, challenge.id);
 
   const existingAttempts = Array.isArray(metadata.challengeAttempts)
     ? (metadata.challengeAttempts as ChallengeAttempt[])
@@ -1066,7 +1058,7 @@ async function runActiveChallengeCheck() {
 
   if (lichessUsername || chessComUsername) {
     try {
-      providerChecks = await buildLatestGameChecks(challenge.id, existingAttempts.length, lichessUsername, chessComUsername, activeChallenge.startedAt ?? now);
+      providerChecks = await buildLatestGameChecks(challenge.id, existingAttempts.length, lichessUsername, chessComUsername, activeChallenge.startedAt);
     } catch {
       providerChecks = [
         {
@@ -1095,7 +1087,7 @@ async function runActiveChallengeCheck() {
       activeChallenge: {
         id: challenge.id,
         status: passedCheck ? "verified" : (latestCheck?.status ?? "pending"),
-        startedAt: activeChallenge.startedAt ?? now,
+        startedAt: activeChallenge.startedAt,
         verifiedAt: passedCheck ? now : undefined,
       },
       challengeAttempts: compactChallengeAttempts([

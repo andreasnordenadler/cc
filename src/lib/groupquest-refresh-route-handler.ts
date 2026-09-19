@@ -7,6 +7,7 @@ type Participant = Partial<GroupQuestProofProgress> & {
   userId: string;
   provider: "lichess" | "chesscom";
   username: string;
+  joinedAt?: string;
   pendingCompletions?: GroupQuestPendingCompletion[];
 };
 

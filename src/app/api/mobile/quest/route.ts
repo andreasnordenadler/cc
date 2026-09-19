@@ -5,6 +5,7 @@ import { getChallengeById } from "@/lib/challenges";
 import { checkLatestChallengeForProvider, type LatestChallengeVerdict } from "@/lib/challenge-latest-verifiers";
 import { getMobileRequestUserId } from "@/lib/mobile-auth";
 import { assertActiveSoloSubmissionTarget } from "@/lib/official-solo-exact-game";
+import { evaluateQuestGameStartEligibility } from "@/lib/quest-game-start-cutoff";
 import {
   verifyChessComDrawAnyGameAttempt,
   verifyChessComDrawAsBlackAttempt,
@@ -387,10 +388,11 @@ async function checkMobileActiveChallenge(
     throw new Error("Restart this custom Side Quest before checking proof so its rules can be locked safely.");
   }
   const questId = challenge?.id ?? customQuest!.id;
+  assertActiveSoloSubmissionTarget(activeChallenge, questId);
 
   const existingAttempts = getExistingAttempts(metadata);
   const now = new Date().toISOString();
-  const providerChecks = orderProviderChecksForReceipt(await safeBuildLatestGameChecks(questId, readMetadata, activeChallenge.startedAt ?? now, customQuest));
+  const providerChecks = orderProviderChecksForReceipt(await safeBuildLatestGameChecks(questId, readMetadata, activeChallenge.startedAt!, customQuest));
   const passedCheck = getPassedProviderCheck(providerChecks);
   const latestCheck = providerChecks.at(-1);
   const progress = getChallengeProgress(metadata);
@@ -403,7 +405,7 @@ async function checkMobileActiveChallenge(
     activeChallenge: {
       id: questId,
       status: passedCheck ? "verified" : (latestCheck?.status ?? "pending"),
-      startedAt: activeChallenge.startedAt ?? now,
+      startedAt: activeChallenge.startedAt,
       verifiedAt: passedCheck ? now : undefined,
       customQuestSnapshot: customQuest ?? undefined,
     },
@@ -481,14 +483,19 @@ export async function submitMobileChallengeAttempt(
   const questId = challenge?.id ?? customQuest!.id;
   const now = dependencies.now();
   const existingAttempts = getExistingAttempts(metadata);
-  const activatedAfter = activeChallenge?.id === questId ? activeChallenge.startedAt ?? now : now;
+  const activatedAfter = activeChallenge!.startedAt!;
   const submittedGame = normalizeSubmittedGameReference(rawGameId);
   const verdict = await dependencies.verifySubmitted(questId, submittedGame, metadata, activatedAfter);
   if (verdict.status === "pending") {
     throw new Error(verdict.summary || "That submitted game could not be verified. Check the game reference and connected username, then try again.");
   }
-  if (!isAfterActivation(verdict.startedGameAt ?? verdict.completedGameAt, activatedAfter)) {
-    throw new Error(`No new eligible games were found since this ${challenge?.title ?? customQuest!.title} run was started. Play a fresh public game after starting the quest, then check again.`);
+  const eligibility = evaluateQuestGameStartEligibility({
+    gameStartedAt: verdict.startedGameAt,
+    gameCompletedAt: verdict.completedGameAt,
+    questStartedAt: activatedAfter,
+  });
+  if (eligibility.status !== "eligible") {
+    throw new Error(eligibility.message);
   }
   const checkedVerification = buildLatestGameCheckPayload(verdict, challenge?.title ?? customQuest!.title, activatedAfter);
   const progress = getChallengeProgress(metadata);
@@ -739,13 +746,17 @@ async function buildLatestGameCheck(challengeId: string, provider: "lichess" | "
 }
 
 function buildLatestGameCheckPayload(verdict: LatestChallengeVerdict, challengeTitle: string, activatedAfter: string): Omit<MobileProviderCheck, "provider"> {
-  const gameTime = verdict.startedGameAt ?? verdict.completedGameAt;
+  const eligibility = evaluateQuestGameStartEligibility({
+    gameStartedAt: verdict.startedGameAt,
+    gameCompletedAt: verdict.completedGameAt,
+    questStartedAt: activatedAfter,
+  });
 
-  if (verdict.status !== "pending" && !isAfterActivation(gameTime, activatedAfter)) {
+  if (verdict.status !== "pending" && eligibility.status !== "eligible") {
     return {
       status: "pending",
       gameId: `${challengeTitle.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-new-game-required`,
-      summary: `No new eligible games were found since this ${challengeTitle} run was started. Play a fresh public game after starting the quest, then check again.`,
+      summary: eligibility.message,
       startedGameAt: verdict.startedGameAt,
       completedGameAt: verdict.completedGameAt,
     };
@@ -809,13 +820,4 @@ function getAttemptChallengeId(attempt: ChallengeAttempt) {
     : typeof attempt.id === "string"
       ? attempt.id.split(":")[0]
       : undefined;
-}
-
-function isAfterActivation(gameTime?: string, activatedAfter?: string) {
-  if (!gameTime || !activatedAfter) return false;
-
-  const gameTimestamp = Date.parse(gameTime);
-  const activatedAt = Date.parse(activatedAfter);
-
-  return Number.isFinite(gameTimestamp) && Number.isFinite(activatedAt) && gameTimestamp > activatedAt;
 }
