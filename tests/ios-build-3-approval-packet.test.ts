@@ -11,6 +11,7 @@ test("build 3 approval packet binds the exact signed IPA and keeps every irrever
   assert.match(packet, /Frozen candidate source commit/);
   assert.doesNotMatch(packet, /Source commit \/ `origin\/main`/);
   assert.match(packet, /82a5fc62b24e107143f84107a87da3f264516dee/);
+  assert.match(packet, /f2d28e6603268b42b38e939368fc504e70430f41/);
   assert.match(packet, /8000e9f2edd067a2d7d206f292b5ea7695db3c19f53c8e190bcf618a9ba544f7/);
   assert.match(packet, /0\.1\.349 \(3\)/);
   assert.match(packet, /Manual release/);
