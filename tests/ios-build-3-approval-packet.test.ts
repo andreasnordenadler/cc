@@ -15,10 +15,10 @@ test("build 3 approval packet binds the exact signed IPA and keeps every irrever
   assert.match(packet, /8000e9f2edd067a2d7d206f292b5ea7695db3c19f53c8e190bcf618a9ba544f7/);
   assert.match(packet, /0\.1\.349 \(3\)/);
   assert.match(packet, /Manual release/);
-  assert.match(packet, /53 passing/);
-  assert.doesNotMatch(packet, /48 passing/);
-  assert.match(packet, /2,272 passing/);
-  assert.doesNotMatch(packet, /1,502 passing/);
+  assert.match(packet, /31 passing/);
+  assert.doesNotMatch(packet, /53 passing/);
+  assert.match(packet, /2,293 passing; 1 unrelated base-branch regression/);
+  assert.doesNotMatch(packet, /2,272 passing/);
   assert.match(packet, /autoIncrement: true/);
   assert.match(packet, /clean detached checkout/);
   assert.match(packet, /Android and web public launch-order gate/);
