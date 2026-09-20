@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 
 const packet = readFileSync(new URL("../docs/IOS_APP_STORE_RELEASE_PACKET_2026-08-21.md", import.meta.url), "utf8");
+const build3Packet = readFileSync(new URL("../docs/IOS_APP_STORE_BUILD_3_APPROVAL_PACKET_2026-09-19.md", import.meta.url), "utf8");
 
 test("iOS release packet blocks upload when required-reason API declarations are missing or unsupported", () => {
   assert.match(packet, /Missing or unsupported reasons block upload/);
@@ -55,4 +56,10 @@ test("iOS release packet records the current local Xcode and CocoaPods receipt w
   assert.match(packet, /simulator runtime.*not.*registered/i);
   assert.doesNotMatch(packet, /Full Xcode is unavailable locally/i);
   assert.doesNotMatch(packet, /CocoaPods is unavailable/i);
+});
+
+test("build 3 packet preserves the archive receipt's not-uploaded truth boundary", () => {
+  assert.match(build3Packet, /EXPORTED AND INSPECTED — NOT UPLOADED/);
+  assert.doesNotMatch(build3Packet, /Upload succeeded/i);
+  assert.doesNotMatch(build3Packet, /LOCALLY REPORTED UPLOADED/i);
 });
