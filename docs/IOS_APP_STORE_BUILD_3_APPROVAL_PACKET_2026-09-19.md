@@ -1,7 +1,7 @@
 # Side Quest Chess — App Store approval packet: 0.1.349 (3)
 
 **Prepared:** 2026-09-19
-**Status:** **EXPORTED AND INSPECTED — NOT UPLOADED.** The retained archive/export receipt is the authoritative local provenance record for the exact IPA and states that no upload occurred. App Store Connect processing, TestFlight, build-ID, metadata, and review state are unverified because the available Safari session is logged out. This packet authorizes no Apple mutation.
+**Status:** **LOCAL UPLOAD RECEIPT PRESENT — APP STORE CONNECT STATE UNVERIFIED.** The retained `upload.log` reports “Upload succeeded” for the exact IPA, while the available Safari session is logged out. Therefore processing, TestFlight availability, immutable build ID, compliance, metadata, and review state are not independently confirmed. This packet authorizes no Apple mutation.
 
 ## Exact candidate identity
 
@@ -23,7 +23,7 @@ Local IPA inspection verified `CFBundleDisplayName=Side Quest Chess`, `CFBundleS
 ## Candidate verification completed
 
 - The frozen candidate source commit `82a5fc62b24e107143f84107a87da3f264516dee` matched `origin/main` when the archive/export was created. Reconciled `origin/main` is now `f2d28e6603268b42b38e939368fc504e70430f41`; this packet does not claim that later source is byte-identical to build 3. `app.json` in the frozen source declares version `0.1.349`, build `3`, bundle `com.sidequestchess.app`, iPhone+iPad support, Apple Sign In, and exempt-encryption declaration.
-- The retained Xcode archive and export receipt record `ARCHIVE SUCCEEDED` and `EXPORT SUCCEEDED` at 2026-09-19 14:19 UTC. The authoritative provenance receipt states the final IPA was **not uploaded**. App Store Connect processing, compliance, rejection, build ID, selection, metadata, TestFlight, and release state are **not independently confirmed**. The receipt does not authorize upload, selection, submission, metadata changes, or release.
+- The retained Xcode archive and export receipt record `ARCHIVE SUCCEEDED` and `EXPORT SUCCEEDED` at 2026-09-19 14:19 UTC. Separately, the retained `upload.log` reports “Upload succeeded” for this IPA. That is a local client receipt, not confirmation of App Store Connect processing, compliance, rejection, immutable build ID, selection, metadata, TestFlight, or release state; those are **not independently confirmed** until the read-only inventory is completed. The receipt does not authorize selection, submission, metadata changes, or release.
 - Fresh targeted iOS/auth/release contracts: **63 passing**. They cover generated-project identity, Apple sign-in availability/completion/recovery, encryption declaration, EAS toolchain, release provenance, review packet, and release workflow controls.
 - Fresh repository gates (2026-09-20): full suite **2,295 passing**; root lint and production web build passed; mobile TypeScript passed; Expo Doctor **17/18** with the known native-folder/app-config advisory. The advisory is expected while the disposable generated `apps/mobile/ios/` tree is present; no other Expo Doctor check failed. The frozen build-3 `apps/mobile` tree remains byte-identical to current `origin/main`; this does not imply that later web/analytics source is part of the signed IPA.
 - Mobile TypeScript check: **passed**.
@@ -118,7 +118,7 @@ Do not add unverified claims about moderation, blocking, deletion completeness, 
 
 ## Approval boundary and immediate owner action
 
-**Do not upload, select, submit, or release** build 3; do not mutate App Store Connect metadata, privacy, age, territories, pricing, review notes, users, roles, credentials, or release settings. Do not upload without a reconciliation showing it is necessary and separate explicit authorization.
+**Do not re-upload, select, submit, or release** build 3; do not mutate App Store Connect metadata, privacy, age, territories, pricing, review notes, users, roles, credentials, or release settings. Do not make any further App Store Connect change before the read-only reconciliation and separate explicit authorization.
 
 The only immediate blocking action is interactive Apple sign-in/MFA by the authorized owner on the already-open Safari login page. Once authenticated, the permitted next action is read-only inventory of the app record, build 3 processing/rejection/compliance status and immutable build ID, bundle/SKU duplicates, listing metadata, privacy, age rating, reviewer access, screenshots, territories, and release setting. Reconcile that receipt into this packet before requesting a scoped explicit approval.
 
