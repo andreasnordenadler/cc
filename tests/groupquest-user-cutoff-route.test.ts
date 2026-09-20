@@ -8,7 +8,20 @@ Object.defineProperty(process.env, "NODE_ENV", { value: "test", writable: true, 
 
 for (const variant of ["web", "mobile"] as const) {
   for (const official of [true, false] as const) {
-    test(`${variant} ${official ? "official" : "community"} refresh uses the persisted participant join cutoff`, async () => {
+    test(`${variant} ${official ? "official" : "community"} refresh uses the persisted participant join cutoff`, async (t) => {
+      const originalDate = globalThis.Date;
+      const fixedNow = Date.parse("2026-09-19T12:00:00.000Z");
+      class FrozenDate extends originalDate {
+        constructor(value?: ConstructorParameters<typeof Date>[0]) {
+          super(value ?? fixedNow);
+        }
+
+        static now() {
+          return fixedNow;
+        }
+      }
+      globalThis.Date = FrozenDate as typeof Date;
+      t.after(() => { globalThis.Date = originalDate; });
       const joinedAt = "2026-09-19T10:05:00.000Z";
       const quest = {
         id: official ? "official-cutoff" : "community-cutoff",
