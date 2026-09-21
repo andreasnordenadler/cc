@@ -19,8 +19,8 @@ test("build 3 approval packet binds the exact signed IPA and keeps every irrever
   assert.match(packet, /2,296 passing/);
   assert.match(packet, /Expo Doctor \*\*17\/18\*\* with the known native-folder\/app-config advisory/);
   assert.match(packet, /does not imply that later web\/analytics source is part of the signed IPA/);
-  assert.doesNotMatch(packet, /local upload record/);
-  assert.doesNotMatch(packet, /Uploaded to Apple/);
+  assert.match(packet, /LOCAL UPLOAD RECEIPT PRESENT — APP STORE CONNECT STATE NOT CURRENTLY VERIFIED/);
+  assert.match(packet, /`upload\.log` reports “Upload succeeded”/);
   assert.match(packet, /autoIncrement: true/);
   assert.match(packet, /clean detached checkout/);
   assert.match(packet, /Android and web public launch-order gate/);
@@ -30,13 +30,13 @@ test("build 3 approval packet binds the exact signed IPA and keeps every irrever
   assert.match(packet, /Do not re-upload, select, submit, or release/);
 });
 
-test("build 3 approval packet truthfully keeps the inspected local export separate from Apple upload and App Store Connect state", () => {
-  assert.match(packet, /EXPORTED AND INSPECTED — NOT UPLOADED/);
-  assert.match(packet, /local archive\/export receipt/);
-  assert.match(packet, /Apple upload\/processing, TestFlight delivery, immutable build ID, compliance, metadata, and review state remain separate readback gates/);
-  assert.doesNotMatch(packet, /LOCAL UPLOAD RECEIPT PRESENT/);
-  assert.doesNotMatch(packet, /upload\.log.*reports “Upload succeeded”/);
-  assert.doesNotMatch(packet, /Uploaded to Apple/);
+test("build 3 approval packet truthfully keeps contradictory local upload artifacts separate from current App Store Connect state", () => {
+  assert.match(packet, /LOCAL UPLOAD RECEIPT PRESENT — APP STORE CONNECT STATE NOT CURRENTLY VERIFIED/);
+  assert.match(packet, /`upload\.log` reports “Upload succeeded”/);
+  assert.match(packet, /inspection\.json.*records `uploaded: false`/);
+  assert.match(packet, /stale pre-upload inspection artifact/);
+  assert.match(packet, /does not independently establish current App Store Connect processing\/compliance, immutable build ID, selection, metadata, TestFlight, review, or release state/);
+  assert.doesNotMatch(packet, /NOT UPLOADED/);
 });
 
 test("build 3 approval packet inventories the two retained draft screenshots without presenting them as selected App Store media", () => {
