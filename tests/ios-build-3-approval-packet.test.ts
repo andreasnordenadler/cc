@@ -15,8 +15,8 @@ test("build 3 approval packet binds the exact signed IPA and keeps every irrever
   assert.match(packet, /8000e9f2edd067a2d7d206f292b5ea7695db3c19f53c8e190bcf618a9ba544f7/);
   assert.match(packet, /0\.1\.349 \(3\)/);
   assert.match(packet, /Manual release/);
-  assert.match(packet, /63 passing/);
-  assert.match(packet, /2,295 passing/);
+  assert.match(packet, /67 passing/);
+  assert.match(packet, /2,296 passing/);
   assert.match(packet, /Expo Doctor \*\*17\/18\*\* with the known native-folder\/app-config advisory/);
   assert.match(packet, /does not imply that later web\/analytics source is part of the signed IPA/);
   assert.doesNotMatch(packet, /local upload record/);
@@ -30,10 +30,20 @@ test("build 3 approval packet binds the exact signed IPA and keeps every irrever
   assert.match(packet, /Do not re-upload, select, submit, or release/);
 });
 
-test("build 3 approval packet treats the local upload receipt as unverified until read-only App Store Connect inventory", () => {
+test("build 3 approval packet preserves the local upload receipt while App Store Connect remains unverified", () => {
   assert.match(packet, /LOCAL UPLOAD RECEIPT PRESENT — APP STORE CONNECT STATE UNVERIFIED/);
   assert.match(packet, /upload\.log.*reports “Upload succeeded”/);
   assert.match(packet, /not independently confirmed/);
   assert.match(packet, /does not authorize selection, submission, metadata changes, or release/);
   assert.doesNotMatch(packet, /EXPORTED AND INSPECTED — NOT UPLOADED/);
+});
+
+test("build 3 approval packet inventories the two retained draft screenshots without presenting them as selected App Store media", () => {
+  assert.match(packet, /iphone17pro-home\.png/);
+  assert.match(packet, /1206 × 2622/);
+  assert.match(packet, /376402aee2d1ae6228e999707aef838b13680153d3a4cf0b256b963d01be8534/);
+  assert.match(packet, /ipadpro13-home\.png/);
+  assert.match(packet, /2064 × 2752/);
+  assert.match(packet, /fc4051cc374343c702d9a85cf3704bc3fb0d36e1a2508de3ddf9cdf0af13bb8e/);
+  assert.match(packet, /draft assets; neither is accepted or selected in App Store Connect/);
 });

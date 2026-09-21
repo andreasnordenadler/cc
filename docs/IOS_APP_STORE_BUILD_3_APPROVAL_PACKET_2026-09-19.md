@@ -24,8 +24,8 @@ Local IPA inspection verified `CFBundleDisplayName=Side Quest Chess`, `CFBundleS
 
 - The frozen candidate source commit `82a5fc62b24e107143f84107a87da3f264516dee` matched `origin/main` when the archive/export was created. Reconciled `origin/main` is now `f2d28e6603268b42b38e939368fc504e70430f41`; this packet does not claim that later source is byte-identical to build 3. `app.json` in the frozen source declares version `0.1.349`, build `3`, bundle `com.sidequestchess.app`, iPhone+iPad support, Apple Sign In, and exempt-encryption declaration.
 - The retained Xcode archive and export receipt record `ARCHIVE SUCCEEDED` and `EXPORT SUCCEEDED` at 2026-09-19 14:19 UTC. Separately, the retained `upload.log` reports “Upload succeeded” for this IPA. That is a local client receipt, not confirmation of App Store Connect processing, compliance, rejection, immutable build ID, selection, metadata, TestFlight, or release state; those are **not independently confirmed** until the read-only inventory is completed. The receipt does not authorize selection, submission, metadata changes, or release.
-- Fresh targeted iOS/auth/release contracts: **63 passing**. They cover generated-project identity, Apple sign-in availability/completion/recovery, encryption declaration, EAS toolchain, release provenance, review packet, and release workflow controls.
-- Fresh repository gates (2026-09-20): full suite **2,295 passing**; root lint and production web build passed; mobile TypeScript passed; Expo Doctor **17/18** with the known native-folder/app-config advisory. The advisory is expected while the disposable generated `apps/mobile/ios/` tree is present; no other Expo Doctor check failed. The frozen build-3 `apps/mobile` tree remains byte-identical to current `origin/main`; this does not imply that later web/analytics source is part of the signed IPA.
+- Fresh targeted iOS/auth/release contracts: **67 passing**. They cover generated-project identity, Apple sign-in availability/completion/recovery, encryption declaration, EAS toolchain, release provenance, review packet, and release workflow controls.
+- Fresh repository gates (2026-09-20): full suite **2,296 passing**; root lint and production web build passed; mobile TypeScript passed; Expo Doctor **17/18** with the known native-folder/app-config advisory. The advisory is expected while the disposable generated `apps/mobile/ios/` tree is present; no other Expo Doctor check failed. The frozen build-3 `apps/mobile` tree remains byte-identical to current `origin/main`; this does not imply that later web/analytics source is part of the signed IPA.
 - Mobile TypeScript check: **passed**.
 - Build-3 IPA inspection: **passed** for the identity and signing facts above.
 - Owner-attended evidence: Apple Sign In, session persistence, Google Sign In, and reviewer-password login were successfully exercised. This is owner-attended integration evidence, not an App Store Connect or TestFlight receipt.
@@ -84,6 +84,13 @@ The retained IPA is already the sole build-3 candidate. **Do not rebuild it thro
 ## Screenshot inventory
 
 No App Store screenshot set is accepted or selected in App Store Connect.
+
+Two retained local files are draft assets; neither is accepted or selected in App Store Connect. They are inventory evidence only, not approved submission graphics:
+
+| Asset | Device / frame | Pixels | SHA-256 |
+| --- | --- | --- | --- |
+| `screenshots-draft/iphone17pro-home.png` | iPhone 17 Pro Home | 1206 × 2622 PNG | `376402aee2d1ae6228e999707aef838b13680153d3a4cf0b256b963d01be8534` |
+| `screenshots-draft/ipadpro13-home.png` | iPad Pro 13 Home | 2064 × 2752 PNG | `fc4051cc374343c702d9a85cf3704bc3fb0d36e1a2508de3ddf9cdf0af13bb8e` |
 
 Required before metadata entry/review:
 
