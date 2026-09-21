@@ -30,12 +30,13 @@ test("build 3 approval packet binds the exact signed IPA and keeps every irrever
   assert.match(packet, /Do not re-upload, select, submit, or release/);
 });
 
-test("build 3 approval packet preserves the local upload receipt while App Store Connect remains unverified", () => {
-  assert.match(packet, /LOCAL UPLOAD RECEIPT PRESENT — APP STORE CONNECT STATE UNVERIFIED/);
-  assert.match(packet, /upload\.log.*reports “Upload succeeded”/);
-  assert.match(packet, /not independently confirmed/);
-  assert.match(packet, /does not authorize selection, submission, metadata changes, or release/);
-  assert.doesNotMatch(packet, /EXPORTED AND INSPECTED — NOT UPLOADED/);
+test("build 3 approval packet truthfully keeps the inspected local export separate from Apple upload and App Store Connect state", () => {
+  assert.match(packet, /EXPORTED AND INSPECTED — NOT UPLOADED/);
+  assert.match(packet, /local archive\/export receipt/);
+  assert.match(packet, /Apple upload\/processing, TestFlight delivery, immutable build ID, compliance, metadata, and review state remain separate readback gates/);
+  assert.doesNotMatch(packet, /LOCAL UPLOAD RECEIPT PRESENT/);
+  assert.doesNotMatch(packet, /upload\.log.*reports “Upload succeeded”/);
+  assert.doesNotMatch(packet, /Uploaded to Apple/);
 });
 
 test("build 3 approval packet inventories the two retained draft screenshots without presenting them as selected App Store media", () => {
