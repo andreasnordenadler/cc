@@ -58,10 +58,11 @@ test("iOS release packet records the current local Xcode and CocoaPods receipt w
   assert.doesNotMatch(packet, /CocoaPods is unavailable/i);
 });
 
-test("build 3 packet preserves the local-upload and current-App-Store-Connect-unverified boundary", () => {
-  assert.match(build3Packet, /LOCAL UPLOAD RECEIPT PRESENT — APP STORE CONNECT STATE NOT CURRENTLY VERIFIED/);
-  assert.match(build3Packet, /local archive\/export receipt/);
+test("build 3 packet preserves the current read-only App Store Connect disposition without authorizing mutation", () => {
+  assert.match(build3Packet, /CURRENT APP STORE CONNECT READBACK — WAITING FOR REVIEW/);
+  assert.match(build3Packet, /selected build shown in App Store Connect as \*\*build 3\*\*/);
+  assert.match(build3Packet, /Manually release this version/);
   assert.match(build3Packet, /`upload\.log` reports “Upload succeeded”/);
-  assert.match(build3Packet, /does not independently establish current App Store Connect processing\/compliance/);
+  assert.match(build3Packet, /Do not upload, replace, remove from review, reply, edit, resubmit, or release/);
   assert.doesNotMatch(build3Packet, /NOT UPLOADED/);
 });

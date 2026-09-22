@@ -1,7 +1,7 @@
 # Side Quest Chess — App Store approval packet: 0.1.349 (3)
 
-**Prepared:** 2026-09-19
-**Status:** **LOCAL UPLOAD RECEIPT PRESENT — APP STORE CONNECT STATE NOT CURRENTLY VERIFIED.** The local archive/export receipt identifies the exact IPA and `upload.log` reports “Upload succeeded”; the available Safari session is logged out. That local log does not independently establish current App Store Connect processing/compliance, immutable build ID, selection, metadata, TestFlight, review, or release state. This packet authorizes no Apple mutation.
+**Prepared:** 2026-09-19; **reconciled:** 2026-09-22 01:52 CEST.
+**Status:** **CURRENT APP STORE CONNECT READBACK — WAITING FOR REVIEW.** Read-only App Store Connect inventory showed Side Quest Chess (Apple ID `6804424166`), iOS version `0.1.349`, with the selected build shown in App Store Connect as **build 3**, reviewer sign-in fields populated, and **Manually release this version** selected (Manual release behavior). This packet authorizes no Apple mutation; do not upload, replace the build, edit metadata, answer App Review, remove the version from review, or release.
 
 ## Exact candidate identity
 
@@ -23,7 +23,7 @@ Local IPA inspection verified `CFBundleDisplayName=Side Quest Chess`, `CFBundleS
 ## Candidate verification completed
 
 - The frozen candidate source commit `82a5fc62b24e107143f84107a87da3f264516dee` matched `origin/main` when the archive/export was created. Reconciled `origin/main` is now `f2d28e6603268b42b38e939368fc504e70430f41`; this packet does not claim that later source is byte-identical to build 3. `app.json` in the frozen source declares version `0.1.349`, build `3`, bundle `com.sidequestchess.app`, iPhone+iPad support, Apple Sign In, and exempt-encryption declaration.
-- The retained local archive/export receipt records `ARCHIVE SUCCEEDED` and `EXPORT SUCCEEDED` at 2026-09-19 14:19 UTC for this IPA. Separately, the retained `upload.log` reports “Upload succeeded” and “Uploaded package is processing” for `SideQuestChess`. The earlier `inspection.json` records `uploaded: false`; it is a stale pre-upload inspection artifact, not evidence that the later upload log is false. This is a local upload receipt, not current App Store Connect readback: processing/compliance, rejection, immutable build ID, selected-build identity, metadata, TestFlight, review, and release state are **not independently confirmed** until the read-only inventory is completed. It does not authorize another upload, selection, submission, metadata changes, or release.
+- The retained local archive/export receipt records `ARCHIVE SUCCEEDED` and `EXPORT SUCCEEDED` at 2026-09-19 14:19 UTC for this IPA. Separately, the retained `upload.log` reports “Upload succeeded” and “Uploaded package is processing” for `SideQuestChess`. The earlier `inspection.json` records `uploaded: false`; it is a stale pre-upload inspection artifact, not evidence that the later upload log is false. The 2026-09-22 read-only App Store Connect inventory reconciled the current selected build as `0.1.349 (3)` and version disposition as **Waiting for Review**. It did not change processing/compliance, metadata, review, or release state.
 - Fresh targeted iOS/auth/release contracts: **67 passing**. They cover generated-project identity, Apple sign-in availability/completion/recovery, encryption declaration, EAS toolchain, release provenance, review packet, and release workflow controls.
 - Fresh repository gates (2026-09-20): full suite **2,296 passing**; root lint and production web build passed; mobile TypeScript passed; Expo Doctor **17/18** with the known native-folder/app-config advisory. The advisory is expected while the disposable generated `apps/mobile/ios/` tree is present; no other Expo Doctor check failed. The frozen build-3 `apps/mobile` tree remains byte-identical to current `origin/main`; this does not imply that later web/analytics source is part of the signed IPA.
 - Mobile TypeScript check: **passed**.
@@ -32,10 +32,10 @@ Local IPA inspection verified `CFBundleDisplayName=Side Quest Chess`, `CFBundleS
 - iPad Simulator acceptance passed on iPad Air 11-inch (M4), iOS 27.0; evidence: `/Users/sam/Projects/sam-operating-system/nova/SQC_IPAD_SIMULATOR_ACCEPTANCE_2026-09-18.md`. Simulator evidence does not prove store delivery, signing, real-device behavior, screenshots, or production review acceptance.
 - The owner explicitly waived physical-device testing for this cycle. It is not an approval blocker for this packet and is not claimed as completed evidence.
 
-### Current local limitations
+### Current evidence limits
 
 - The authoritative documentation checkout has a disposable untracked generated `apps/mobile/ios/` tree. It is not release source. The fresh isolated frozen-candidate check also exposed the tracked-native-folder/app-config Expo Doctor advisory described above; no rebuild was performed.
-- App Store Connect read-only inspection is blocked by the logged-out Safari session: `https://appstoreconnect.apple.com/login?targetUrl=%2Fapps&authResult=FAILED`.
+- App Store Connect was read-only inspected at 2026-09-22 01:52 CEST. It confirmed the version is Waiting for Review, selected build 3, reviewer credentials present, and manual release. It did not establish an App Review outcome, full-resolution screenshot provenance, the iPad media count, or legal/privacy/rights answers. The current browser session later expired to the login page; no additional inventory can be obtained without owner interactive Apple sign-in/MFA.
 
 ## Reproducible archive/export and App Store reconciliation plan
 
@@ -46,44 +46,39 @@ The retained IPA is already the sole build-3 candidate. **Do not rebuild it thro
 3. Preserve and re-read the local archive/export provenance receipt that binds this IPA to the frozen source; the IPA itself does not contain the Git commit.
 4. First obtain a read-only App Store Connect inventory. Reconcile the locally recorded upload for this exact version/build, its processing/compliance state, and immutable build ID against the IPA identity and local provenance receipt. Do not upload another copy, select, assign, submit, answer review, or release without further explicit approval.
 
-## Exact public listing copy (English U.S.)
+## Exact current public listing copy (English U.S.)
 
-| Field | Candidate copy/value |
+Read-only App Store Connect inventory at 2026-09-22 01:52 CEST returned the following current text. This records state; it does not approve or request an edit.
+
+| Field | Current value |
 | --- | --- |
-| Name | Side Quest Chess |
-| Subtitle | Turn chess games into quests |
-| Primary category | Games — Board; Strategy |
-| Secondary category | None |
-| Price | Free |
-| Copyright | 2026 Crowdler AB |
-| Privacy Policy URL | https://sidequestchess.com/privacy |
+| Promotional text | Your next chess game needs a terrible side plot. |
+| Keywords | `challenge,quests,board,strategy,goals,multiplayer,achievements,chess` |
 | Support URL | https://sidequestchess.com/support |
 | Marketing URL | https://sidequestchess.com |
-| Promotional text | Pick a Side Quest, play your public chess games, and come back for a checked result. |
-| Keywords | `challenge,quests,board,strategy,goals,multiplayer,achievements` |
-| Release behavior | **Manual release** — select only with Andreas's explicit approval after App Review approval. |
+| Version | `0.1.349` |
+| Copyright | 2026 Crowdler AB |
+| Release behavior | **Manually release this version** |
 
-**Description (exact candidate copy)**
+**Description (exact current copy)**
 
-> Side Quest Chess turns the games you already play into memorable chess challenges.
+> Chess, with optional Side Quests.
 >
-> Choose a Side Quest, connect the public chess username you want to use, then play on Lichess or Chess.com. Return to Side Quest Chess to check the result and keep a clear record of your completed quests.
+> Your next chess game needs a terrible side plot.
 >
-> • Pick solo Side Quests built around real chess goals
-> • Check public-game proof and see what happened
-> • Create and join multiplayer Side Quests with other players
-> • Explore community Side Quests and multiplayer challenges
-> • Keep your chess usernames and account controls in one place
+> Pick one ridiculous quest, then play a normal public chess game. Side Quest Chess handles the paperwork and awards unnecessary heraldry if your bad idea survives inspection. No chess-site password. No special game mode. One public game and an unreasonable amount of heraldry.
 >
-> Side Quest Chess does not ask for or store your Lichess or Chess.com passwords. It has no ads, in-app purchases, subscriptions, or real-money prizes.
+> Browse solo Side Quests, read the rules, and choose a different reason to play your next game.
 >
-> Support: https://sidequestchess.com/support
-> Privacy: https://sidequestchess.com/privacy
-> Terms: https://sidequestchess.com/terms
+> Explore official weekly Multiplayer Side Quests, inspect their challenges and rules, and find a reason to play alongside other quest-seekers. Join a Multiplayer Side Quest before playing its proof game.
+>
+> Side Quest Chess is a companion to your online chess games. Choose a quest here, play your game outside the app, then return to check your result.
+>
+> Your pieces have a job to do. Give them a side quest.
 
 ## Screenshot inventory
 
-No App Store screenshot set is accepted or selected in App Store Connect.
+App Store Connect shows four iPhone screenshots for the in-review version. The current CDN previews were read without changing media: `iphone-00-home-physical.png` (`5f6377572525b4924354165f9745d61e23306a2a5adf107636031a4dc27a8155`), `iphone-01-solo.png` (`484d42e55ffada4e5d7839fbc6d0b340b1a5b265191d72c7c64394e06df5607a`), `iphone-02-knights.png` (`54b362465398d1a725d4120d2564c7c82e1bdf0b37673f115066d5bd3a7c7c42`), and `iphone-03-multiplayer.png` (`26646b514856d666f9b3c408b7cd5fb3843e791b709646645a5e4ddb2907886c`). Each was a 368×800 CDN preview only; this does not prove full-resolution source provenance or signed-IPA runtime state. The read-only page inspection did not establish an iPad screenshot count.
 
 Two retained local files are draft assets; neither is accepted or selected in App Store Connect. They are inventory evidence only, not approved submission graphics:
 
@@ -123,10 +118,8 @@ Reject splash/login-only frames, personal data, debug overlays, stale names, fak
 
 Do not add unverified claims about moderation, blocking, deletion completeness, SSO provider review access, TestFlight delivery, or physical-device behavior.
 
-## Approval boundary and immediate owner action
+## Approval boundary and next owner decision
 
-**Do not re-upload, select, submit, or release** build 3; do not mutate App Store Connect metadata, privacy, age, territories, pricing, review notes, users, roles, credentials, or release settings. Do not make any further App Store Connect change before the read-only reconciliation and separate explicit authorization.
+**Do not upload, replace, remove from review, reply, edit, resubmit, or release** build 3; do not mutate App Store Connect metadata, privacy, age, territories, pricing, review notes, users, roles, credentials, or release settings.
 
-The only immediate blocking action is interactive Apple sign-in/MFA by the authorized owner on the already-open Safari login page. Once authenticated, the permitted next action is read-only inventory of the app record, build 3 processing/rejection/compliance status and immutable build ID, bundle/SKU duplicates, listing metadata, privacy, age rating, reviewer access, screenshots, territories, and release setting. Reconcile that receipt into this packet before requesting a scoped explicit approval.
-
-Requested future approval wording, only after the read-only inventory is reconciled: **“I approve selection/submission of the confirmed Side Quest Chess 0.1.349 (3) build, IPA SHA-256 `8000e9f2…ba544f7`, with the exact listing copy, graphics, review response, privacy/rights answers, territories, and Manual release setting presented in the final packet.”**
+No submission action is currently required: App Store Connect already displays `0.1.349 (3)` as **Waiting for Review** with manual release selected. If Apple approves the version, the only next owner decision is whether to release it manually. Requested approval wording: **“I approve manual release of the confirmed Side Quest Chess 0.1.349 (3) build, IPA SHA-256 `8000e9f2…ba544f7`, as currently approved by App Review.”** If Apple requests information or rejects the build, Andreas must explicitly approve the exact reply, removal, or resubmission action instead.

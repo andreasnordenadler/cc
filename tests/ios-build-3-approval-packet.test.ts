@@ -19,7 +19,7 @@ test("build 3 approval packet binds the exact signed IPA and keeps every irrever
   assert.match(packet, /2,296 passing/);
   assert.match(packet, /Expo Doctor \*\*17\/18\*\* with the known native-folder\/app-config advisory/);
   assert.match(packet, /does not imply that later web\/analytics source is part of the signed IPA/);
-  assert.match(packet, /LOCAL UPLOAD RECEIPT PRESENT — APP STORE CONNECT STATE NOT CURRENTLY VERIFIED/);
+  assert.match(packet, /CURRENT APP STORE CONNECT READBACK — WAITING FOR REVIEW/);
   assert.match(packet, /`upload\.log` reports “Upload succeeded”/);
   assert.match(packet, /autoIncrement: true/);
   assert.match(packet, /clean detached checkout/);
@@ -27,15 +27,18 @@ test("build 3 approval packet binds the exact signed IPA and keeps every irrever
   assert.match(packet, /archive itself carries the Apple Development signature/);
   assert.match(packet, /exported IPA carries the Apple Distribution signature/);
   assert.match(packet, /get-task-allow=false/);
-  assert.match(packet, /Do not re-upload, select, submit, or release/);
+  assert.match(packet, /Do not upload, replace, remove from review, reply, edit, resubmit, or release/);
 });
 
-test("build 3 approval packet truthfully keeps contradictory local upload artifacts separate from current App Store Connect state", () => {
-  assert.match(packet, /LOCAL UPLOAD RECEIPT PRESENT — APP STORE CONNECT STATE NOT CURRENTLY VERIFIED/);
+test("build 3 approval packet binds the current App Store Connect readback without authorizing another mutation", () => {
+  assert.match(packet, /CURRENT APP STORE CONNECT READBACK — WAITING FOR REVIEW/);
+  assert.match(packet, /Apple ID `6804424166`/);
+  assert.match(packet, /selected build shown in App Store Connect as \*\*build 3\*\*/);
+  assert.match(packet, /\*\*Manually release this version\*\*/);
+  assert.match(packet, /do not upload, replace the build, edit metadata, answer App Review, remove the version from review, or release/);
   assert.match(packet, /`upload\.log` reports “Upload succeeded”/);
   assert.match(packet, /inspection\.json.*records `uploaded: false`/);
   assert.match(packet, /stale pre-upload inspection artifact/);
-  assert.match(packet, /does not independently establish current App Store Connect processing\/compliance, immutable build ID, selection, metadata, TestFlight, review, or release state/);
   assert.doesNotMatch(packet, /NOT UPLOADED/);
 });
 
