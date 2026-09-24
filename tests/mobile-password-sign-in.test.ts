@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
-import { startMobilePasswordSignIn } from "../apps/mobile/src/auth/mobilePasswordSignIn";
+import { continueMobilePasswordSignInSecondFactor, startMobilePasswordSignIn } from "../apps/mobile/src/auth/mobilePasswordSignIn";
 
 const mobileAppConfig = JSON.parse(readFileSync(new URL("../apps/mobile/app.json", import.meta.url), "utf8"));
 
@@ -38,15 +38,41 @@ test("mobile password sign-in identifies the account before attempting the passw
   ]);
 });
 
-test("mobile password sign-in refuses incomplete Clerk results", async () => {
-  await assert.rejects(
-    startMobilePasswordSignIn({
-      identifier: "player@example.com",
-      password: "secret-password",
-      createSignIn: async () => ({ status: "needs_first_factor", createdSessionId: null }),
-      attemptFirstFactor: async () => ({ status: "needs_second_factor", createdSessionId: null }),
-      setActive: async () => undefined,
-    }),
-    /another step: needs_second_factor/i,
-  );
+test("mobile password sign-in reports a second-factor requirement without activating a partial session", async () => {
+  const activationCalls: unknown[] = [];
+  const result = await startMobilePasswordSignIn({
+    identifier: "player@example.com",
+    password: "secret-password",
+    createSignIn: async () => ({ status: "needs_first_factor", createdSessionId: null }),
+    attemptFirstFactor: async () => ({ status: "needs_second_factor", createdSessionId: null }),
+    setActive: async (params) => { activationCalls.push(params); },
+  });
+
+  assert.deepEqual(result, { status: "needs_second_factor" });
+  assert.deepEqual(activationCalls, []);
+});
+
+test("mobile password sign-in completes Clerk email-code second factor before activating the session", async () => {
+  const calls: unknown[] = [];
+
+  await continueMobilePasswordSignInSecondFactor({
+    code: " 123456 ",
+    prepareSecondFactor: async (params) => {
+      calls.push(params);
+      return { status: "needs_second_factor", createdSessionId: null };
+    },
+    attemptSecondFactor: async (params) => {
+      calls.push(params);
+      return { status: "complete", createdSessionId: "sess_second_factor" };
+    },
+    setActive: async (params) => {
+      calls.push(params);
+    },
+  });
+
+  assert.deepEqual(calls, [
+    { strategy: "email_code" },
+    { strategy: "email_code", code: "123456" },
+    { session: "sess_second_factor" },
+  ]);
 });
