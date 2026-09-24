@@ -56,6 +56,7 @@ import { isFacebookSignInEnabled } from "./src/auth/isFacebookSignInEnabled";
 import { completeSocialSignIn, socialSignInErrorMessage } from "./src/auth/completeSocialSignIn";
 import { isAppleSignInCancellation, runAppleSignInWithOAuthFallback } from "./src/auth/runAppleSignInWithOAuthFallback";
 import { completeMobilePasswordReset, prepareMobilePasswordReset, verifyMobilePasswordResetCode as verifyMobilePasswordResetCodeWithClerk } from "./src/auth/mobilePasswordReset";
+import { startMobilePasswordSignIn } from "./src/auth/mobilePasswordSignIn";
 import { getAppRowInteraction } from "./src/accessibility/appRowInteraction";
 import { getMobileActionFeedbackAnnouncement } from "./src/accessibility/actionFeedbackAnnouncement";
 import { getCustomConditionMutationFeedback, getCustomConditionSaveFeedback, getNextCustomConditionFeedbackRevision } from "./src/accessibility/customConditionMutationFeedback";
@@ -1414,14 +1415,14 @@ function ClerkMobileShell() {
 
   const startPasswordSignIn = useCallback(async ({ identifier, password }: { identifier: string; password: string }) => {
     if (!signInLoaded) throw new Error("Sign-in is still loading. Try again in a moment.");
-    const result = await signIn.create({ strategy: "password", identifier, password });
-
-    if (result.status === "complete" && result.createdSessionId && setSignInActive) {
-      await setSignInActive({ session: result.createdSessionId });
-      return;
-    }
-
-    throw new Error(`Password sign-in needs another step: ${result.status}.`);
+    if (!setSignInActive) throw new Error("Sign-in is still loading. Try again in a moment.");
+    await startMobilePasswordSignIn({
+      identifier,
+      password,
+      createSignIn: (params) => signIn.create(params),
+      attemptFirstFactor: (params) => signIn.attemptFirstFactor(params),
+      setActive: (params) => setSignInActive(params),
+    });
   }, [setSignInActive, signIn, signInLoaded]);
 
   const startPasswordSignUp = useCallback(async ({ identifier, password }: { identifier: string; password: string }): Promise<PasswordSignUpResult> => {

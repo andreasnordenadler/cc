@@ -70,7 +70,7 @@ test("iOS wires native Sign in with Apple through capability and Clerk readiness
 test("the App Review recovery candidate advances beyond TestFlight build 2", () => {
   const config = JSON.parse(readRepoFile("apps/mobile/app.json")).expo;
   assert.equal(config.version, "0.1.349");
-  assert.equal(config.ios.buildNumber, "3");
+  assert.equal(config.ios.buildNumber, "4");
 });
 
 test("Apple sign-in rejects malformed native completion values", async () => {
