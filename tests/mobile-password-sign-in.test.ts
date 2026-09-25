@@ -43,29 +43,29 @@ test("mobile password sign-in identifies the account before attempting the passw
   ]);
 });
 
-test("mobile password sign-in reports a second-factor requirement without activating a partial session", async () => {
-  const activationCalls: unknown[] = [];
+test("mobile password sign-in sends the second-factor email before asking for its code", async () => {
+  const calls: unknown[] = [];
   const result = await startMobilePasswordSignIn({
     identifier: "player@example.com",
     password: "secret-password",
     createSignIn: async () => ({ status: "needs_first_factor", createdSessionId: null }),
     attemptFirstFactor: async () => ({ status: "needs_second_factor", createdSessionId: null }),
-    setActive: async (params) => { activationCalls.push(params); },
-  });
-
-  assert.deepEqual(result, { status: "needs_second_factor" });
-  assert.deepEqual(activationCalls, []);
-});
-
-test("mobile password sign-in completes Clerk email-code second factor before activating the session", async () => {
-  const calls: unknown[] = [];
-
-  await continueMobilePasswordSignInSecondFactor({
-    code: " 123456 ",
     prepareSecondFactor: async (params) => {
       calls.push(params);
       return { status: "needs_second_factor", createdSessionId: null };
     },
+    setActive: async (params) => { calls.push(params); },
+  });
+
+  assert.deepEqual(result, { status: "needs_second_factor" });
+  assert.deepEqual(calls, [{ strategy: "email_code" }]);
+});
+
+test("mobile password sign-in verifies the already-delivered email code before activating the session", async () => {
+  const calls: unknown[] = [];
+
+  await continueMobilePasswordSignInSecondFactor({
+    code: " 123456 ",
     attemptSecondFactor: async (params) => {
       calls.push(params);
       return { status: "complete", createdSessionId: "sess_second_factor" };
@@ -76,7 +76,6 @@ test("mobile password sign-in completes Clerk email-code second factor before ac
   });
 
   assert.deepEqual(calls, [
-    { strategy: "email_code" },
     { strategy: "email_code", code: "123456" },
     { session: "sess_second_factor" },
   ]);

@@ -1423,6 +1423,7 @@ function ClerkMobileShell() {
       password,
       createSignIn: (params) => signIn.create(params),
       attemptFirstFactor: (params) => signIn.attemptFirstFactor(params),
+      prepareSecondFactor: (params) => signIn.prepareSecondFactor(params),
       setActive: (params) => setSignInActive(params),
     });
   }, [setSignInActive, signIn, signInLoaded]);
@@ -1431,7 +1432,6 @@ function ClerkMobileShell() {
     if (!signInLoaded || !setSignInActive) throw new Error("Sign-in is still loading. Try again in a moment.");
     await continueMobilePasswordSignInSecondFactor({
       code,
-      prepareSecondFactor: (params) => signIn.prepareSecondFactor(params),
       attemptSecondFactor: (params) => signIn.attemptSecondFactor(params),
       setActive: (params) => setSignInActive(params),
     });
