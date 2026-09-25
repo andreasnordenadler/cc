@@ -56,6 +56,7 @@ import { isFacebookSignInEnabled } from "./src/auth/isFacebookSignInEnabled";
 import { completeSocialSignIn, socialSignInErrorMessage } from "./src/auth/completeSocialSignIn";
 import { isAppleSignInCancellation, runAppleSignInWithOAuthFallback } from "./src/auth/runAppleSignInWithOAuthFallback";
 import { completeMobilePasswordReset, prepareMobilePasswordReset, verifyMobilePasswordResetCode as verifyMobilePasswordResetCodeWithClerk } from "./src/auth/mobilePasswordReset";
+import { continueMobilePasswordSignInSecondFactor, startMobilePasswordSignIn } from "./src/auth/mobilePasswordSignIn";
 import { getAppRowInteraction } from "./src/accessibility/appRowInteraction";
 import { getMobileActionFeedbackAnnouncement } from "./src/accessibility/actionFeedbackAnnouncement";
 import { getCustomConditionMutationFeedback, getCustomConditionSaveFeedback, getNextCustomConditionFeedbackRevision } from "./src/accessibility/customConditionMutationFeedback";
@@ -1103,6 +1104,7 @@ type CompletionCelebrationUnlock = {
 
 type AccountUpdatedCallback = () => void | MobileAccountResponse | null | Promise<void | MobileAccountResponse | null>;
 type PasswordSignUpResult = { status: "complete" } | { status: "verification_required"; identifier: string };
+type PasswordSignInResult = { status: "complete" } | { status: "needs_second_factor" };
 
 type MobileAuthBridge = {
   configured: boolean;
@@ -1112,7 +1114,8 @@ type MobileAuthBridge = {
   startGoogleSignIn?: () => Promise<void>;
   startFacebookSignIn?: () => Promise<void>;
   startAppleSignIn?: () => Promise<void>;
-  startPasswordSignIn?: (credentials: { identifier: string; password: string }) => Promise<void>;
+  startPasswordSignIn?: (credentials: { identifier: string; password: string }) => Promise<PasswordSignInResult>;
+  completePasswordSignInSecondFactor?: (params: { code: string }) => Promise<void>;
   startPasswordSignUp?: (credentials: { identifier: string; password: string }) => Promise<PasswordSignUpResult>;
   attemptPasswordSignUpVerification?: (params: { code: string }) => Promise<void>;
   startPasswordReset?: (params: { identifier: string }) => Promise<{ identifier: string }>;
@@ -1414,14 +1417,24 @@ function ClerkMobileShell() {
 
   const startPasswordSignIn = useCallback(async ({ identifier, password }: { identifier: string; password: string }) => {
     if (!signInLoaded) throw new Error("Sign-in is still loading. Try again in a moment.");
-    const result = await signIn.create({ strategy: "password", identifier, password });
+    if (!setSignInActive) throw new Error("Sign-in is still loading. Try again in a moment.");
+    return startMobilePasswordSignIn({
+      identifier,
+      password,
+      createSignIn: (params) => signIn.create(params),
+      attemptFirstFactor: (params) => signIn.attemptFirstFactor(params),
+      prepareSecondFactor: (params) => signIn.prepareSecondFactor(params),
+      setActive: (params) => setSignInActive(params),
+    });
+  }, [setSignInActive, signIn, signInLoaded]);
 
-    if (result.status === "complete" && result.createdSessionId && setSignInActive) {
-      await setSignInActive({ session: result.createdSessionId });
-      return;
-    }
-
-    throw new Error(`Password sign-in needs another step: ${result.status}.`);
+  const completePasswordSignInSecondFactor = useCallback(async ({ code }: { code: string }) => {
+    if (!signInLoaded || !setSignInActive) throw new Error("Sign-in is still loading. Try again in a moment.");
+    await continueMobilePasswordSignInSecondFactor({
+      code,
+      attemptSecondFactor: (params) => signIn.attemptSecondFactor(params),
+      setActive: (params) => setSignInActive(params),
+    });
   }, [setSignInActive, signIn, signInLoaded]);
 
   const startPasswordSignUp = useCallback(async ({ identifier, password }: { identifier: string; password: string }): Promise<PasswordSignUpResult> => {
@@ -1499,6 +1512,7 @@ function ClerkMobileShell() {
       startFacebookSignIn: facebookSignInEnabled ? startFacebookSignIn : undefined,
       startAppleSignIn: appleSignInReady ? startAppleSignIn : undefined,
       startPasswordSignIn,
+      completePasswordSignInSecondFactor,
       startPasswordSignUp,
       attemptPasswordSignUpVerification,
       startPasswordReset,
@@ -1507,7 +1521,7 @@ function ClerkMobileShell() {
       signOut,
       signedInLabel,
     }),
-    [appleSignInReady, attemptPasswordSignUpVerification, completePasswordReset, getToken, isLoaded, isSignedIn, signOut, signedInLabel, startAppleSignIn, startFacebookSignIn, startGoogleSignIn, startPasswordReset, startPasswordSignIn, startPasswordSignUp, verifyPasswordResetCode],
+    [appleSignInReady, attemptPasswordSignUpVerification, completePasswordReset, completePasswordSignInSecondFactor, getToken, isLoaded, isSignedIn, signOut, signedInLabel, startAppleSignIn, startFacebookSignIn, startGoogleSignIn, startPasswordReset, startPasswordSignIn, startPasswordSignUp, verifyPasswordResetCode],
   );
 
   const sessionKey = isLoaded && isSignedIn && sessionId ? sessionId : "signed-out";
@@ -10560,6 +10574,7 @@ function PasswordAuthPanel({ authBridge, onAccountUpdated }: { authBridge: Mobil
   const [password, setPassword] = useState("");
   const [verificationCode, setVerificationCode] = useState("");
   const [pendingVerificationIdentifier, setPendingVerificationIdentifier] = useState<string | null>(null);
+  const [pendingSignInSecondFactor, setPendingSignInSecondFactor] = useState(false);
   const [pendingResetIdentifier, setPendingResetIdentifier] = useState<string | null>(null);
   const [resetCodeVerified, setResetCodeVerified] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -10567,8 +10582,11 @@ function PasswordAuthPanel({ authBridge, onAccountUpdated }: { authBridge: Mobil
   const passwordAuthAvailable = Boolean(authBridge.startPasswordSignIn && authBridge.startPasswordSignUp);
   const passwordResetAvailable = Boolean(authBridge.startPasswordReset && authBridge.verifyPasswordResetCode && authBridge.completePasswordReset);
   const waitingForVerification = mode === "sign-up" && Boolean(pendingVerificationIdentifier);
+  const waitingForSignInSecondFactor = mode === "sign-in" && pendingSignInSecondFactor;
   const waitingForResetCode = mode === "reset" && Boolean(pendingResetIdentifier);
-  const submitLabel = mode === "sign-in"
+  const submitLabel = waitingForSignInSecondFactor
+    ? "Verify sign-in code"
+    : mode === "sign-in"
     ? "Sign in with password"
     : mode === "reset"
       ? !waitingForResetCode ? "Send reset code" : resetCodeVerified ? "Reset password" : "Verify reset code"
@@ -10577,6 +10595,7 @@ function PasswordAuthPanel({ authBridge, onAccountUpdated }: { authBridge: Mobil
 
   function resetVerificationState() {
     setPendingVerificationIdentifier(null);
+    setPendingSignInSecondFactor(false);
     setPendingResetIdentifier(null);
     setResetCodeVerified(false);
     setVerificationCode("");
@@ -10630,6 +10649,31 @@ function PasswordAuthPanel({ authBridge, onAccountUpdated }: { authBridge: Mobil
       return;
     }
 
+    if (waitingForSignInSecondFactor) {
+      const cleanCode = verificationCode.trim();
+      if (!cleanCode) {
+        setMessage(null);
+        setError("Enter the verification code Clerk sent to the account email.");
+        return;
+      }
+
+      setBusy(true);
+      setMessage(null);
+      setError(null);
+      try {
+        await authBridge.completePasswordSignInSecondFactor?.({ code: cleanCode });
+        setMessage("Sign-in verified. Syncing your Side Quest Chess account...");
+        resetVerificationState();
+        setPassword("");
+        await Promise.resolve(onAccountUpdated());
+      } catch (caught) {
+        setError(caught instanceof Error ? caught.message : "Sign-in verification failed.");
+      } finally {
+        setBusy(false);
+      }
+      return;
+    }
+
     if (!passwordAuthAvailable) {
       setMessage(null);
       setError("Password sign-in is unavailable in this build.");
@@ -10670,7 +10714,13 @@ function PasswordAuthPanel({ authBridge, onAccountUpdated }: { authBridge: Mobil
     setError(null);
     try {
       if (mode === "sign-in") {
-        await authBridge.startPasswordSignIn?.({ identifier: cleanIdentifier, password });
+        const result = await authBridge.startPasswordSignIn?.({ identifier: cleanIdentifier, password });
+        if (result?.status === "needs_second_factor") {
+          setPendingSignInSecondFactor(true);
+          setVerificationCode("");
+          setMessage("Enter the verification code Clerk sent to the account email.");
+          return;
+        }
         setMessage("Signed in. Syncing your Side Quest Chess account...");
         await Promise.resolve(onAccountUpdated());
       } else {
@@ -10703,15 +10753,15 @@ function PasswordAuthPanel({ authBridge, onAccountUpdated }: { authBridge: Mobil
       </View>
       <View style={styles.inputStack}>
         <Text style={styles.inputLabel}>{mode === "reset" ? "Account email address" : "Email or username"}</Text>
-        <TextInput {...passwordAuthFieldSemantics.identifier} value={identifier} placeholder="you@example.com" placeholderTextColor="rgba(255,247,232,.42)" autoCapitalize="none" autoCorrect={false} editable={!waitingForVerification && !waitingForResetCode} keyboardType="email-address" style={styles.textInput} onChangeText={(value) => { setIdentifier(value); resetVerificationState(); }} />
+        <TextInput {...passwordAuthFieldSemantics.identifier} value={identifier} placeholder="you@example.com" placeholderTextColor="rgba(255,247,232,.42)" autoCapitalize="none" autoCorrect={false} editable={!waitingForVerification && !waitingForSignInSecondFactor && !waitingForResetCode} keyboardType="email-address" style={styles.textInput} onChangeText={(value) => { setIdentifier(value); resetVerificationState(); }} />
       </View>
-      {mode !== "reset" || resetCodeVerified ? (
+      {(mode !== "reset" || resetCodeVerified) && !waitingForSignInSecondFactor ? (
         <View style={styles.inputStack}>
           <Text style={styles.inputLabel}>{mode === "reset" ? "New password" : "Password"}</Text>
           <TextInput {...passwordAuthFieldSemantics.password} value={password} placeholder="At least 8 characters" placeholderTextColor="rgba(255,247,232,.42)" autoCapitalize="none" autoCorrect={false} editable={!waitingForVerification} secureTextEntry style={styles.textInput} onChangeText={(value) => { setPassword(value); if (mode !== "reset") resetVerificationState(); }} />
         </View>
       ) : null}
-      {waitingForVerification || (waitingForResetCode && !resetCodeVerified) ? (
+      {waitingForVerification || waitingForSignInSecondFactor || (waitingForResetCode && !resetCodeVerified) ? (
         <View style={styles.inputStack}>
           <Text style={styles.inputLabel}>Verification code</Text>
           <TextInput {...passwordAuthFieldSemantics.verificationCode} value={verificationCode} placeholder="6-digit email code" placeholderTextColor="rgba(255,247,232,.42)" autoCapitalize="none" autoCorrect={false} keyboardType="number-pad" style={styles.textInput} onChangeText={setVerificationCode} />
@@ -10725,7 +10775,7 @@ function PasswordAuthPanel({ authBridge, onAccountUpdated }: { authBridge: Mobil
           <Text style={styles.microcopy}>Forgot password?</Text>
         </Pressable>
       ) : null}
-      <Text style={styles.microcopy}>{mode === "sign-in" ? "Use this if your Side Quest Chess account has a password." : mode === "reset" ? !waitingForResetCode ? "We’ll email a one-time code to the account address." : resetCodeVerified ? "Choose a new password. Other authenticated sessions will be signed out." : "Enter the one-time code from the account email." : waitingForVerification ? "Clerk needs this email check before Side Quest Chess can sync the new account." : "Use email for the smoothest setup; username depends on the Clerk auth settings."}</Text>
+      <Text style={styles.microcopy}>{waitingForSignInSecondFactor ? "Enter the one-time code sent to the account email. This keeps the account’s second factor enabled." : mode === "sign-in" ? "Use this if your Side Quest Chess account has a password." : mode === "reset" ? !waitingForResetCode ? "We’ll email a one-time code to the account address." : resetCodeVerified ? "Choose a new password. Other authenticated sessions will be signed out." : "Enter the one-time code from the account email." : waitingForVerification ? "Clerk needs this email check before Side Quest Chess can sync the new account." : "Use email for the smoothest setup; username depends on the Clerk auth settings."}</Text>
       {message ? <Text accessibilityRole="alert" accessibilityLiveRegion="polite" style={styles.successCopy}>{message}</Text> : null}
       {error ? <Text accessibilityRole="alert" accessibilityLiveRegion="polite" style={styles.errorCopy}>{error}</Text> : null}
     </View>
