@@ -4,6 +4,11 @@ import test from "node:test";
 import { continueMobilePasswordSignInSecondFactor, startMobilePasswordSignIn } from "../apps/mobile/src/auth/mobilePasswordSignIn";
 
 const mobileAppConfig = JSON.parse(readFileSync(new URL("../apps/mobile/app.json", import.meta.url), "utf8"));
+const mobilePackage = JSON.parse(readFileSync(new URL("../apps/mobile/package.json", import.meta.url), "utf8"));
+
+test("mobile release declares Babel runtime required by the production auth bundle", () => {
+  assert.match(mobilePackage.dependencies?.["@babel/runtime"] ?? "", /^\^?7\./);
+});
 
 test("App Review repair uses a new iOS build number instead of resubmitting rejected build 3", () => {
   assert.equal(mobileAppConfig.expo.version, "0.1.349");
