@@ -23,6 +23,12 @@ export async function startMobilePasswordSignIn({
   setActive: (params: { session: string }) => Promise<unknown>;
 }): Promise<MobilePasswordSignInOutcome> {
   const identification = await createSignIn({ identifier: identifier.trim() });
+  if (identification.status === "needs_client_trust") {
+    if (!prepareSecondFactor) throw new Error("Password sign-in requires a device-trust verification method.");
+    await prepareSecondFactor({ strategy: "email_code" });
+    return { status: "needs_second_factor" };
+  }
+
   const result = identification.status === "complete"
     ? identification
     : await attemptFirstFactor({ strategy: "password", password });
@@ -34,6 +40,12 @@ export async function startMobilePasswordSignIn({
 
   if (result.status === "needs_second_factor") {
     if (!prepareSecondFactor) throw new Error("Password sign-in requires a second-factor delivery method.");
+    await prepareSecondFactor({ strategy: "email_code" });
+    return { status: "needs_second_factor" };
+  }
+
+  if (result.status === "needs_client_trust") {
+    if (!prepareSecondFactor) throw new Error("Password sign-in requires a device-trust verification method.");
     await prepareSecondFactor({ strategy: "email_code" });
     return { status: "needs_second_factor" };
   }

@@ -43,6 +43,47 @@ test("mobile password sign-in identifies the account before attempting the passw
   ]);
 });
 
+test("mobile password sign-in prepares Clerk email verification after a device-trust result before password submission", async () => {
+  const calls: unknown[] = [];
+
+  const result = await startMobilePasswordSignIn({
+    identifier: "player@example.com",
+    password: "secret-password",
+    createSignIn: async () => ({ status: "needs_client_trust", createdSessionId: null }),
+    attemptFirstFactor: async () => {
+      calls.push("password");
+      return { status: "complete", createdSessionId: "should_not_exist" };
+    },
+    prepareSecondFactor: async (params) => {
+      calls.push(params);
+      return { status: "needs_client_trust", createdSessionId: null };
+    },
+    setActive: async () => undefined,
+  });
+
+  assert.deepEqual(result, { status: "needs_second_factor" });
+  assert.deepEqual(calls, [{ strategy: "email_code" }]);
+});
+
+test("mobile password sign-in prepares Clerk email verification after device trust follows password verification", async () => {
+  const calls: unknown[] = [];
+
+  const result = await startMobilePasswordSignIn({
+    identifier: "player@example.com",
+    password: "secret-password",
+    createSignIn: async () => ({ status: "needs_first_factor", createdSessionId: null }),
+    attemptFirstFactor: async () => ({ status: "needs_client_trust", createdSessionId: null }),
+    prepareSecondFactor: async (params) => {
+      calls.push(params);
+      return { status: "needs_client_trust", createdSessionId: null };
+    },
+    setActive: async () => { calls.push("activate"); },
+  });
+
+  assert.deepEqual(result, { status: "needs_second_factor" });
+  assert.deepEqual(calls, [{ strategy: "email_code" }]);
+});
+
 test("mobile password sign-in sends the second-factor email before asking for its code", async () => {
   const calls: unknown[] = [];
   const result = await startMobilePasswordSignIn({
