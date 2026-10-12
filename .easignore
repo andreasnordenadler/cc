@@ -71,3 +71,4 @@ tmp-seals.jpg
 /public/stamps/quest-complete-red-wax-sqc-logo-v*.png
 /scripts/seed-sqc-realistic-community-data.cjs
 /.clerk/
+.sam-execution.lock
