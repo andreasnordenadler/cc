@@ -1,5 +1,6 @@
 import { fetchBoundedProviderText } from "./custom-side-quests";
 import { normalizeLichessMoveTokens } from "./lichess-move-normalizer";
+import { providerMillisecondsToIso } from "./provider-game-date";
 export type PawnStormSide = "white" | "black";
 export type PawnStormResult = "white" | "black" | "draw" | "unknown";
 export type PawnStormTimeClass = "bullet" | "blitz" | "rapid" | "classical" | "daily" | "unknown";
@@ -156,8 +157,8 @@ export function normalizeLichessPawnStormManiacGame(
     variant: game.variant ?? "standard",
     timeClass: normalizeTimeClass(game.perf ?? game.speed),
     rated: game.rated,
-    startedGameAt: typeof game.createdAt === "number" ? new Date(game.createdAt).toISOString() : undefined,
-    completedGameAt: typeof game.lastMoveAt === "number" ? new Date(game.lastMoveAt).toISOString() : undefined,
+    startedGameAt: providerMillisecondsToIso(game.createdAt),
+    completedGameAt: providerMillisecondsToIso(game.lastMoveAt),
     pawnMoves,
   };
 }

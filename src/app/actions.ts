@@ -116,6 +116,7 @@ import { evaluateQuestGameStartEligibility } from "@/lib/quest-game-start-cutoff
 import { buildSoloCheckResult, runSoloCheckAction, type SoloCheckActionResult } from "@/lib/solo-check-result";
 import {
   buildChallengeProgressRecord,
+  captureLatestGameObservation,
   getChallengeProgress,
   getChessComUsername,
   getLichessUsername,
@@ -220,6 +221,7 @@ function getAttemptChallengeId(attempt: ChallengeAttempt): string | undefined {
 
 function pickProofReceiptFields(attempt: Partial<ChallengeAttempt>): Partial<ChallengeAttempt> {
   return {
+    observedGame: attempt.observedGame,
     startedGameAt: attempt.startedGameAt,
     completedGameAt: attempt.completedGameAt,
     finalPositionFen: attempt.finalPositionFen,
@@ -234,6 +236,7 @@ function buildLatestGameCheckPayload(
   challengeTitle: string,
   activatedAfter?: string,
 ) {
+  const observedGame = captureLatestGameObservation(verdict);
   const eligibility = evaluateQuestGameStartEligibility({
     gameStartedAt: verdict.startedGameAt,
     gameCompletedAt: verdict.completedGameAt,
@@ -246,6 +249,7 @@ function buildLatestGameCheckPayload(
       gameId: `${challengeTitle.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-${eligibility.status}`,
       summary: eligibility.message,
       evidence: ["Only games with a confirmed start after the persisted quest start are eligible."],
+      observedGame,
     };
   }
 
@@ -254,6 +258,7 @@ function buildLatestGameCheckPayload(
     gameId: verdict.gameId,
     summary: `${verdict.summary} ${verdict.evidence?.join(" ") ?? ""}`.trim(),
     ...pickProofReceiptFields(verdict),
+    observedGame,
   };
 }
 

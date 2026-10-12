@@ -23,6 +23,9 @@ export async function startMobilePasswordSignIn({
   setActive: (params: { session: string }) => Promise<unknown>;
 }): Promise<MobilePasswordSignInOutcome> {
   const identification = await createSignIn({ identifier: identifier.trim() });
+  if (!identification.status || identification.status === "needs_identifier") {
+    throw new Error("Could not start password sign-in. Check your connection and try again.");
+  }
   if (identification.status === "needs_client_trust") {
     if (!prepareSecondFactor) throw new Error("Password sign-in requires a device-trust verification method.");
     await prepareSecondFactor({ strategy: "email_code" });

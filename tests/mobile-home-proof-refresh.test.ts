@@ -278,6 +278,25 @@ test("the active native shell routes home pull-to-refresh through the coordinato
   assert.match(source, /Pull down again to sync before retrying/);
 });
 
+test("Home refresh feedback stays below identity controls instead of preceding the negative-offset header", async () => {
+  const source = await readFile(new URL("../apps/mobile/App.tsx", import.meta.url), "utf8");
+  const shellStart = source.indexOf("function ClerkMobileShell");
+  const dashboardStart = source.indexOf("function TodayDashboard");
+  const dashboardEnd = source.indexOf("function JoinedMultiplayerQuestModal", dashboardStart);
+  const shellSource = source.slice(shellStart, dashboardStart);
+  const dashboardSource = source.slice(dashboardStart, dashboardEnd);
+
+  assert.doesNotMatch(shellSource, /testID="home-proof-refresh-feedback"/, "A preceding banner collides with Home's negative-offset identity header");
+  assert.match(shellSource, /homeProofRefreshFeedback=\{shell\.refreshFeedback\}/);
+  const identityControl = dashboardSource.indexOf('accessibilityLabel="Open account settings"');
+  const feedback = dashboardSource.indexOf('testID="home-proof-refresh-feedback"');
+  const questContent = dashboardSource.indexOf('{!hasChessAccount ?');
+  assert.ok(identityControl !== -1 && feedback > identityControl && feedback < questContent, "Feedback must follow the identity row and precede quest content");
+  assert.match(dashboardSource, /homeProofRefreshFeedback\.kind === "error"/);
+  assert.match(dashboardSource, /accessibilityRole="alert"/);
+  assert.match(dashboardSource, /accessibilityLiveRegion="polite"/);
+});
+
 test("the Home refresh button shares the retry-safe proof coordinator", async () => {
   const source = await readFile(new URL("../apps/mobile/App.tsx", import.meta.url), "utf8");
   const dashboardStart = source.indexOf("function TodayDashboard");

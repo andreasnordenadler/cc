@@ -35,6 +35,7 @@ import {
 } from "@/lib/lichess";
 import {
   buildChallengeProgressRecord,
+  captureLatestGameObservation,
   compactChallengeAttempts,
   getChallengeProgress,
   getChessComUsername,
@@ -247,6 +248,7 @@ export async function POST(request: Request) {
 }
 
 type MobileProviderCheck = {
+  observedGame?: ChallengeAttempt["observedGame"];
   provider: "lichess" | "chess.com" | "fixture";
   status: "passed" | "failed" | "pending";
   gameId: string;
@@ -497,7 +499,7 @@ export async function submitMobileChallengeAttempt(
   if (eligibility.status !== "eligible") {
     throw new Error(eligibility.message);
   }
-  const checkedVerification = buildLatestGameCheckPayload(verdict, challenge?.title ?? customQuest!.title, activatedAfter);
+  const checkedVerification = buildLatestGameCheckPayload(verdict, challenge?.title ?? customQuest!.title, activatedAfter, false);
   const progress = getChallengeProgress(metadata);
   const completed = checkedVerification.status === "passed";
   const completedChallengeIds = completed && !progress.completedChallengeIds.includes(questId)
@@ -745,7 +747,8 @@ async function buildLatestGameCheck(challengeId: string, provider: "lichess" | "
   }
 }
 
-function buildLatestGameCheckPayload(verdict: LatestChallengeVerdict, challengeTitle: string, activatedAfter: string): Omit<MobileProviderCheck, "provider"> {
+function buildLatestGameCheckPayload(verdict: LatestChallengeVerdict, challengeTitle: string, activatedAfter: string, latestLookup = true): Omit<MobileProviderCheck, "provider"> {
+  const observedGame = latestLookup ? captureLatestGameObservation(verdict) : undefined;
   const eligibility = evaluateQuestGameStartEligibility({
     gameStartedAt: verdict.startedGameAt,
     gameCompletedAt: verdict.completedGameAt,
@@ -757,6 +760,7 @@ function buildLatestGameCheckPayload(verdict: LatestChallengeVerdict, challengeT
       status: "pending",
       gameId: `${challengeTitle.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-new-game-required`,
       summary: eligibility.message,
+      observedGame,
       startedGameAt: verdict.startedGameAt,
       completedGameAt: verdict.completedGameAt,
     };
@@ -765,6 +769,7 @@ function buildLatestGameCheckPayload(verdict: LatestChallengeVerdict, challengeT
   return {
     status: verdict.status,
     gameId: verdict.gameId,
+    observedGame,
     summary: `${verdict.summary} ${verdict.evidence?.join(" ") ?? ""}`.trim(),
     startedGameAt: verdict.startedGameAt,
     completedGameAt: verdict.completedGameAt,
@@ -781,6 +786,7 @@ function buildAttempt(challengeId: string, check: MobileProviderCheck, id: strin
     id,
     challengeId,
     gameId: check.gameId,
+    ...(check.observedGame ? { observedGame: check.observedGame } : {}),
     provider: check.provider,
     status: check.status,
     summary: check.summary,

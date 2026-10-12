@@ -15,6 +15,7 @@ import { filterBlockedCommunityGroupQuests, getBlockedUserIds } from "@/lib/user
 import { containsObjectionablePublicText } from "@/lib/ugc-content-filter";
 import {
   buildAttemptSummary,
+  buildLatestGameVisibility,
   challengeBanner,
   getActiveChallenge,
   getChallengeAttempts,
@@ -373,6 +374,7 @@ export async function GET(request: Request) {
     officialGroupQuestWeeks,
     multiplayerTrophies,
     completedQuests: completedQuestPayloads,
+    latestGameVisibility: buildLatestGameVisibility(attempts),
     latestReceipt: latestAttempt
       ? {
           id: latestAttempt.id ?? null,

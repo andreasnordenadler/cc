@@ -121,3 +121,41 @@ test("mobile password sign-in verifies the already-delivered email code before a
     { session: "sess_second_factor" },
   ]);
 });
+
+test("mobile password sign-in never activates an incomplete Clerk result without a session", async () => {
+  const calls: unknown[] = [];
+
+  await assert.rejects(
+    startMobilePasswordSignIn({
+      identifier: "player@example.com",
+      password: "secret-password",
+      createSignIn: async () => ({ status: "complete", createdSessionId: null }),
+      attemptFirstFactor: async () => {
+        calls.push("password");
+        return { status: "complete", createdSessionId: "should_not_exist" };
+      },
+      setActive: async (params) => { calls.push(params); },
+    }),
+    /Password sign-in needs another step: complete/,
+  );
+
+  assert.deepEqual(calls, []);
+});
+
+test("mobile password second-factor verification never activates without a completed session", async () => {
+  const calls: unknown[] = [];
+
+  await assert.rejects(
+    continueMobilePasswordSignInSecondFactor({
+      code: "123456",
+      attemptSecondFactor: async (params) => {
+        calls.push(params);
+        return { status: "complete", createdSessionId: null };
+      },
+      setActive: async (params) => { calls.push(params); },
+    }),
+    /Password sign-in verification did not complete: complete/,
+  );
+
+  assert.deepEqual(calls, [{ strategy: "email_code", code: "123456" }]);
+});

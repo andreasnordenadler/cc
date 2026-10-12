@@ -68,6 +68,7 @@ import { OFFLINE_MOBILE_BOOTSTRAP } from "./src/data/offlineBootstrap";
 import { MAX_CUSTOM_CONDITIONS, getCustomConditionSlotCount, transitionCustomConditionState, type CustomConditionState } from "./src/custom/customConditionCapacity";
 import { shouldStackActiveQuestSummary } from "./src/layout/activeQuestLayout";
 import { createMobileHomeProofRefreshCoordinator, toMobileHomeProofRefreshActionState, type MobileHomeProofRefreshFeedback, type MobileHomeProofRefreshSnapshot } from "./src/home/mobileHomeProofRefresh";
+import { buildLatestGameNotice } from "./src/home/latestGameNotice";
 import { describeMobileBoard, describeMobileBoardSquare } from "./src/proof/mobileBoardAccessibility";
 import { shouldUseDevTrackerPreview } from "./src/preview/devTrackerPreview";
 import { createMobileCommunityCreatorReportSubmitter } from "./src/reports/communityCreatorReport";
@@ -1325,7 +1326,7 @@ export default function App() {
   return (
     <SafeAreaProvider>
       {isClerkMobileAuthConfigured() ? (
-        <ClerkProvider publishableKey={clerkPublishableKey} tokenCache={clerkTokenCache}>
+        <ClerkProvider publishableKey={clerkPublishableKey} tokenCache={clerkTokenCache} experimental={{ rethrowOfflineNetworkErrors: true }}>
           <ClerkMobileShell />
         </ClerkProvider>
       ) : (
@@ -1845,19 +1846,6 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
           </View>
         ) : null}
 
-        {shell.activeTab === "home" && shell.refreshFeedback ? (
-          <View
-            style={[styles.catalogStateBanner, shell.refreshFeedback.kind === "error" ? styles.proofRefreshErrorBanner : styles.proofRefreshSuccessBanner]}
-            accessibilityRole="alert"
-            accessibilityLiveRegion="polite"
-            accessibilityLabel={`${shell.refreshFeedback.kind === "error" ? "Proof refresh needs another try" : "Proof refreshed"}. ${shell.refreshFeedback.message}`}
-            accessibilityHint={shell.refreshFeedback.kind === "error" ? "Pull down again to sync before retrying." : undefined}
-          >
-            <Text style={styles.catalogStateTitle}>{shell.refreshFeedback.kind === "error" ? "Proof refresh needs another try" : "Proof refreshed"}</Text>
-            <Text style={styles.catalogStateCopy}>{shell.refreshFeedback.message}</Text>
-          </View>
-        ) : null}
-
         {shell.bootstrap && selectedChallenge ? (
           <>
             <ActiveScreen
@@ -1883,6 +1871,7 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
                 setMultiplayerCreateIntent(consumeMultiplayerCreateIntent);
               }}
               onRefreshActiveProof={refreshActiveHomeProof}
+              homeProofRefreshFeedback={shell.refreshFeedback}
               onAccountUpdated={loadAccount}
               onScrollToY={(y, animated = true) => scrollViewRef.current?.scrollTo({ y, animated: programmaticScrollPreference.shouldAnimate(animated) })}
             />
@@ -2104,6 +2093,7 @@ function TodayDashboard({
   onOpenSupport,
   onSelectChallenge,
   onRefreshActiveProof,
+  homeProofRefreshFeedback,
   onAccountUpdated,
 }: {
   bootstrap: MobileBootstrap;
@@ -2114,10 +2104,12 @@ function TodayDashboard({
   onOpenSupport: () => void;
   onSelectChallenge: (challengeId: string, nextTab?: AppTab) => void;
   onRefreshActiveProof: (challengeId: string) => Promise<MobileHomeProofRefreshFeedback | null>;
+  homeProofRefreshFeedback: MobileHomeProofRefreshFeedback | null;
   onAccountUpdated: AccountUpdatedCallback;
 }) {
   const signedIn = isAuthenticatedAccount(account) ? account : null;
   const latestReceipt = signedIn?.latestReceipt;
+  const latestGameNotice = buildLatestGameNotice(signedIn?.latestGameVisibility);
   const activeOfficialChallenge = signedIn?.activeQuest?.id ? bootstrap.challenges.find((challenge) => challenge.id === signedIn.activeQuest?.id) ?? null : null;
   const activeCustomQuest = signedIn?.activeQuest?.id ? [...(signedIn.customSideQuests ?? []), ...(signedIn.communitySideQuests ?? [])].find((quest) => quest.id === signedIn.activeQuest?.id) ?? null : null;
   const activeChallenge = activeOfficialChallenge ?? (signedIn?.activeQuest ? buildCustomActiveChallenge(signedIn.activeQuest, activeCustomQuest) : null);
@@ -2366,6 +2358,29 @@ function TodayDashboard({
           )}
         </Pressable>
       </View>
+
+      {latestGameNotice ? (
+        <View testID="latest-game-visibility" style={styles.catalogStateBanner} accessibilityLiveRegion="polite">
+          <Text accessibilityRole="header" style={styles.catalogStateTitle}>{latestGameNotice.title}</Text>
+          <Text style={styles.catalogStateCopy}>{latestGameNotice.gameLine}</Text>
+          <Text style={styles.catalogStateCopy}>{latestGameNotice.checkLine}</Text>
+          {latestGameNotice.guidance ? <Text style={styles.catalogStateCopy}>{latestGameNotice.guidance}</Text> : null}
+        </View>
+      ) : null}
+
+      {homeProofRefreshFeedback ? (
+        <View
+          testID="home-proof-refresh-feedback"
+          style={[styles.catalogStateBanner, homeProofRefreshFeedback.kind === "error" ? styles.proofRefreshErrorBanner : styles.proofRefreshSuccessBanner]}
+          accessibilityRole="alert"
+          accessibilityLiveRegion="polite"
+          accessibilityLabel={`${homeProofRefreshFeedback.kind === "error" ? "Proof refresh needs another try" : "Proof refreshed"}. ${homeProofRefreshFeedback.message}`}
+          accessibilityHint={homeProofRefreshFeedback.kind === "error" ? "Pull down again to sync before retrying." : undefined}
+        >
+          <Text style={styles.catalogStateTitle}>{homeProofRefreshFeedback.kind === "error" ? "Proof refresh needs another try" : "Proof refreshed"}</Text>
+          <Text style={styles.catalogStateCopy}>{homeProofRefreshFeedback.message}</Text>
+        </View>
+      ) : null}
 
       {!hasChessAccount ? (
         <View style={compactStyles.blockerPanel}>
@@ -7145,6 +7160,7 @@ function ActiveScreen({
   pendingMultiplayerCreateQuestId,
   onConsumePendingMultiplayerCreate,
   onRefreshActiveProof,
+  homeProofRefreshFeedback,
   onAccountUpdated,
   onScrollToY,
 }: {
@@ -7168,12 +7184,13 @@ function ActiveScreen({
   pendingMultiplayerCreateQuestId: string | null;
   onConsumePendingMultiplayerCreate: () => void;
   onRefreshActiveProof: (challengeId: string) => Promise<MobileHomeProofRefreshFeedback | null>;
+  homeProofRefreshFeedback: MobileHomeProofRefreshFeedback | null;
   onAccountUpdated: AccountUpdatedCallback;
   onScrollToY: (y: number, animated?: boolean) => void;
 }) {
   switch (activeTab) {
     case "home":
-      return <TodayDashboard bootstrap={bootstrap} account={account} authBridge={authBridge} onSelectTab={onSelectTab} onOpenMultiplayerCreate={onOpenMultiplayerCreate} onOpenSupport={onOpenSupport} onSelectChallenge={onSelectChallenge} onRefreshActiveProof={onRefreshActiveProof} onAccountUpdated={onAccountUpdated} />;
+      return <TodayDashboard bootstrap={bootstrap} account={account} authBridge={authBridge} onSelectTab={onSelectTab} onOpenMultiplayerCreate={onOpenMultiplayerCreate} onOpenSupport={onOpenSupport} onSelectChallenge={onSelectChallenge} onRefreshActiveProof={onRefreshActiveProof} homeProofRefreshFeedback={homeProofRefreshFeedback} onAccountUpdated={onAccountUpdated} />;
     case "sideQuests":
       return <QuestBoardDashboard bootstrap={bootstrap} selectedChallenge={selectedChallenge} pendingSideQuestDetailId={pendingSideQuestDetailId} pendingCompletedDetailId={pendingCompletedDetailId} pendingSideQuestCatalogIntent={pendingSideQuestCatalogIntent} onConsumePendingQuestOpen={onConsumePendingQuestOpen} account={account} authBridge={authBridge} onSelectChallenge={onSelectChallenge} onSelectTab={onSelectTab} onAccountUpdated={onAccountUpdated} onOpenChallengeDetail={onOpenChallengeDetail} onOpenMultiplayerCreate={onOpenMultiplayerCreate} onOpenSupport={onOpenSupport} />;
     case "multiplayerSideQuests":

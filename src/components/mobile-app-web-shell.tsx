@@ -1,3 +1,5 @@
+import LatestGameNotice from "./latest-game-notice";
+import type { LatestGameVisibility } from "../../apps/mobile/src/home/latestGameNotice";
 import Image from "next/image";
 import Link from "next/link";
 import type { CSSProperties, ReactNode } from "react";
@@ -45,6 +47,7 @@ import ResponsiveAccountSetupLink from "./responsive-account-setup-link";
 type AppTab = "home" | "sideQuests" | "multiplayerSideQuests" | "coatOfArms" | "account";
 
 type MobileAppWebShellProps = {
+  latestGameVisibility?: LatestGameVisibility | null;
   activeTab: AppTab;
   signedIn: boolean;
   desktopPresentation?: "solo-discovery" | "community-discovery" | "multiplayer-discovery" | "multiplayer-detail" | "multiplayer-create" | "multiplayer-edit" | "custom-library" | "custom-detail" | "custom-editor" | "official-detail" | "community-detail" | "trophy-cabinet" | "account" | "settings" | "support" | "auth" | "proof" | "recovery";
@@ -208,6 +211,7 @@ const mobileAsset = {
 };
 
 export default function MobileAppWebShell({
+  latestGameVisibility,
   activeTab,
   signedIn,
   desktopPresentation,
@@ -296,6 +300,7 @@ export default function MobileAppWebShell({
                 </Link>
               </header>
             )}
+            {activeTab === "home" ? <LatestGameNotice visibility={latestGameVisibility} /> : null}
           </>
         ) : immersivePresentation || loadingPresentation ? null : activeTab === "home" ? (
           <header className="sqc-app-header guest">
@@ -345,6 +350,7 @@ export default function MobileAppWebShell({
             <DesktopHomeHeader signedIn displayName={displayName} activeTab="home" />
           </div>
           <DesktopSignedInHome
+            latestGameVisibility={latestGameVisibility}
             displayName={displayName}
             hasChessAccount={hasChessAccount}
             activeSolo={activeSolo}
@@ -607,6 +613,7 @@ function DesktopGuestHome() {
 }
 
 function DesktopSignedInHome({
+  latestGameVisibility,
   displayName,
   hasChessAccount,
   activeSolo,
@@ -616,6 +623,7 @@ function DesktopSignedInHome({
   completedSoloCount,
   proofReceiptCount,
 }: {
+  latestGameVisibility?: LatestGameVisibility | null;
   displayName?: string | null;
   hasChessAccount: boolean;
   activeSolo?: ActiveSoloHome | null;
@@ -662,6 +670,7 @@ function DesktopSignedInHome({
 
   return (
     <div className="sqc-desktop-signed-in sqc-responsive-signed-home">
+      <div className="sqc-desktop-home-only"><LatestGameNotice visibility={latestGameVisibility} /></div>
       <section className="sqc-desktop-dashboard-intro">
         <div>
           <span className="sqc-desktop-eyebrow">Today&apos;s quest log</span>
