@@ -1,3 +1,5 @@
+import { verifyPatchedFinding } from "./dependency-patch-verification.mjs";
+
 const acceptedBuildToolAdvisories = new Map([
   ["GHSA-w3rx-r6r6-pgpr", { moduleName: "image-size", pathSuffix: ">metro>image-size" }],
   ["GHSA-5p2g-fcmc-qvqq", { moduleName: "image-size", pathSuffix: ">metro>image-size" }],
@@ -9,6 +11,7 @@ export function evaluateProductionAudit(report) {
   }
 
   const acceptedAdvisories = [];
+  const patchedAdvisories = [];
   const blockers = [];
   for (const advisory of Object.values(report.advisories)) {
     const validAdvisory = advisory
@@ -31,6 +34,10 @@ export function evaluateProductionAudit(report) {
     if (!["high", "critical"].includes(advisory.severity)) continue;
 
     const advisoryId = advisory.github_advisory_id;
+    if (advisory.findings.every(finding => verifyPatchedFinding(advisory, finding))) {
+      patchedAdvisories.push(advisoryId);
+      continue;
+    }
     const accepted = acceptedBuildToolAdvisories.get(advisoryId);
     const paths = advisory.findings.flatMap((finding) => finding.paths);
     const exactBuildToolFinding = accepted
@@ -48,5 +55,8 @@ export function evaluateProductionAudit(report) {
     throw new Error(`Production dependency audit blocked by: ${blockers.sort().join(", ")}`);
   }
 
-  return { acceptedAdvisories: [...new Set(acceptedAdvisories)].sort() };
+  return {
+    acceptedAdvisories: [...new Set(acceptedAdvisories)].sort(),
+    patchedAdvisories: [...new Set(patchedAdvisories)].sort(),
+  };
 }

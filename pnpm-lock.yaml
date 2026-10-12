@@ -24,8 +24,10 @@ overrides:
   ws: 8.21.0
 
 patchedDependencies:
+  braces@3.0.3: c45009e551a22f24f6166b6e5571363b0cbd64066e143ec896df7fe55c28f2d9
   minimatch@3.1.5: 0acf7e986113e978e4733bdd610c05131235bd62ecb6082f36d7b6bf924e49d9
   minimatch@9.0.9: 9b309335e99d0098c20224d3b474d5d7e0116860a97b6c7e0c168d6f04f8dfbe
+  node-forge@1.4.0: 82f06400641f3ca35a7a11392fdd4429a20298d9efb742621b4fb3e81e734009
 
 importers:
 
@@ -6139,7 +6141,7 @@ snapshots:
       glob: 13.0.6
       lan-network: 0.2.1
       minimatch: 9.0.9(patch_hash=9b309335e99d0098c20224d3b474d5d7e0116860a97b6c7e0c168d6f04f8dfbe)
-      node-forge: 1.4.0
+      node-forge: 1.4.0(patch_hash=82f06400641f3ca35a7a11392fdd4429a20298d9efb742621b4fb3e81e734009)
       npm-package-arg: 11.0.3
       ora: 3.4.0
       picomatch: 4.0.4
@@ -6175,7 +6177,7 @@ snapshots:
 
   '@expo/code-signing-certificates@0.0.6':
     dependencies:
-      node-forge: 1.4.0
+      node-forge: 1.4.0(patch_hash=82f06400641f3ca35a7a11392fdd4429a20298d9efb742621b4fb3e81e734009)
 
   '@expo/config-plugins@54.0.5':
     dependencies:
@@ -7736,7 +7738,7 @@ snapshots:
     dependencies:
       balanced-match: 4.0.4
 
-  braces@3.0.3:
+  braces@3.0.3(patch_hash=c45009e551a22f24f6166b6e5571363b0cbd64066e143ec896df7fe55c28f2d9):
     dependencies:
       fill-range: 7.1.1
 
@@ -9686,7 +9688,7 @@ snapshots:
 
   micromatch@4.0.8:
     dependencies:
-      braces: 3.0.3
+      braces: 3.0.3(patch_hash=c45009e551a22f24f6166b6e5571363b0cbd64066e143ec896df7fe55c28f2d9)
       picomatch: 2.3.2
 
   mime-db@1.52.0: {}
@@ -9789,7 +9791,7 @@ snapshots:
     dependencies:
       whatwg-url: 5.0.0
 
-  node-forge@1.4.0: {}
+  node-forge@1.4.0(patch_hash=82f06400641f3ca35a7a11392fdd4429a20298d9efb742621b4fb3e81e734009): {}
 
   node-gyp-build@4.8.4:
     optional: true

@@ -36,6 +36,7 @@ test("production audit accepts only the exact unpatched Metro image parser advis
 
   assert.deepEqual(evaluateProductionAudit(accepted), {
     acceptedAdvisories: ["GHSA-5p2g-fcmc-qvqq", "GHSA-w3rx-r6r6-pgpr"],
+    patchedAdvisories: [],
   });
 
   assert.throws(

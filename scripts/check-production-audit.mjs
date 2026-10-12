@@ -21,7 +21,10 @@ try {
   throw new Error("pnpm audit did not return valid JSON.");
 }
 
-const { acceptedAdvisories } = evaluateProductionAudit(report);
+const { acceptedAdvisories, patchedAdvisories } = evaluateProductionAudit(report);
+if (patchedAdvisories.length > 0) {
+  console.log(`Verified installed security backports: ${patchedAdvisories.join(", ")}`);
+}
 if (acceptedAdvisories.length > 0) {
   console.log(`Accepted unpatched Expo/Metro build-tool advisories: ${acceptedAdvisories.join(", ")}`);
 }
