@@ -45,7 +45,45 @@ export type ChallengeFailureDiagnostic = {
   playerColor?: "white" | "black";
 };
 
+export type LatestGameObservation = {
+  gameId: string;
+  startedGameAt?: string;
+  completedGameAt?: string;
+};
+
+// Capture before quest eligibility rewrites the receipt ID/status. Never use
+// checkedAt as a game date or treat an adapter's synthetic ID as an observation.
+export function captureLatestGameObservation(verdict: Pick<ChallengeAttempt, "gameId" | "status" | "startedGameAt" | "completedGameAt">): LatestGameObservation | undefined {
+  const gameId = verdict.gameId;
+  if (!gameId || !(/^[a-zA-Z0-9]{6,12}$/.test(gameId) || /^https:\/\/www\.chess\.com\/game\/(?:live|daily)\/\d+$/.test(gameId))) return undefined;
+  return { gameId, startedGameAt: validGameDate(verdict.startedGameAt), completedGameAt: validGameDate(verdict.completedGameAt) };
+}
+
+function validGameDate(value: unknown): string | undefined {
+  if (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}T/.test(value)) return undefined;
+  const date = new Date(value);
+  return Number.isFinite(date.getTime()) ? date.toISOString() : undefined;
+}
+
+export type LatestGameVisibility = {
+  game: (LatestGameObservation & { provider: "lichess" | "chess.com" }) | null;
+  checkedAt: string | null;
+  pending: boolean;
+};
+
+export function buildLatestGameVisibility(attempts: ChallengeAttempt[]): LatestGameVisibility | null {
+  const checks = attempts.filter((attempt) => attempt.provider === "lichess" || attempt.provider === "chess.com")
+    .sort((a, b) => (Date.parse(b.checkedAt ?? "") || 0) - (Date.parse(a.checkedAt ?? "") || 0));
+  if (!checks.length) return null;
+  const observations = checks.flatMap((attempt) => {
+    const game = attempt.observedGame && captureLatestGameObservation(attempt.observedGame);
+    return game ? [{ ...game, provider: attempt.provider as "lichess" | "chess.com" }] : [];
+  }).sort((a, b) => (Date.parse(b.completedGameAt ?? "") || 0) - (Date.parse(a.completedGameAt ?? "") || 0));
+  return { game: observations[0] ?? null, checkedAt: validGameDate(checks[0].checkedAt) ?? null, pending: checks[0].status === "pending" };
+}
+
 export type ChallengeAttempt = {
+  observedGame?: LatestGameObservation;
   id?: string;
   challengeId?: string;
   gameId?: string;
@@ -429,7 +467,7 @@ export function buildAttemptSummary(attempt: ChallengeAttempt | null): {
 export function isSyntheticLatestGameReceipt(attempt: Pick<ChallengeAttempt, "gameId" | "status"> | null | undefined): boolean {
   const gameId = attempt?.gameId ?? "";
 
-  return attempt?.status === "pending" && /-(no-new-game-after-start|new-game-time-unconfirmed)$/.test(gameId);
+  return attempt?.status === "pending" && /-(no-new-game-after-start|new-game-time-unconfirmed|new-game-required|before_cutoff|game_start_unconfirmed|quest_start_unconfirmed)$/.test(gameId);
 }
 
 export function sanitizeAttemptSummary(summary?: string): string {

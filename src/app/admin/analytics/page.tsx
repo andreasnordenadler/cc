@@ -7,7 +7,7 @@ import { getStoredGroupQuests, type ServerGroupQuest } from "@/lib/groupquests";
 import { getChallengeAttempts, getChallengeProgress, getChessComUsername, getLichessUsername, getPreferredRunnerName, type ChallengeAttempt, type UserMetadataRecord } from "@/lib/user-metadata";
 
 export const metadata: Metadata = {
-  title: "SQC Analytics · Side Quest Chess",
+  title: "Analytics · Side Quest Chess",
   robots: { index: false, follow: false },
 };
 
@@ -37,7 +37,7 @@ async function replyToSupportMessage(formData: FormData) {
           message: reply,
           source: "admin",
           accountEmail: user.primaryEmailAddress?.emailAddress ?? null,
-          displayName: "SQC support",
+          displayName: "Side Quest Chess support",
         },
       ].slice(-30),
     },
@@ -99,7 +99,7 @@ export default async function AdminAnalyticsPage() {
       <main className="site-shell">
         <div className="content-wrap">
           <section className="hero-card">
-            <span className="eyebrow">SQC Analytics</span>
+            <span className="eyebrow">Side Quest Chess Analytics</span>
             <h1>Admin access needed.</h1>
             <p className="hero-copy">
               This private dashboard shows user activity and quest outcomes. Ask Sam to grant your Clerk user <code>sqcAdmin</code> access or add your email to <code>SQC_ADMIN_EMAILS</code>.
@@ -206,7 +206,7 @@ export default async function AdminAnalyticsPage() {
     <main className="site-shell">
       <div className="content-wrap">
         <section className="hero-card">
-          <span className="eyebrow">SQC Analytics</span>
+          <span className="eyebrow">Side Quest Chess Analytics</span>
           <h1>User activity command center.</h1>
           <p className="hero-copy">
             First-party activity tracking for launch: sign-ins, page views, profile saves, quest starts, saved completed quests, and verifier outcomes.
@@ -245,7 +245,7 @@ export default async function AdminAnalyticsPage() {
             <div>
               <span className="eyebrow">Support inbox</span>
               <h2>Mobile Help & Support threads.</h2>
-              <p>Full conversations from the app profile support form, including incoming user notes and SQC support replies.</p>
+              <p>Full conversations from the app profile support form, including incoming user notes and Side Quest Chess support replies.</p>
             </div>
           </div>
           <div className="support-thread-list">
@@ -263,7 +263,7 @@ export default async function AdminAnalyticsPage() {
                   <div className="support-thread-messages">
                     {thread.messages.map((message) => (
                       <div className={message.source === "admin" ? "support-thread-bubble admin" : "support-thread-bubble user"} key={message.id}>
-                        <span>{message.source === "admin" ? "SQC support" : thread.user} · {formatDate(message.at)}</span>
+                        <span>{message.source === "admin" ? "Side Quest Chess support" : thread.user} · {formatDate(message.at)}</span>
                         <p>{message.message}</p>
                       </div>
                     ))}
@@ -350,7 +350,7 @@ export default async function AdminAnalyticsPage() {
           <div className="section-head">
             <div>
               <span className="eyebrow">Users</span>
-              <h2>Who is using SQC?</h2>
+              <h2>Who is using Side Quest Chess?</h2>
             </div>
           </div>
           <div className="public-groupquests-list">

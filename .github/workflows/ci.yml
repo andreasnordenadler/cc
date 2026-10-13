@@ -38,7 +38,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Test full suite
-        run: pnpm test
+        run: NODE_ENV=test pnpm test
 
       - name: Lint
         run: pnpm lint

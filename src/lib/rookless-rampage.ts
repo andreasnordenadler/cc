@@ -1,4 +1,5 @@
 import { normalizeLichessMoveTokens } from "./lichess-move-normalizer";
+import { providerMillisecondsToIso } from "./provider-game-date";
 import { fetchBoundedProviderText } from "./custom-side-quests";
 export type RooklessSide = "white" | "black";
 export type RooklessResult = "white" | "black" | "draw" | "unknown";
@@ -177,8 +178,8 @@ export function normalizeLichessRooklessRampageGame(
     variant: game.variant ?? "standard",
     timeClass: normalizeTimeClass(game.perf ?? game.speed),
     rated: game.rated,
-    startedGameAt: typeof game.createdAt === "number" ? new Date(game.createdAt).toISOString() : undefined,
-    completedGameAt: typeof game.lastMoveAt === "number" ? new Date(game.lastMoveAt).toISOString() : undefined,
+    startedGameAt: providerMillisecondsToIso(game.createdAt),
+    completedGameAt: providerMillisecondsToIso(game.lastMoveAt),
     rookLosses,
   };
 }

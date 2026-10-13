@@ -163,6 +163,7 @@ export type MobileCustomSideQuest = {
 };
 
 export type MobileAccountState = {
+  latestGameVisibility?: import("../home/latestGameNotice").LatestGameVisibility | null;
   apiVersion: number;
   authenticated: true;
   generatedAt: string;

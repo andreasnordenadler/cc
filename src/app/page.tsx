@@ -10,6 +10,7 @@ import { buildActiveMultiplayerHomeRows, buildHomeActiveSoloProofPath, loadHomeT
 import { listUserRelatedGroupQuests } from "@/lib/groupquests";
 import {
   buildAttemptSummary,
+  buildLatestGameVisibility,
   getActiveChallenge,
   getChallengeAttempts,
   getChallengeProgress,
@@ -87,6 +88,7 @@ export default async function Home() {
   return (
     <MobileAppWebShell
       activeTab="home"
+      latestGameVisibility={buildLatestGameVisibility(getChallengeAttempts(metadata))}
       signedIn={Boolean(user)}
       displayName={displayName}
       profileImageUrl={user?.imageUrl ?? null}

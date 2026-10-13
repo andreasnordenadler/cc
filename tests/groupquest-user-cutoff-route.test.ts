@@ -8,7 +8,8 @@ Object.defineProperty(process.env, "NODE_ENV", { value: "test", writable: true, 
 
 for (const variant of ["web", "mobile"] as const) {
   for (const official of [true, false] as const) {
-    test(`${variant} ${official ? "official" : "community"} refresh uses the persisted participant join cutoff`, async () => {
+    test(`${variant} ${official ? "official" : "community"} refresh uses the persisted participant join cutoff`, async (t) => {
+      t.mock.timers.enable({ apis: ["Date"], now: new Date("2026-09-19T10:10:00.000Z") });
       const joinedAt = "2026-09-19T10:05:00.000Z";
       const quest = {
         id: official ? "official-cutoff" : "community-cutoff",

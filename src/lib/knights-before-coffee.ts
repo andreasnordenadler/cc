@@ -1,6 +1,7 @@
 import { Chess } from "chess.js";
 import { fetchBoundedProviderText } from "./custom-side-quests";
 import { normalizeLichessMoveTokens } from "./lichess-move-normalizer";
+import { providerMillisecondsToIso } from "./provider-game-date";
 export type KnightsBeforeCoffeeSide = "white" | "black";
 export type KnightsBeforeCoffeeResult = KnightsBeforeCoffeeSide | "draw" | "unknown";
 export type KnightsBeforeCoffeeTimeClass = "bullet" | "blitz" | "rapid" | "classical" | "daily" | "unknown";
@@ -153,8 +154,8 @@ export function normalizeLichessKnightsBeforeCoffeeGame(
     variant: game.variant ?? "standard",
     timeClass: normalizeTimeClass(game.perf ?? game.speed),
     rated: game.rated,
-    startedGameAt: typeof game.createdAt === "number" ? new Date(game.createdAt).toISOString() : undefined,
-    completedGameAt: typeof game.lastMoveAt === "number" ? new Date(game.lastMoveAt).toISOString() : undefined,
+    startedGameAt: providerMillisecondsToIso(game.createdAt),
+    completedGameAt: providerMillisecondsToIso(game.lastMoveAt),
     firstFourPlayerMovePieces: analysis.firstFourPlayerMovePieces,
     finalPositionFen: analysis.finalPositionFen,
     lastMoveUci: analysis.lastMoveUci,

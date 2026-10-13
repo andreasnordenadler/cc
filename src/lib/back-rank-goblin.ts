@@ -2,6 +2,7 @@ import { Chess } from "chess.js";
 import { classifyChessComArchiveGameEvidence, fetchBoundedProviderJson, fetchBoundedProviderText, getChessComArchiveReplayIdentity, normalizeChessComArchiveUrls, selectUniqueLatestChessComEvidence } from "./custom-side-quests";
 import type { ChessComArchiveGameEvidence, ChessComCanonicalReplay } from "./custom-side-quests";
 import { normalizeLichessMoveTokens } from "./lichess-move-normalizer";
+import { providerMillisecondsToIso } from "./provider-game-date";
 
 export type BackRankSide = "white" | "black";
 export type BackRankResult = BackRankSide | "draw" | "unknown";
@@ -258,8 +259,8 @@ export function normalizeLichessBackRankGoblinGame(game: LichessBackRankGame, us
     winner: game.winner ?? "unknown",
     moves: normalizeLichessMoveTokens(game.moves),
     source: "lichess",
-    startedGameAt: typeof game.createdAt === "number" ? new Date(game.createdAt).toISOString() : undefined,
-    completedGameAt: typeof game.lastMoveAt === "number" ? new Date(game.lastMoveAt).toISOString() : undefined,
+    startedGameAt: providerMillisecondsToIso(game.createdAt),
+    completedGameAt: providerMillisecondsToIso(game.lastMoveAt),
   };
 }
 

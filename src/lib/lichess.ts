@@ -57,12 +57,13 @@ function getPlayerNames(game: LichessGame) {
 }
 
 function getStartedGameAt(game: LichessGame): string | undefined {
-  return typeof game.createdAt === "number" ? new Date(game.createdAt).toISOString() : undefined;
+  const date = typeof game.createdAt === "number" ? new Date(game.createdAt) : null;
+  return date && Number.isFinite(date.getTime()) ? date.toISOString() : undefined;
 }
 
 function getCompletedGameAt(game: LichessGame): string | undefined {
-  const timestamp = game.lastMoveAt ?? game.createdAt;
-  return typeof timestamp === "number" ? new Date(timestamp).toISOString() : undefined;
+  const date = typeof game.lastMoveAt === "number" ? new Date(game.lastMoveAt) : null;
+  return date && Number.isFinite(date.getTime()) ? date.toISOString() : undefined;
 }
 
 function getLichessPlayerOutcome(game: LichessGame, playerColor: "white" | "black"): "win" | "draw" | "lose" | "unknown" {

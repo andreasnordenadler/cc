@@ -5,17 +5,19 @@ overrides:
   '@xmldom/xmldom@>=0.7.0 <0.8.15': "0.8.15"
   '@xmldom/xmldom@>=0.9.0 <0.9.12': "0.9.12"
   browserslist@<=4.28.6: "4.28.7"
-  brace-expansion: "5.0.9"
+  brace-expansion: "5.0.11"
+  compression@<1.8.2: "1.8.2"
   expo-constants: "18.0.14"
   js-yaml@>=3.0.0 <3.15.2: "3.15.2"
   js-yaml@>=4.0.0 <4.3.2: "4.3.2"
   nanoid@<3.3.18: "3.3.18"
   postcss@<8.5.18: "8.5.18"
-  sharp@<0.35.4: "0.35.4"
-  shell-quote: "1.9.0"
+  sharp@<0.35.5: "0.35.5"
+  shell-quote: "1.11.0"
+  source-map-js@<1.2.2: "1.2.2"
   tar@<7.5.21: "7.5.21"
   uuid@<11.1.1: "11.1.1"
-  undici: "6.27.0"
+  undici: "6.28.1"
   ws: "8.21.0"
 
 # Expo 54.0.37 is the current reviewed SDK-compatible patch set.
@@ -45,5 +47,7 @@ allowBuilds:
   "utf-8-validate": false
 
 patchedDependencies:
+  braces@3.0.3: patches/braces@3.0.3.patch
   minimatch@3.1.5: patches/minimatch@3.1.5.patch
   minimatch@9.0.9: patches/minimatch@9.0.9.patch
+  node-forge@1.4.0: patches/node-forge@1.4.0.patch
