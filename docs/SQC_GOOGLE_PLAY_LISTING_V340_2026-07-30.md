@@ -1,4 +1,6 @@
-# Side Quest Chess — exact Google Play listing pack
+# Side Quest Chess — legacy Google Play listing copy and assets
+
+> **SUPERSEDED OPERATIONS — legacy listing copy and asset evidence only.** The code-348 candidate and screenshot instructions are superseded; the instructions below are historical evidence. Do not use them for upload, tester, screenshot, or Console work. The code-349 upload-approval packet controls current candidate operations: `docs/SQC_GOOGLE_PLAY_INTERNAL_UPLOAD_REQUEST_CODE349_2026-08-10.md`.
 
 Prepared: 2026-07-30; candidate and asset inventory refreshed 2026-08-10
 
